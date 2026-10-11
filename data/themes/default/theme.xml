@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <themes>
-    <!-- 登录主题沿用参考图集；官方 TWL + Java2D 的度量差异在局部控件主题中校准。 -->
+    <!-- 登录主题沿用参考图集和字体，局部控件尺寸保持参考登录布局。 -->
     <constantDef name="main-color">
         <color>#5db1ff</color>
     </constantDef>
@@ -11,15 +11,38 @@
         <area name="background-image" xywh="*"/>
     </images>
     <images file="res/user-interface.png" filter="nearest">
-        <area name="field-cursor" xywh="0,496,1,1"/>
-        <area name="field-selection" xywh="0,496,1,1" tint="#6688CCFF"/>
+        <area name="-field-cursor" xywh="0,496,1,1" tint="sub-color"/>
+        <animation name="field-cursor" timeSource="keyboardFocus">
+            <frame ref="-field-cursor" duration="500"/>
+            <frame ref="none" duration="500"/>
+        </animation>
+        <area name="field-selection" xywh="0,496,1,1" tint="sub-color"/>
     </images>
     <fontDef name="default" filename="res/fonts/NotoSansCJK-Medium.ttc" color="#FFFFFF"/>
     <fontDef name="alphabeta" filename="res/fonts/NotoSansCJK-Medium.ttc" color="#FFFFFF"/>
-    <fontDef name="pb-dark" filename="res/fonts/NotoSansCJK-Medium.ttc" color="#FFFFFF"/>
+    <fontDef name="pb-dark" filename="res/fonts/NotoSansCJK-Medium.ttc" color="#FFFFFF">
+        <fontParam if="disabled" color="#A9A9A9"/>
+        <fontParam if="pressed" offsetX="1" offsetY="1"/>
+    </fontDef>
     <fontDef name="alphabeta-border" filename="res/fonts/NotoSansCJK-Medium.ttc" color="#FFFFFF" border_width="1" border_color="#434343"/>
     <fontDef name="title-font" filename="res/fonts/NotoSansCJK-Bold.ttc" color="#FFFFFF" size_cjk="15"/>
+    <fontDef name="listbox-display" filename="res/fonts/NotoSansCJK-Medium.ttc" color="#FFFFFF">
+        <fontParam if="disabled" color="#888888"/>
+    </fontDef>
     <images file="res/pokemmo_ui.png" filter="nearest">
+        <area name="ui-spacer.default" xywh="330,8,8,3"/>
+        <area name="ui-popup-button.selected" xywh="364,254,35,29" splitx="L4,R4" splity="T4,B4"/>
+        <area name="ui-popup-button.default" xywh="0,0,44,14" tint="#00FFFFFF"/>
+        <animation name="ui-popup-button.hover" timeSource="hover" count="1">
+            <frame duration="150" ref="ui-popup-button.selected" tint="#00FFFFFF"/>
+            <frame duration="1" ref="ui-popup-button.selected" tint="#FFFFFFFF"/>
+        </animation>
+        <select name="ui-popup-button.background">
+            <alias ref="ui-popup-button.selected" if="keyboardFocus | selected"/>
+            <alias ref="ui-popup-button.hover" if="hover"/>
+            <alias ref="ui-popup-button.default"/>
+        </select>
+        <area name="ui-popup.background" xywh="317,247,42,42" splitx="L5,R5" splity="T5,B5"/>
         <grid name="ui-inner-frame-tab.background" weightsX="0,1,0" weightsY="0,0,1,0" inset="-2,0,0,0">
             <area xywh="5,151,10,11"/>
             <area xywh="33,151,10,11" tiled="true"/>
@@ -159,7 +182,16 @@
             <alias ref="ui-inputbox.default"/>
         </select>
     </images>
+    <inputMapDef name="-defaultInputMap">
+        <action name="selectAll">ctrl A</action>
+        <action name="cut">ctrl X</action>
+        <action name="copy">ctrl C</action>
+        <action name="paste">ctrl V</action>
+    </inputMapDef>
     <theme name="-defaults">
+        <param name="inputMap">
+            <inputMap>-defaultInputMap</inputMap>
+        </param>
         <param name="font">
             <font>default</font>
         </param>
@@ -244,10 +276,10 @@
                 <font>pb-dark</font>
             </param>
             <param name="border">
-                <border>0,5</border>
+                <border>0</border>
             </param>
             <param name="textAlignment">
-                <enum type="alignment">TOPLEFT</enum>
+                <enum type="alignment">LEFT</enum>
             </param>
         </theme>
         <param name="autocompletion-height">
@@ -411,7 +443,63 @@
             <int>0</int>
         </param>
     </theme>
+    <!-- 参考 init.xml 的 menumanager / menupopup，用于输入框右键编辑菜单。 -->
+    <theme name="menupopup" ref="dialoglayout">
+        <param name="background">
+            <image>ui-popup.background</image>
+        </param>
+        <param name="border">
+            <border>5</border>
+        </param>
+        <param name="namedGaps">
+            <map>
+                <param name="menuitem">
+                    <gap>0</gap>
+                </param>
+            </map>
+        </param>
+        <theme name="button" ref="button">
+            <param name="background">
+                <image>ui-popup-button.background</image>
+            </param>
+            <param name="font">
+                <font>listbox-display</font>
+            </param>
+            <param name="border">
+                <border>5</border>
+            </param>
+            <param name="minWidth">
+                <int>80</int>
+            </param>
+        </theme>
+        <theme name="spacer" ref="-defaults">
+            <param name="background">
+                <image>ui-spacer.default</image>
+            </param>
+        </theme>
+    </theme>
+    <theme name="menumanager" ref="-defaults">
+        <param name="border">
+            <border>5</border>
+        </param>
+        <theme name="menupopup" ref="menupopup"/>
+    </theme>
     <theme name="logingui" ref="-defaults">
+        <theme name="notification" ref="label">
+            <param name="background">
+                <image>ui-popup.background</image>
+            </param>
+            <param name="border">
+                <!-- 参考外框、DialogLayout、Label 各 5 像素的内边距。 -->
+                <border>15</border>
+            </param>
+            <param name="font">
+                <font>pb-dark</font>
+            </param>
+            <param name="textAlignment">
+                <enum type="alignment">CENTER</enum>
+            </param>
+        </theme>
         <theme name="logo" ref="-defaults">
             <param name="background">
                 <image>background-image</image>
@@ -440,9 +528,12 @@
                 </theme>
                 <theme name="togglebutton" ref="togglebutton"/>
                 <theme name="editfield" ref="editfield">
-                    <!-- Java2D 的 X 字宽不同，显式保持参考界面的输入框宽度。 -->
+                    <!-- 保持参考登录表单的输入框尺寸，避免字体度量影响布局。 -->
                     <param name="minWidth">
                         <int>210</int>
+                    </param>
+                    <param name="minHeight">
+                        <int>30</int>
                     </param>
                 </theme>
             </theme>

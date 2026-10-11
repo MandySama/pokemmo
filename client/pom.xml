@@ -29,6 +29,18 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.badlogicgames.gdx</groupId>
+            <artifactId>gdx-freetype</artifactId>
+            <version>1.12.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.badlogicgames.gdx</groupId>
+            <artifactId>gdx-freetype-platform</artifactId>
+            <version>1.12.1</version>
+            <classifier>natives-desktop</classifier>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <groupId>top.totodile</groupId>
             <artifactId>twl-core</artifactId>
             <version>${project.version}</version>

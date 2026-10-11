@@ -4,8 +4,12 @@ import de.matthiasmann.twl.*;
 import de.matthiasmann.twl.theme.ThemeManager;
 import org.lwjgl.glfw.GLFW;
 import top.totodile.pokemmo.ClientFiles;
+import top.totodile.pokemmo.net.LoginConnection;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * 登录画面的最小 TWL 控件树，包含滚动背景、Logo 和登录表单。
@@ -13,8 +17,8 @@ import java.io.IOException;
  * 使用官方 TWL 核心，尚未移植参考客户端的全部定制控件和主题扩展。
  */
 public final class LoginScreen extends Widget implements AutoCloseable {
-    private final EditField account = new EditField();
-    private final EditField password = new EditField();
+    private final EditField account = new UsernameEditField();
+    private final EditField password = new LoginEditField();
     private final Label accountLabel = new Label("用户名:");
     private final Label passwordLabel = new Label("密 码:");
     private final Button login = new Button("登录");
@@ -23,12 +27,17 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     private final Label rememberLabel = new Label("记住我");
     private final ResizableFrame loginWindow = new ResizableFrame();
     private final DialogLayout form = new DialogLayout();
+    private final List<NotificationWindow> notifications = new ArrayList<>();
     private final Widget logo = new Widget();
     private final GlfwTwlRenderer renderer = new GlfwTwlRenderer();
     private final GUI gui;
     private final ThemeManager theme;
     private final ScrollingLoginBackground background;
     private final long startedAt = System.nanoTime();
+    private final LoginConnection connection = new LoginConnection();
+    private CompletableFuture<LoginConnection.Failure> loginResult;
+    private boolean loggingIn;
+    private long textCursor;
 
     public LoginScreen() throws IOException {
         // 父子主题名形成 logingui.logo 路径，Logo 图片由主题的 background 参数提供。
@@ -40,12 +49,14 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         account.setTheme("editfield");
         password.setTheme("editfield");
         password.setPasswordMasking(true);
-        account.setMaxTextLength(32);
-        password.setMaxTextLength(128);
         accountLabel.setLabelFor(account);
         passwordLabel.setLabelFor(password);
+        login.addCallback(this::submit);
         account.addCallback(key -> {
             if (key == Event.KEY_RETURN) password.requestKeyboardFocus();
+        });
+        password.addCallback(key -> {
+            if (key == Event.KEY_RETURN) submit();
         });
         rememberLabel.setLabelFor(remember);
         // 参考 fJ0：标签和输入框分为两列，底部一行放记住我和登录，注册暂不显示。
@@ -99,17 +110,79 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         loginWindow.adjustSize();
         loginWindow.setPosition(getInnerX() + (getInnerWidth() - loginWindow.getWidth()) / 2,
                 getInnerY() + (getInnerHeight() - loginWindow.getHeight()) / 2);
+        layoutNotifications();
+    }
+
+    private void layoutNotifications() {
+        // 参考 DesktopClientRootHost：旧提示在下，新提示向上排列，底部留 100 像素。
+        int bottom = getInnerBottom() - 100;
+        for (NotificationWindow notification : notifications) {
+            notification.adjustSize();
+            notification.setPosition(getInnerX() + (getInnerWidth() - notification.getWidth()) / 2,
+                    bottom - notification.getHeight());
+            bottom -= notification.getHeight() + 5;
+        }
     }
 
     /** 每帧先同步尺寸，再让 TWL 更新时间、校验布局并绘制控件。 */
     public void render(int width, int height, int framebufferWidth, int framebufferHeight) {
         renderer.resize(width, height, framebufferWidth, framebufferHeight);
+        updateLoginState(System.nanoTime());
         gui.update();
+    }
+
+    private void submit() {
+        if (loggingIn) return;
+        loggingIn = true;
+        login.setText("登录中...");
+        setFormEnabled(false);
+        loginResult = connection.connect();
+    }
+
+    /** 网络线程只返回结果，TWL 控件仍在绘制线程更新。 */
+    private void updateLoginState(long now) {
+        if (loggingIn && loginResult.isDone()) {
+            loggingIn = false;
+            login.setText("登录");
+            setFormEnabled(true);
+            showNotification(loginResult.join().getMessage(), now);
+            loginResult = null;
+            // 参考 Y20：失败后重新聚焦用户名；不改文本、光标或已有选区。
+            account.requestKeyboardFocus();
+        }
+        for (var iterator = notifications.iterator(); iterator.hasNext(); ) {
+            NotificationWindow notification = iterator.next();
+            if (notification.update(now)) {
+                iterator.remove();
+                removeChild(notification);
+            }
+        }
+        layoutNotifications();
+    }
+
+    private void setFormEnabled(boolean enabled) {
+        account.setEnabled(enabled);
+        password.setEnabled(enabled);
+        login.setEnabled(enabled);
+    }
+
+    private void showNotification(String message, long now) {
+        NotificationWindow notification = new NotificationWindow(renderer, message, now);
+        notifications.add(notification);
+        add(notification);
+        layoutNotifications();
     }
 
     /** GLFW 使用不同的键码，转换后交给 TWL 处理焦点和编辑行为。 */
     public void attachInput(long window) {
-        GLFW.glfwSetCursorPosCallback(window, (w, x, y) -> gui.handleMouse((int) x, (int) y, -1, false));
+        if (textCursor != 0) GLFW.glfwDestroyCursor(textCursor);
+        textCursor = GLFW.glfwCreateStandardCursor(GLFW.GLFW_IBEAM_CURSOR);
+        GLFW.glfwSetCursorPosCallback(window, (w, x, y) -> {
+            gui.handleMouse((int) x, (int) y, -1, false);
+            boolean overInput = !loggingIn && (account.isInside((int) x, (int) y)
+                    || password.isInside((int) x, (int) y));
+            GLFW.glfwSetCursor(w, overInput ? textCursor : 0);
+        });
         GLFW.glfwSetMouseButtonCallback(window, (w, button, action, mods) -> {
             double[] x = new double[1], y = new double[1];
             GLFW.glfwGetCursorPos(w, x, y);
@@ -129,7 +202,13 @@ public final class LoginScreen extends Widget implements AutoCloseable {
                     int index = 0;
                     while (index < order.length - 1 && !order[index].hasKeyboardFocus()) index++;
                     int direction = (mods & GLFW.GLFW_MOD_SHIFT) == 0 ? 1 : -1;
-                    order[Math.floorMod(index + direction, order.length)].requestKeyboardFocus();
+                    for (int i = 0; i < order.length; i++) {
+                        index = Math.floorMod(index + direction, order.length);
+                        if (order[index].isEnabled()) {
+                            order[index].requestKeyboardFocus();
+                            break;
+                        }
+                    }
                 }
                 return;
             }
@@ -147,7 +226,12 @@ public final class LoginScreen extends Widget implements AutoCloseable {
 
     @Override
     public void close() {
+        connection.close();
         // ThemeManager 销毁缓存上下文，连同主题加载的纹理一起释放。
         theme.destroy();
+        if (textCursor != 0) {
+            GLFW.glfwDestroyCursor(textCursor);
+            textCursor = 0;
+        }
     }
 }
