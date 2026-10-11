@@ -1,0 +1,153 @@
+package top.totodile.pokemmo.ui;
+
+import de.matthiasmann.twl.*;
+import de.matthiasmann.twl.theme.ThemeManager;
+import org.lwjgl.glfw.GLFW;
+import top.totodile.pokemmo.ClientFiles;
+
+import java.io.IOException;
+
+/**
+ * 登录画面的最小 TWL 控件树，包含滚动背景、Logo 和登录表单。
+ * 参考 ChatHistoryViewportComponent 的布局，以及默认主题中的 logingui/logo 定义。
+ * 使用官方 TWL 核心，尚未移植参考客户端的全部定制控件和主题扩展。
+ */
+public final class LoginScreen extends Widget implements AutoCloseable {
+    private final EditField account = new EditField();
+    private final EditField password = new EditField();
+    private final Label accountLabel = new Label("用户名:");
+    private final Label passwordLabel = new Label("密 码:");
+    private final Button login = new Button("登录");
+    // private final Button register = new Button("注册");
+    private final ToggleButton remember = new ToggleButton();
+    private final Label rememberLabel = new Label("记住我");
+    private final ResizableFrame loginWindow = new ResizableFrame();
+    private final DialogLayout form = new DialogLayout();
+    private final Widget logo = new Widget();
+    private final GlfwTwlRenderer renderer = new GlfwTwlRenderer();
+    private final GUI gui;
+    private final ThemeManager theme;
+    private final ScrollingLoginBackground background;
+    private final long startedAt = System.nanoTime();
+
+    public LoginScreen() throws IOException {
+        // 父子主题名形成 logingui.logo 路径，Logo 图片由主题的 background 参数提供。
+        setTheme("logingui");
+        logo.setTheme("logo");
+        logo.setMinSize(484, 143);
+        logo.setMaxSize(484, 143);
+        add(logo);
+        account.setTheme("editfield");
+        password.setTheme("editfield");
+        password.setPasswordMasking(true);
+        account.setMaxTextLength(32);
+        password.setMaxTextLength(128);
+        accountLabel.setLabelFor(account);
+        passwordLabel.setLabelFor(password);
+        account.addCallback(key -> {
+            if (key == Event.KEY_RETURN) password.requestKeyboardFocus();
+        });
+        rememberLabel.setLabelFor(remember);
+        // 参考 fJ0：标签和输入框分为两列，底部一行放记住我和登录，注册暂不显示。
+        form.setHorizontalGroup(form.createParallelGroup()
+                .addGroup(form.createSequentialGroup()
+                        .addGroup(form.createParallelGroup(accountLabel, passwordLabel))
+                        .addGroup(form.createParallelGroup(account, password)))
+                .addGroup(form.createSequentialGroup(remember, rememberLabel)
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        // .addWidget(register)
+                        .addWidget(login)));
+        form.setVerticalGroup(form.createSequentialGroup()
+                .addGroup(form.createParallelGroup(accountLabel, account))
+                .addGroup(form.createParallelGroup(passwordLabel, password))
+                .addGroup(form.createParallelGroup(remember, rememberLabel, login)));
+        loginWindow.setTheme("login-window");
+        loginWindow.setTitle("登录");
+        loginWindow.setResizableAxis(ResizableFrame.ResizableAxis.NONE);
+        loginWindow.setDraggable(false);
+        loginWindow.add(form);
+        add(loginWindow);
+        // GLFW 回调通过 attachInput 接入；GUI 负责控件树布局和绘制。
+        gui = new GUI(this, renderer, null);
+        // 主题从外部 data/themes/default 加载，图片 URL 相对于主题 XML 解析。
+        theme = ThemeManager.createThemeManager(
+                ClientFiles.data("themes/default/theme.xml").toUri().toURL(), renderer);
+        try {
+            // 复用主题缓存，关闭登录界面时统一释放 Logo 和背景纹理。
+            background = new ScrollingLoginBackground(renderer);
+            gui.applyTheme(theme);
+        } catch (IOException | RuntimeException exception) {
+            theme.destroy();
+            throw exception;
+        }
+    }
+
+    @Override
+    protected void paintWidget(GUI gui) {
+        // TWL 先绘制当前控件再绘制子控件，表单和 Logo 叠加在背景上方。
+        background.draw(getInnerX(), getInnerY(), getInnerWidth(), getInnerHeight(),
+                System.nanoTime() - startedAt);
+    }
+
+    @Override
+    protected void layout() {
+        // 与参考客户端一致：固定 484×143，在客户区居中后向上偏移 200。
+        logo.setSize(484, 143);
+        logo.setPosition(getInnerX() + (getInnerWidth() - logo.getWidth()) / 2,
+                getInnerY() + (getInnerHeight() - logo.getHeight()) / 2 - 200);
+        // 参考 K8：窗口使用主题和 DialogLayout 的首选尺寸，在客户区居中。
+        loginWindow.adjustSize();
+        loginWindow.setPosition(getInnerX() + (getInnerWidth() - loginWindow.getWidth()) / 2,
+                getInnerY() + (getInnerHeight() - loginWindow.getHeight()) / 2);
+    }
+
+    /** 每帧先同步尺寸，再让 TWL 更新时间、校验布局并绘制控件。 */
+    public void render(int width, int height, int framebufferWidth, int framebufferHeight) {
+        renderer.resize(width, height, framebufferWidth, framebufferHeight);
+        gui.update();
+    }
+
+    /** GLFW 使用不同的键码，转换后交给 TWL 处理焦点和编辑行为。 */
+    public void attachInput(long window) {
+        GLFW.glfwSetCursorPosCallback(window, (w, x, y) -> gui.handleMouse((int) x, (int) y, -1, false));
+        GLFW.glfwSetMouseButtonCallback(window, (w, button, action, mods) -> {
+            double[] x = new double[1], y = new double[1];
+            GLFW.glfwGetCursorPos(w, x, y);
+            if (button <= 2) gui.handleMouse((int) x[0], (int) y[0], button, action != 0);
+        });
+        GLFW.glfwSetCharCallback(window, (w, codepoint) -> {
+            if (Character.isBmpCodePoint(codepoint)) {
+                gui.handleKey(Event.KEY_NONE, (char) codepoint, true);
+                gui.handleKey(Event.KEY_NONE, (char) codepoint, false);
+            }
+        });
+        GLFW.glfwSetKeyCallback(window, (w, key, scan, action, mods) -> {
+            if (action == GLFW.GLFW_REPEAT) return;
+            if (key == GLFW.GLFW_KEY_TAB) {
+                if (action == GLFW.GLFW_PRESS) {
+                    Widget[] order = {account, password, remember, login};
+                    int index = 0;
+                    while (index < order.length - 1 && !order[index].hasKeyboardFocus()) index++;
+                    int direction = (mods & GLFW.GLFW_MOD_SHIFT) == 0 ? 1 : -1;
+                    order[Math.floorMod(index + direction, order.length)].requestKeyboardFocus();
+                }
+                return;
+            }
+            int translated = GlfwKeyMap.translate(key);
+            if (translated != Event.KEY_NONE) gui.handleKey(translated, Event.CHAR_NONE, action != 0);
+        });
+        GLFW.glfwSetWindowFocusCallback(window, (w, focused) -> {
+            if (!focused) {
+                gui.clearKeyboardState();
+                gui.clearMouseState();
+            }
+        });
+        account.requestKeyboardFocus();
+    }
+
+    @Override
+    public void close() {
+        // ThemeManager 销毁缓存上下文，连同主题加载的纹理一起释放。
+        theme.destroy();
+    }
+}
