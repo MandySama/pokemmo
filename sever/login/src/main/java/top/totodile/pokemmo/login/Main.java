@@ -4,19 +4,22 @@ import top.totodile.pokemmo.protocol.ServerKeys;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.Map;
 
-/** 本地登录服务入口，使用开发握手密钥和启动时初始化的内存账号。 */
+/** 本地登录服务入口，使用开发握手密钥和 PostgreSQL 账号。 */
 public final class Main {
     private Main() {
     }
 
     public static void main(String[] args) throws Exception {
-        String username = environment("POKEMMO_LOGIN_USERNAME", "test");
-        String password = environment("POKEMMO_LOGIN_PASSWORD", "test123456");
+        String username = environment("POKEMMO_LOGIN_USERNAME", "MandySa");
+        String password = environment("POKEMMO_LOGIN_PASSWORD", "yousa98672");
         String bind = System.getProperty("pokemmo.login.bind", "127.0.0.1");
         int port = Integer.getInteger("pokemmo.login.port", 2106);
-        var accounts = new MemoryAccountRepository(Map.of(username, password));
+        var database = new top.totodile.pokemmo.persistence.Database();
+        database.initialize();
+        var store = new top.totodile.pokemmo.persistence.AccountStore(database);
+        store.create(username, password);
+        var accounts = new PostgresAccountRepository(store);
         try (LoginServer server = new LoginServer(new InetSocketAddress(bind, port), accounts, ServerKeys.load(Main.class, "pokemmo.login.privateKey"))) {
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 try {
@@ -25,7 +28,7 @@ public final class Main {
                     System.err.println("Unable to close login listener: " + exception.getMessage());
                 }
             }, "login-shutdown"));
-            System.out.println("Login server listening on " + bind + ":" + server.port() + " (in-memory accounts)");
+            System.out.println("Login server listening on " + bind + ":" + server.port() + " (PostgreSQL accounts)");
             server.serve();
         }
     }

@@ -50,6 +50,9 @@ final class ClientManagementWindow extends ResizableFrame {
     private final Button openFolder = new FolderButton(ClientStrings.get(1174));
     private final Button close = new Button(ClientStrings.get(65));
 
+    private boolean restartRequired;
+    private boolean importing;
+
     ClientManagementWindow(Runnable onClose, Runnable onLanguageChanged, Consumer<String> notify) {
         this.notify = notify;
         try {
@@ -61,7 +64,12 @@ final class ClientManagementWindow extends ResizableFrame {
         setTitle(ClientStrings.get(1175));
         setResizableAxis(ResizableAxis.NONE);
         setDraggable(false);
-        addCloseCallback(onClose);
+        Runnable requestClose = () -> {
+            if (importing) return;
+            if (restartRequired) showMessage(ClientStrings.get(1179), onClose);
+            else onClose.run();
+        };
+        addCloseCallback(requestClose);
         content.setTheme("");
         add(content);
         for (int stringId : new int[]{1332, 92, 90, 91, 93, 94}) {
@@ -92,7 +100,7 @@ final class ClientManagementWindow extends ResizableFrame {
         openFolder.setTooltipContent(ClientStrings.get(1173));
         openFolder.addCallback(this::openRomFolder);
         content.add(openFolder);
-        close.addCallback(onClose);
+        close.addCallback(requestClose);
         content.add(close);
         refreshTexts();
     }
@@ -113,18 +121,22 @@ final class ClientManagementWindow extends ResizableFrame {
 
     private void importFile(int index, Path source) {
         GUI gui = getGUI();
+        importing = true;
         for (Button button : selectButtons) button.setEnabled(false);
         Thread.startVirtualThread(() -> {
             try {
                 Path imported = romFiles.importFile(index, source);
                 gui.invokeLater(() -> {
                     selectedFiles[index] = imported;
+                    restartRequired = true;
+                    importing = false;
                     refreshTexts();
                     notify.accept(ClientStrings.get(1184).replace("{00}", ClientStrings.get(new int[]{92, 90, 91, 93, 94}[index])));
                     for (Button button : selectButtons) button.setEnabled(true);
                 });
             } catch (IOException exception) {
                 gui.invokeLater(() -> {
+                    importing = false;
                     showMessage(exception.getMessage());
                     for (Button button : selectButtons) button.setEnabled(true);
                 });
@@ -136,6 +148,10 @@ final class ClientManagementWindow extends ResizableFrame {
         return selectedFiles[index];
     }
 
+    boolean restartRequired() {
+        return restartRequired;
+    }
+
     private void showInformation(int index) {
         String kind = ClientStrings.get(new int[]{92, 90, 91, 93, 94}[index]);
         Path file = selectedFiles[index];
@@ -144,6 +160,10 @@ final class ClientManagementWindow extends ResizableFrame {
     }
 
     private void showMessage(String text) {
+        showMessage(text, () -> {});
+    }
+
+    private void showMessage(String text, Runnable onConfirmed) {
         DialogLayout dialog = new DialogLayout();
         dialog.setTheme("confirm-panel");
         Label message = new Label(text);
@@ -159,7 +179,10 @@ final class ClientManagementWindow extends ResizableFrame {
         };
         popup.setTheme("/rom-modal");
         popup.setCloseOnClickedOutside(false);
-        ok.addCallback(popup::closePopup);
+        ok.addCallback(() -> {
+            popup.closePopup();
+            onConfirmed.run();
+        });
         dialog.setHorizontalGroup(dialog.createParallelGroup(message, ok));
         dialog.setVerticalGroup(dialog.createSequentialGroup().addWidget(message).addGap(5).addWidget(ok));
         popup.add(dialog);

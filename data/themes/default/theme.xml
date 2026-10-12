@@ -10,6 +10,11 @@
     <images file="res/bg.png" filter="nearest">
         <area name="background-image" xywh="*"/>
     </images>
+    <images file="res/avatar-ui.png" filter="nearest">
+        <area name="avatar.colorwheel" xywh="462,22,16,16" center="true"/>
+        <area name="avatar.arrow-left" xywh="426,22,16,16" sizeOverwriteH="32" sizeOverwriteV="32"/>
+        <area name="avatar.arrow-right" xywh="564,82,16,16" sizeOverwriteH="32" sizeOverwriteV="32"/>
+    </images>
     <images file="res/user-interface.png" filter="nearest">
         <grid name="tooltip-left.background" weightsX="0,1,0,1,0" weightsY="0,0,1,0" border="0,5,5,5">
             <area xywh="4,325,4,4"/>
@@ -222,6 +227,10 @@
         </select>
         <area name="ui-inputbox.default" xywh="326,8,16,16" splitx="L3,R3" splity="T3,B3"/>
         <area name="ui-inputbox.selected" xywh="326,26,16,16" splitx="L3,R3" splity="T3,B3" tint="sub-color"/>
+        <select name="character-card.background">
+            <composed if="selected"><alias ref="ui-inputbox.default"/><alias ref="ui-inputbox.selected"/></composed>
+            <alias ref="ui-inputbox.default"/>
+        </select>
         <select name="ui-inputbox.background">
             <composed if="selected | keyboardFocus">
                 <alias ref="ui-inputbox.default"/>
@@ -640,6 +649,12 @@
             </param>
         </theme>
         <theme name="mods-panel" ref="base-frame" allowWildcard="true">
+            <param name="maxWidth">
+                <int>510</int>
+            </param>
+            <param name="maxHeight">
+                <int>300</int>
+            </param>
             <param name="fadeDurationShow">
                 <int>0</int>
             </param>
@@ -711,10 +726,48 @@
                     </theme>
                     <theme name="vscrollbar" ref="comboboxPopup.listbox.vscrollbar"/>
                     <theme name="settings-label-area" ref="base-frame.dialoglayout" allowWildcard="true">
+                        <param name="defaultGap"><dimension>5,10</dimension></param>
                         <param name="border">
                             <border>0</border>
                         </param>
                         <theme name="label" ref="label"/>
+                        <theme name="mod-row" ref="base-frame.dialoglayout" allowWildcard="true">
+                            <param name="border"><border>0</border></param>
+                            <param name="defaultGap"><dimension>5,2</dimension></param>
+                            <theme name="icon" ref="-defaults">
+                                <param name="minWidth"><int>64</int></param>
+                                <param name="maxWidth"><int>64</int></param>
+                                <param name="minHeight"><int>64</int></param>
+                                <param name="maxHeight"><int>64</int></param>
+                            </theme>
+                            <theme name="label-settings-title" ref="label">
+                                <param name="background"><image>ui-header.background</image></param>
+                                <param name="minWidth"><int>220</int></param>
+                                <param name="minHeight"><int>28</int></param>
+                                <param name="border"><border>2,6,3,0</border></param>
+                            </theme>
+                            <theme name="mod-actions" ref="base-frame.dialoglayout" allowWildcard="true">
+                                <param name="background"><image>none</image></param>
+                                <param name="border"><border>3,0,0,0</border></param>
+                                <param name="defaultGap"><dimension>1,11</dimension></param>
+                                <param name="minWidth"><int>100</int></param>
+                                <param name="maxWidth"><int>250</int></param>
+                                <theme name="togglebutton" ref="togglebutton">
+                                    <param name="minHeight"><int>26</int></param>
+                                    <param name="maxHeight"><int>26</int></param>
+                                </theme>
+                                <theme name="button" ref="button">
+                                    <param name="border"><border>5,0</border></param>
+                                    <param name="minHeight"><int>26</int></param>
+                                    <param name="maxHeight"><int>26</int></param>
+                                </theme>
+                                <theme name="button-symbol" ref="button">
+                                    <param name="border"><border>5,0</border></param>
+                                    <param name="minHeight"><int>26</int></param>
+                                    <param name="maxHeight"><int>26</int></param>
+                                </theme>
+                            </theme>
+                        </theme>
                     </theme>
                 </theme>
             </theme>
@@ -858,7 +911,7 @@
                             <border>5</border>
                         </param>
                         <param name="textAlignment">
-                            <enum type="alignment">LEFT</enum>
+                            <enum type="alignment">CENTER</enum>
                         </param>
                     </theme>
                     <theme name="button" ref="-defaults">
@@ -878,6 +931,114 @@
                     <param name="minHeight">
                         <int>30</int>
                     </param>
+                </theme>
+            </theme>
+        </theme>
+        <theme name="loading" ref="label">
+            <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+        </theme>
+        <theme name="charactercreate-window" ref="base-frame" allowWildcard="true">
+            <theme name="color-wheel" ref="-defaults">
+                <param name="background"><image>avatar.colorwheel</image></param>
+            </theme>
+            <theme name="arrow-left" ref="-defaults">
+                <param name="background"><image>avatar.arrow-left</image></param>
+            </theme>
+            <theme name="arrow-right" ref="-defaults">
+                <param name="background"><image>avatar.arrow-right</image></param>
+            </theme>
+            <theme name="color-swatch" ref="button"/>
+            <theme name="color-confirm" ref="button"/>
+            <theme name="closeButton" ref="-defaults">
+                <param name="background"><image>frame-close</image></param>
+                <param name="minWidth"><int>5</int></param>
+                <param name="minHeight"><int>5</int></param>
+            </theme>
+            <param name="border"><border>5</border></param>
+            <param name="minWidth"><int>880</int></param>
+            <param name="minHeight"><int>680</int></param>
+            <param name="hasCloseButton"><bool>true</bool></param>
+            <param name="labelWidth"><int>148</int></param>
+            <param name="optionWidth"><int>258</int></param>
+            <param name="rowHeight"><int>40</int></param>
+            <param name="rowStep"><int>49</int></param>
+            <param name="rowTop"><int>46</int></param>
+            <param name="columnGap"><int>10</int></param>
+            <param name="previewGap"><int>24</int></param>
+            <param name="submitHeight"><int>50</int></param>
+            <param name="previewOrigin"><dimension>620,120</dimension></param>
+            <param name="arrowOrigin"><dimension>530,450</dimension></param>
+            <param name="paletteOrigin"><dimension>0,56</dimension></param>
+            <param name="colorArrowY"><int>500</int></param>
+            <param name="colorArrowSeparation"><int>350</int></param>
+            <param name="colorConfirmY"><int>200</int></param>
+            <param name="colorPreviewOrigin"><dimension>160,250</dimension></param>
+            <param name="colorConfirmSize"><dimension>150,50</dimension></param>
+            <param name="previewStep"><int>160</int></param>
+            <param name="spriteScale"><int>4</int></param>
+            <param name="portraitScale"><int>3</int></param>
+            <param name="arrowSize"><int>64</int></param>
+            <param name="arrowSeparation"><int>200</int></param>
+            <param name="paletteCell"><int>30</int></param>
+            <param name="paletteStep"><int>35</int></param>
+            <theme name="customization-label" ref="label">
+                <param name="font"><font>pb-dark</font></param>
+                <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+                <param name="background"><image>ui-header.background</image></param>
+                <param name="border"><border>3,3</border></param>
+            </theme>
+            <theme name="combobox" ref="-defaults" allowWildcard="true">
+                <param name="maximumRows"><int>8</int></param>
+                <param name="background"><image>language-combobox.background</image></param>
+                <param name="border"><border>0,8,0,8</border></param>
+                <theme name="display" ref="label">
+                    <param name="font"><font>pb-dark</font></param>
+                    <param name="border"><border>5</border></param>
+                    <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+                </theme>
+                <theme name="button" ref="-defaults">
+                    <param name="background"><image>ui-button-picker.background</image></param>
+                    <param name="border"><border>0,0,0,5</border></param>
+                </theme>
+            </theme>
+            <theme name="editfield" ref="editfield">
+                <theme name="renderer" ref="editfield.renderer">
+                    <param name="textAlignment"><enum type="alignment">LEFT</enum></param>
+                </theme>
+            </theme>
+            <theme name="submit" ref="button"/>
+        </theme>
+        <theme name="characterselect-window" ref="base-frame" allowWildcard="true">
+            <param name="hasCloseButton"><bool>false</bool></param>
+            <param name="border"><border>0</border></param>
+            <param name="cardWidth"><int>200</int></param>
+            <param name="cardHeight"><int>120</int></param>
+            <param name="cardGap"><int>5</int></param>
+            <param name="contentPadding"><int>14</int></param>
+            <param name="contentTop"><int>48</int></param>
+            <param name="actionHeight"><int>32</int></param>
+            <param name="actionGap"><int>8</int></param>
+            <theme name="button" ref="button"><param name="border"><border>7,7</border></param></theme>
+            <theme name="character-card" ref="-defaults" allowWildcard="true">
+                <param name="background"><image>character-card.background</image></param>
+                <param name="avatarTop"><int>27</int></param>
+                <param name="avatarLeft"><int>0</int></param>
+                <theme name="name" ref="label">
+                    <param name="font"><font>pb-dark</font></param>
+                    <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+                </theme>
+            </theme>
+            <theme name="container" ref="dialoglayout" allowWildcard="true">
+                <param name="border"><border>7,7</border></param>
+                <param name="defaultGap"><dimension>5,5</dimension></param>
+                <theme name="label" ref="label">
+                    <param name="font"><font>pb-dark</font></param>
+                    <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+                    <param name="border"><border>7,10</border></param>
+                    <param name="minHeight"><int>32</int></param>
+                </theme>
+                <theme name="button" ref="button">
+                    <param name="border"><border>7,7</border></param>
                 </theme>
             </theme>
         </theme>
@@ -975,10 +1136,7 @@
                         <enum type="alignment">LEFT</enum>
                     </param>
                 </theme>
-                <theme name="number" ref="-defaults" allowWildcard="true">
-                    <theme name="button" ref="button"/>
-                </theme>
-                <theme name="volume-number" ref="-defaults" allowWildcard="true">
+                <theme name="value-number" ref="-defaults" allowWildcard="true">
                     <param name="width">
                         <int>100</int>
                     </param>
@@ -990,9 +1148,11 @@
                     </param>
                     <theme name="valueDisplay" ref="button"/>
                     <theme name="valueEdit" ref="editfield">
-                        <param name="textAlignment">
-                            <enum type="alignment">CENTER</enum>
-                        </param>
+                        <theme name="renderer" ref="editfield.renderer">
+                            <param name="textAlignment">
+                                <enum type="alignment">CENTER</enum>
+                            </param>
+                        </theme>
                     </theme>
                     <theme name="decButton" ref="button">
                         <param name="minWidth">
@@ -1034,6 +1194,29 @@
                 </param>
             </theme>
             <theme name="button" ref="button"/>
+        </theme>
+        <theme name="character-delete-panel" ref="confirm-panel" allowWildcard="true">
+            <param name="border"><border>18</border></param>
+            <param name="minWidth"><int>244</int></param>
+            <theme name="label" ref="label">
+                <param name="font"><font>pb-dark</font></param>
+                <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+            </theme>
+            <theme name="editfield" ref="editfield">
+                <param name="minWidth"><int>208</int></param>
+                <param name="minHeight"><int>30</int></param>
+            </theme>
+            <theme name="button" ref="button">
+                <param name="minHeight"><int>28</int></param>
+            </theme>
+        </theme>
+        <theme name="character-delete-error" ref="confirm-panel" allowWildcard="true">
+            <param name="border"><border>18</border></param>
+            <theme name="label" ref="label">
+                <param name="font"><font>pb-dark</font></param>
+                <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+            </theme>
+            <theme name="button" ref="button"><param name="minHeight"><int>28</int></param></theme>
         </theme>
     </theme>
 </themes>

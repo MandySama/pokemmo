@@ -21,6 +21,7 @@ import java.nio.file.Path;
  */
 public class Main {
     public static void main(String[] args) throws IOException {
+        ClientRestart.initialize(args);
         if (!GLFW.glfwInit()) {
             throw new RuntimeException("Unable to initialize GLFW");
         }
@@ -61,7 +62,9 @@ public class Main {
             int[] windowWidth = new int[1];
             int[] windowHeight = new int[1];
             boolean shown = false;
+            ClientSettings previewSettings = mapPreview == null ? null : new ClientSettings();
             while (!GLFW.glfwWindowShouldClose(window)) {
+                long frameStartedAt = System.nanoTime();
                 GLFW.glfwPollEvents();
                 GLFW.glfwGetFramebufferSize(window, width, height);
                 if (width[0] == 0 || height[0] == 0) {
@@ -78,6 +81,7 @@ public class Main {
                     screen.render(windowWidth[0], windowHeight[0], width[0], height[0]);
                 }
                 GLFW.glfwSwapBuffers(window);
+                FrameLimiter.await(frameStartedAt, screen == null ? previewSettings.fpsLimit() : screen.fpsLimit());
                 if (!shown) {
                     GLFW.glfwShowWindow(window);
                     shown = true;
@@ -91,6 +95,7 @@ public class Main {
             GLFW.glfwDestroyWindow(window);
             GLFW.glfwTerminate();
         }
+        if (ClientRestart.pending()) System.exit(0);
     }
 
     /** 在主屏工作区内居中窗口并避开任务栏。 */

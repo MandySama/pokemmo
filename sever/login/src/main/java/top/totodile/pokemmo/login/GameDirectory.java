@@ -31,7 +31,7 @@ public final class GameDirectory {
 
     public static GameDirectory configured() {
         return new GameDirectory(List.of(new Node(Integer.getInteger("pokemmo.game.id", 1),
-                System.getProperty("pokemmo.game.name", "PokeMMO"),
+                System.getProperty("pokemmo.game.name", "Live"),
                 System.getProperty("pokemmo.game.host", "127.0.0.1"),
                 Integer.getInteger("pokemmo.game.port", 7777))));
     }

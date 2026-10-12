@@ -16,8 +16,13 @@ public final class Main {
         int port = Integer.getInteger("pokemmo.game.port", 7777);
         int id = Integer.getInteger("pokemmo.game.id", 1);
         int capacity = Integer.getInteger("pokemmo.game.capacity", 100);
+        var database = new top.totodile.pokemmo.persistence.Database();
+        database.initialize();
+        var catalog = new top.totodile.pokemmo.persistence.AvatarCatalog(java.nio.file.Path.of(
+                System.getProperty("pokemmo.avatar.pack", "data/sprites/addons.pak")));
+        var characters = new top.totodile.pokemmo.persistence.CharacterStore(database, catalog);
         try (GameServer server = new GameServer(new InetSocketAddress(bind, port), id, capacity,
-                ServerKeys.load(Main.class, "pokemmo.game.privateKey"), HandshakeKeys.rootPublicKey())) {
+                ServerKeys.load(Main.class, "pokemmo.game.privateKey"), HandshakeKeys.rootPublicKey(), characters)) {
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 try {
                     server.close();

@@ -3,7 +3,6 @@ package top.totodile.pokemmo.login;
 import top.totodile.pokemmo.protocol.LoginRequest;
 import top.totodile.pokemmo.protocol.LoginStatus;
 
-import java.security.MessageDigest;
 import java.util.HexFormat;
 
 /** 未找到账号和密码不符统一返回凭据错误。 */
@@ -21,14 +20,14 @@ public final class LoginService {
     }
 
     public LoginStatus authenticate(LoginRequest request) {
-        var expected = accounts.passwordDigest(request.username());
         if (request.credential().length > 0) {
+            var expected = accounts.passwordDigest(request.username());
             return expected.isPresent() && credentialKey != null && SavedLoginCredential.verify(credentialKey,
                     request.username(), expected.get(), request.credential())
                     ? LoginStatus.AUTHENTICATED : LoginStatus.INVALID_PASSWORD;
         }
         byte[] supplied = HexFormat.of().parseHex(request.passwordDigest());
-        return expected.isPresent() && MessageDigest.isEqual(expected.get(), supplied)
+        return accounts.verifyPassword(request.username(), supplied)
                 ? LoginStatus.AUTHENTICATED : LoginStatus.INVALID_PASSWORD;
     }
 

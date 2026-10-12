@@ -23,6 +23,16 @@ public final class MemoryAccountRepository implements AccountRepository {
     }
 
     @Override
+    public int accountId(String username) {
+        int id = 1;
+        for (String name : new java.util.TreeSet<>(accounts.keySet())) {
+            if (name.equals(username)) return id;
+            id++;
+        }
+        throw new IllegalArgumentException("Unknown account");
+    }
+
+    @Override
     public Optional<byte[]> passwordDigest(String username) {
         byte[] digest = accounts.get(username);
         return digest == null ? Optional.empty() : Optional.of(digest.clone());

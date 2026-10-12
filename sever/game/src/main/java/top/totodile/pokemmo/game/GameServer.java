@@ -28,9 +28,16 @@ public final class GameServer implements AutoCloseable {
     private final int capacity;
     private final PrivateKey handshakeKey;
     private final PublicKey ticketKey;
+    private final top.totodile.pokemmo.persistence.CharacterStore characters;
 
     public GameServer(InetSocketAddress address, int serverId, int capacity, PrivateKey handshakeKey,
                       PublicKey ticketKey) throws IOException {
+        this(address, serverId, capacity, handshakeKey, ticketKey, null);
+    }
+
+    public GameServer(InetSocketAddress address, int serverId, int capacity, PrivateKey handshakeKey,
+                      PublicKey ticketKey, top.totodile.pokemmo.persistence.CharacterStore characters) throws IOException {
+        this.characters = characters;
         if (serverId < 1 || serverId > 127 || capacity < 1 || capacity > 100) {
             throw new IllegalArgumentException("Invalid game server configuration");
         }
@@ -101,7 +108,8 @@ public final class GameServer implements AutoCloseable {
                 GameAdmission.Request request = GameAdmission.decodeRequest(packet);
                 GameTicket.Claims claims = GameTicket.verify(request.ticket(), ticketKey, serverId,
                         System.currentTimeMillis());
-                if (request.accountId() == claims.accountId() && admit(claims)) {
+                if (request.accountId() == claims.accountId()
+                        && (characters == null || characters.ownsAccount(claims.accountId(), claims.username())) && admit(claims)) {
                     accountId = claims.accountId();
                     accepted = true;
                 }
@@ -112,9 +120,41 @@ public final class GameServer implements AutoCloseable {
             if (!accepted) return;
             socket.setSoTimeout(45_000);
             while (!socket.isClosed()) {
-                channel.send(GameAdmission.heartbeatResponse(channel.receive()));
+                byte[] command = channel.receive();
+                if (command.length == 0) throw new IOException("Empty game command");
+                if (command[0] == 0x20) channel.send(GameAdmission.heartbeatResponse(command));
+                else if (command[0] == 2) {
+                    if (command.length != 1) throw new IOException("Malformed character list request");
+                    channel.send(CharacterPackets.listResponse(characters == null ? java.util.List.of() : characters.list(accountId)));
+                } else if (command[0] == 3) {
+                    CharacterPackets.CreationResult result;
+                    try {
+                        var appearance = CharacterPackets.decodeCreate(command);
+                        result = characters == null ? new CharacterPackets.CreationResult(CharacterPackets.Status.SYSTEM_ERROR, java.util.List.of())
+                                : characters.create(accountId, appearance);
+                    } catch (IOException exception) {
+                        result = new CharacterPackets.CreationResult(CharacterPackets.Status.INVALID, java.util.List.of());
+                    } catch (java.sql.SQLException exception) {
+                        LOGGER.log(System.Logger.Level.ERROR, "Unable to create character", exception);
+                        result = new CharacterPackets.CreationResult(CharacterPackets.Status.SYSTEM_ERROR, java.util.List.of());
+                    }
+                    channel.send(CharacterPackets.createResponse(result));
+                } else if (command[0] == 4) {
+                    CharacterPackets.CreationResult result;
+                    try {
+                        long id = CharacterPackets.decodeDelete(command);
+                        result = characters == null ? new CharacterPackets.CreationResult(CharacterPackets.Status.SYSTEM_ERROR, java.util.List.of())
+                                : characters.delete(accountId, id);
+                    } catch (IOException exception) {
+                        result = new CharacterPackets.CreationResult(CharacterPackets.Status.INVALID, java.util.List.of());
+                    } catch (java.sql.SQLException exception) {
+                        LOGGER.log(System.Logger.Level.ERROR, "Unable to delete character", exception);
+                        result = new CharacterPackets.CreationResult(CharacterPackets.Status.SYSTEM_ERROR, java.util.List.of());
+                    }
+                    channel.send(CharacterPackets.deleteResponse(result));
+                } else throw new IOException("Unexpected game command");
             }
-        } catch (IOException | GeneralSecurityException exception) {
+        } catch (IOException | GeneralSecurityException | java.sql.SQLException exception) {
             LOGGER.log(System.Logger.Level.DEBUG, "Game connection closed: {0}", exception.getClass().getSimpleName());
         } finally {
             if (accountId != null) accounts.remove(accountId);

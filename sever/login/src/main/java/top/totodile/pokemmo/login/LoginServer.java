@@ -31,8 +31,7 @@ public final class LoginServer implements AutoCloseable {
     private final LoginService service;
     private final PrivateKey rootKey;
     private final GameDirectory directory;
-    private final ConcurrentHashMap<String, Integer> accountIds = new ConcurrentHashMap<>();
-    private final java.util.concurrent.atomic.AtomicInteger nextAccountId = new java.util.concurrent.atomic.AtomicInteger();
+    private final AccountRepository accounts;
 
     public LoginServer(InetSocketAddress address, AccountRepository accounts, PrivateKey rootKey) throws IOException {
         this(address, accounts, rootKey, GameDirectory.configured());
@@ -40,6 +39,7 @@ public final class LoginServer implements AutoCloseable {
 
     public LoginServer(InetSocketAddress address, AccountRepository accounts, PrivateKey rootKey,
                        GameDirectory directory) throws IOException {
+        this.accounts = accounts;
         service = new LoginService(accounts, rootKey);
         this.rootKey = rootKey;
         this.directory = directory;
@@ -96,7 +96,7 @@ public final class LoginServer implements AutoCloseable {
             if (!credential.isEmpty()) {
                 channel.send(new PacketData(1024).putByte(7).putString(request.username()).putString(credential).written());
             }
-            int accountId = accountIds.computeIfAbsent(request.username(), name -> nextAccountId.incrementAndGet());
+            int accountId = accounts.accountId(request.username());
             String username = request.username();
             // 服务端选择阶段最多空闲两分钟，客户端收到断开时重新登录。
             socket.setSoTimeout(120_000);

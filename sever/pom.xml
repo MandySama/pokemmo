@@ -13,6 +13,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>persistence</module>
         <module>chat</module>
         <module>game</module>
         <module>login</module>

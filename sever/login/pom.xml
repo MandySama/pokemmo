@@ -12,6 +12,9 @@
     <artifactId>login</artifactId>
     <dependencies>
         <dependency>
+            <groupId>top.totodile</groupId><artifactId>persistence</artifactId><version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>top.totodile</groupId>
             <artifactId>protocol</artifactId>
             <version>${project.version}</version>

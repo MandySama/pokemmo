@@ -49,6 +49,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     private final List<NotificationWindow> notifications = new ArrayList<>();
     private final Widget logo = new Widget();
     private final Label romInfo = new Label(ClientStrings.get(1170) + "\nNDS: --\nGBA: --");
+    private String romInfoLines;
     private final Label fpsCounter = new Label("0.00");
     private final Label announcementTitle = new Label(ClientStrings.get(1004));
     private final List<Label> announcements = new ArrayList<>();
@@ -57,7 +58,8 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     private final List<Button> menuButtons = new ArrayList<>();
     private final ClientManagementWindow clientManagement = new ClientManagementWindow(
             this::closeClientManagement, this::refreshTexts, message -> showNotification(message, System.nanoTime()));
-    private final ModManagerWindow modManager = new ModManagerWindow(this::closeModManager);
+    private final ModManagerWindow modManager = new ModManagerWindow(this::closeModManager, this::restartClient,
+            message -> showNotification(message, System.nanoTime()));
     private final GameSettingsWindow settings = new GameSettingsWindow(this::closeSettings);
     private final GlfwTwlRenderer renderer = new GlfwTwlRenderer();
     private final GUI gui;
@@ -73,10 +75,16 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     private CompletableFuture<LoginConnection.Result> loginResult;
     private boolean loggingIn;
     private final ServerSelectionWindow serverSelection = new ServerSelectionWindow(this::joinServer, this::backToLogin);
+    private final CharacterSelectionWindow characterSelection = new CharacterSelectionWindow(this::openCharacterCreation, this::backToLogin);
+    private final CharacterCreationWindow characterCreation = new CharacterCreationWindow(this::closeCharacterCreation);
+    private boolean creatingCharacter;
+    private final Label loading = new Label(ClientStrings.get(55));
     private CompletableFuture<GameEndpoint> selectionResult;
     private CompletableFuture<GameConnection.Result> gameResult;
     private CompletableFuture<List<GameServerInfo>> serverListResult;
+    private java.util.concurrent.CompletableFuture<top.totodile.pokemmo.protocol.CharacterPackets.CreationResult> deletionResult;
     private GameConnection gameConnection;
+    private java.util.concurrent.CompletableFuture<top.totodile.pokemmo.protocol.CharacterPackets.CreationResult> characterResult;
     private String selectedServerName;
     private boolean gameConnected;
     private boolean authenticated;
@@ -172,6 +180,16 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         add(settings);
         serverSelection.setVisible(false);
         add(serverSelection);
+        characterSelection.setVisible(false);
+        add(characterSelection);
+        characterCreation.setVisible(false);
+        add(characterCreation);
+        characterCreation.setOnCreate(this::createCharacter);
+        characterSelection.setAssets(characterCreation.assets());
+        characterSelection.setOnDelete(this::deleteCharacter);
+        loading.setTheme("loading");
+        loading.setVisible(false);
+        add(loading);
         fpsCounter.setTheme("fpscounter");
         fpsCounter.setCanAcceptKeyboardFocus(false);
         add(fpsCounter);
@@ -188,6 +206,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
             settings.setAudioCallbacks(music::setVolume, music::setMuteWhenUnfocused);
             settings.setSaveFailed(message -> showNotification(message, System.nanoTime()));
             settings.setFpsVisibilityChanged(fpsCounter::setVisible);
+            refreshRomInfo();
         } catch (IOException | RuntimeException exception) {
             theme.destroy();
             throw exception;
@@ -298,7 +317,8 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         clientManagement.setSize(528, 300);
         clientManagement.setPosition(getInnerX() + (getInnerWidth() - clientManagement.getWidth()) / 2,
                 getInnerY() + (getInnerHeight() - clientManagement.getHeight()) / 2);
-        modManager.adjustSize();
+        modManager.setSize(Math.min(getInnerWidth() - 20, Math.min(modManager.getMaxWidth(), modManager.getPreferredWidth())),
+                Math.min(getInnerHeight() - 40, Math.min(modManager.getMaxHeight(), modManager.getPreferredHeight())));
         modManager.setPosition(getInnerX() + (getInnerWidth() - modManager.getWidth()) / 2,
                 getInnerY() + (getInnerHeight() - modManager.getHeight()) / 2);
         settings.setSize(585, 498);
@@ -307,6 +327,15 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         serverSelection.adjustSize();
         serverSelection.setPosition(getInnerX() + (getInnerWidth() - serverSelection.getWidth()) / 2,
                 getInnerY() + (getInnerHeight() - serverSelection.getHeight()) / 2);
+        characterSelection.adjustSize();
+        characterSelection.setPosition(getInnerX() + (getInnerWidth() - characterSelection.getWidth()) / 2,
+                getInnerY() + (getInnerHeight() - characterSelection.getHeight()) / 2);
+        characterCreation.setSize(characterCreation.getMinWidth(), characterCreation.getMinHeight());
+        characterCreation.setPosition(getInnerX() + (getInnerWidth() - characterCreation.getWidth()) / 2,
+                getInnerY() + (getInnerHeight() - characterCreation.getHeight()) / 2);
+        loading.adjustSize();
+        loading.setPosition(getInnerX() + (getInnerWidth() - loading.getWidth()) / 2,
+                getInnerY() + (getInnerHeight() - loading.getHeight()) / 2);
         for (int i = 0; i < menuButtons.size(); i++) {
             Button button = menuButtons.get(i);
             button.setSize(200, 26);
@@ -317,6 +346,8 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     }
 
     private void openClientManagement() {
+        characterSelection.setVisible(false);
+        characterCreation.setVisible(false);
         settings.setHardVisible(false);
         modManager.setHardVisible(false);
         loginWindow.setVisible(false);
@@ -327,12 +358,17 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     }
 
     private void openModManager() {
+        // 已显示时保留列表、滚动位置和后台操作状态，避免重复扫描造成控件重建。
+        if (modManager.isVisible()) return;
+        characterSelection.setVisible(false);
+        characterCreation.setVisible(false);
         settings.setHardVisible(false);
         clientManagement.setHardVisible(false);
         loginWindow.setVisible(false);
         serverSelection.setVisible(false);
         modManager.setEnabled(true);
         modManager.setHardVisible(true);
+        modManager.reload();
         modManager.requestKeyboardFocus();
     }
 
@@ -343,6 +379,8 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     }
 
     private void openSettings() {
+        characterSelection.setVisible(false);
+        characterCreation.setVisible(false);
         settings.resetView();
         clientManagement.setHardVisible(false);
         modManager.setHardVisible(false);
@@ -360,12 +398,25 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     }
 
     private void closeClientManagement() {
+        if (clientManagement.restartRequired()) {
+            restartClient();
+            return;
+        }
         // 返回登录页时不恢复输入框焦点；启动和登录失败的焦点分别由对应流程处理。
         clientManagement.setEnabled(false);
         clientManagement.setHardVisible(false);
         restoreMainWindow();
         romInfo.setVisible(true);
         for (Button button : menuButtons) button.setVisible(true);
+    }
+
+    private void restartClient() {
+        try {
+            top.totodile.pokemmo.ClientRestart.request();
+            GLFW.glfwSetWindowShouldClose(window, true);
+        } catch (IOException | RuntimeException exception) {
+            showNotification(ClientStrings.get(84), System.nanoTime());
+        }
     }
 
     private void layoutNotifications() {
@@ -381,7 +432,9 @@ public final class LoginScreen extends Widget implements AutoCloseable {
 
     private void restoreMainWindow() {
         loginWindow.setVisible(!authenticated);
-        serverSelection.setVisible(authenticated);
+        serverSelection.setVisible(authenticated && !gameConnected && !loading.isVisible());
+        characterSelection.setVisible(gameConnected && !creatingCharacter);
+        characterCreation.setVisible(gameConnected && creatingCharacter);
     }
 
     /** 每帧先同步尺寸，再让 TWL 更新时间、校验布局并绘制控件。 */
@@ -443,8 +496,49 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     }
 
     private void refreshRomInfo() {
-        romInfo.setText(ClientStrings.get(1170) + "\nNDS: " + (scene == null ? "--" : scene.title()) + "\nGBA: --");
+        // ROM 信息保留登录界面创建时的快照，导入后的变更在重启后显示。
+        if (romInfoLines == null) {
+            romInfoLines = "\nNDS: " + romTitles(false, 0, 3, 4)
+                    + "\nGBA: " + romTitles(true, 1, 2);
+        }
+        romInfo.setText(ClientStrings.get(1170) + romInfoLines);
         invalidateLayout();
+    }
+
+    private String romTitles(boolean gba, int... indexes) {
+        List<String> titles = new ArrayList<>();
+        for (int position = 0; position < indexes.length; position++) {
+            int index = indexes[position];
+            Path file = clientManagement.selectedRom(index);
+            if (file == null) {
+                if (position == 0) titles.add("--");
+                continue;
+            }
+            try (var input = java.nio.file.Files.newInputStream(file)) {
+                if (gba) {
+                    // GBA 显示 0xAC 处的游戏代码和 0xBC 处的修订号。
+                    input.skipNBytes(0xAC);
+                    byte[] code = input.readNBytes(4);
+                    if (code.length != 4) throw new IOException("Incomplete GBA game code");
+                    input.skipNBytes(12);
+                    int revision = input.read();
+                    if (revision < 0) throw new IOException("Missing GBA revision");
+                    titles.add(new String(code, java.nio.charset.StandardCharsets.US_ASCII) + " v1." + revision);
+                } else {
+                    byte[] header = input.readNBytes(12);
+                    if (header.length != 12) throw new IOException("Incomplete NDS title");
+                    String title = new String(header, java.nio.charset.StandardCharsets.US_ASCII);
+                    titles.add(position == 0 ? title : title.replaceAll("\\P{Print}", ""));
+                }
+            } catch (IOException exception) {
+                if (position == 0) titles.add("--");
+            }
+        }
+        return titles.isEmpty() ? "--" : String.join(", ", titles);
+    }
+
+    public int fpsLimit() {
+        return settings.fpsLimit();
     }
 
     private void reportSceneFailure(Throwable exception) {
@@ -477,20 +571,32 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         selectedServerName = connection.servers().stream().filter(server -> server.id() == serverId)
                 .map(GameServerInfo::name).findFirst().orElse("");
         serverSelection.setBusy(serverId);
+        serverSelection.setVisible(false);
+        loading.setVisible(true);
+        for (Button button : menuButtons) button.setEnabled(false);
         selectionResult = connection.select(serverId);
     }
 
     private void backToLogin() {
+        creatingCharacter = false;
+        setLoginDecorationsVisible(true);
+        characterCreation.setVisible(false);
         authenticated = false;
         connection.disconnect();
         if (gameConnection != null) gameConnection.close();
         gameConnection = null;
+        characterResult = null;
+        deletionResult = null;
+        characterSelection.close();
         gameConnected = false;
         selectionResult = null;
         gameResult = null;
         serverListResult = null;
         queuedServerId = null;
         serverSelection.setVisible(false);
+        characterSelection.setVisible(false);
+        loading.setVisible(false);
+        for (Button button : menuButtons) button.setEnabled(true);
         serverSelection.resetMessage();
         settings.setHardVisible(false);
         modManager.setHardVisible(false);
@@ -501,6 +607,41 @@ public final class LoginScreen extends Widget implements AutoCloseable {
 
     private void updateServerSelection(long now) {
         if (!authenticated) return;
+        if (deletionResult != null && deletionResult.isDone()) {
+            try {
+                var result = deletionResult.join();
+                if (result.status() == top.totodile.pokemmo.protocol.CharacterPackets.Status.SUCCESS) {
+                    characterSelection.setCharacters(result.characters());
+                    invalidateLayout();
+                } else showNotification(ClientStrings.get(9027), now);
+            } catch (CompletionException | java.util.concurrent.CancellationException exception) {
+                showNotification(ClientStrings.get(2014), now);
+            }
+            characterSelection.setBusy(false);
+            deletionResult = null;
+        }
+        if (characterResult != null && characterResult.isDone()) {
+            try {
+                var result = characterResult.join();
+                characterCreation.setSubmitting(false);
+                if (result.status() == top.totodile.pokemmo.protocol.CharacterPackets.Status.SUCCESS) {
+                    characterSelection.setCharacters(result.characters());
+                    closeCharacterCreation();
+                } else {
+                    int id = switch (result.status()) {
+                        case LIMIT_REACHED -> 9020;
+                        case NAME_TAKEN -> 9021;
+                        case INVALID -> 9022;
+                        default -> 9023;
+                    };
+                    showNotification(ClientStrings.get(id), now);
+                }
+            } catch (CompletionException | java.util.concurrent.CancellationException exception) {
+                characterCreation.setSubmitting(false);
+                showNotification(ClientStrings.get(2014), now);
+            }
+            characterResult = null;
+        }
         if (selectionResult != null && selectionResult.isDone()) {
             try {
                 GameEndpoint endpoint = selectionResult.join();
@@ -508,6 +649,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
                 gameResult = gameConnection.connect(endpoint);
             } catch (CompletionException | java.util.concurrent.CancellationException exception) {
                 serverSelection.resetMessage();
+                finishServerLoading();
                 int stringId = exception.getCause() instanceof GameEndpoint.Rejected rejected
                         ? rejected.status() == 6 ? 2002 : 75 : 2014;
                 showNotification(ClientStrings.get(stringId), now);
@@ -519,12 +661,16 @@ public final class LoginScreen extends Widget implements AutoCloseable {
             gameResult = null;
             if (result == GameConnection.Result.CONNECTED) {
                 gameConnected = true;
-                serverSelection.showConnected(selectedServerName);
+                characterSelection.setCharacters(gameConnection.characters());
+                finishServerLoading();
+                characterSelection.setVisible(true);
+                characterSelection.requestKeyboardFocus();
                 connection.disconnect();
             } else {
                 gameConnection.close();
                 gameConnection = null;
                 serverSelection.resetMessage();
+                finishServerLoading();
                 showNotification(ClientStrings.get(result == GameConnection.Result.REJECTED ? 50003 : 2014), now);
             }
         }
@@ -555,6 +701,53 @@ public final class LoginScreen extends Widget implements AutoCloseable {
                 serverListResult = connection.refresh();
             }
         }
+    }
+
+    private void finishServerLoading() {
+        loading.setVisible(false);
+        for (Button button : menuButtons) button.setEnabled(true);
+        serverSelection.setVisible(!gameConnected);
+        invalidateLayout();
+    }
+
+    private void deleteCharacter(long id) {
+        if (!gameConnected || deletionResult != null || characterResult != null) return;
+        characterSelection.setBusy(true);
+        deletionResult = gameConnection.deleteCharacter(id);
+    }
+
+    private void createCharacter(top.totodile.pokemmo.protocol.CharacterPackets.Appearance appearance) {
+        if (!gameConnected || characterResult != null) return;
+        characterCreation.setSubmitting(true);
+        characterResult = gameConnection.createCharacter(appearance);
+    }
+
+    private void openCharacterCreation() {
+        if (!gameConnected || creatingCharacter
+                || gameConnection.characters().size() >= top.totodile.pokemmo.protocol.CharacterPackets.LIMIT) return;
+        creatingCharacter = true;
+        setLoginDecorationsVisible(false);
+        characterCreation.reset();
+        characterSelection.setVisible(false);
+        characterCreation.setVisible(true);
+        characterCreation.requestKeyboardFocus();
+        invalidateLayout();
+    }
+
+    private void closeCharacterCreation() {
+        creatingCharacter = false;
+        setLoginDecorationsVisible(true);
+        characterCreation.setVisible(false);
+        restoreMainWindow();
+        characterSelection.requestKeyboardFocus();
+    }
+
+    private void setLoginDecorationsVisible(boolean visible) {
+        logo.setVisible(visible);
+        romInfo.setVisible(visible);
+        announcementTitle.setVisible(visible);
+        for (Label announcement : announcements) announcement.setVisible(visible);
+        for (Button button : menuButtons) button.setVisible(visible);
     }
 
     /** 网络线程只返回结果，TWL 控件仍在绘制线程更新。 */
@@ -611,8 +804,6 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     private void setFormEnabled(boolean enabled) {
         account.setEnabled(enabled);
         password.setEnabled(enabled && selectedCredential == null);
-        savedAccount.setEnabled(enabled);
-        clearCredential.setEnabled(enabled);
         login.setEnabled(enabled);
     }
 
@@ -665,7 +856,8 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         GLFW.glfwSetKeyCallback(window, (w, key, scan, action, mods) -> {
             if (action == GLFW.GLFW_REPEAT) return;
             if (clientManagement.isVisible() || modManager.isVisible() || settings.isVisible()
-                    || serverSelection.isVisible()) {
+                    || serverSelection.isVisible() || characterSelection.isVisible()
+                    || characterCreation.isVisible() || loading.isVisible()) {
                 int translated = GlfwKeyMap.translate(key);
                 if (translated != Event.KEY_NONE) gui.handleKey(translated, Event.CHAR_NONE, action != 0);
                 return;
@@ -704,6 +896,9 @@ public final class LoginScreen extends Widget implements AutoCloseable {
 
     @Override
     public void close() {
+        characterCreation.close();
+        characterSelection.close();
+        modManager.close();
         music.close();
         connection.close();
         if (gameConnection != null) gameConnection.close();

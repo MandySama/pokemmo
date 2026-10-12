@@ -31,6 +31,10 @@ final class GameSettingsWindow extends ResizableFrame {
     private Consumer<String> saveFailed = message -> { };
     private Consumer<Boolean> fpsVisibilityChanged = visible -> { };
 
+    int fpsLimit() {
+        return clientSettings.fpsLimit();
+    }
+
     void setFpsVisibilityChanged(Consumer<Boolean> changed) {
         fpsVisibilityChanged = changed;
         changed.accept(clientSettings.showFps());
@@ -102,11 +106,16 @@ final class GameSettingsWindow extends ResizableFrame {
         page.row(1250, combo(selectedResolution, resolutions));
         page.toggle("V-Sync", true);
         page.row(1217, combo(0, "OpenGL", "ANGLE"), 1218);
-        page.number(1254, 10, 1000, 60, 1);
+        page.number(1254, 10, 1000, clientSettings.fpsLimit(), 1, Integer::toString, clientSettings::setFpsLimit);
         page.number(1221, 3, 8, 3, 1, value -> value == 3 ? ClientStrings.get(1220) : Integer.toString(value));
         page.tooltip(1222);
         page.toggle(1297, false, 1298);
-        page.number(1264, 0, 4, 0, 1, value -> value == 0 ? ClientStrings.get(1265) : (1 << value) + "x");
+        int samples = org.lwjgl.opengl.GL.getCapabilities().OpenGL30
+                ? org.lwjgl.opengl.GL11.glGetInteger(org.lwjgl.opengl.GL30.GL_MAX_SAMPLES) : 0;
+        String vendor = org.lwjgl.opengl.GL11.glGetString(org.lwjgl.opengl.GL11.GL_VENDOR);
+        if (vendor != null && vendor.toLowerCase(java.util.Locale.ROOT).contains("intel")) samples = Math.min(samples, 8);
+        page.number(1264, 0, (int) Math.round(Math.sqrt(Math.min(samples, 16))), 0, 1,
+                value -> value == 0 ? ClientStrings.get(1265) : (1 << value) + "x");
         page.number(1241, 0, 100, 0, 1,
                 value -> value == 0 || value == 100 ? ClientStrings.get(1240) : Integer.toString(value));
         page.tooltip(1242);
@@ -380,49 +389,63 @@ final class GameSettingsWindow extends ResizableFrame {
 
         void number(int id, int min, int max, int value, int step, IntFunction<String> format,
                     IntConsumer changed) {
-            if (id == 1276 || id == 1277 || id == 1279) {
-                SimpleIntegerModel model = new SimpleIntegerModel(min, max, value);
-                ValueAdjusterInt number = new ValueAdjusterInt(model);
-                number.setTheme("volume-number");
-                // 点击数值编辑，回车或失焦提交，Esc 取消；模型负责限制数值范围。
-                ((Button) number.getChild(2)).setText("-");
-                ((Button) number.getChild(3)).setText("+");
-                model.addCallback(() -> changed.accept(model.getValue()));
-                row(id, number);
-                return;
-            }
-            Widget number = new Widget() {
-                private final Button decrease = new Button("-");
-                private final Button display = new Button();
-                private final Button increase = new Button("+");
-                private int current = value;
-
-                {
-                    setTheme("number");
-                    display.setText(format.apply(current));
-                    decrease.addCallback(() -> update(-step));
-                    increase.addCallback(() -> update(step));
-                    add(decrease);
-                    add(display);
-                    add(increase);
-                }
-
-                private void update(int delta) {
-                    current = Math.max(min, Math.min(max, current + delta));
-                    display.setText(format.apply(current));
-                    changed.accept(current);
+            SimpleIntegerModel model = new SimpleIntegerModel(min, max, value);
+            ValueAdjusterInt number = new ValueAdjusterInt(model) {
+                @Override
+                protected String formatText() {
+                    return format == null ? Integer.toString(getValue()) : format.apply(getValue());
                 }
 
                 @Override
-                protected void layout() {
-                    decrease.setPosition(getX(), getY());
-                    decrease.setSize(30, getHeight());
-                    display.setPosition(decrease.getRight(), getY());
-                    display.setSize(getWidth() - 60, getHeight());
-                    increase.setPosition(display.getRight(), getY());
-                    increase.setSize(30, getHeight());
+                protected boolean onEditEnd(String text) {
+                    try {
+                        setValue(parse(text));
+                        return true;
+                    } catch (NumberFormatException exception) {
+                        return false;
+                    }
+                }
+
+                @Override
+                protected String validateEdit(String text) {
+                    try {
+                        parse(text);
+                        return null;
+                    } catch (NumberFormatException exception) {
+                        return exception.toString();
+                    }
+                }
+
+                private int parse(String text) {
+                    // 保留已显示的特殊值，并接受带单位的数值输入。
+                    if (text.equals(format.apply(getValue()))) return getValue();
+                    if (id == 1221 && text.equals(ClientStrings.get(1220))) return min;
+                    if (id == 1241 && text.equals(ClientStrings.get(1240))) return min;
+                    if (id == 1264 && text.equals(ClientStrings.get(1265))) return min;
+                    if (id == 1325 && text.equals(ClientStrings.get(1394))) return max;
+                    int parsed = Integer.parseInt(text.replace("x", "").replace("%", "").trim());
+                    if (id == 1264 || id == 1237 || id == 1238) {
+                        if (parsed < 0) throw new NumberFormatException("Negative scale");
+                        parsed = (int) Math.round(Math.sqrt(parsed));
+                    }
+                    return parsed;
+                }
+
+                @Override
+                protected void doDecrement() {
+                    setValue(getValue() - step);
+                }
+
+                @Override
+                protected void doIncrement() {
+                    setValue(getValue() + step);
                 }
             };
+            number.setTheme("value-number");
+            // 点击数值编辑，回车或失焦提交，Esc 取消；模型负责限制数值范围。
+            ((Button) number.getChild(2)).setText("-");
+            ((Button) number.getChild(3)).setText("+");
+            model.addCallback(() -> changed.accept(model.getValue()));
             row(id, number);
         }
 
@@ -445,7 +468,7 @@ final class GameSettingsWindow extends ResizableFrame {
         }
 
         private boolean isNumber(Widget widget) {
-            return widget.getTheme().equals("number") || widget instanceof ValueAdjusterInt;
+            return widget instanceof ValueAdjusterInt;
         }
 
         @Override

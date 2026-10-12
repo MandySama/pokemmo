@@ -244,6 +244,12 @@ final class GlfwTwlRenderer implements Renderer {
     }
 
     Image uploadText(java.awt.image.BufferedImage image) {
+        Texture texture = uploadImage(image);
+        return texture.getImage(0, 0, image.getWidth(), image.getHeight(), Color.WHITE, false, Texture.Rotation.NONE);
+    }
+
+    /** 调用方可提前销毁纹理，主题缓存同时保证退出时释放仍存活的纹理。 */
+    Texture uploadImage(java.awt.image.BufferedImage image) {
         var pixels = org.lwjgl.BufferUtils.createByteBuffer(image.getWidth() * image.getHeight() * 4);
         for (int y = 0; y < image.getHeight(); y++) {
             for (int x = 0; x < image.getWidth(); x++) {
@@ -260,7 +266,7 @@ final class GlfwTwlRenderer implements Renderer {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image.getWidth(), image.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
         ImageTexture texture = new ImageTexture(id, image.getWidth(), image.getHeight());
         ((ImageCache) getActiveCacheContext()).textures.add(texture);
-        return texture.getImage(0, 0, image.getWidth(), image.getHeight(), Color.WHITE, false, Texture.Rotation.NONE);
+        return texture;
     }
 
     /** 记录当前主题加载的纹理，在 ThemeManager.destroy() 时统一释放。 */

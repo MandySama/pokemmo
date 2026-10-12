@@ -11,10 +11,12 @@ public final class ClientSettings {
     private static final String VOLUME = "client.sound_engine.music_volume";
     private static final String MUTE = "client.sound_engine.music_mute_when_unfocused";
     private static final String SHOW_FPS = "client.graphics.show_fps";
+    private static final String FPS_LIMIT = "client.graphics.max_fpx";
     private final Path file;
     private int volume = 50;
     private boolean muteWhenUnfocused = true;
     private boolean showFps;
+    private int fpsLimit = 60;
 
     public ClientSettings() {
         this(ClientFiles.data("../config/main.properties").normalize());
@@ -27,6 +29,7 @@ public final class ClientSettings {
             setVolume(Integer.parseInt(values.getProperty(VOLUME, "50")));
             muteWhenUnfocused = Boolean.parseBoolean(values.getProperty(MUTE, "true"));
             showFps = Boolean.parseBoolean(values.getProperty(SHOW_FPS, "false"));
+            setFpsLimit(Integer.parseInt(values.getProperty(FPS_LIMIT, "60")));
         } catch (IOException | IllegalArgumentException exception) {
             System.getLogger(ClientSettings.class.getName()).log(System.Logger.Level.WARNING,
                     "Unable to load client settings: {0}", exception.getClass().getSimpleName());
@@ -57,11 +60,20 @@ public final class ClientSettings {
         this.showFps = showFps;
     }
 
+    public int fpsLimit() {
+        return fpsLimit;
+    }
+
+    public void setFpsLimit(int fpsLimit) {
+        this.fpsLimit = Math.max(10, Math.min(1000, fpsLimit));
+    }
+
     public void save() throws IOException {
         Properties values = read();
         values.setProperty(VOLUME, Integer.toString(volume));
         values.setProperty(MUTE, Boolean.toString(muteWhenUnfocused));
         values.setProperty(SHOW_FPS, Boolean.toString(showFps));
+        values.setProperty(FPS_LIMIT, Integer.toString(fpsLimit));
         Path directory = file.toAbsolutePath().getParent();
         Files.createDirectories(directory);
         Path temporary = Files.createTempFile(directory, "settings-", ".tmp");
