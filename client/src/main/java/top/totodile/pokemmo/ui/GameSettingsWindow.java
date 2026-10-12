@@ -2,16 +2,20 @@ package top.totodile.pokemmo.ui;
 
 import de.matthiasmann.twl.*;
 import de.matthiasmann.twl.model.SimpleChangableListModel;
+import de.matthiasmann.twl.model.SimpleIntegerModel;
 import org.lwjgl.glfw.GLFW;
 import top.totodile.pokemmo.ClientStrings;
+import top.totodile.pokemmo.ClientSettings;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.function.IntFunction;
+import java.util.function.IntConsumer;
+import java.util.function.Consumer;
 
-/** 设置界面的选项值仅保存在控件中，不改变运行参数或写入配置。 */
+/** 音乐与帧率显示设置即时生效，点击保存后写入配置；其余选项仅保存在控件中。 */
 final class GameSettingsWindow extends ResizableFrame {
     private static final int[] CATEGORY_IDS = {1201, 1202, 1210, 1204, 1203, 1206, 1208, 1209, 1211};
     private final List<ToggleButton> categories = new ArrayList<>();
@@ -21,6 +25,27 @@ final class GameSettingsWindow extends ResizableFrame {
     private ComboBox<String> interfaceScale;
     private int scaleWidth;
     private int scaleHeight;
+    private IntConsumer musicVolumeChanged = value -> { };
+    private Consumer<Boolean> focusMuteChanged = value -> { };
+    private final ClientSettings clientSettings = new ClientSettings();
+    private Consumer<String> saveFailed = message -> { };
+    private Consumer<Boolean> fpsVisibilityChanged = visible -> { };
+
+    void setFpsVisibilityChanged(Consumer<Boolean> changed) {
+        fpsVisibilityChanged = changed;
+        changed.accept(clientSettings.showFps());
+    }
+
+    void setAudioCallbacks(IntConsumer musicVolumeChanged, Consumer<Boolean> focusMuteChanged) {
+        this.musicVolumeChanged = musicVolumeChanged;
+        this.focusMuteChanged = focusMuteChanged;
+        musicVolumeChanged.accept(clientSettings.volume());
+        focusMuteChanged.accept(clientSettings.muteWhenUnfocused());
+    }
+
+    void setSaveFailed(Consumer<String> saveFailed) {
+        this.saveFailed = saveFailed;
+    }
 
     GameSettingsWindow(Runnable onClose) {
         setTheme("/settings-panel");
@@ -46,6 +71,14 @@ final class GameSettingsWindow extends ResizableFrame {
         buildTools();
         page().toggle(1387, true, 0);
         cancel.addCallback(onClose);
+        save.addCallback(() -> {
+            try {
+                clientSettings.save();
+                onClose.run();
+            } catch (java.io.IOException exception) {
+                saveFailed.accept(ClientStrings.get(2000));
+            }
+        });
         add(cancel);
         add(save);
         selectPage(0);
@@ -88,11 +121,20 @@ final class GameSettingsWindow extends ResizableFrame {
 
     private void buildAudio() {
         SettingsPage page = page();
-        page.number(1276, 0, 100, 100, 1);
+        page.number(1276, 0, 100, clientSettings.volume(), 1, Integer::toString, value -> {
+            clientSettings.setVolume(value);
+            musicVolumeChanged.accept(value);
+        });
         page.number(1277, 0, 100, 100, 1);
         page.number(1279, 0, 100, 100, 1);
         page.combo(1365, 0, 1366);
-        page.toggle(1282, false, 0);
+        ToggleButton mute = new ToggleButton();
+        mute.setActive(clientSettings.muteWhenUnfocused());
+        mute.addCallback(() -> {
+            clientSettings.setMuteWhenUnfocused(mute.isActive());
+            focusMuteChanged.accept(mute.isActive());
+        });
+        page.row(1282, mute);
         page.number(1283, 0, 100, 100, 1, value -> value + "%");
         page.toggle(1343, true, 0);
     }
@@ -107,7 +149,13 @@ final class GameSettingsWindow extends ResizableFrame {
         page.toggle(1245, true, 1246);
         page.toggle(1236, false, 0);
         page.toggle(1261, false, 0);
-        page.toggle(1258, false, 0);
+        ToggleButton showFps = new ToggleButton();
+        showFps.setActive(clientSettings.showFps());
+        showFps.addCallback(() -> {
+            clientSettings.setShowFps(showFps.isActive());
+            fpsVisibilityChanged.accept(showFps.isActive());
+        });
+        page.row(1258, showFps);
         page.toggle(1248, true, 1249);
         page.combo(1319, 1, 1320, 1321, 1322);
         page.combo(1318, 1, 1320, 1321, 1322);
@@ -224,6 +272,15 @@ final class GameSettingsWindow extends ResizableFrame {
         interfaceScale.setSelected(0);
     }
 
+    /** 每次打开时从影像页顶部开始浏览。 */
+    void resetView() {
+        selectPage(0);
+        for (ScrollPane page : pages) {
+            page.setScrollPositionX(0);
+            page.setScrollPositionY(0);
+        }
+    }
+
     private void selectPage(int index) {
         for (int i = 0; i < pages.size(); i++) {
             categories.get(i).setActive(i == index);
@@ -318,6 +375,22 @@ final class GameSettingsWindow extends ResizableFrame {
         }
 
         void number(int id, int min, int max, int value, int step, IntFunction<String> format) {
+            number(id, min, max, value, step, format, current -> { });
+        }
+
+        void number(int id, int min, int max, int value, int step, IntFunction<String> format,
+                    IntConsumer changed) {
+            if (id == 1276 || id == 1277 || id == 1279) {
+                SimpleIntegerModel model = new SimpleIntegerModel(min, max, value);
+                ValueAdjusterInt number = new ValueAdjusterInt(model);
+                number.setTheme("volume-number");
+                // 点击数值编辑，回车或失焦提交，Esc 取消；模型负责限制数值范围。
+                ((Button) number.getChild(2)).setText("-");
+                ((Button) number.getChild(3)).setText("+");
+                model.addCallback(() -> changed.accept(model.getValue()));
+                row(id, number);
+                return;
+            }
             Widget number = new Widget() {
                 private final Button decrease = new Button("-");
                 private final Button display = new Button();
@@ -337,6 +410,7 @@ final class GameSettingsWindow extends ResizableFrame {
                 private void update(int delta) {
                     current = Math.max(min, Math.min(max, current + delta));
                     display.setText(format.apply(current));
+                    changed.accept(current);
                 }
 
                 @Override
@@ -367,7 +441,11 @@ final class GameSettingsWindow extends ResizableFrame {
         }
 
         private int rowHeight(Widget[] row) {
-            return row.length > 1 && row[1].getTheme().equals("number") ? 31 : 28;
+            return row.length > 1 && isNumber(row[1]) ? 31 : 28;
+        }
+
+        private boolean isNumber(Widget widget) {
+            return widget.getTheme().equals("number") || widget instanceof ValueAdjusterInt;
         }
 
         @Override
@@ -379,7 +457,7 @@ final class GameSettingsWindow extends ResizableFrame {
                 row[0].setPosition(getX() + 2, y);
                 row[0].setSize(row.length == 1 ? 475 : 220, height);
                 if (row.length > 1) {
-                    boolean number = row[1].getTheme().equals("number");
+                    boolean number = isNumber(row[1]);
                     row[1].setPosition(getX() + 232, number ? y : y + 1);
                     row[1].setSize(250, number ? height : 26);
                 }

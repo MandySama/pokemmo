@@ -6,11 +6,14 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
+import top.totodile.pokemmo.rom.FireRedMap;
+import top.totodile.pokemmo.rom.GbaMapPreview;
 import top.totodile.pokemmo.ui.LoginScreen;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * 桌面客户端入口：负责 GLFW 窗口、图标、OpenGL 上下文与帧循环。
@@ -30,6 +33,7 @@ public class Main {
             throw new RuntimeException("Couldn't create window");
         }
         LoginScreen screen = null;
+        GbaMapPreview mapPreview = null;
         try {
             centerWindow(window);
             setWindowIcon(window, "icons/128x128.png", "icons/32x32.png", "icons/16x16.png");
@@ -37,8 +41,19 @@ public class Main {
             GLFW.glfwMakeContextCurrent(window);
             GL.createCapabilities();
             GLFW.glfwSwapInterval(1);
-            screen = new LoginScreen();
-            screen.attachInput(window);
+            if ("kanto".equals(System.getProperty("pokemmo.preview.map"))) {
+                Path rom = new RomFiles(ClientFiles.data("../roms")).selected(1);
+                if (rom == null) throw new IOException("请先在客户端管理中导入火红 ROM。");
+                int group = Integer.getInteger("pokemmo.preview.group", 4);
+                int map = Integer.getInteger("pokemmo.preview.id", 1);
+                boolean enhanced = Boolean.parseBoolean(System.getProperty("pokemmo.preview.enhanced", "true"));
+                mapPreview = new GbaMapPreview(FireRedMap.load(rom, group, map, enhanced));
+                GLFW.glfwSetWindowTitle(window, "PokeMMO - 关都地图 " + group + "/" + map
+                        + (enhanced ? "（增强）" : "（原始）"));
+            } else {
+                screen = new LoginScreen();
+                screen.attachInput(window);
+            }
             GL11.glClearColor(0f, 0f, 0f, 1f);
             // 帧缓冲尺寸用于像素绘制，窗口尺寸用于 UI 布局；高 DPI 下两者可能不同。
             int[] width = new int[1];
@@ -57,7 +72,11 @@ public class Main {
                 GL11.glViewport(0, 0, width[0], height[0]);
                 GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
                 GLFW.glfwGetWindowSize(window, windowWidth, windowHeight);
-                screen.render(windowWidth[0], windowHeight[0], width[0], height[0]);
+                if (mapPreview != null) {
+                    mapPreview.render(width[0], height[0]);
+                } else {
+                    screen.render(windowWidth[0], windowHeight[0], width[0], height[0]);
+                }
                 GLFW.glfwSwapBuffers(window);
                 if (!shown) {
                     GLFW.glfwShowWindow(window);
@@ -67,6 +86,7 @@ public class Main {
         } finally {
             // 先释放主题持有的 GPU 纹理；窗口销毁后其 OpenGL 上下文不再可用。
             if (screen != null) screen.close();
+            if (mapPreview != null) mapPreview.close();
             org.lwjgl.glfw.Callbacks.glfwFreeCallbacks(window);
             GLFW.glfwDestroyWindow(window);
             GLFW.glfwTerminate();

@@ -9,6 +9,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>protocol</module>
         <module>twl-core</module>
         <module>client</module>
         <module>sever</module>

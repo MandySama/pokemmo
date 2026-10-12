@@ -10,4 +10,11 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     <artifactId>game</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>top.totodile</groupId>
+            <artifactId>protocol</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>

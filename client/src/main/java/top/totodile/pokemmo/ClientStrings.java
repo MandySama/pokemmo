@@ -71,6 +71,10 @@ public final class ClientStrings {
         return LANGUAGE_NAMES.values().toArray(String[]::new);
     }
 
+    public static String languageCode() {
+        return selectedLanguage;
+    }
+
     public static int selectedIndex() {
         return new ArrayList<>(LANGUAGE_NAMES.keySet()).indexOf(selectedLanguage);
     }

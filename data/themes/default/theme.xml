@@ -42,6 +42,7 @@
             <frame ref="-field-cursor" duration="500"/>
             <frame ref="none" duration="500"/>
         </animation>
+        <area name="modal-shade" xywh="0,496,1,1" tint="#80000000"/>
         <area name="field-selection" xywh="0,496,1,1" tint="sub-color"/>
     </images>
     <fontDef name="default" filename="res/fonts/NotoSansCJK-Medium.ttc" color="#FFFFFF"/>
@@ -63,6 +64,7 @@
         <fontParam if="disabled" color="#888888"/>
     </fontDef>
     <images file="res/pokemmo_ui.png" filter="nearest">
+        <area name="announcement-background" tint="#99949494" xywh="9,191,5,5"/>
         <area name="ui-tab-vertical.active" xywh="4,281,34,17" splitx="L6,R0" inset="0,-18,0,0"/>
         <area name="ui-tab-vertical.default" xywh="25,281,34,17" splitx="L6,R0"/>
         <select name="ui-tab-vertical.background">
@@ -484,6 +486,15 @@
             <int>0</int>
         </param>
     </theme>
+    <theme name="editfield-errorinfowindow" ref="-defaults" allowWildcard="true">
+        <param name="background">
+            <image>tooltip-left.background</image>
+        </param>
+        <param name="border">
+            <border>5</border>
+        </param>
+        <theme name="label" ref="label"/>
+    </theme>
     <theme name="tooltipwindow" ref="-defaults">
         <param name="background">
             <image>tooltip-left.background</image>
@@ -612,6 +623,22 @@
         </theme>
     </theme>
     <theme name="logingui" ref="-defaults">
+        <theme name="announcement-title" ref="label">
+            <param name="font">
+                <font>title-font</font>
+            </param>
+        </theme>
+        <theme name="announcement-item" ref="label">
+            <param name="background">
+                <image>announcement-background</image>
+            </param>
+            <param name="border">
+                <border>5</border>
+            </param>
+            <param name="font">
+                <font>alphabeta</font>
+            </param>
+        </theme>
         <theme name="mods-panel" ref="base-frame" allowWildcard="true">
             <param name="fadeDurationShow">
                 <int>0</int>
@@ -762,6 +789,14 @@
                 </theme>
             </theme>
         </theme>
+        <theme name="fpscounter" ref="-defaults">
+            <param name="font">
+                <font>alphabeta-border</font>
+            </param>
+            <param name="textAlignment">
+                <enum type="alignment">RIGHT</enum>
+            </param>
+        </theme>
         <theme name="menu-button" ref="button"/>
         <theme name="notification" ref="label">
             <param name="background">
@@ -805,6 +840,36 @@
                     </param>
                 </theme>
                 <theme name="togglebutton" ref="togglebutton"/>
+                <theme name="combobox" ref="-defaults" allowWildcard="true">
+                    <param name="background">
+                        <image>language-combobox.background</image>
+                    </param>
+                    <param name="border">
+                        <border>0,8,0,8</border>
+                    </param>
+                    <param name="minWidth">
+                        <int>210</int>
+                    </param>
+                    <param name="minHeight">
+                        <int>30</int>
+                    </param>
+                    <theme name="display" ref="label">
+                        <param name="border">
+                            <border>5</border>
+                        </param>
+                        <param name="textAlignment">
+                            <enum type="alignment">LEFT</enum>
+                        </param>
+                    </theme>
+                    <theme name="button" ref="-defaults">
+                        <param name="background">
+                            <image>ui-button-picker.background</image>
+                        </param>
+                        <param name="border">
+                            <border>0,0,0,5</border>
+                        </param>
+                    </theme>
+                </theme>
                 <theme name="editfield" ref="editfield">
                     <!-- 固定登录表单的输入框尺寸，避免字体度量影响布局。 -->
                     <param name="minWidth">
@@ -815,6 +880,28 @@
                     </param>
                 </theme>
             </theme>
+        </theme>
+        <theme name="serverselect-window" ref="login-window" allowWildcard="true">
+            <param name="hasCloseButton">
+                <bool>true</bool>
+            </param>
+            <theme name="closeButton" ref="-defaults">
+                <param name="background">
+                    <image>frame-close</image>
+                </param>
+                <param name="minWidth">
+                    <int>5</int>
+                </param>
+                <param name="minHeight">
+                    <int>5</int>
+                </param>
+            </theme>
+            <param name="minWidth">
+                <int>340</int>
+            </param>
+            <param name="minHeight">
+                <int>300</int>
+            </param>
         </theme>
         <theme name="label" ref="label">
             <param name="font">
@@ -891,7 +978,62 @@
                 <theme name="number" ref="-defaults" allowWildcard="true">
                     <theme name="button" ref="button"/>
                 </theme>
+                <theme name="volume-number" ref="-defaults" allowWildcard="true">
+                    <param name="width">
+                        <int>100</int>
+                    </param>
+                    <param name="displayPrefix">
+                        <string></string>
+                    </param>
+                    <param name="useMouseWheel">
+                        <bool>true</bool>
+                    </param>
+                    <theme name="valueDisplay" ref="button"/>
+                    <theme name="valueEdit" ref="editfield">
+                        <param name="textAlignment">
+                            <enum type="alignment">CENTER</enum>
+                        </param>
+                    </theme>
+                    <theme name="decButton" ref="button">
+                        <param name="minWidth">
+                            <int>30</int>
+                        </param>
+                        <param name="maxWidth">
+                            <int>30</int>
+                        </param>
+                    </theme>
+                    <theme name="incButton" ref="button">
+                        <param name="minWidth">
+                            <int>30</int>
+                        </param>
+                        <param name="maxWidth">
+                            <int>30</int>
+                        </param>
+                    </theme>
+                </theme>
             </theme>
+        </theme>
+    </theme>
+    <theme name="rom-modal" ref="-defaults" allowWildcard="true">
+        <param name="background">
+            <image>modal-shade</image>
+        </param>
+        <theme name="confirm-panel" ref="dialoglayout" allowWildcard="true">
+            <param name="background">
+                <image>ui-popup.background</image>
+            </param>
+            <param name="border">
+                <border>20</border>
+            </param>
+            <theme name="label-lalign" ref="label">
+                <param name="font">
+                    <font>pb-dark</font>
+                </param>
+                <param name="textAlignment">
+                    <enum type="alignment">LEFT</enum>
+                </param>
+            </theme>
+            <theme name="button" ref="button"/>
         </theme>
     </theme>
 </themes>

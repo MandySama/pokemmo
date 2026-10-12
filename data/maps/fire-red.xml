@@ -1,0 +1,889 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fireRed>
+    <mapPatches>
+        <cell layout="83" index="1565" value="4751" />
+        <cell layout="83" index="1613" value="1687" />
+        <cell layout="83" index="1661" value="1695" />
+        <cell layout="83" index="1709" value="742" />
+        <cell layout="83" index="1757" value="4395" />
+        <cell layout="83" index="1805" value="4395" />
+        <cell layout="83" index="1853" value="466" />
+        <cell layout="83" index="1901" value="473" />
+        <cell layout="83" index="1566" value="4749" />
+        <cell layout="83" index="1614" value="1759" />
+        <cell layout="83" index="1662" value="1767" />
+        <cell layout="83" index="1710" value="750" />
+        <cell layout="83" index="1758" value="4396" />
+        <cell layout="83" index="1806" value="4396" />
+        <cell layout="83" index="1854" value="4396" />
+        <cell layout="83" index="1902" value="4396" />
+        <cell layout="83" index="1519" value="12741" />
+        <cell layout="83" index="1567" value="12741" />
+        <cell layout="83" index="1615" value="13064" />
+        <cell layout="83" index="1663" value="1771" />
+        <cell layout="83" index="1711" value="1748" />
+        <cell layout="83" index="1759" value="1756" />
+        <cell layout="83" index="1807" value="770" />
+        <cell layout="83" index="1855" value="770" />
+        <cell layout="83" index="1903" value="770" />
+        <cell layout="83" index="1520" value="12742" />
+        <cell layout="83" index="1568" value="12742" />
+        <cell layout="83" index="1616" value="13065" />
+        <cell layout="83" index="1664" value="1772" />
+        <cell layout="83" index="1712" value="1749" />
+        <cell layout="83" index="1760" value="1757" />
+        <cell layout="83" index="1808" value="1473" />
+        <cell layout="83" index="1856" value="1473" />
+        <cell layout="83" index="1904" value="1473" />
+        <cell layout="83" index="1521" value="12743" />
+        <cell layout="83" index="1569" value="12743" />
+        <cell layout="83" index="1617" value="13066" />
+        <cell layout="83" index="1665" value="1773" />
+        <cell layout="83" index="1713" value="1750" />
+        <cell layout="83" index="1761" value="1758" />
+        <cell layout="83" index="1809" value="771" />
+        <cell layout="83" index="1857" value="771" />
+        <cell layout="83" index="1905" value="771" />
+        <cell layout="83" index="1522" value="4558" />
+        <cell layout="83" index="1570" value="4751" />
+        <cell layout="83" index="1618" value="1743" />
+        <cell layout="83" index="1666" value="1751" />
+        <cell layout="83" index="1714" value="751" />
+        <cell layout="83" index="1762" value="4394" />
+        <cell layout="83" index="1810" value="4394" />
+        <cell layout="83" index="1858" value="4394" />
+        <cell layout="83" index="1906" value="4394" />
+        <cell layout="83" index="1523" value="4558" />
+        <cell layout="83" index="1571" value="4749" />
+        <cell layout="83" index="1619" value="1678" />
+        <cell layout="83" index="1667" value="1711" />
+        <cell layout="83" index="1715" value="1766" />
+        <cell layout="83" index="1907" value="1488" />
+        <cell layout="83" index="1804" value="1490" />
+        <cell layout="83" index="1763" value="1296" />
+        <cell layout="83" index="1764" value="1297" />
+        <cell layout="83" index="1811" value="1304" />
+        <cell layout="83" index="1812" value="1305" />
+        <cell layout="83" index="1859" value="1323" />
+        <cell layout="83" index="1860" value="1323" />
+        <cell layout="10" index="34" value="703" />
+        <cell layout="10" index="45" value="1728" />
+        <cell layout="126" index="118" value="13953" />
+        <cell layout="126" index="169" value="13953" />
+        <cell layout="126" index="220" value="13953" />
+        <cell layout="126" index="119" value="13953" />
+        <cell layout="126" index="120" value="13953" />
+        <cell layout="126" index="171" value="13953" />
+        <cell layout="126" index="222" value="13953" />
+        <cell layout="99" index="200" value="13321" />
+        <cell layout="99" index="272" value="13329" />
+        <cell layout="99" index="344" value="13321" />
+        <cell layout="99" index="201" value="13320" />
+        <cell layout="99" index="202" value="13321" />
+        <cell layout="99" index="274" value="13329" />
+        <cell layout="99" index="346" value="13321" />
+        <cell layout="95" index="327" value="13320" />
+        <cell layout="95" index="351" value="13328" />
+        <cell layout="95" index="375" value="13320" />
+        <cell layout="95" index="328" value="13321" />
+        <cell layout="95" index="329" value="13320" />
+        <cell layout="95" index="353" value="13328" />
+        <cell layout="95" index="377" value="13320" />
+        <cell layout="270" index="1359" value="13329" />
+        <cell layout="270" index="1416" value="13328" />
+        <cell layout="270" index="1473" value="13329" />
+        <cell layout="270" index="1360" value="13328" />
+        <cell layout="270" index="1361" value="13329" />
+        <cell layout="270" index="1418" value="13328" />
+        <cell layout="270" index="1475" value="13329" />
+        <cell layout="219" index="511" value="13581" />
+        <cell layout="219" index="535" value="13589" />
+        <cell layout="219" index="559" value="13589" />
+        <cell layout="219" index="512" value="13581" />
+        <cell layout="219" index="513" value="13581" />
+        <cell layout="219" index="537" value="13589" />
+        <cell layout="219" index="561" value="13589" />
+        <cell layout="116" index="1316" value="13953" />
+        <cell layout="116" index="1364" value="13953" />
+        <cell layout="116" index="1412" value="13953" />
+        <cell layout="116" index="1317" value="13953" />
+        <cell layout="116" index="1318" value="13953" />
+        <cell layout="116" index="1366" value="13953" />
+        <cell layout="116" index="1414" value="13953" />
+        <cell layout="104" index="244" value="13524" />
+        <cell layout="104" index="292" value="13532" />
+        <cell layout="104" index="340" value="13532" />
+        <cell layout="104" index="245" value="13524" />
+        <cell layout="104" index="246" value="13524" />
+        <cell layout="104" index="294" value="13532" />
+        <cell layout="104" index="342" value="13532" />
+        <cell layout="98" index="532" value="13529" />
+        <cell layout="98" index="556" value="13529" />
+        <cell layout="98" index="580" value="13529" />
+        <cell layout="98" index="533" value="13529" />
+        <cell layout="98" index="534" value="13575" />
+        <cell layout="98" index="558" value="13530" />
+        <cell layout="98" index="582" value="13530" />
+        <cell layout="117" index="297" value="13320" />
+        <cell layout="117" index="351" value="13328" />
+        <cell layout="117" index="405" value="13321" />
+        <cell layout="117" index="298" value="13321" />
+        <cell layout="117" index="299" value="13320" />
+        <cell layout="117" index="353" value="13328" />
+        <cell layout="117" index="407" value="13320" />
+        <cell layout="256" index="1063" value="14153" />
+        <cell layout="256" index="1087" value="14153" />
+        <cell layout="256" index="1111" value="14153" />
+        <cell layout="256" index="1064" value="14153" />
+        <cell layout="256" index="1065" value="14153" />
+        <cell layout="256" index="1089" value="14153" />
+        <cell layout="256" index="1113" value="14153" />
+        <cell layout="252" index="521" value="13619" />
+        <cell layout="252" index="545" value="13523" />
+        <cell layout="252" index="569" value="13531" />
+        <cell layout="252" index="522" value="13619" />
+        <cell layout="252" index="523" value="13620" />
+        <cell layout="252" index="547" value="13525" />
+        <cell layout="252" index="571" value="13533" />
+        <cell layout="280" index="2026" value="14227" />
+        <cell layout="280" index="2083" value="14222" />
+        <cell layout="280" index="2140" value="13329" />
+        <cell layout="280" index="2027" value="14221" />
+        <cell layout="280" index="2028" value="14221" />
+        <cell layout="280" index="2085" value="13320" />
+        <cell layout="280" index="2142" value="13321" />
+        <cell layout="342" index="372" value="14124" />
+        <cell layout="342" index="402" value="14130" />
+        <cell layout="342" index="432" value="14130" />
+        <cell layout="342" index="373" value="14130" />
+        <cell layout="342" index="374" value="14130" />
+        <cell layout="342" index="404" value="14130" />
+        <cell layout="342" index="434" value="14130" />
+        <cell layout="342" index="376" value="14130" />
+        <cell layout="342" index="406" value="14130" />
+        <cell layout="342" index="436" value="14130" />
+        <cell layout="342" index="377" value="14130" />
+        <cell layout="342" index="378" value="14125" />
+        <cell layout="342" index="408" value="14130" />
+        <cell layout="342" index="438" value="14130" />
+    </mapPatches>
+    <palettes>
+        <color season="2" tileset="0" palette="0" index="1" rgba="F8C030FF" />
+        <color season="2" tileset="0" palette="0" index="2" rgba="F09040FF" />
+        <color season="2" tileset="0" palette="0" index="3" rgba="B87028FF" />
+        <color season="2" tileset="0" palette="0" index="4" rgba="785818FF" />
+        <color season="2" tileset="0" palette="0" index="8" rgba="F0E8B0FF" />
+        <color season="2" tileset="0" palette="0" index="9" rgba="F8C078FF" />
+        <color season="2" tileset="0" palette="0" index="10" rgba="F89068FF" />
+        <color season="2" tileset="0" palette="0" index="11" rgba="D86818FF" />
+        <color season="2" tileset="0" palette="0" index="12" rgba="F8F8B8FF" />
+        <color season="2" tileset="0" palette="0" index="13" rgba="D8D8A0FF" />
+        <color season="2" tileset="0" palette="0" index="14" rgba="C8C080FF" />
+        <color season="2" tileset="0" palette="0" index="15" rgba="989878FF" />
+        <color season="2" tileset="0" palette="1" index="7" rgba="C8C080FF" />
+        <color season="2" tileset="0" palette="1" index="11" rgba="C8A088FF" />
+        <color season="2" tileset="0" palette="1" index="12" rgba="A07868FF" />
+        <color season="2" tileset="0" palette="1" index="13" rgba="885848FF" />
+        <color season="2" tileset="0" palette="1" index="14" rgba="684840FF" />
+        <color season="2" tileset="0" palette="1" index="15" rgba="D8D8A0FF" />
+        <color season="2" tileset="0" palette="3" index="8" rgba="F0D0A0FF" />
+        <color season="2" tileset="0" palette="3" index="9" rgba="D0A068FF" />
+        <color season="2" tileset="0" palette="3" index="15" rgba="D8D8A0FF" />
+        <color season="2" tileset="0" palette="4" index="1" rgba="E8F0F8FF" />
+        <color season="2" tileset="0" palette="4" index="2" rgba="C0D8F8FF" />
+        <color season="2" tileset="0" palette="4" index="4" rgba="70A0E0FF" />
+        <color season="2" tileset="0" palette="4" index="5" rgba="5090D8FF" />
+        <color season="2" tileset="0" palette="4" index="6" rgba="5078D8FF" />
+        <color season="2" tileset="0" palette="4" index="7" rgba="5898E0FF" />
+        <color season="2" tileset="0" palette="4" index="8" rgba="D0D8E8FF" />
+        <color season="2" tileset="0" palette="4" index="9" rgba="B0B8C8FF" />
+        <color season="2" tileset="0" palette="4" index="10" rgba="807880FF" />
+        <color season="2" tileset="0" palette="4" index="11" rgba="605870FF" />
+        <color season="2" tileset="0" palette="4" index="12" rgba="4070C0FF" />
+        <color season="2" tileset="0" palette="4" index="13" rgba="F0D890FF" />
+        <color season="2" tileset="0" palette="4" index="14" rgba="E0C088FF" />
+        <color season="2" tileset="0" palette="4" index="15" rgba="E0B078FF" />
+        <color season="2" tileset="0" palette="5" index="6" rgba="F0D8A8FF" />
+        <color season="2" tileset="0" palette="5" index="7" rgba="E0C088FF" />
+        <color season="2" tileset="0" palette="5" index="8" rgba="D0A870FF" />
+        <color season="2" tileset="0" palette="5" index="9" rgba="B89848FF" />
+        <color season="2" tileset="0" palette="5" index="10" rgba="F0D890FF" />
+        <color season="2" tileset="0" palette="5" index="11" rgba="E0C088FF" />
+        <color season="2" tileset="0" palette="5" index="12" rgba="E0B078FF" />
+        <color season="2" tileset="0" palette="5" index="13" rgba="F0E8A8FF" />
+        <color season="2" tileset="0" palette="5" index="14" rgba="F0E8A8FF" />
+        <color season="2" tileset="0" palette="5" index="15" rgba="D8D8A0FF" />
+        <color season="2" tileset="1" palette="11" index="5" rgba="F8F8E0FF" />
+        <color season="2" tileset="1" palette="11" index="6" rgba="F0E8A8FF" />
+        <color season="2" tileset="1" palette="11" index="7" rgba="E8D8A8FF" />
+        <color season="2" tileset="1" palette="11" index="8" rgba="E8D098FF" />
+        <color season="2" tileset="1" palette="11" index="12" rgba="F8F8B8FF" />
+        <color season="2" tileset="1" palette="11" index="13" rgba="D8D8A0FF" />
+        <color season="2" tileset="1" palette="12" index="8" rgba="E0C888FF" />
+        <color season="2" tileset="1" palette="12" index="15" rgba="F8F8B8FF" />
+        <color season="2" tileset="2" palette="9" index="9" rgba="D89840FF" />
+        <color season="2" tileset="2" palette="9" index="15" rgba="D8D8A0FF" />
+        <color season="2" tileset="2" palette="10" index="3" rgba="C86070FF" />
+        <color season="2" tileset="2" palette="10" index="4" rgba="E0A8A8FF" />
+        <color season="2" tileset="2" palette="10" index="5" rgba="786840FF" />
+        <color season="2" tileset="2" palette="10" index="6" rgba="A08040FF" />
+        <color season="2" tileset="2" palette="10" index="7" rgba="E8B040FF" />
+        <color season="2" tileset="2" palette="10" index="9" rgba="B07020FF" />
+        <color season="2" tileset="2" palette="10" index="10" rgba="D09020FF" />
+        <color season="2" tileset="2" palette="10" index="11" rgba="F8C028FF" />
+        <color season="2" tileset="5" palette="8" index="1" rgba="D8D8A0FF" />
+        <color season="2" tileset="5" palette="15" index="1" rgba="000000FF" />
+        <color season="2" tileset="5" palette="15" index="2" rgba="000000FF" />
+        <color season="2" tileset="5" palette="15" index="3" rgba="000000FF" />
+        <color season="2" tileset="5" palette="15" index="4" rgba="000000FF" />
+        <color season="2" tileset="5" palette="15" index="5" rgba="000000FF" />
+        <color season="2" tileset="5" palette="15" index="6" rgba="000000FF" />
+        <color season="2" tileset="5" palette="15" index="7" rgba="000000FF" />
+        <color season="2" tileset="5" palette="15" index="8" rgba="000000FF" />
+        <color season="2" tileset="5" palette="15" index="9" rgba="000000FF" />
+        <color season="2" tileset="5" palette="15" index="10" rgba="000000FF" />
+        <color season="2" tileset="5" palette="15" index="11" rgba="000000FF" />
+        <color season="2" tileset="5" palette="15" index="12" rgba="000000FF" />
+        <color season="2" tileset="5" palette="15" index="13" rgba="000000FF" />
+        <color season="2" tileset="5" palette="15" index="14" rgba="000000FF" />
+        <color season="2" tileset="5" palette="15" index="15" rgba="000000FF" />
+        <color season="2" tileset="6" palette="10" index="8" rgba="F8D828FF" />
+        <color season="2" tileset="6" palette="10" index="9" rgba="F0A810FF" />
+        <color season="2" tileset="6" palette="10" index="10" rgba="C89018FF" />
+        <color season="2" tileset="6" palette="15" index="10" rgba="000000FF" />
+        <color season="2" tileset="6" palette="15" index="11" rgba="000000FF" />
+        <color season="2" tileset="6" palette="15" index="12" rgba="000000FF" />
+        <color season="2" tileset="6" palette="15" index="13" rgba="000000FF" />
+        <color season="2" tileset="7" palette="11" index="14" rgba="C8C080FF" />
+        <color season="2" tileset="7" palette="11" index="15" rgba="D8D8A0FF" />
+        <color season="2" tileset="8" palette="9" index="10" rgba="705010FF" />
+        <color season="2" tileset="8" palette="9" index="11" rgba="B06818FF" />
+        <color season="2" tileset="8" palette="9" index="12" rgba="E89830FF" />
+        <color season="2" tileset="8" palette="9" index="13" rgba="F0A828FF" />
+        <color season="2" tileset="8" palette="9" index="14" rgba="F8C020FF" />
+        <color season="2" tileset="8" palette="11" index="1" rgba="F8C028FF" />
+        <color season="2" tileset="8" palette="11" index="2" rgba="E89038FF" />
+        <color season="2" tileset="8" palette="11" index="3" rgba="B07028FF" />
+        <color season="2" tileset="8" palette="11" index="4" rgba="705010FF" />
+        <color season="2" tileset="8" palette="11" index="5" rgba="705810FF" />
+        <color season="2" tileset="8" palette="11" index="9" rgba="909068FF" />
+        <color season="2" tileset="8" palette="11" index="10" rgba="D08018FF" />
+        <color season="2" tileset="8" palette="11" index="11" rgba="E09838FF" />
+        <color season="2" tileset="8" palette="11" index="12" rgba="705810FF" />
+        <color season="2" tileset="8" palette="11" index="13" rgba="D8D8A0FF" />
+        <color season="2" tileset="8" palette="11" index="14" rgba="B8B888FF" />
+        <color season="2" tileset="10" palette="12" index="15" rgba="D8D8A0FF" />
+        <color season="2" tileset="11" palette="10" index="15" rgba="D8D8A0FF" />
+        <color season="2" tileset="11" palette="15" index="6" rgba="000000FF" />
+        <color season="2" tileset="11" palette="15" index="7" rgba="000000FF" />
+        <color season="2" tileset="11" palette="15" index="8" rgba="000000FF" />
+        <color season="2" tileset="11" palette="15" index="9" rgba="000000FF" />
+        <color season="2" tileset="11" palette="15" index="10" rgba="000000FF" />
+        <color season="2" tileset="11" palette="15" index="11" rgba="000000FF" />
+        <color season="2" tileset="34" palette="8" index="1" rgba="F8C028FF" />
+        <color season="2" tileset="34" palette="8" index="2" rgba="E89038FF" />
+        <color season="2" tileset="34" palette="8" index="3" rgba="B07028FF" />
+        <color season="2" tileset="34" palette="8" index="4" rgba="705018FF" />
+        <color season="2" tileset="34" palette="8" index="5" rgba="906020FF" />
+        <color season="2" tileset="34" palette="8" index="12" rgba="F8F8B8FF" />
+        <color season="2" tileset="34" palette="8" index="13" rgba="D8D8A0FF" />
+        <color season="2" tileset="34" palette="8" index="14" rgba="C8C080FF" />
+        <color season="2" tileset="34" palette="8" index="15" rgba="989878FF" />
+        <color season="2" tileset="34" palette="9" index="11" rgba="D8E0B8FF" />
+        <color season="2" tileset="34" palette="9" index="12" rgba="C0B870FF" />
+        <color season="2" tileset="34" palette="9" index="14" rgba="F09870FF" />
+        <color season="2" tileset="34" palette="9" index="15" rgba="D8D8A0FF" />
+        <color season="2" tileset="58" palette="8" index="1" rgba="F8C028FF" />
+        <color season="2" tileset="58" palette="8" index="2" rgba="E89038FF" />
+        <color season="2" tileset="58" palette="8" index="3" rgba="989878FF" />
+        <color season="2" tileset="58" palette="8" index="4" rgba="785820FF" />
+        <color season="2" tileset="58" palette="8" index="5" rgba="907828FF" />
+        <color season="2" tileset="58" palette="8" index="12" rgba="F8F8B8FF" />
+        <color season="2" tileset="58" palette="8" index="13" rgba="D8D8A0FF" />
+        <color season="2" tileset="58" palette="8" index="14" rgba="C8C080FF" />
+        <color season="2" tileset="58" palette="8" index="15" rgba="B8B058FF" />
+        <color season="2" tileset="58" palette="9" index="11" rgba="E0E8C8FF" />
+        <color season="2" tileset="58" palette="9" index="12" rgba="D0C890FF" />
+        <color season="2" tileset="58" palette="9" index="14" rgba="E89870FF" />
+        <color season="2" tileset="58" palette="11" index="1" rgba="F8C088FF" />
+        <color season="2" tileset="58" palette="11" index="2" rgba="F09068FF" />
+        <color season="2" tileset="58" palette="11" index="3" rgba="909068FF" />
+        <color season="2" tileset="58" palette="11" index="4" rgba="884818FF" />
+        <color season="2" tileset="58" palette="11" index="5" rgba="887018FF" />
+        <color season="2" tileset="58" palette="11" index="9" rgba="B87040FF" />
+        <color season="2" tileset="58" palette="11" index="10" rgba="904820FF" />
+        <color season="2" tileset="58" palette="11" index="12" rgba="F0F0A0FF" />
+        <color season="2" tileset="58" palette="11" index="13" rgba="D8D8A0FF" />
+        <color season="2" tileset="58" palette="11" index="14" rgba="C8C080FF" />
+        <color season="2" tileset="58" palette="11" index="15" rgba="B8B058FF" />
+        <color season="2" tileset="63" palette="10" index="5" rgba="788080FF" />
+        <color season="2" tileset="63" palette="10" index="6" rgba="586070FF" />
+        <color season="2" tileset="63" palette="10" index="7" rgba="405068FF" />
+        <color season="2" tileset="63" palette="10" index="9" rgba="C0B870FF" />
+        <color season="2" tileset="63" palette="10" index="10" rgba="B8B8A0FF" />
+        <color season="2" tileset="63" palette="10" index="11" rgba="A8A898FF" />
+        <color season="2" tileset="63" palette="10" index="12" rgba="909088FF" />
+        <color season="2" tileset="63" palette="10" index="13" rgba="787870FF" />
+        <color season="2" tileset="63" palette="10" index="14" rgba="686868FF" />
+        <color season="2" tileset="63" palette="10" index="15" rgba="D8D8A0FF" />
+        <color season="0" tileset="0" palette="0" index="1" rgba="80E888FF" />
+        <color season="0" tileset="0" palette="0" index="2" rgba="48C070FF" />
+        <color season="0" tileset="0" palette="0" index="3" rgba="208850FF" />
+        <color season="0" tileset="0" palette="0" index="4" rgba="285020FF" />
+        <color season="0" tileset="0" palette="0" index="8" rgba="B8F0B0FF" />
+        <color season="0" tileset="0" palette="0" index="9" rgba="F8C0D8FF" />
+        <color season="0" tileset="0" palette="0" index="10" rgba="F088A8FF" />
+        <color season="0" tileset="0" palette="0" index="11" rgba="C84080FF" />
+        <color season="0" tileset="0" palette="0" index="12" rgba="C8F8C0FF" />
+        <color season="0" tileset="0" palette="0" index="13" rgba="98E898FF" />
+        <color season="0" tileset="0" palette="0" index="14" rgba="88C888FF" />
+        <color season="0" tileset="0" palette="0" index="15" rgba="68A070FF" />
+        <color season="0" tileset="0" palette="1" index="1" rgba="E0E8E8FF" />
+        <color season="0" tileset="0" palette="1" index="2" rgba="C8D0D8FF" />
+        <color season="0" tileset="0" palette="1" index="3" rgba="B0C0D0FF" />
+        <color season="0" tileset="0" palette="1" index="4" rgba="808088FF" />
+        <color season="0" tileset="0" palette="1" index="7" rgba="88C888FF" />
+        <color season="0" tileset="0" palette="1" index="9" rgba="F0D8C8FF" />
+        <color season="0" tileset="0" palette="1" index="10" rgba="E0C8B0FF" />
+        <color season="0" tileset="0" palette="1" index="11" rgba="C09890FF" />
+        <color season="0" tileset="0" palette="1" index="12" rgba="987070FF" />
+        <color season="0" tileset="0" palette="1" index="13" rgba="805858FF" />
+        <color season="0" tileset="0" palette="1" index="14" rgba="604048FF" />
+        <color season="0" tileset="0" palette="1" index="15" rgba="98E898FF" />
+        <color season="0" tileset="0" palette="2" index="2" rgba="D0E0F0FF" />
+        <color season="0" tileset="0" palette="2" index="3" rgba="B0C0D0FF" />
+        <color season="0" tileset="0" palette="2" index="4" rgba="98A8B8FF" />
+        <color season="0" tileset="0" palette="2" index="5" rgba="808088FF" />
+        <color season="0" tileset="0" palette="2" index="6" rgba="606878FF" />
+        <color season="0" tileset="0" palette="3" index="8" rgba="F8E0A8FF" />
+        <color season="0" tileset="0" palette="3" index="9" rgba="D0B070FF" />
+        <color season="0" tileset="0" palette="3" index="10" rgba="90D0F8FF" />
+        <color season="0" tileset="0" palette="3" index="15" rgba="98E898FF" />
+        <color season="0" tileset="0" palette="4" index="2" rgba="B8E0F8FF" />
+        <color season="0" tileset="0" palette="4" index="3" rgba="88A8F8FF" />
+        <color season="0" tileset="0" palette="4" index="4" rgba="68A8E0FF" />
+        <color season="0" tileset="0" palette="4" index="5" rgba="4898D8FF" />
+        <color season="0" tileset="0" palette="4" index="6" rgba="4880D8FF" />
+        <color season="0" tileset="0" palette="4" index="7" rgba="50A0E0FF" />
+        <color season="0" tileset="0" palette="4" index="12" rgba="3078C0FF" />
+        <color season="0" tileset="0" palette="4" index="13" rgba="F8E098FF" />
+        <color season="0" tileset="0" palette="4" index="14" rgba="F8D080FF" />
+        <color season="0" tileset="0" palette="4" index="15" rgba="F0C878FF" />
+        <color season="0" tileset="0" palette="5" index="6" rgba="F8E0A8FF" />
+        <color season="0" tileset="0" palette="5" index="7" rgba="E0C888FF" />
+        <color season="0" tileset="0" palette="5" index="8" rgba="D0B070FF" />
+        <color season="0" tileset="0" palette="5" index="9" rgba="B09858FF" />
+        <color season="0" tileset="0" palette="5" index="10" rgba="F8E098FF" />
+        <color season="0" tileset="0" palette="5" index="11" rgba="F0C878FF" />
+        <color season="0" tileset="0" palette="5" index="12" rgba="E8C070FF" />
+        <color season="0" tileset="0" palette="5" index="13" rgba="B8F0B0FF" />
+        <color season="0" tileset="0" palette="5" index="14" rgba="B8F0B0FF" />
+        <color season="0" tileset="0" palette="5" index="15" rgba="98E898FF" />
+        <color season="0" tileset="1" palette="11" index="6" rgba="B8F0B0FF" />
+        <color season="0" tileset="1" palette="11" index="7" rgba="A0E8A8FF" />
+        <color season="0" tileset="1" palette="11" index="8" rgba="A0E898FF" />
+        <color season="0" tileset="1" palette="11" index="12" rgba="C8F8C0FF" />
+        <color season="0" tileset="1" palette="11" index="13" rgba="98E898FF" />
+        <color season="0" tileset="2" palette="10" index="1" rgba="505060FF" />
+        <color season="0" tileset="2" palette="10" index="2" rgba="808088FF" />
+        <color season="0" tileset="2" palette="10" index="3" rgba="E080B0FF" />
+        <color season="0" tileset="2" palette="10" index="4" rgba="F8C8F8FF" />
+        <color season="0" tileset="2" palette="10" index="5" rgba="786848FF" />
+        <color season="0" tileset="2" palette="10" index="6" rgba="C88030FF" />
+        <color season="0" tileset="2" palette="10" index="7" rgba="F8A860FF" />
+        <color season="0" tileset="2" palette="10" index="8" rgba="F8E890FF" />
+        <color season="0" tileset="2" palette="10" index="9" rgba="407840FF" />
+        <color season="0" tileset="2" palette="10" index="10" rgba="409858FF" />
+        <color season="0" tileset="2" palette="10" index="11" rgba="40C870FF" />
+        <color season="0" tileset="2" palette="10" index="12" rgba="508048FF" />
+        <color season="0" tileset="2" palette="10" index="13" rgba="60B050FF" />
+        <color season="0" tileset="2" palette="10" index="14" rgba="80D868FF" />
+        <color season="0" tileset="2" palette="10" index="15" rgba="B0F070FF" />
+        <color season="0" tileset="2" palette="11" index="15" rgba="98E898FF" />
+        <color season="0" tileset="2" palette="12" index="2" rgba="D8E8C8FF" />
+        <color season="0" tileset="2" palette="12" index="3" rgba="A0B090FF" />
+        <color season="0" tileset="2" palette="12" index="4" rgba="808088FF" />
+        <color season="0" tileset="2" palette="12" index="5" rgba="606078FF" />
+        <color season="0" tileset="2" palette="12" index="6" rgba="485070FF" />
+        <color season="0" tileset="2" palette="12" index="7" rgba="E0B048FF" />
+        <color season="0" tileset="2" palette="12" index="8" rgba="B86808FF" />
+        <color season="0" tileset="2" palette="12" index="9" rgba="884808FF" />
+        <color season="0" tileset="2" palette="12" index="10" rgba="D0D080FF" />
+        <color season="0" tileset="2" palette="12" index="11" rgba="A8A840FF" />
+        <color season="0" tileset="2" palette="12" index="12" rgba="78C0F8FF" />
+        <color season="0" tileset="2" palette="12" index="13" rgba="5098D0FF" />
+        <color season="0" tileset="2" palette="12" index="14" rgba="3878B8FF" />
+        <color season="0" tileset="2" palette="12" index="15" rgba="C0C8A8FF" />
+        <color season="0" tileset="3" palette="10" index="10" rgba="B8A8A0FF" />
+        <color season="0" tileset="3" palette="10" index="11" rgba="888078FF" />
+        <color season="0" tileset="3" palette="10" index="12" rgba="F8D8F8FF" />
+        <color season="0" tileset="3" palette="10" index="13" rgba="F0C0D8FF" />
+        <color season="0" tileset="3" palette="10" index="14" rgba="C878B8FF" />
+        <color season="0" tileset="3" palette="10" index="15" rgba="B07088FF" />
+        <color season="0" tileset="4" palette="8" index="1" rgba="6090A8FF" />
+        <color season="0" tileset="4" palette="8" index="2" rgba="78A8C0FF" />
+        <color season="0" tileset="4" palette="8" index="3" rgba="90C0D8FF" />
+        <color season="0" tileset="4" palette="8" index="4" rgba="B0E0F0FF" />
+        <color season="0" tileset="4" palette="8" index="5" rgba="90C868FF" />
+        <color season="0" tileset="4" palette="8" index="6" rgba="A0E070FF" />
+        <color season="0" tileset="4" palette="8" index="7" rgba="C0E890FF" />
+        <color season="0" tileset="4" palette="8" index="8" rgba="E0D0B0FF" />
+        <color season="0" tileset="4" palette="8" index="9" rgba="F8E8C0FF" />
+        <color season="0" tileset="4" palette="8" index="10" rgba="F8F8D8FF" />
+        <color season="0" tileset="4" palette="8" index="11" rgba="A8A8B8FF" />
+        <color season="0" tileset="4" palette="8" index="12" rgba="585870FF" />
+        <color season="0" tileset="4" palette="8" index="13" rgba="808090FF" />
+        <color season="0" tileset="4" palette="8" index="14" rgba="D0D0E0FF" />
+        <color season="0" tileset="4" palette="12" index="2" rgba="F0E0B8FF" />
+        <color season="0" tileset="4" palette="12" index="3" rgba="D0C0A0FF" />
+        <color season="0" tileset="4" palette="12" index="4" rgba="B8A880FF" />
+        <color season="0" tileset="4" palette="12" index="5" rgba="808088FF" />
+        <color season="0" tileset="4" palette="12" index="6" rgba="606070FF" />
+        <color season="0" tileset="4" palette="12" index="7" rgba="485070FF" />
+        <color season="0" tileset="4" palette="12" index="8" rgba="90C868FF" />
+        <color season="0" tileset="4" palette="12" index="9" rgba="70A848FF" />
+        <color season="0" tileset="4" palette="12" index="10" rgba="B0E0E8FF" />
+        <color season="0" tileset="4" palette="12" index="11" rgba="98C8D8FF" />
+        <color season="0" tileset="4" palette="12" index="12" rgba="78A8C0FF" />
+        <color season="0" tileset="4" palette="12" index="13" rgba="6090A8FF" />
+        <color season="0" tileset="4" palette="12" index="14" rgba="508098FF" />
+        <color season="0" tileset="4" palette="12" index="15" rgba="98E898FF" />
+        <color season="0" tileset="5" palette="8" index="1" rgba="98E898FF" />
+        <color season="0" tileset="5" palette="8" index="5" rgba="D05850FF" />
+        <color season="0" tileset="5" palette="8" index="6" rgba="B02830FF" />
+        <color season="0" tileset="5" palette="8" index="7" rgba="F8F8C0FF" />
+        <color season="0" tileset="5" palette="8" index="8" rgba="F0E8A0FF" />
+        <color season="0" tileset="5" palette="8" index="9" rgba="E0D088FF" />
+        <color season="0" tileset="5" palette="8" index="10" rgba="C0A860FF" />
+        <color season="0" tileset="5" palette="8" index="11" rgba="988838FF" />
+        <color season="0" tileset="5" palette="8" index="12" rgba="806020FF" />
+        <color season="0" tileset="5" palette="8" index="13" rgba="808088FF" />
+        <color season="0" tileset="5" palette="8" index="14" rgba="485068FF" />
+        <color season="0" tileset="5" palette="8" index="15" rgba="D0E0F0FF" />
+        <color season="0" tileset="5" palette="9" index="2" rgba="E8F8F0FF" />
+        <color season="0" tileset="5" palette="9" index="3" rgba="A0B0C0FF" />
+        <color season="0" tileset="5" palette="9" index="5" rgba="606078FF" />
+        <color season="0" tileset="5" palette="9" index="6" rgba="505070FF" />
+        <color season="0" tileset="5" palette="9" index="7" rgba="B0B070FF" />
+        <color season="0" tileset="5" palette="9" index="8" rgba="D8D898FF" />
+        <color season="0" tileset="5" palette="9" index="9" rgba="B8D0B8FF" />
+        <color season="0" tileset="5" palette="9" index="10" rgba="98B898FF" />
+        <color season="0" tileset="5" palette="9" index="11" rgba="88A888FF" />
+        <color season="0" tileset="5" palette="9" index="12" rgba="709070FF" />
+        <color season="0" tileset="5" palette="9" index="13" rgba="C8E0C8FF" />
+        <color season="0" tileset="5" palette="9" index="14" rgba="90B090FF" />
+        <color season="0" tileset="5" palette="9" index="15" rgba="687860FF" />
+        <color season="0" tileset="5" palette="11" index="7" rgba="E0F0F8FF" />
+        <color season="0" tileset="5" palette="11" index="8" rgba="A8C0E0FF" />
+        <color season="0" tileset="5" palette="11" index="9" rgba="8098B8FF" />
+        <color season="0" tileset="5" palette="11" index="10" rgba="F8F090FF" />
+        <color season="0" tileset="5" palette="11" index="11" rgba="E0B848FF" />
+        <color season="0" tileset="5" palette="11" index="12" rgba="F8F8C0FF" />
+        <color season="0" tileset="5" palette="12" index="2" rgba="E0D0F8FF" />
+        <color season="0" tileset="5" palette="12" index="3" rgba="D0B0F8FF" />
+        <color season="0" tileset="5" palette="12" index="4" rgba="B090D8FF" />
+        <color season="0" tileset="5" palette="12" index="5" rgba="808088FF" />
+        <color season="0" tileset="5" palette="12" index="6" rgba="606078FF" />
+        <color season="0" tileset="5" palette="12" index="7" rgba="485070FF" />
+        <color season="0" tileset="5" palette="12" index="8" rgba="E8E088FF" />
+        <color season="0" tileset="5" palette="12" index="9" rgba="D8C068FF" />
+        <color season="0" tileset="5" palette="12" index="10" rgba="E0C8F8FF" />
+        <color season="0" tileset="5" palette="12" index="11" rgba="B090D8FF" />
+        <color season="0" tileset="5" palette="12" index="12" rgba="9878C0FF" />
+        <color season="0" tileset="5" palette="12" index="13" rgba="9070B8FF" />
+        <color season="0" tileset="5" palette="12" index="14" rgba="F8F8A8FF" />
+        <color season="0" tileset="5" palette="12" index="15" rgba="B09858FF" />
+        <color season="0" tileset="5" palette="15" index="1" rgba="000000FF" />
+        <color season="0" tileset="5" palette="15" index="2" rgba="000000FF" />
+        <color season="0" tileset="5" palette="15" index="3" rgba="000000FF" />
+        <color season="0" tileset="5" palette="15" index="4" rgba="000000FF" />
+        <color season="0" tileset="5" palette="15" index="5" rgba="000000FF" />
+        <color season="0" tileset="5" palette="15" index="6" rgba="000000FF" />
+        <color season="0" tileset="5" palette="15" index="7" rgba="000000FF" />
+        <color season="0" tileset="5" palette="15" index="8" rgba="000000FF" />
+        <color season="0" tileset="5" palette="15" index="9" rgba="000000FF" />
+        <color season="0" tileset="5" palette="15" index="10" rgba="000000FF" />
+        <color season="0" tileset="5" palette="15" index="11" rgba="000000FF" />
+        <color season="0" tileset="5" palette="15" index="12" rgba="000000FF" />
+        <color season="0" tileset="5" palette="15" index="13" rgba="000000FF" />
+        <color season="0" tileset="5" palette="15" index="14" rgba="000000FF" />
+        <color season="0" tileset="5" palette="15" index="15" rgba="000000FF" />
+        <color season="0" tileset="6" palette="10" index="8" rgba="80F888FF" />
+        <color season="0" tileset="6" palette="10" index="9" rgba="40D060FF" />
+        <color season="0" tileset="6" palette="10" index="10" rgba="18B060FF" />
+        <color season="0" tileset="6" palette="15" index="10" rgba="000000FF" />
+        <color season="0" tileset="6" palette="15" index="11" rgba="000000FF" />
+        <color season="0" tileset="6" palette="15" index="12" rgba="000000FF" />
+        <color season="0" tileset="6" palette="15" index="13" rgba="000000FF" />
+        <color season="0" tileset="7" palette="11" index="6" rgba="D0E0F0FF" />
+        <color season="0" tileset="7" palette="11" index="7" rgba="C8D8E0FF" />
+        <color season="0" tileset="7" palette="11" index="8" rgba="A8B8C8FF" />
+        <color season="0" tileset="7" palette="11" index="14" rgba="58D090FF" />
+        <color season="0" tileset="7" palette="11" index="15" rgba="98E898FF" />
+        <color season="0" tileset="7" palette="12" index="2" rgba="D8E0A8FF" />
+        <color season="0" tileset="7" palette="12" index="3" rgba="B8C088FF" />
+        <color season="0" tileset="7" palette="12" index="4" rgba="909860FF" />
+        <color season="0" tileset="7" palette="12" index="5" rgba="808088FF" />
+        <color season="0" tileset="7" palette="12" index="6" rgba="606078FF" />
+        <color season="0" tileset="7" palette="12" index="7" rgba="485070FF" />
+        <color season="0" tileset="7" palette="12" index="8" rgba="C098E0FF" />
+        <color season="0" tileset="7" palette="12" index="9" rgba="8870B0FF" />
+        <color season="0" tileset="7" palette="12" index="10" rgba="C0E8E0FF" />
+        <color season="0" tileset="7" palette="12" index="11" rgba="98D0B8FF" />
+        <color season="0" tileset="7" palette="12" index="12" rgba="78B098FF" />
+        <color season="0" tileset="7" palette="12" index="13" rgba="709890FF" />
+        <color season="0" tileset="7" palette="12" index="14" rgba="507870FF" />
+        <color season="0" tileset="7" palette="12" index="15" rgba="78D0A8FF" />
+        <color season="0" tileset="8" palette="9" index="10" rgba="306030FF" />
+        <color season="0" tileset="8" palette="9" index="11" rgba="208850FF" />
+        <color season="0" tileset="8" palette="9" index="12" rgba="48C070FF" />
+        <color season="0" tileset="8" palette="9" index="13" rgba="60D880FF" />
+        <color season="0" tileset="8" palette="9" index="14" rgba="80E888FF" />
+        <color season="0" tileset="8" palette="11" index="1" rgba="80E888FF" />
+        <color season="0" tileset="8" palette="11" index="2" rgba="48C070FF" />
+        <color season="0" tileset="8" palette="11" index="3" rgba="208850FF" />
+        <color season="0" tileset="8" palette="11" index="4" rgba="284820FF" />
+        <color season="0" tileset="8" palette="11" index="6" rgba="686838FF" />
+        <color season="0" tileset="8" palette="11" index="7" rgba="908838FF" />
+        <color season="0" tileset="8" palette="11" index="10" rgba="38A860FF" />
+        <color season="0" tileset="8" palette="11" index="11" rgba="50B868FF" />
+        <color season="0" tileset="8" palette="11" index="12" rgba="287040FF" />
+        <color season="0" tileset="8" palette="11" index="13" rgba="98E898FF" />
+        <color season="0" tileset="8" palette="11" index="14" rgba="68B080FF" />
+        <color season="0" tileset="8" palette="12" index="2" rgba="D0E0F0FF" />
+        <color season="0" tileset="8" palette="12" index="3" rgba="B0C0D0FF" />
+        <color season="0" tileset="8" palette="12" index="4" rgba="98A8B8FF" />
+        <color season="0" tileset="8" palette="12" index="5" rgba="808088FF" />
+        <color season="0" tileset="8" palette="12" index="10" rgba="F0B890FF" />
+        <color season="0" tileset="8" palette="12" index="11" rgba="E09888FF" />
+        <color season="0" tileset="8" palette="12" index="12" rgba="C08078FF" />
+        <color season="0" tileset="8" palette="12" index="13" rgba="906058FF" />
+        <color season="0" tileset="9" palette="8" index="1" rgba="905840FF" />
+        <color season="0" tileset="9" palette="8" index="2" rgba="A87058FF" />
+        <color season="0" tileset="9" palette="8" index="3" rgba="D09880FF" />
+        <color season="0" tileset="9" palette="8" index="4" rgba="E0A890FF" />
+        <color season="0" tileset="9" palette="8" index="7" rgba="A08860FF" />
+        <color season="0" tileset="9" palette="8" index="8" rgba="C0A878FF" />
+        <color season="0" tileset="9" palette="8" index="9" rgba="E0D0A0FF" />
+        <color season="0" tileset="9" palette="8" index="10" rgba="F8F0C0FF" />
+        <color season="0" tileset="9" palette="8" index="11" rgba="A8A8B8FF" />
+        <color season="0" tileset="9" palette="8" index="12" rgba="585870FF" />
+        <color season="0" tileset="9" palette="8" index="13" rgba="808090FF" />
+        <color season="0" tileset="9" palette="8" index="14" rgba="D0D0E0FF" />
+        <color season="0" tileset="9" palette="9" index="2" rgba="E8E8C0FF" />
+        <color season="0" tileset="9" palette="9" index="3" rgba="C8C8A0FF" />
+        <color season="0" tileset="9" palette="9" index="4" rgba="B0B088FF" />
+        <color season="0" tileset="9" palette="9" index="5" rgba="808058FF" />
+        <color season="0" tileset="9" palette="9" index="7" rgba="808088FF" />
+        <color season="0" tileset="9" palette="9" index="8" rgba="808088FF" />
+        <color season="0" tileset="10" palette="12" index="1" rgba="989890FF" />
+        <color season="0" tileset="10" palette="12" index="2" rgba="E0E0E8FF" />
+        <color season="0" tileset="10" palette="12" index="3" rgba="D0D0E0FF" />
+        <color season="0" tileset="10" palette="12" index="4" rgba="B8B8A8FF" />
+        <color season="0" tileset="10" palette="12" index="6" rgba="E0E0D0FF" />
+        <color season="0" tileset="10" palette="12" index="7" rgba="D0D0C0FF" />
+        <color season="0" tileset="10" palette="12" index="8" rgba="B0B0A8FF" />
+        <color season="0" tileset="10" palette="12" index="13" rgba="E8D890FF" />
+        <color season="0" tileset="10" palette="12" index="14" rgba="D0B870FF" />
+        <color season="0" tileset="10" palette="12" index="15" rgba="98E898FF" />
+        <color season="0" tileset="11" palette="10" index="1" rgba="F0F0F0FF" />
+        <color season="0" tileset="11" palette="10" index="2" rgba="E0E0E8FF" />
+        <color season="0" tileset="11" palette="10" index="3" rgba="808088FF" />
+        <color season="0" tileset="11" palette="10" index="4" rgba="B0C0C8FF" />
+        <color season="0" tileset="11" palette="10" index="6" rgba="E0E0D0FF" />
+        <color season="0" tileset="11" palette="10" index="7" rgba="D0D0C0FF" />
+        <color season="0" tileset="11" palette="10" index="8" rgba="B8B8A8FF" />
+        <color season="0" tileset="11" palette="10" index="9" rgba="D8D8B0FF" />
+        <color season="0" tileset="11" palette="10" index="10" rgba="C0C090FF" />
+        <color season="0" tileset="11" palette="10" index="11" rgba="989868FF" />
+        <color season="0" tileset="11" palette="10" index="15" rgba="98E898FF" />
+        <color season="0" tileset="11" palette="11" index="10" rgba="B0E0B8FF" />
+        <color season="0" tileset="11" palette="11" index="11" rgba="90C0A0FF" />
+        <color season="0" tileset="11" palette="11" index="12" rgba="70A070FF" />
+        <color season="0" tileset="11" palette="11" index="13" rgba="588860FF" />
+        <color season="0" tileset="11" palette="11" index="14" rgba="487850FF" />
+        <color season="0" tileset="11" palette="12" index="6" rgba="D8C830FF" />
+        <color season="0" tileset="11" palette="12" index="7" rgba="F8F050FF" />
+        <color season="0" tileset="11" palette="12" index="9" rgba="A8A018FF" />
+        <color season="0" tileset="11" palette="12" index="10" rgba="D0C870FF" />
+        <color season="0" tileset="11" palette="12" index="11" rgba="F8F898FF" />
+        <color season="0" tileset="11" palette="15" index="6" rgba="000000FF" />
+        <color season="0" tileset="11" palette="15" index="7" rgba="000000FF" />
+        <color season="0" tileset="11" palette="15" index="8" rgba="000000FF" />
+        <color season="0" tileset="11" palette="15" index="9" rgba="000000FF" />
+        <color season="0" tileset="11" palette="15" index="10" rgba="000000FF" />
+        <color season="0" tileset="11" palette="15" index="11" rgba="000000FF" />
+        <color season="0" tileset="34" palette="8" index="1" rgba="80E888FF" />
+        <color season="0" tileset="34" palette="8" index="2" rgba="48C070FF" />
+        <color season="0" tileset="34" palette="8" index="3" rgba="208850FF" />
+        <color season="0" tileset="34" palette="8" index="4" rgba="285020FF" />
+        <color season="0" tileset="34" palette="8" index="5" rgba="206838FF" />
+        <color season="0" tileset="34" palette="8" index="12" rgba="C8F8C0FF" />
+        <color season="0" tileset="34" palette="8" index="13" rgba="98E898FF" />
+        <color season="0" tileset="34" palette="8" index="14" rgba="88C888FF" />
+        <color season="0" tileset="34" palette="8" index="15" rgba="68A070FF" />
+        <color season="0" tileset="34" palette="9" index="11" rgba="E0D8A8FF" />
+        <color season="0" tileset="34" palette="9" index="12" rgba="68B860FF" />
+        <color season="0" tileset="34" palette="9" index="13" rgba="E0E8F8FF" />
+        <color season="0" tileset="34" palette="9" index="14" rgba="F0A8C8FF" />
+        <color season="0" tileset="34" palette="9" index="15" rgba="98E898FF" />
+        <color season="0" tileset="58" palette="8" index="3" rgba="208850FF" />
+        <color season="0" tileset="58" palette="8" index="4" rgba="285020FF" />
+        <color season="0" tileset="58" palette="8" index="5" rgba="206838FF" />
+        <color season="0" tileset="58" palette="8" index="12" rgba="C8F8C0FF" />
+        <color season="0" tileset="58" palette="8" index="13" rgba="98E898FF" />
+        <color season="0" tileset="58" palette="8" index="14" rgba="88C888FF" />
+        <color season="0" tileset="58" palette="8" index="15" rgba="68A070FF" />
+        <color season="0" tileset="58" palette="9" index="11" rgba="E0D8A8FF" />
+        <color season="0" tileset="58" palette="9" index="12" rgba="68B860FF" />
+        <color season="0" tileset="58" palette="9" index="13" rgba="E0E8F8FF" />
+        <color season="0" tileset="58" palette="9" index="14" rgba="F0A8C8FF" />
+        <color season="0" tileset="58" palette="9" index="15" rgba="98E898FF" />
+        <color season="0" tileset="58" palette="11" index="1" rgba="F8D0E8FF" />
+        <color season="0" tileset="58" palette="11" index="2" rgba="E8A0C8FF" />
+        <color season="0" tileset="58" palette="11" index="3" rgba="208850FF" />
+        <color season="0" tileset="58" palette="11" index="4" rgba="605050FF" />
+        <color season="0" tileset="58" palette="11" index="5" rgba="206838FF" />
+        <color season="0" tileset="58" palette="11" index="9" rgba="D878B0FF" />
+        <color season="0" tileset="58" palette="11" index="10" rgba="A05880FF" />
+        <color season="0" tileset="58" palette="11" index="12" rgba="C8F8C0FF" />
+        <color season="0" tileset="58" palette="11" index="13" rgba="98E898FF" />
+        <color season="0" tileset="58" palette="11" index="14" rgba="88C888FF" />
+        <color season="0" tileset="58" palette="11" index="15" rgba="68A070FF" />
+        <color season="0" tileset="61" palette="12" index="2" rgba="C8D0D8FF" />
+        <color season="0" tileset="61" palette="12" index="3" rgba="B0C0D0FF" />
+        <color season="0" tileset="61" palette="12" index="4" rgba="808088FF" />
+        <color season="0" tileset="61" palette="12" index="9" rgba="E8E8E0FF" />
+        <color season="0" tileset="61" palette="12" index="10" rgba="D8D8C8FF" />
+        <color season="0" tileset="61" palette="12" index="11" rgba="B8B8A8FF" />
+        <color season="0" tileset="61" palette="12" index="12" rgba="989888FF" />
+        <color season="0" tileset="61" palette="12" index="13" rgba="808060FF" />
+        <color season="0" tileset="61" palette="12" index="14" rgba="686850FF" />
+        <color season="0" tileset="61" palette="12" index="15" rgba="98E898FF" />
+        <color season="0" tileset="62" palette="8" index="1" rgba="88C8A8FF" />
+        <color season="0" tileset="62" palette="8" index="2" rgba="68A888FF" />
+        <color season="0" tileset="62" palette="8" index="3" rgba="808088FF" />
+        <color season="0" tileset="62" palette="8" index="4" rgba="606078FF" />
+        <color season="0" tileset="62" palette="8" index="5" rgba="485070FF" />
+        <color season="0" tileset="62" palette="8" index="7" rgba="C8D8E8FF" />
+        <color season="0" tileset="62" palette="8" index="8" rgba="A8B8C8FF" />
+        <color season="0" tileset="62" palette="8" index="9" rgba="F8E0F8FF" />
+        <color season="0" tileset="62" palette="8" index="10" rgba="E0B0E8FF" />
+        <color season="0" tileset="62" palette="8" index="11" rgba="B080C0FF" />
+        <color season="0" tileset="62" palette="8" index="12" rgba="9868A8FF" />
+        <color season="0" tileset="62" palette="8" index="13" rgba="784888FF" />
+        <color season="0" tileset="62" palette="8" index="14" rgba="F0D8A0FF" />
+        <color season="0" tileset="62" palette="8" index="15" rgba="D0C080FF" />
+        <color season="0" tileset="62" palette="9" index="2" rgba="F8F0C0FF" />
+        <color season="0" tileset="62" palette="9" index="6" rgba="E0E8F0FF" />
+        <color season="0" tileset="62" palette="9" index="7" rgba="C8D8E8FF" />
+        <color season="0" tileset="62" palette="9" index="9" rgba="F8E090FF" />
+        <color season="0" tileset="62" palette="9" index="10" rgba="E8B068FF" />
+        <color season="0" tileset="62" palette="9" index="11" rgba="D89050FF" />
+        <color season="0" tileset="62" palette="9" index="12" rgba="C88030FF" />
+        <color season="0" tileset="62" palette="9" index="13" rgba="A06020FF" />
+        <color season="0" tileset="62" palette="9" index="14" rgba="78C0F8FF" />
+        <color season="0" tileset="62" palette="9" index="15" rgba="5088C8FF" />
+        <color season="0" tileset="62" palette="10" index="1" rgba="D0E0E8FF" />
+        <color season="0" tileset="62" palette="10" index="2" rgba="A8B8C8FF" />
+        <color season="0" tileset="62" palette="10" index="3" rgba="808088FF" />
+        <color season="0" tileset="62" palette="10" index="4" rgba="606078FF" />
+        <color season="0" tileset="62" palette="10" index="5" rgba="485070FF" />
+        <color season="0" tileset="62" palette="10" index="6" rgba="D0C898FF" />
+        <color season="0" tileset="62" palette="10" index="7" rgba="B8B080FF" />
+        <color season="0" tileset="62" palette="10" index="9" rgba="E8A070FF" />
+        <color season="0" tileset="62" palette="10" index="10" rgba="C87850FF" />
+        <color season="0" tileset="62" palette="10" index="11" rgba="B06838FF" />
+        <color season="0" tileset="62" palette="10" index="12" rgba="985828FF" />
+        <color season="0" tileset="63" palette="9" index="2" rgba="C8D8E0FF" />
+        <color season="0" tileset="63" palette="9" index="3" rgba="90A0B0FF" />
+        <color season="0" tileset="63" palette="9" index="4" rgba="808088FF" />
+        <color season="0" tileset="63" palette="9" index="5" rgba="606078FF" />
+        <color season="0" tileset="63" palette="9" index="6" rgba="485078FF" />
+        <color season="0" tileset="63" palette="9" index="7" rgba="78B0F8FF" />
+        <color season="0" tileset="63" palette="9" index="8" rgba="4880B0FF" />
+        <color season="0" tileset="63" palette="9" index="9" rgba="386090FF" />
+        <color season="0" tileset="63" palette="9" index="10" rgba="285080FF" />
+        <color season="0" tileset="63" palette="9" index="11" rgba="C0E8A8FF" />
+        <color season="0" tileset="63" palette="9" index="12" rgba="78A060FF" />
+        <color season="0" tileset="63" palette="9" index="14" rgba="A0D8F8FF" />
+        <color season="0" tileset="63" palette="9" index="15" rgba="68A8E8FF" />
+        <color season="0" tileset="63" palette="10" index="9" rgba="80C080FF" />
+        <color season="0" tileset="63" palette="10" index="15" rgba="98E898FF" />
+        <color season="3" tileset="0" palette="0" index="1" rgba="80D0D0FF" />
+        <color season="3" tileset="0" palette="0" index="2" rgba="48B0B0FF" />
+        <color season="3" tileset="0" palette="0" index="3" rgba="488888FF" />
+        <color season="3" tileset="0" palette="0" index="4" rgba="285868FF" />
+        <color season="3" tileset="0" palette="0" index="8" rgba="E0E8D8FF" />
+        <color season="3" tileset="0" palette="0" index="9" rgba="E8C0F0FF" />
+        <color season="3" tileset="0" palette="0" index="10" rgba="D890D8FF" />
+        <color season="3" tileset="0" palette="0" index="11" rgba="B048B0FF" />
+        <color season="3" tileset="0" palette="0" index="12" rgba="E8F0E0FF" />
+        <color season="3" tileset="0" palette="0" index="13" rgba="D0D8C0FF" />
+        <color season="3" tileset="0" palette="0" index="14" rgba="B0C098FF" />
+        <color season="3" tileset="0" palette="0" index="15" rgba="98A890FF" />
+        <color season="3" tileset="0" palette="1" index="1" rgba="D8E0E8FF" />
+        <color season="3" tileset="0" palette="1" index="2" rgba="C0C8D8FF" />
+        <color season="3" tileset="0" palette="1" index="4" rgba="787888FF" />
+        <color season="3" tileset="0" palette="1" index="7" rgba="B0B8A8FF" />
+        <color season="3" tileset="0" palette="1" index="9" rgba="D8D0D0FF" />
+        <color season="3" tileset="0" palette="1" index="10" rgba="C8C0B8FF" />
+        <color season="3" tileset="0" palette="1" index="11" rgba="A89098FF" />
+        <color season="3" tileset="0" palette="1" index="12" rgba="806878FF" />
+        <color season="3" tileset="0" palette="1" index="13" rgba="684858FF" />
+        <color season="3" tileset="0" palette="1" index="14" rgba="483850FF" />
+        <color season="3" tileset="0" palette="1" index="15" rgba="D0D8C0FF" />
+        <color season="3" tileset="0" palette="2" index="10" rgba="F8C898FF" />
+        <color season="3" tileset="0" palette="2" index="11" rgba="E89080FF" />
+        <color season="3" tileset="0" palette="2" index="12" rgba="D86870FF" />
+        <color season="3" tileset="0" palette="2" index="13" rgba="C85058FF" />
+        <color season="3" tileset="0" palette="2" index="14" rgba="A82040FF" />
+        <color season="3" tileset="0" palette="3" index="8" rgba="E0D8B8FF" />
+        <color season="3" tileset="0" palette="3" index="9" rgba="C0A898FF" />
+        <color season="3" tileset="0" palette="3" index="15" rgba="D0D8C0FF" />
+        <color season="3" tileset="0" palette="4" index="4" rgba="68A0E8FF" />
+        <color season="3" tileset="0" palette="4" index="5" rgba="4890E0FF" />
+        <color season="3" tileset="0" palette="4" index="6" rgba="4878E0FF" />
+        <color season="3" tileset="0" palette="4" index="7" rgba="5098E8FF" />
+        <color season="3" tileset="0" palette="4" index="8" rgba="C8D8F0FF" />
+        <color season="3" tileset="0" palette="4" index="9" rgba="A8B8D0FF" />
+        <color season="3" tileset="0" palette="4" index="10" rgba="787888FF" />
+        <color season="3" tileset="0" palette="4" index="11" rgba="585878FF" />
+        <color season="3" tileset="0" palette="4" index="12" rgba="3070D0FF" />
+        <color season="3" tileset="0" palette="4" index="13" rgba="E0D8B8FF" />
+        <color season="3" tileset="0" palette="4" index="14" rgba="C8C0A8FF" />
+        <color season="3" tileset="0" palette="4" index="15" rgba="B8B8A8FF" />
+        <color season="3" tileset="0" palette="5" index="6" rgba="E0D8B8FF" />
+        <color season="3" tileset="0" palette="5" index="7" rgba="D0C0A8FF" />
+        <color season="3" tileset="0" palette="5" index="8" rgba="C0A898FF" />
+        <color season="3" tileset="0" palette="5" index="9" rgba="A89078FF" />
+        <color season="3" tileset="0" palette="5" index="10" rgba="E0D8B8FF" />
+        <color season="3" tileset="0" palette="5" index="11" rgba="C8C0A8FF" />
+        <color season="3" tileset="0" palette="5" index="12" rgba="B8B8A8FF" />
+        <color season="3" tileset="0" palette="5" index="13" rgba="E8E8D0FF" />
+        <color season="3" tileset="0" palette="5" index="14" rgba="E0E0D0FF" />
+        <color season="3" tileset="0" palette="5" index="15" rgba="D0D8C0FF" />
+        <color season="3" tileset="1" palette="11" index="5" rgba="F0F8F8FF" />
+        <color season="3" tileset="1" palette="11" index="6" rgba="E0E8D8FF" />
+        <color season="3" tileset="1" palette="11" index="7" rgba="D8E8D8FF" />
+        <color season="3" tileset="1" palette="11" index="8" rgba="D0E0C8FF" />
+        <color season="3" tileset="1" palette="11" index="12" rgba="E8F0E0FF" />
+        <color season="3" tileset="1" palette="11" index="13" rgba="D0D8C0FF" />
+        <color season="3" tileset="1" palette="12" index="8" rgba="D0E0C8FF" />
+        <color season="3" tileset="1" palette="12" index="15" rgba="E8F0E8FF" />
+        <color season="3" tileset="2" palette="9" index="15" rgba="D0D8C0FF" />
+        <color season="3" tileset="2" palette="10" index="9" rgba="487888FF" />
+        <color season="3" tileset="2" palette="10" index="10" rgba="4898A8FF" />
+        <color season="3" tileset="2" palette="10" index="11" rgba="80D0D8FF" />
+        <color season="3" tileset="5" palette="8" index="1" rgba="D0D8C0FF" />
+        <color season="3" tileset="5" palette="15" index="1" rgba="000000FF" />
+        <color season="3" tileset="5" palette="15" index="2" rgba="000000FF" />
+        <color season="3" tileset="5" palette="15" index="3" rgba="000000FF" />
+        <color season="3" tileset="5" palette="15" index="4" rgba="000000FF" />
+        <color season="3" tileset="5" palette="15" index="5" rgba="000000FF" />
+        <color season="3" tileset="5" palette="15" index="6" rgba="000000FF" />
+        <color season="3" tileset="5" palette="15" index="7" rgba="000000FF" />
+        <color season="3" tileset="5" palette="15" index="8" rgba="000000FF" />
+        <color season="3" tileset="5" palette="15" index="9" rgba="000000FF" />
+        <color season="3" tileset="5" palette="15" index="10" rgba="000000FF" />
+        <color season="3" tileset="5" palette="15" index="11" rgba="000000FF" />
+        <color season="3" tileset="5" palette="15" index="12" rgba="000000FF" />
+        <color season="3" tileset="5" palette="15" index="13" rgba="000000FF" />
+        <color season="3" tileset="5" palette="15" index="14" rgba="000000FF" />
+        <color season="3" tileset="5" palette="15" index="15" rgba="000000FF" />
+        <color season="3" tileset="6" palette="10" index="8" rgba="80D0D8FF" />
+        <color season="3" tileset="6" palette="10" index="9" rgba="48B0B8FF" />
+        <color season="3" tileset="6" palette="10" index="10" rgba="488890FF" />
+        <color season="3" tileset="6" palette="15" index="10" rgba="000000FF" />
+        <color season="3" tileset="6" palette="15" index="11" rgba="000000FF" />
+        <color season="3" tileset="6" palette="15" index="12" rgba="000000FF" />
+        <color season="3" tileset="6" palette="15" index="13" rgba="000000FF" />
+        <color season="3" tileset="7" palette="11" index="14" rgba="B0C0B0FF" />
+        <color season="3" tileset="7" palette="11" index="15" rgba="D0D8C0FF" />
+        <color season="3" tileset="8" palette="9" index="10" rgba="285870FF" />
+        <color season="3" tileset="8" palette="9" index="11" rgba="488888FF" />
+        <color season="3" tileset="8" palette="9" index="12" rgba="48B0B0FF" />
+        <color season="3" tileset="8" palette="9" index="13" rgba="60B8B8FF" />
+        <color season="3" tileset="8" palette="9" index="14" rgba="80D0D0FF" />
+        <color season="3" tileset="8" palette="11" index="1" rgba="80D0D0FF" />
+        <color season="3" tileset="8" palette="11" index="2" rgba="48B0B0FF" />
+        <color season="3" tileset="8" palette="11" index="3" rgba="488888FF" />
+        <color season="3" tileset="8" palette="11" index="4" rgba="285868FF" />
+        <color season="3" tileset="8" palette="11" index="5" rgba="407870FF" />
+        <color season="3" tileset="8" palette="11" index="9" rgba="889888FF" />
+        <color season="3" tileset="8" palette="11" index="10" rgba="509898FF" />
+        <color season="3" tileset="8" palette="11" index="11" rgba="48B0B0FF" />
+        <color season="3" tileset="8" palette="11" index="12" rgba="407870FF" />
+        <color season="3" tileset="8" palette="11" index="13" rgba="D0D8C0FF" />
+        <color season="3" tileset="8" palette="11" index="14" rgba="B0B8A8FF" />
+        <color season="3" tileset="10" palette="12" index="15" rgba="D0D8C0FF" />
+        <color season="3" tileset="11" palette="10" index="6" rgba="D8D8D0FF" />
+        <color season="3" tileset="11" palette="10" index="7" rgba="C8C8C0FF" />
+        <color season="3" tileset="11" palette="10" index="9" rgba="D0D0B8FF" />
+        <color season="3" tileset="11" palette="10" index="10" rgba="B8B8A0FF" />
+        <color season="3" tileset="11" palette="10" index="11" rgba="909080FF" />
+        <color season="3" tileset="11" palette="10" index="15" rgba="D0D8C0FF" />
+        <color season="3" tileset="11" palette="15" index="6" rgba="000000FF" />
+        <color season="3" tileset="11" palette="15" index="7" rgba="000000FF" />
+        <color season="3" tileset="11" palette="15" index="8" rgba="000000FF" />
+        <color season="3" tileset="11" palette="15" index="9" rgba="000000FF" />
+        <color season="3" tileset="11" palette="15" index="10" rgba="000000FF" />
+        <color season="3" tileset="11" palette="15" index="11" rgba="000000FF" />
+        <color season="3" tileset="34" palette="8" index="1" rgba="80D0D0FF" />
+        <color season="3" tileset="34" palette="8" index="2" rgba="48B0B0FF" />
+        <color season="3" tileset="34" palette="8" index="3" rgba="488888FF" />
+        <color season="3" tileset="34" palette="8" index="4" rgba="285868FF" />
+        <color season="3" tileset="34" palette="8" index="5" rgba="407070FF" />
+        <color season="3" tileset="34" palette="8" index="12" rgba="E0E8D8FF" />
+        <color season="3" tileset="34" palette="8" index="13" rgba="D0D8C0FF" />
+        <color season="3" tileset="34" palette="8" index="14" rgba="B0B8A8FF" />
+        <color season="3" tileset="34" palette="8" index="15" rgba="98A898FF" />
+        <color season="3" tileset="34" palette="9" index="12" rgba="98B8A0FF" />
+        <color season="3" tileset="34" palette="9" index="14" rgba="88D0E8FF" />
+        <color season="3" tileset="58" palette="8" index="1" rgba="80D0D8FF" />
+        <color season="3" tileset="58" palette="8" index="2" rgba="48B0B8FF" />
+        <color season="3" tileset="58" palette="8" index="3" rgba="488890FF" />
+        <color season="3" tileset="58" palette="8" index="4" rgba="285870FF" />
+        <color season="3" tileset="58" palette="8" index="5" rgba="407078FF" />
+        <color season="3" tileset="58" palette="8" index="12" rgba="F0F8E8FF" />
+        <color season="3" tileset="58" palette="8" index="13" rgba="D0D8C0FF" />
+        <color season="3" tileset="58" palette="8" index="14" rgba="B0B8A8FF" />
+        <color season="3" tileset="58" palette="8" index="15" rgba="98A898FF" />
+        <color season="3" tileset="58" palette="9" index="5" rgba="98A898FF" />
+        <color season="3" tileset="58" palette="9" index="12" rgba="98A898FF" />
+        <color season="3" tileset="58" palette="9" index="14" rgba="88D0E8FF" />
+        <color season="3" tileset="58" palette="11" index="1" rgba="B8F0F8FF" />
+        <color season="3" tileset="58" palette="11" index="2" rgba="80D0D8FF" />
+        <color season="3" tileset="58" palette="11" index="3" rgba="488890FF" />
+        <color season="3" tileset="58" palette="11" index="4" rgba="306880FF" />
+        <color season="3" tileset="58" palette="11" index="5" rgba="406878FF" />
+        <color season="3" tileset="58" palette="11" index="9" rgba="50A8B0FF" />
+        <color season="3" tileset="58" palette="11" index="10" rgba="308088FF" />
+        <color season="3" tileset="58" palette="11" index="12" rgba="F0F8E8FF" />
+        <color season="3" tileset="58" palette="11" index="13" rgba="D0D8C0FF" />
+        <color season="3" tileset="58" palette="11" index="14" rgba="B0B8A8FF" />
+        <color season="3" tileset="58" palette="11" index="15" rgba="98A898FF" />
+        <color season="3" tileset="61" palette="12" index="9" rgba="E0E0E0FF" />
+        <color season="3" tileset="61" palette="12" index="10" rgba="D0D0D0FF" />
+        <color season="3" tileset="61" palette="12" index="11" rgba="B0B0A8FF" />
+        <color season="3" tileset="61" palette="12" index="12" rgba="909090FF" />
+        <color season="3" tileset="61" palette="12" index="13" rgba="787868FF" />
+        <color season="3" tileset="61" palette="12" index="14" rgba="606058FF" />
+        <color season="3" tileset="62" palette="10" index="4" rgba="585880FF" />
+        <color season="3" tileset="62" palette="10" index="5" rgba="404878FF" />
+        <color season="3" tileset="62" palette="10" index="9" rgba="E09860FF" />
+        <color season="3" tileset="62" palette="10" index="13" rgba="C8D8D0FF" />
+        <color season="3" tileset="63" palette="10" index="9" rgba="98A898FF" />
+        <color season="3" tileset="63" palette="10" index="15" rgba="D0D8C0FF" />
+    </palettes>
+    <animations intervalMillis="300">
+        <tiles tileset="0" frames="5" first="508" count="4" pointerOffset="-141" />
+        <tiles tileset="0" frames="8" first="464" count="18" pointerOffset="-61" />
+        <tiles tileset="0" frames="8" first="416" count="48" pointerOffset="-101" />
+        <tiles tileset="45" frames="4" first="976" count="8" pointerOffset="-53" />
+        <tiles tileset="28" frames="2" first="880" count="7" pointerOffset="-33" />
+        <tiles tileset="57" frames="4" first="896" count="8" pointerOffset="-33" />
+        <tiles tileset="7" frames="5" first="744" count="8" pointerOffset="-53" />
+    </animations>
+    <lighting redGreenDivisor="2" blueDivisor="4" />
+</fireRed>
