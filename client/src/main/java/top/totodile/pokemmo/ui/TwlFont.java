@@ -13,7 +13,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-/** 参考客户端的 FreeType 字体链路：CJK 字体配合 NotoSans 拉丁字符回退。 */
+/** FreeType 字体链路：CJK 字体配合 NotoSans 拉丁字符回退。 */
 final class TwlFont implements Font {
     private static final FontParameter.Parameter<Integer> SIZE = FontParameter.newParameter("size", 12);
     private static final FontParameter.Parameter<Integer> CJK_SIZE = FontParameter.newParameter("size_cjk", 14);
@@ -49,11 +49,11 @@ final class TwlFont implements Font {
         library = FreeType.initFreeType();
         try {
             FontParameter base = parameters[parameters.length - 1];
-            // 参考资源的集合顺序为 SC、TC、JP；中文使用索引 0，回退字体保持同字重。
+            // 字体集合顺序为 SC、TC、JP；中文使用索引 0，回退字体保持同字重。
             cjkFace = loadFace(url, 0);
             latinFace = loadFace(new URL(url, url.getPath().endsWith("Bold.ttc")
                     ? "NotoSans-Bold.ttf" : "NotoSans-Medium.ttf"), 0);
-            // 参考 bigCJKFontSizes：中文环境对整个字体采用 size_cjk，包含英文和数字。
+            // 中文环境对整个字体采用 size_cjk，包含英文和数字。
             int size = base.get(CJK_SIZE) > 0 ? base.get(CJK_SIZE) : base.get(SIZE);
             cjkFace.setPixelSizes(0, size);
             baseline = FreeType.toInt(cjkFace.getSize().getMetrics().getAscender());
@@ -177,7 +177,7 @@ final class TwlFont implements Font {
     }
 
     private Glyph createGlyph(char character) {
-        // 参考 GdxFreeTypeGlyphGenerator：先查询主字体，仅缺失字形才使用回退字体。
+        // 先查询主字体，仅缺失字形才使用回退字体。
         FreeType.Face face = cjkFace.getCharIndex(character) != 0 ? cjkFace : latinFace;
         FontParameter base = parameters[parameters.length - 1];
         int border = base.get(BORDER_WIDTH);
@@ -201,7 +201,7 @@ final class TwlFont implements Font {
             int fillX = 0;
             int fillY = 0;
             if (border > 0) {
-                // 与参考 FreeTypeFontGenerator 一致，使用原生圆角描边。
+                // 使用 FreeType 原生圆角描边。
                 outline = slot.getGlyph();
                 FreeType.Stroker stroker = library.createStroker();
                 try {

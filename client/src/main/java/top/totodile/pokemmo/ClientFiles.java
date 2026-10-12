@@ -3,7 +3,7 @@ package top.totodile.pokemmo;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-/** 与参考客户端一致，从外部 data 目录读取可替换资源。 */
+/** 从外部 data 目录读取可替换资源。 */
 public final class ClientFiles {
     private ClientFiles() {
     }

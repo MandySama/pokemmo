@@ -14,7 +14,7 @@ import java.nio.file.Files;
 
 /**
  * 桌面客户端入口：负责 GLFW 窗口、图标、OpenGL 上下文与帧循环。
- * 窗口和图标流程参考 GlfwApplicationLauncher，界面内容交给 TWL 绘制。
+ * 初始化窗口与图标，界面内容交给 TWL 绘制。
  */
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -73,7 +73,7 @@ public class Main {
         }
     }
 
-    /** 参考 WindowPlacement 的默认定位分支，在主屏工作区内居中并避开任务栏。 */
+    /** 在主屏工作区内居中窗口并避开任务栏。 */
     private static void centerWindow(long window) {
         long monitor = GLFW.glfwGetPrimaryMonitor();
         if (monitor == 0L) return;
@@ -96,7 +96,7 @@ public class Main {
     }
 
     /**
-     * 参考客户端同时提交多种尺寸的图标，由操作系统选择合适的尺寸。
+     * 同时提交多种尺寸的图标，由操作系统选择合适的尺寸。
      * GLFW 调用时会复制像素，因此调用结束后即可释放 Pixmap 和临时图片结构。
      */
     public static void setWindowIcon(long window, String... resourcePaths) throws IOException {

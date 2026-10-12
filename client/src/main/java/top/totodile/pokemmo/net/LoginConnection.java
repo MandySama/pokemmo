@@ -7,10 +7,10 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
 
-/** 参考 ProtocolSession 的连接和初始握手；当前阶段仅接入服务端不可用的失败链路。 */
+/** 处理连接和初始握手；当前阶段仅接入服务端不可用的失败链路。 */
 public final class LoginConnection implements AutoCloseable {
     public enum Failure {
-        // 参考 ChatHistoryViewportComponent.Y20：网络组件已建立时，连接失败使用 2009。
+        // 网络组件已建立时，连接失败使用 2009。
         COMMUNICATION("与验证服务器通信失败. 请稍后再试."),
         SYSTEM("系统错误. 请稍候再试.");
 
@@ -37,7 +37,7 @@ public final class LoginConnection implements AutoCloseable {
         worker = Thread.ofPlatform().daemon().name("login-connection").start(() -> {
             try {
                 Failure failure = request(host, port);
-                // 参考 PacketFramingParser.lPT2 的 100ms 轮询周期，避免立即失败在同帧恢复表单。
+                // 采用 100ms 轮询周期，避免立即失败在同帧恢复表单。
                 Thread.sleep(100);
                 result.complete(failure);
             } catch (InterruptedException exception) {
@@ -51,7 +51,7 @@ public final class LoginConnection implements AutoCloseable {
     }
 
     private Failure request(String host, int port) {
-        // 参考单地址 ServerEndpointAddressResolver：每轮两次连接，超时由 10 秒切到 30 秒。
+        // 单地址每轮尝试两次连接，超时由 10 秒切到 30 秒。
         for (int timeout : new int[]{10_000, 10_000, 30_000, 30_000}) {
             try (Socket connection = new Socket()) {
                 synchronized (this) {
@@ -60,7 +60,7 @@ public final class LoginConnection implements AutoCloseable {
                 }
                 connection.connect(new InetSocketAddress(host, port), timeout);
                 connection.setSoTimeout(10_000);
-                // 参考 HC / ClientKeepAlivePacket：大端包长、opcode 0、随机数与时间戳。
+                // 初始握手包含大端包长、opcode 0、随机数与时间戳。
                 long seed = ThreadLocalRandom.current().nextLong();
                 byte[] handshake = ByteBuffer.allocate(19).putShort((short) 19).put((byte) 0)
                         .putLong(seed ^ 0x2C9CA13689DB65C8L)
@@ -72,7 +72,7 @@ public final class LoginConnection implements AutoCloseable {
                 // 不把任意响应伪装成密码错误或登录成功。
                 return Failure.SYSTEM;
             } catch (IOException exception) {
-                // 连接拒绝、握手超时或断开均按参考流程尝试下一个连接。
+                // 连接拒绝、握手超时或断开均尝试下一个连接。
             } finally {
                 synchronized (this) {
                     socket = null;

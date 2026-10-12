@@ -4,6 +4,14 @@
     <file url="file://$PROJECT_DIR$" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/client/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/client/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/sever/chat/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/sever/chat/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/sever/game/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/sever/game/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/sever/login/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/sever/login/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/sever/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/sever/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/twl-core/src/main/java" charset="UTF-8" />

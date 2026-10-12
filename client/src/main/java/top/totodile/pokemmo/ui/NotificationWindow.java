@@ -4,7 +4,7 @@ import de.matthiasmann.twl.Event;
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Label;
 
-/** 参考 NotificationWindow：默认停留 5 秒，淡出 250 毫秒，300 毫秒后移除。 */
+/** 通知默认停留 5 秒，淡出 250 毫秒，300 毫秒后移除。 */
 final class NotificationWindow extends Label {
     private static final long DURATION = 5_000_000_000L;
     private static final long FADE_DURATION = 250_000_000L;
@@ -26,7 +26,7 @@ final class NotificationWindow extends Label {
     boolean update(long now) {
         if (fadeStartedAt == 0) {
             if (now >= expiresAt) fadeStartedAt = now;
-            // 参考 HP：本帧先启动淡出，下一帧才检查移除。
+            // 本帧先启动淡出，下一帧才检查移除。
             return false;
         }
         opacity = Math.max(0, 1 - (float) (now - fadeStartedAt) / FADE_DURATION);

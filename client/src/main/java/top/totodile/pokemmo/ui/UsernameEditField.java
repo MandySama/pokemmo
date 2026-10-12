@@ -1,6 +1,6 @@
 package top.totodile.pokemmo.ui;
 
-/** 参考登录表单的用户名过滤器：键入和粘贴均排除空白字符。 */
+/** 登录表单的用户名过滤器：键入和粘贴均排除空白字符。 */
 final class UsernameEditField extends LoginEditField {
     @Override
     protected void insertChar(char character) {
@@ -18,7 +18,7 @@ final class UsernameEditField extends LoginEditField {
                 filtered.append(character);
             }
         }
-        // 参考 Nr0：过滤后为空时保留现有选区，不删除已选文字。
+        // 过滤后为空时保留现有选区，不删除已选文字。
         if (!filtered.isEmpty()) {
             super.insertText(filtered.toString());
         }

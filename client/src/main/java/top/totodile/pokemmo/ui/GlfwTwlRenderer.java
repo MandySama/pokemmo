@@ -21,7 +21,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 /**
  * 将官方 TWL 的 Renderer/Texture/Image 接口适配到现有 GLFW + LWJGL3 上下文。
- * 这是当前项目的最小适配器，并非参考客户端定制渲染器的完整移植。
+ * 提供当前界面所需的最小渲染适配功能。
  * 支持主题图片、字体、颜色叠乘、裁剪和纹理释放；其他能力按接口约定返回空或显式报错。
  * 使用固定管线和立即模式，需要兼容这些功能的 OpenGL 上下文。
  */
@@ -135,7 +135,7 @@ final class GlfwTwlRenderer implements Renderer {
             int id = glGenTextures();
             glBindTexture(GL_TEXTURE_2D, id);
             int filtering = "nearest".equals(filter) ? GL_NEAREST : GL_LINEAR;
-            // 参考 gfx.xml 中 Logo 的 nearest 设置，保留原图像素边缘。
+            // Logo 使用 nearest 采样，保留原图像素边缘。
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filtering);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filtering);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, rgba.getWidth(), rgba.getHeight(),

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <themes>
-    <!-- 登录主题沿用参考图集和字体，局部控件尺寸保持参考登录布局。 -->
+    <!-- 登录主题定义图集、字体及控件尺寸。 -->
     <constantDef name="main-color">
         <color>#5db1ff</color>
     </constantDef>
@@ -11,6 +11,10 @@
         <area name="background-image" xywh="*"/>
     </images>
     <images file="res/user-interface.png" filter="nearest">
+        <area name="-frame-close" xywh="0,500,12,12"/>
+        <!-- 图标保持 12×12，透明边距将按钮点击范围扩为 18×17。 -->
+        <alias name="frame-close" ref="-frame-close" inset="2,3,3,3"/>
+        <area name="language-scroll-thumb" xywh="22,1,7,7" splity="T2,B2" tint="#FFFFFF"/>
         <area name="-field-cursor" xywh="0,496,1,1" tint="sub-color"/>
         <animation name="field-cursor" timeSource="keyboardFocus">
             <frame ref="-field-cursor" duration="500"/>
@@ -30,6 +34,8 @@
         <fontParam if="disabled" color="#888888"/>
     </fontDef>
     <images file="res/pokemmo_ui.png" filter="nearest">
+        <area name="ui-header.background" xywh="326,292,23,20" splitx="L5,R5" splity="T5,B5"/>
+        <area name="ui-button-picker.background" xywh="390,125,9,14" center="true"/>
         <area name="ui-spacer.default" xywh="330,8,8,3"/>
         <area name="ui-popup-button.selected" xywh="364,254,35,29" splitx="L4,R4" splity="T4,B4"/>
         <area name="ui-popup-button.default" xywh="0,0,44,14" tint="#00FFFFFF"/>
@@ -102,6 +108,11 @@
             <alias ref="ui-button.selected" if="keyboardFocus"/>
             <alias ref="ui-button.hover" if="hover"/>
             <alias ref="ui-button.default"/>
+        </select>
+        <select name="language-combobox.background">
+            <!-- 列表展开后焦点转移到弹层，框体仍需保持高亮。 -->
+            <alias ref="ui-button.selected" if="keyboardFocus | hasOpenPopups"/>
+            <alias ref="ui-button.background"/>
         </select>
         <area name="ui-checkbox.f0" xywh="364,190,1,15" inset="0,-14,0,0" center="true"/>
         <area name="ui-checkbox.f1" xywh="364,190,2,15" inset="0,-15,0,0" center="true"/>
@@ -443,7 +454,7 @@
             <int>0</int>
         </param>
     </theme>
-    <!-- 参考 init.xml 的 menumanager / menupopup，用于输入框右键编辑菜单。 -->
+    <!-- 输入框右键编辑菜单的管理器与弹出层主题。 -->
     <theme name="menupopup" ref="dialoglayout">
         <param name="background">
             <image>ui-popup.background</image>
@@ -484,13 +495,154 @@
         </param>
         <theme name="menupopup" ref="menupopup"/>
     </theme>
+    <theme name="comboboxPopup" ref="-defaults" allowWildcard="true">
+        <!-- 八行各 30 像素，加上列表上下各 7 像素的内边距。 -->
+        <param name="minHeight">
+            <int>254</int>
+        </param>
+        <param name="maxHeight">
+            <int>254</int>
+        </param>
+        <param name="background">
+            <image>ui-popup.background</image>
+        </param>
+        <theme name="listbox" ref="-defaults" allowWildcard="true">
+            <param name="minDisplayedRows">
+                <int>1</int>
+            </param>
+            <param name="cellHeight">
+                <int>30</int>
+            </param>
+            <param name="cellWidth">
+                <int>-1</int>
+            </param>
+            <param name="rowMajor">
+                <bool>true</bool>
+            </param>
+            <param name="fixedCellWidth">
+                <bool>false</bool>
+            </param>
+            <param name="fixedCellHeight">
+                <bool>false</bool>
+            </param>
+            <param name="border">
+                <border>7,4,7,4</border>
+            </param>
+            <theme name="display" ref="label">
+                <param name="font">
+                    <font>listbox-display</font>
+                </param>
+                <param name="border">
+                    <border>7,0,7,0</border>
+                </param>
+                <param name="minHeight">
+                    <int>26</int>
+                </param>
+                <param name="background">
+                    <image>ui-popup-button.background</image>
+                </param>
+                <param name="textAlignment">
+                    <enum type="alignment">CENTER</enum>
+                </param>
+            </theme>
+            <theme name="vscrollbar" ref="-defaults" allowWildcard="true">
+                <param name="minWidth">
+                    <int>7</int>
+                </param>
+                <param name="scaleThumb">
+                    <bool>true</bool>
+                </param>
+                <theme name="upbutton" ref="-defaults"/>
+                <theme name="downbutton" ref="-defaults"/>
+                <theme name="thumb" ref="-defaults">
+                    <param name="background">
+                        <image>language-scroll-thumb</image>
+                    </param>
+                    <param name="minHeight">
+                        <int>20</int>
+                    </param>
+                </theme>
+            </theme>
+        </theme>
+    </theme>
     <theme name="logingui" ref="-defaults">
+        <theme name="rom-panel" ref="resizableframe" allowWildcard="true">
+            <param name="fadeDurationShow">
+                <int>0</int>
+            </param>
+            <param name="fadeDurationHide">
+                <int>0</int>
+            </param>
+            <param name="border">
+                <border>0</border>
+            </param>
+            <param name="titleAreaTop">
+                <int>0</int>
+            </param>
+            <param name="titleAreaBottom">
+                <int>40</int>
+            </param>
+            <param name="hasCloseButton">
+                <bool>true</bool>
+            </param>
+            <param name="closeButtonY">
+                <int>10</int>
+            </param>
+            <theme name="closeButton" ref="-defaults">
+                <param name="background">
+                    <image>frame-close</image>
+                </param>
+                <param name="minWidth">
+                    <int>5</int>
+                </param>
+                <param name="minHeight">
+                    <int>5</int>
+                </param>
+            </theme>
+            <theme name="button" ref="button"/>
+            <theme name="label-settings-title" ref="label">
+                <param name="background">
+                    <image>ui-header.background</image>
+                </param>
+                <param name="border">
+                    <border>2,6,3,0</border>
+                </param>
+            </theme>
+            <theme name="combobox" ref="-defaults" allowWildcard="true">
+                <param name="background">
+                    <image>language-combobox.background</image>
+                </param>
+                <param name="border">
+                    <border>0,8,0,8</border>
+                </param>
+                <theme name="display" ref="label">
+                    <param name="font">
+                        <font>pb-dark</font>
+                    </param>
+                    <param name="border">
+                        <border>5</border>
+                    </param>
+                    <param name="textAlignment">
+                        <enum type="alignment">CENTER</enum>
+                    </param>
+                </theme>
+                <theme name="button" ref="-defaults">
+                    <param name="background">
+                        <image>ui-button-picker.background</image>
+                    </param>
+                    <param name="border">
+                        <border>0,0,0,5</border>
+                    </param>
+                </theme>
+            </theme>
+        </theme>
+        <theme name="menu-button" ref="button"/>
         <theme name="notification" ref="label">
             <param name="background">
                 <image>ui-popup.background</image>
             </param>
             <param name="border">
-                <!-- 参考外框、DialogLayout、Label 各 5 像素的内边距。 -->
+                <!-- 外框、DialogLayout、Label 各提供 5 像素的内边距。 -->
                 <border>15</border>
             </param>
             <param name="font">
@@ -521,14 +673,14 @@
                 </param>
                 <theme name="label" ref="label"/>
                 <theme name="button" ref="button">
-                    <!-- 对齐参考界面的紧凑按钮，余量留给中间的弹性间隔。 -->
+                    <!-- 按钮采用紧凑尺寸，余量留给中间的弹性间隔。 -->
                     <param name="minWidth">
                         <int>43</int>
                     </param>
                 </theme>
                 <theme name="togglebutton" ref="togglebutton"/>
                 <theme name="editfield" ref="editfield">
-                    <!-- 保持参考登录表单的输入框尺寸，避免字体度量影响布局。 -->
+                    <!-- 固定登录表单的输入框尺寸，避免字体度量影响布局。 -->
                     <param name="minWidth">
                         <int>210</int>
                     </param>
