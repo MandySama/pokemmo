@@ -2,6 +2,7 @@ package top.totodile.pokemmo.ui;
 
 import de.matthiasmann.twl.*;
 import de.matthiasmann.twl.model.SimpleChangableListModel;
+import top.totodile.pokemmo.ClientStrings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,40 +19,51 @@ final class ClientManagementWindow extends ResizableFrame {
     private final List<Button> selectButtons = new ArrayList<>();
     private final List<Button> infoButtons = new ArrayList<>();
     private final ComboBox<String> language = new ComboBox<>(
-            new SimpleChangableListModel<>("English", "Français (French)", "Deutsch (German)",
-                    "Español (Spanish)", "Português Brasileiro (Brazilian Portuguese)", "Italiano (Italian)",
-                    "Polski (Polish)", "한국어 (Korean)", "日本語 (Japanese)",
-                    "简体中文 (Simplified Chinese)", "繁體中文 (Traditional Chinese)")) {
+            new SimpleChangableListModel<>(ClientStrings.languageNames())) {
         @Override
         protected boolean openPopup() {
             // 从列表顶部计算可见范围，使当前选项滚动到最后一个可见行。
             ((ListBox<?>) popup.getChild(0)).setFirstVisible(0);
             return super.openPopup();
         }
-    };
-    private final Button openFolder = new Button("打开ROM文件夹");
-    private final Button close = new Button("关闭");
 
-    ClientManagementWindow(Runnable onClose) {
+        @Override
+        protected void setPopupSize() {
+            // 按已安装语言数量设置高度，最多显示八行。
+            ListBox<?> list = (ListBox<?>) popup.getChild(0);
+            int height = Math.min(8, list.getNumEntries()) * list.getCellHeight() + list.getBorderVertical();
+            popup.setMinSize(popup.getMinWidth(), height);
+            popup.setMaxSize(popup.getMaxWidth(), height);
+            super.setPopupSize();
+        }
+    };
+    private final Button openFolder = new Button(ClientStrings.get(1174));
+    private final Button close = new Button(ClientStrings.get(65));
+
+    ClientManagementWindow(Runnable onClose, Runnable onLanguageChanged) {
         setTheme("rom-panel");
-        setTitle("客户端管理");
+        setTitle(ClientStrings.get(1175));
         setResizableAxis(ResizableAxis.NONE);
         setDraggable(false);
         addCloseCallback(onClose);
         content.setTheme("");
         add(content);
-        for (String text : new String[]{"客户端语言:", "黑/白ROM:", "火红ROM:", "绿宝石ROM:",
-                "白金ROM:", "心金/魂银ROM:"}) {
-            Label label = new Label(text);
+        for (int stringId : new int[]{1332, 92, 90, 91, 93, 94}) {
+            Label label = new Label(ClientStrings.get(stringId) + (stringId == 1332 ? "" : ":"));
             label.setTheme("label-settings-title");
             labels.add(label);
             content.add(label);
         }
-        language.setSelected(9);
+        language.setSelected(ClientStrings.selectedIndex());
+        language.addCallback(() -> {
+            ClientStrings.select(language.getSelected());
+            refreshTexts();
+            onLanguageChanged.run();
+        });
         content.add(language);
         for (int i = 0; i < 5; i++) {
-            Button select = new Button("选择文件");
-            Button info = new Button("信息");
+            Button select = new Button(ClientStrings.get(1176));
+            Button info = new Button(ClientStrings.get(1177));
             selectButtons.add(select);
             infoButtons.add(info);
             content.add(select);
@@ -60,6 +72,18 @@ final class ClientManagementWindow extends ResizableFrame {
         content.add(openFolder);
         close.addCallback(onClose);
         content.add(close);
+    }
+
+    private void refreshTexts() {
+        setTitle(ClientStrings.get(1175));
+        int[] ids = {1332, 92, 90, 91, 93, 94};
+        for (int i = 0; i < ids.length; i++) {
+            labels.get(i).setText(ClientStrings.get(ids[i]) + (i == 0 ? "" : ":"));
+        }
+        for (Button button : selectButtons) button.setText(ClientStrings.get(1176));
+        for (Button button : infoButtons) button.setText(ClientStrings.get(1177));
+        openFolder.setText(ClientStrings.get(1174));
+        close.setText(ClientStrings.get(65));
     }
 
     @Override

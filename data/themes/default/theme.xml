@@ -11,6 +11,28 @@
         <area name="background-image" xywh="*"/>
     </images>
     <images file="res/user-interface.png" filter="nearest">
+        <grid name="tooltip-left.background" weightsX="0,1,0,1,0" weightsY="0,0,1,0" border="0,5,5,5">
+            <area xywh="4,325,4,4"/>
+            <area xywh="6,325,2,4"/>
+            <area xywh="8,325,7,4"/>
+            <area xywh="15,325,2,4"/>
+            <area xywh="15,325,4,4"/>
+            <area xywh="4,328,4,4"/>
+            <area xywh="6,328,2,4"/>
+            <area xywh="8,328,7,4"/>
+            <area xywh="15,328,2,4"/>
+            <area xywh="15,328,4,4"/>
+            <area xywh="4,330,4,2"/>
+            <area xywh="6,330,2,2"/>
+            <area xywh="8,330,7,2"/>
+            <area xywh="15,330,2,2"/>
+            <area xywh="15,330,4,2"/>
+            <area xywh="4,335,4,7"/>
+            <area xywh="6,335,2,7"/>
+            <area xywh="8,335,7,7"/>
+            <area xywh="15,335,2,7"/>
+            <area xywh="15,335,4,7"/>
+        </grid>
         <area name="-frame-close" xywh="0,500,12,12"/>
         <!-- 图标保持 12×12，透明边距将按钮点击范围扩为 18×17。 -->
         <alias name="frame-close" ref="-frame-close" inset="2,3,3,3"/>
@@ -23,6 +45,13 @@
         <area name="field-selection" xywh="0,496,1,1" tint="sub-color"/>
     </images>
     <fontDef name="default" filename="res/fonts/NotoSansCJK-Medium.ttc" color="#FFFFFF"/>
+    <fontDef name="alphabeta-orange-shadow" filename="res/fonts/NotoSansCJK-Medium.ttc" color="#FF9900"/>
+    <fontDef name="pb-tab" filename="res/fonts/NotoSansCJK-Medium.ttc" color="#999999">
+        <fontParam if="selected" color="#FFFFFF"/>
+    </fontDef>
+    <fontDef name="tooltip-font" filename="res/fonts/NotoSansCJK-Medium.ttc" color="#535353" size="12" size_cjk="14">
+        <fontParam if="disabled" color="#CCC"/>
+    </fontDef>
     <fontDef name="alphabeta" filename="res/fonts/NotoSansCJK-Medium.ttc" color="#FFFFFF"/>
     <fontDef name="pb-dark" filename="res/fonts/NotoSansCJK-Medium.ttc" color="#FFFFFF">
         <fontParam if="disabled" color="#A9A9A9"/>
@@ -34,6 +63,12 @@
         <fontParam if="disabled" color="#888888"/>
     </fontDef>
     <images file="res/pokemmo_ui.png" filter="nearest">
+        <area name="ui-tab-vertical.active" xywh="4,281,34,17" splitx="L6,R0" inset="0,-18,0,0"/>
+        <area name="ui-tab-vertical.default" xywh="25,281,34,17" splitx="L6,R0"/>
+        <select name="ui-tab-vertical.background">
+            <alias ref="ui-tab-vertical.active" if="selected"/>
+            <alias ref="ui-tab-vertical.default"/>
+        </select>
         <area name="ui-header.background" xywh="326,292,23,20" splitx="L5,R5" splity="T5,B5"/>
         <area name="ui-button-picker.background" xywh="390,125,9,14" center="true"/>
         <area name="ui-spacer.default" xywh="330,8,8,3"/>
@@ -450,9 +485,20 @@
         </param>
     </theme>
     <theme name="tooltipwindow" ref="-defaults">
-        <param name="fadeInTime">
-            <int>0</int>
+        <param name="background">
+            <image>tooltip-left.background</image>
         </param>
+        <param name="border">
+            <border>8,8,12,8</border>
+        </param>
+        <param name="fadeInTime">
+            <int>250</int>
+        </param>
+        <theme name="label" ref="-defaults">
+            <param name="font">
+                <font>tooltip-font</font>
+            </param>
+        </theme>
     </theme>
     <!-- 输入框右键编辑菜单的管理器与弹出层主题。 -->
     <theme name="menupopup" ref="dialoglayout">
@@ -566,6 +612,86 @@
         </theme>
     </theme>
     <theme name="logingui" ref="-defaults">
+        <theme name="mods-panel" ref="base-frame" allowWildcard="true">
+            <param name="fadeDurationShow">
+                <int>0</int>
+            </param>
+            <param name="fadeDurationHide">
+                <int>0</int>
+            </param>
+            <param name="hasCloseButton">
+                <bool>true</bool>
+            </param>
+            <theme name="closeButton" ref="-defaults">
+                <param name="background">
+                    <image>frame-close</image>
+                </param>
+                <param name="minWidth">
+                    <int>5</int>
+                </param>
+                <param name="minHeight">
+                    <int>5</int>
+                </param>
+            </theme>
+            <param name="minHeight">
+                <int>300</int>
+            </param>
+            <theme name="dialoglayout" ref="base-frame.dialoglayout" allowWildcard="true">
+                <param name="minWidth">
+                    <int>510</int>
+                </param>
+                <param name="border">
+                    <border>40,10,5,7</border>
+                </param>
+                <param name="defaultGap">
+                    <dimension>5,5</dimension>
+                </param>
+                <theme name="button" ref="button"/>
+                <theme name="togglebutton" ref="togglebutton"/>
+                <theme name="label" ref="label"/>
+                <theme name="scrollpane" ref="-defaults" allowWildcard="true">
+                    <param name="maxWidth">
+                        <int>32767</int>
+                    </param>
+                    <param name="maxHeight">
+                        <int>32767</int>
+                    </param>
+                    <param name="minWidth">
+                        <int>100</int>
+                    </param>
+                    <param name="minHeight">
+                        <int>100</int>
+                    </param>
+                    <param name="hasDragButton">
+                        <bool>false</bool>
+                    </param>
+                    <param name="autoScrollArea">
+                        <int>5</int>
+                    </param>
+                    <param name="autoScrollSpeed">
+                        <int>10</int>
+                    </param>
+                    <param name="scrollbarsAlwaysVisible">
+                        <bool>false</bool>
+                    </param>
+                    <theme name="hscrollbar" ref="-defaults" allowWildcard="true">
+                        <param name="scaleThumb">
+                            <bool>true</bool>
+                        </param>
+                        <theme name="leftbutton" ref="-defaults"/>
+                        <theme name="rightbutton" ref="-defaults"/>
+                        <theme name="thumb" ref="-defaults"/>
+                    </theme>
+                    <theme name="vscrollbar" ref="comboboxPopup.listbox.vscrollbar"/>
+                    <theme name="settings-label-area" ref="base-frame.dialoglayout" allowWildcard="true">
+                        <param name="border">
+                            <border>0</border>
+                        </param>
+                        <theme name="label" ref="label"/>
+                    </theme>
+                </theme>
+            </theme>
+        </theme>
         <theme name="rom-panel" ref="resizableframe" allowWildcard="true">
             <param name="fadeDurationShow">
                 <int>0</int>
@@ -694,6 +820,78 @@
             <param name="font">
                 <font>alphabeta-border</font>
             </param>
+        </theme>
+    </theme>
+    <theme name="settings-panel" ref="logingui.mods-panel" allowWildcard="true">
+        <param name="minHeight">
+            <int>498</int>
+        </param>
+        <theme name="category" ref="togglebutton">
+            <param name="background">
+                <image>ui-tab-vertical.background</image>
+            </param>
+            <param name="font">
+                <font>pb-tab</font>
+            </param>
+            <param name="border">
+                <border>5,0,5,10</border>
+            </param>
+            <param name="textAlignment">
+                <enum type="alignment">LEFT</enum>
+            </param>
+        </theme>
+        <theme name="button" ref="button"/>
+        <theme name="settings-scrollpane" ref="logingui.mods-panel.dialoglayout.scrollpane" allowWildcard="true">
+            <theme name="vscrollbar" ref="comboboxPopup.listbox.vscrollbar">
+                <param name="minWidth">
+                    <int>9</int>
+                </param>
+                <param name="minHeight">
+                    <int>48</int>
+                </param>
+                <theme name="upbutton" ref="-defaults">
+                    <param name="minHeight">
+                        <int>9</int>
+                    </param>
+                </theme>
+                <theme name="downbutton" ref="-defaults">
+                    <param name="minHeight">
+                        <int>9</int>
+                    </param>
+                </theme>
+                <theme name="thumb" ref="-defaults">
+                    <param name="background">
+                        <image>language-scroll-thumb</image>
+                    </param>
+                </theme>
+            </theme>
+            <theme name="settings-label-area" ref="-defaults" allowWildcard="true">
+                <theme name="label-settings-title" ref="label">
+                    <param name="background">
+                        <image>ui-header.background</image>
+                    </param>
+                    <param name="border">
+                        <border>2,6,3,0</border>
+                    </param>
+                </theme>
+                <theme name="togglebutton" ref="togglebutton"/>
+                <theme name="button" ref="button"/>
+                <theme name="combobox" ref="logingui.rom-panel.combobox"/>
+                <theme name="translate-link" ref="button">
+                    <param name="font">
+                        <font>alphabeta-orange-shadow</font>
+                    </param>
+                    <param name="border">
+                        <border>5</border>
+                    </param>
+                    <param name="textAlignment">
+                        <enum type="alignment">LEFT</enum>
+                    </param>
+                </theme>
+                <theme name="number" ref="-defaults" allowWildcard="true">
+                    <theme name="button" ref="button"/>
+                </theme>
+            </theme>
         </theme>
     </theme>
 </themes>

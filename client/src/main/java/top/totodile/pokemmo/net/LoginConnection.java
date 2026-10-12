@@ -1,5 +1,7 @@
 package top.totodile.pokemmo.net;
 
+import top.totodile.pokemmo.ClientStrings;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -11,17 +13,17 @@ import java.util.concurrent.ThreadLocalRandom;
 public final class LoginConnection implements AutoCloseable {
     public enum Failure {
         // 网络组件已建立时，连接失败使用 2009。
-        COMMUNICATION("与验证服务器通信失败. 请稍后再试."),
-        SYSTEM("系统错误. 请稍候再试.");
+        COMMUNICATION(2009),
+        SYSTEM(2000);
 
-        private final String message;
+        private final int stringId;
 
-        Failure(String message) {
-            this.message = message;
+        Failure(int stringId) {
+            this.stringId = stringId;
         }
 
         public String getMessage() {
-            return message;
+            return ClientStrings.get(stringId);
         }
     }
 

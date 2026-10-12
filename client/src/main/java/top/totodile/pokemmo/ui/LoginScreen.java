@@ -4,6 +4,7 @@ import de.matthiasmann.twl.*;
 import de.matthiasmann.twl.theme.ThemeManager;
 import org.lwjgl.glfw.GLFW;
 import top.totodile.pokemmo.ClientFiles;
+import top.totodile.pokemmo.ClientStrings;
 import top.totodile.pokemmo.net.LoginConnection;
 
 import java.io.IOException;
@@ -17,20 +18,24 @@ import java.util.concurrent.CompletableFuture;
  * 使用官方 TWL 核心及登录界面所需的控件和主题扩展。
  */
 public final class LoginScreen extends Widget implements AutoCloseable {
+    private static final int[] MENU_STRING_IDS = {1172, 1175, 1190, 1005, 1006, 1007, 1124, 1008, 1009};
     private final EditField account = new UsernameEditField();
     private final EditField password = new LoginEditField();
-    private final Label accountLabel = new Label("用户名:");
-    private final Label passwordLabel = new Label("密 码:");
-    private final Button login = new Button("登录");
+    private final Label accountLabel = new Label(ClientStrings.get(1001));
+    private final Label passwordLabel = new Label(ClientStrings.get(1002));
+    private final Button login = new Button(ClientStrings.get(1000));
     private final ToggleButton remember = new ToggleButton();
-    private final Label rememberLabel = new Label("记住我");
+    private final Label rememberLabel = new Label(ClientStrings.get(1025));
     private final ResizableFrame loginWindow = new ResizableFrame();
     private final DialogLayout form = new DialogLayout();
     private final List<NotificationWindow> notifications = new ArrayList<>();
     private final Widget logo = new Widget();
-    private final Label romInfo = new Label("已载入ROM:\nNDS: --\nGBA: --");
+    private final Label romInfo = new Label(ClientStrings.get(1170) + "\nNDS: --\nGBA: --");
     private final List<Button> menuButtons = new ArrayList<>();
-    private final ClientManagementWindow clientManagement = new ClientManagementWindow(this::closeClientManagement);
+    private final ClientManagementWindow clientManagement = new ClientManagementWindow(
+            this::closeClientManagement, this::refreshTexts);
+    private final ModManagerWindow modManager = new ModManagerWindow(this::closeModManager);
+    private final GameSettingsWindow settings = new GameSettingsWindow(this::closeSettings);
     private final GlfwTwlRenderer renderer = new GlfwTwlRenderer();
     private final GUI gui;
     private final ThemeManager theme;
@@ -40,6 +45,9 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     private CompletableFuture<LoginConnection.Failure> loginResult;
     private boolean loggingIn;
     private long textCursor;
+    private long activeCursor;
+    private int mouseX = Integer.MIN_VALUE;
+    private int mouseY = Integer.MIN_VALUE;
 
     public LoginScreen() throws IOException {
         // 父子主题名形成 logingui.logo 路径，Logo 图片由主题的 background 参数提供。
@@ -74,36 +82,34 @@ public final class LoginScreen extends Widget implements AutoCloseable {
                 .addGroup(form.createParallelGroup(passwordLabel, password))
                 .addGroup(form.createParallelGroup(remember, rememberLabel, login)));
         loginWindow.setTheme("login-window");
-        loginWindow.setTitle("登录");
+        loginWindow.setTitle(ClientStrings.get(1000));
         loginWindow.setResizableAxis(ResizableFrame.ResizableAxis.NONE);
         loginWindow.setDraggable(false);
         loginWindow.add(form);
         add(loginWindow);
         romInfo.setTheme("label");
         add(romInfo);
-        for (String text : new String[]{
-                "修复客户端",
-                "客户端管理",
-                "MOD管理",
-                "注册",
-                "忘记用户名",
-                "忘记密码",
-                "申请帮助",
-                "设置",
-                "关闭",
-        }) {
-            Button button = new Button(text);
+        for (int stringId : MENU_STRING_IDS) {
+            Button button = new Button(ClientStrings.get(stringId));
             button.setTheme("menu-button");
             // 按钮功能在对应窗口或模块接入时添加。
             button.setCanAcceptKeyboardFocus(false);
-            if (text.equals("客户端管理")) {
+            if (stringId == 1175) {
                 button.addCallback(this::openClientManagement);
+            } else if (stringId == 1190) {
+                button.addCallback(this::openModManager);
+            } else if (stringId == 1008) {
+                button.addCallback(this::openSettings);
             }
             menuButtons.add(button);
             add(button);
         }
         clientManagement.setHardVisible(false);
         add(clientManagement);
+        modManager.setHardVisible(false);
+        add(modManager);
+        settings.setHardVisible(false);
+        add(settings);
         // GLFW 回调通过 attachInput 接入；GUI 负责控件树布局和绘制。
         gui = new GUI(this, renderer, null);
         // 主题从外部 data/themes/default 加载，图片 URL 相对于主题 XML 解析。
@@ -116,6 +122,19 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         } catch (IOException | RuntimeException exception) {
             theme.destroy();
             throw exception;
+        }
+    }
+
+    private void refreshTexts() {
+        modManager.refreshTexts();
+        accountLabel.setText(ClientStrings.get(1001));
+        passwordLabel.setText(ClientStrings.get(1002));
+        rememberLabel.setText(ClientStrings.get(1025));
+        loginWindow.setTitle(ClientStrings.get(1000));
+        login.setText(ClientStrings.get(loggingIn ? 1003 : 1000));
+        romInfo.setText(ClientStrings.get(1170) + "\nNDS: --\nGBA: --");
+        for (int i = 0; i < menuButtons.size(); i++) {
+            menuButtons.get(i).setText(ClientStrings.get(MENU_STRING_IDS[i]));
         }
     }
 
@@ -141,6 +160,12 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         clientManagement.setSize(528, 300);
         clientManagement.setPosition(getInnerX() + (getInnerWidth() - clientManagement.getWidth()) / 2,
                 getInnerY() + (getInnerHeight() - clientManagement.getHeight()) / 2);
+        modManager.adjustSize();
+        modManager.setPosition(getInnerX() + (getInnerWidth() - modManager.getWidth()) / 2,
+                getInnerY() + (getInnerHeight() - modManager.getHeight()) / 2);
+        settings.setSize(585, 498);
+        settings.setPosition(getInnerX() + (getInnerWidth() - settings.getWidth()) / 2,
+                getInnerY() + (getInnerHeight() - settings.getHeight()) / 2);
         for (int i = 0; i < menuButtons.size(); i++) {
             Button button = menuButtons.get(i);
             button.setSize(200, 26);
@@ -151,10 +176,42 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     }
 
     private void openClientManagement() {
+        settings.setHardVisible(false);
+        modManager.setHardVisible(false);
         loginWindow.setVisible(false);
         clientManagement.setEnabled(true);
         clientManagement.setHardVisible(true);
         clientManagement.requestKeyboardFocus();
+    }
+
+    private void openModManager() {
+        settings.setHardVisible(false);
+        clientManagement.setHardVisible(false);
+        loginWindow.setVisible(false);
+        modManager.setEnabled(true);
+        modManager.setHardVisible(true);
+        modManager.requestKeyboardFocus();
+    }
+
+    private void closeModManager() {
+        modManager.setEnabled(false);
+        modManager.setHardVisible(false);
+        loginWindow.setVisible(true);
+    }
+
+    private void openSettings() {
+        clientManagement.setHardVisible(false);
+        modManager.setHardVisible(false);
+        loginWindow.setVisible(false);
+        settings.setEnabled(true);
+        settings.setHardVisible(true);
+        settings.requestKeyboardFocus();
+    }
+
+    private void closeSettings() {
+        settings.setEnabled(false);
+        settings.setHardVisible(false);
+        loginWindow.setVisible(true);
     }
 
     private void closeClientManagement() {
@@ -187,7 +244,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     private void submit() {
         if (loggingIn) return;
         loggingIn = true;
-        login.setText("登录中...");
+        login.setText(ClientStrings.get(1003));
         setFormEnabled(false);
         loginResult = connection.connect();
     }
@@ -196,7 +253,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     private void updateLoginState(long now) {
         if (loggingIn && loginResult.isDone()) {
             loggingIn = false;
-            login.setText("登录");
+            login.setText(ClientStrings.get(1000));
             setFormEnabled(true);
             showNotification(loginResult.join().getMessage(), now);
             loginResult = null;
@@ -231,10 +288,23 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         if (textCursor != 0) GLFW.glfwDestroyCursor(textCursor);
         textCursor = GLFW.glfwCreateStandardCursor(GLFW.GLFW_IBEAM_CURSOR);
         GLFW.glfwSetCursorPosCallback(window, (w, x, y) -> {
-            gui.handleMouse((int) x, (int) y, -1, false);
-            boolean overInput = !loggingIn && (account.isInside((int) x, (int) y)
+            int nextX = (int) x;
+            int nextY = (int) y;
+            // 相同位置的重复通知不属于移动，避免不断重置悬停提示计时。
+            if (nextX != mouseX || nextY != mouseY) {
+                mouseX = nextX;
+                mouseY = nextY;
+                gui.handleMouse(nextX, nextY, -1, false);
+            }
+            // 隐藏的输入框仍保留坐标，管理窗口或弹出菜单覆盖时不使用编辑指针。
+            boolean overInput = loginWindow.isVisible() && !loggingIn && !gui.hasOpenPopups()
+                    && (account.isInside((int) x, (int) y)
                     || password.isInside((int) x, (int) y));
-            GLFW.glfwSetCursor(w, overInput ? textCursor : 0);
+            long cursor = overInput ? textCursor : 0;
+            if (cursor != activeCursor) {
+                activeCursor = cursor;
+                GLFW.glfwSetCursor(w, cursor);
+            }
         });
         GLFW.glfwSetMouseButtonCallback(window, (w, button, action, mods) -> {
             double[] x = new double[1], y = new double[1];
@@ -252,7 +322,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         });
         GLFW.glfwSetKeyCallback(window, (w, key, scan, action, mods) -> {
             if (action == GLFW.GLFW_REPEAT) return;
-            if (clientManagement.isVisible()) {
+            if (clientManagement.isVisible() || modManager.isVisible() || settings.isVisible()) {
                 int translated = GlfwKeyMap.translate(key);
                 if (translated != Event.KEY_NONE) gui.handleKey(translated, Event.CHAR_NONE, action != 0);
                 return;

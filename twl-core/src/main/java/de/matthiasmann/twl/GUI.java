@@ -1044,9 +1044,11 @@ public final class GUI extends Widget {
      */
     public final void handleTooltips() {
         Widget widgetUnderMouse = getWidgetUnderMouse();
+        int delay = widgetUnderMouse != null && widgetUnderMouse.getTooltipDelay() >= 0
+                ? widgetUnderMouse.getTooltipDelay() : tooltipDelay;
         if(widgetUnderMouse != tooltipOwner) {
             if(widgetUnderMouse != null && (
-                    ((curTime-tooltipEventTime) > tooltipDelay) ||
+                    ((curTime-tooltipEventTime) > delay) ||
                     (hadOpenTooltip && (curTime-tooltipClosedTime) < tooltipReappearDelay))) {
                 TooltipPositionAdjuster.TooltipPositionData tpd = new TooltipPositionAdjuster.TooltipPositionData(
                         event.mouseX + tooltipOffsetX,

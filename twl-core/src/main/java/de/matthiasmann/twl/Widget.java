@@ -110,6 +110,7 @@ public class Widget {
     private Image background;
     private Image overlay;
     private Object tooltipContent;
+    private int tooltipDelay = -1;
     private Object themeTooltipContent;
     private InputMap inputMap;
     private ActionMap actionMap;
@@ -1514,6 +1515,18 @@ public class Widget {
      */
     public Object getTooltipContent() {
         return tooltipContent;
+    }
+
+    /** Returns the widget delay in milliseconds, or -1 to use the GUI default. */
+    public int getTooltipDelay() {
+        return tooltipDelay;
+    }
+
+    public void setTooltipDelay(int tooltipDelay) {
+        if (tooltipDelay < -1) {
+            throw new IllegalArgumentException("tooltipDelay");
+        }
+        this.tooltipDelay = tooltipDelay;
     }
 
     /**
