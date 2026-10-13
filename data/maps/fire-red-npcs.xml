@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<npcReplacements>
+    <palette season="0" id="30" index="13" rgba="3770183935" />
+    <palette season="0" id="30" index="14" rgba="3500695807" />
+    <palette season="0" id="31" index="1" rgba="2162723071" />
+    <palette season="0" id="31" index="2" rgba="1220571391" />
+    <palette season="0" id="31" index="3" rgba="545804543" />
+    <palette season="0" id="31" index="4" rgba="676339967" />
+    <palette season="0" id="31" index="5" rgba="541595903" />
+    <palette season="0" id="31" index="12" rgba="3371745535" />
+    <palette season="0" id="31" index="13" rgba="2565380351" />
+    <palette season="0" id="31" index="14" rgba="2294843647" />
+    <palette season="0" id="31" index="15" rgba="1755345151" />
+    <palette season="2" id="30" index="11" rgba="4041255167" />
+    <palette season="2" id="30" index="12" rgba="4040724735" />
+    <palette season="2" id="30" index="13" rgba="3635972351" />
+    <palette season="2" id="30" index="14" rgba="3500697855" />
+    <palette season="2" id="31" index="1" rgba="4173342975" />
+    <palette season="2" id="31" index="2" rgba="3901765887" />
+    <palette season="2" id="31" index="3" rgba="2960138495" />
+    <palette season="2" id="31" index="4" rgba="1884295423" />
+    <palette season="2" id="31" index="5" rgba="1615859967" />
+    <palette season="2" id="31" index="12" rgba="4177049855" />
+    <palette season="2" id="31" index="13" rgba="3638075647" />
+    <palette season="2" id="31" index="14" rgba="3368059135" />
+    <palette season="2" id="31" index="15" rgba="2560129279" />
+    <palette season="3" id="30" index="13" rgba="3368067327" />
+    <palette season="3" id="30" index="14" rgba="3098052863" />
+    <palette season="3" id="31" index="1" rgba="2161168639" />
+    <palette season="3" id="31" index="2" rgba="1219539199" />
+    <palette season="3" id="31" index="3" rgba="1216907519" />
+    <palette season="3" id="31" index="4" rgba="676882687" />
+    <palette season="3" id="31" index="5" rgba="542138623" />
+    <palette season="3" id="31" index="12" rgba="3908100351" />
+    <palette season="3" id="31" index="13" rgba="3503866111" />
+    <palette season="3" id="31" index="14" rgba="2965412095" />
+    <palette season="3" id="31" index="15" rgba="2561183999" />
+    <sprite gba="14" hgss="70" />
+    <sprite gba="15" hgss="71" />
+    <sprite gba="16" hgss="114" />
+    <sprite gba="17" hgss="115" />
+    <sprite gba="18" hgss="116" />
+    <sprite gba="19" hgss="121" />
+    <sprite gba="20" hgss="117" />
+    <sprite gba="21" hgss="122" />
+    <sprite gba="22" hgss="6" />
+    <sprite gba="23" hgss="146" />
+    <sprite gba="24" hgss="7" />
+    <sprite gba="25" hgss="122" />
+    <sprite gba="26" hgss="186" />
+    <sprite gba="27" hgss="131" />
+    <sprite gba="28" hgss="29" />
+    <sprite gba="29" hgss="14" />
+    <sprite gba="30" hgss="127" />
+    <sprite gba="31" hgss="128" />
+    <sprite gba="32" hgss="19" />
+    <sprite gba="33" hgss="129" />
+    <sprite gba="34" hgss="19" />
+    <sprite gba="35" hgss="20" />
+    <sprite gba="36" hgss="140" />
+    <sprite gba="37" hgss="2" />
+    <sprite gba="38" hgss="1" />
+    <sprite gba="39" hgss="142" />
+    <sprite gba="40" hgss="143" />
+    <sprite gba="41" hgss="123" />
+    <sprite gba="42" hgss="126" />
+    <sprite gba="43" hgss="139" />
+    <sprite gba="44" hgss="140" />
+    <sprite gba="45" hgss="12" />
+    <sprite gba="46" hgss="118" />
+    <sprite gba="47" hgss="9" />
+    <sprite gba="48" hgss="120" />
+    <sprite gba="49" hgss="175" />
+    <sprite gba="50" hgss="174" />
+    <sprite gba="51" hgss="162" />
+    <sprite gba="52" hgss="137" />
+    <sprite gba="53" hgss="180" />
+    <sprite gba="54" hgss="49" />
+    <sprite gba="55" hgss="26" />
+    <sprite gba="56" hgss="132" />
+    <sprite gba="57" hgss="144" />
+    <sprite gba="58" hgss="85" />
+    <sprite gba="59" hgss="30" />
+    <sprite gba="60" hgss="38" />
+    <sprite gba="61" hgss="138" />
+    <sprite gba="62" hgss="145" />
+    <sprite gba="63" hgss="183" />
+    <sprite gba="64" hgss="134" />
+    <sprite gba="65" hgss="135" />
+    <sprite gba="66" hgss="136" />
+    <sprite gba="67" hgss="56" />
+    <sprite gba="68" hgss="133" />
+    <sprite gba="69" hgss="57" />
+    <sprite gba="70" hgss="57" />
+    <sprite gba="71" hgss="161" />
+    <sprite gba="72" hgss="170" />
+    <sprite gba="73" hgss="182" />
+    <sprite gba="74" hgss="159" />
+    <sprite gba="75" hgss="158" />
+    <sprite gba="76" hgss="192" />
+    <sprite gba="78" hgss="129" />
+    <sprite gba="79" hgss="157" />
+    <sprite gba="80" hgss="168" />
+    <sprite gba="81" hgss="165" />
+    <sprite gba="82" hgss="163" />
+    <sprite gba="83" hgss="166" />
+    <sprite gba="84" hgss="156" />
+    <sprite gba="85" hgss="164" />
+    <sprite gba="86" hgss="169" />
+    <sprite gba="87" hgss="226" />
+    <sprite gba="88" hgss="193" />
+    <sprite gba="89" hgss="3" />
+    <sprite gba="90" hgss="190" />
+    <sprite gba="91" hgss="58" />
+    <sprite gba="92" hgss="95" />
+    <sprite gba="95" hgss="94" />
+    <sprite gba="96" hgss="93" />
+    <sprite gba="97" hgss="92" />
+    <sprite gba="107" hgss="229" />
+    <sprite gba="109" hgss="195" />
+    <sprite gba="110" hgss="319" />
+    <sprite gba="111" hgss="403" />
+    <sprite gba="112" hgss="361" />
+    <sprite gba="113" hgss="334" />
+    <sprite gba="114" hgss="316" />
+    <sprite gba="115" hgss="338" />
+    <sprite gba="116" hgss="314" />
+    <sprite gba="117" hgss="412" />
+    <sprite gba="118" hgss="437" />
+    <sprite gba="119" hgss="414" />
+    <sprite gba="120" hgss="69" />
+    <sprite gba="121" hgss="353" />
+    <sprite gba="122" hgss="328" />
+    <sprite gba="123" hgss="331" />
+    <sprite gba="124" hgss="332" />
+    <sprite gba="125" hgss="351" />
+    <sprite gba="126" hgss="385" />
+    <sprite gba="127" hgss="399" />
+    <sprite gba="128" hgss="378" />
+    <sprite gba="129" hgss="379" />
+    <sprite gba="130" hgss="365" />
+    <sprite gba="131" hgss="339" />
+    <sprite gba="132" hgss="383" />
+    <sprite gba="133" hgss="320" />
+    <sprite gba="134" hgss="366" />
+    <sprite gba="135" hgss="229" />
+    <sprite gba="136" hgss="444" />
+    <sprite gba="137" hgss="445" />
+    <sprite gba="138" hgss="443" />
+    <sprite gba="139" hgss="449" />
+    <sprite gba="140" hgss="450" />
+    <sprite gba="141" hgss="575" />
+    <sprite gba="142" hgss="576" />
+    <sprite gba="143" hgss="574" />
+    <sprite gba="144" hgss="212" />
+    <sprite gba="145" hgss="211" />
+    <sprite gba="146" hgss="582" />
+    <sprite gba="147" hgss="439" />
+    <sprite gba="148" hgss="719" />
+    <sprite gba="149" hgss="718" />
+    <sprite gba="150" hgss="717" />
+</npcReplacements>

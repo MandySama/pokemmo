@@ -19,6 +19,9 @@ public final class FireRedMap {
     private final int rows;
     private final int layoutId;
     private final int locationType;
+    private final int borderColumns;
+    private final int borderRows;
+    private final int[] borderCells;
     private final Tileset primary;
     private final Tileset secondary;
     private final FireRedRules rules;
@@ -61,6 +64,13 @@ public final class FireRedMap {
         }
         width = columns * 16;
         height = rows * 16;
+        borderColumns = unsigned(layout + 24);
+        borderRows = unsigned(layout + 25);
+        if (borderColumns < 1 || borderRows < 1 || borderColumns > 16 || borderRows > 16)
+            throw new IOException("Invalid map border dimensions");
+        borderCells = new int[borderColumns * borderRows];
+        int borderData = pointer(layout + 8);
+        for (int i = 0; i < borderCells.length; i++) borderCells[i] = ushort(borderData + i * 2);
         cells = new int[columns * rows];
         int cellData = pointer(layout + 12);
         for (int i = 0; i < cells.length; i++) cells[i] = ushort(cellData + i * 2);
@@ -75,8 +85,70 @@ public final class FireRedMap {
         secondary = new Tileset(pointer(layout + 20), tilesetTable);
     }
 
+    record GraphicsKey(byte[] rom, int primary, int secondary, boolean enhanced, int season) { }
+
+    GraphicsKey graphicsKey(int season) {
+        return new GraphicsKey(rom, primary.id, secondary.id, enhanced, enhanced ? season : 1);
+    }
+
+    int blockCount() { return primary.count + secondary.count; }
+    int columns() { return columns; }
+    int rows() { return rows; }
+    int cell(int x, int y) { return cells[y * columns + x]; }
+    int borderColumns() { return borderColumns; }
+    int borderRows() { return borderRows; }
+    int borderCell(int x, int y) { return borderCells[y * borderColumns + x]; }
+
+    /** 图块上层的高度分类随格子变化，图像和动画帧由图块集共享。 */
+    int upperLayer(int packed) {
+        int elevation = (byte) ((byte) ((short) packed >> 10) >> 2) - 1;
+        if (elevation == -8) elevation = 8;
+        return elevation >= 4 ? 2 : 1;
+    }
+
+    int[][] blockLayers(int block, int season, int frame) throws IOException {
+        return renderCells(new int[]{block | 0x3000}, 1, 1, season, (long) frame * rules.intervalMillis);
+    }
+
+    int blockFrames(int block) throws IOException {
+        if (!enhanced) return 1;
+        Tileset source = block < primary.count ? primary : secondary;
+        int index = source == primary ? block : block - primary.count;
+        int frames = 1;
+        for (int part = 0; part < 8; part++) {
+            int tileId = ushort(source.blocks + index * 16 + part * 2) & 1023;
+            Tileset animationSource = source == secondary && tileId <= primary.count ? primary : source;
+            for (AnimatedTiles animation : animationSource.animations.values()) {
+                if (tileId >= animation.first && tileId < animation.first + animation.count) {
+                    int n = animation.frames.length, a = frames, b = n;
+                    while (b != 0) { int remainder = a % b; a = b; b = remainder; }
+                    frames = frames / a * n;
+                    if (frames > 256) throw new IOException("Invalid tile animation period");
+                }
+            }
+        }
+        return frames;
+    }
+
     /** 返回底层、普通上层、高处上层、渐亮夜间贴图与固定亮度夜间贴图。 */
     public int[][] layers(int season, long elapsedMillis) throws IOException {
+        return renderCells(cells, columns, rows, season, elapsedMillis);
+    }
+
+    public int borderWidth() { return borderColumns * 16; }
+    public int borderHeight() { return borderRows * 16; }
+    public boolean outdoor() { return locationType >= 1 && locationType <= 3; }
+
+    public int[] borderPixels(int season, long elapsedMillis) throws IOException {
+        int[][] layers = renderCells(borderCells, borderColumns, borderRows, season, elapsedMillis);
+        int[] pixels = layers[0];
+        for (int layer = 1; layer < 3; layer++)
+            for (int i = 0; i < pixels.length; i++) if ((layers[layer][i] & 255) != 0) pixels[i] = layers[layer][i];
+        return pixels;
+    }
+
+    private int[][] renderCells(int[] cells, int columns, int rows, int season, long elapsedMillis) throws IOException {
+        int width = columns * 16, height = rows * 16;
         if (season < 0 || season > 3 || elapsedMillis < 0) throw new IllegalArgumentException("无效的季节或动画时间。");
         // 原始模式沿用静态 ROM 绘制，不应用季节、动画、地图修正或夜间贴图。
         if (!enhanced) {
@@ -119,12 +191,12 @@ public final class FireRedMap {
                         }
                     }
                     drawTile(x * 16 + (part % 2) * 8, y * 16 + (part % 4 / 2) * 8,
-                            data, graphicIndex, colors == primary ? primaryColors : secondaryColors, tile, pixels[layer]);
+                            data, graphicIndex, colors == primary ? primaryColors : secondaryColors, tile, pixels[layer], width);
                     int overlayTile = tileId > primary.count ? tileId - primary.count : tileId;
                     int overlayTileset = tileId > primary.count ? secondary.id : primary.id;
                     FireRedRules.Overlay overlay = enhanced ? rules.overlays.get(overlayTile * 65536 + overlayTileset) : null;
                     if (overlay != null) drawOverlay(x * 16 + (part % 2) * 8,
-                            y * 16 + (part % 4 / 2) * 8, tile, overlay, pixels[overlay.layer() == 0 ? 3 : 4]);
+                            y * 16 + (part % 4 / 2) * 8, tile, overlay, pixels[overlay.layer() == 0 ? 3 : 4], width);
                 }
             }
         }
@@ -144,6 +216,56 @@ public final class FireRedMap {
         long size = Files.size(file);
         if (size < 256 || size > 32 * 1024 * 1024) throw new IOException("无效的 GBA ROM 大小。");
         return new FireRedMap(Files.readAllBytes(file), group, map, enhanced);
+    }
+
+    static FireRedMap load(byte[] rom, int group, int map, boolean enhanced) throws IOException {
+        return new FireRedMap(rom, group, map, enhanced);
+    }
+
+    /** 第 10 位为阻挡标记；越界格不可通行。 */
+    public boolean walkable(int x, int y) {
+        return x >= 0 && y >= 0 && x < columns && y < rows && (cells[y * columns + x] & 0x400) == 0;
+    }
+
+    /** 高度层由带符号的六位地图格标记解码，保留特殊高度映射。 */
+    public int elevation(int x, int y) {
+        if (x < 0 || y < 0 || x >= columns || y >= rows) return -10;
+        int layer = ((byte) ((short) cells[y * columns + x] >> 10) >> 2) - 1;
+        return layer == -8 ? 8 : layer;
+    }
+
+    public boolean canMove(int fromX, int fromY, int toX, int toY) {
+        if (!walkable(toX, toY)) return false;
+        int from = elevation(fromX, fromY), to = elevation(toX, toY);
+        return from == to || from == -1 || to == -1 || to == 14 || to == -2 || from == 0 && to == 2;
+    }
+
+    /** 楼梯传送方向来自地块行为：右向楼梯 0x6C/0x6E，左向楼梯 0x6D/0x6F。 */
+    public int stairDirection(int x, int y) throws IOException {
+        return switch (behavior(x, y)) {
+            case 0x6C, 0x6E -> 3;
+            case 0x6D, 0x6F -> 2;
+            default -> -1;
+        };
+    }
+
+    public int standingWarpDirection(int x, int y) throws IOException {
+        return switch (behavior(x, y)) {
+            case 0x62, 0x6C, 0x6E -> 3;
+            case 0x63, 0x6D, 0x6F -> 2;
+            case 0x64 -> 1;
+            case 0x65 -> 0;
+            default -> -1;
+        };
+    }
+
+    public int behavior(int x, int y) throws IOException {
+        if (x < 0 || y < 0 || x >= columns || y >= rows) return -1;
+        int block = cells[y * columns + x] & 1023;
+        Tileset source = block < primary.count ? primary : secondary;
+        int index = source == primary ? block : block - primary.count;
+        if (index >= source.count) throw new IOException("Invalid stair metatile");
+        return unsigned(source.attributes + index * 4);
     }
 
     public int width() {
@@ -186,7 +308,7 @@ public final class FireRedMap {
         return enhanced && (!primary.animations.isEmpty() || !secondary.animations.isEmpty());
     }
 
-    private void drawTile(int left, int top, byte[] graphics, int tile, int[] palette, int flags, int[] pixels) throws IOException {
+    private void drawTile(int left, int top, byte[] graphics, int tile, int[] palette, int flags, int[] pixels, int width) throws IOException {
         int start = tile * 32;
         if (start < 0) throw new IOException("无效的图块像素编号。");
         // 图块集允许引用未存储的空白图块，读取时补零而不是跨越像素资源。
@@ -223,7 +345,7 @@ public final class FireRedMap {
         return physical >= 0 && physical < rom.length;
     }
 
-    private void drawOverlay(int left, int top, int flags, FireRedRules.Overlay overlay, int[] pixels) {
+    private void drawOverlay(int left, int top, int flags, FireRedRules.Overlay overlay, int[] pixels, int width) {
         for (int y = 0; y < 8; y++) {
             for (int x = 0; x < 8; x++) {
                 int sx = (flags & 1024) == 0 ? x : 7 - x;

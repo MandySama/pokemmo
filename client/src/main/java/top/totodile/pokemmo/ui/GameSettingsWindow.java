@@ -180,7 +180,10 @@ final class GameSettingsWindow extends ResizableFrame {
         page.toggle(1284, false, 1285);
         page.toggle(1213, true, 1214);
         page.toggle(1234, false, 1235);
-        page.toggle(1317, false, 0);
+        ToggleButton hgssSprites = new ToggleButton();
+        hgssSprites.setActive(clientSettings.hgssSprites());
+        hgssSprites.addCallback(() -> clientSettings.setHgssSprites(hgssSprites.isActive()));
+        page.row(1317, hgssSprites);
         page.combo(6156, 1, 6153, 6154, 6155);
         page.combo(1315, 1, 50, 1316, 51);
     }

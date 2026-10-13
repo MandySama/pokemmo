@@ -13,6 +13,9 @@ import top.totodile.pokemmo.net.GameConnection;
 import top.totodile.pokemmo.protocol.GameEndpoint;
 import top.totodile.pokemmo.protocol.GameServerInfo;
 import top.totodile.pokemmo.rom.BlackWhiteLoginScene;
+import top.totodile.pokemmo.rom.FireRedAtlas;
+import top.totodile.pokemmo.world.KantoWorld;
+import top.totodile.pokemmo.protocol.CharacterPackets.CharacterInfo;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -29,6 +32,9 @@ import java.util.concurrent.ThreadLocalRandom;
  * 使用官方 TWL 核心及登录界面所需的控件和主题扩展。
  */
 public final class LoginScreen extends Widget implements AutoCloseable {
+    private KantoWorld world;
+    private CompletableFuture<CharacterInfo> enterResult;
+    private CompletableFuture<FireRedAtlas> worldMapResult;
     private static final int[] MENU_STRING_IDS = {1172, 1175, 1190, 1005, 1006, 1007, 1124, 1008, 1009};
     private final EditField account = new UsernameEditField();
     private final EditField password = new LoginEditField();
@@ -60,6 +66,12 @@ public final class LoginScreen extends Widget implements AutoCloseable {
             this::closeClientManagement, this::refreshTexts, message -> showNotification(message, System.nanoTime()));
     private final ModManagerWindow modManager = new ModManagerWindow(this::closeModManager, this::restartClient,
             message -> showNotification(message, System.nanoTime()));
+    private final BagWindow bag = new BagWindow(() -> bagVisible(false));
+    private final TrainerCardWindow trainerCard = new TrainerCardWindow(() -> trainerCardVisible(false));
+    private final TeleportMenuWindow teleportMenu = new TeleportMenuWindow(
+            () -> teleportMenuVisible(false), this::teleport);
+    private final Button gmEntry = new Button(ClientStrings.get(9200));
+    private final GmMenuWindow gmMenu = new GmMenuWindow(() -> gmMenuVisible(false));
     private final GameSettingsWindow settings = new GameSettingsWindow(this::closeSettings);
     private final GlfwTwlRenderer renderer = new GlfwTwlRenderer();
     private final GUI gui;
@@ -178,6 +190,21 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         add(modManager);
         settings.setHardVisible(false);
         add(settings);
+        gmEntry.setTheme("/button");
+        gmEntry.setVisible(false);
+        gmEntry.addCallback(() -> gmMenuVisible(true));
+        add(gmEntry);
+        gmMenu.setHardVisible(false);
+        add(gmMenu);
+        gmMenu.setNoclipChanged(enabled -> { if (world != null) world.setNoclip(enabled); });
+        gmMenu.setSpeedChanged(multiplier -> { if (world != null) world.setSpeedMultiplier(multiplier); });
+        gmMenu.setOpenTeleport(() -> { gmMenuVisible(false); teleportMenuVisible(true); });
+        teleportMenu.setHardVisible(false);
+        add(teleportMenu);
+        trainerCard.setVisible(false);
+        add(trainerCard);
+        bag.setHardVisible(false);
+        add(bag);
         serverSelection.setVisible(false);
         add(serverSelection);
         characterSelection.setVisible(false);
@@ -187,6 +214,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         characterCreation.setOnCreate(this::createCharacter);
         characterSelection.setAssets(characterCreation.assets());
         characterSelection.setOnDelete(this::deleteCharacter);
+        characterSelection.setOnEnter(this::enterCharacter);
         loading.setTheme("loading");
         loading.setVisible(false);
         add(loading);
@@ -282,7 +310,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     @Override
     protected void paintWidget(GUI gui) {
         // TWL 先绘制当前控件再绘制子控件，表单和 Logo 叠加在背景上方。
-        if (scene == null) {
+        if (world == null && scene == null) {
             background.draw(getInnerX(), getInnerY(), getInnerWidth(), getInnerHeight(),
                     System.nanoTime() - startedAt);
         }
@@ -290,6 +318,16 @@ public final class LoginScreen extends Widget implements AutoCloseable {
 
     @Override
     protected void layout() {
+        layoutMovableWindow(bag, 540, 386);
+        layoutMovableWindow(trainerCard, 454, 287);
+        teleportMenu.setSize(800, 500);
+        teleportMenu.setPosition(getInnerX() + (getInnerWidth() - 800) / 2,
+                getInnerY() + (getInnerHeight() - 500) / 2);
+        gmEntry.adjustSize();
+        gmEntry.setPosition(getInnerX() + 10, getInnerY() + 10);
+        gmMenu.setSize(810, 511);
+        gmMenu.setPosition(getInnerX() + (getInnerWidth() - 810) / 2,
+                getInnerY() + (getInnerHeight() - 511) / 2);
         fpsCounter.adjustSize();
         fpsCounter.setPosition(getInnerRight() - fpsCounter.getWidth(), getInnerY());
         // Logo 固定为 484×143，在客户区居中后向上偏移 200。
@@ -433,7 +471,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     private void restoreMainWindow() {
         loginWindow.setVisible(!authenticated);
         serverSelection.setVisible(authenticated && !gameConnected && !loading.isVisible());
-        characterSelection.setVisible(gameConnected && !creatingCharacter);
+        characterSelection.setVisible(gameConnected && !creatingCharacter && world == null && enterResult == null);
         characterCreation.setVisible(gameConnected && creatingCharacter);
     }
 
@@ -451,8 +489,17 @@ public final class LoginScreen extends Widget implements AutoCloseable {
             invalidateLayout();
         }
         updateLoginState(now);
-        updateScene(now);
-        if (scene != null) {
+        updateWorldEntry(now);
+        // 入图资源可能在本帧创建，绘制时间须晚于新世界的计时起点。
+        now = System.nanoTime();
+        if (world != null) {
+            try { world.render(framebufferWidth, framebufferHeight, now); }
+            catch (IOException exception) {
+                backToLogin();
+                showNotification(ClientStrings.get(9030), now);
+            }
+        } else updateScene(now);
+        if (world == null && scene != null) {
             try {
                 scene.draw(width, height, (now - sceneStartedAt) / 1_000_000_000.0);
             } catch (RuntimeException exception) {
@@ -461,7 +508,15 @@ public final class LoginScreen extends Widget implements AutoCloseable {
                 reportSceneFailure(exception);
             }
         }
+        gmEntry.setVisible(world != null);
+        if (world == null) {
+            gmMenu.setHardVisible(false);
+            teleportMenu.setHardVisible(false);
+            trainerCardVisible(false);
+            bagVisible(false);
+        }
         gui.update();
+        if (world != null) world.renderEntryFade(framebufferWidth, framebufferHeight, now);
     }
 
     /** 在工作线程解析资源，仅在绘制线程创建和释放纹理。 */
@@ -573,11 +628,55 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         serverSelection.setBusy(serverId);
         serverSelection.setVisible(false);
         loading.setVisible(true);
-        for (Button button : menuButtons) button.setEnabled(false);
         selectionResult = connection.select(serverId);
     }
 
+    private void enterCharacter(CharacterInfo character) {
+        if (gameConnection == null || enterResult != null || world != null) return;
+        Path rom = clientManagement.selectedRom(1);
+        if (rom == null) { showNotification(ClientStrings.get(9030), System.nanoTime()); return; }
+        characterSelection.setBusy(true);
+        characterSelection.setVisible(false);
+        setLoginDecorationsVisible(false);
+        loading.setVisible(true);
+        enterResult = gameConnection.enterCharacter(character.id());
+        worldMapResult = CompletableFuture.supplyAsync(() -> {
+            try { return new FireRedAtlas(rom); }
+            catch (IOException exception) { throw new CompletionException(exception); }
+        });
+    }
+
+    private void updateWorldEntry(long now) {
+        if (enterResult == null || !enterResult.isDone() || !worldMapResult.isDone()) return;
+        try {
+            var character = enterResult.join();
+            world = new KantoWorld(worldMapResult.join(), characterCreation.assets(), character.appearance());
+            world.restore(character.position());
+            trainerCard.setCharacter(character, characterCreation.assets());
+            var session = gameConnection;
+            world.setAuthority(packet -> session.worldCommand(packet).whenComplete((result, error) -> {
+                if (error != null) session.close();
+            }));
+            world.beginEntry(System.nanoTime());
+        } catch (CompletionException | IOException exception) {
+            if (world != null) { world.close(); world = null; }
+            characterSelection.setVisible(true);
+            setLoginDecorationsVisible(true);
+            showNotification(ClientStrings.get(9030), now);
+        } finally {
+            loading.setVisible(false);
+            characterSelection.setBusy(false);
+            enterResult = null;
+            worldMapResult = null;
+        }
+    }
+
     private void backToLogin() {
+        if (world != null) { world.close(); world = null; }
+        if (enterResult != null) enterResult.cancel(true);
+        if (worldMapResult != null) worldMapResult.cancel(true);
+        enterResult = null;
+        worldMapResult = null;
         creatingCharacter = false;
         setLoginDecorationsVisible(true);
         characterCreation.setVisible(false);
@@ -814,7 +913,69 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         layoutNotifications();
     }
 
-    /** GLFW 使用不同的键码，转换后交给 TWL 处理焦点和编辑行为。 */
+    /** 首次布局居中；后续布局保留拖动位置，缩小客户区时保持窗口可见。 */
+    private void layoutMovableWindow(Widget widget, int width, int height) {
+        boolean first = widget.getWidth() == 0;
+        int x = first ? getInnerX() + (getInnerWidth() - width) / 2 : widget.getX();
+        int y = first ? getInnerY() + (getInnerHeight() - height) / 2 : widget.getY();
+        widget.setSize(width, height);
+        widget.setPosition(Math.max(getInnerX(), Math.min(x, getInnerRight() - width)),
+                Math.max(getInnerY(), Math.min(y, getInnerBottom() - height)));
+    }
+
+    private void raiseGameWindow(Widget widget) {
+        int index = getChildIndex(widget);
+        if (index >= 0 && index != getNumChildren() - 1) moveChild(index, getNumChildren() - 1);
+    }
+
+    @Override
+    protected boolean requestKeyboardFocus(Widget child) {
+        boolean accepted = super.requestKeyboardFocus(child);
+        if (accepted && (child == bag || child == trainerCard)) raiseGameWindow(child);
+        return accepted;
+    }
+
+    private void bagVisible(boolean visible) {
+        if (world != null) world.clearKeys();
+        if (visible) { bag.open(); raiseGameWindow(bag); }
+        else { bag.setHardVisible(false); bag.close(); }
+    }
+
+    private void trainerCardVisible(boolean visible) {
+        if (world != null) world.clearKeys();
+        trainerCard.setVisible(visible);
+        if (visible) { trainerCard.requestKeyboardFocus(); raiseGameWindow(trainerCard); }
+        if (!visible) trainerCard.close();
+    }
+
+    private void teleportMenuVisible(boolean visible) {
+        if (world != null) world.clearKeys();
+        teleportMenu.setHardVisible(visible);
+        if (visible) teleportMenu.requestKeyboardFocus();
+    }
+
+    private void teleport(TeleportMenuWindow.Destination destination) {
+        if (world == null) return;
+        try {
+            world.teleport(destination.group(), destination.map(), destination.x(), destination.y(), System.nanoTime());
+        } catch (IOException exception) {
+            showNotification(ClientStrings.get(9030), System.nanoTime());
+        }
+    }
+
+    private void gmMenuVisible(boolean visible) {
+        if (visible) {
+            trainerCardVisible(false);
+            bagVisible(false);
+            teleportMenu.setHardVisible(false);
+            gmMenu.setNoclip(world != null && world.noclip());
+            gmMenu.setSpeedMultiplier(world == null ? 1 : world.speedMultiplier());
+        }
+        if (world != null) world.clearKeys();
+        gmMenu.setHardVisible(visible);
+        if (visible) gmMenu.requestKeyboardFocus();
+    }
+
     public void attachInput(long window) {
         this.window = window;
         music.setFocused(GLFW.glfwGetWindowAttrib(window, GLFW.GLFW_FOCUSED) == GLFW.GLFW_TRUE);
@@ -848,12 +1009,51 @@ public final class LoginScreen extends Widget implements AutoCloseable {
             if (yOffset != 0) gui.handleMouseWheel((int) Math.signum(yOffset));
         });
         GLFW.glfwSetCharCallback(window, (w, codepoint) -> {
-            if (Character.isBmpCodePoint(codepoint)) {
+            if ((world == null || bag.isVisible()) && Character.isBmpCodePoint(codepoint)) {
                 gui.handleKey(Event.KEY_NONE, (char) codepoint, true);
                 gui.handleKey(Event.KEY_NONE, (char) codepoint, false);
             }
         });
         GLFW.glfwSetKeyCallback(window, (w, key, scan, action, mods) -> {
+            if (world != null && !gmMenu.isVisible() && !teleportMenu.isVisible()
+                    && action == GLFW.GLFW_PRESS && !(bag.isVisible() && bag.editingSearch())) {
+                if (key == GLFW.GLFW_KEY_B) { bagVisible(!bag.isVisible()); return; }
+                if (key == GLFW.GLFW_KEY_C) { trainerCardVisible(!trainerCard.isVisible()); return; }
+            }
+            if (world != null && (bag.isVisible() || trainerCard.isVisible())) {
+                if (key == GLFW.GLFW_KEY_ESCAPE && action == GLFW.GLFW_PRESS) {
+                    if (trainerCard.isVisible() && (!bag.isVisible() || getChildIndex(trainerCard) > getChildIndex(bag)))
+                        trainerCardVisible(false);
+                    else bagVisible(false);
+                } else if (bag.isVisible()) {
+                    if (key == GLFW.GLFW_KEY_TAB && action == GLFW.GLFW_PRESS && (mods & GLFW.GLFW_MOD_CONTROL) != 0)
+                        bag.nextPocket((mods & GLFW.GLFW_MOD_SHIFT) != 0);
+                    else {
+                        int translated = GlfwKeyMap.translate(key);
+                        if (translated != Event.KEY_NONE) gui.handleKey(translated, Event.CHAR_NONE, action != 0);
+                    }
+                }
+                return;
+            }
+            if (world != null && (gmMenu.isVisible() || teleportMenu.isVisible())) {
+                if (key == GLFW.GLFW_KEY_ESCAPE && action == GLFW.GLFW_PRESS) {
+                    if (teleportMenu.isVisible()) teleportMenuVisible(false);
+                    else gmMenuVisible(false);
+                }
+                else {
+                    int translated = GlfwKeyMap.translate(key);
+                    if (translated != Event.KEY_NONE) gui.handleKey(translated, Event.CHAR_NONE, action != 0);
+                }
+                return;
+            }
+            if (world != null) {
+                if (key == GLFW.GLFW_KEY_ESCAPE && action == GLFW.GLFW_PRESS) {
+                    world.close(); world = null;
+                    characterSelection.setVisible(true);
+                    setLoginDecorationsVisible(true);
+                } else if (action != GLFW.GLFW_REPEAT) world.key(key, action != GLFW.GLFW_RELEASE);
+                return;
+            }
             if (action == GLFW.GLFW_REPEAT) return;
             if (clientManagement.isVisible() || modManager.isVisible() || settings.isVisible()
                     || serverSelection.isVisible() || characterSelection.isVisible()
@@ -886,6 +1086,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         GLFW.glfwSetWindowFocusCallback(window, (w, focused) -> {
             music.setFocused(focused);
             if (!focused) {
+                if (world != null) world.clearKeys();
                 gui.clearKeyboardState();
                 gui.clearMouseState();
             }
@@ -896,6 +1097,10 @@ public final class LoginScreen extends Widget implements AutoCloseable {
 
     @Override
     public void close() {
+        if (world != null) world.close();
+        if (worldMapResult != null) worldMapResult.cancel(true);
+        bag.close();
+        trainerCard.close();
         characterCreation.close();
         characterSelection.close();
         modManager.close();

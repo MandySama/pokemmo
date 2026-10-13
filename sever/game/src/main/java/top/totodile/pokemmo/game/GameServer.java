@@ -18,6 +18,8 @@ import java.util.concurrent.Semaphore;
 /** 游戏服务入口连接：校验短期入服凭证，维护在线会话及加密保活。 */
 public final class GameServer implements AutoCloseable {
     private static final System.Logger LOGGER = System.getLogger(GameServer.class.getName());
+    private final FireRedWorldRules worldRules = new FireRedWorldRules();
+    private final java.util.concurrent.ScheduledExecutorService saves = Executors.newScheduledThreadPool(2);
     private final ServerSocket listener = new ServerSocket();
     private final java.util.concurrent.ExecutorService workers = Executors.newVirtualThreadPerTaskExecutor();
     private final Set<Socket> connections = ConcurrentHashMap.newKeySet();
@@ -93,6 +95,8 @@ public final class GameServer implements AutoCloseable {
 
     private void handle(Socket socket) {
         Integer accountId = null;
+        long activeCharacter = 0;
+        WorldSession world = null;
         try (SecureChannel channel = new SecureChannel(socket, true)) {
             socket.setSoTimeout(10_000);
             socket.setTcpNoDelay(true);
@@ -122,6 +126,7 @@ public final class GameServer implements AutoCloseable {
             while (!socket.isClosed()) {
                 byte[] command = channel.receive();
                 if (command.length == 0) throw new IOException("Empty game command");
+                if (world != null) world.checkHealthy();
                 if (command[0] == 0x20) channel.send(GameAdmission.heartbeatResponse(command));
                 else if (command[0] == 2) {
                     if (command.length != 1) throw new IOException("Malformed character list request");
@@ -139,10 +144,13 @@ public final class GameServer implements AutoCloseable {
                         result = new CharacterPackets.CreationResult(CharacterPackets.Status.SYSTEM_ERROR, java.util.List.of());
                     }
                     channel.send(CharacterPackets.createResponse(result));
-                } else if (command[0] == 4) {
+                } else if (command[0] == 0x71) {
                     CharacterPackets.CreationResult result;
                     try {
                         long id = CharacterPackets.decodeDelete(command);
+                        if (id == activeCharacter && world != null) {
+                            world.close(); world = null; activeCharacter = 0;
+                        }
                         result = characters == null ? new CharacterPackets.CreationResult(CharacterPackets.Status.SYSTEM_ERROR, java.util.List.of())
                                 : characters.delete(accountId, id);
                     } catch (IOException exception) {
@@ -152,11 +160,38 @@ public final class GameServer implements AutoCloseable {
                         result = new CharacterPackets.CreationResult(CharacterPackets.Status.SYSTEM_ERROR, java.util.List.of());
                     }
                     channel.send(CharacterPackets.deleteResponse(result));
+                } else if (command[0] == 4) {
+                    long id = CharacterPackets.decodeEnter(command);
+                    if (world != null) {
+                        world.close();
+                        world = null;
+                    }
+                    var owned = characters == null ? java.util.List.<CharacterPackets.CharacterInfo>of()
+                            : characters.list(accountId).stream().filter(character -> character.id() == id).toList();
+                    activeCharacter = owned.isEmpty() ? 0 : id;
+                    if (!owned.isEmpty()) world = new WorldSession(worldRules, characters, accountId, owned.getFirst(), saves);
+                    channel.send(new byte[]{4, (byte) (owned.isEmpty() ? 0 : 1)});
+                } else if (command[0] == 5) {
+                    if (command.length != 1 || world == null) throw new IOException("Invalid player load request");
+                    long selected = activeCharacter;
+                    channel.send(CharacterPackets.enterResponse(characters.list(accountId).stream().filter(c -> c.id() == selected).toList()));
+                } else if (command[0] == WorldPackets.MOVE || command[0] == WorldPackets.LOADED
+                        || command[0] == WorldPackets.SETTINGS || command[0] == WorldPackets.TELEPORT) {
+                    if (world == null) throw new IOException("No active world");
+                    channel.send(world.handle(command));
+                } else if (command[0] == WorldPackets.SAVE) {
+                    if (command.length != 1 || world == null)
+                        throw new IOException("Position save rejected");
+                    world.flush();
+                    channel.send(new byte[]{WorldPackets.SAVE});
                 } else throw new IOException("Unexpected game command");
             }
         } catch (IOException | GeneralSecurityException | java.sql.SQLException exception) {
             LOGGER.log(System.Logger.Level.DEBUG, "Game connection closed: {0}", exception.getClass().getSimpleName());
         } finally {
+            if (world != null) try { world.close(); } catch (java.sql.SQLException e) {
+                LOGGER.log(System.Logger.Level.ERROR, "Unable to save world on disconnect", e);
+            }
             if (accountId != null) accounts.remove(accountId);
             connections.remove(socket);
             connectionLimit.release();
@@ -173,6 +208,12 @@ public final class GameServer implements AutoCloseable {
                 LOGGER.log(System.Logger.Level.DEBUG, "Unable to close game connection", exception);
             }
         }
-        workers.shutdownNow();
+        workers.shutdown();
+        try {
+            if (!workers.awaitTermination(10, java.util.concurrent.TimeUnit.SECONDS)) workers.shutdownNow();
+        } catch (InterruptedException error) {
+            Thread.currentThread().interrupt(); workers.shutdownNow();
+        }
+        saves.shutdown();
     }
 }

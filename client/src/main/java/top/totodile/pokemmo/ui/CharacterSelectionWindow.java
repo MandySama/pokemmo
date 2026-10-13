@@ -20,6 +20,7 @@ final class CharacterSelectionWindow extends ResizableFrame {
     private final Button logout = new Button(ClientStrings.get(1159));
     private AvatarAssets assets;
     private LongConsumer onDelete;
+    private java.util.function.Consumer<CharacterInfo> onEnter;
     private long selectedId;
     private boolean busy;
     private int cardWidth = 200, cardHeight = 120, gap = 5, padding = 14, contentTop = 48, buttonHeight = 32, actionGap = 8;
@@ -42,6 +43,7 @@ final class CharacterSelectionWindow extends ResizableFrame {
     }
 
     void setAssets(AvatarAssets assets) { this.assets = assets; }
+    void setOnEnter(java.util.function.Consumer<CharacterInfo> callback) { onEnter = callback; }
     void setOnDelete(LongConsumer callback) { onDelete = callback; }
 
     void setCharacters(List<CharacterInfo> characters) {
@@ -187,7 +189,10 @@ final class CharacterSelectionWindow extends ResizableFrame {
             name = new Label(character.appearance().name());
             name.setTheme("name");
             add(name);
-            addCallback(() -> select(character.id()));
+            addCallback(() -> {
+                select(character.id());
+                if (!busy && onEnter != null) onEnter.accept(character);
+            });
         }
         @Override protected void applyTheme(ThemeInfo theme) {
             super.applyTheme(theme);

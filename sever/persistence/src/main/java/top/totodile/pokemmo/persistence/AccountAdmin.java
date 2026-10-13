@@ -12,8 +12,9 @@ public final class AccountAdmin {
             password = new String(input);
             java.util.Arrays.fill(input, '\0');
         }
-        Database database = new Database();
-        database.initialize();
-        System.out.println(new AccountStore(database).create(args[0], password) ? "Account created" : "Account already exists; unchanged");
+        try (Database database = new Database()) {
+            database.initialize();
+            System.out.println(new AccountStore(database).create(args[0], password) ? "Account created" : "Account already exists; unchanged");
+        }
     }
 }

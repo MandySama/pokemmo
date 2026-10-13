@@ -12,11 +12,13 @@ public final class ClientSettings {
     private static final String MUTE = "client.sound_engine.music_mute_when_unfocused";
     private static final String SHOW_FPS = "client.graphics.show_fps";
     private static final String FPS_LIMIT = "client.graphics.max_fpx";
+    private static final String HGSS_SPRITES = "client.graphics.nds.hgss_sprites_enabled_in_gba";
     private final Path file;
     private int volume = 50;
     private boolean muteWhenUnfocused = true;
     private boolean showFps;
     private int fpsLimit = 60;
+    private boolean hgssSprites = true;
 
     public ClientSettings() {
         this(ClientFiles.data("../config/main.properties").normalize());
@@ -29,6 +31,7 @@ public final class ClientSettings {
             setVolume(Integer.parseInt(values.getProperty(VOLUME, "50")));
             muteWhenUnfocused = Boolean.parseBoolean(values.getProperty(MUTE, "true"));
             showFps = Boolean.parseBoolean(values.getProperty(SHOW_FPS, "false"));
+            hgssSprites = Boolean.parseBoolean(values.getProperty(HGSS_SPRITES, "true"));
             setFpsLimit(Integer.parseInt(values.getProperty(FPS_LIMIT, "60")));
         } catch (IOException | IllegalArgumentException exception) {
             System.getLogger(ClientSettings.class.getName()).log(System.Logger.Level.WARNING,
@@ -74,6 +77,7 @@ public final class ClientSettings {
         values.setProperty(MUTE, Boolean.toString(muteWhenUnfocused));
         values.setProperty(SHOW_FPS, Boolean.toString(showFps));
         values.setProperty(FPS_LIMIT, Integer.toString(fpsLimit));
+        values.setProperty(HGSS_SPRITES, Boolean.toString(hgssSprites));
         Path directory = file.toAbsolutePath().getParent();
         Files.createDirectories(directory);
         Path temporary = Files.createTempFile(directory, "settings-", ".tmp");
@@ -85,6 +89,14 @@ public final class ClientSettings {
         } finally {
             Files.deleteIfExists(temporary);
         }
+    }
+
+    public boolean hgssSprites() {
+        return hgssSprites;
+    }
+
+    public void setHgssSprites(boolean enabled) {
+        hgssSprites = enabled;
     }
 
     private Properties read() throws IOException {

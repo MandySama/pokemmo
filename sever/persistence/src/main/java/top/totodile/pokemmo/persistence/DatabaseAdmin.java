@@ -5,7 +5,7 @@ public final class DatabaseAdmin {
     private DatabaseAdmin() { }
     public static void main(String[] args) throws Exception {
         if (args.length != 0) throw new IllegalArgumentException("DatabaseAdmin reads the local database configuration");
-        new Database().createNew();
+        try (Database database = new Database()) { database.createNew(); }
         System.out.println("Created project database and schema");
     }
 }

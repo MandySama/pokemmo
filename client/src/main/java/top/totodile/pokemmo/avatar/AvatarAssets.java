@@ -208,6 +208,15 @@ public final class AvatarAssets {
     }
 
     public BufferedImage render(int skin, Item[] selected, int[] palette, int view, int frame) throws IOException {
+        return render(skin, selected, palette, view, frame, -1);
+    }
+
+    /** 大世界服饰按朝向和上衣遮蔽标记调整顺序。 */
+    public BufferedImage renderOverworld(int skin, Item[] selected, int[] palette, int frame, int direction) throws IOException {
+        return render(skin, selected, palette, 0, frame, direction);
+    }
+
+    private BufferedImage render(int skin, Item[] selected, int[] palette, int view, int frame, int direction) throws IOException {
         BufferedImage body = layer(bodies.get(skin), view, frame, 0, 0);
         int width = body == null ? 57 : body.getWidth();
         int height = body == null ? 56 : body.getHeight();
@@ -224,6 +233,25 @@ public final class AvatarAssets {
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = result.createGraphics();
         int[] categories = {10, 11, 8, 9, 7, 6, 5, 4, 3, 2, 1};
+        if (direction >= 0) {
+            boolean glovesBehind = selected[7] != null && selected[7].id == 1 || direction == 1;
+            boolean backInFront = direction == 1 && selected[5] != null && (selected[5].flags & 256) != 0;
+            boolean effectInFront = direction == 1 && selected[11] != null && (selected[11].flags & 256) != 0;
+            List<Integer> order = new ArrayList<>();
+            order.add(10);
+            if (!effectInFront) order.add(11);
+            Item shirt = selected[6];
+            if (shirt == null || (shirt.flags & 4096) == 0) order.add(8);
+            if (shirt == null || (shirt.flags & 2048) == 0) order.add(9);
+            if (glovesBehind) order.add(7);
+            order.add(6);
+            if (!backInFront) order.add(5);
+            order.addAll(List.of(4, 3, 2, 1));
+            if (!glovesBehind) order.add(7);
+            if (backInFront) order.add(5);
+            if (effectInFront) order.add(11);
+            categories = order.stream().mapToInt(Integer::intValue).toArray();
+        }
         int[] groups = {3, 0, 6};
         Item hat = selected[1];
         Item hair = selected[2];

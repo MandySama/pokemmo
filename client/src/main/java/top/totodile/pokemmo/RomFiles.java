@@ -68,13 +68,16 @@ public final class RomFiles {
         RomHeader.validate(index, source);
         Files.createDirectories(directory);
         Files.createDirectories(configuration.getParent());
-        String extension = index == 1 || index == 2 ? ".gba" : ".nds";
-        String name = TYPES[index] + extension;
+        String originalName = source.getFileName().toString();
+        int dot = originalName.lastIndexOf('.');
+        String stem = dot > 0 ? originalName.substring(0, dot) : originalName;
+        String extension = dot > 0 ? originalName.substring(dot) : "";
+        String name = originalName;
         Path imported = directory.resolve(name);
-        // 已有文件时使用时间戳命名，避免覆盖正在使用的卡带。
-        long timestamp = System.currentTimeMillis();
-        while (Files.exists(imported) || Files.exists(directory.resolve(name + "_import"))) {
-            name = TYPES[index] + "_" + timestamp++ + extension;
+        // 同名文件保留原有内容，仅在新副本名称末尾追加序号。
+        int suffix = 2;
+        while (name.equalsIgnoreCase("importing.tmp") || Files.exists(imported) || Files.exists(directory.resolve(name + "_import"))) {
+            name = stem + " (" + suffix++ + ")" + extension;
             imported = directory.resolve(name);
         }
         Path temporary = directory.resolve("importing.tmp");

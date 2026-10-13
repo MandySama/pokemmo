@@ -7,7 +7,9 @@ import java.sql.*;
 import java.util.Properties;
 
 /** 两个服务共用显式配置；在事务锁中检查并创建缺失的业务表。 */
-public final class Database {
+public final class Database implements AutoCloseable {
+    private com.zaxxer.hikari.HikariDataSource pool;
+    private boolean closed;
     private final String url;
     private final Properties credentials = new Properties();
     public Database() throws IOException {
@@ -52,7 +54,35 @@ public final class Database {
         initialize();
     }
 
-    public Connection connect() throws SQLException { return DriverManager.getConnection(url, credentials); }
+    private synchronized com.zaxxer.hikari.HikariDataSource dataSource() throws SQLException {
+        if (closed) throw new SQLException("Database is closed");
+        if (pool == null) {
+            var config = new com.zaxxer.hikari.HikariConfig();
+            config.setPoolName("pokemmo-postgres");
+            config.setJdbcUrl(url);
+            config.setDataSourceProperties(credentials);
+            config.setMaximumPoolSize(8);
+            config.setMinimumIdle(1);
+            config.setConnectionTimeout(10_000);
+            config.setValidationTimeout(5_000);
+            config.setInitializationFailTimeout(-1);
+            config.setIdleTimeout(600_000);
+            config.setMaxLifetime(1_500_000);
+            config.setKeepaliveTime(120_000);
+            config.setConnectionTestQuery("SELECT 1");
+            config.addDataSourceProperty("tcpKeepAlive", true);
+            pool = new com.zaxxer.hikari.HikariDataSource(config);
+        }
+        return pool;
+    }
+
+    public Connection connect() throws SQLException { return dataSource().getConnection(); }
+
+    @Override
+    public synchronized void close() {
+        closed = true;
+        if (pool != null) pool.close();
+    }
     public void initialize() throws SQLException, IOException {
         try (Connection connection = connect()) {
             connection.setAutoCommit(false);

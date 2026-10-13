@@ -46,7 +46,9 @@ public final class NdsArchive {
         try (FileChannel channel = FileChannel.open(rom, StandardOpenOption.READ)) {
             ByteBuffer header = read(channel, 0, 512);
             String code = text(header, 12, 3);
-            if (!code.equals("IRA") && !code.equals("IRB")) throw new IOException("Unsupported Black/White ROM");
+            if (!code.equals("IRA") && !code.equals("IRB") && !code.equals("IPK") && !code.equals("IPG")) {
+                throw new IOException("Unsupported NitroFS ROM");
+            }
             ByteBuffer names = read(channel, header.getInt(0x40), header.getInt(0x44));
             int directory = 0;
             int fileId = -1;

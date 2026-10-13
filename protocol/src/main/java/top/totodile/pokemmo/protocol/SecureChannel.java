@@ -19,7 +19,7 @@ import java.security.SecureRandom;
 import java.security.Signature;
 import java.util.Arrays;
 
-/** 小端长度帧、ECDSA/ECDH 握手及连续 AES-CTR 流；加密封包使用带序号的 HMAC。 */
+/** 小端长度帧、ECDSA/ECDH 握手及连续 AES-CTR 流；登录使用 HMAC，游戏使用 CRC16。 */
 public final class SecureChannel implements AutoCloseable {
     private static final long NONCE_MASK = 3214621489648854472L;
     private static final long TIME_MASK = -4214651440992349575L;
@@ -35,7 +35,7 @@ public final class SecureChannel implements AutoCloseable {
         this(socket, false);
     }
 
-    /** 游戏通道使用 2 字节 HMAC，服务端封包在 opcode 后带未压缩标记。 */
+    /** 游戏通道使用小端 CRC16，服务端封包在 opcode 后带未压缩标记。 */
     public SecureChannel(Socket socket, boolean gameFraming) {
         this.socket = socket;
         this.gameFraming = gameFraming;
@@ -184,6 +184,15 @@ public final class SecureChannel implements AutoCloseable {
         }
 
         private byte[] hash(byte[] packet, int size) {
+            if (size == 2) {
+                int crc = 0;
+                for (byte value : packet) {
+                    crc ^= value & 255;
+                    for (int bit = 0; bit < 8; bit++)
+                        crc = (crc >>> 1) ^ ((crc & 1) == 0 ? 0 : 0xA001);
+                }
+                return new byte[]{(byte) crc, (byte) (crc >>> 8)};
+            }
             mac.update(packet);
             mac.update(ByteBuffer.allocate(4).putInt(round++).array());
             return Arrays.copyOf(mac.doFinal(), size);

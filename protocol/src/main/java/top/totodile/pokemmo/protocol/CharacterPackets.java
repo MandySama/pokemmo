@@ -25,22 +25,98 @@ public final class CharacterPackets {
             return true;
         }
     }
-    public record CharacterInfo(long id, Appearance appearance) { }
+    public record ReturnPoint(int group, int map, int x, int y, int facing) {
+        public boolean valid() { return FireRedMaps.contains(group, map, x, y) && facing >= 0 && facing < 4; }
+    }
+    public record Position(int group, int map, int x, int y, int elevation, int facing, ReturnPoint returnPoint) {
+        public Position(int group, int map, int x, int y, int elevation, int facing) {
+            this(group, map, x, y, elevation, facing, null);
+        }
+        public static Position spawn() { return new Position(4, 1, 6, 6, 3, 0); }
+        public boolean valid() {
+            return FireRedMaps.contains(group, map, x, y) && elevation >= -2 && elevation <= 15
+                    && facing >= 0 && facing < 4 && (returnPoint == null || returnPoint.valid());
+        }
+    }
+    public record CharacterInfo(long id, Appearance appearance, Position position, long createdAt) {
+        public CharacterInfo(long id, Appearance appearance, Position position) { this(id, appearance, position, 0); }
+        public CharacterInfo(long id, Appearance appearance) { this(id, appearance, Position.spawn()); }
+    }
+    public static byte[] positionRequest(Position p) {
+        PacketData data = new PacketData(32).putByte(WorldPackets.SAVE);
+        writePosition(data, p);
+        return data.written();
+    }
+    public static Position decodePosition(byte[] packet) throws IOException {
+        PacketData data = new PacketData(packet);
+        if (data.byteValue() != WorldPackets.SAVE) throw new IOException("Unexpected position packet");
+        Position p = readPosition(data);
+        data.end();
+        return p;
+    }
+    static void writePosition(PacketData d, Position p) {
+        d.putByte(p.group()).putByte(p.map()).putShort(p.x()).putShort(p.y()).putByte(p.elevation()).putByte(p.facing());
+        ReturnPoint r = p.returnPoint();
+        d.putByte(r == null ? 0 : 1);
+        if (r != null) d.putByte(r.group()).putByte(r.map()).putShort(r.x()).putShort(r.y()).putByte(r.facing());
+    }
+    static Position readPosition(PacketData d) throws IOException {
+        Position p = new Position(d.byteValue(), d.byteValue(), d.shortValue(), d.shortValue(), (byte)d.byteValue(), d.byteValue());
+        int hasReturn = d.byteValue();
+        if (hasReturn > 1) throw new IOException("Invalid return point flag");
+        if (hasReturn == 1) p = new Position(p.group(), p.map(), p.x(), p.y(), p.elevation(), p.facing(),
+                new ReturnPoint(d.byteValue(), d.byteValue(), d.shortValue(), d.shortValue(), d.byteValue()));
+        if (!p.valid()) throw new IOException("Invalid world position");
+        return p;
+    }
     public record CreationResult(Status status, List<CharacterInfo> characters) {
         public CreationResult { characters = List.copyOf(characters); }
     }
     private CharacterPackets() { }
 
+    public static byte[] enterRequest(long id) { return new PacketData(17).putByte(4).putLong(id).putLong(CharacterSignature.sigHash(Long.hashCode(id))).written(); }
+    public static long decodeEnter(byte[] packet) throws IOException {
+        PacketData data = new PacketData(packet);
+        if (data.byteValue() != 4) throw new IOException("Unexpected enter request");
+        long id = data.longValue();
+        if (data.longValue() != CharacterSignature.sigHash(Long.hashCode(id))) throw new IOException("Invalid character signature");
+        data.end();
+        return id;
+    }
+    public static byte[] enterResponse(List<CharacterInfo> characters) {
+        byte[] packet = listResponse(characters);
+        packet[0] = 5;
+        return packet;
+    }
+    public static CharacterInfo decodeEntered(byte[] packet) throws IOException {
+        if (packet.length == 0 || packet[0] != 5) throw new IOException("Unexpected enter response");
+        byte[] copy = packet.clone();
+        copy[0] = 2;
+        List<CharacterInfo> characters = decodeList(copy);
+        if (characters.size() != 1) throw new IOException("Character entry rejected");
+        return characters.getFirst();
+    }
+
     public static byte[] listRequest() { return new byte[]{2}; }
     public static byte[] createRequest(Appearance appearance) {
         PacketData data = new PacketData(256).putByte(3);
-        writeAppearance(data, appearance);
+        data.putString(appearance.name()).putByte(appearance.gender()).putByte(appearance.region()).putByte(appearance.skin()).putShort(0xFFF);
+        for (int i = 0; i < 12; i++) data.putShort((appearance.items[i] & 1023) | appearance.colors[i] << 10);
         return data.written();
     }
     public static Appearance decodeCreate(byte[] packet) throws IOException {
         PacketData data = new PacketData(packet);
         if (data.byteValue() != 3) throw new IOException("Unexpected character request");
-        Appearance appearance = readAppearance(data);
+        String name = data.string(16);
+        int gender = data.byteValue(), region = data.byteValue(), skin = data.byteValue(), mask = data.shortValue();
+        if ((mask & ~0xFFF) != 0) throw new IOException("Invalid appearance mask");
+        int[] items = {-1,-1,0,0,-1,-1,0,-1,0,0,0,0}, colors = new int[12];
+        for (int i = 0; i < 12; i++) if ((mask & 1 << i) != 0) {
+            int packed = data.shortValue();
+            items[i] = (packed & 1023) == 1023 ? -1 : packed & 1023;
+            colors[i] = packed >>> 10;
+        }
+        Appearance appearance = new Appearance(name, gender, skin, region, items, colors);
         data.end();
         return appearance;
     }
@@ -71,11 +147,11 @@ public final class CharacterPackets {
         return result;
     }
     public static byte[] deleteRequest(long id) {
-        return new PacketData(9).putByte(4).putLong(id).written();
+        return new PacketData(9).putByte(0x71).putLong(id).written();
     }
     public static long decodeDelete(byte[] packet) throws IOException {
         PacketData data = new PacketData(packet);
-        if (data.byteValue() != 4) throw new IOException("Unexpected deletion request");
+        if (data.byteValue() != 0x71) throw new IOException("Unexpected deletion request");
         long id = data.longValue();
         data.end();
         if (id <= 0) throw new IOException("Invalid character ID");
@@ -83,11 +159,11 @@ public final class CharacterPackets {
     }
     public static byte[] deleteResponse(CreationResult result) {
         byte[] packet = createResponse(result);
-        packet[0] = 4;
+        packet[0] = 0x71;
         return packet;
     }
     public static CreationResult decodeDeleteResult(byte[] packet) throws IOException {
-        if (packet.length == 0 || packet[0] != 4) throw new IOException("Unexpected deletion result");
+        if (packet.length == 0 || packet[0] != 0x71) throw new IOException("Unexpected deletion result");
         byte[] copy = packet.clone();
         copy[0] = 3;
         return decodeResult(copy);
@@ -111,6 +187,8 @@ public final class CharacterPackets {
         for (CharacterInfo character : characters) {
             data.putLong(character.id());
             writeAppearance(data, character.appearance());
+            writePosition(data, character.position());
+            data.putLong(character.createdAt());
         }
     }
     private static List<CharacterInfo> readList(PacketData data) throws IOException {
@@ -121,7 +199,10 @@ public final class CharacterPackets {
             long id = data.longValue();
             Appearance appearance = readAppearance(data);
             if (id <= 0 || !appearance.valid()) throw new IOException("Invalid character record");
-            result.add(new CharacterInfo(id, appearance));
+            Position position = readPosition(data);
+            long createdAt = data.longValue();
+            if (createdAt < 0) throw new IOException("Invalid character creation time");
+            result.add(new CharacterInfo(id, appearance, position, createdAt));
         }
         return List.copyOf(result);
     }

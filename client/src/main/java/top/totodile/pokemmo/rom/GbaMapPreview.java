@@ -1,22 +1,19 @@
 package top.totodile.pokemmo.rom;
 
-import org.lwjgl.BufferUtils;
-
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
 
-/** 本地分层地图预览，按整数倍放大，季节、动画和昼夜规则独立应用。 */
+/** 图块图集绘制：按镜头裁剪格子，动画只切换已有纹理区域。 */
 public final class GbaMapPreview implements AutoCloseable {
-    private final int[] textures = new int[5];
     private final FireRedMap map;
     private final int width;
     private final int height;
-    private final ByteBuffer rgba;
     private final long started = System.nanoTime();
-    private long lastFrame = -1;
-    private int lastSeason = -1;
+    private GbaTileAtlas atlas;
+    private int atlasSeason;
+    private boolean borderVisible;
+    private boolean closed;
     // 预览环境显式指定，不用本机时间代替游戏服务器时钟。
     private final int season = Integer.getInteger("pokemmo.preview.season", 1);
     private final int hour = Integer.getInteger("pokemmo.preview.hour", 12);
@@ -28,50 +25,52 @@ public final class GbaMapPreview implements AutoCloseable {
         map.tint(hour, minute);
         width = map.width();
         height = map.height();
-        rgba = BufferUtils.createByteBuffer(width * height * 4);
-        try {
-            for (int i = 0; i < textures.length; i++) {
-                textures[i] = glGenTextures();
-                glBindTexture(GL_TEXTURE_2D, textures[i]);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (ByteBuffer) null);
-            }
-            update(season, 0);
-        } catch (IOException | RuntimeException exception) {
-            close();
-            throw exception;
-        } finally {
-            glBindTexture(GL_TEXTURE_2D, 0);
-        }
+        atlas = GbaTileAtlas.acquire(map, season);
+        atlasSeason = season;
     }
 
-    private void update(int season, long elapsedMillis) throws IOException {
-        long frame = map.animated() ? elapsedMillis / map.animationIntervalMillis() : 0;
-        if (lastFrame == frame && lastSeason == season) return;
-        int[][] layers = map.layers(season, elapsedMillis);
-        for (int layer = 0; layer < textures.length; layer++) {
-            rgba.clear();
-            for (int pixel : layers[layer]) {
-                rgba.put((byte) (pixel >>> 24)).put((byte) (pixel >>> 16)).put((byte) (pixel >>> 8)).put((byte) pixel);
-            }
-            rgba.flip();
-            glBindTexture(GL_TEXTURE_2D, textures[layer]);
-            glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, rgba);
-        }
-        lastFrame = frame;
-        lastSeason = season;
-    }
+    public void setBorderVisible(boolean visible) { borderVisible = visible; }
 
     public void render(int viewportWidth, int viewportHeight) throws IOException {
         render(viewportWidth, viewportHeight, season, hour, minute, (System.nanoTime() - started) / 1_000_000);
     }
 
     public void render(int viewportWidth, int viewportHeight, int season, int hour, int minute, long elapsedMillis) throws IOException {
-        update(season, elapsedMillis);
+        int scale = Math.max(1, Math.min(4, Math.min(viewportWidth / width, viewportHeight / height)));
+        renderAt(viewportWidth, viewportHeight, season, hour, minute, elapsedMillis,
+                (viewportWidth - width * scale) / 2, (viewportHeight - height * scale) / 2, scale, null);
+    }
+
+    /** 按人物高度层插入绘制，普通上层和高处上层各自保持遮挡关系。 */
+    public void renderAt(int viewportWidth, int viewportHeight, int season, int hour, int minute,
+                         long elapsedMillis, int left, int top, int scale, Runnable actor) throws IOException {
+        renderAt(viewportWidth, viewportHeight, season, hour, minute, elapsedMillis, left, top, scale, 2, actor);
+    }
+
+    public void renderAt(int viewportWidth, int viewportHeight, int season, int hour, int minute,
+                         long elapsedMillis, int left, int top, int scale, int actorLayer, Runnable actor) throws IOException {
+        renderWithActors(viewportWidth, viewportHeight, season, hour, minute, elapsedMillis, left, top, scale,
+                actor == null ? null : layer -> {
+                    if (layer == actorLayer) actor.run();
+                });
+    }
+
+    /** 多个实体按各自高度插入，图块上层沿用地图格子的高度分类。 */
+    public void renderWithActors(int viewportWidth, int viewportHeight, int season, int hour, int minute,
+                                 long elapsedMillis, int left, int top, int scale,
+                                 java.util.function.IntConsumer actors) throws IOException {
+        if (closed) throw new IllegalStateException("Map renderer is closed");
+        if (season < 0 || season > 3 || elapsedMillis < 0 || scale < 1)
+            throw new IllegalArgumentException("Invalid map rendering parameters: season=" + season
+                    + ", elapsedMillis=" + elapsedMillis + ", scale=" + scale);
+        if (season != atlasSeason) {
+            GbaTileAtlas replacement = GbaTileAtlas.acquire(map, season);
+            atlas.release();
+            atlas = replacement;
+            atlasSeason = season;
+        }
         float[] tint = map.tint(hour, minute);
+        long tick = elapsedMillis / map.animationIntervalMillis();
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         glOrtho(0, viewportWidth, viewportHeight, 0, -1, 1);
@@ -82,31 +81,57 @@ public final class GbaMapPreview implements AutoCloseable {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_TEXTURE_2D);
         glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-        int scale = Math.max(1, Math.min(4, Math.min(viewportWidth / width, viewportHeight / height)));
-        int left = (viewportWidth - width * scale) / 2;
-        int top = (viewportHeight - height * scale) / 2;
-        for (int layer = 0; layer < textures.length; layer++) {
+        int size = 16 * scale;
+        int startX = Math.floorDiv(-left, size), startY = Math.floorDiv(-top, size);
+        int endX = Math.floorDiv(viewportWidth - 1 - left, size) + 1;
+        int endY = Math.floorDiv(viewportHeight - 1 - top, size) + 1;
+        if (borderVisible && map.outdoor()) {
+            glColor4f(tint[0], tint[1], tint[2], 1);
+            for (int layer = 0; layer < 2; layer++) {
+                drawCells(layer, tick, left, top, scale, startX, startY, endX, endY, true);
+            }
+        }
+        startX = Math.max(0, startX); startY = Math.max(0, startY);
+        endX = Math.min(map.columns(), endX); endY = Math.min(map.rows(), endY);
+        for (int layer = 0; layer < 5; layer++) {
+            if (actors != null && (layer == 1 || layer == 2)) actors.accept(layer);
             if (layer >= 3 && tint[3] == 0) continue;
             if (layer < 3) glColor4f(tint[0], tint[1], tint[2], 1);
             else glColor4f(1, 1, 1, layer == 3 ? tint[3] : 1);
-            glBindTexture(GL_TEXTURE_2D, textures[layer]);
-            glBegin(GL_QUADS);
-            glTexCoord2f(0, 0);
-            glVertex2i(left, top);
-            glTexCoord2f(1, 0);
-            glVertex2i(left + width * scale, top);
-            glTexCoord2f(1, 1);
-            glVertex2i(left + width * scale, top + height * scale);
-            glTexCoord2f(0, 1);
-            glVertex2i(left, top + height * scale);
-            glEnd();
+            drawCells(layer, tick, left, top, scale, startX, startY, endX, endY, false);
         }
         glBindTexture(GL_TEXTURE_2D, 0);
         glColor4f(1, 1, 1, 1);
     }
 
+    private void drawCells(int layer, long tick, int left, int top, int scale,
+                           int startX, int startY, int endX, int endY, boolean border) {
+        int size = 16 * scale;
+        for (int page = 0; page < atlas.pages(); page++) {
+            atlas.bind(page);
+            glBegin(GL_QUADS);
+            for (int y = startY; y < endY; y++) {
+                for (int x = startX; x < endX; x++) {
+                    int cell = border ? map.borderCell(Math.floorMod(x, map.borderColumns()), Math.floorMod(y, map.borderRows()))
+                            : map.cell(x, y);
+                    int sourceLayer = layer;
+                    if (!border && (layer == 1 || layer == 2)) {
+                        if (map.upperLayer(cell) != layer) continue;
+                        sourceLayer = 1;
+                    }
+                    int slot = atlas.slot(cell & 1023, sourceLayer, tick);
+                    if (slot >= 0 && GbaTileAtlas.page(slot) == page)
+                        GbaTileAtlas.quad(slot, left + x * size, top + y * size, scale);
+                }
+            }
+            glEnd();
+        }
+    }
+
     @Override
     public void close() {
-        for (int texture : textures) if (texture != 0) glDeleteTextures(texture);
+        if (closed) return;
+        closed = true;
+        atlas.release();
     }
 }
