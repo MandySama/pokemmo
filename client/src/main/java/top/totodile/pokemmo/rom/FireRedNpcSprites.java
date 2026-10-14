@@ -18,7 +18,7 @@ final class FireRedNpcSprites {
 
     FireRedNpcSprites(byte[] rom) throws IOException {
         this.rom = rom;
-        table = locate("89000918086802BC08470000", 1);
+        table = locateGraphicsTable();
         int paletteTable = locate("21F801BC00470000FF110000", 0);
         for (int i = 0; i < 44; i++) {
             int entry = paletteTable + i * 8;
@@ -41,6 +41,7 @@ final class FireRedNpcSprites {
             }
             break;
         }
+        if (rom[174] == 'E') return;
         try {
             var factory = DocumentBuilderFactory.newInstance();
             factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
@@ -91,6 +92,30 @@ final class FireRedNpcSprites {
             }
         }
         return image;
+    }
+
+    private int locateGraphicsTable() throws IOException {
+        try {
+            return locate("89000918086802BC08470000", 1);
+        } catch (IOException missing) {
+            // 扩展卡带可能替换查表函数；以连续主角描述定位新表，后置表覆盖旧副本。
+            int selected = -1;
+            for (int offset = 0; offset <= rom.length - 12; offset += 4) {
+                int address = integer(offset) - 0x08000000;
+                if (address < 0 || address > rom.length - 36 || ushort(address) != 65535) continue;
+                try {
+                    int first = pointer(offset), second = pointer(offset + 4), third = pointer(offset + 8);
+                    if (ushort(first) == 65535 && ushort(second) == 65535 && ushort(third) == 65535
+                            && ushort(first + 2) == 0x1100 && ushort(second + 2) == 0x1100
+                            && ushort(first + 8) == 16 && ushort(first + 10) == 32
+                            && ushort(second + 8) == 32 && ushort(second + 10) == 32) selected = offset;
+                } catch (IOException invalid) {
+                    // 非指针位置不属于描述表。
+                }
+            }
+            if (selected < 0) throw missing;
+            return selected;
+        }
     }
 
     private int locate(String hex, int occurrence) throws IOException {

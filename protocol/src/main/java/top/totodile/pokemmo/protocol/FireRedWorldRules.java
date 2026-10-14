@@ -8,7 +8,7 @@ import java.util.zip.GZIPInputStream;
 import static top.totodile.pokemmo.protocol.CharacterPackets.*;
 
 /** 不含图像的地图通行、连接、静态物件和传送事件，只由服务端裁决使用。 */
-public final class FireRedWorldRules {
+public final class FireRedWorldRules implements WorldRules {
     private record Warp(int x, int y, int index, int group, int map) {
         boolean dynamic() {
             return group == 127 || group == 255 || map == 127 || map == 255 || index == 255;
@@ -53,15 +53,20 @@ public final class FireRedWorldRules {
         }
     }
 
+    private final int region;
     private final Map<Integer, Area> areas = new HashMap<>();
 
-    public FireRedWorldRules() throws IOException {
-        var stream = FireRedWorldRules.class.getResourceAsStream("/maps/fire-red-world.gz");
+    public FireRedWorldRules() throws IOException { this(0); }
+
+    public FireRedWorldRules(int region) throws IOException {
+        if (region < 0 || region != 0 && region != 1 && region != 4) throw new IllegalArgumentException("Invalid world region");
+        this.region = region;
+        var stream = FireRedWorldRules.class.getResourceAsStream(region == 0 ? "/maps/fire-red-world.gz" : region == 1 ? "/maps/emerald-world.gz" : "/maps/emerald2-world.gz");
         if (stream == null) throw new IOException("Missing world rules");
         try (var data = new DataInputStream(new GZIPInputStream(stream))) {
             if (data.readInt() != 0x46525731) throw new IOException("Invalid world rules version");
             int count = data.readInt();
-            if (count != 425) throw new IOException("Incomplete world rules");
+            if (count <= 0 || count > 65536 || region != 4 && count != (region == 0 ? 425 : 518)) throw new IOException("Incomplete world rules");
             for (int i = 0; i < count; i++) {
                 int key = data.readUnsignedByte() * 256 + data.readUnsignedByte();
                 int width = data.readUnsignedShort(), height = data.readUnsignedShort();
@@ -111,7 +116,7 @@ public final class FireRedWorldRules {
     }
 
     private boolean available(Warp warp, ReturnPoint returnPoint) {
-        if (warp.dynamic()) return returnPoint != null && returnPoint.valid();
+        if (warp.dynamic()) return returnPoint != null && returnPoint.valid(region);
         Area target = area(warp.group, warp.map);
         return target != null && warp.index < target.warps.size();
     }
@@ -152,7 +157,7 @@ public final class FireRedWorldRules {
     }
 
     public Decision move(Position position, int direction, boolean noclip) {
-        if (direction < 0 || direction > 3 || !position.valid()) throw new IllegalArgumentException("Invalid movement");
+        if (direction < 0 || direction > 3 || !position.valid(region)) throw new IllegalArgumentException("Invalid movement");
         position = at(position.group(), position.map(), position.x(), position.y(), direction, position.returnPoint());
         Decision standing = warp(position, direction, false);
         if (standing != null) return standing;

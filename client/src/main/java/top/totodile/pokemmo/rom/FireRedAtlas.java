@@ -40,21 +40,36 @@ public final class FireRedAtlas {
     }
 
     private final byte[] rom;
+    private final int region;
+
+    public int region() { return region; }
+    private final Map<Key, Integer> locationNames = new LinkedHashMap<>();
+    private final Map<Key, Integer> sections = new LinkedHashMap<>();
     private final Map<Key, Area> areas = new LinkedHashMap<>();
     private final Map<Key, List<Npc>> npcs = new LinkedHashMap<>();
     private FireRedNpcSprites npcSprites;
     private HgssNpcSprites replacementSprites;
     private boolean replacementsLoaded;
+    private FireRedRegionMap regionMap;
+    private boolean regionMapLoaded;
     private final boolean useHgssSprites = new top.totodile.pokemmo.ClientSettings().hgssSprites();
 
     public record NpcSprite(BufferedImage image, float scale) {
     }
 
     public FireRedAtlas(Path file) throws IOException {
+        this(file, false);
+    }
+
+    private final boolean modified;
+
+    public FireRedAtlas(Path file, boolean modified) throws IOException {
+        this.modified = modified;
         long size = Files.size(file);
         if (size < 256 || size > 32 * 1024 * 1024) throw new IOException("Invalid GBA ROM size");
         rom = Files.readAllBytes(file);
-        if (rom[0xAC] != 'B' || rom[0xAD] != 'P' || rom[0xAE] != 'R') throw new IOException("FireRed ROM required");
+        if (rom[0xAC] != 'B' || rom[0xAD] != 'P' || rom[0xAE] != 'R' && rom[0xAE] != 'E') throw new IOException("FireRed ROM required");
+        region = rom[174] == 'E' ? 1 : 0;
         byte[] pattern = HexFormat.of().parseHex("80180068890B091808687047");
         int table = pointer(find(pattern) + pattern.length);
         int count = 0;
@@ -63,11 +78,18 @@ public final class FireRedAtlas {
         for (int group = 0; group < count; group++) {
             int bank = pointer(table + group * 4);
             int end = group + 1 == count ? table : pointer(table + (group + 1) * 4);
+            if (modified) end = Math.min(end, bank + 1024);
             if (end < bank || (end - bank) % 4 != 0 || end - bank > 1024) throw new IOException("Invalid map bank");
             for (int map = 0; map < (end - bank) / 4; map++) {
                 Key key = new Key(group, map);
+                if (modified && !isPointer(bank + map * 4)) break;
                 int header = pointer(bank + map * 4);
                 int layout = pointer(header);
+                int section = unsigned(header + 20);
+                // 秘密基地使用动态地点编号，共用基地名称。
+                if (region == 1 && section == 87 && unsigned(header + 23) == 8) section = 86;
+                sections.put(key, section);
+                locationNames.put(key, (region == 0 ? 139912 : 141000) + section);
                 int columns = integer(layout), rows = integer(layout + 4);
                 if (columns < 1 || rows < 1 || columns > 256 || rows > 256) throw new IOException("Invalid map dimensions");
                 List<Warp> warps = new ArrayList<>();
@@ -113,6 +135,34 @@ public final class FireRedAtlas {
         }
     }
 
+    public int locationName(Key key) throws IOException {
+        area(key);
+        return locationNames.get(key);
+    }
+
+    /** 地图头里的地区编号，城镇地图据此查落点。 */
+    public int regionalSection(Key key) throws IOException {
+        area(key);
+        return sections.get(key);
+    }
+
+    /**
+     * 卡带内嵌的区域地图（城镇地图）；仅火红卡带可用，其它版本返回 null 由调用方回退。
+     */
+    public FireRedRegionMap regionMap() {
+        if (!regionMapLoaded) {
+            regionMapLoaded = true;
+            if (region == 0) {
+                try {
+                    regionMap = FireRedRegionMap.load(rom);
+                } catch (IOException exception) {
+                    regionMap = null;
+                }
+            }
+        }
+        return regionMap;
+    }
+
     public List<Area> areas() {
         return List.copyOf(areas.values());
     }
@@ -125,7 +175,7 @@ public final class FireRedAtlas {
 
     public FireRedMap load(Key key, boolean enhanced) throws IOException {
         area(key);
-        return FireRedMap.load(rom, key.group(), key.map(), enhanced);
+        return FireRedMap.load(rom, key.group(), key.map(), enhanced && !modified);
     }
 
     public List<Npc> npcs(Key key) throws IOException {
@@ -139,9 +189,10 @@ public final class FireRedAtlas {
 
     /** 原始模式使用卡带像素；替换图像保留原画布，以独立比例保持脚底锚点。 */
     public NpcSprite npcSprite(Npc npc, boolean enhanced, int season) throws IOException {
+        enhanced = enhanced && !modified;
         if (enhanced && useHgssSprites && !replacementsLoaded) {
             Path selected = new top.totodile.pokemmo.RomFiles(top.totodile.pokemmo.ClientFiles.data("../roms")).selected(4);
-            if (selected != null) replacementSprites = new HgssNpcSprites(selected);
+            if (selected != null) replacementSprites = new HgssNpcSprites(selected,region);
             replacementsLoaded = true;
         }
         if (enhanced && useHgssSprites && replacementSprites != null) {

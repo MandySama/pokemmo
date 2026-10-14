@@ -12,6 +12,7 @@ public final class WorldPackets {
     public static final int LOADED = 0x73;
     public static final int TELEPORT = 0x74;
     public static final int RESULT = 0x75;
+    public static final int REGION_TELEPORT = 0x7D;
 
     private WorldPackets() {
     }

@@ -23,8 +23,8 @@ import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
 
-/** 火红地图的格子步行、传送与装扮渲染；纹理均由绘制线程管理。 */
-public final class KantoWorld implements AutoCloseable {
+/** GBA 地区的格子步行、传送与装扮渲染；纹理均由绘制线程管理。 */
+public final class KantoWorld implements ClientWorld {
     private record Sprite(int texture, int width, int height, float scale) { }
     private static final int[][] WALK = {
             {0, 3, 0, 4}, {1, 5, 1, 6}, {2, 7, 2, 8},
@@ -61,18 +61,30 @@ public final class KantoWorld implements AutoCloseable {
 
     private int speedMultiplier = 1;
 
+    public String locationName() {
+        if (atlas == null) return top.totodile.pokemmo.ClientStrings.get(9282);
+        try { return top.totodile.pokemmo.ClientStrings.get(atlas.locationName(current)); }
+        catch (IOException | IllegalArgumentException error) { return top.totodile.pokemmo.ClientStrings.get(9282); }
+    }
+
+    public int region() { return appearance.region(); }
+
+    /** 地图目录；独立地图测试构造的世界没有，返回 null。 */
+    public FireRedAtlas atlas() { return atlas; }
+
     public int speedMultiplier() { return speedMultiplier; }
 
     public void setSpeedMultiplier(int multiplier) {
         if (multiplier != 1 && multiplier != 2 && multiplier != 4 && multiplier != 8)
             throw new IllegalArgumentException("Invalid movement speed multiplier");
         speedMultiplier = multiplier;
+        syncCycling();
     }
 
     public boolean noclip() { return noclip; }
 
     /** 会话内的碰撞开关；地图边界与传送判定始终保留。 */
-    public void setNoclip(boolean enabled) { noclip = enabled; }
+    public void setNoclip(boolean enabled) { noclip = enabled; syncCycling(); }
     private long entryFadeStarted;
     private boolean entering;
     private record Transfer(FireRedAtlas.Key key, Scene scene, int x, int y, int facing) { }
@@ -84,6 +96,106 @@ public final class KantoWorld implements AutoCloseable {
     private byte[] sentSettings;
     private long nextRequestAt;
     private boolean disposed;
+    private top.totodile.pokemmo.protocol.PartyMember follower;
+    private CompletableFuture<BufferedImage[]> followerImages;
+    private final FollowerTrail followerTrail = new FollowerTrail();
+    private boolean resetFollower = true, followerFailure;
+    private FireRedAtlas.Key followerMap;
+    private long followerStep = Long.MIN_VALUE;
+    private int lastFollowerPlayerX, lastFollowerPlayerY;
+
+    public void setFollower(top.totodile.pokemmo.protocol.PartyMember member) {
+        clearFollower();
+        followerFailure = false;
+        follower = member;
+        if (member == null) return;
+        followerImages = CompletableFuture.supplyAsync(() -> {
+            try {
+                var rom = new top.totodile.pokemmo.RomFiles(top.totodile.pokemmo.ClientFiles.data("../roms")).selected(4);
+                if (rom == null) throw new IOException("Missing HGSS ROM");
+                return top.totodile.pokemmo.rom.FollowerSprites.load(rom, member.species());
+            } catch (IOException error) { throw new java.util.concurrent.CompletionException(error); }
+        });
+    }
+
+    public boolean takeFollowerFailure() {
+        boolean result = followerFailure;
+        followerFailure = false;
+        return result;
+    }
+
+    private void clearFollower() {
+        if (followerImages != null) followerImages.cancel(true);
+        followerImages = null;
+        for (int i = 0; i < 8; i++) {
+            Sprite old = sprites.remove(-10000 - i);
+            if (old != null) glDeleteTextures(old.texture());
+        }
+        follower = null;
+        resetFollower = true;
+        followerStep = Long.MIN_VALUE;
+    }
+
+    private void updateFollower(long now) {
+        if (followerImages != null && followerImages.isDone()) {
+            var result = followerImages;
+            followerImages = null;
+            try {
+                BufferedImage[] images = result.join();
+                for (int i = 0; i < images.length; i++) {
+                    int size = images[i].getWidth() / (follower.alpha() ? 3 : 4) * 3;
+                    upload(-10000 - i, images[i], size / (float) images[i].getWidth());
+                }
+            } catch (java.util.concurrent.CompletionException error) {
+                clearFollower();
+                followerFailure = true;
+                System.getLogger(getClass().getName()).log(System.Logger.Level.WARNING, "Unable to load follower", error.getCause());
+            }
+        }
+        if (follower == null) return;
+        if (resetFollower) {
+            int bx = x - (facing == 2 ? -1 : facing == 3 ? 1 : 0);
+            int by = y - (facing == 1 ? -1 : facing == 0 ? 1 : 0);
+            if (!map.walkable(bx, by) || occupied(bx, by)) {
+                bx = x; by = y;
+                for (int direction : new int[]{0, 2, 3, 1}) {
+                    int nx = x + (direction == 2 ? -1 : direction == 3 ? 1 : 0);
+                    int ny = y + (direction == 1 ? -1 : direction == 0 ? 1 : 0);
+                    if (map.walkable(nx, ny) && !occupied(nx, ny)) { bx = nx; by = ny; break; }
+                }
+            }
+            int direction = bx < x ? 3 : bx > x ? 2 : by < y ? 0 : by > y ? 1 : facing;
+            followerTrail.reset(bx, by, direction);
+            followerMap = current;
+            resetFollower = false;
+        } else if (!current.equals(followerMap)) {
+            followerTrail.translate(fromX - lastFollowerPlayerX, fromY - lastFollowerPlayerY);
+            followerMap = current;
+        }
+        if (stepping && followerStep != stepStarted) {
+            followerTrail.follow(fromX, fromY, stepStarted, stepNanos, now);
+            followerStep = stepStarted;
+        }
+        lastFollowerPlayerX = x;
+        lastFollowerPlayerY = y;
+    }
+
+    private void drawFollower(int left, int top, int scale, long now) {
+        int frame = followerTrail.facing() * 2 + (followerTrail.moving(now)
+                ? (int) ((now / (160_000_000L / speedMultiplier)) % 2) : 0);
+        Sprite sprite = sprites.get(-10000 - frame);
+        if (sprite == null) return;
+        int px = (int) (followerTrail.x(now) * 16), py = (int) (followerTrail.y(now) * 16);
+        Sprite shadow = sprites.get(64);
+        draw(shadow, left + (px - 4.5f + shadow.width * 0.125f) * scale,
+                top + (py - 5 + shadow.height * 0.125f) * scale,
+                shadow.width * 0.75f * scale, shadow.height * 0.75f * scale, false);
+        float width = sprite.width * sprite.scale, height = sprite.height * sprite.scale;
+        draw(sprite, left + (px + 0.5f - (width - 16) / 2f) * scale,
+                top + (py - (height - 16)) * scale, width * scale, height * scale, false);
+    }
+
+    private record Actor(int y, int layer, Runnable draw) { }
 
     public void setAuthority(Function<byte[], CompletableFuture<WorldPackets.Result>> authority) {
         this.authority = authority;
@@ -149,6 +261,10 @@ public final class KantoWorld implements AutoCloseable {
                     stepping = animating = true;
                     animationStarted = stepStarted = now;
                     stepNanos = java.util.concurrent.TimeUnit.MILLISECONDS.toNanos(reply.millis());
+                    if (facing == 1 && startDoor(x, y, now, false)) {
+                        stepStarted += 120_000_000L;
+                        animationStarted = stepStarted;
+                    }
                 }
             } catch (IOException error) { throw new IllegalStateException(error); }
         } else if (reply.moved()) {
@@ -175,18 +291,64 @@ public final class KantoWorld implements AutoCloseable {
         }
     }
     private long fadeOutStarted;
+    private FireRedMap.DoorFrames door;
+    private int doorX, doorY;
+    private long doorStarted;
+    private boolean doorClosing;
+    private final java.util.List<Sprite> doorSprites = new java.util.ArrayList<>();
+
+    private void clearDoor() {
+        renderer.setDoorArea(-1, -1, 1, 1);
+        for (Sprite sprite : doorSprites) glDeleteTextures(sprite.texture());
+        doorSprites.clear();
+        door = null;
+    }
+
+    private boolean startDoor(int dx, int dy, long now, boolean closing) {
+        clearDoor();
+        try {
+            door = map.doorFrames(dx, dy, 1);
+            if (door == null) return false;
+            doorX = dx; doorY = dy; doorStarted = now; doorClosing = closing;
+            for (var image : door.frames()) {
+                upload(Integer.MIN_VALUE, image);
+                doorSprites.add(sprites.remove(Integer.MIN_VALUE));
+            }
+            renderer.setDoorArea(dx, dy, (door.flags() & 512) != 0 ? 2 : 1,
+                    (door.flags() & (256 | 512)) != 0 ? 2 : 1);
+            return true;
+        } catch (IOException error) { clearDoor(); throw new IllegalStateException(error); }
+    }
+
+    private void drawDoor(int layer, int left, int top, int scale, long now) {
+        if (door == null || layer > 1) return;
+        long ms = Math.max(0, now - doorStarted) / 1_000_000;
+        int frame = doorClosing ? (ms < 380 ? 2 : ms < 440 ? 1 : 0)
+                : (ms < 60 ? 0 : ms < 120 ? 1 : 2);
+        int height = (door.flags() & (256 | 512)) != 0 ? 2 : 1;
+        int width = (door.flags() & 512) != 0 ? 2 : 1;
+        if (height == 1 && layer == 1) return;
+        int row = layer == 0 ? height - 1 : 0;
+        for (int column = 0; column < width; column++) {
+            int index = frame * width * height + column * height + row;
+            draw(doorSprites.get(index), left + (doorX + column) * 16 * scale,
+                    top + (doorY - (height - 1 - row)) * 16 * scale, 16 * scale, 16 * scale, false);
+        }
+    }
+
     private java.util.function.Consumer<Position> onPosition = p -> { };
     private Position lastPublished;
 
     public void restore(Position p) throws IOException {
         var key = new FireRedAtlas.Key(p.group(), p.map());
         Scene scene = atlas == null ? scenes.get(key) : scene(key);
-        if (!p.valid() || scene == null || p.x() >= scene.map().width() / 16 || p.y() >= scene.map().height() / 16)
+        if (!p.valid(appearance.region()) || scene == null || p.x() >= scene.map().width() / 16 || p.y() >= scene.map().height() / 16)
             throw new IOException("Invalid saved position");
         current = key; map = scene.map(); renderer = scene.renderer(); npcs = scene.npcs();
         if (layout != null) layout.select(key);
         returnPoint = p.returnPoint();
         x = fromX = p.x(); y = fromY = p.y(); facing = p.facing();
+        resetFollower = true;
         lastPublished = position();
     }
 
@@ -194,7 +356,8 @@ public final class KantoWorld implements AutoCloseable {
         onPosition = listener;
     }
 
-    private Position position() {
+    /** 当前已走完或已落地的格子位置，供城镇地图等界面定位。 */
+    public Position position() {
         return new Position(current.group(), current.map(), x, y, map.elevation(x, y) + 1, facing, returnPoint);
     }
 
@@ -213,7 +376,11 @@ public final class KantoWorld implements AutoCloseable {
     }
 
     public KantoWorld(FireRedAtlas atlas, AvatarAssets assets, Appearance appearance) throws IOException {
-        this(atlas.load(new FireRedAtlas.Key(4, 1), true), assets, appearance);
+        this(atlas.load(new FireRedAtlas.Key(Position.spawn(appearance.region(), appearance.gender()).group(),
+                Position.spawn(appearance.region(), appearance.gender()).map()), true), assets, appearance);
+        Position spawn = Position.spawn(appearance.region(), appearance.gender());
+        current = new FireRedAtlas.Key(spawn.group(), spawn.map());
+        x = fromX = spawn.x(); y = fromY = spawn.y();
         this.atlas = atlas;
         scenes.put(current, new Scene(map, renderer, npcs));
         try {
@@ -281,7 +448,7 @@ public final class KantoWorld implements AutoCloseable {
         if (modeKey >= 0) {
             if (pressed && !modeKeys[modeKey] && transfer == null && !entering) {
                 if (modeKey == 0) running = !running;
-                else cycling = !cycling;
+                else toggleBicycle();
             }
             modeKeys[modeKey] = pressed;
             return;
@@ -300,7 +467,30 @@ public final class KantoWorld implements AutoCloseable {
     }
 
     /** 准备目标场景后切换；清除旧室内返回点，避免跨区域出口回到旧地图。 */
+    /** 骑上或下车，与按 2 键一致；快捷栏等外部入口使用同一判断。 */
+    public void toggleBicycle() {
+        if (transfer == null && !entering) {
+            cycling = !cycling;
+            syncCycling();
+        }
+    }
+
+    @Override
+    public void restoreCycling(boolean cycling) {
+        this.cycling = cycling;
+    }
+
+    private void syncCycling() {
+        if (authority != null) {
+            sentSettings = WorldPackets.settings(cycling, speedMultiplier, noclip);
+            authority.apply(sentSettings);
+        }
+    }
+
     public void teleport(int group, int id, int targetX, int targetY, long now) throws IOException {
+        // 目录只会列出当前地区的地点；仍按地区校验，避免把异地区坐标发给服务端。
+        if (!top.totodile.pokemmo.protocol.FireRedMaps.contains(appearance.region(), group, id, targetX, targetY))
+            throw new IOException("Invalid teleport destination");
         if (authority != null) {
             if (worldReply != null || transfer != null || pendingTransfer != null || entering) return;
             clearKeys(); stepping = animating = false;
@@ -310,8 +500,7 @@ public final class KantoWorld implements AutoCloseable {
                     .putShort(targetX).putShort(targetY).written());
             return;
         }
-        if (atlas == null || !top.totodile.pokemmo.protocol.FireRedMaps.contains(group, id, targetX, targetY))
-            throw new IOException("Invalid teleport destination");
+        if (atlas == null) throw new IOException("Invalid teleport destination");
         var key = new FireRedAtlas.Key(group, id);
         Scene destination = scene(key);
         if (targetX >= destination.map().width() / 16 || targetY >= destination.map().height() / 16)
@@ -337,23 +526,36 @@ public final class KantoWorld implements AutoCloseable {
         }
         if (transfer != null) {
             if (now - fadeOutStarted < ENTRY_FADE_NANOS) return;
+            clearDoor();
             current = transfer.key();
             try { layout.select(current); } catch (IOException exception) { throw new IllegalStateException(exception); }
             map = transfer.scene().map();
+            if (cycling && map.indoor()) {
+                cycling = false;
+                syncCycling();
+            }
             renderer = transfer.scene().renderer();
             npcs = transfer.scene().npcs();
             x = fromX = transfer.x();
             y = fromY = transfer.y();
             facing = transfer.facing();
+            resetFollower = true;
             transfer = null;
             publishPosition();
             beginEntry(now);
+            if (facing == 0 && startDoor(x, y - 1, now, true)) {
+                fromY = y - 1;
+                stepping = animating = true;
+                stepStarted = animationStarted = now;
+                stepNanos = STEP_NANOS;
+            }
             acknowledgeLoaded();
             return;
         }
         if (entering) {
             if (now - entryFadeStarted < ENTRY_FADE_NANOS) return;
             entering = false;
+            clearDoor();
         }
         if (stepping && now - stepStarted >= stepNanos) {
             stepping = false;
@@ -389,6 +591,10 @@ public final class KantoWorld implements AutoCloseable {
         stepStarted = now;
         stepNanos = movementNanos();
         stepping = true;
+        if (direction == 1 && canEnterDoor(x, y, direction) && startDoor(x, y, now, false)) {
+            stepStarted += 120_000_000L;
+            animationStarted = stepStarted;
+        }
     }
 
     /** 在界面绘制后覆盖全屏，使地图和 HUD 共用同一过渡。 */
@@ -491,7 +697,7 @@ public final class KantoWorld implements AutoCloseable {
 
     private boolean available(FireRedAtlas.Warp warp) {
         try {
-            if (dynamic(warp)) return returnPoint != null && returnPoint.valid();
+            if (dynamic(warp)) return returnPoint != null && returnPoint.valid(appearance.region());
             return warp.targetWarp() < atlas.area(warp.target()).warps().size();
         } catch (IOException exception) { return false; }
     }
@@ -525,10 +731,11 @@ public final class KantoWorld implements AutoCloseable {
 
     public void render(int width, int height, long now) throws IOException {
         update(now);
+        updateFollower(now);
         renderer.setBorderVisible(true);
         // 同帧创建后可能收到创建前采样的时间，首帧从动画零点开始。
         long elapsedMillis = Math.max(0L, now - started) / 1_000_000;
-        double progress = stepping ? Math.min(1, (now - stepStarted) / (double) stepNanos) : 1;
+        double progress = stepping ? Math.max(0, Math.min(1, (now - stepStarted) / (double) stepNanos)) : 1;
         // 地图坐标先截断到 ROM 像素，再进入正交投影，人物和镜头使用相同位置。
         int px = (int) ((fromX + (x - fromX) * progress) * 16);
         int py = (int) ((fromY + (y - fromY) * progress) * 16);
@@ -536,29 +743,32 @@ public final class KantoWorld implements AutoCloseable {
         int left = WorldCamera.origin(width, px + 8, scale);
         int top = WorldCamera.origin(height, py + 12, scale);
         if (now - stepStarted > 320_000_000L) animating = false;
-        int animation = animating ? (int) ((now - animationStarted) / ((running && !cycling ? 140_000_000L : 160_000_000L) / speedMultiplier) % 4) : 0;
+        int animation = animating ? (int) (Math.max(0, now - animationStarted) / ((running && !cycling ? 140_000_000L : 160_000_000L) / speedMultiplier) % 4) : 0;
         int mode = cycling ? 2 : running && animating ? 1 : 0;
         int frame = WALK[mode * 3 + Math.min(facing, 2)][animation];
         sprite(facing, frame);
         Sprite sprite = sprites.get(avatarSpriteKey(facing, frame));
-        renderer.renderWithActors(width, height, 1, 12, 0, elapsedMillis, left, top, scale, layer -> {
+        java.util.List<Actor> actors = new java.util.ArrayList<>();
+        for (var npc : npcs) actors.add(new Actor(npc.y() * 16, npcLayer(npc), () -> drawNpc(npc, left, top, scale)));
+        int playerLayer = map.elevation(x, y) >= 3 ? 2 : 1;
+        if (follower != null) {
+            int fx = (int) Math.round(followerTrail.x(now)), fy = (int) Math.round(followerTrail.y(now));
+            int followerLayer = map.elevation(fx, fy) >= 3 ? 2 : 1;
+            actors.add(new Actor((int) (followerTrail.y(now) * 16), followerLayer, () -> drawFollower(left, top, scale, now)));
+        }
+        actors.add(new Actor(py, playerLayer, () -> {
+            Sprite shadow = sprites.get(64);
+            draw(shadow, left + (px - 4.5f + shadow.width * 0.125f) * scale,
+                    top + (py - 5 + shadow.height * 0.125f) * scale,
+                    shadow.width * 0.75f * scale, shadow.height * 0.75f * scale, false);
+            draw(sprite, left + (px - 13.5f) * scale, top + (py - 20) * scale,
+                    sprite.width * 0.75f * scale, sprite.height * 0.75f * scale, facing == 3);
+        }));
+        actors.sort(java.util.Comparator.comparingInt(Actor::y));
+        renderer.renderWithActorRows(width, height, 1, 12, 0, elapsedMillis, left, top, scale, (layer,row) -> {
             glColor4f(1, 1, 1, 1);
-            for (var npc : npcs) if (npcLayer(npc) == layer && npc.y() * 16 <= py) drawNpc(npc, left, top, scale);
-            if (layer == (map.elevation(x, y) >= 3 ? 2 : 1)) {
-                Sprite shadow = sprites.get(64);
-                draw(shadow, left + (px - 4.5f + shadow.width * 0.125f) * scale,
-                        top + (py - 5 + shadow.height * 0.125f) * scale,
-                        shadow.width * 0.75f * scale, shadow.height * 0.75f * scale, false);
-                glBindTexture(GL_TEXTURE_2D, sprite.texture);
-                // 普通站立与步行共用画布锚点，镜像只改变纹理方向。
-                float actorLeft = left + (px - 13.5f) * scale;
-                float actorTop = top + (py - 20) * scale;
-                float actorWidth = sprite.width * 0.75f * scale;
-                float actorHeight = sprite.height * 0.75f * scale;
-                draw(sprite, actorLeft, actorTop, actorWidth, actorHeight, facing == 3);
-            }
-            for (var npc : npcs) if (npcLayer(npc) == layer && npc.y() * 16 > py) drawNpc(npc, left, top, scale);
-        });
+            for (Actor actor : actors) if (actor.layer() == layer && (layer==2||Math.floorDiv(actor.y(),16)==row)) actor.draw().run();
+        }, layer -> drawDoor(layer, left, top, scale, now));
         if (layout != null) {
             java.util.Set<FireRedAtlas.Key> visible = new java.util.HashSet<>();
             visible.add(current);
@@ -572,13 +782,13 @@ public final class KantoWorld implements AutoCloseable {
                 visible.add(entry.getKey());
                 Scene neighbor = scene(entry.getKey());
                 neighbor.renderer().setBorderVisible(false);
-                neighbor.renderer().renderWithActors(width, height, 1, 12, 0, elapsedMillis,
-                        neighborLeft, neighborTop, scale, layer -> {
+                neighbor.renderer().renderWithActorRows(width, height, 1, 12, 0, elapsedMillis,
+                        neighborLeft, neighborTop, scale, (layer,row) -> {
                             glColor4f(1, 1, 1, 1);
                             for (var npc : neighbor.npcs()) {
-                                if (npcLayer(npc) == layer) drawNpc(npc, neighborLeft, neighborTop, scale);
+                                if (npcLayer(npc) == layer && (layer==2||npc.y()==row)) drawNpc(npc, neighborLeft, neighborTop, scale);
                             }
-                        });
+                        }, null);
             }
             trimScenes(visible);
         }
@@ -665,6 +875,8 @@ public final class KantoWorld implements AutoCloseable {
 
     @Override public void close() {
         disposed = true;
+        clearFollower();
+        clearDoor();
         clearKeys();
         if (scenes.isEmpty()) renderer.close();
         else for (Scene scene : scenes.values()) scene.renderer().close();

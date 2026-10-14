@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<teleports>
+    <destination section="1" group="1" map="155" x="105" y="876" name="143001"/>
+    <destination section="2" group="1" map="156" x="6" y="9" name="9490"/>
+    <destination section="2" group="1" map="157" x="6" y="6" name="9491"/>
+</teleports>

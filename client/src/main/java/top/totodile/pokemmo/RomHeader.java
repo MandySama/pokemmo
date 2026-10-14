@@ -11,8 +11,8 @@ import java.util.Set;
 
 /** 仅读取卡带头的游戏代码、修订号和区段范围，不解析游戏资源。 */
 final class RomHeader {
-    private static final String[][] CODES = {{"IRA", "IRB"}, {"BPR"}, {"BPE"}, {"CPU"}, {"IPG", "IPK"}};
-    private static final int[] LABELS = {92, 90, 91, 93, 94};
+    private static final String[][] CODES = {{"IRA", "IRB"}, {"BPR"}, {"BPE"}, {"CPU"}, {"IPG", "IPK"}, {"BPE"}};
+    private static final int[] LABELS = {92, 90, 91, 93, 94, 250004};
 
     static void validate(int index, Path file) throws IOException {
         if (!Files.isRegularFile(file) || !Files.isReadable(file)) throw error(1183, index, file);
@@ -22,7 +22,7 @@ final class RomHeader {
         }
         String archive = archive(header);
         if (archive != null) throw new IOException(ClientStrings.get(1181).replace("{00}", archive));
-        boolean gba = index == 1 || index == 2;
+        boolean gba = index == 1 || index == 2 || index == 5;
         int codeOffset = gba ? 0xAC : 0x0C;
         if (header.length < (gba ? 255 : 2048)) throw error(1183, index, file);
         String code = new String(header, codeOffset, 4, StandardCharsets.US_ASCII);

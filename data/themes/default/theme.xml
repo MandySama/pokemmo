@@ -1,5 +1,339 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<themes>
+<themes><images file="res/trainer-atlas.png" filter="nearest"><area name="summary.gender-male" xywh="636,100,16,16"/><area name="summary.gender-female" xywh="618,82,16,16"/></images>
+<images file="res/party-health.png" filter="nearest">
+<area name="summary.type-bg-0" xywh="279,226,234,231" tint="#E8CF84"/>
+<area name="summary.nameplate-0" xywh="7,101,165,17" splitx="L2,R2" splity="T6,B6" tint="#E8CF84"/>
+<area name="summary.type-bg-1" xywh="279,226,234,231" tint="#F78860"/>
+<area name="summary.nameplate-1" xywh="7,101,165,17" splitx="L2,R2" splity="T6,B6" tint="#F78860"/>
+<area name="summary.type-bg-2" xywh="279,226,234,231" tint="#FFFFFF"/>
+<area name="summary.nameplate-2" xywh="7,101,165,17" splitx="L2,R2" splity="T6,B6" tint="#FFFFFF"/>
+<area name="summary.type-bg-3" xywh="279,226,234,231" tint="#D289D3"/>
+<area name="summary.nameplate-3" xywh="7,101,165,17" splitx="L2,R2" splity="T6,B6" tint="#D289D3"/>
+<area name="summary.type-bg-4" xywh="279,226,234,231" tint="#EAAA83"/>
+<area name="summary.nameplate-4" xywh="7,101,165,17" splitx="L2,R2" splity="T6,B6" tint="#EAAA83"/>
+<area name="summary.type-bg-5" xywh="279,226,234,231" tint="#C4B985"/>
+<area name="summary.nameplate-5" xywh="7,101,165,17" splitx="L2,R2" splity="T6,B6" tint="#C4B985"/>
+<area name="summary.type-bg-6" xywh="279,226,234,231" tint="#ABD37D"/>
+<area name="summary.nameplate-6" xywh="7,101,165,17" splitx="L2,R2" splity="T6,B6" tint="#ABD37D"/>
+<area name="summary.type-bg-7" xywh="279,226,234,231" tint="#A9A5DF"/>
+<area name="summary.nameplate-7" xywh="7,101,165,17" splitx="L2,R2" splity="T6,B6" tint="#A9A5DF"/>
+<area name="summary.type-bg-8" xywh="279,226,234,231" tint="#FFFFFF"/>
+<area name="summary.nameplate-8" xywh="7,101,165,17" splitx="L2,R2" splity="T6,B6" tint="#FFFFFF"/>
+<area name="summary.type-bg-9" xywh="279,226,234,231" tint="#FF7E7E"/>
+<area name="summary.nameplate-9" xywh="7,101,165,17" splitx="L2,R2" splity="T6,B6" tint="#FF7E7E"/>
+<area name="summary.type-bg-10" xywh="279,226,234,231" tint="#00CCFF"/>
+<area name="summary.nameplate-10" xywh="7,101,165,17" splitx="L2,R2" splity="T6,B6" tint="#00CCFF"/>
+<area name="summary.type-bg-11" xywh="279,226,234,231" tint="#7EFF96"/>
+<area name="summary.nameplate-11" xywh="7,101,165,17" splitx="L2,R2" splity="T6,B6" tint="#7EFF96"/>
+<area name="summary.type-bg-12" xywh="279,226,234,231" tint="#FFF47E"/>
+<area name="summary.nameplate-12" xywh="7,101,165,17" splitx="L2,R2" splity="T6,B6" tint="#FFF47E"/>
+<area name="summary.type-bg-13" xywh="279,226,234,231" tint="#A589A8"/>
+<area name="summary.nameplate-13" xywh="7,101,165,17" splitx="L2,R2" splity="T6,B6" tint="#A589A8"/>
+<area name="summary.type-bg-14" xywh="279,226,234,231" tint="#B0BEC4"/>
+<area name="summary.nameplate-14" xywh="7,101,165,17" splitx="L2,R2" splity="T6,B6" tint="#B0BEC4"/>
+<area name="summary.type-bg-15" xywh="279,226,234,231" tint="#6375BC"/>
+<area name="summary.nameplate-15" xywh="7,101,165,17" splitx="L2,R2" splity="T6,B6" tint="#6375BC"/>
+<area name="summary.type-bg-16" xywh="279,226,234,231" tint="#434466"/>
+<area name="summary.nameplate-16" xywh="7,101,165,17" splitx="L2,R2" splity="T6,B6" tint="#434466"/>
+<area name="summary.type-bg-17" xywh="279,226,234,231" tint="#FFFFFF"/>
+<area name="summary.nameplate-17" xywh="7,101,165,17" splitx="L2,R2" splity="T6,B6" tint="#FFFFFF"/>
+</images>
+<images file="res/trainer-atlas.png" filter="nearest">
+<area name="summary.type-0" xywh="901,341,49,14"/>
+<area name="summary.type-1" xywh="940,293,49,14"/>
+<area name="summary.type-2" xywh="566,230,49,14"/>
+<area name="summary.type-3" xywh="405,214,49,14"/>
+<area name="summary.type-4" xywh="456,182,49,14"/>
+<area name="summary.type-5" xywh="609,198,49,14"/>
+<area name="summary.type-6" xywh="762,214,49,14"/>
+<area name="summary.type-7" xywh="507,166,49,14"/>
+<area name="summary.type-8" xywh="405,150,49,14"/>
+<area name="summary.type-9" xywh="328,310,49,14"/>
+<area name="summary.type-10" xywh="685,310,49,14"/>
+<area name="summary.type-11" xywh="208,278,49,14"/>
+<area name="summary.type-12" xywh="430,294,49,14"/>
+<area name="summary.type-13" xywh="532,294,49,14"/>
+<area name="summary.type-14" xywh="515,262,49,14"/>
+<area name="summary.type-15" xywh="667,278,49,14"/>
+<area name="summary.type-16" xywh="668,262,49,14"/>
+<area name="summary.type-17" xywh="901,341,49,14"/>
+<area name="summary.alpha" xywh="328,152,24,24"/>
+<area name="summary.rename" xywh="696,116,16,16"/>
+<area name="summary.mark-0" xywh="714,116,16,16" tint="#3F3F3F"/>
+<area name="summary.mark-1" xywh="732,116,16,16" tint="#3F3F3F"/>
+<area name="summary.mark-2" xywh="750,116,16,16" tint="#3F3F3F"/>
+<area name="summary.mark-3" xywh="768,116,16,16" tint="#3F3F3F"/>
+<area name="summary.mark-4" xywh="786,116,16,16" tint="#3F3F3F"/>
+<!-- 电脑箱子左上角的闪光星标 -->
+<alias name="pc.shiny-mark" ref="summary.mark-2" tint="#FFD34A"/>
+</images>
+
+<images file="res/party-health.png" filter="nearest">
+		<area name="summary.mi-label-title" xywh="7,58,15,24" splitx="L10,R0" splity="T16,B0"/>
+		<area name="summary.mi-label-title-inset" inset="0,6" xywh="7,58,15,24" splitx="L10,R0" splity="T16,B0"/>
+		<area name="summary.mi-label-value" xywh="25,58,125,25" splitx="L2,R2" splity="T2,B2"/>
+		<area name="summary.mi-label-value-blue" tint="#FFFFFF" xywh="181,21,57,47" splitx="L2,R2" splity="T2,B2"/>
+		<area name="summary.mi-label-value-inset" xywh="25,58,125,25" inset="0,-22,0,0" splitx="L2,R2" splity="T2,B2"/>
+		<area name="summary.mi-nameplate" xywh="7,101,165,17" splitx="L2,R2" splity="T6,B6"/>
+		<area name="summary.mi-skill" xywh="22,118,164,42"/>
+		<area name="summary.mi-skill-use" xywh="203,117,165,42"/>
+		<area name="summary.mi-skill-use-selected" xywh="203,75,165,42"/>
+		<area name="summary.mi-bg" xywh="279,226,234,231"/>
+		<area name="summary.mi-frame" xywh="6,194,506,316"/>
+		<grid name="summary.mi-frame-grid" weightsX="1,1" weightsY="1,1,1">
+			<area xywh="5,193,274,33"/>
+			<area xywh="279,193,234,33"/>
+			<area xywh="5,226,274,231"/>
+			<alias ref="summary.mi-bg"/>
+			<area xywh="5,457,274,52"/>
+			<area xywh="279,457,234,52"/>
+		</grid>
+		<area name="summary.mi-frame-type" xywh="279,226,229,231" tint="#c68a55"/>
+		<area name="summary.mi-tab1.default" xywh="5,32,20,20"/>
+		<area name="summary.mi-tab1.selected" xywh="5,6,20,20"/>
+		<area name="summary.mi-tab2.default" xywh="31,32,20,20"/>
+		<area name="summary.mi-tab2.selected" xywh="31,6,20,20"/>
+		<area name="summary.mi-tab3.default" xywh="56,32,20,20"/>
+		<area name="summary.mi-tab3.selected" xywh="56,6,20,20"/>
+		<area name="summary.mi-tab4.default" xywh="85,32,20,20"/>
+		<area name="summary.mi-tab4.selected" xywh="85,6,20,20"/>
+		<area name="summary.mi-tab5.selected" xywh="112,6,20,20"/>
+		<area name="summary.mi-tab5.default" xywh="112,32,20,20"/>
+		<area name="summary.mi-tab6.selected" xywh="138,6,20,20"/>
+		<area name="summary.mi-tab6.default" xywh="138,32,20,20"/>
+		<area name="summary.mi-tab7.selected" xywh="158,6,20,20"/>
+		<area name="summary.mi-tab7.default" xywh="158,32,20,20"/>
+		<area name="summary.mi-tab8.selected" xywh="243,6,20,20"/>
+		<area name="summary.mi-tab8.default" xywh="243,32,20,20"/>
+		<area name="summary.mi-tab9.selected" xywh="263,6,20,20"/>
+		<area name="summary.mi-tab9.default" xywh="263,32,20,20"/>
+
+		<select name="summary.mi-skill-use.background">
+			<alias ref="summary.mi-skill-use-selected" if="selected | hover"/>
+			<alias ref="summary.mi-skill-use"/>
+		</select>
+
+		<select name="summary.mi-tab1.background">
+			<alias ref="summary.mi-tab1.selected" if="selected | hover"/>
+			<alias ref="summary.mi-tab1.default"/>
+		</select>
+		<select name="summary.mi-tab2.background">
+			<alias ref="summary.mi-tab2.selected" if="selected | hover"/>
+			<alias ref="summary.mi-tab2.default"/>
+		</select>
+		<select name="summary.mi-tab3.background">
+			<alias ref="summary.mi-tab3.selected" if="selected | hover"/>
+			<alias ref="summary.mi-tab3.default"/>
+		</select>
+		<select name="summary.mi-tab4.background">
+			<alias ref="summary.mi-tab4.selected" if="selected | hover"/>
+			<alias ref="summary.mi-tab4.default"/>
+		</select>
+		<select name="summary.mi-tab5.background">
+			<alias ref="summary.mi-tab5.selected" if="selected | hover"/>
+			<alias ref="summary.mi-tab5.default"/>
+		</select>
+		<select name="summary.mi-tab6.background">
+			<alias ref="summary.mi-tab6.selected" if="selected | hover"/>
+			<alias ref="summary.mi-tab6.default"/>
+		</select>
+		<select name="summary.mi-tab7.background">
+			<alias ref="summary.mi-tab7.selected" if="selected | hover"/>
+			<alias ref="summary.mi-tab7.default"/>
+		</select>
+		<select name="summary.mi-tab8.background">
+			<alias ref="summary.mi-tab8.selected" if="selected | hover"/>
+			<alias ref="summary.mi-tab8.default"/>
+		</select>
+		<select name="summary.mi-tab9.background">
+			<alias ref="summary.mi-tab9.selected" if="selected | hover"/>
+			<alias ref="summary.mi-tab9.default"/>
+		</select>
+		<area name="summary.mi-xpbar.progressImage" xywh="12,89,5,4" repeatX="true" inset="1,1,3,1" sizeOverwriteH="0"/>
+		<grid name="summary.mi-xpbar.background" weightsX="0,1,0" weightsY="1">
+			<area xywh="7,88,1,8"/>
+			<area xywh="90,88,1,8"/>
+			<area xywh="201,88,1,8"/>
+		</grid>
+
+		<area name="summary.mi-hpbar-orange.progressImage" xywh="67,89,5,4" repeatX="true" inset="1,1,3,1" sizeOverwriteH="0"/>
+		<grid name="summary.mi-hpbar-orange.background" weightsX="0,1,0" weightsY="1">
+			<area xywh="7,88,1,8"/>
+			<area xywh="90,88,1,8"/>
+			<area xywh="201,88,1,8"/>
+		</grid>
+
+		<area name="summary.mi-hpbar.progressImage" xywh="77,89,5,4" repeatX="true" inset="1,1,3,1" sizeOverwriteH="0"/>
+		<grid name="summary.mi-hpbar.background" weightsX="0,1,0" weightsY="1">
+			<area xywh="7,88,1,8"/>
+			<area xywh="90,88,1,8"/>
+			<area xywh="201,88,1,8"/>
+		</grid>
+
+		<area name="summary.mi-hpbar-green.progressImage" xywh="72,89,5,4" repeatX="true" inset="1,1,3,1" sizeOverwriteH="0"/>
+		<grid name="summary.mi-hpbar-green.background" weightsX="0,1,0" weightsY="1">
+			<area xywh="7,88,1,8"/>
+			<area xywh="90,88,1,8"/>
+			<area xywh="201,88,1,8"/>
+		</grid>
+
+		<area name="summary.mi-hpbar-violet.progressImage" xywh="62,89,5,4" repeatX="true" inset="1,1,3,1" sizeOverwriteH="0"/>
+		<grid name="summary.mi-hpbar-violet.background" weightsX="0,1,0" weightsY="1">
+			<area xywh="7,88,1,8"/>
+			<area xywh="90,88,1,8"/>
+			<area xywh="201,88,1,8"/>
+		</grid>
+
+		<area name="progressbar-white.progressImage" xywh="52,89,5,4" repeatX="true" inset="1,1,3,1" sizeOverwriteH="0"/>
+		<grid name="progressbar-white.background" weightsX="0,1,0" weightsY="1">
+			<area xywh="7,88,1,8"/>
+			<area xywh="90,88,1,8"/>
+			<area xywh="201,88,1,8"/>
+		</grid>
+
+    <alias name="progressbar-orange.progressImage" tint="#c68a55" ref="progressbar-white.progressImage"/>
+    <alias name="progressbar-orange.background" ref="progressbar-white.background"/>
+
+    <alias name="progressbar-violet.progressImage" tint="#8b73bd" ref="progressbar-white.progressImage"/>
+    <alias name="progressbar-violet.background" ref="progressbar-white.background"/>
+
+    <alias name="progressbar-halloween.progressImage" tint="#dd84fd" ref="progressbar-white.progressImage"/>
+    <alias name="progressbar-halloween.background" ref="progressbar-white.background"/>
+
+		<alias name="progressbar-pink.progressImage" tint="#FF99CC" ref="progressbar-white.progressImage"/>
+		<alias name="progressbar-pink.background" ref="progressbar-white.background"/>
+
+    <alias name="progressbar-darkred.progressImage" tint="#800000" ref="progressbar-white.progressImage"/>
+    <alias name="progressbar-darkred.background" ref="progressbar-white.background"/>
+
+    <alias name="progressbar-gold.progressImage" tint="#d4af37" ref="progressbar-white.progressImage"/>
+    <alias name="progressbar-gold.background" ref="progressbar-white.background"/>
+  </images>
+    <images file="res/party-health.png" filter="nearest">
+        <area name="party.health-green" xywh="72,89,5,4" repeatX="true" inset="1,1,3,1" sizeOverwriteH="0"/>
+        <area name="party.health-orange" xywh="67,89,5,4" repeatX="true" inset="1,1,3,1" sizeOverwriteH="0"/>
+        <area name="party.health-red" xywh="77,89,5,4" repeatX="true" inset="1,1,3,1" sizeOverwriteH="0"/>
+        <grid name="party.health-background" weightsX="0,1,0" weightsY="1">
+            <area xywh="7,88,1,8"/>
+            <area xywh="90,88,1,8"/>
+            <area xywh="201,88,1,8"/>
+        </grid>
+    </images>
+
+    <images file="res/pc_slots.png" filter="nearest">
+        <area name="pcslot.bg.default" xywh="3,1,60,50"/>
+        <area name="pcslot.bg.active" xywh="66,1,60,50"/>
+        <area name="pcslot.inner.default" xywh="3,53,60,50"/>
+        <area name="pcslot.inner.active" xywh="66,53,60,50"/>
+        <area name="pcslot.inner.filtered" xywh="129,53,60,50"/>
+        <area name="pcslot.bg.overlay.default" xywh="66,104,60,50"/>
+        <area name="pcslot.bg.overlay.disabled" xywh="3,104,60,50"/>
+        <area name="pcslot.bg.overlay.battlebox" xywh="129,104,60,50"/>
+        <area name="pcslot.border.default" xywh="3,157,60,50"/>
+        <area name="pcslot.border.selected" xywh="66,157,60,50"/>
+        <area name="pcslot.border.selected2" xywh="66,157,60,50" inset="-1"/>
+        <area name="pcslot.border.filtered" xywh="129,157,60,50"/>
+        <area name="pcslot.border.filtered2" xywh="129,157,60,50" inset="-1"/>
+        <composed name="pc-slot.background">
+            <select center="true">
+                <alias ref="pcslot.bg.active" if="filtered"/>
+                <alias ref="pcslot.bg.default"/>
+            </select>
+            <select center="true">
+                <alias ref="pcslot.bg.overlay.disabled" if="obey"/>
+                <alias ref="pcslot.bg.overlay.battlebox" if="battlebox"/>
+            </select>
+            <select center="true">
+                <alias ref="pcslot.inner.filtered" if="selected + filtered"/>
+                <alias ref="pcslot.inner.active" if="selected"/>
+                <alias ref="pcslot.inner.default"/>
+            </select>
+            <select center="true">
+                <alias if="multiselectActive" ref="pcslot.border.filtered"/>
+                <animation if="multiselect" timeSource="keyboardFocus">
+                    <frame duration="400" ref="pcslot.border.filtered2" tint="#FFFFFFFF"/>
+                    <frame duration="400" ref="pcslot.border.filtered" tint="#FFFFFFFF"/>
+                </animation>
+                <animation if="keyboardFocus" timeSource="keyboardFocus">
+                    <frame duration="400" ref="pcslot.border.selected2" tint="#FFFFFFFF"/>
+                    <frame duration="400" ref="pcslot.border.selected" tint="#FFFFFFFF"/>
+                </animation>
+                <alias ref="pcslot.border.default"/>
+            </select>
+            <select center="true">
+                <alias ref="pcslot.border.filtered" inset="2" if="filtered"/>
+            </select>
+        </composed>
+        <select name="pc-slot-border-while-selected.background">
+            <alias ref="pcslot.border.selected" if="keyboardFocus"/>
+        </select>
+    </images>
+
+    <images file="res/pc-window.png" filter="nearest">
+        <area name="pc-preview.background" xywh="2,2,20,20" splitx="L7,R7" splity="T7,B7"/>
+        <grid name="pc-preview-pattern.background" weightsX="1" weightsY="1" tint="#0FFFFFFF">
+            <area xywh="23,2,10,10" repeatX="true" repeatY="true" sizeOverwriteV="0"/>
+        </grid>
+        <!-- 参考客户端这里带 inset 让底板外溢，本项目按控件矩形铺满即可。 -->
+        <composed name="pc-preview.default">
+            <alias ref="pc-preview.background" inset="0"/>
+            <alias ref="pc-preview-pattern.background" inset="0"/>
+        </composed>
+    </images>
+
+    <images file="res/party-hud.png" filter="nearest">
+        <area name="party.orientation" xywh="11,237,12,12"/>
+        <area name="party.move" xywh="27,237,12,12"/>
+        <!-- 该图集与参考客户端的 main-hud.png 一致：可拖拽窗口边框（九宫格 3×4） -->
+        <grid name="frame-draggable.background" weightsX="0,1,0" weightsY="0,0,1,0">
+            <area xywh="99,179,7,7"/>
+            <area xywh="108,179,8,7"/>
+            <area xywh="185,179,8,7"/>
+            <area xywh="99,184,7,19"/>
+            <area xywh="108,184,8,19"/>
+            <area xywh="185,184,8,19"/>
+            <area xywh="99,210,7,8"/>
+            <area xywh="111,213,8,8" repeatX="true" repeatY="true"/>
+            <area xywh="185,208,8,8"/>
+            <area xywh="99,223,7,6"/>
+            <area xywh="104,223,3,6"/>
+            <area xywh="185,223,8,6"/>
+        </grid>
+    </images>
+    <images file="res/world-hud.png" filter="nearest">
+        <area name="world-info.location" xywh="9,461,18,18"/>
+        <area name="world-info.money" xywh="35,461,18,18"/>
+        <area name="world-info.time" xywh="60,461,18,18"/>
+    </images>
+<images file="res/dex-progress.png" filter="nearest">
+<grid name="dex.progress-blue.background" weightsX="0,1,0" weightsY="1">
+			<area xywh="7,88,1,8"/>
+			<area xywh="90,88,1,8"/>
+			<area xywh="201,88,1,8"/>
+		</grid>
+<area name="dex.progress-blue.progressImage" xywh="12,89,5,4" repeatX="true" inset="1,1,3,1" sizeOverwriteH="0"/>
+<grid name="dex.progress-green.background" weightsX="0,1,0" weightsY="1">
+			<area xywh="7,88,1,8"/>
+			<area xywh="90,88,1,8"/>
+			<area xywh="201,88,1,8"/>
+		</grid>
+<area name="dex.progress-green.progressImage" xywh="72,89,5,4" repeatX="true" inset="1,1,3,1" sizeOverwriteH="0"/>
+<grid name="dex.progress-pink.background" weightsX="0,1,0" weightsY="1">
+			<area xywh="7,88,1,8"/>
+			<area xywh="90,88,1,8"/>
+			<area xywh="201,88,1,8"/>
+		</grid>
+<area name="dex.progress-pink.progressImage" xywh="77,89,5,4" repeatX="true" inset="1,1,3,1" sizeOverwriteH="0"/>
+<grid name="dex.progress-white.background" weightsX="0,1,0" weightsY="1">
+			<area xywh="7,88,1,8"/>
+			<area xywh="90,88,1,8"/>
+			<area xywh="201,88,1,8"/>
+		</grid>
+<area name="dex.progress-white.progressImage" xywh="52,89,5,4" repeatX="true" inset="1,1,3,1" sizeOverwriteH="0"/>
+<area name="dex.progress-violet" xywh="62,89,5,4" repeatX="true" inset="1,1,3,1" sizeOverwriteH="0"/>
+<area name="dex.progress-orange" xywh="52,89,5,4" repeatX="true" tint="#c68a55" inset="1,1,3,1" sizeOverwriteH="0"/>
+</images>
+
     <images file="res/MainTCTexture.png" filter="nearest"><area name="trainer-card.background" xywh="0,0,454,287"/></images>
     <images file="res/trainer-atlas.png" filter="nearest">
         <area name="trainer-card.money" xywh="156,278,24,24"/>
@@ -8,6 +342,10 @@
     </images>
 
     <images file="res/gm-ui.png" filter="nearest">
+        <area name="dex.entry-default" xywh="397,7,19,17" splitx="L4,R4" splity="T4,B4"/>
+        <area name="dex.entry-selected" xywh="397,25,19,17" splitx="L4,R4" splity="T4,B4" tint="#5db1ff"/>
+        <area name="dex.entry-owned" xywh="397,25,19,17" splitx="L4,R4" splity="T4,B4" tint="#78C850"/>
+        <select name="dex.entry"><alias ref="dex.entry-owned" if="owned"/><alias ref="dex.entry-selected" if="selected | keyboardFocus | hover"/><alias ref="dex.entry-default"/></select>
 <grid name="bag.background" weightsX="0,1,0" weightsY="0,0,1,0" inset="34,0,0,0">
 			<area xywh="5,151,10,11"/>
 			<area xywh="33,151,10,11" tiled="true"/>
@@ -71,6 +409,23 @@
         <area name="avatar.arrow-right" xywh="564,82,16,16" sizeOverwriteH="32" sizeOverwriteV="32"/>
     </images>
     <images file="res/user-interface.png" filter="nearest">
+
+<grid name="dex.picture" weightsX="0,1,1,0" weightsY="0,1,0" tint="#FFFFFFFF">
+			<area xywh="66,308,8,6"/>
+			<area xywh="75,308,2,4"/>
+			<area xywh="75,308,2,4"/>
+			<area xywh="78,308,9,6"/>
+
+			<area xywh="66,312,8,4" tiled="true"/>
+			<area xywh="75,312,2,4"/>
+			<area xywh="75,312,2,4"/>
+			<area xywh="78,312,9,4" tiled="true"/>
+
+			<area xywh="66,319,8,6"/>
+			<area xywh="75,319,2,6"/>
+			<area xywh="75,319,2,6"/>
+			<area xywh="78,319,9,6"/>
+		</grid>
         <area name="label1.background" tint="#95949494" xywh="9,191,5,5"/>
         <grid name="tooltip-left.background" weightsX="0,1,0,1,0" weightsY="0,0,1,0" border="0,5,5,5">
             <area xywh="4,325,4,4"/>
@@ -106,6 +461,13 @@
         <area name="modal-shade" xywh="0,496,1,1" tint="#80000000"/>
         <area name="field-selection" xywh="0,496,1,1" tint="sub-color"/>
     </images>
+    <images file="res/text-bubble.png" filter="nearest">
+        <area name="text-bubble.background" xywh="0,0,128,128" splitx="L63,R63" splity="T63,B63"/>
+    </images>
+    <images file="res/text-bubble-tail.png" filter="linear">
+        <area name="text-bubble-tail.background" xywh="0,0,20,132"/>
+    </images>
+    <fontDef name="bubble-text" filename="res/fonts/NotoSansCJK-Bold.ttc" color="#111111" size_cjk="20"/>
     <fontDef name="trainer-name" filename="res/fonts/NotoSans-SemiCondensedBlack.ttf" color="#434343" size="18"/>
     <fontDef name="default" filename="res/fonts/NotoSansCJK-Medium.ttc" color="#FFFFFF"/>
     <fontDef name="alphabeta-orange-shadow" filename="res/fonts/NotoSansCJK-Medium.ttc" color="#FF9900"/>
@@ -121,7 +483,9 @@
         <fontParam if="pressed" offsetX="1" offsetY="1"/>
     </fontDef>
     <fontDef name="alphabeta-border" filename="res/fonts/NotoSansCJK-Medium.ttc" color="#FFFFFF" border_width="1" border_color="#434343"/>
+    <fontDef name="summary-title" filename="res/fonts/NotoSansCJK-Bold.ttc" color="#111111" size_cjk="15"/>
     <fontDef name="title-font" filename="res/fonts/NotoSansCJK-Bold.ttc" color="#FFFFFF" size_cjk="15"/>
+    <fontDef name="pc-title" filename="res/fonts/NotoSansCJK-Bold.ttc" color="#FFFFFF" size="16" size_cjk="16" border_width="1" border_color="#282828"/>
     <fontDef name="listbox-display" filename="res/fonts/NotoSansCJK-Medium.ttc" color="#FFFFFF">
         <fontParam if="disabled" color="#888888"/>
     </fontDef>
@@ -134,6 +498,8 @@
             <alias ref="ui-tab-vertical.default"/>
         </select>
         <area name="ui-header.background" xywh="326,292,23,20" splitx="L5,R5" splity="T5,B5"/>
+        <!-- 参考客户端 ui-table-header.background 就是同一格再加 1px 内缩。 -->
+        <alias name="pc-field-title.background" ref="ui-header.background" inset="1"/>
         <area name="ui-button-picker.background" xywh="390,125,9,14" center="true"/>
         <area name="ui-spacer.default" xywh="330,8,8,3"/>
         <area name="ui-popup-button.selected" xywh="364,254,35,29" splitx="L4,R4" splity="T4,B4"/>
@@ -207,6 +573,10 @@
             <alias ref="ui-button.selected" if="keyboardFocus"/>
             <alias ref="ui-button.hover" if="hover"/>
             <alias ref="ui-button.default"/>
+        </select>
+        <select name="party.slot">
+            <alias ref="ui-button.selected" if="selected"/>
+            <alias ref="ui-button.background"/>
         </select>
         <select name="language-combobox.background">
             <!-- 列表展开后焦点转移到弹层，框体仍需保持高亮。 -->
@@ -302,6 +672,7 @@
         <action name="copy">ctrl C</action>
         <action name="paste">ctrl V</action>
     </inputMapDef>
+    <images file="../../sprites/itemicons/1179.png" filter="nearest"><area name="encounter.ocarina" xywh="0,0,24,24"/></images>
     <theme name="-defaults">
         <param name="inputMap">
             <inputMap>-defaultInputMap</inputMap>
@@ -579,6 +950,8 @@
     </theme>
     <!-- 输入框右键编辑菜单的管理器与弹出层主题。 -->
     <theme name="menupopup" ref="dialoglayout">
+<theme name="checkbox" ref="button"/>
+
         <param name="background">
             <image>ui-popup.background</image>
         </param>
@@ -606,6 +979,7 @@
                 <int>80</int>
             </param>
         </theme>
+        <theme name="submenu" ref="button"/>
         <theme name="spacer" ref="-defaults">
             <param name="background">
                 <image>ui-spacer.default</image>
@@ -1318,7 +1692,29 @@
         <theme name="label" ref="label"/>
         <theme name="button" ref="button"><param name="border"><border>7,4</border></param></theme>
     </theme>
+    <theme name="town-map" ref="logingui.rom-panel" allowWildcard="true">
+        <param name="contentLeft"><int>14</int></param>
+        <param name="contentTop"><int>50</int></param>
+        <param name="contentRight"><int>14</int></param>
+        <param name="contentBottom"><int>14</int></param>
+        <param name="labelInsetX"><int>8</int></param>
+        <param name="labelInsetY"><int>8</int></param>
+        <param name="markerSize"><int>9</int></param>
+        <param name="markerColor"><color>#C83030</color></param>
+        <param name="markerBorderColor"><color>#FFFFFFFF</color></param>
+        <param name="playerSize"><int>15</int></param>
+        <param name="playerColor"><color>#F2F2F2</color></param>
+        <param name="playerBorderColor"><color>#1E2A38</color></param>
+        <param name="playerDotColor"><color>#2F6BE0</color></param>
+        <theme name="label" ref="label">
+            <param name="background"><image>modal-shade</image></param>
+            <param name="border"><border>3,5</border></param>
+        </theme>
+    </theme>
     <theme name="trainer-card" ref="resizableframe" allowWildcard="true">
+        <param name="avatarScale"><int>2</int></param>
+        <param name="avatarX"><int>5</int></param>
+        <param name="avatarY"><int>50</int></param>
         <param name="border"><border>0</border></param>
         <param name="hasCloseButton"><bool>false</bool></param>
         <param name="fadeDurationShow"><int>0</int></param>
@@ -1331,6 +1727,20 @@
         <theme name="icon-bp" ref="-defaults"><param name="background"><image>trainer-card.bp</image></param></theme>
     </theme>
     <theme name="bag-window" ref="resizableframe" allowWildcard="true">
+        <theme name="entries" ref="settings-panel.settings-scrollpane" allowWildcard="true">
+            <theme name="contents" ref="-defaults" allowWildcard="true">
+                <theme name="group-title" ref="label"/>
+                <theme name="item" ref="button">
+                    <param name="background"><image>ui-button.background</image></param>
+                    <param name="border"><border>0,0,2,0</border></param>
+                    <param name="textAlignment"><enum type="alignment">BOTTOM</enum></param>
+                    <param name="tooltipDelay"><int>100</int></param>
+                </theme>
+            </theme>
+        </theme>
+        <param name="slotWidth"><int>40</int></param>
+        <param name="slotHeight"><int>42</int></param>
+        <param name="slotGap"><int>8</int></param>
         <param name="background"><image>bag.background</image></param>
         <param name="titleAreaTop"><int>33</int></param>
         <param name="titleAreaBottom"><int>75</int></param>
@@ -1341,5 +1751,575 @@
         <theme name="closeButton" ref="logingui.rom-panel.closeButton"/>
         <theme name="pocket" ref="-defaults"><param name="background"><image>bag.tab</image></param></theme>
         <theme name="search" ref="editfield"/>
+    </theme>
+    <theme name="pokedex-window" ref="gm-menu" allowWildcard="true">
+        <param name="background"><image>ui-inner-frame-tab.background</image></param>
+        <theme name="label" ref="label"/>
+        <theme name="combobox" ref="logingui.rom-panel.combobox"/>
+        <theme name="editfield" ref="editfield"/>
+        <theme name="progress-blue" ref="-defaults">
+            <param name="background"><image>dex.progress-blue.background</image></param>
+            <param name="progressImage"><image>dex.progress-blue.progressImage</image></param>
+        </theme>
+        <theme name="progress-green" ref="-defaults">
+            <param name="background"><image>dex.progress-green.background</image></param>
+            <param name="progressImage"><image>dex.progress-green.progressImage</image></param>
+        </theme>
+        <theme name="progress-pink" ref="-defaults">
+            <param name="background"><image>dex.progress-pink.background</image></param>
+            <param name="progressImage"><image>dex.progress-pink.progressImage</image></param>
+        </theme>
+        <theme name="progress-white" ref="-defaults">
+            <param name="background"><image>dex.progress-white.background</image></param>
+            <param name="progressImage"><image>dex.progress-white.progressImage</image></param>
+        </theme>
+        <theme name="entries" ref="settings-panel.settings-scrollpane" allowWildcard="true">
+            <theme name="grid" ref="-defaults" allowWildcard="true">
+                <theme name="entry" ref="button">
+                    <param name="background"><image>dex.entry</image></param>
+                    <param name="border"><border>1,3</border></param>
+                    <param name="textAlignment"><enum type="alignment">BOTTOM</enum></param>
+                </theme>
+            </theme>
+        </theme>
+    </theme>
+    <theme name="game-hud" ref="-defaults">
+        <param name="border"><border>5,0,0,5</border></param>
+        <param name="background"><image>none</image></param>
+        <theme name="icon" ref="-defaults">
+            <param name="tooltipDelay"><int>150</int></param>
+            <param name="border"><border>0</border></param>
+            <param name="background"><image>none</image></param>
+        </theme>
+    </theme>
+    <theme name="world-info" ref="-defaults">
+        <param name="border"><border>5</border></param>
+        <param name="background"><image>none</image></param>
+        <theme name="label" ref="label"><param name="font"><font>alphabeta-border</font></param></theme>
+        <theme name="location" ref="-defaults"><param name="background"><image>world-info.location</image></param></theme>
+        <theme name="money" ref="-defaults"><param name="background"><image>world-info.money</image></param></theme>
+        <theme name="time" ref="-defaults"><param name="background"><image>world-info.time</image></param></theme>
+    </theme>
+    <fontDef name="hotbar-quantity" filename="res/fonts/NotoSansCJK-Medium.ttc" color="#FFFFFF" border_width="1" border_color="#434343" size="8" size_cjk="8"/>
+    <theme name="game-item-bar" ref="-defaults">
+        <param name="border"><border>0</border></param>
+        <param name="background"><image>none</image></param>
+        <param name="slotWidth"><int>40</int></param>
+        <param name="slotHeight"><int>40</int></param>
+        <param name="slotGap"><int>10</int></param>
+        <param name="topOffset"><int>20</int></param>
+        <theme name="slot" ref="button">
+            <param name="sweetScentIcon"><image>encounter.ocarina</image></param>
+            <param name="quantityRight"><int>6</int></param>
+            <param name="quantityBottom"><int>5</int></param>
+            <theme name="quantity" ref="label">
+                <param name="font"><font>hotbar-quantity</font></param>
+                <param name="textAlignment"><enum type="alignment">RIGHT</enum></param>
+                <param name="background"><image>none</image></param>
+            </theme>
+            <param name="background"><image>ui-button.background</image></param>
+            <param name="highlight"><image>ui-button.selected.background</image></param>
+            <param name="border"><border>3,3,14,3</border></param>
+            <param name="font"><font>alphabeta-border</font></param>
+            <param name="textAlignment"><enum type="alignment">TOPLEFT</enum></param>
+            <param name="minWidth"><int>0</int></param>
+            <param name="minHeight"><int>0</int></param>
+            <param name="tooltipDelay"><int>150</int></param>
+        </theme>
+    </theme>
+    <theme name="game-menu-popup" ref="-defaults">
+        <param name="background"><image>ui-popup.background</image></param>
+        <param name="border"><border>4</border></param>
+        <param name="menuWidth"><int>94</int></param>
+        <param name="rowHeight"><int>31</int></param>
+        <theme name="button" ref="button">
+            <param name="background"><image>ui-popup-button.background</image></param>
+            <param name="border"><border>0</border></param>
+            <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+            <param name="minWidth"><int>0</int></param>
+            <param name="minHeight"><int>0</int></param>
+        </theme>
+    </theme>
+    <theme name="party-slot-menu" ref="game-menu-popup">
+        <param name="menuWidth"><int>156</int></param>
+    </theme>
+    <theme name="pc-dialog" ref="-defaults" allowWildcard="true">
+        <!-- 原稿气泡宽度取客户区一半并夹在 600 到 900 之间，选项行距 49 像素。 -->
+        <param name="minBubbleWidth"><int>600</int></param>
+        <param name="maxBubbleWidth"><int>900</int></param>
+        <param name="bubbleHeadGap"><int>160</int></param>
+        <!-- 尾巴按高度取宽度，保持贴图里的细长比例；贴图上缘压在气泡内，尖端停在头顶上方。 -->
+        <param name="tailWidthPercent"><int>15</int></param>
+        <param name="tailInset"><int>4</int></param>
+        <param name="tailHeadGap"><int>6</int></param>
+        <param name="panelWidth"><int>196</int></param>
+        <param name="panelOffsetY"><int>-40</int></param>
+        <param name="rowHeight"><int>49</int></param>
+        <theme name="bubble" ref="dialoglayout">
+            <param name="background"><image>text-bubble.background</image></param>
+            <param name="border"><border>26,30,14,24</border></param>
+            <param name="defaultGap"><dimension>0,0</dimension></param>
+            <!-- 贴图为 128 像素、63 像素切分，低于 126 像素时九宫格会被压缩，底边不贴合控件边界。 -->
+            <param name="minHeight"><int>130</int></param>
+            <theme name="message" ref="label">
+                <param name="font"><font>bubble-text</font></param>
+                <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+            </theme>
+        </theme>
+        <theme name="tail" ref="-defaults">
+            <param name="background"><image>text-bubble-tail.background</image></param>
+        </theme>
+        <theme name="choices" ref="-defaults">
+            <param name="background"><image>ui-popup.background</image></param>
+            <param name="border"><border>5</border></param>
+            <theme name="option" ref="button">
+                <param name="background"><image>ui-popup-button.background</image></param>
+                <param name="border"><border>0</border></param>
+                <param name="font"><font>alphabeta-border</font></param>
+                <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+            </theme>
+        </theme>
+    </theme>
+    <theme name="party-panel" ref="-defaults">
+        <param name="healthBackground"><image>party.health-background</image></param>
+        <param name="healthGreen"><image>party.health-green</image></param>
+        <param name="healthOrange"><image>party.health-orange</image></param>
+        <param name="healthRed"><image>party.health-red</image></param>
+        <param name="healthWidth"><int>40</int></param>
+        <param name="healthHeight"><int>8</int></param>
+        <param name="healthX"><int>2</int></param>
+        <param name="healthY"><int>30</int></param>
+        <param name="shinyAlphaGlow"><color>#FFD700</color></param>
+        <param name="glowSize"><float>0.0</float></param>
+        <param name="glowIntensity"><float>1.25</float></param>
+        <param name="alphaOutline"><color>#c2141d</color></param>
+        <param name="border"><border>5</border></param>
+        <param name="slotWidth"><int>46</int></param>
+        <param name="slotHeight"><int>40</int></param>
+        <param name="gap"><int>5</int></param>
+        <theme name="handle" ref="-defaults"><param name="background"><image>ui-popup.background</image></param></theme>
+        <theme name="empty" ref="button"><param name="background"><image>party.slot</image></param></theme>
+        <theme name="orientation" ref="-defaults"><param name="background"><image>party.orientation</image></param></theme>
+        <theme name="move" ref="-defaults"><param name="background"><image>party.move</image></param></theme>
+    </theme>
+
+    <!--
+        随身电脑（电脑箱子）。窗口外观、左侧资料底板、箱子选项卡、十列六行格子与底栏
+        都对齐参考客户端的 ui/pc.xml 与 data/themes/default/res 中的 pc_slots / pc-window / main-hud。
+    -->
+    <theme name="pc-box" ref="resizableframe" allowWildcard="true">
+        <param name="background"><image>frame-draggable.background</image></param>
+        <param name="border"><border>20,6,8,0</border></param>
+        <param name="hasCloseButton"><bool>true</bool></param>
+        <param name="hasResizeHandle"><bool>false</bool></param>
+        <param name="fadeDurationShow"><int>0</int></param>
+        <param name="fadeDurationHide"><int>0</int></param>
+        <theme name="title" ref="label">
+            <param name="font"><font>pc-title</font></param>
+            <param name="textAlignment"><enum type="alignment">LEFT</enum></param>
+        </theme>
+        <theme name="closeButton" ref="logingui.rom-panel.closeButton"/>
+
+        <!-- 左侧：宝可梦资料底板 -->
+        <theme name="preview" ref="-defaults">
+            <param name="background"><image>pc-preview.default</image></param>
+        </theme>
+        <theme name="picture" ref="-defaults"/>
+        <theme name="shiny-mark" ref="-defaults">
+            <param name="background"><image>pc.shiny-mark</image></param>
+        </theme>
+        <theme name="monster-name" ref="label">
+            <param name="font"><font>pc-title</font></param>
+            <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+        </theme>
+        <theme name="field-title" ref="label">
+            <param name="background"><image>pc-field-title.background</image></param>
+            <param name="border"><border>6,5</border></param>
+            <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+            <param name="font"><font>alphabeta</font></param>
+        </theme>
+        <!-- 数值只写字不画底板，参考图里数值直接落在底板上 -->
+        <theme name="field-value" ref="label">
+            <param name="background"><image>none</image></param>
+            <param name="border"><border>6</border></param>
+            <param name="textAlignment"><enum type="alignment">LEFT</enum></param>
+            <param name="font"><font>alphabeta</font></param>
+        </theme>
+        <theme name="mark-0" ref="-defaults"><param name="background"><image>summary.mark-0</image></param></theme>
+        <theme name="mark-1" ref="-defaults"><param name="background"><image>summary.mark-1</image></param></theme>
+        <theme name="mark-2" ref="-defaults"><param name="background"><image>summary.mark-2</image></param></theme>
+        <theme name="mark-3" ref="-defaults"><param name="background"><image>summary.mark-3</image></param></theme>
+        <theme name="mark-4" ref="-defaults"><param name="background"><image>summary.mark-4</image></param></theme>
+        <theme name="move-name" ref="label">
+            <param name="font"><font>alphabeta</font></param>
+            <param name="textAlignment"><enum type="alignment">LEFT</enum></param>
+        </theme>
+        <theme name="move-type-none" ref="-defaults"><param name="background"><image>none</image></param></theme>
+        <theme name="move-type-0" ref="-defaults"><param name="background"><image>summary.type-0</image></param></theme>
+        <theme name="move-type-1" ref="-defaults"><param name="background"><image>summary.type-1</image></param></theme>
+        <theme name="move-type-2" ref="-defaults"><param name="background"><image>summary.type-2</image></param></theme>
+        <theme name="move-type-3" ref="-defaults"><param name="background"><image>summary.type-3</image></param></theme>
+        <theme name="move-type-4" ref="-defaults"><param name="background"><image>summary.type-4</image></param></theme>
+        <theme name="move-type-5" ref="-defaults"><param name="background"><image>summary.type-5</image></param></theme>
+        <theme name="move-type-6" ref="-defaults"><param name="background"><image>summary.type-6</image></param></theme>
+        <theme name="move-type-7" ref="-defaults"><param name="background"><image>summary.type-7</image></param></theme>
+        <theme name="move-type-8" ref="-defaults"><param name="background"><image>summary.type-8</image></param></theme>
+        <theme name="move-type-9" ref="-defaults"><param name="background"><image>summary.type-9</image></param></theme>
+        <theme name="move-type-10" ref="-defaults"><param name="background"><image>summary.type-10</image></param></theme>
+        <theme name="move-type-11" ref="-defaults"><param name="background"><image>summary.type-11</image></param></theme>
+        <theme name="move-type-12" ref="-defaults"><param name="background"><image>summary.type-12</image></param></theme>
+        <theme name="move-type-13" ref="-defaults"><param name="background"><image>summary.type-13</image></param></theme>
+        <theme name="move-type-14" ref="-defaults"><param name="background"><image>summary.type-14</image></param></theme>
+        <theme name="move-type-15" ref="-defaults"><param name="background"><image>summary.type-15</image></param></theme>
+        <theme name="move-type-16" ref="-defaults"><param name="background"><image>summary.type-16</image></param></theme>
+        <theme name="move-type-17" ref="-defaults"><param name="background"><image>summary.type-17</image></param></theme>
+
+        <!-- 右侧：箱子名、选项卡、格子、队伍栏与底栏 -->
+        <theme name="box-name" ref="label">
+            <param name="background"><image>none</image></param>
+            <param name="font"><font>pc-title</font></param>
+            <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+        </theme>
+        <theme name="box-tab" ref="button">
+            <param name="background"><image>ui-button.background</image></param>
+            <param name="border"><border>3,12</border></param>
+            <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+        </theme>
+        <theme name="bar-button" ref="box-tab"/>
+        <theme name="bar-icon" ref="-defaults"/>
+        <theme name="bar-search" ref="editfield">
+            <param name="background"><image>ui-inputbox.background</image></param>
+            <param name="border"><border>4</border></param>
+        </theme>
+        <theme name="slot" ref="-defaults">
+            <param name="background"><image>pc-slot.background</image></param>
+            <param name="minWidth"><int>32</int></param>
+            <param name="minHeight"><int>32</int></param>
+            <param name="tooltipDelay"><int>100</int></param>
+            <theme name="slot-level" ref="label">
+                <param name="font"><font>alphabeta-border</font></param>
+                <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+            </theme>
+        </theme>
+        <theme name="party-slot" ref="slot"/>
+        <theme name="healthbar" ref="-defaults"/>
+        <param name="healthBackground"><image>party.health-background</image></param>
+        <param name="healthGreen"><image>party.health-green</image></param>
+        <param name="healthOrange"><image>party.health-orange</image></param>
+        <param name="healthRed"><image>party.health-red</image></param>
+        <param name="shinyMark"><image>pc.shiny-mark</image></param>
+        <param name="alphaOutline"><color>#c2141d</color></param>
+        <param name="shinyAlphaGlow"><color>#FFD700</color></param>
+        <param name="glowSize"><float>0.0</float></param>
+        <param name="glowIntensity"><float>1.25</float></param>
+        <!-- 版式尺寸全部取自参考截图 1101×700 的实测值（内容区 1018×624）。 -->
+        <param name="panelWidth"><int>302</int></param>
+        <param name="panelGap"><int>6</int></param>
+        <param name="slotWidth"><int>56</int></param>
+        <param name="slotHeight"><int>48</int></param>
+        <param name="slotGap"><int>8</int></param>
+        <!-- 参考图里列间距比行间距略大，且队伍栏与箱网格之间留出明显空隙 -->
+        <param name="columnGap"><int>9</int></param>
+        <param name="partyWidth"><int>54</int></param>
+        <param name="partyGap"><int>15</int></param>
+        <param name="gridTop"><int>198</int></param>
+        <param name="tabWidth"><int>58</int></param>
+        <param name="tabHeight"><int>40</int></param>
+        <param name="tabGap"><int>2</int></param>
+        <param name="tabColumns"><int>11</int></param>
+        <param name="tabLeft"><int>341</int></param>
+        <param name="tabTop"><int>57</int></param>
+        <param name="nameTop"><int>12</int></param>
+        <param name="nameHeight"><int>30</int></param>
+        <param name="barTop"><int>590</int></param>
+        <param name="barHeight"><int>27</int></param>
+        <param name="detailRowHeight"><int>33</int></param>
+        <param name="detailTextHeight"><int>26</int></param>
+        <param name="moveRowHeight"><int>31</int></param>
+    </theme>
+
+
+    <theme name="pokedex-detail" ref="-defaults" allowWildcard="true">
+        <theme name="button" ref="button"/>
+        <theme name="label" ref="label"/>
+        <theme name="picture" ref="-defaults"><param name="background"><image>dex.picture</image></param></theme>
+        <theme name="entries" ref="settings-panel.settings-scrollpane" allowWildcard="true">
+            <theme name="content" ref="-defaults" allowWildcard="true">
+                <theme name="label" ref="label"/>
+                <theme name="field-title" ref="label"><param name="background"><image>ui-header.background</image></param><param name="border"><border>1,5,0,5</border></param><param name="textAlignment"><enum type="alignment">CENTER</enum></param></theme>
+                <theme name="field-value" ref="label"><param name="background"><image>ui-inputbox.background</image></param><param name="border"><border>5</border></param></theme>
+                <theme name="button" ref="button"/>
+                <theme name="stat-0" ref="-defaults"><param name="background"><image>party.health-background</image></param><param name="progressImage"><image>party.health-green</image></param></theme>
+                <theme name="stat-1" ref="stat-0"><param name="progressImage"><image>party.health-red</image></param></theme>
+                <theme name="stat-2" ref="stat-0"><param name="progressImage"><image>dex.progress-orange</image></param></theme>
+                <theme name="stat-3" ref="stat-0"><param name="progressImage"><image>dex.progress-violet</image></param></theme>
+                <theme name="stat-4" ref="stat-0"><param name="progressImage"><image>party.health-orange</image></param></theme>
+                <theme name="stat-5" ref="stat-0"><param name="progressImage"><image>dex.progress-blue.progressImage</image></param></theme>
+                <theme name="stat-6" ref="stat-0"><param name="progressImage"><image>dex.progress-white.progressImage</image></param></theme>
+            </theme>
+        </theme>
+    </theme>
+<fontDef name="summary-perfect" filename="res/fonts/NotoSansCJK-Medium.ttc" color="#66FF66"/>
+<images file="res/party-health.png" filter="nearest"><area name="summary.move-card" xywh="22,118,164,42"/></images>
+<images file="res/mail-pokemon-marks.png" filter="nearest"><area name="summary.particle-marker" xywh="0,13,12,13"/></images>
+<theme name="pokemon-summary" ref="resizableframe" allowWildcard="true">
+<theme name="particle-slot" ref="button"><param name="background"><image>ui-button.background</image></param><param name="overlay"><image>summary.particle-marker</image></param></theme>
+
+<theme name="move-arrow" ref="button"><param name="background"><image>none</image></param><param name="border"><border>0</border></param></theme>
+<theme name="iv-help" ref="button"><param name="background"><image>none</image></param><param name="textAlignment"><enum type="alignment">LEFT</enum></param></theme>
+
+<theme name="history" ref="label"><param name="background"><image>ui-inputbox.background</image></param><param name="textAlignment"><enum type="alignment">TOPLEFT</enum></param><param name="border"><border>6</border></param></theme>
+<theme name="ribbon" ref="-defaults"/>
+
+<theme name="perfect-value" ref="label"><param name="font"><font>summary-perfect</font></param><param name="background"><image>ui-inputbox.background</image></param><param name="border"><border>4</border></param></theme>
+<theme name="description" ref="label"><param name="background"><image>ui-inputbox.background</image></param><param name="border"><border>6</border></param></theme>
+<theme name="move-card" ref="label"><param name="background"><image>summary.move-card</image></param><param name="textAlignment"><enum type="alignment">CENTER</enum></param><param name="border"><border>0,0,0,41</border></param></theme>
+<theme name="shiny" ref="-defaults"><param name="background"><image>pc.shiny-mark</image></param></theme>
+<theme name="held-item" ref="-defaults"><param name="background"><image>ui-inputbox.background</image></param></theme>
+
+<theme name="title" ref="label"><param name="font"><font>summary-title</font></param><param name="textAlignment"><enum type="alignment">CENTER</enum></param></theme>
+<theme name="male" ref="-defaults"><param name="background"><image>summary.gender-male</image></param></theme><theme name="female" ref="-defaults"><param name="background"><image>summary.gender-female</image></param></theme><theme name="widget" ref="-defaults"/>
+<param name="background"><image>summary.mi-frame-grid</image></param>
+<param name="border"><border>4,5,0,0</border></param>
+<param name="titleAreaTop"><int>5</int></param><param name="titleAreaLeft"><int>300</int></param><param name="titleAreaBottom"><int>30</int></param>
+<param name="hasCloseButton"><bool>true</bool></param>
+<param name="fadeDurationShow"><int>0</int></param><param name="fadeDurationHide"><int>0</int></param>
+<theme name="closeButton" ref="logingui.rom-panel.closeButton"/>
+<theme name="name" ref="label"><param name="textAlignment"><enum type="alignment">LEFT</enum></param><param name="font"><font>alphabeta-border</font></param></theme>
+<theme name="field-title" ref="label"><param name="background"><image>summary.mi-label-title</image></param><param name="border"><border>0,14,2,4</border></param></theme>
+<theme name="field-value" ref="label"><param name="background"><image>summary.mi-label-value</image></param><param name="border"><border>0,10</border></param></theme>
+<theme name="hp" ref="-defaults"><param name="background"><image>party.health-background</image></param><param name="progressImage"><image>party.health-green</image></param></theme>
+<theme name="hp-orange" ref="hp"><param name="progressImage"><image>party.health-orange</image></param></theme>
+<theme name="hp-red" ref="hp"><param name="progressImage"><image>party.health-red</image></param></theme>
+<theme name="tab-0" ref="button"><param name="background"><image>summary.mi-tab1.background</image></param><param name="border"><border>0</border></param></theme>
+<theme name="tab-1" ref="button"><param name="background"><image>summary.mi-tab5.background</image></param><param name="border"><border>0</border></param></theme>
+<theme name="tab-2" ref="button"><param name="background"><image>summary.mi-tab3.background</image></param><param name="border"><border>0</border></param></theme>
+<theme name="tab-3" ref="button"><param name="background"><image>summary.mi-tab6.background</image></param><param name="border"><border>0</border></param></theme>
+<theme name="tab-4" ref="button"><param name="background"><image>summary.mi-tab4.background</image></param><param name="border"><border>0</border></param></theme>
+<theme name="tab-5" ref="button"><param name="background"><image>summary.mi-tab2.background</image></param><param name="border"><border>0</border></param></theme>
+<theme name="tab-6" ref="button"><param name="background"><image>summary.mi-tab7.background</image></param><param name="border"><border>0</border></param></theme>
+<theme name="item" ref="label"/>
+<theme name="alpha" ref="-defaults"><param name="background"><image>summary.alpha</image></param></theme>
+<theme name="dex" ref="button"><param name="background"><image>none</image></param><param name="border"><border>0</border></param></theme>
+<theme name="rename" ref="button"><param name="background"><image>summary.rename</image></param><param name="border"><border>0</border></param></theme>
+<theme name="xp" ref="-defaults"><param name="background"><image>summary.mi-xpbar.background</image></param><param name="progressImage"><image>summary.mi-xpbar.progressImage</image></param></theme>
+<param name="typeBackground0"><image>summary.type-bg-0</image></param>
+<param name="nameplate0"><image>summary.nameplate-0</image></param>
+<theme name="type-0" ref="-defaults"><param name="background"><image>summary.type-0</image></param></theme>
+<param name="typeBackground1"><image>summary.type-bg-1</image></param>
+<param name="nameplate1"><image>summary.nameplate-1</image></param>
+<theme name="type-1" ref="-defaults"><param name="background"><image>summary.type-1</image></param></theme>
+<param name="typeBackground2"><image>summary.type-bg-2</image></param>
+<param name="nameplate2"><image>summary.nameplate-2</image></param>
+<theme name="type-2" ref="-defaults"><param name="background"><image>summary.type-2</image></param></theme>
+<param name="typeBackground3"><image>summary.type-bg-3</image></param>
+<param name="nameplate3"><image>summary.nameplate-3</image></param>
+<theme name="type-3" ref="-defaults"><param name="background"><image>summary.type-3</image></param></theme>
+<param name="typeBackground4"><image>summary.type-bg-4</image></param>
+<param name="nameplate4"><image>summary.nameplate-4</image></param>
+<theme name="type-4" ref="-defaults"><param name="background"><image>summary.type-4</image></param></theme>
+<param name="typeBackground5"><image>summary.type-bg-5</image></param>
+<param name="nameplate5"><image>summary.nameplate-5</image></param>
+<theme name="type-5" ref="-defaults"><param name="background"><image>summary.type-5</image></param></theme>
+<param name="typeBackground6"><image>summary.type-bg-6</image></param>
+<param name="nameplate6"><image>summary.nameplate-6</image></param>
+<theme name="type-6" ref="-defaults"><param name="background"><image>summary.type-6</image></param></theme>
+<param name="typeBackground7"><image>summary.type-bg-7</image></param>
+<param name="nameplate7"><image>summary.nameplate-7</image></param>
+<theme name="type-7" ref="-defaults"><param name="background"><image>summary.type-7</image></param></theme>
+<param name="typeBackground8"><image>summary.type-bg-8</image></param>
+<param name="nameplate8"><image>summary.nameplate-8</image></param>
+<theme name="type-8" ref="-defaults"><param name="background"><image>summary.type-8</image></param></theme>
+<param name="typeBackground9"><image>summary.type-bg-9</image></param>
+<param name="nameplate9"><image>summary.nameplate-9</image></param>
+<theme name="type-9" ref="-defaults"><param name="background"><image>summary.type-9</image></param></theme>
+<param name="typeBackground10"><image>summary.type-bg-10</image></param>
+<param name="nameplate10"><image>summary.nameplate-10</image></param>
+<theme name="type-10" ref="-defaults"><param name="background"><image>summary.type-10</image></param></theme>
+<param name="typeBackground11"><image>summary.type-bg-11</image></param>
+<param name="nameplate11"><image>summary.nameplate-11</image></param>
+<theme name="type-11" ref="-defaults"><param name="background"><image>summary.type-11</image></param></theme>
+<param name="typeBackground12"><image>summary.type-bg-12</image></param>
+<param name="nameplate12"><image>summary.nameplate-12</image></param>
+<theme name="type-12" ref="-defaults"><param name="background"><image>summary.type-12</image></param></theme>
+<param name="typeBackground13"><image>summary.type-bg-13</image></param>
+<param name="nameplate13"><image>summary.nameplate-13</image></param>
+<theme name="type-13" ref="-defaults"><param name="background"><image>summary.type-13</image></param></theme>
+<param name="typeBackground14"><image>summary.type-bg-14</image></param>
+<param name="nameplate14"><image>summary.nameplate-14</image></param>
+<theme name="type-14" ref="-defaults"><param name="background"><image>summary.type-14</image></param></theme>
+<param name="typeBackground15"><image>summary.type-bg-15</image></param>
+<param name="nameplate15"><image>summary.nameplate-15</image></param>
+<theme name="type-15" ref="-defaults"><param name="background"><image>summary.type-15</image></param></theme>
+<param name="typeBackground16"><image>summary.type-bg-16</image></param>
+<param name="nameplate16"><image>summary.nameplate-16</image></param>
+<theme name="type-16" ref="-defaults"><param name="background"><image>summary.type-16</image></param></theme>
+<param name="typeBackground17"><image>summary.type-bg-17</image></param>
+<param name="nameplate17"><image>summary.nameplate-17</image></param>
+<theme name="type-17" ref="-defaults"><param name="background"><image>summary.type-17</image></param></theme>
+<theme name="mark-0" ref="-defaults"><param name="background"><image>summary.mark-0</image></param></theme>
+<theme name="mark-1" ref="-defaults"><param name="background"><image>summary.mark-1</image></param></theme>
+<theme name="mark-2" ref="-defaults"><param name="background"><image>summary.mark-2</image></param></theme>
+<theme name="mark-3" ref="-defaults"><param name="background"><image>summary.mark-3</image></param></theme>
+<theme name="tab-7" ref="button"><param name="background"><image>summary.mi-tab8.background</image></param><param name="border"><border>0</border></param></theme>
+<theme name="tab-8" ref="button"><param name="background"><image>summary.mi-tab9.background</image></param><param name="border"><border>0</border></param></theme>
+</theme>
+    <theme name="search-window" ref="base-frame" allowWildcard="true">
+        <theme name="closeButton" ref="logingui.rom-panel.closeButton"/>
+        <theme name="category" ref="togglebutton"/>
+        <theme name="amount-dialog" ref="rom-modal.character-delete-error" allowWildcard="true">
+            <theme name="editfield" ref="editfield"/>
+            <theme name="button" ref="button"/>
+        </theme>
+        <param name="hasCloseButton"><bool>true</bool></param>
+        <param name="rowHeight"><int>38</int></param>
+        <param name="sidebarWidth"><int>112</int></param>
+        <theme name="editfield" ref="editfield"/>
+        <theme name="button" ref="button"/>
+        <theme name="togglebutton" ref="togglebutton"/>
+        <theme name="label" ref="label"/>
+        <theme name="header" ref="label">
+            <param name="background"><image>ui-header.background</image></param>
+            <param name="border"><border>5</border></param>
+        </theme>
+        <theme name="entries" ref="settings-panel.settings-scrollpane" allowWildcard="true">
+            <theme name="rows" ref="-defaults" allowWildcard="true">
+                <theme name="row" ref="-defaults" allowWildcard="true">
+                    <theme name="cell" ref="label">
+                        <param name="background"><image>ui-inputbox.background</image></param>
+                        <param name="border"><border>5</border></param>
+                    </theme>
+                    <theme name="add" ref="button">
+                        <param name="textAlignment"><enum type="alignment">RIGHT</enum></param>
+                        <param name="border"><border>3,3,3,28</border></param>
+                    </theme>
+                </theme>
+            </theme>
+        </theme>
+        <theme name="character-delete-error" ref="rom-modal.character-delete-error"/>
+    </theme>
+<theme name="bag-destroy-dialog" ref="search-window.amount-dialog" allowWildcard="true">
+<param name="minWidth"><int>320</int></param>
+<theme name="valueadjuster" ref="settings-panel.settings-scrollpane.settings-label-area.value-number"/>
+</theme>
+<images file="res/chat-hud.png" filter="nearest">
+    <area name="game-chat.top" xywh="171,309,29,29" splitx="L5,R5" splity="T5,B1"/>
+    <area name="game-chat.content" xywh="240,308,5,5"/>
+</images>
+<fontDef name="chat-system" filename="res/fonts/NotoSansCJK-Medium.ttc" color="#66B5FF"/>
+<images file="res/chat-hud.png" filter="nearest"><area name="chat-bubble" xywh="197,482,24,24"/></images>
+<fontDef name="chat-tab" filename="res/fonts/NotoSansCJK-Medium.ttc" color="#FFFFFF" size="14" size_cjk="14"><fontParam if="selected" color="#FFFFFF"/></fontDef>
+        <theme name="chat-tool" ref="button"><param name="background"><image>none</image></param><param name="border"><border>0</border></param><param name="minWidth"><int>0</int></param><param name="minHeight"><int>0</int></param></theme>
+<images file="res/chat-tools.png" filter="nearest">
+<area name="chat-tool-language" xywh="0,0,20,20"/><area name="chat-tool-settings" xywh="20,0,20,20"/><area name="chat-tool-sound" xywh="40,0,20,20"/><area name="chat-tool-lock" xywh="60,0,20,20"/><area name="chat-tool-collapse" xywh="80,0,20,20"/>
+</images>
+<theme name="game-chat" ref="-defaults" allowWildcard="true">
+    <theme name="handle" ref="-defaults"/>
+    <theme name="expand" ref="button"><param name="background"><image>chat-bubble</image></param><param name="border"><border>0</border></param></theme>
+    <theme name="top" ref="-defaults"><param name="background"><image>none</image></param>
+        <theme name="tab" ref="button"><param name="background"><image>none</image></param><param name="font"><font>chat-tab</font></param><param name="border"><border>0,2</border></param><param name="minWidth"><int>0</int></param><param name="minHeight"><int>0</int></param></theme>
+        <theme name="language" ref="chat-tool"><param name="background"><image>chat-tool-language</image></param></theme>
+        <theme name="settings" ref="chat-tool"><param name="background"><image>chat-tool-settings</image></param></theme><theme name="sound" ref="chat-tool"><param name="background"><image>chat-tool-sound</image></param></theme><theme name="lock" ref="chat-tool"><param name="background"><image>chat-tool-lock</image></param></theme><theme name="collapse" ref="chat-tool"><param name="background"><image>chat-tool-collapse</image></param></theme>
+    </theme>
+    <theme name="scroll" ref="settings-panel.settings-scrollpane"><param name="background"><image>game-chat.content</image></param><param name="border"><border>2</border></param>
+        <theme name="messages" ref="label"><param name="font"><font>chat-system</font></param><param name="textAlignment"><enum type="alignment">TOPLEFT</enum></param></theme>
+    </theme>
+    <theme name="bottom" ref="-defaults"><param name="background"><image>game-chat.content</image></param>
+        <theme name="channel" ref="button"/><theme name="input" ref="editfield"><param name="background"><image>ui-inputbox.background</image></param></theme><theme name="send" ref="button"/><theme name="link" ref="button"/>
+    </theme>
+</theme>
+<theme name="mail-cell" ref="label"><param name="textAlignment"><enum type="alignment">CENTER</enum></param><param name="background"><image>none</image></param></theme>
+<images file="res/mail-delete.png" filter="nearest"><area name="mail-delete" xywh="0,0,44,32"/></images>
+<images file="res/pokemmo_ui.png" filter="nearest">
+<area name="mail-tab-active" xywh="134,216,40,26" splitx="L12,R12"/>
+<area name="mail-tab-default" xywh="72,216,40,22" splitx="L12,R12" tint="#C5C5C5"/>
+<select name="mail-tab"><alias ref="mail-tab-active" if="selected"/><alias ref="mail-tab-default"/></select>
+</images>
+<images file="res/mail-pokemon-marks.png" filter="nearest">
+<area name="mail-shiny" xywh="0,0,12,13"/><area name="mail-particle" xywh="0,13,12,13"/>
+</images>
+<images file="res/pokemmo_ui.png" filter="nearest"><grid name="mail-frame" weightsX="0,1,0" weightsY="0,0,1,0">
+			<area xywh="46,4,10,11" />
+			<area xywh="59,4,10,11" tiled="true" />
+			<area xywh="71,4,10,11" />
+			<area xywh="46,15,10,11" />
+			<area xywh="63,15,10,11" tiled="true" />
+			<area xywh="71,15,10,11" />
+			<area xywh="46,26,10,21" />
+			<area xywh="58,26,10,21" />
+			<area xywh="71,26,10,21" />
+			<area xywh="46,69,10,5" />
+			<area xywh="58,69,10,5" />
+			<area xywh="71,69,10,5" />
+		</grid>
+		<grid name="mail-content" weightsX="0,1,0" weightsY="0,0,0,1,0" inset="-13,0,0,0">
+			<area xywh="5,139,10,11" />
+			<area xywh="33,139,10,11" tiled="true" />
+			<area xywh="67,139,10,11" />
+			<area xywh="5,151,10,11" />
+			<area xywh="33,151,10,11" tiled="true" />
+			<area xywh="67,151,10,11" />
+			<area xywh="5,162,10,28" />
+			<area xywh="33,162,10,28" tiled="true" />
+			<area xywh="67,162,10,28" />
+			<area xywh="5,124,10,4" />
+			<area xywh="33,124,10,4" />
+			<area xywh="67,124,10,4" />
+			<area xywh="5,131,10,5" />
+			<area xywh="33,131,10,5" />
+			<area xywh="67,131,10,5" />
+		</grid>
+
+		</images>
+<theme name="mail-window" ref="base-frame" allowWildcard="true">
+<param name="shinyMark"><image>mail-shiny</image></param><param name="particleMark"><image>mail-particle</image></param>
+<param name="background"><image>mail-frame</image></param>
+<param name="border"><border>30,0,3,5</border></param>
+<param name="titleAreaTop"><int>0</int></param><param name="titleAreaBottom"><int>28</int></param>
+<param name="hasCloseButton"><bool>true</bool></param><param name="closeButtonY"><int>11</int></param>
+<theme name="closeButton" ref="-defaults"><param name="background"><image>frame-close</image></param><param name="minWidth"><int>9</int></param><param name="minHeight"><int>9</int></param></theme>
+
+<theme name="tab" ref="button"><param name="background"><image>mail-tab</image></param><param name="border"><border>5,12</border></param></theme>
+<theme name="content" ref="-defaults"><param name="background"><image>mail-content</image></param>
+<theme name="count" ref="label"><param name="background"><image>none</image></param><param name="border"><border>6</border></param></theme>
+<theme name="header-background" ref="-defaults"><param name="background"><image>ui-header.background</image></param></theme>
+<theme name="header" ref="label"><param name="background"><image>none</image></param><param name="textAlignment"><enum type="alignment">CENTER</enum></param></theme>
+<theme name="row" ref="button"><param name="background"><image>ui-inputbox.background</image></param><param name="border"><border>0</border></param></theme>
+<theme name="cell" ref="label"><param name="textAlignment"><enum type="alignment">CENTER</enum></param><param name="background"><image>none</image></param></theme>
+<theme name="delete" ref="button"><param name="background"><image>none</image></param><param name="overlay"><image>mail-delete</image></param><param name="border"><border>0</border></param></theme>
+<theme name="attachment-item" ref="button"><param name="background"><image>ui-button.background</image></param><param name="border"><border>0,3,2,3</border></param><param name="textAlignment"><enum type="alignment">BOTTOM</enum></param></theme>
+<theme name="attachment-pokemon" ref="button"><param name="background"><image>ui-button.background</image></param><param name="border"><border>0,3,2,3</border></param><param name="textAlignment"><enum type="alignment">BOTTOMRIGHT</enum></param></theme>
+<theme name="detail-value" ref="label"><param name="background"><image>ui-header.background</image></param><param name="border"><border>5,8</border></param></theme>
+<theme name="detail-body" ref="label"><param name="textAlignment"><enum type="alignment">TOPLEFT</enum></param><param name="background"><image>ui-header.background</image></param><param name="border"><border>6</border></param></theme>
+<theme name="label" ref="label"/><theme name="editfield" ref="editfield"/><theme name="button" ref="button"/><theme name="page" ref="button"/>
+</theme>
+</theme>
+    <images file="res/encounter-white.png"><area name="encounter.white" xywh="0,0,1,1"/></images>
+    <images file="res/battle-hud.png" filter="nearest">
+        <area name="encounter.enemy" xywh="0,36,307,28"/>
+        <area name="encounter.self" xywh="0,66,299,40"/>
+        <area name="encounter.hp" xywh="21,9,1,4"/>
+        <area name="encounter.action.default" xywh="2,145,209,52"/>
+        <area name="encounter.action.hover" xywh="2,200,209,52"/>
+        <select name="encounter.action.background">
+            <alias ref="encounter.action.hover" if="hover | keyboardFocus"/>
+            <alias ref="encounter.action.default"/>
+        </select>
+    </images>
+    <theme name="wild-encounter" ref="-defaults" allowWildcard="true">
+        <param name="discOuter"><color>#00564D</color></param>
+        <param name="discInner"><color>#53BDB3</color></param>
+        <param name="enemyHud"><image>encounter.enemy</image></param>
+        <param name="selfHud"><image>encounter.self</image></param>
+        <param name="healthImage"><image>encounter.hp</image></param>
+        <param name="whiteImage"><image>encounter.white</image></param>
+        <theme name="label" ref="label">
+            <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+        </theme>
+        <theme name="action" ref="button">
+            <param name="background"><image>ui-button.background</image></param>
+            <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+            <param name="border"><border>0</border></param>
+        </theme>
     </theme>
 </themes>

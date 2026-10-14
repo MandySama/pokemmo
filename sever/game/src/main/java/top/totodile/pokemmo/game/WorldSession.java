@@ -13,26 +13,34 @@ import static top.totodile.pokemmo.protocol.CharacterPackets.*;
 
 /** 会话持有权威位置；网络操作更新内存，定时提交与退出提交串行化。 */
 final class WorldSession implements AutoCloseable {
-    private final FireRedWorldRules rules;
+    private WorldRules rules;
     private final CharacterStore store;
     private final int account;
     private final long character;
     private final ScheduledFuture<?> saving;
     private Position position, saved;
-    private boolean loading = true, cycling, noclip, closed;
+    private final long onlineBase;
+    private final long onlineStarted = System.nanoTime();
+    private long onlineStopped;
+    private long savedOnline;
+    private boolean loading = true, cycling, savedCycling, noclip, closed;
     private int multiplier = 1;
     private long readyAt;
     private long loadDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(30);
     private final Object saveLock = new Object();
     private volatile SQLException saveFailure;
 
-    WorldSession(FireRedWorldRules rules, CharacterStore store, int account, CharacterInfo info,
+    WorldSession(WorldRules rules, CharacterStore store, int account, CharacterInfo info,
                  ScheduledExecutorService scheduler) {
         this.rules = rules;
         this.store = store;
         this.account = account;
         character = info.id();
+        onlineBase = savedOnline = info.stats().onlineSeconds();
         position = saved = info.position();
+        cycling = savedCycling = info.cycling();
+        noclip = debugEnabled() && info.noclip();
+        multiplier = debugEnabled() ? info.speedMultiplier() : 1;
         saving = scheduler.scheduleWithFixedDelay(() -> {
             try {
                 flush();
@@ -80,6 +88,7 @@ final class WorldSession implements AutoCloseable {
             if (speed != 1 && speed != 2 && speed != 4 && speed != 8)
                 throw new IOException("Invalid movement settings");
             if (!debugEnabled() && (speed != 1 || clip)) throw new IOException("Debug movement disabled");
+            if (!store.saveDebugSettings(account, character, clip, speed)) throw new SQLException("Debug settings save rejected");
             cycling = bike;
             multiplier = speed;
             noclip = clip;
@@ -103,6 +112,27 @@ final class WorldSession implements AutoCloseable {
         throw new IOException("Unknown world operation");
     }
 
+    CharacterInfo transferRegion(int region, int group, int map, int x, int y, WorldRules targetRules) throws IOException, SQLException {
+        if (!debugEnabled()) throw new IOException("Debug teleport disabled");
+        Position target;
+        try { target = targetRules.at(group, map, x, y, 0, null); }
+        catch (IllegalArgumentException error) { throw new IOException("Invalid region teleport", error); }
+        synchronized (saveLock) {
+            synchronized (this) {
+                checkHealthy();
+                if (closed) throw new IOException("World is closed");
+                long online = onlineSeconds();
+                if (!store.transferRegion(account, character, region, target, online, cycling)) throw new SQLException("Region transfer rejected");
+                rules = targetRules; position = saved = target;
+                savedOnline = online; savedCycling = cycling;
+                loading = true; readyAt = 0;
+                loadDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(30);
+            }
+            return store.list(account).stream().filter(info -> info.id() == character).findFirst()
+                    .orElseThrow(() -> new SQLException("Transferred character missing"));
+        }
+    }
+
     private static boolean debugEnabled() {
         return Boolean.parseBoolean(System.getProperty("pokemmo.game.debug", "true"));
     }
@@ -116,17 +146,31 @@ final class WorldSession implements AutoCloseable {
         return WorldPackets.result(new WorldPackets.Result(position, moved, warp, Math.max(1, duration)));
     }
 
+    private synchronized long onlineSeconds() {
+        return onlineBase + TimeUnit.NANOSECONDS.toSeconds(Math.max(0, (closed ? onlineStopped : System.nanoTime()) - onlineStarted));
+    }
+
+    TrainerStats stats() throws SQLException {
+        return store.stats(account, character, onlineSeconds());
+    }
+
     void flush() throws SQLException {
         // 不在 JDBC 等待期间持有会话监视器，数据库阻塞不妨碍网络裁决。
         synchronized (saveLock) {
             Position snapshot;
+            long online;
+            boolean bike;
             synchronized (this) {
                 snapshot = position;
-                if (snapshot.equals(saved)) return;
+                online = onlineSeconds();
+                bike = cycling;
+                if (snapshot.equals(saved) && online == savedOnline && bike == savedCycling) return;
             }
-            if (!store.savePosition(account, character, snapshot)) throw new SQLException("World save rejected");
+            if (!store.saveWorldState(account, character, snapshot, online, bike)) throw new SQLException("World save rejected");
             synchronized (this) {
                 saved = snapshot;
+                savedOnline = online;
+                savedCycling = bike;
             }
         }
     }
@@ -134,7 +178,10 @@ final class WorldSession implements AutoCloseable {
     @Override
     public void close() throws SQLException {
         synchronized (this) {
-            closed = true;
+            if (!closed) {
+                onlineStopped = System.nanoTime();
+                closed = true;
+            }
         }
         saving.cancel(false);
         flush();

@@ -10,8 +10,8 @@ import java.util.zip.GZIPOutputStream;
 /** 将卡带中的通行与事件数据导出为独立服务端资源，不写入图像或调色板。 */
 public final class ExportWorldRules {
     public static void main(String[] args) throws Exception {
-        if (args.length != 2) throw new IllegalArgumentException("Usage: ExportWorldRules <FireRed ROM> <output.gz>");
-        var atlas = new FireRedAtlas(Path.of(args[0]));
+        if (args.length < 2 || args.length > 4) throw new IllegalArgumentException("Usage: ExportWorldRules <FireRed/Emerald ROM> <output.gz> [output.csv] [modified]");
+        var atlas = new FireRedAtlas(Path.of(args[0]), args.length == 4);
         try (var data = new DataOutputStream(new GZIPOutputStream(Files.newOutputStream(Path.of(args[1]))))) {
             data.writeInt(0x46525731);
             data.writeInt(atlas.areas().size());
@@ -50,6 +50,11 @@ public final class ExportWorldRules {
                     data.writeByte(warp.target().map());
                 }
             }
+        }
+        if (args.length >= 3) {
+            var rows = atlas.areas().stream().map(a -> a.key().group() + "," + a.key().map()
+                    + "," + a.columns() + "," + a.rows()).toList();
+            Files.write(Path.of(args[2]), rows);
         }
         System.out.println("Exported " + atlas.areas().size() + " maps");
     }

@@ -28,6 +28,7 @@
     </build>
 
     <dependencies>
+        <dependency><groupId>top.totodile</groupId><artifactId>battle</artifactId><version>${project.version}</version></dependency>
         <dependency>
             <groupId>top.totodile</groupId>
             <artifactId>protocol</artifactId>

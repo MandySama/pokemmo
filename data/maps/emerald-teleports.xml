@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<teleports>
+    <destination section="1" group="0" map="9" x="9" y="10" name="141000"/>
+    <destination section="1" group="0" map="0" x="20" y="17" name="141007"/>
+    <destination section="1" group="0" map="1" x="19" y="20" name="141008"/>
+    <destination section="1" group="0" map="2" x="22" y="6" name="141009"/>
+    <destination section="1" group="0" map="3" x="16" y="39" name="141010"/>
+    <destination section="1" group="0" map="4" x="5" y="7" name="141011"/>
+    <destination section="1" group="0" map="5" x="24" y="15" name="141012"/>
+    <destination section="1" group="0" map="6" x="28" y="17" name="141013"/>
+    <destination section="1" group="0" map="7" x="43" y="32" name="141014"/>
+    <destination section="1" group="0" map="8" x="18" y="6" name="141015"/>
+    <destination section="1" group="0" map="10" x="6" y="17" name="141001"/>
+    <destination section="1" group="0" map="11" x="2" y="11" name="141002"/>
+    <destination section="1" group="0" map="12" x="9" y="7" name="141003"/>
+    <destination section="1" group="0" map="13" x="14" y="8" name="141004"/>
+    <destination section="1" group="0" map="14" x="16" y="4" name="141005"/>
+    <destination section="1" group="0" map="15" x="8" y="16" name="141006"/>
+    <destination section="1" group="24" map="78" x="14" y="6" name="141085"/>
+    <destination section="2" group="26" map="4" x="26" y="43" name="141058"/>
+    <destination section="2" group="26" map="60" x="9" y="13" name="141212"/>
+    <destination section="2" group="13" map="4" x="14" y="6" name="9277"/>
+    <destination section="3" group="26" map="56" x="13" y="38" name="141201"/>
+    <destination section="3" group="26" map="9" x="13" y="22" name="141073"/>
+    <destination section="3" group="26" map="58" x="15" y="12" name="141200"/>
+    <destination section="3" group="26" map="66" x="10" y="11" name="141211"/>
+    <destination section="4" group="0" map="19" x="8" y="22" name="141019"/>
+    <destination section="4" group="0" map="38" x="14" y="7" name="141038"/>
+</teleports>

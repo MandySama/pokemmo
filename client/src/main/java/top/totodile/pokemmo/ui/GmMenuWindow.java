@@ -7,6 +7,18 @@ import java.util.List;
 
 /** 管理工具列表；仅已接通的入口绑定回调。 */
 final class GmMenuWindow extends ResizableFrame {
+    private final Button unlockDex = new Button(ClientStrings.get(9310));
+    private boolean dexUnlocked;
+    private java.util.function.Consumer<Boolean> dexChanged = value -> { };
+
+    void setDexChanged(java.util.function.Consumer<Boolean> callback) { dexChanged = callback; }
+    void setDexBusy(boolean busy) { unlockDex.setEnabled(!busy); }
+    void setDexUnlocked(boolean unlocked) {
+        dexUnlocked = unlocked;
+        unlockDex.setText(ClientStrings.get(unlocked ? 9311 : 9310));
+        invalidateLayout();
+    }
+
     private final Button speed = new Button(ClientStrings.get(9272).replace("{00}", "1"));
     private int speedMultiplier = 1;
     private java.util.function.IntConsumer speedChanged = value -> { };
@@ -31,9 +43,22 @@ final class GmMenuWindow extends ResizableFrame {
         invalidateLayout();
     }
 
+    private Button teleport;
+
+    void setTeleportEnabled(boolean enabled) { teleport.setEnabled(enabled); }
+
     private Runnable openTeleport = () -> { };
 
     void setOpenTeleport(Runnable callback) { openTeleport = callback; }
+
+    private Button computer;
+
+    /** 随身电脑入口只在世界会话内可用。 */
+    void setComputerEnabled(boolean enabled) { computer.setEnabled(enabled); }
+
+    private Runnable openComputer = () -> { };
+
+    void setOpenComputer(Runnable callback) { openComputer = callback; }
 
     private final ToggleButton tab = new ToggleButton(ClientStrings.get(9201));
     private final Widget panel = new Widget();
@@ -73,7 +98,9 @@ final class GmMenuWindow extends ResizableFrame {
             speedChanged.accept(speedMultiplier);
         });
         panel.add(speed);
-        rows.add(new Widget[]{last[0], noclip, speed});
+        unlockDex.addCallback(() -> dexChanged.accept(!dexUnlocked));
+        panel.add(unlockDex);
+        rows.add(new Widget[]{last[0], noclip, speed, unlockDex});
     }
 
     private void heading(int id) {
@@ -87,7 +114,8 @@ final class GmMenuWindow extends ResizableFrame {
         Widget[] row = new Widget[ids.length];
         for (int i = 0; i < ids.length; i++) {
             Button button = new Button(ClientStrings.get(ids[i]));
-            if (ids[i] == 9235) button.addCallback(() -> openTeleport.run());
+            if (ids[i] == 9235) { teleport = button; button.addCallback(() -> openTeleport.run()); }
+            if (ids[i] == 9221) { computer = button; button.addCallback(() -> openComputer.run()); }
             row[i] = button;
             panel.add(row[i]);
         }

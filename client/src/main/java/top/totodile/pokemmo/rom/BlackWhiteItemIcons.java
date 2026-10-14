@@ -60,7 +60,7 @@ public final class BlackWhiteItemIcons {
         } catch (IndexOutOfBoundsException exception) { throw new IOException("Invalid item icon data", exception); }
     }
 
-    private static byte[] decompress(byte[] input) throws IOException {
+    static byte[] decompress(byte[] input) throws IOException {
         int size = input.length;
         ByteBuffer footer = ByteBuffer.wrap(input).order(ByteOrder.LITTLE_ENDIAN);
         int extra = footer.getInt(size - 4);

@@ -18,7 +18,7 @@ public final class CharacterPackets {
         @Override public int[] colors() { return colors.clone(); }
         public boolean valid() {
             if (name == null || name.length() > 16 || !name.matches("[\\p{L}0-9_]{2,16}") || gender < 0 || gender > 1
-                    || skin < 0 || skin > 4 || region != 0) return false;
+                    || skin < 0 || skin > 4 || region < 0 || region > 4) return false;
             for (int i = 0; i < 12; i++) {
                 if (items[i] < -1 || items[i] > 1022 || colors[i] < 0 || colors[i] >= 48) return false;
             }
@@ -26,21 +26,47 @@ public final class CharacterPackets {
         }
     }
     public record ReturnPoint(int group, int map, int x, int y, int facing) {
-        public boolean valid() { return FireRedMaps.contains(group, map, x, y) && facing >= 0 && facing < 4; }
+        public boolean valid() { return valid(0) || valid(1) || valid(2) || valid(3) || valid(4); }
+        public boolean valid(int region) { return FireRedMaps.contains(region, group, map, x, y) && facing >= 0 && facing < 4; }
     }
     public record Position(int group, int map, int x, int y, int elevation, int facing, ReturnPoint returnPoint) {
         public Position(int group, int map, int x, int y, int elevation, int facing) {
             this(group, map, x, y, elevation, facing, null);
         }
         public static Position spawn() { return new Position(4, 1, 6, 6, 3, 0); }
-        public boolean valid() {
-            return FireRedMaps.contains(group, map, x, y) && elevation >= -2 && elevation <= 15
-                    && facing >= 0 && facing < 4 && (returnPoint == null || returnPoint.valid());
+        public static Position spawn(int region, int gender) {
+            if (region == 0) return spawn();
+            if (region == 3) return new Position(1, 157, 6, 6, 0, 0);
+            if (region == 2) return new Position(1, 135, 6, 6, 0, 0);
+            if (region != 1 && region != 4) throw new IllegalArgumentException("Invalid starting region");
+            return new Position(1, gender == 0 ? 1 : 3, 4, 4, 3, 0);
+        }
+        public boolean valid() { return valid(0) || valid(1) || valid(2) || valid(3) || valid(4); }
+        public boolean valid(int region) {
+            return FireRedMaps.contains(region, group, map, x, y) && elevation >= -2 && elevation <= 15
+                    && facing >= 0 && facing < 4 && (returnPoint == null || returnPoint.valid(region));
         }
     }
-    public record CharacterInfo(long id, Appearance appearance, Position position, long createdAt) {
+    public record CharacterInfo(long id, Appearance appearance, Position position, long createdAt, boolean dexUnlocked, TrainerStats stats, List<PartyMember> party, boolean cycling, boolean noclip, int speedMultiplier) {
+        public CharacterInfo(long id, Appearance appearance, Position position, long createdAt, boolean dexUnlocked, TrainerStats stats, List<PartyMember> party, boolean cycling) {
+            this(id, appearance, position, createdAt, dexUnlocked, stats, party, cycling, false, 1);
+        }
+        public CharacterInfo(long id, Appearance appearance, Position position, long createdAt, boolean dexUnlocked, TrainerStats stats, List<PartyMember> party) {
+            this(id, appearance, position, createdAt, dexUnlocked, stats, party, false);
+        }
+        public CharacterInfo {
+            party = PartyMember.validate(party);
+            if (speedMultiplier != 1 && speedMultiplier != 2 && speedMultiplier != 4 && speedMultiplier != 8) throw new IllegalArgumentException("Invalid character speed");
+        }
+        public CharacterInfo(long id, Appearance appearance, Position position, long createdAt, boolean dexUnlocked, TrainerStats stats) {
+            this(id, appearance, position, createdAt, dexUnlocked, stats, List.of());
+        }
+        public CharacterInfo(long id, Appearance appearance, Position position, long createdAt, boolean dexUnlocked) {
+            this(id, appearance, position, createdAt, dexUnlocked, TrainerStats.initial(appearance.region(), dexUnlocked));
+        }
+        public CharacterInfo(long id, Appearance appearance, Position position, long createdAt) { this(id, appearance, position, createdAt, false); }
         public CharacterInfo(long id, Appearance appearance, Position position) { this(id, appearance, position, 0); }
-        public CharacterInfo(long id, Appearance appearance) { this(id, appearance, Position.spawn()); }
+        public CharacterInfo(long id, Appearance appearance) { this(id, appearance, Position.spawn(appearance.region(), appearance.gender())); }
     }
     public static byte[] positionRequest(Position p) {
         PacketData data = new PacketData(32).putByte(WorldPackets.SAVE);
@@ -73,6 +99,19 @@ public final class CharacterPackets {
         public CreationResult { characters = List.copyOf(characters); }
     }
     private CharacterPackets() { }
+
+    public static byte[] leaveResponse(List<CharacterInfo> characters) {
+        byte[] packet = listResponse(characters);
+        packet[0] = 0x78;
+        return packet;
+    }
+
+    public static List<CharacterInfo> decodeLeft(byte[] packet) throws IOException {
+        if (packet.length == 0 || packet[0] != 0x78) throw new IOException("Unexpected world logout response");
+        byte[] list = packet.clone();
+        list[0] = 2;
+        return decodeList(list);
+    }
 
     public static byte[] enterRequest(long id) { return new PacketData(17).putByte(4).putLong(id).putLong(CharacterSignature.sigHash(Long.hashCode(id))).written(); }
     public static long decodeEnter(byte[] packet) throws IOException {
@@ -121,7 +160,7 @@ public final class CharacterPackets {
         return appearance;
     }
     public static byte[] listResponse(List<CharacterInfo> characters) {
-        PacketData data = new PacketData(2048).putByte(2);
+        PacketData data = new PacketData(24576).putByte(2);
         writeList(data, characters);
         return data.written();
     }
@@ -133,7 +172,7 @@ public final class CharacterPackets {
         return result;
     }
     public static byte[] createResponse(CreationResult result) {
-        PacketData data = new PacketData(2048).putByte(3).putByte(result.status().ordinal());
+        PacketData data = new PacketData(24576).putByte(3).putByte(result.status().ordinal());
         writeList(data, result.characters());
         return data.written();
     }
@@ -189,6 +228,11 @@ public final class CharacterPackets {
             writeAppearance(data, character.appearance());
             writePosition(data, character.position());
             data.putLong(character.createdAt());
+            data.putByte(character.dexUnlocked() ? 1 : 0);
+            TrainerStats.write(data, character.stats());
+            PartyMember.write(data, character.party());
+            data.putByte(character.cycling() ? 1 : 0);
+            data.putByte(character.noclip() ? 1 : 0).putByte(character.speedMultiplier());
         }
     }
     private static List<CharacterInfo> readList(PacketData data) throws IOException {
@@ -200,9 +244,12 @@ public final class CharacterPackets {
             Appearance appearance = readAppearance(data);
             if (id <= 0 || !appearance.valid()) throw new IOException("Invalid character record");
             Position position = readPosition(data);
+            if (!position.valid(appearance.region())) throw new IOException("Position outside character region");
             long createdAt = data.longValue();
             if (createdAt < 0) throw new IOException("Invalid character creation time");
-            result.add(new CharacterInfo(id, appearance, position, createdAt));
+            int dexUnlocked = data.byteValue();
+            if (dexUnlocked > 1) throw new IOException("Invalid Pokedex state");
+            result.add(new CharacterInfo(id, appearance, position, createdAt, dexUnlocked == 1, TrainerStats.read(data), PartyMember.read(data), data.booleanValue(), data.booleanValue(), data.byteValue()));
         }
         return List.copyOf(result);
     }

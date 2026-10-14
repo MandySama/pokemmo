@@ -31,9 +31,15 @@ final class NitroModel implements AutoCloseable {
 
     @SuppressWarnings("unchecked")
     NitroModel(ByteBuffer data, ByteBuffer joint, ByteBuffer pattern) {
+        this(data, joint, pattern, null);
+        textures.setAllowMissing(false);
+    }
+
+    @SuppressWarnings("unchecked")
+    NitroModel(ByteBuffer data, ByteBuffer joint, ByteBuffer pattern, ByteBuffer externalTextures) {
         if (!text(data, 0, 4).equals("BMD0")) throw new IllegalArgumentException("Invalid NSBMD");
         int modelSection = data.getInt(16);
-        int textureSection = data.getInt(20);
+        int textureSection = ushort(data, 14) > 1 ? data.getInt(20) : -1;
         int base = modelSection + data.getInt(dictionary(data, modelSection + 8, 4).getFirst().offset());
         int size = data.getInt(base);
         int sbc = base + data.getInt(base + 4);
@@ -77,7 +83,13 @@ final class NitroModel implements AutoCloseable {
             }
         }
         for (int i = 0; i < stack.length; i++) stack[i] = new Matrix4();
-        textures = new NitroTextures(data, textureSection);
+        textures = externalTextures == null ? new NitroTextures(data, textureSection)
+                : new NitroTextures(externalTextures, externalTextures.getInt(16));
+        textures.setAllowMissing(true);
+        if (externalTextures != null && ushort(data, 14) > 1 && textureSection >= 0
+                && textureSection < data.limit() - 8 && text(data, textureSection, 4).equals("TEX0")) {
+            textures.setFallback(new NitroTextures(data, textureSection));
+        }
         animation = joint == null ? null : new NitroAnimation(joint);
         textureAnimation = pattern == null ? null : new TextureAnimation(pattern);
     }
@@ -100,6 +112,7 @@ final class NitroModel implements AutoCloseable {
         for (Matrix4 matrix : stack) matrix.idt();
         commands.position(0);
         int material = 0;
+        float[] view = null;
         while (commands.hasRemaining()) {
             int command = commands.get() & 255;
             switch (command & 31) {
@@ -124,8 +137,12 @@ final class NitroModel implements AutoCloseable {
                 }
                 case 7, 8 -> {
                     commands.get();
-                    if ((command & 32) != 0) commands.get();
-                    if ((command & 64) != 0) commands.get();
+                    int save = (command & 32) != 0 ? commands.get() & 31 : -1;
+                    int restore = (command & 64) != 0 ? commands.get() & 31 : -1;
+                    if (restore >= 0) current.set(stack[restore]);
+                    if (view == null) { view = new float[16]; glGetFloatv(GL_MODELVIEW_MATRIX, view); }
+                    billboard(view, (command & 31) == 8);
+                    if (save >= 0) stack[save].set(current);
                 }
                 case 9 -> {
                     int destination = commands.get() & 31;
@@ -147,6 +164,26 @@ final class NitroModel implements AutoCloseable {
                 }
                 default -> throw new IllegalArgumentException("Unsupported SBC command: " + command);
             }
+        }
+    }
+
+    /** 用镜头的逆旋转替换面板旋转，保留节点位置及各轴缩放。 */
+    private void billboard(float[] view, boolean vertical) {
+        float[] matrix = current.val;
+        float sx = (float) Math.sqrt(matrix[0] * matrix[0] + matrix[1] * matrix[1] + matrix[2] * matrix[2]);
+        float sy = (float) Math.sqrt(matrix[4] * matrix[4] + matrix[5] * matrix[5] + matrix[6] * matrix[6]);
+        float sz = (float) Math.sqrt(matrix[8] * matrix[8] + matrix[9] * matrix[9] + matrix[10] * matrix[10]);
+        if (vertical) {
+            float length = (float) Math.sqrt(view[2] * view[2] + view[10] * view[10]);
+            float x = length < 0.00001f ? 0 : view[2] / length;
+            float z = length < 0.00001f ? 1 : view[10] / length;
+            matrix[0] = z * sx; matrix[1] = 0; matrix[2] = -x * sx;
+            matrix[4] = 0; matrix[5] = sy; matrix[6] = 0;
+            matrix[8] = x * sz; matrix[9] = 0; matrix[10] = z * sz;
+        } else {
+            matrix[0] = view[0] * sx; matrix[1] = view[4] * sx; matrix[2] = view[8] * sx;
+            matrix[4] = view[1] * sy; matrix[5] = view[5] * sy; matrix[6] = view[9] * sy;
+            matrix[8] = view[2] * sz; matrix[9] = view[6] * sz; matrix[10] = view[10] * sz;
         }
     }
 

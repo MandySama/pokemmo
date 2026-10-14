@@ -17,10 +17,34 @@ final class NitroTextures implements AutoCloseable {
     private final Map<String, Entry> textures = new HashMap<>();
     private final Map<String, Entry> palettes = new HashMap<>();
     private final Map<String, Integer> uploaded = new HashMap<>();
+    private NitroTextures fallback;
+    private boolean allowMissing;
+
+    void setAllowMissing(boolean allowMissing) {
+        this.allowMissing = allowMissing;
+    }
+
+    private int missingTexture() {
+        return uploaded.computeIfAbsent("\0", ignored -> {
+            int texture = glGenTextures();
+            glBindTexture(GL_TEXTURE_2D, texture);
+            ByteBuffer black = BufferUtils.createByteBuffer(4).put((byte) 0).put((byte) 0).put((byte) 0).put((byte) 255);
+            black.flip();
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, black);
+            return texture;
+        });
+    }
+
+    void setFallback(NitroTextures fallback) {
+        this.fallback = fallback;
+    }
 
     NitroTextures(ByteBuffer data, int base) {
         this.data = data;
         this.base = base;
+        if (base < 0) return;
         for (Entry entry : dictionary(data, base + 60, 8)) textures.put(entry.name(), entry);
         int paletteDictionary = base + 60 + ushort(data, base + 62);
         for (Entry entry : dictionary(data, paletteDictionary, 4)) palettes.put(entry.name(), entry);
@@ -28,13 +52,24 @@ final class NitroTextures implements AutoCloseable {
 
     int texture(String name, String palette) {
         if (name == null) return 0;
+        if (!textures.containsKey(name)) {
+            if (fallback != null && fallback.textures.containsKey(name)) return fallback.texture(name, palette);
+            if (allowMissing) return missingTexture();
+        }
+        Entry entry = textures.get(name);
+        if (allowMissing && entry != null && (ushort(data, entry.offset() + 2) >> 10 & 7) != 7
+                && !palettes.containsKey(palette)) {
+            return missingTexture();
+        }
         String key = name + ":" + palette;
         return uploaded.computeIfAbsent(key, ignored -> upload(name, palette));
     }
 
     boolean transparent(String name) {
         Entry entry = textures.get(name);
-        if (entry == null) return false;
+        if (entry == null) {
+            return fallback != null && fallback.textures.containsKey(name) && fallback.transparent(name);
+        }
         int params = ushort(data, entry.offset() + 2);
         int format = params >> 10 & 7;
         return format == 1 || format == 6 || (params & 8192) != 0;
@@ -103,5 +138,6 @@ final class NitroTextures implements AutoCloseable {
     public void close() {
         for (int texture : uploaded.values()) glDeleteTextures(texture);
         uploaded.clear();
+        if (fallback != null) fallback.close();
     }
 }

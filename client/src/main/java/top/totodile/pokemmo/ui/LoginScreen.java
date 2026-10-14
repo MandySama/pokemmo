@@ -6,6 +6,8 @@ import de.matthiasmann.twl.model.SimpleChangableListModel;
 import org.lwjgl.glfw.GLFW;
 import top.totodile.pokemmo.ClientFiles;
 import top.totodile.pokemmo.ClientStrings;
+import top.totodile.pokemmo.DebugSettings;
+import top.totodile.pokemmo.HotbarSettings;
 import top.totodile.pokemmo.SavedCredentials;
 import top.totodile.pokemmo.audio.LoginMusic;
 import top.totodile.pokemmo.net.LoginConnection;
@@ -15,6 +17,11 @@ import top.totodile.pokemmo.protocol.GameServerInfo;
 import top.totodile.pokemmo.rom.BlackWhiteLoginScene;
 import top.totodile.pokemmo.rom.FireRedAtlas;
 import top.totodile.pokemmo.world.KantoWorld;
+import top.totodile.pokemmo.world.ClientWorld;
+import top.totodile.pokemmo.world.UnovaWorld;
+import top.totodile.pokemmo.world.SinnohWorld;
+import top.totodile.pokemmo.rom.PlatinumMaps;
+import top.totodile.pokemmo.rom.BlackWhiteMaps;
 import top.totodile.pokemmo.protocol.CharacterPackets.CharacterInfo;
 
 import java.io.IOException;
@@ -32,9 +39,9 @@ import java.util.concurrent.ThreadLocalRandom;
  * 使用官方 TWL 核心及登录界面所需的控件和主题扩展。
  */
 public final class LoginScreen extends Widget implements AutoCloseable {
-    private KantoWorld world;
+    private ClientWorld world;
     private CompletableFuture<CharacterInfo> enterResult;
-    private CompletableFuture<FireRedAtlas> worldMapResult;
+    private CompletableFuture<?> worldMapResult;
     private static final int[] MENU_STRING_IDS = {1172, 1175, 1190, 1005, 1006, 1007, 1124, 1008, 1009};
     private final EditField account = new UsernameEditField();
     private final EditField password = new LoginEditField();
@@ -66,12 +73,49 @@ public final class LoginScreen extends Widget implements AutoCloseable {
             this::closeClientManagement, this::refreshTexts, message -> showNotification(message, System.nanoTime()));
     private final ModManagerWindow modManager = new ModManagerWindow(this::closeModManager, this::restartClient,
             message -> showNotification(message, System.nanoTime()));
+    private CompletableFuture<top.totodile.pokemmo.protocol.TrainerStats> trainerStatsResult;
+    private ClientWorld trainerStatsWorld;
+    private long nextTrainerStatsAt;
+    private CompletableFuture<Boolean> dexChangeResult;
+    private ClientWorld dexChangeWorld;
+    private final java.util.Set<Widget> placedGameWindows = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+    private final PokemonSummaryWindow pokemonSummary = new PokemonSummaryWindow(() -> pokemonSummaryVisible(false));
+    private final PokedexWindow pokedex = new PokedexWindow(() -> pokedexVisible(false));
+    private final GameHudBar gameHud = new GameHudBar(
+            () -> { if (world != null) bagVisible(!this.bag.isVisible()); },
+            () -> { if (world != null) trainerCardVisible(!this.trainerCard.isVisible()); },
+            () -> { if (world != null) pokedexVisible(!pokedex.isVisible()); });
     private final BagWindow bag = new BagWindow(() -> bagVisible(false));
     private final TrainerCardWindow trainerCard = new TrainerCardWindow(() -> trainerCardVisible(false));
     private final TeleportMenuWindow teleportMenu = new TeleportMenuWindow(
             () -> teleportMenuVisible(false), this::teleport);
+    private final TownMapWindow townMap = new TownMapWindow(() -> townMapVisible(false));
+    private final GameMenuPopup gameMenu;
+    private PopupWindow menuConfirmation;
+    private CompletableFuture<java.util.List<CharacterInfo>> worldLogoutResult;
+    private final WorldInfoPanel worldInfo = new WorldInfoPanel();
+    private final ChatPanel chatPanel = new ChatPanel();
+    private String chatHost = "127.0.0.1";
+    private final PartyPanel partyPanel = new PartyPanel();
+    private final GameItemBar gameItemBar = new GameItemBar();
+    private top.totodile.pokemmo.protocol.CharacterPackets.Appearance battleAppearance;
+    private final WildEncounterPanel encounterPanel = new WildEncounterPanel(
+            () -> { if (world != null) world.clearKeys(); },
+            message -> showNotification(message, System.nanoTime()));
+    private final HotbarSettings hotbarSettings = new HotbarSettings();
     private final Button gmEntry = new Button(ClientStrings.get(9200));
+    private final Button searchEntry = new Button(ClientStrings.get(9500));
+    private final SearchWindow searchWindow = new SearchWindow(() -> searchVisible(false));
+    private CompletableFuture<top.totodile.pokemmo.protocol.SearchPackets.Result> searchResult;
+    private ClientWorld searchWorld;
+    private boolean searchAdding;
+    private boolean searchPokemon;
+    private ClientWorld inventoryRequestedWorld;
     private final GmMenuWindow gmMenu = new GmMenuWindow(() -> gmMenuVisible(false));
+    private final PcBoxWindow pcBox = new PcBoxWindow(() -> pcBoxVisible(false));
+    private final PcDialog pcDialog = new PcDialog();
+    private final MailWindow mailWindow = new MailWindow();
+    private String characterName = "";
     private final GameSettingsWindow settings = new GameSettingsWindow(this::closeSettings);
     private final GlfwTwlRenderer renderer = new GlfwTwlRenderer();
     private final GUI gui;
@@ -190,21 +234,76 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         add(modManager);
         settings.setHardVisible(false);
         add(settings);
+        add(gameHud);
+        gameMenu = new GameMenuPopup(gameHud.menuButton(), this::openSettings,
+                () -> confirmGameMenu(1160, this::logoutWorld),
+                () -> confirmGameMenu(1115, () -> GLFW.glfwSetWindowShouldClose(window, true)));
+        gameHud.menuButton().addCallback(this::openGameMenu);
+        add(worldInfo);
+        add(chatPanel);
+        add(partyPanel);
+        add(gameItemBar);
+        add(encounterPanel);
+        for (int slot = 0; slot < 9; slot++) gameItemBar.assign(slot, hotbarSettings.slot(slot));
+        gameItemBar.setActivateListener(this::useHotbarItem);
+        bag.setUseAction(id -> searchCommand(top.totodile.pokemmo.protocol.SearchPackets.USE_ITEM,id,1));
+        bag.setDestroyAction((id,amount)->searchCommand(top.totodile.pokemmo.protocol.SearchPackets.DESTROY_ITEM,id,amount));
+        bag.setHotbarBinding(new BagWindow.HotbarBinding() {
+            @Override public int slotOf(int itemId) { return gameItemBar.slotOf(itemId); }
+            @Override public void register(int itemId, int slot) { registerHotbarItem(itemId, slot); }
+            @Override public void unregister(int itemId) { unregisterHotbarItem(itemId); }
+        });
+        add(pokemonSummary);
+        pokemonSummary.setOpenDex(species -> {pokedexVisible(true);pokedex.selectSpecies(species);});
+        partyPanel.setSummaryAction(member -> {
+            if(world==null)return;
+            world.clearKeys();pokemonSummary.open(member);raiseGameWindow(pokemonSummary);
+        });
+        partyPanel.setActions(species -> { pokedexVisible(true); pokedex.selectSpecies(species); },
+                (from, to) -> gameConnection.moveParty(from, to),
+                () -> { if (world != null) world.clearKeys(); },
+                () -> showNotification(ClientStrings.get(9351), System.nanoTime()));
         gmEntry.setTheme("/button");
         gmEntry.setVisible(false);
         gmEntry.addCallback(() -> gmMenuVisible(true));
         add(gmEntry);
+        searchEntry.setTheme("/button"); searchEntry.setVisible(false);
+        searchEntry.addCallback(() -> searchVisible(!searchWindow.isVisible())); add(searchEntry);
+        searchWindow.setAddAction(request -> searchCommand(request.action(),request.id(),request.amount()));
+        add(searchWindow);
         gmMenu.setHardVisible(false);
         add(gmMenu);
-        gmMenu.setNoclipChanged(enabled -> { if (world != null) world.setNoclip(enabled); });
-        gmMenu.setSpeedChanged(multiplier -> { if (world != null) world.setSpeedMultiplier(multiplier); });
+        gmMenu.setDexChanged(this::changeDex);
+        gmMenu.setNoclipChanged(enabled -> {
+            if (world == null) return;
+            world.setNoclip(enabled);
+        });
+        gmMenu.setSpeedChanged(multiplier -> {
+            if (world == null) return;
+            world.setSpeedMultiplier(multiplier);
+        });
         gmMenu.setOpenTeleport(() -> { gmMenuVisible(false); teleportMenuVisible(true); });
+        gmMenu.setOpenComputer(() -> { gmMenuVisible(false); pcBoxVisible(true); });
+        pcBox.setCommands(this::pcParty, this::pcBoxPage, this::pcMove, this::pcCreateBox);
+        // PC 搬移成功后拿到的权威队伍同步给世界队伍面板，免得只能注销重登才看到变化。
+        pcBox.setPartyListener(list -> partyPanel.setParty(list));
+        pcBox.setNotify(message -> showNotification(message, System.nanoTime()));
+        pcBox.setHardVisible(false);
+        add(pcBox);
+        pcDialog.setOnChoose(this::choosePcDialog);
+        add(pcDialog);
+        mailWindow.addCloseCallback(() -> mailVisible(false));
+        add(mailWindow);
         teleportMenu.setHardVisible(false);
         add(teleportMenu);
+        townMap.setHardVisible(false);
+        add(townMap);
         trainerCard.setVisible(false);
         add(trainerCard);
         bag.setHardVisible(false);
         add(bag);
+        pokedex.setHardVisible(false);
+        add(pokedex);
         serverSelection.setVisible(false);
         add(serverSelection);
         characterSelection.setVisible(false);
@@ -221,8 +320,15 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         fpsCounter.setTheme("fpscounter");
         fpsCounter.setCanAcceptKeyboardFocus(false);
         add(fpsCounter);
+        add(partyPanel.dragOverlay());
+        add(pcBox.dragOverlay());
         // GLFW 回调通过 attachInput 接入；GUI 负责控件树布局和绘制。
         gui = new GUI(this, renderer, null);
+        partyPanel.setFollowerActions(index -> gameConnection.selectFollower(index),
+                member -> { if (world != null) world.setFollower(member); },
+                (x, y) -> world != null && worldLogoutResult == null && !gui.hasOpenPopups() && getWidgetAt(x, y) == this,
+                () -> showNotification(ClientStrings.get(9352), System.nanoTime()));
+
         // 主题从外部 data/themes/default 加载，图片 URL 相对于主题 XML 解析。
         theme = ThemeManager.createThemeManager(
                 ClientFiles.data("themes/default/theme.xml").toUri().toURL(), renderer);
@@ -318,16 +424,43 @@ public final class LoginScreen extends Widget implements AutoCloseable {
 
     @Override
     protected void layout() {
+        layoutMovableWindow(pokedex, 680, 448);
+        if(pokemonSummary.isVisible())layoutMovableWindow(pokemonSummary,506,316);
         layoutMovableWindow(bag, 540, 386);
+        int mailWidth = Math.min(mailWindow.displayWidth(),getInnerWidth());
+        if(mailWindow.getWidth()!=mailWidth)placedGameWindows.remove(mailWindow);
+        layoutMovableWindow(mailWindow, mailWidth, Math.min(556,getInnerHeight()));
+        layoutMovableWindow(searchWindow, 660, 500);
+        // 随身电脑按参考客户端的版式需要 1018×624 的内容区，客户区更小时再压缩。
+        layoutMovableWindow(pcBox, Math.min(1024, getInnerWidth()), Math.min(652, getInnerHeight()));
+        pcDialog.setPosition(getInnerX(), getInnerY());
+        pcDialog.setSize(getInnerWidth(), getInnerHeight());
         layoutMovableWindow(trainerCard, 454, 287);
         teleportMenu.setSize(800, 500);
         teleportMenu.setPosition(getInnerX() + (getInnerWidth() - 800) / 2,
                 getInnerY() + (getInnerHeight() - 500) / 2);
+        if (townMap.isVisible()) layoutMovableWindow(townMap, 660, 620);
+        gameHud.adjustSize();
+        gameHud.setPosition(getInnerRight() - gameHud.getWidth() - 5, getInnerBottom() - gameHud.getHeight());
+        partyPanel.adjustSize();
+        partyPanel.place();
+        worldInfo.adjustSize();
+        worldInfo.setPosition(getInnerX(), getInnerY());
+        chatPanel.place(getInnerX() + 2, getInnerBottom() - 2, getInnerWidth() - 4, getInnerHeight() - 4);
+        encounterPanel.setPosition(getInnerX(), getInnerY());
+        encounterPanel.setSize(getInnerWidth(), getInnerHeight());
+        gameItemBar.adjustSize();
+        gameItemBar.setPosition(getInnerX() + (getInnerWidth() - gameItemBar.getWidth()) / 2, getInnerY() + gameItemBar.topOffset());
         gmEntry.adjustSize();
-        gmEntry.setPosition(getInnerX() + 10, getInnerY() + 10);
+        gmEntry.setPosition(getInnerX() + 5, worldInfo.getBottom() + 5);
+        searchEntry.adjustSize(); searchEntry.setPosition(getInnerX()+5,gmEntry.getBottom()+5);
         gmMenu.setSize(810, 511);
         gmMenu.setPosition(getInnerX() + (getInnerWidth() - 810) / 2,
                 getInnerY() + (getInnerHeight() - 511) / 2);
+        partyPanel.dragOverlay().setPosition(getInnerX(), getInnerY());
+        partyPanel.dragOverlay().setSize(getInnerWidth(), getInnerHeight());
+        pcBox.dragOverlay().setPosition(getInnerX(), getInnerY());
+        pcBox.dragOverlay().setSize(getInnerWidth(), getInnerHeight());
         fpsCounter.adjustSize();
         fpsCounter.setPosition(getInnerRight() - fpsCounter.getWidth(), getInnerY());
         // Logo 固定为 484×143，在客户区居中后向上偏移 200。
@@ -352,7 +485,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         }
         announcementTitle.adjustSize();
         announcementTitle.setPosition(getInnerX() + 17, announcementY - announcementTitle.getHeight());
-        clientManagement.setSize(528, 300);
+        clientManagement.setSize(528, 337);
         clientManagement.setPosition(getInnerX() + (getInnerWidth() - clientManagement.getWidth()) / 2,
                 getInnerY() + (getInnerHeight() - clientManagement.getHeight()) / 2);
         modManager.setSize(Math.min(getInnerWidth() - 20, Math.min(modManager.getMaxWidth(), modManager.getPreferredWidth())),
@@ -419,6 +552,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     private void openSettings() {
         characterSelection.setVisible(false);
         characterCreation.setVisible(false);
+        if (world != null) { world.clearKeys(); raiseGameWindow(settings); }
         settings.resetView();
         clientManagement.setHardVisible(false);
         modManager.setHardVisible(false);
@@ -490,10 +624,20 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         }
         updateLoginState(now);
         updateWorldEntry(now);
+        updateDexChange(now);
+        updateSearch(now);
+        updateTrainerStats(now);
+        updateWorldLogout(now);
         // 入图资源可能在本帧创建，绘制时间须晚于新世界的计时起点。
         now = System.nanoTime();
-        if (world != null) {
-            try { world.render(framebufferWidth, framebufferHeight, now); }
+        if (world != null && worldLogoutResult == null && enterResult == null) {
+            try {
+                world.render(framebufferWidth, framebufferHeight, now);
+                if (world.takeFollowerFailure()) {
+                    partyPanel.clearFollowerSelection();
+                    showNotification(ClientStrings.get(world.region() >= 2 ? 9350 : 9353), now);
+                }
+            }
             catch (IOException exception) {
                 backToLogin();
                 showNotification(ClientStrings.get(9030), now);
@@ -509,12 +653,35 @@ public final class LoginScreen extends Widget implements AutoCloseable {
             }
         }
         gmEntry.setVisible(world != null);
+        gmEntry.setEnabled(worldLogoutResult == null && enterResult == null);
+        searchEntry.setVisible(world != null); searchEntry.setEnabled(worldLogoutResult == null && enterResult == null);
+        gameHud.setEnabled(worldLogoutResult == null && enterResult == null);
+        worldInfo.setVisible(world != null);
+        chatPanel.update(world != null, chatHost);
+        partyPanel.setGameVisible(world != null);
+        partyPanel.setEnabled(worldLogoutResult == null && enterResult == null);
+        if (world != null) {
+            worldInfo.update(world.locationName(), gameConnection == null ? -1 : gameConnection.worldSeconds());
+            partyPanel.adjustSize();
+            partyPanel.place();
+            worldInfo.adjustSize();
+        }
+        gameHud.setGameVisible(world != null);
+        gameItemBar.setGameVisible(world != null && worldLogoutResult == null);
+        if (world != null && townMap.isVisible()) townMap.updateState(world.position(), world.locationName());
         if (world == null) {
+            searchVisible(false);
             gmMenu.setHardVisible(false);
             teleportMenu.setHardVisible(false);
+            townMap.close();
             trainerCardVisible(false);
             bagVisible(false);
+            pokedexVisible(false); pokemonSummaryVisible(false);
+            pcDialog.close();
         }
+        if (world == null) encounterPanel.close();
+        else if (encounterPanel.active()) world.clearKeys();
+        encounterPanel.tick(now / 1_000_000);
         gui.update();
         if (world != null) world.renderEntryFade(framebufferWidth, framebufferHeight, now);
     }
@@ -633,7 +800,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
 
     private void enterCharacter(CharacterInfo character) {
         if (gameConnection == null || enterResult != null || world != null) return;
-        Path rom = clientManagement.selectedRom(1);
+        Path rom = clientManagement.selectedRom(character.appearance().region() == 0 ? 1 : character.appearance().region() == 1 ? 2 : character.appearance().region() == 2 ? 0 : character.appearance().region() == 4 ? 5 : 3);
         if (rom == null) { showNotification(ClientStrings.get(9030), System.nanoTime()); return; }
         characterSelection.setBusy(true);
         characterSelection.setVisible(false);
@@ -641,30 +808,53 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         loading.setVisible(true);
         enterResult = gameConnection.enterCharacter(character.id());
         worldMapResult = CompletableFuture.supplyAsync(() -> {
-            try { return new FireRedAtlas(rom); }
+            try { return character.appearance().region() == 2 ? new BlackWhiteMaps(rom) : character.appearance().region() == 3 ? new PlatinumMaps(rom) : new FireRedAtlas(rom, character.appearance().region() == 4); }
             catch (IOException exception) { throw new CompletionException(exception); }
         });
     }
 
     private void updateWorldEntry(long now) {
         if (enterResult == null || !enterResult.isDone() || !worldMapResult.isDone()) return;
+        ClientWorld previousWorld = world;
         try {
             var character = enterResult.join();
-            world = new KantoWorld(worldMapResult.join(), characterCreation.assets(), character.appearance());
+            world = character.appearance().region() == 2
+                    ? new UnovaWorld((BlackWhiteMaps) worldMapResult.join(), characterCreation.assets(), character.appearance())
+                    : character.appearance().region() == 3
+                    ? new SinnohWorld((PlatinumMaps) worldMapResult.join(), characterCreation.assets(), character.appearance())
+                    : new KantoWorld((FireRedAtlas) worldMapResult.join(), characterCreation.assets(), character.appearance());
             world.restore(character.position());
+            world.restoreCycling(character.cycling());
+            // 首次移动前恢复此角色独立保存的穿墙与倍速。
+            world.setNoclip(character.noclip());
+            world.setSpeedMultiplier(character.speedMultiplier());
+            battleAppearance = character.appearance();
+            characterName = character.appearance().name();
+            pokedex.setAllUnlocked(character.dexUnlocked());
+            partyPanel.setParty(character.party());
+            bag.setInventory(java.util.Map.of());
+            gameItemBar.setInventory(java.util.Map.of());
+            searchCommand(top.totodile.pokemmo.protocol.SearchPackets.INVENTORY,0,0);
             trainerCard.setCharacter(character, characterCreation.assets());
+            placedGameWindows.remove(trainerCard);
+            worldInfo.setMoney(character.stats().money());
+            nextTrainerStatsAt = 0;
             var session = gameConnection;
             world.setAuthority(packet -> session.worldCommand(packet).whenComplete((result, error) -> {
                 if (error != null) session.close();
             }));
             world.beginEntry(System.nanoTime());
         } catch (CompletionException | IOException exception) {
+            System.getLogger(getClass().getName()).log(System.Logger.Level.WARNING, "Unable to enter character world", exception);
             if (world != null) { world.close(); world = null; }
-            characterSelection.setVisible(true);
+            if (previousWorld != null) backToLogin();
+            characterSelection.setVisible(gameConnected);
             setLoginDecorationsVisible(true);
             showNotification(ClientStrings.get(9030), now);
         } finally {
+            if (previousWorld != null && previousWorld != world) previousWorld.close();
             loading.setVisible(false);
+            teleportMenu.setEnabled(true);
             characterSelection.setBusy(false);
             enterResult = null;
             worldMapResult = null;
@@ -672,6 +862,10 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     }
 
     private void backToLogin() {
+        encounterPanel.close(); battleAppearance = null;
+        if (worldLogoutResult != null) { worldLogoutResult.cancel(false); worldLogoutResult = null; }
+        gameMenu.closePopup();
+        if (menuConfirmation != null) menuConfirmation.closePopup();
         if (world != null) { world.close(); world = null; }
         if (enterResult != null) enterResult.cancel(true);
         if (worldMapResult != null) worldMapResult.cancel(true);
@@ -744,6 +938,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         if (selectionResult != null && selectionResult.isDone()) {
             try {
                 GameEndpoint endpoint = selectionResult.join();
+                chatHost = endpoint.host();
                 gameConnection = new GameConnection();
                 gameResult = gameConnection.connect(endpoint);
             } catch (CompletionException | java.util.concurrent.CancellationException exception) {
@@ -913,9 +1108,69 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         layoutNotifications();
     }
 
+    /** 把背包道具注册到快捷栏栏位（0 起），同一道具只保留一个栏位。 */
+    private void registerHotbarItem(int itemId, int slot) {
+        int previous = gameItemBar.slotOf(itemId);
+        if (previous >= 0 && previous != slot) {
+            gameItemBar.clear(previous);
+            hotbarSettings.setSlot(previous, 0);
+        }
+        gameItemBar.assign(slot, itemId);
+        hotbarSettings.setSlot(slot, itemId);
+        saveHotbar();
+        showNotification(ClientStrings.get(1415)
+                .replace("{00}", ClientStrings.get(top.totodile.pokemmo.protocol.ItemCatalog.get(itemId).nameId()))
+                .replace("{01}", Integer.toString(slot + 1)), System.nanoTime());
+    }
+
+    private void unregisterHotbarItem(int itemId) {
+        int slot = gameItemBar.slotOf(itemId);
+        if (slot < 0) return;
+        gameItemBar.clear(slot);
+        hotbarSettings.setSlot(slot, 0);
+        saveHotbar();
+        showNotification(ClientStrings.get(1416).replace("{00}", ClientStrings.get(top.totodile.pokemmo.protocol.ItemCatalog.get(itemId).nameId())),
+                System.nanoTime());
+    }
+
+    private void saveHotbar() {
+        try {
+            hotbarSettings.save();
+        } catch (IOException exception) {
+            System.getLogger(LoginScreen.class.getName()).log(System.Logger.Level.WARNING,
+                    "Unable to save hotbar bindings: {0}", exception.getClass().getSimpleName());
+        }
+    }
+
+    /** 激活快捷栏栏位：自行车切换骑行状态，城镇地图打开区域图，容器道具请求服务端抽取奖励。 */
+    private void useHotbarItem(int slot) {
+        if (world == null || worldLogoutResult != null || encounterPanel.active()) return;
+        int itemId = gameItemBar.itemId(slot);
+        if (itemId == HotbarSettings.SWEET_SCENT_ITEM) {
+            startWildEncounter();
+            return;
+        }
+        if (itemId == HotbarSettings.BICYCLE_ITEM) { world.toggleBicycle(); return; }
+        if (itemId == HotbarSettings.TOWN_MAP_ITEM) townMapVisible(true);
+        else if(top.totodile.pokemmo.protocol.ItemLoot.usable(itemId))searchCommand(top.totodile.pokemmo.protocol.SearchPackets.USE_ITEM,itemId,1);
+    }
+
+    private void startWildEncounter() {
+        if (world == null || battleAppearance == null || encounterPanel.active()) return;
+        world.clearKeys();
+        gmMenuVisible(false); teleportMenuVisible(false); bagVisible(false); trainerCardVisible(false);
+        pokedexVisible(false); pokemonSummaryVisible(false); mailVisible(false); pcBoxVisible(false);
+        townMap.close(); pcDialog.close(); gameMenu.closePopup();
+        if (menuConfirmation != null) menuConfirmation.closePopup();
+        encounterPanel.start(clientManagement.selectedRom(0), characterCreation.assets(), battleAppearance,
+                partyPanel.party(), System.nanoTime() / 1_000_000);
+        if (encounterPanel.active()) raiseGameWindow(encounterPanel);
+    }
+
     /** 首次布局居中；后续布局保留拖动位置，缩小客户区时保持窗口可见。 */
     private void layoutMovableWindow(Widget widget, int width, int height) {
-        boolean first = widget.getWidth() == 0;
+        if (widget == trainerCard && !widget.isVisible()) return;
+        boolean first = placedGameWindows.add(widget);
         int x = first ? getInnerX() + (getInnerWidth() - width) / 2 : widget.getX();
         int y = first ? getInnerY() + (getInnerHeight() - height) / 2 : widget.getY();
         widget.setSize(width, height);
@@ -931,8 +1186,103 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     @Override
     protected boolean requestKeyboardFocus(Widget child) {
         boolean accepted = super.requestKeyboardFocus(child);
-        if (accepted && (child == bag || child == trainerCard)) raiseGameWindow(child);
+        if (accepted && (child == bag || child == trainerCard || child == pokedex || child == pokemonSummary || child == searchWindow || child == pcBox || child == townMap)) raiseGameWindow(child);
         return accepted;
+    }
+
+    private void changeDex(boolean unlocked) {
+        if (world == null || gameConnection == null || dexChangeResult != null) return;
+        dexChangeWorld = world;
+        dexChangeResult = gameConnection.setDexUnlocked(unlocked);
+        gmMenu.setDexBusy(true);
+    }
+
+    private void searchVisible(boolean visible) {
+        if (world != null) world.clearKeys();
+        if (visible && world != null) {
+            gmMenuVisible(false); teleportMenuVisible(false);
+            searchWindow.open(); raiseGameWindow(searchWindow);
+        }
+        else { searchWindow.setHardVisible(false); searchWindow.close(); }
+    }
+
+    private void searchCommand(int action,int id,int amount) {
+        if(world==null || gameConnection==null || searchResult!=null)return;
+        searchWorld=world;searchAdding=action==1||action==2;
+        searchPokemon=action==top.totodile.pokemmo.protocol.SearchPackets.ADD_POKEMON;
+        if(action==top.totodile.pokemmo.protocol.SearchPackets.INVENTORY)inventoryRequestedWorld=world;
+        searchResult=gameConnection.searchCommand(action,id,amount);searchWindow.setBusy(true);bag.setBusy(true);
+    }
+
+    private void updateSearch(long now) {
+        if(world!=null && gameConnection!=null && inventoryRequestedWorld!=world && searchResult==null)
+            searchCommand(top.totodile.pokemmo.protocol.SearchPackets.INVENTORY,0,0);
+        if(searchResult==null || !searchResult.isDone())return;
+        try {
+            var result=searchResult.join();
+            if(world==searchWorld) {
+                if(result.status()==top.totodile.pokemmo.protocol.SearchPackets.Status.SUCCESS){
+                    bag.setInventory(result.inventory());
+                    gameItemBar.setInventory(result.inventory());
+                    if(searchPokemon)partyPanel.setParty(result.party());
+                    if(searchAdding)showNotification(ClientStrings.get(9512),now);
+                    for(var reward:new java.util.TreeMap<>(result.rewards()).entrySet()) {
+                        String message=ClientStrings.get(9610).replace("{00}",ClientStrings.get(top.totodile.pokemmo.protocol.ItemCatalog.get(reward.getKey()).nameId()))
+                                .replace("{01}",Integer.toString(reward.getValue()));
+                        showNotification(message,now);
+                        chatPanel.addSystemMessage(message);
+                    }
+                } else {
+                    int message=switch(result.status()){
+                        case DISABLED -> 9513;case INVALID -> 9514;case PARTY_FULL -> 9515;case STACK_FULL -> 9516;default -> 2000;
+                    };
+                    showNotification(ClientStrings.get(message),now);
+                }
+            }
+        } catch(CompletionException exception){if(world==searchWorld)showNotification(ClientStrings.get(2009),now);}
+        finally{searchResult=null;searchWorld=null;searchWindow.setBusy(false);bag.setBusy(false);}
+    }
+
+    private void updateDexChange(long now) {
+        if (dexChangeResult == null || !dexChangeResult.isDone()) return;
+        try {
+            boolean unlocked = dexChangeResult.join();
+            if (world == dexChangeWorld) {
+                pokedex.setAllUnlocked(unlocked);
+                gmMenu.setDexUnlocked(unlocked);
+                nextTrainerStatsAt = 0;
+            }
+        } catch (CompletionException exception) {
+            if (world == dexChangeWorld) showNotification(ClientStrings.get(2000), now);
+        } finally {
+            dexChangeResult = null;
+            dexChangeWorld = null;
+            gmMenu.setDexBusy(false);
+        }
+    }
+
+    private void pokemonSummaryVisible(boolean visible) {
+        if(world!=null)world.clearKeys();
+        pokemonSummary.setHardVisible(visible);
+        if(!visible)pokemonSummary.close();
+    }
+
+    private void pokedexVisible(boolean visible) {
+        if (world != null) world.clearKeys();
+        if (visible) { pokedex.open(); raiseGameWindow(pokedex); }
+        else { pokedex.setHardVisible(false); pokedex.close(); }
+    }
+
+    private Widget topGameWindow() {
+        Widget top = null;
+        for (Widget widget : new Widget[]{bag, trainerCard, pokedex, pokemonSummary, searchWindow, pcBox, townMap, mailWindow})
+            if (widget.isVisible() && (top == null || getChildIndex(widget) > getChildIndex(top))) top = widget;
+        return top;
+    }
+
+    private boolean editingGameSearch() {
+        return bag.isVisible() && bag.editingSearch() || pokedex.isVisible() && pokedex.editingSearch()
+                || searchWindow.isVisible() && searchWindow.editingSearch();
     }
 
     private void bagVisible(boolean visible) {
@@ -941,21 +1291,149 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         else { bag.setHardVisible(false); bag.close(); }
     }
 
+    private void openGameMenu() {
+        if (world == null || worldLogoutResult != null) return;
+        world.clearKeys();
+        gameMenu.showMenu();
+    }
+
+    private void confirmGameMenu(int messageId, Runnable confirmed) {
+        if (world == null) return;
+        world.clearKeys();
+        DialogLayout dialog = new DialogLayout();
+        dialog.setTheme("character-delete-error");
+        Label message = new Label(ClientStrings.get(messageId));
+        Button ok = new Button(ClientStrings.get(52));
+        Button cancel = new Button(ClientStrings.get(53));
+        PopupWindow popup = new PopupWindow(this) {
+            @Override protected void layout() {
+                dialog.adjustSize();
+                dialog.setPosition(getX() + (getWidth() - dialog.getWidth()) / 2,
+                        getY() + (getHeight() - dialog.getHeight()) / 2);
+            }
+        };
+        popup.setTheme("/rom-modal");
+        popup.setCloseOnClickedOutside(false);
+        ok.addCallback(() -> { popup.closePopup(); confirmed.run(); });
+        cancel.addCallback(popup::closePopup);
+        dialog.setHorizontalGroup(dialog.createParallelGroup().addWidget(message)
+                .addGroup(dialog.createSequentialGroup().addWidget(ok).addGap(5).addWidget(cancel)));
+        dialog.setVerticalGroup(dialog.createSequentialGroup().addWidget(message).addGap(8)
+                .addGroup(dialog.createParallelGroup(ok, cancel)));
+        popup.add(dialog);
+        menuConfirmation = popup;
+        if (popup.openPopup()) {
+            popup.setPosition(0, 0);
+            popup.setSize(getGUI().getWidth(), getGUI().getHeight());
+            cancel.requestKeyboardFocus();
+        }
+    }
+
+    private void logoutWorld() {
+        if (world == null || worldLogoutResult != null) return;
+        world.clearKeys();
+        if (gameConnection == null) { finishWorldLogout(null); return; }
+        gmMenuVisible(false); teleportMenuVisible(false);
+        bagVisible(false); trainerCardVisible(false); pokedexVisible(false); pokemonSummaryVisible(false);
+        pcDialog.close();
+        mailVisible(false);
+        pcBoxVisible(false);
+        loading.setVisible(true);
+        worldLogoutResult = gameConnection.leaveWorld();
+    }
+
+    private void updateWorldLogout(long now) {
+        if (worldLogoutResult == null || !worldLogoutResult.isDone()) return;
+        try { finishWorldLogout(worldLogoutResult.join()); }
+        catch (CompletionException error) { showNotification(ClientStrings.get(2000), now); }
+        finally { worldLogoutResult = null; loading.setVisible(false); }
+    }
+
+    private void finishWorldLogout(java.util.List<CharacterInfo> characters) {
+        encounterPanel.close(); battleAppearance = null;
+        chatPanel.close();
+        gameMenu.closePopup();
+        if (world != null) { world.close(); world = null; }
+        gmMenuVisible(false); teleportMenuVisible(false);
+        bagVisible(false); trainerCardVisible(false); pokedexVisible(false); pokemonSummaryVisible(false);
+        pcDialog.close();
+        mailVisible(false);
+        pcBoxVisible(false);
+        settings.setHardVisible(false);
+        if (characters != null) characterSelection.setCharacters(characters);
+        characterSelection.setVisible(true);
+        setLoginDecorationsVisible(true);
+    }
+
+    private void updateTrainerStats(long now) {
+        if (trainerStatsResult != null && trainerStatsResult.isDone()) {
+            try {
+                var stats = trainerStatsResult.join();
+                if (world == trainerStatsWorld) {
+                    worldInfo.setMoney(stats.money());
+                    if (trainerCard.isVisible()) trainerCard.setStats(stats);
+                }
+            } catch (CompletionException error) {
+                if (world == trainerStatsWorld && trainerCard.isVisible())
+                    showNotification(ClientStrings.get(2000), now);
+            }
+            trainerStatsResult = null;
+            trainerStatsWorld = null;
+        }
+        if (world != null && worldLogoutResult == null && gameConnection != null
+                && trainerStatsResult == null && now >= nextTrainerStatsAt) {
+            trainerStatsWorld = world;
+            trainerStatsResult = gameConnection.trainerStats();
+            nextTrainerStatsAt = now + 5_000_000_000L;
+        }
+    }
+
     private void trainerCardVisible(boolean visible) {
         if (world != null) world.clearKeys();
         trainerCard.setVisible(visible);
-        if (visible) { trainerCard.requestKeyboardFocus(); raiseGameWindow(trainerCard); }
+        if (visible) { nextTrainerStatsAt = 0; invalidateLayout(); trainerCard.requestKeyboardFocus(); raiseGameWindow(trainerCard); }
         if (!visible) trainerCard.close();
     }
 
     private void teleportMenuVisible(boolean visible) {
         if (world != null) world.clearKeys();
+        if (visible && world != null) teleportMenu.select(world.region());
         teleportMenu.setHardVisible(visible);
         if (visible) teleportMenu.requestKeyboardFocus();
     }
 
+    /** 城镇地图只读取当前世界的地图目录与位置；关闭释放区域图纹理，像素缓存保留。 */
+    private void townMapVisible(boolean visible) {
+        if (visible && world != null && world.atlas() == null) { showNotification(ClientStrings.get(9350), System.nanoTime()); return; }
+        if (world != null) world.clearKeys();
+        if (visible && world != null && worldLogoutResult == null) {
+            gmMenuVisible(false); teleportMenuVisible(false); pcBoxVisible(false);
+            layoutMovableWindow(townMap, 660, 620);
+            townMap.open(world.atlas(), world.position(), world.locationName());
+            raiseGameWindow(townMap);
+            townMap.requestKeyboardFocus();
+        } else townMap.close();
+    }
+
     private void teleport(TeleportMenuWindow.Destination destination) {
-        if (world == null) return;
+        if (world == null || enterResult != null) return;
+        if (destination.region() != world.region()) {
+            int region = destination.region();
+            Path rom = clientManagement.selectedRom(region == 0 ? 1 : region == 1 ? 2 : region == 2 ? 0 : region == 4 ? 5 : 3);
+            if (rom == null) { showNotification(ClientStrings.get(9030), System.nanoTime()); return; }
+            world.clearKeys();
+            townMap.close();
+            pcDialog.close();
+            loading.setVisible(true);
+            teleportMenu.setEnabled(false);
+            worldMapResult = CompletableFuture.supplyAsync(() -> {
+                try { return region == 2 ? new BlackWhiteMaps(rom) : region == 3 ? new PlatinumMaps(rom) : new FireRedAtlas(rom, region == 4); }
+                catch (IOException exception) { throw new CompletionException(exception); }
+            });
+            enterResult = worldMapResult.thenCompose(maps -> gameConnection.teleportRegion(region,
+                    destination.group(), destination.map(), destination.x(), destination.y()));
+            return;
+        }
         try {
             world.teleport(destination.group(), destination.map(), destination.x(), destination.y(), System.nanoTime());
         } catch (IOException exception) {
@@ -963,11 +1441,75 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         }
     }
 
+    /** 世界内按 J 打开电脑对话；打开前释放方向键，避免对话期间继续走格。 */
+    private void openPcDialog() {
+        if (world == null || worldLogoutResult != null || pcDialog.isVisible()) return;
+        world.clearKeys();
+        pcDialog.open(characterName);
+        raiseGameWindow(pcDialog);
+    }
+
+    /** 确认当前选项：电脑沿用随身电脑窗口，取消只收起对话，其余功能尚未接通。 */
+    private void choosePcDialog(int option) {
+        pcDialog.close();
+        if (world == null || worldLogoutResult != null) return;
+        if (option == PcDialog.COMPUTER) pcBoxVisible(true);
+        else if (option == PcDialog.MAIL) mailVisible(true);
+        else if (option != PcDialog.CANCEL) showNotification(ClientStrings.get(9350), System.nanoTime());
+    }
+
+    /** 随身电脑只读取已认证角色；断开或离图时窗口整体关闭并丢弃未完成的请求。 */
+    private void mailVisible(boolean visible) {
+        if(world!=null)world.clearKeys();
+        if(visible)mailWindow.open();else mailWindow.close();
+        if(visible){raiseGameWindow(mailWindow);invalidateLayout();}
+    }
+
+    private void pcBoxVisible(boolean visible) {        if (world != null) world.clearKeys();
+        if (visible && world != null) {
+            gmMenuVisible(false); teleportMenuVisible(false);
+            pcBox.open();
+            raiseGameWindow(pcBox);
+        } else pcBox.close();
+    }
+
+    private CompletableFuture<top.totodile.pokemmo.protocol.PcPackets.PartyState> pcParty() {
+        if (world == null || gameConnection == null || worldLogoutResult != null)
+            return CompletableFuture.failedFuture(new IOException("No active world"));
+        return gameConnection.pcParty();
+    }
+
+    private CompletableFuture<top.totodile.pokemmo.protocol.PcPackets.BoxPage> pcBoxPage(int box, int start) {
+        if (world == null || gameConnection == null || worldLogoutResult != null)
+            return CompletableFuture.failedFuture(new IOException("No active world"));
+        return gameConnection.pcBox(box, start);
+    }
+
+    private CompletableFuture<top.totodile.pokemmo.protocol.PcPackets.Status> pcMove(
+            top.totodile.pokemmo.protocol.PcPackets.Move move) {
+        if (world == null || gameConnection == null || worldLogoutResult != null)
+            return CompletableFuture.failedFuture(new IOException("No active world"));
+        return gameConnection.pcMove(move);
+    }
+
+    private CompletableFuture<top.totodile.pokemmo.protocol.PcPackets.Status> pcCreateBox() {
+        if (world == null || gameConnection == null || worldLogoutResult != null)
+            return CompletableFuture.failedFuture(new IOException("No active world"));
+        return gameConnection.pcCreateBox();
+    }
+
     private void gmMenuVisible(boolean visible) {
         if (visible) {
+            searchVisible(false);
+            pcBoxVisible(false);
             trainerCardVisible(false);
             bagVisible(false);
+            pokedexVisible(false); pokemonSummaryVisible(false);
             teleportMenu.setHardVisible(false);
+            gmMenu.setTeleportEnabled(world != null);
+            gmMenu.setComputerEnabled(world != null);
+            gmMenu.setDexUnlocked(pokedex.isUnlocked());
+            gmMenu.setDexBusy(dexChangeResult != null);
             gmMenu.setNoclip(world != null && world.noclip());
             gmMenu.setSpeedMultiplier(world == null ? 1 : world.speedMultiplier());
         }
@@ -1003,35 +1545,85 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         GLFW.glfwSetMouseButtonCallback(window, (w, button, action, mods) -> {
             double[] x = new double[1], y = new double[1];
             GLFW.glfwGetCursorPos(w, x, y);
+            // 点击对话气泡与选项之外的位置视为取消，不再传递给下层窗口。
+            if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT && action == GLFW.GLFW_PRESS && pcDialog.isVisible()
+                    && !pcDialog.hits((int) x[0], (int) y[0])) {
+                pcDialog.close();
+                return;
+            }
             if (button <= 2) gui.handleMouse((int) x[0], (int) y[0], button, action != 0);
         });
         GLFW.glfwSetScrollCallback(window, (w, xOffset, yOffset) -> {
             if (yOffset != 0) gui.handleMouseWheel((int) Math.signum(yOffset));
         });
         GLFW.glfwSetCharCallback(window, (w, codepoint) -> {
-            if ((world == null || bag.isVisible()) && Character.isBmpCodePoint(codepoint)) {
+            if ((world == null || bag.isVisible() || pokedex.isVisible() || searchWindow.isVisible() || settings.isVisible()) && Character.isBmpCodePoint(codepoint)) {
                 gui.handleKey(Event.KEY_NONE, (char) codepoint, true);
                 gui.handleKey(Event.KEY_NONE, (char) codepoint, false);
             }
         });
         GLFW.glfwSetKeyCallback(window, (w, key, scan, action, mods) -> {
+            if (encounterPanel.active()) {
+                int translated = GlfwKeyMap.translate(key);
+                if (translated != Event.KEY_NONE) gui.handleKey(translated, Event.CHAR_NONE, action != GLFW.GLFW_RELEASE);
+                return;
+            }
+            if (world != null && (worldLogoutResult != null || enterResult != null)) return;
+            if(world!=null && (searchWindow.isVisible() || bag.isVisible()) && gui.hasOpenPopups()){
+                int translated=GlfwKeyMap.translate(key);
+                if(translated!=Event.KEY_NONE)gui.handleKey(translated,Event.CHAR_NONE,action!=0);
+                return;
+            }
+            if (world != null && (partyPanel.menuOpen() || gameMenu.isOpen() || menuConfirmation != null && menuConfirmation.isOpen() || settings.isVisible())) {
+                if (settings.isVisible() && key == GLFW.GLFW_KEY_ESCAPE && action == GLFW.GLFW_PRESS) closeSettings();
+                else {
+                    int translated = GlfwKeyMap.translate(key);
+                    if (translated != Event.KEY_NONE) gui.handleKey(translated, Event.CHAR_NONE, action != 0);
+                }
+                return;
+            }
+            if (world != null && pcDialog.isVisible()) {
+                // 对话期间键盘只服务于选项，方向键切换，J 或回车确认。
+                if (action != GLFW.GLFW_RELEASE) {
+                    if (key == GLFW.GLFW_KEY_ESCAPE && action == GLFW.GLFW_PRESS) pcDialog.close();
+                    else if (key == GLFW.GLFW_KEY_UP) pcDialog.move(-1);
+                    else if (key == GLFW.GLFW_KEY_DOWN) pcDialog.move(1);
+                    else if (action == GLFW.GLFW_PRESS && (key == GLFW.GLFW_KEY_J
+                            || key == GLFW.GLFW_KEY_ENTER || key == GLFW.GLFW_KEY_SPACE)) {
+                        choosePcDialog(pcDialog.selected());
+                    }
+                }
+                return;
+            }
             if (world != null && !gmMenu.isVisible() && !teleportMenu.isVisible()
-                    && action == GLFW.GLFW_PRESS && !(bag.isVisible() && bag.editingSearch())) {
+                    && action == GLFW.GLFW_PRESS && !editingGameSearch()) {
+                if (key == GLFW.GLFW_KEY_J && topGameWindow() == null) { openPcDialog(); return; }
                 if (key == GLFW.GLFW_KEY_B) { bagVisible(!bag.isVisible()); return; }
                 if (key == GLFW.GLFW_KEY_C) { trainerCardVisible(!trainerCard.isVisible()); return; }
+                if (key == GLFW.GLFW_KEY_N) { pokedexVisible(!pokedex.isVisible()); return; }
+                // 1-9 全部交给快捷栏：栏位 2 骑/取消自行车，栏位 5 打开城镇地图。
+                if (key >= GLFW.GLFW_KEY_1 && key <= GLFW.GLFW_KEY_9) {
+                    gameItemBar.activate(key - GLFW.GLFW_KEY_1);
+                    return;
+                }
             }
-            if (world != null && (bag.isVisible() || trainerCard.isVisible())) {
+            if (world != null && topGameWindow() != null) {
                 if (key == GLFW.GLFW_KEY_ESCAPE && action == GLFW.GLFW_PRESS) {
-                    if (trainerCard.isVisible() && (!bag.isVisible() || getChildIndex(trainerCard) > getChildIndex(bag)))
-                        trainerCardVisible(false);
+                    Widget top = topGameWindow();
+                    if (top == pokedex) { if (!pokedex.backToList()) pokedexVisible(false); }
+                    else if (top == pokemonSummary) pokemonSummaryVisible(false);
+                    else if (top == trainerCard) trainerCardVisible(false);
+                    else if (top == searchWindow) searchVisible(false);
+                    else if (top == mailWindow) mailVisible(false);
+                    else if (top == pcBox) { if (!pcBox.cancelPick()) pcBoxVisible(false); }
+                    else if (top == townMap) townMapVisible(false);
                     else bagVisible(false);
-                } else if (bag.isVisible()) {
-                    if (key == GLFW.GLFW_KEY_TAB && action == GLFW.GLFW_PRESS && (mods & GLFW.GLFW_MOD_CONTROL) != 0)
-                        bag.nextPocket((mods & GLFW.GLFW_MOD_SHIFT) != 0);
-                    else {
-                        int translated = GlfwKeyMap.translate(key);
-                        if (translated != Event.KEY_NONE) gui.handleKey(translated, Event.CHAR_NONE, action != 0);
-                    }
+                } else if (key == GLFW.GLFW_KEY_TAB && action == GLFW.GLFW_PRESS && (mods & GLFW.GLFW_MOD_CONTROL) != 0) {
+                    boolean backwards = (mods & GLFW.GLFW_MOD_SHIFT) != 0;
+                    if (topGameWindow() == bag) bag.nextPocket(backwards);
+                } else {
+                    int translated = GlfwKeyMap.translate(key);
+                    if (translated != Event.KEY_NONE) gui.handleKey(translated, Event.CHAR_NONE, action != 0);
                 }
                 return;
             }
@@ -1048,9 +1640,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
             }
             if (world != null) {
                 if (key == GLFW.GLFW_KEY_ESCAPE && action == GLFW.GLFW_PRESS) {
-                    world.close(); world = null;
-                    characterSelection.setVisible(true);
-                    setLoginDecorationsVisible(true);
+                    openGameMenu();
                 } else if (action != GLFW.GLFW_REPEAT) world.key(key, action != GLFW.GLFW_RELEASE);
                 return;
             }
@@ -1097,9 +1687,20 @@ public final class LoginScreen extends Widget implements AutoCloseable {
 
     @Override
     public void close() {
+        encounterPanel.close();
+        mailWindow.close();
+        chatPanel.close();
         if (world != null) world.close();
         if (worldMapResult != null) worldMapResult.cancel(true);
+        gameHud.close();
+        partyPanel.close();
+        gameItemBar.close();
+        townMap.close();
+        pokedex.close();
+        pokemonSummary.close();
         bag.close();
+        searchWindow.close();
+        pcBox.close();
         trainerCard.close();
         characterCreation.close();
         characterSelection.close();

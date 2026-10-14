@@ -8,10 +8,11 @@ import java.util.HashMap;
 import java.util.HexFormat;
 import java.util.Map;
 
-/** 火红地图资源、公共修正规则及分层像素，像素采用 RGBA8888。 */
+/** GBA 地图资源、按地区读取的绘制规则及分层像素，像素采用 RGBA8888。 */
 public final class FireRedMap {
     private static final byte[] MAP_TABLE_PATTERN = HexFormat.of().parseHex("80180068890B091808687047");
     private final byte[] rom;
+    private final boolean emerald;
     private final int width;
     private final int height;
     private final int[] cells;
@@ -30,9 +31,10 @@ public final class FireRedMap {
     private FireRedMap(byte[] rom, int group, int map, boolean enhanced) throws IOException {
         this.rom = rom;
         this.enhanced = enhanced;
-        rules = new FireRedRules();
-        if (rom.length < 256 || rom[172] != 'B' || rom[173] != 'P' || rom[174] != 'R') {
-            throw new IOException("地图预览需要火红 ROM。");
+        emerald = rom.length > 174 && rom[173] == 'P' && rom[174] == 'E';
+        rules = new FireRedRules(emerald);
+        if (rom.length < 256 || rom[172] != 'B' || rom[173] != 'P' || rom[174] != 'R' && rom[174] != 'E') {
+            throw new IOException("地图需要火红或绿宝石 ROM。");
         }
         int table = pointer(findMapTable());
         int groups = 0;
@@ -64,8 +66,8 @@ public final class FireRedMap {
         }
         width = columns * 16;
         height = rows * 16;
-        borderColumns = unsigned(layout + 24);
-        borderRows = unsigned(layout + 25);
+        borderColumns = emerald ? 2 : unsigned(layout + 24);
+        borderRows = emerald ? 2 : unsigned(layout + 25);
         if (borderColumns < 1 || borderRows < 1 || borderColumns > 16 || borderRows > 16)
             throw new IOException("Invalid map border dimensions");
         borderCells = new int[borderColumns * borderRows];
@@ -80,9 +82,49 @@ public final class FireRedMap {
                 cells[patch.getKey()] = patch.getValue();
             }
         }
-        int tilesetTable = pointer(findPattern(HexFormat.of().parseHex("DD0572042800000028000000")) + 20);
+        int tilesetTable = pointer(findPattern(HexFormat.of().parseHex(emerald ? "DC05DD051E0000001E000000" : "DD0572042800000028000000")) + 20);
         primary = new Tileset(pointer(layout + 16), tilesetTable);
         secondary = new Tileset(pointer(layout + 20), tilesetTable);
+    }
+
+    public record DoorFrames(int flags, java.awt.image.BufferedImage[] frames) { }
+
+    /** 门帧使用 ROM 的独立图块与逐图块调色板，不能从静态门图裁切。 */
+    public DoorFrames doorFrames(int x, int y, int season) throws IOException {
+        if (behavior(x, y) != 0x69) return null;
+        int signature = findPattern(HexFormat.of().parseHex("0348211C2A1CFFF7"));
+        int table = pointer(((signature + 4) & ~3) + 12);
+        int block = cell(x, y) & 1023;
+        for (int entry = table; ushort(entry) != 0; entry += 12) {
+            if (ushort(entry) != block) continue;
+            int flags = ushort(entry + 2);
+            int data = pointer(entry + 4), palettes = pointer(entry + 8);
+            int size = (flags & 512) != 0 ? 1536 : (flags & 256) != 0 ? 768 : 512;
+            byte[] bytes = unsigned(data) == 0x10 ? graphics(data, true) : Arrays.copyOfRange(rom, data, data + size);
+            int count = bytes.length / 128;
+            if (count < 3 * ((flags & 512) != 0 ? 4 : (flags & 256) != 0 ? 2 : 1) || count > 24) throw new IOException("Invalid door animation frames");
+            var images = new java.awt.image.BufferedImage[count];
+            int[] mainColors = primary.palette(season);
+            int[] extraColors = secondary.palette(season);
+            for (int frame = 0; frame < count; frame++) {
+                var image = new java.awt.image.BufferedImage(16, 16, java.awt.image.BufferedImage.TYPE_INT_ARGB);
+                for (int tile = 0; tile < 4; tile++) {
+                    int palette = unsigned(palettes + (frame * 4 + tile) % 8);
+                    for (int pixel = 0; pixel < 64; pixel++) {
+                        int packed = bytes[frame * 128 + tile * 32 + pixel / 2] & 255;
+                        int index = packed >> ((pixel & 1) * 4) & 15;
+                        if (index == 0) continue;
+                        if (palette >= 16) throw new IOException("Invalid door palette");
+                        int rgba = (palette < 6 ? mainColors : extraColors)[palette * 16 + index];
+                        image.setRGB(tile % 2 * 8 + pixel % 8, tile / 2 * 8 + pixel / 8,
+                                rgba >>> 8 | (rgba & 255) << 24);
+                    }
+                }
+                images[frame] = image;
+            }
+            return new DoorFrames(flags, images);
+        }
+        return null;
     }
 
     record GraphicsKey(byte[] rom, int primary, int secondary, boolean enhanced, int season) { }
@@ -139,6 +181,8 @@ public final class FireRedMap {
     public int borderHeight() { return borderRows * 16; }
     public boolean outdoor() { return locationType >= 1 && locationType <= 3; }
 
+    public boolean indoor() { return locationType == 8 || locationType == 9; }
+
     public int[] borderPixels(int season, long elapsedMillis) throws IOException {
         int[][] layers = renderCells(borderCells, borderColumns, borderRows, season, elapsedMillis);
         int[] pixels = layers[0];
@@ -175,7 +219,7 @@ public final class FireRedMap {
                     int palette = tile >>> 12;
                     Tileset colors = source == secondary ? (palette >= 6 ? secondary : primary) : graphics;
                     int layer = 0;
-                    if (enhanced && part >= 4 && (unsigned(source.attributes + index * 4 + 3) & 32) == 0) {
+                    if (enhanced && part >= 4 && ((emerald ? unsigned(source.attributes + index * 2 + 1) & 32 : unsigned(source.attributes + index * 4 + 3) & 32)) == 0) {
                         int elevation = (byte) ((byte) ((short) packed >> 10) >> 2) - 1;
                         if (elevation == -8) elevation = 8;
                         layer = elevation >= 4 ? 2 : 1;
@@ -265,7 +309,7 @@ public final class FireRedMap {
         Tileset source = block < primary.count ? primary : secondary;
         int index = source == primary ? block : block - primary.count;
         if (index >= source.count) throw new IOException("Invalid stair metatile");
-        return unsigned(source.attributes + index * 4);
+        return unsigned(source.attributes + index * (emerald ? 2 : 4));
     }
 
     public int width() {
@@ -421,11 +465,12 @@ public final class FireRedMap {
         private final Map<Integer, AnimatedTiles> animations = new HashMap<>();
 
         private Tileset(int header, int table) throws IOException {
-            id = (header - table) / 24;
-            if (id < 0 || id > 99 || (header - table) % 24 != 0) throw new IOException("无效的图块集编号。");
+            int offset = header - table - (emerald && header - table > 57 * 24 ? 8 : 0);
+            id = offset / 24;
+            if (id < 0 || id > 99 || offset % 24 != 0) throw new IOException("无效的图块集编号。");
             blocks = pointer(header + 12);
-            attributes = pointer(header + 20);
-            count = (attributes - blocks) / 16;
+            attributes = pointer(header + (emerald ? 16 : 20));
+            count = emerald && unsigned(header + 1) == 0 ? 512 : (attributes - blocks) / 16;
             if (count < 1 || count > 640 || (attributes - blocks) % 16 != 0) {
                 throw new IOException("无效的火红图块集。");
             }
@@ -433,10 +478,10 @@ public final class FireRedMap {
             graphics = graphics(pointer(header + 4), unsigned(header) != 0);
             for (FireRedRules.Animation definition : rules.animations) {
                 if (!enhanced || definition.tileset() != id) continue;
-                int tableOffset = pointer(pointer(header + 16) + definition.pointerOffset());
+                int tableOffset = pointer(pointer(header + (emerald ? 20 : 16)) + definition.pointerOffset());
                 byte[][] frames = new byte[definition.frames()][definition.count() * 32];
                 for (int frame = 0; frame < frames.length; frame++) {
-                    int start = pointer(tableOffset + frame * 4);
+                    int start = pointer(tableOffset + Math.floorMod(frame - definition.rotation(), frames.length) * 4);
                     if (start > rom.length - frames[frame].length) throw new IOException("地图动画资源被截断。");
                     System.arraycopy(rom, start, frames[frame], 0, frames[frame].length);
                 }

@@ -14,6 +14,11 @@ public final class GbaMapPreview implements AutoCloseable {
     private int atlasSeason;
     private boolean borderVisible;
     private boolean closed;
+    private int doorX = -1, doorY = -1, doorWidth = 1, doorHeight = 1;
+
+    public void setDoorArea(int x, int y, int width, int height) {
+        doorX = x; doorY = y; doorWidth = width; doorHeight = height;
+    }
     // 预览环境显式指定，不用本机时间代替游戏服务器时钟。
     private final int season = Integer.getInteger("pokemmo.preview.season", 1);
     private final int hour = Integer.getInteger("pokemmo.preview.hour", 12);
@@ -59,6 +64,30 @@ public final class GbaMapPreview implements AutoCloseable {
     public void renderWithActors(int viewportWidth, int viewportHeight, int season, int hour, int minute,
                                  long elapsedMillis, int left, int top, int scale,
                                  java.util.function.IntConsumer actors) throws IOException {
+        renderWithActors(viewportWidth, viewportHeight, season, hour, minute, elapsedMillis,
+                left, top, scale, actors, null);
+    }
+
+    public void renderWithActors(int viewportWidth, int viewportHeight, int season, int hour, int minute,
+                                 long elapsedMillis, int left, int top, int scale,
+                                 java.util.function.IntConsumer actors, java.util.function.IntConsumer afterLayer) throws IOException {
+        renderInternal(viewportWidth,viewportHeight,season,hour,minute,elapsedMillis,left,top,scale,actors,afterLayer,null);
+    }
+
+    /** 普通高度实体与所在行前景穿插，高处实体仍保留独立高度通道。 */
+    public void renderWithActorRows(int viewportWidth,int viewportHeight,int season,int hour,int minute,
+                                    long elapsedMillis,int left,int top,int scale,
+                                    java.util.function.BiConsumer<Integer,Integer> actors,
+                                    java.util.function.IntConsumer afterLayer) throws IOException {
+        renderInternal(viewportWidth,viewportHeight,season,hour,minute,elapsedMillis,left,top,scale,
+                layer->{if(layer==2)actors.accept(layer,Integer.MIN_VALUE);},afterLayer,
+                row->actors.accept(1,row));
+    }
+
+    private void renderInternal(int viewportWidth,int viewportHeight,int season,int hour,int minute,
+                                long elapsedMillis,int left,int top,int scale,
+                                java.util.function.IntConsumer actors,java.util.function.IntConsumer afterLayer,
+                                java.util.function.IntConsumer actorRows) throws IOException {
         if (closed) throw new IllegalStateException("Map renderer is closed");
         if (season < 0 || season > 3 || elapsedMillis < 0 || scale < 1)
             throw new IllegalArgumentException("Invalid map rendering parameters: season=" + season
@@ -98,7 +127,14 @@ public final class GbaMapPreview implements AutoCloseable {
             if (layer >= 3 && tint[3] == 0) continue;
             if (layer < 3) glColor4f(tint[0], tint[1], tint[2], 1);
             else glColor4f(1, 1, 1, layer == 3 ? tint[3] : 1);
-            drawCells(layer, tick, left, top, scale, startX, startY, endX, endY, false);
+            if(layer==1&&actorRows!=null) {
+                for(int row=Math.max(0,startY-4);row<Math.min(map.rows(),endY+4);row++) {
+                    glColor4f(tint[0],tint[1],tint[2],1);
+                    drawCells(layer,tick,left,top,scale,startX,row,endX,row+1,false);
+                    actorRows.accept(row);
+                }
+            } else drawCells(layer, tick, left, top, scale, startX, startY, endX, endY, false);
+            if (afterLayer != null) afterLayer.accept(layer);
         }
         glBindTexture(GL_TEXTURE_2D, 0);
         glColor4f(1, 1, 1, 1);
@@ -112,6 +148,8 @@ public final class GbaMapPreview implements AutoCloseable {
             glBegin(GL_QUADS);
             for (int y = startY; y < endY; y++) {
                 for (int x = startX; x < endX; x++) {
+                    if (!border && layer > 0 && layer < 3 && x >= doorX && x < doorX + doorWidth
+                            && y <= doorY && y > doorY - doorHeight) continue;
                     int cell = border ? map.borderCell(Math.floorMod(x, map.borderColumns()), Math.floorMod(y, map.borderRows()))
                             : map.cell(x, y);
                     int sourceLayer = layer;

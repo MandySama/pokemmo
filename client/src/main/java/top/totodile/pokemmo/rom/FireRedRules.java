@@ -24,13 +24,15 @@ final class FireRedRules {
     final float redGreenDivisor;
     final float blueDivisor;
 
-    FireRedRules() throws IOException {
+    FireRedRules() throws IOException { this(false); }
+
+    FireRedRules(boolean emerald) throws IOException {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
             factory.setExpandEntityReferences(false);
             Element root;
-            try (var input = Files.newInputStream(ClientFiles.data("maps/fire-red.xml"))) {
+            try (var input = Files.newInputStream(ClientFiles.data(emerald ? "maps/emerald.xml" : "maps/fire-red.xml"))) {
                 root = factory.newDocumentBuilder().parse(input).getDocumentElement();
             }
             var cells = root.getElementsByTagName("cell");
@@ -50,7 +52,7 @@ final class FireRedRules {
             for (int i = 0; i < tiles.getLength(); i++) {
                 Element tile = (Element) tiles.item(i);
                 animations.add(new Animation(number(tile, "tileset"), number(tile, "frames"),
-                        number(tile, "first"), number(tile, "count"), number(tile, "pointerOffset")));
+                        number(tile, "first"), number(tile, "count"), number(tile, "pointerOffset"), tile.hasAttribute("rotation") ? number(tile, "rotation") : 0));
             }
             intervalMillis = number((Element) root.getElementsByTagName("animations").item(0), "intervalMillis");
             Element lighting = (Element) root.getElementsByTagName("lighting").item(0);
@@ -59,7 +61,7 @@ final class FireRedRules {
             if (intervalMillis < 1 || redGreenDivisor < 1 || blueDivisor < 1) {
                 throw new IOException("无效的地图动画或光照规则。");
             }
-            loadOverlays();
+            if (!emerald) loadOverlays();
         } catch (IOException exception) {
             throw exception;
         } catch (Exception exception) {
@@ -110,7 +112,7 @@ final class FireRedRules {
     record ColorKey(int season, int tileset, int palette, int index) {
     }
 
-    record Animation(int tileset, int frames, int first, int count, int pointerOffset) {
+    record Animation(int tileset, int frames, int first, int count, int pointerOffset, int rotation) {
     }
 
     record Overlay(int layer, int[] pixels) {

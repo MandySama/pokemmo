@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 
 /** 客户端语言与 ROM 文件选择界面。 */
 final class ClientManagementWindow extends ResizableFrame {
-    private final Path[] selectedFiles = new Path[5];
+    private final Path[] selectedFiles = new Path[6];
     private final RomFiles romFiles;
     private final Consumer<String> notify;
     private final Widget content = new Widget() {
@@ -72,7 +72,7 @@ final class ClientManagementWindow extends ResizableFrame {
         addCloseCallback(requestClose);
         content.setTheme("");
         add(content);
-        for (int stringId : new int[]{1332, 92, 90, 91, 93, 94}) {
+        for (int stringId : new int[]{1332, 92, 90, 91, 93, 94, 250004}) {
             Label label = new Label(ClientStrings.get(stringId) + (stringId == 1332 ? "" : ":"));
             label.setTheme("label-settings-title");
             labels.add(label);
@@ -85,7 +85,7 @@ final class ClientManagementWindow extends ResizableFrame {
             onLanguageChanged.run();
         });
         content.add(language);
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 6; i++) {
             int index = i;
             Button select = new Button(ClientStrings.get(1176));
             select.addCallback(() -> selectFile(index));
@@ -131,7 +131,7 @@ final class ClientManagementWindow extends ResizableFrame {
                     restartRequired = true;
                     importing = false;
                     refreshTexts();
-                    notify.accept(ClientStrings.get(1184).replace("{00}", ClientStrings.get(new int[]{92, 90, 91, 93, 94}[index])));
+                    notify.accept(ClientStrings.get(1184).replace("{00}", ClientStrings.get(new int[]{92, 90, 91, 93, 94, 250004}[index])));
                     for (Button button : selectButtons) button.setEnabled(true);
                 });
             } catch (IOException exception) {
@@ -153,7 +153,7 @@ final class ClientManagementWindow extends ResizableFrame {
     }
 
     private void showInformation(int index) {
-        String kind = ClientStrings.get(new int[]{92, 90, 91, 93, 94}[index]);
+        String kind = ClientStrings.get(new int[]{92, 90, 91, 93, 94, 250004}[index]);
         Path file = selectedFiles[index];
         showMessage(file == null ? ClientStrings.get(1186).replace("{00}", kind)
                 : ClientStrings.get(1185).replace("{00}", kind).replace("{01}", "roms/" + file.getFileName()));
@@ -237,7 +237,7 @@ final class ClientManagementWindow extends ResizableFrame {
     }
     private void refreshTexts() {
         setTitle(ClientStrings.get(1175));
-        int[] ids = {1332, 92, 90, 91, 93, 94};
+        int[] ids = {1332, 92, 90, 91, 93, 94, 250004};
         for (int i = 0; i < ids.length; i++) {
             labels.get(i).setText(ClientStrings.get(ids[i]) + (i == 0 ? "" : ":"));
         }
@@ -268,8 +268,8 @@ final class ClientManagementWindow extends ResizableFrame {
             place(selectButtons.get(i), x + 239, y + 42 + i * 37, 133, 26);
             place(infoButtons.get(i), x + 382, y + 42 + i * 37, 132, 26);
         }
-        place(openFolder, x + 11, y + 224, 133, 26);
-        place(close, x + 382, y + 224, 132, 26);
+        place(openFolder, x + 11, y + 261, 133, 26);
+        place(close, x + 382, y + 261, 132, 26);
     }
 
     private static void place(Widget widget, int x, int y, int width, int height) {

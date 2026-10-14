@@ -46,7 +46,8 @@ public final class NdsArchive {
         try (FileChannel channel = FileChannel.open(rom, StandardOpenOption.READ)) {
             ByteBuffer header = read(channel, 0, 512);
             String code = text(header, 12, 3);
-            if (!code.equals("IRA") && !code.equals("IRB") && !code.equals("IPK") && !code.equals("IPG")) {
+            if (!code.equals("IRA") && !code.equals("IRB") && !code.equals("IPK") && !code.equals("IPG")
+                    && !code.equals("CPU")) {
                 throw new IOException("Unsupported NitroFS ROM");
             }
             ByteBuffer names = read(channel, header.getInt(0x40), header.getInt(0x44));
@@ -88,6 +89,20 @@ public final class NdsArchive {
         }
     }
 
+    static ByteBuffer arm9(Path rom) throws IOException {
+        return arm9(rom,true);
+    }
+
+    static ByteBuffer arm9(Path rom, boolean compressed) throws IOException {
+        try (FileChannel channel = FileChannel.open(rom, StandardOpenOption.READ)) {
+            ByteBuffer header = read(channel, 0, 512);
+            ByteBuffer bytes = read(channel, Integer.toUnsignedLong(header.getInt(0x20)), header.getInt(0x2c));
+            byte[] encoded = new byte[bytes.remaining()];
+            bytes.get(encoded);
+            return ByteBuffer.wrap(compressed ? BlackWhiteItemIcons.decompress(encoded) : encoded).order(ByteOrder.LITTLE_ENDIAN);
+        }
+    }
+
     public ByteBuffer file(int index) {
         int[] range = files.get(index);
         if (range[0] < 0 || range[1] < range[0] || (long) content + range[1] > data.limit()) {
@@ -95,6 +110,8 @@ public final class NdsArchive {
         }
         return data.slice(content + range[0], range[1] - range[0]).order(ByteOrder.LITTLE_ENDIAN);
     }
+
+    public int size() { return files.size(); }
 
     private static ByteBuffer read(FileChannel channel, long offset, int length) throws IOException {
         if (offset < 0 || length < 0 || length > 64 * 1024 * 1024 || offset + length > channel.size()) {

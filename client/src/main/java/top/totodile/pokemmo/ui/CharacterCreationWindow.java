@@ -31,7 +31,7 @@ final class CharacterCreationWindow extends ResizableFrame {
     private final Label nameLabel = label(1053);
     private final Label regionLabel = label(1060);
     private final EditField name = new CharacterNameField();
-    private final ComboBox<String> region = combo(ClientStrings.get(250000));
+    private final ComboBox<String> region = combo(ClientStrings.get(250000), ClientStrings.get(250001), ClientStrings.get(250002), ClientStrings.get(250003), ClientStrings.get(250004));
     private final Button create = new Button(ClientStrings.get(1051));
     private final Button previous = new Button();
     private final Button next = new Button();
@@ -124,7 +124,7 @@ final class CharacterCreationWindow extends ResizableFrame {
         name.setTheme("editfield");
         name.setMaxTextLength(16);
         nameLabel.setLabelFor(name);
-        region.setEnabled(false);
+        region.setEnabled(true);
         create.setTheme("submit");
         create.setEnabled(false);
         create.addCallback(() -> {
@@ -194,13 +194,14 @@ final class CharacterCreationWindow extends ResizableFrame {
         items[10] = 0;
         for (int category : CATEGORIES) items[category] = selected[category] == null ? -1 : selected[category].id;
         return new top.totodile.pokemmo.protocol.CharacterPackets.Appearance(name.getText(),
-                options.get(0).getSelected(), options.get(1).getSelected(), 0, items, palette);
+                options.get(0).getSelected(), options.get(1).getSelected(), region.getSelected(), items, palette);
     }
 
     void setSubmitting(boolean value) {
         submitting = value;
         create.setText(ClientStrings.get(value ? 9024 : 1051));
         name.setEnabled(!value);
+        region.setEnabled(!value);
         previous.setEnabled(!value && assets != null);
         next.setEnabled(!value && assets != null);
         for (int i = 0; i < options.size(); i++) {

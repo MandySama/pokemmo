@@ -18,7 +18,7 @@ import java.util.concurrent.Semaphore;
 /** 游戏服务入口连接：校验短期入服凭证，维护在线会话及加密保活。 */
 public final class GameServer implements AutoCloseable {
     private static final System.Logger LOGGER = System.getLogger(GameServer.class.getName());
-    private final FireRedWorldRules worldRules = new FireRedWorldRules();
+    private final WorldRules[] worldRules = {new FireRedWorldRules(0), new FireRedWorldRules(1), new BlackWhiteWorldRules(), new BlackWhiteWorldRules(3), new FireRedWorldRules(4)};
     private final java.util.concurrent.ScheduledExecutorService saves = Executors.newScheduledThreadPool(2);
     private final ServerSocket listener = new ServerSocket();
     private final java.util.concurrent.ExecutorService workers = Executors.newVirtualThreadPerTaskExecutor();
@@ -169,12 +169,117 @@ public final class GameServer implements AutoCloseable {
                     var owned = characters == null ? java.util.List.<CharacterPackets.CharacterInfo>of()
                             : characters.list(accountId).stream().filter(character -> character.id() == id).toList();
                     activeCharacter = owned.isEmpty() ? 0 : id;
-                    if (!owned.isEmpty()) world = new WorldSession(worldRules, characters, accountId, owned.getFirst(), saves);
+                    if (!owned.isEmpty()) world = new WorldSession(worldRules[owned.getFirst().appearance().region()], characters, accountId, owned.getFirst(), saves);
                     channel.send(new byte[]{4, (byte) (owned.isEmpty() ? 0 : 1)});
                 } else if (command[0] == 5) {
                     if (command.length != 1 || world == null) throw new IOException("Invalid player load request");
                     long selected = activeCharacter;
                     channel.send(CharacterPackets.enterResponse(characters.list(accountId).stream().filter(c -> c.id() == selected).toList()));
+                } else if ((command[0] & 255) == WorldPackets.REGION_TELEPORT) {
+                    if (world == null || activeCharacter == 0) throw new IOException("No active world");
+                    PacketData request = new PacketData(command);
+                    request.byteValue();
+                    int region = request.byteValue(), group = request.byteValue(), map = request.byteValue();
+                    int x = request.shortValue(), y = request.shortValue(); request.end();
+                    try {
+                        if (region >= worldRules.length) throw new IOException("Invalid target region");
+                        var info = world.transferRegion(region, group, map, x, y, worldRules[region]);
+                        channel.send(CharacterPackets.enterResponse(java.util.List.of(info)));
+                    } catch (IOException error) {
+                        channel.send(CharacterPackets.enterResponse(java.util.List.of()));
+                    }
+                } else if (command[0] == top.totodile.pokemmo.protocol.SearchPackets.OPCODE) {
+                    if (world == null || activeCharacter == 0 || characters == null) throw new IOException("No active search character");
+                    var request = top.totodile.pokemmo.protocol.SearchPackets.decodeRequest(command);
+                    top.totodile.pokemmo.protocol.SearchPackets.Result result;
+                    try {
+                        result = characters.search(accountId, activeCharacter, request,
+                                Boolean.parseBoolean(System.getProperty("pokemmo.game.debug", "true")));
+                    } catch (java.sql.SQLException exception) {
+                        LOGGER.log(System.Logger.Level.ERROR, "Unable to update search inventory", exception);
+                        result = new top.totodile.pokemmo.protocol.SearchPackets.Result(
+                                top.totodile.pokemmo.protocol.SearchPackets.Status.SYSTEM_ERROR, java.util.Map.of(), java.util.List.of());
+                    }
+                    channel.send(top.totodile.pokemmo.protocol.SearchPackets.response(result));
+                } else if (command[0] == top.totodile.pokemmo.protocol.PartyPackets.OPCODE) {
+                    if (world == null || activeCharacter == 0) throw new IOException("No active party");
+                    int[] move = top.totodile.pokemmo.protocol.PartyPackets.decodeMove(command);
+                    var party = characters.moveParty(accountId, activeCharacter, move[0], move[1]);
+                    channel.send(top.totodile.pokemmo.protocol.PartyPackets.response(party != null,
+                            party == null ? java.util.List.of() : party));
+                } else if (command[0] == top.totodile.pokemmo.protocol.FollowerPackets.OPCODE) {
+                    if (world == null || activeCharacter == 0) throw new IOException("No active world for follower");
+                    int index = top.totodile.pokemmo.protocol.FollowerPackets.decodeRequest(command);
+                    long followerCharacter = activeCharacter;
+                    var party = characters.list(accountId).stream().filter(c -> c.id() == followerCharacter).findFirst().orElseThrow().party();
+                    var member = index >= 0 && index < party.size() ? party.get(index) : null;
+                    boolean followerAccepted = index == -1 || member != null && member.species() <= 493 && !member.shiny();
+                    channel.send(top.totodile.pokemmo.protocol.FollowerPackets.response(followerAccepted, followerAccepted ? member : null));
+                } else if (command[0] == 0x78) {
+                    if (command.length != 1 || world == null) throw new IOException("No active world to logout");
+                    world.close();
+                    world = null;
+                    activeCharacter = 0;
+                    channel.send(CharacterPackets.leaveResponse(characters.list(accountId)));
+                } else if (command[0] == TrainerStats.OPCODE) {
+                    if (command.length != 1 || world == null) throw new IOException("No active trainer card");
+                    channel.send(TrainerStats.response(world.stats()));
+                } else if (command[0] == 0x76) {
+                    boolean success = false;
+                    boolean unlocked = command.length == 2 && command[1] == 1;
+                    if (command.length == 2 && (command[1] == 0 || command[1] == 1)
+                            && world != null && activeCharacter != 0 && characters != null
+                            && Boolean.parseBoolean(System.getProperty("pokemmo.game.debug", "true"))) {
+                        try { success = characters.setDexUnlocked(accountId, activeCharacter, unlocked); }
+                        catch (java.sql.SQLException exception) { LOGGER.log(System.Logger.Level.ERROR, "Unable to update Pokedex", exception); }
+                    }
+                    channel.send(new byte[]{0x76, (byte) (success ? 1 : 0), (byte) (unlocked ? 1 : 0)});
+                } else if (command[0] == top.totodile.pokemmo.protocol.PcPackets.OPCODE) {
+                    if (world == null || activeCharacter == 0 || characters == null) throw new IOException("No active PC character");
+                    int action = top.totodile.pokemmo.protocol.PcPackets.decodeAction(command);
+                    if (action == top.totodile.pokemmo.protocol.PcPackets.FETCH_PARTY) {
+                        try {
+                            var state = characters.pcParty(accountId, activeCharacter);
+                            channel.send(top.totodile.pokemmo.protocol.PcPackets.partyResponse(
+                                    top.totodile.pokemmo.protocol.PcPackets.Status.SUCCESS, state.boxes(), state.party()));
+                        } catch (java.sql.SQLException exception) {
+                            LOGGER.log(System.Logger.Level.ERROR, "Unable to load PC party", exception);
+                            channel.send(top.totodile.pokemmo.protocol.PcPackets.partyResponse(
+                                    top.totodile.pokemmo.protocol.PcPackets.Status.SYSTEM_ERROR, 1, java.util.List.of()));
+                        }
+                    } else if (action == top.totodile.pokemmo.protocol.PcPackets.FETCH_BOX) {
+                        int[] request = top.totodile.pokemmo.protocol.PcPackets.decodeBoxRequest(command);
+                        var status = top.totodile.pokemmo.protocol.PcPackets.Status.SUCCESS;
+                        top.totodile.pokemmo.protocol.PcPackets.BoxPage page = null;
+                        try {
+                            page = characters.pcBox(accountId, activeCharacter, request[0], request[1]);
+                        } catch (java.sql.SQLException exception) {
+                            LOGGER.log(System.Logger.Level.ERROR, "Unable to load PC box", exception);
+                            status = top.totodile.pokemmo.protocol.PcPackets.Status.SYSTEM_ERROR;
+                        }
+                        channel.send(page == null
+                                ? top.totodile.pokemmo.protocol.PcPackets.boxResponse(status, request[0], request[1], false, java.util.List.of())
+                                : top.totodile.pokemmo.protocol.PcPackets.boxResponse(status, page.box(), page.start(), page.more(), page.entries()));
+                    } else if (action == top.totodile.pokemmo.protocol.PcPackets.MOVE) {
+                        var move = top.totodile.pokemmo.protocol.PcPackets.decodeMove(command);
+                        var status = top.totodile.pokemmo.protocol.PcPackets.Status.SYSTEM_ERROR;
+                        try {
+                            status = characters.pcMove(accountId, activeCharacter, move);
+                        } catch (java.sql.SQLException exception) {
+                            LOGGER.log(System.Logger.Level.ERROR, "Unable to move PC Pokemon", exception);
+                        }
+                        channel.send(top.totodile.pokemmo.protocol.PcPackets.statusResponse(
+                                top.totodile.pokemmo.protocol.PcPackets.MOVE, status));
+                    } else {
+                        var status = top.totodile.pokemmo.protocol.PcPackets.Status.SYSTEM_ERROR;
+                        try {
+                            status = characters.pcCreateBox(accountId, activeCharacter);
+                        } catch (java.sql.SQLException exception) {
+                            LOGGER.log(System.Logger.Level.ERROR, "Unable to create PC box", exception);
+                        }
+                        channel.send(top.totodile.pokemmo.protocol.PcPackets.statusResponse(
+                                top.totodile.pokemmo.protocol.PcPackets.CREATE_BOX, status));
+                    }
                 } else if (command[0] == WorldPackets.MOVE || command[0] == WorldPackets.LOADED
                         || command[0] == WorldPackets.SETTINGS || command[0] == WorldPackets.TELEPORT) {
                     if (world == null) throw new IOException("No active world");

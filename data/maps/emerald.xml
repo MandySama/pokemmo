@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emerald>
+    <mapPatches/>
+    <colors/>
+    <animations intervalMillis="300">
+        <tiles tileset="0" frames="4" first="508" count="4" pointerOffset="203" rotation="0"/>
+        <tiles tileset="0" frames="8" first="432" count="30" pointerOffset="243" rotation="0"/>
+        <tiles tileset="0" frames="8" first="464" count="10" pointerOffset="283" rotation="0"/>
+        <tiles tileset="0" frames="4" first="496" count="6" pointerOffset="323" rotation="0"/>
+        <tiles tileset="2" frames="8" first="640" count="4" pointerOffset="2003" rotation="0"/>
+        <tiles tileset="2" frames="8" first="644" count="4" pointerOffset="2003" rotation="1"/>
+        <tiles tileset="2" frames="8" first="648" count="4" pointerOffset="2003" rotation="2"/>
+        <tiles tileset="2" frames="8" first="652" count="4" pointerOffset="2003" rotation="3"/>
+        <tiles tileset="2" frames="8" first="656" count="4" pointerOffset="2003" rotation="4"/>
+        <tiles tileset="2" frames="8" first="660" count="4" pointerOffset="2003" rotation="5"/>
+        <tiles tileset="2" frames="8" first="664" count="4" pointerOffset="2003" rotation="6"/>
+        <tiles tileset="2" frames="8" first="668" count="4" pointerOffset="2003" rotation="7"/>
+        <tiles tileset="2" frames="2" first="960" count="4" pointerOffset="2043" rotation="0"/>
+        <tiles tileset="3" frames="4" first="682" count="6" pointerOffset="2175" rotation="0"/>
+        <tiles tileset="4" frames="4" first="736" count="4" pointerOffset="2251" rotation="0"/>
+        <tiles tileset="5" frames="16" first="608" count="4" pointerOffset="1735" rotation="0"/>
+        <tiles tileset="5" frames="16" first="612" count="4" pointerOffset="1735" rotation="1"/>
+        <tiles tileset="5" frames="16" first="616" count="4" pointerOffset="1735" rotation="2"/>
+        <tiles tileset="5" frames="16" first="620" count="4" pointerOffset="1735" rotation="3"/>
+        <tiles tileset="5" frames="16" first="624" count="4" pointerOffset="1735" rotation="4"/>
+        <tiles tileset="5" frames="16" first="628" count="4" pointerOffset="1735" rotation="5"/>
+        <tiles tileset="5" frames="16" first="632" count="4" pointerOffset="1735" rotation="6"/>
+        <tiles tileset="5" frames="16" first="636" count="4" pointerOffset="1735" rotation="7"/>
+        <tiles tileset="5" frames="16" first="640" count="4" pointerOffset="1735" rotation="8"/>
+        <tiles tileset="5" frames="16" first="644" count="4" pointerOffset="1735" rotation="9"/>
+        <tiles tileset="5" frames="16" first="648" count="4" pointerOffset="1735" rotation="10"/>
+        <tiles tileset="5" frames="16" first="652" count="4" pointerOffset="1735" rotation="11"/>
+        <tiles tileset="5" frames="16" first="656" count="4" pointerOffset="1735" rotation="12"/>
+        <tiles tileset="5" frames="16" first="660" count="4" pointerOffset="1735" rotation="13"/>
+        <tiles tileset="5" frames="16" first="664" count="4" pointerOffset="1735" rotation="14"/>
+        <tiles tileset="5" frames="16" first="668" count="4" pointerOffset="1735" rotation="15"/>
+        <tiles tileset="6" frames="4" first="800" count="4" pointerOffset="1479" rotation="0"/>
+        <tiles tileset="6" frames="4" first="672" count="4" pointerOffset="1999" rotation="0"/>
+        <tiles tileset="6" frames="4" first="804" count="4" pointerOffset="1479" rotation="2"/>
+        <tiles tileset="11" frames="8" first="736" count="4" pointerOffset="1755" rotation="0"/>
+        <tiles tileset="11" frames="8" first="740" count="4" pointerOffset="1755" rotation="1"/>
+        <tiles tileset="11" frames="8" first="744" count="4" pointerOffset="1755" rotation="2"/>
+        <tiles tileset="11" frames="8" first="748" count="4" pointerOffset="1755" rotation="3"/>
+        <tiles tileset="11" frames="8" first="752" count="4" pointerOffset="1755" rotation="4"/>
+        <tiles tileset="11" frames="8" first="756" count="4" pointerOffset="1755" rotation="5"/>
+        <tiles tileset="11" frames="8" first="760" count="4" pointerOffset="1755" rotation="6"/>
+        <tiles tileset="11" frames="8" first="764" count="4" pointerOffset="1755" rotation="7"/>
+        <tiles tileset="12" frames="4" first="976" count="30" pointerOffset="1275" rotation="0"/>
+        <tiles tileset="12" frames="8" first="1008" count="8" pointerOffset="1355" rotation="0"/>
+        <tiles tileset="13" frames="8" first="752" count="96" pointerOffset="2375" rotation="0"/>
+        <tiles tileset="14" frames="4" first="730" count="6" pointerOffset="1779" rotation="0"/>
+        <tiles tileset="15" frames="4" first="730" count="6" pointerOffset="1735" rotation="0"/>
+        <tiles tileset="16" frames="2" first="496" count="4" pointerOffset="2911" rotation="0"/>
+        <tiles tileset="30" frames="2" first="1008" count="9" pointerOffset="2007" rotation="0"/>
+        <tiles tileset="44" frames="4" first="1008" count="4" pointerOffset="1135" rotation="0"/>
+        <tiles tileset="46" frames="3" first="1008" count="12" pointerOffset="1999" rotation="0"/>
+        <tiles tileset="46" frames="3" first="976" count="20" pointerOffset="2007" rotation="0"/>
+        <tiles tileset="51" frames="2" first="656" count="16" pointerOffset="2011" rotation="0"/>
+        <tiles tileset="58" frames="2" first="992" count="4" pointerOffset="2007" rotation="0"/>
+        <tiles tileset="58" frames="4" first="1016" count="1" pointerOffset="1967" rotation="0"/>
+        <tiles tileset="65" frames="3" first="663" count="8" pointerOffset="2047" rotation="0"/>
+        <tiles tileset="65" frames="3" first="647" count="8" pointerOffset="2091" rotation="0"/>
+    </animations>
+    <lighting redGreenDivisor="2" blueDivisor="1.5"/>
+</emerald>

@@ -10,6 +10,7 @@
 
     <modules>
         <module>protocol</module>
+        <module>battle</module>
         <module>twl-core</module>
         <module>client</module>
         <module>sever</module>

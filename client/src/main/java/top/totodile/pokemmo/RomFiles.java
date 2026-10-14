@@ -10,9 +10,9 @@ import java.util.Properties;
 
 /** 管理导入文件及路径配置，不解析游戏资源。 */
 public final class RomFiles {
-    private static final int[] TYPES = {2, 0, 1, 3, 4};
+    private static final int[] TYPES = {2, 0, 1, 3, 4, 5};
     private static final String[] KEYS = {"client.roms.nds2", "client.roms.fr", "client.roms.em",
-            "client.roms.nds3", "client.roms.nds"};
+            "client.roms.nds3", "client.roms.nds", "client.roms.em2"};
     private final Path directory;
     private final Path configuration;
     private final Properties entries = new Properties();
