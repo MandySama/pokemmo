@@ -1,7 +1,7 @@
 package top.totodile.pokemmo.rom;
 
 import org.w3c.dom.Element;
-import top.totodile.pokemmo.ClientFiles;
+
 
 import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -32,7 +32,7 @@ final class FireRedRules {
             factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
             factory.setExpandEntityReferences(false);
             Element root;
-            try (var input = Files.newInputStream(ClientFiles.data(emerald ? "maps/emerald.xml" : "maps/fire-red.xml"))) {
+            try (var input = Files.newInputStream(MapFiles.data(emerald ? "maps/emerald.xml" : "maps/fire-red.xml"))) {
                 root = factory.newDocumentBuilder().parse(input).getDocumentElement();
             }
             var cells = root.getElementsByTagName("cell");
@@ -74,12 +74,12 @@ final class FireRedRules {
     }
 
     private void loadOverlays() throws IOException {
-        ByteBuffer data = ByteBuffer.wrap(Files.readAllBytes(ClientFiles.data("sprites/overlays-data.pak")))
+        ByteBuffer data = ByteBuffer.wrap(Files.readAllBytes(MapFiles.data("sprites/overlays-data.pak")))
                 .order(ByteOrder.LITTLE_ENDIAN);
         if (data.getInt() != 21709136) throw new IOException("无效的夜间贴图索引。");
         int count = Short.toUnsignedInt(data.getShort());
         data.getShort();
-        var image = ImageIO.read(ClientFiles.data("sprites/overlays.pak").toFile());
+        var image = ImageIO.read(MapFiles.data("sprites/overlays.pak").toFile());
         if (image == null || data.remaining() < count * 9) throw new IOException("夜间贴图资源被截断。");
         for (int i = 0; i < count; i++) {
             int tileset = Short.toUnsignedInt(data.getShort());

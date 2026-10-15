@@ -41,7 +41,7 @@ public final class NdsRegionMap extends GbaRegionMap {
             var factory = javax.xml.parsers.DocumentBuilderFactory.newInstance();
             try {
                 factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-                var nodes = factory.newDocumentBuilder().parse(top.totodile.pokemmo.ClientFiles.data("maps/sinnoh-town-map.xml").toFile()).getElementsByTagName("location");
+                var nodes = factory.newDocumentBuilder().parse(MapFiles.data("maps/sinnoh-town-map.xml").toFile()).getElementsByTagName("location");
                 for (int i = 0; i < nodes.getLength(); i++) {
                     var node = (org.w3c.dom.Element) nodes.item(i);
                     put(Integer.parseInt(node.getAttribute("map")), 24 + Integer.parseInt(node.getAttribute("x"))*7,

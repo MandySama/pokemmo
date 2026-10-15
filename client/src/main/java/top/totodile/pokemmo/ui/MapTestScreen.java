@@ -52,7 +52,7 @@ public final class MapTestScreen extends Widget implements AutoCloseable {
     private Color warpColor = Color.WHITE;
 
     public MapTestScreen(Path rom) throws IOException {
-        atlas = new FireRedAtlas(rom);
+        atlas = top.totodile.pokemmo.MapSources.gba(rom, false);
         world = new MapTestWorld(atlas);
         areas = atlas.areas();
         setTheme("map-test");

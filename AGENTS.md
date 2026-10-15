@@ -27,6 +27,8 @@
 | 路径 | 职责 |
 | --- | --- |
 | `client` | GLFW/OpenGL 桌面客户端，TWL 界面、ROM 资源解析、音乐、网络连接 |
+| `map-core` | 公共地图解析：GBA／NDS 地图、连接与传送、NPC、区域图及共享 ROM 解码；不依赖客户端或 OpenGL |
+| `map-render` | 地图绘制：GBA 图集与分层、NDS 模型与纹理；依赖 map-core，由客户端管理图形上下文 |
 | `twl-core` | TWL 核心源码模块，客户端通过 Maven 模块依赖使用 |
 | `protocol` | 登录、游戏服务共用封包、加密握手、服务器列表、入服凭证 |
 | `sever/login` | TCP 登录认证、数据库账号、服务器列表及凭据签发 |
@@ -484,3 +486,5 @@ mvn -o -s target/maven-central-settings.xml '-Dmaven.repo.local=C:/Users/21156/.
 - 协议角色、位置、宝可梦遇见地区及数据库角色地区范围扩至0–5；原有编号和数据保留，地区与位置仍走原子存档／跨地区通道。城都没有接入徽章进度，本次名片驯服上限只使用初值20，不读取神奥徽章冒充城都进度。客户端和game服务需同时更新重启。本次范围是地图解析、入图、移动与传送，不接入城都NPC／剧情或城镇地图窗口。
 - `JohtoRulesSmoke`检查主角家两层和若叶镇往返；`JohtoWorldSmoke`在真实OpenGL绘制出生房间与若叶镇人物／建筑。`JohtoAtlasSweep`覆盖540个地图头、676个地形块、720896个地形层格子和1317条传送记录，518个有所属可行走格的地图实际OpenGL绘制通过，22个无所属可行走格不声称实测入图。当前仅实测本机心金卡带，没有魂银卡带运行验证。
 - `JohtoCreationNetworkSmoke`用隔离PostgreSQL账号检查城都创建、入图、权威移动、存档、重新入图及非法地图拒绝；`JohtoRegionNetworkSmoke`检查跨城都／原地区传送、角色调试状态与位置、重连及归属。`JohtoEntryUiSmoke`使用实际创建窗口选城都、点击创建／入图、GLFW方向键发起移动，以及六地区菜单实际点击／OpenGL切换和存档重连；测试结束删除隔离数据。上述是本项目测试，未运行原客户端。
+
+- 地图解析与绘制分别位于独立 Maven 模块 `map-core`、`map-render`，保留 `top.totodile.pokemmo.rom` 包名。解析模块不可反向依赖 `client` 或 OpenGL；`FireRedAtlas` 的替换 ROM 路径及开关通过构造参数传入，客户端由 `MapSources.gba` 读取配置并组装。无替换参数的构造器仅使用 GBA 资源，适用于通行数据导出。世界移动、网络、角色及窗口仍由 client 负责；Nitro 解析工具也供登录背景、战斗与精灵资源复用。

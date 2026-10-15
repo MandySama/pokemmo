@@ -1,6 +1,5 @@
 package top.totodile.pokemmo.rom;
 
-import top.totodile.pokemmo.ClientFiles;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.awt.image.BufferedImage;
@@ -45,7 +44,7 @@ final class FireRedNpcSprites {
         try {
             var factory = DocumentBuilderFactory.newInstance();
             factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-            var entries = factory.newDocumentBuilder().parse(ClientFiles.data("maps/fire-red-npcs.xml").toFile())
+            var entries = factory.newDocumentBuilder().parse(MapFiles.data("maps/fire-red-npcs.xml").toFile())
                     .getElementsByTagName("palette");
             for (int i = 0; i < entries.getLength(); i++) {
                 var entry = (org.w3c.dom.Element) entries.item(i);

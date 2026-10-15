@@ -816,7 +816,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         loading.setVisible(true);
         enterResult = gameConnection.enterCharacter(character.id());
         worldMapResult = CompletableFuture.supplyAsync(() -> {
-            try { return character.appearance().region() == 2 ? new BlackWhiteMaps(rom) : character.appearance().region() == 5 ? new top.totodile.pokemmo.rom.HeartGoldMaps(rom) : character.appearance().region() == 3 ? new PlatinumMaps(rom) : new FireRedAtlas(rom, character.appearance().region() == 4); }
+            try { return character.appearance().region() == 2 ? new BlackWhiteMaps(rom) : character.appearance().region() == 5 ? new top.totodile.pokemmo.rom.HeartGoldMaps(rom) : character.appearance().region() == 3 ? new PlatinumMaps(rom) : top.totodile.pokemmo.MapSources.gba(rom, character.appearance().region() == 4); }
             catch (IOException exception) { throw new CompletionException(exception); }
         });
     }
@@ -1480,7 +1480,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
             loading.setVisible(true);
             teleportMenu.setEnabled(false);
             worldMapResult = CompletableFuture.supplyAsync(() -> {
-                try { return region == 2 ? new BlackWhiteMaps(rom) : region == 5 ? new top.totodile.pokemmo.rom.HeartGoldMaps(rom) : region == 3 ? new PlatinumMaps(rom) : new FireRedAtlas(rom, region == 4); }
+                try { return region == 2 ? new BlackWhiteMaps(rom) : region == 5 ? new top.totodile.pokemmo.rom.HeartGoldMaps(rom) : region == 3 ? new PlatinumMaps(rom) : top.totodile.pokemmo.MapSources.gba(rom, region == 4); }
                 catch (IOException exception) { throw new CompletionException(exception); }
             });
             enterResult = worldMapResult.thenCompose(maps -> gameConnection.teleportRegion(region,

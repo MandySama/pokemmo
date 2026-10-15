@@ -55,7 +55,8 @@ public final class FireRedAtlas {
     private boolean replacementsLoaded;
     private GbaRegionMap regionMap;
     private boolean regionMapLoaded;
-    private final boolean useHgssSprites = new top.totodile.pokemmo.ClientSettings().hgssSprites();
+    private final boolean useHgssSprites;
+    private final Path replacementRom;
 
     public record NpcSprite(BufferedImage image, float scale) {
     }
@@ -67,6 +68,13 @@ public final class FireRedAtlas {
     private final boolean modified;
 
     public FireRedAtlas(Path file, boolean modified) throws IOException {
+        this(file, modified, null, false);
+    }
+
+    /** 替换卡带与开关由调用方提供，解析模块不读取客户端配置。 */
+    public FireRedAtlas(Path file, boolean modified, Path replacementRom, boolean useHgssSprites) throws IOException {
+        this.replacementRom = replacementRom;
+        this.useHgssSprites = useHgssSprites;
         this.modified = modified;
         long size = Files.size(file);
         if (size < 256 || size > 32 * 1024 * 1024) throw new IOException("Invalid GBA ROM size");
@@ -204,7 +212,7 @@ public final class FireRedAtlas {
     public NpcSprite npcSprite(Npc npc, boolean enhanced, int season, int facing, int walkFrame) throws IOException {
         enhanced = enhanced && !modified;
         if (enhanced && useHgssSprites && !replacementsLoaded) {
-            Path selected = new top.totodile.pokemmo.RomFiles(top.totodile.pokemmo.ClientFiles.data("../roms")).selected(4);
+            Path selected = replacementRom;
             if (selected != null) replacementSprites = new HgssNpcSprites(selected,region);
             replacementsLoaded = true;
         }

@@ -11,6 +11,8 @@
     <modules>
         <module>protocol</module>
         <module>battle</module>
+        <module>map-core</module>
+        <module>map-render</module>
         <module>twl-core</module>
         <module>client</module>
         <module>sever</module>

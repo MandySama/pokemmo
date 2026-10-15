@@ -28,6 +28,8 @@
     </build>
 
     <dependencies>
+        <dependency><groupId>top.totodile</groupId><artifactId>map-core</artifactId><version>${project.version}</version></dependency>
+        <dependency><groupId>top.totodile</groupId><artifactId>map-render</artifactId><version>${project.version}</version></dependency>
         <dependency><groupId>top.totodile</groupId><artifactId>battle</artifactId><version>${project.version}</version></dependency>
         <dependency>
             <groupId>top.totodile</groupId>
