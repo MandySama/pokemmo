@@ -7,14 +7,14 @@ import java.nio.file.Path;
 
 /** 黑白基础种族的小图标；ARM9 指定调色板，图集同时保存彩色与未遇见剪影。 */
 public final class PokedexIcons {
-    public static final int SPECIES = 649;
+    public static final int SPECIES = top.totodile.pokemmo.protocol.PokemonCatalog.MAX_SPECIES;
     public static BufferedImage loadUnknown(Path rom) throws IOException {
-        return load(rom).getSubimage(0, 0, 1024, 672);
+        return load(rom).getSubimage(0, 0, 1024, ((SPECIES + 31) / 32) * 32);
     }
 
     public static BufferedImage load(Path rom) throws IOException {
         NdsArchive archive = new NdsArchive(rom, "/a/0/0/7");
-        BufferedImage atlas = new BufferedImage(64 * 32, 32 * 21, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage atlas = new BufferedImage(64 * 32, 32 * ((SPECIES + 31) / 32), BufferedImage.TYPE_INT_ARGB);
         try {
             ByteBuffer arm9 = NdsArchive.arm9(rom);
             byte[] signature = {0,17,17,17,0,0,0,0,34,34,17,17,0,17,34,34};
@@ -27,7 +27,7 @@ public final class PokedexIcons {
             if (directory < 0) throw new IOException("Missing Pokemon icon palette directory");
             ByteBuffer palettes = archive.file(0);
             int paletteStart = 24 + palettes.getInt(36);
-            for (int species = 1; species <= SPECIES; species++) {
+            for (int species = 1; species <= 649; species++) {
                 ByteBuffer tiles = archive.file(species * 2 + 7);
                 if (tiles.getInt(0) != 0x4e434752 || tiles.getInt(28) != 3 || tiles.limit() < 48 + 512)
                     throw new IOException("Invalid Pokedex icon tiles");
@@ -44,6 +44,27 @@ public final class PokedexIcons {
                 }
             }
         } catch (IndexOutOfBoundsException exception) { throw new IOException("Invalid Pokedex archive", exception); }
+        for (int id = 650; id <= SPECIES; id++) {
+            var icon = ExtendedPokemonSprites.icon(id);
+            var tile = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
+            var g = tile.createGraphics();
+            int left=icon.getWidth(),top=icon.getHeight(),right=0,bottom=0;
+            for(int y=0;y<icon.getHeight();y++)for(int x=0;x<icon.getWidth();x++)if((icon.getRGB(x,y)>>>24)!=0){
+                left=Math.min(left,x);top=Math.min(top,y);right=Math.max(right,x+1);bottom=Math.max(bottom,y+1);
+            }
+            if(right<=left||bottom<=top)throw new IOException("Empty extended icon "+id);
+            // 仅对超出槽位的内容缩小，其余像素保持原比例并移入可见范围。
+            double scale=Math.min(1,Math.min(32.0/(right-left),32.0/(bottom-top)));
+            int width=Math.max(1,(int)Math.round((right-left)*scale)),height=Math.max(1,(int)Math.round((bottom-top)*scale));
+            g.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION,java.awt.RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+            g.drawImage(icon,(32-width)/2,(32-height)/2,(32+width)/2,(32+height)/2,left,top,right,bottom,null);g.dispose();
+            int ox = (id-1)%32*32, oy = (id-1)/32*32;
+            for (int y=0;y<32;y++) for (int x=0;x<32;x++) {
+                int color = tile.getRGB(x,y);
+                atlas.setRGB(ox+1024+x,oy+y,color);
+                atlas.setRGB(ox+x,oy+y,(color>>>24)==0?0:0xb4000000);
+            }
+        }
         return atlas;
     }
 }

@@ -71,7 +71,7 @@ public class NdsWorld implements ClientWorld {
     @Override public FireRedAtlas atlas() { return null; }
     @Override public Position position() { return position; }
     @Override public String locationName() {
-        try { return ClientStrings.get(140000 + region() * 1000 + maps.header(id()).name()); }
+        try { return ClientStrings.get(140000 + (region() == 5 ? 4 : region()) * 1000 + maps.header(id()).name()); }
         catch (IllegalArgumentException exception) { return ClientStrings.get(250000 + region()); }
     }
     @Override public int speedMultiplier() { return multiplier; }

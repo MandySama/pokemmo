@@ -65,7 +65,7 @@ final class SearchWindow extends ResizableFrame implements AutoCloseable {
         if (items.isActive()) for (var item : ItemCatalog.items()) {
             if (item.source() < 0 || romAvailable[item.source()]) append(matches, new Entry(false, item.id(), ClientStrings.get(item.nameId())), text);
         }
-        if (pokemon.isActive()) for (int id = 1; id <= 649; id++) append(matches, new Entry(true, id, ClientStrings.get(150000 + id)), text);
+        if (pokemon.isActive()) for (int id = 1; id <= top.totodile.pokemmo.protocol.PokemonCatalog.MAX_SPECIES; id++) append(matches, new Entry(true, id, ClientStrings.get(150000 + id)), text);
         entries = List.copyOf(matches);
         count.setText(ClientStrings.get(9506).replace("{00}", Integer.toString(entries.size())));
         scroll.setScrollPositionY(0); rows.invalidateLayout(); invalidateLayout();

@@ -18,7 +18,7 @@ public final class CharacterPackets {
         @Override public int[] colors() { return colors.clone(); }
         public boolean valid() {
             if (name == null || name.length() > 16 || !name.matches("[\\p{L}0-9_]{2,16}") || gender < 0 || gender > 1
-                    || skin < 0 || skin > 4 || region < 0 || region > 4) return false;
+                    || skin < 0 || skin > 4 || region < 0 || region > 5) return false;
             for (int i = 0; i < 12; i++) {
                 if (items[i] < -1 || items[i] > 1022 || colors[i] < 0 || colors[i] >= 48) return false;
             }
@@ -26,7 +26,7 @@ public final class CharacterPackets {
         }
     }
     public record ReturnPoint(int group, int map, int x, int y, int facing) {
-        public boolean valid() { return valid(0) || valid(1) || valid(2) || valid(3) || valid(4); }
+        public boolean valid() { return valid(0) || valid(1) || valid(2) || valid(3) || valid(4) || valid(5); }
         public boolean valid(int region) { return FireRedMaps.contains(region, group, map, x, y) && facing >= 0 && facing < 4; }
     }
     public record Position(int group, int map, int x, int y, int elevation, int facing, ReturnPoint returnPoint) {
@@ -36,12 +36,13 @@ public final class CharacterPackets {
         public static Position spawn() { return new Position(4, 1, 6, 6, 3, 0); }
         public static Position spawn(int region, int gender) {
             if (region == 0) return spawn();
+            if (region == 5) return new Position(0, 64, 6, 6, 0, 0);
             if (region == 3) return new Position(1, 157, 6, 6, 0, 0);
             if (region == 2) return new Position(1, 135, 6, 6, 0, 0);
             if (region != 1 && region != 4) throw new IllegalArgumentException("Invalid starting region");
             return new Position(1, gender == 0 ? 1 : 3, 4, 4, 3, 0);
         }
-        public boolean valid() { return valid(0) || valid(1) || valid(2) || valid(3) || valid(4); }
+        public boolean valid() { return valid(0) || valid(1) || valid(2) || valid(3) || valid(4) || valid(5); }
         public boolean valid(int region) {
             return FireRedMaps.contains(region, group, map, x, y) && elevation >= -2 && elevation <= 15
                     && facing >= 0 && facing < 4 && (returnPoint == null || returnPoint.valid(region));

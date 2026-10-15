@@ -8,7 +8,7 @@ import java.util.zip.GZIPInputStream;
 
 import static top.totodile.pokemmo.protocol.CharacterPackets.*;
 
-/** 黑白／白金场景矩阵、分层碰撞和入口编号；不持有卡带图像。 */
+/** NDS 场景矩阵、分层碰撞和入口编号；不持有卡带图像。 */
 public final class BlackWhiteWorldRules implements WorldRules {
     public record Warp(int target, int entrance, int direction, int type, boolean special,
                        int x, int y, int elevation, int width, int height) {
@@ -34,15 +34,15 @@ public final class BlackWhiteWorldRules implements WorldRules {
     public BlackWhiteWorldRules() throws IOException { this(2); }
 
     public BlackWhiteWorldRules(int region) throws IOException {
-        if (region != 2 && region != 3) throw new IllegalArgumentException("Invalid NDS region");
+        if (region != 2 && region != 3 && region != 5) throw new IllegalArgumentException("Invalid NDS region");
         this.region = region;
-        var raw = BlackWhiteWorldRules.class.getResourceAsStream(region == 2 ? "/maps/unova-world.gz" : "/maps/sinnoh-world.gz");
+        var raw = BlackWhiteWorldRules.class.getResourceAsStream(region == 2 ? "/maps/unova-world.gz" : region == 5 ? "/maps/johto-world.gz" : "/maps/sinnoh-world.gz");
         if (raw == null) throw new IOException("Missing NDS world rules");
         try (var input = new DataInputStream(new GZIPInputStream(raw))) {
             int version = input.readInt();
             if (version != (region == 2 ? 0x42575731 : 0x42575732)) throw new IOException("Invalid NDS rules");
             int count = input.readInt();
-            if (count != (region == 2 ? 427 : 593)) throw new IOException("Incomplete NDS headers");
+            if (count != (region == 2 ? 427 : region == 5 ? 540 : 593)) throw new IOException("Incomplete NDS headers");
             headers = new Header[count];
             for (int i = 0; i < count; i++) {
                 int matrix = input.readInt(), name = input.readInt(), width = input.readInt(), height = input.readInt();
@@ -157,7 +157,7 @@ public final class BlackWhiteWorldRules implements WorldRules {
         int y = source.y() + (direction == 1 ? -1 : direction == 0 ? 1 : 0);
         for (Warp warp : header(id).warps()) {
             if ((warp.direction() == -1 || warp.direction() == direction)
-                    && (region == 3 ? warp.type() == 1 ? warp.contains(source.x(), source.y()) : warp.contains(x, y)
+                    && (region != 2 ? warp.type() == 1 ? warp.contains(source.x(), source.y()) : warp.contains(x, y)
                     : warp.contains(x, y) || warp.type() == 1 && warp.contains(source.x(), source.y()))) {
                 var result = warp(turned, warp);
                 if (result != null) return result;
@@ -167,7 +167,7 @@ public final class BlackWhiteWorldRules implements WorldRules {
         int layer = -1;
         float difference = Float.MAX_VALUE;
         boolean standingEntrance = false;
-        if (region == 3) for (Warp warp : header(id).warps()) {
+        if (region != 2) for (Warp warp : header(id).warps()) {
             if (warp.type() == 1 && warp.contains(x, y)) { standingEntrance = true; break; }
         }
         if (next >= 0) {

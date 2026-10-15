@@ -14,11 +14,12 @@ import static top.totodile.pokemmo.protocol.CharacterPackets.*;
 /** 会话持有权威位置；网络操作更新内存，定时提交与退出提交串行化。 */
 final class WorldSession implements AutoCloseable {
     private WorldRules rules;
+    private KantoNpcs npcs;
     private final CharacterStore store;
     private final int account;
     private final long character;
     private final ScheduledFuture<?> saving;
-    private Position position, saved;
+    private Position position, saved, movementFrom;
     private final long onlineBase;
     private final long onlineStarted = System.nanoTime();
     private long onlineStopped;
@@ -33,6 +34,7 @@ final class WorldSession implements AutoCloseable {
     WorldSession(WorldRules rules, CharacterStore store, int account, CharacterInfo info,
                  ScheduledExecutorService scheduler) {
         this.rules = rules;
+        if (info.appearance().region() == 0) npcs = new KantoNpcs((FireRedWorldRules) rules);
         this.store = store;
         this.account = account;
         character = info.id();
@@ -54,13 +56,26 @@ final class WorldSession implements AutoCloseable {
         checkHealthy();
         int opcode = packet[0] & 255;
         int duration = (cycling ? 80 : 275) / multiplier;
+        long npcNow = System.nanoTime();
+        if (npcs != null && !loading) npcs.update(position, npcNow < readyAt ? movementFrom : null, npcNow);
+        if (opcode == NpcPackets.OPCODE) {
+            if (packet.length != 3 || (packet[1] & 255) > 2) throw new IOException("Invalid NPC operation");
+            if (npcs == null) return NpcPackets.response(new NpcPackets.Snapshot(position.group(), position.map(), -1, java.util.List.of()));
+            int action = packet[1] & 255;
+            if (action == 2) npcs.talk(position, 255, npcNow);
+            else if (action == 1 && !loading && !closed && npcNow >= readyAt) npcs.talk(position, packet[2] & 255, npcNow);
+            return NpcPackets.response(npcs.snapshot(position, npcNow));
+        }
         if (opcode == WorldPackets.MOVE) {
             var request = WorldPackets.decodeMove(packet);
             duration = Math.max(1, (cycling ? 80 : request.running() ? 135 : 275) / multiplier);
             long now = System.nanoTime();
-            if (loading || closed || now < readyAt || request.x() != position.x() || request.y() != position.y())
+            if (loading || closed || npcs != null && npcs.talking() || now < readyAt || request.x() != position.x() || request.y() != position.y())
                 return response(false, false, duration);
-            var result = rules.move(position, request.direction(), noclip);
+            var result = npcs == null ? rules.move(position, request.direction(), noclip)
+                    : ((FireRedWorldRules) rules).move(position, request.direction(), noclip,
+                    p -> npcs.occupied(p.group(), p.map(), p.x(), p.y(), now));
+            movementFrom = position;
             position = result.position();
             if (result.moved()) {
                 readyAt = now + TimeUnit.MILLISECONDS.toNanos(duration);
@@ -105,6 +120,7 @@ final class WorldSession implements AutoCloseable {
             } catch (IllegalArgumentException error) {
                 throw new IOException("Invalid teleport", error);
             }
+            if (npcs != null) npcs.talk(position, 255, System.nanoTime());
             loading = true;
             loadDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(30);
             return response(true, true, duration);
@@ -123,7 +139,8 @@ final class WorldSession implements AutoCloseable {
                 if (closed) throw new IOException("World is closed");
                 long online = onlineSeconds();
                 if (!store.transferRegion(account, character, region, target, online, cycling)) throw new SQLException("Region transfer rejected");
-                rules = targetRules; position = saved = target;
+                rules = targetRules;
+                npcs = region == 0 ? new KantoNpcs((FireRedWorldRules) rules) : null; position = saved = target;
                 savedOnline = online; savedCycling = cycling;
                 loading = true; readyAt = 0;
                 loadDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(30);

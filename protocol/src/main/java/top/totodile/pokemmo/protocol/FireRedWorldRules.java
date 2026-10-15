@@ -156,7 +156,19 @@ public final class FireRedWorldRules implements WorldRules {
         return null;
     }
 
+    public boolean npcCanMove(int group, int map, int fromX, int fromY, int x, int y) {
+        Area area = area(group, map);
+        if (area == null || !area.contains(fromX, fromY) || !area.walkable(x, y)
+                || area.warps.stream().anyMatch(w -> w.x == x && w.y == y)) return false;
+        int from = area.height(fromX, fromY), to = area.height(x, y);
+        return from == to || from == -1 || to == -1 || to == 14 || to == -2 || from == 0 && to == 2;
+    }
+
     public Decision move(Position position, int direction, boolean noclip) {
+        return move(position, direction, noclip, null);
+    }
+
+    public Decision move(Position position, int direction, boolean noclip, java.util.function.Predicate<Position> occupied) {
         if (direction < 0 || direction > 3 || !position.valid(region)) throw new IllegalArgumentException("Invalid movement");
         position = at(position.group(), position.map(), position.x(), position.y(), direction, position.returnPoint());
         Decision standing = warp(position, direction, false);
@@ -207,7 +219,8 @@ public final class FireRedWorldRules implements WorldRules {
         boolean matchingHeight = fromHeight == toHeight || fromHeight == -1 || toHeight == -1
                 || toHeight == 14 || toHeight == -2 || fromHeight == 0 && toHeight == 2;
         boolean blocked = (!target.walkable(x, y) || !crossing && !matchingHeight) && !door
-                || target.occupied.contains(y * 65536 + x);
+                || (occupied == null ? target.occupied.contains(y * 65536 + x)
+                : occupied.test(at(group, map, x, y, direction, position.returnPoint())));
         if (!noclip && blocked) return new Decision(position, false, false);
         Position next = at(group, map, x, y, direction, position.returnPoint());
         Decision entered = warp(next, direction, true);

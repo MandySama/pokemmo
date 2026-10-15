@@ -14,6 +14,34 @@ public final class FollowerSprites {
         if (species < 1 || species > 493) throw new IOException("Unsupported follower species");
         return decode(new NdsArchive(rom, "/a/0/8/1").file(296 + index(species)));
     }
+    /** 仅开放具有专用行走图的前四世代种族。 */
+    public static BufferedImage[] load(Path hgss, Path blackWhite, int species) throws IOException {
+        if (species < 1 || species > 493) throw new IOException("Unsupported follower species");
+        if (hgss == null) throw new IOException("Missing HGSS ROM");
+        return load(hgss, species);
+        /* 后续种族的正背面回退暂时停用，等待专用行走资源。
+        if (blackWhite == null) throw new IOException("Missing Black/White ROM");
+        var front = PokemonAnimation.loadBattle(blackWhite, species, false, false).images();
+        var back = PokemonAnimation.loadBattle(blackWhite, species, false, true).images();
+        BufferedImage[] frames = new BufferedImage[8];
+        for (int direction = 0; direction < 4; direction++) for (int frame = 0; frame < 2; frame++) {
+            var sequence = direction == 1 ? back : front;
+            BufferedImage source = sequence.get(frame == 0 ? 0 : Math.max(1, sequence.size()/4)%sequence.size());
+            BufferedImage target = new BufferedImage(48, 48, BufferedImage.TYPE_INT_ARGB);
+            var graphics = target.createGraphics();
+            graphics.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION, java.awt.RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+            float scale = Math.min(40f/source.getWidth(), 40f/source.getHeight());
+            int width = Math.max(1, Math.round(source.getWidth()*scale)), height = Math.max(1, Math.round(source.getHeight()*scale));
+            int x = (48-width)/2, y = 46-height;
+            if (direction == 3) graphics.drawImage(source,x+width,y,-width,height,null);
+            else graphics.drawImage(source,x,y,width,height,null);
+            graphics.dispose();
+            frames[direction*2+frame] = target;
+        }
+        return frames;
+        */
+    }
+
     private static int index(int species) {
         int result = species;
         int[] boundaries = {3,25,154,172,201,202,208,214,386,412,413,415,422,423,443,444,445,449,450,479,487,492};

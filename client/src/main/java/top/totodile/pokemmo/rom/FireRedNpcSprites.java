@@ -76,6 +76,7 @@ final class FireRedNpcSprites {
         if (palette == 0) palette = palettes[0];
         if (palette == 0) throw new IOException("Missing NPC palette");
         int frames = pointer(info + 28);
+        if (frame >= 3 && (!isFrame(frames + frame * 8, width, height))) frame = 0;
         int pixels = pointer(frames + frame * 8);
         if (ushort(frames + frame * 8 + 4) < width * height / 2) throw new IOException("Truncated NPC frame");
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
@@ -92,6 +93,13 @@ final class FireRedNpcSprites {
             }
         }
         return image;
+    }
+
+    private boolean isFrame(int entry, int width, int height) throws IOException {
+        if (entry < 0 || entry + 8 > rom.length) return false;
+        long address = Integer.toUnsignedLong(integer(entry));
+        return address >= 0x08000000L && address < 0x08000000L + rom.length
+                && ushort(entry + 4) >= width * height / 2;
     }
 
     private int locateGraphicsTable() throws IOException {

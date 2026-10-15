@@ -18,7 +18,7 @@ import java.util.concurrent.Semaphore;
 /** 游戏服务入口连接：校验短期入服凭证，维护在线会话及加密保活。 */
 public final class GameServer implements AutoCloseable {
     private static final System.Logger LOGGER = System.getLogger(GameServer.class.getName());
-    private final WorldRules[] worldRules = {new FireRedWorldRules(0), new FireRedWorldRules(1), new BlackWhiteWorldRules(), new BlackWhiteWorldRules(3), new FireRedWorldRules(4)};
+    private final WorldRules[] worldRules = {new FireRedWorldRules(0), new FireRedWorldRules(1), new BlackWhiteWorldRules(), new BlackWhiteWorldRules(3), new FireRedWorldRules(4), new BlackWhiteWorldRules(5)};
     private final java.util.concurrent.ScheduledExecutorService saves = Executors.newScheduledThreadPool(2);
     private final ServerSocket listener = new ServerSocket();
     private final java.util.concurrent.ExecutorService workers = Executors.newVirtualThreadPerTaskExecutor();
@@ -281,7 +281,7 @@ public final class GameServer implements AutoCloseable {
                                 top.totodile.pokemmo.protocol.PcPackets.CREATE_BOX, status));
                     }
                 } else if (command[0] == WorldPackets.MOVE || command[0] == WorldPackets.LOADED
-                        || command[0] == WorldPackets.SETTINGS || command[0] == WorldPackets.TELEPORT) {
+                        || command[0] == WorldPackets.SETTINGS || command[0] == WorldPackets.TELEPORT || (command[0] & 255) == NpcPackets.OPCODE) {
                     if (world == null) throw new IOException("No active world");
                     channel.send(world.handle(command));
                 } else if (command[0] == WorldPackets.SAVE) {

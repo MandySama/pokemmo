@@ -12,7 +12,7 @@ public record PartyMember(int species, boolean shiny, boolean alpha, int hp, int
     public PartyMember {
         if (level < 0 || level > 100) throw new IllegalArgumentException("Invalid party level");
         if (hp < 0 || maxHp < 1 || maxHp > 65535 || hp > maxHp) throw new IllegalArgumentException("Invalid party HP");
-        if (species < 1 || species > 649) throw new IllegalArgumentException("Invalid party species");
+        if (species < 1 || species > PokemonCatalog.MAX_SPECIES) throw new IllegalArgumentException("Invalid party species");
         if(individual!=null){
             var rule=PokemonCatalog.get(species);
             long min=PokemonCatalog.experience(rule.growth(),Math.max(1,level));
@@ -41,7 +41,7 @@ public record PartyMember(int species, boolean shiny, boolean alpha, int hp, int
         List<PartyMember> members = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             int species = data.shortValue(), flags = data.byteValue();
-            if (species < 1 || species > 649 || (flags & ~3) != 0) throw new IOException("Invalid party member");
+            if (species < 1 || species > PokemonCatalog.MAX_SPECIES || (flags & ~3) != 0) throw new IOException("Invalid party member");
             int hp = data.shortValue(), maxHp = data.shortValue();
             if (maxHp == 0 || hp > maxHp) throw new IOException("Invalid party HP");
             int level = data.byteValue();

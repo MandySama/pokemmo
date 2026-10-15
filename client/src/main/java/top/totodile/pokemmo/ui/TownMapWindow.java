@@ -8,7 +8,8 @@ import top.totodile.pokemmo.protocol.CharacterPackets.Position;
 import top.totodile.pokemmo.rom.FireRedAtlas;
 import top.totodile.pokemmo.rom.FireRedAtlas.Area;
 import top.totodile.pokemmo.rom.FireRedAtlas.Key;
-import top.totodile.pokemmo.rom.FireRedRegionMap;
+import top.totodile.pokemmo.rom.GbaRegionMap;
+import top.totodile.pokemmo.rom.NdsRegionMap;
 
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
@@ -21,9 +22,10 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * 城镇地图窗口。火红卡带自带一张手绘区域图，窗口按整数倍居中绘制它，并把玩家光标放在
- * 卡带地点网格给出的落点上；城镇圆点本来就画在图上，不需要额外标注。
- * 卡带没有区域图时（如绿宝石）退回按玩法地图连接拼接渲染，此时保留原窗口行为。
+ * 城镇地图窗口。卡带自带一张手绘区域图（关都火红为四张大区图，丰缘绿宝石为一整张），
+ * 窗口按整数倍居中绘制它，并把玩家光标放在卡带地点网格给出的落点上；城镇圆点本来就画
+ * 在图上，不需要额外标注。
+ * 卡带没有区域图时退回按玩法地图连接拼接渲染，此时保留原窗口行为。
  * 纹理只在 GUI 线程创建和释放；关闭时释放纹理但保留像素缓存。
  */
 final class TownMapWindow extends ResizableFrame implements AutoCloseable {
@@ -37,7 +39,8 @@ final class TownMapWindow extends ResizableFrame implements AutoCloseable {
     private String locationText = "";
 
     /** 卡带区域图模式：当前大区、区域图与玩家落点。 */
-    private FireRedRegionMap regionMap;
+    private GbaRegionMap regionMap;
+    private final java.util.Map<String, NdsRegionMap> ndsMaps = new java.util.HashMap<>();
     private int regionIndex = -1;
     private BufferedImage regionPixels;
     private Texture regionTexture;
@@ -100,7 +103,13 @@ final class TownMapWindow extends ResizableFrame implements AutoCloseable {
             close();
             return;
         }
-        regionMap = atlas.regionMap();
+        GbaRegionMap nextRegionMap = atlas.regionMap();
+        if (regionMap != nextRegionMap) {
+            close();
+            regionIndex = -1;
+            regionPixels = null;
+        }
+        regionMap = nextRegionMap;
         if (regionMap != null) {
             updateState(position, name);
             setHardVisible(true);
@@ -126,6 +135,24 @@ final class TownMapWindow extends ResizableFrame implements AutoCloseable {
         invalidateLayout();
     }
 
+    void open(java.nio.file.Path rom, int region, Position position, String name) throws IOException {
+        if (rom == null) throw new IOException("Missing NDS region ROM");
+        close();
+        atlas = null;
+        String key = region + ":" + rom.toAbsolutePath().normalize();
+        NdsRegionMap decoded = ndsMaps.get(key);
+        if (decoded == null) {
+            decoded = NdsRegionMap.load(rom, region);
+            ndsMaps.put(key, decoded);
+        }
+        regionMap = decoded;
+        regionIndex = -1;
+        regionPixels = null;
+        updateState(position, name);
+        setHardVisible(true);
+        invalidateLayout();
+    }
+
     /** 跟随玩家更新地名与位置标记，不重新合成整幅区域图。 */
     void updateState(Position position, String name) {
         current = new Key(position.group(), position.map());
@@ -133,8 +160,10 @@ final class TownMapWindow extends ResizableFrame implements AutoCloseable {
         playerY = position.y();
         locationText = name;
         if (regionMap != null) {
-            regionSpot = regionSpot(current);
-            if (regionSpot != null && regionSpot[0] != regionIndex) loadRegion(regionSpot[0]);
+            regionSpot = regionMap instanceof NdsRegionMap nds
+                    ? nds.locate(position.group()*256+position.map(), playerX, playerY) : regionSpot(current);
+            int nextRegion = regionSpot != null ? regionSpot[0] : regionIndex >= 0 ? regionIndex : 0;
+            if (nextRegion != regionIndex || regionPixels == null) loadRegion(nextRegion);
         }
         boolean waiting = regionMap == null && (composing || map == null);
         String text = waiting ? ClientStrings.get(55) : locationText;
@@ -318,8 +347,8 @@ final class TownMapWindow extends ResizableFrame implements AutoCloseable {
         location.adjustSize();
         if (regionMap != null) {
             playerMarkerAt = regionSpot == null ? null
-                    : new int[]{FireRedRegionMap.pixelX(regionSpot[1]) * mapScale,
-                    FireRedRegionMap.pixelY(regionSpot[2]) * mapScale};
+                    : new int[]{regionMap.pixelX(regionSpot[1]) * mapScale,
+                    regionMap.pixelY(regionSpot[2]) * mapScale};
         } else {
             playerMarkerAt = locate();
         }

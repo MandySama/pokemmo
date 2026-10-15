@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS characters (
     name VARCHAR(16) NOT NULL CHECK (length(name) BETWEEN 2 AND 16),
     gender SMALLINT NOT NULL CHECK (gender BETWEEN 0 AND 1),
     skin SMALLINT NOT NULL CHECK (skin BETWEEN 0 AND 4),
-    region SMALLINT NOT NULL CHECK (region BETWEEN 0 AND 4),
+    region SMALLINT NOT NULL CHECK (region BETWEEN 0 AND 5),
     items SMALLINT[] NOT NULL CHECK (cardinality(items) = 12 AND array_ndims(items) = 1),
     colors SMALLINT[] NOT NULL CHECK (cardinality(colors) = 12 AND array_ndims(colors) = 1),
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -38,7 +38,7 @@ ALTER TABLE characters ADD COLUMN IF NOT EXISTS return_position SMALLINT[] NOT N
 ALTER TABLE characters ADD COLUMN IF NOT EXISTS dex_unlocked BOOLEAN NOT NULL DEFAULT FALSE;
 
 ALTER TABLE characters DROP CONSTRAINT IF EXISTS characters_region_check;
-ALTER TABLE characters ADD CONSTRAINT characters_region_check CHECK (region BETWEEN 0 AND 4);
+ALTER TABLE characters ADD CONSTRAINT characters_region_check CHECK (region BETWEEN 0 AND 5);
 
 ALTER TABLE characters ADD COLUMN IF NOT EXISTS money BIGINT NOT NULL DEFAULT 0 CHECK (money >= 0);
 ALTER TABLE characters ADD COLUMN IF NOT EXISTS battle_points BIGINT NOT NULL DEFAULT 0 CHECK (battle_points >= 0);
@@ -51,7 +51,7 @@ ALTER TABLE characters ADD COLUMN IF NOT EXISTS hoenn_champion BOOLEAN NOT NULL 
 
 ALTER TABLE characters ADD COLUMN IF NOT EXISTS party_species SMALLINT[] NOT NULL
     DEFAULT ARRAY[1,4,7,150,151]::SMALLINT[]
-    CHECK (cardinality(party_species) BETWEEN 0 AND 6 AND 0 < ALL(party_species) AND 650 > ALL(party_species));
+    CHECK (cardinality(party_species) BETWEEN 0 AND 6 AND 0 < ALL(party_species) AND 1026 > ALL(party_species));
 ALTER TABLE characters ADD COLUMN IF NOT EXISTS party_flags SMALLINT[] NOT NULL
     DEFAULT ARRAY[2,2,2,0,0]::SMALLINT[]
     CHECK (cardinality(party_flags) = cardinality(party_species) AND party_flags <@ ARRAY[0,1,2,3]::SMALLINT[]);
@@ -87,7 +87,7 @@ CREATE TABLE IF NOT EXISTS character_pokemon (
     individual_id BIGINT PRIMARY KEY CHECK (individual_id > 0),
     character_id BIGINT NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
     slot SMALLINT NOT NULL CHECK (slot BETWEEN 0 AND 5),
-    species SMALLINT NOT NULL CHECK (species BETWEEN 1 AND 649),
+    species SMALLINT NOT NULL CHECK (species BETWEEN 1 AND 1025),
     individual_data BYTEA NOT NULL,
     UNIQUE (character_id, slot)
 );
@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS character_box_pokemon (
     character_id BIGINT NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
     box SMALLINT NOT NULL CHECK (box BETWEEN 0 AND 12),
     slot SMALLINT NOT NULL CHECK (slot BETWEEN 0 AND 59),
-    species SMALLINT NOT NULL CHECK (species BETWEEN 1 AND 649),
+    species SMALLINT NOT NULL CHECK (species BETWEEN 1 AND 1025),
     flags SMALLINT NOT NULL CHECK (flags BETWEEN 0 AND 4),
     level SMALLINT NOT NULL CHECK (level BETWEEN 1 AND 100),
     hp INTEGER NOT NULL CHECK (hp BETWEEN 0 AND 65535),
@@ -120,3 +120,11 @@ ALTER TABLE characters ADD COLUMN IF NOT EXISTS cycling BOOLEAN NOT NULL DEFAULT
 
 ALTER TABLE characters ADD COLUMN IF NOT EXISTS debug_noclip BOOLEAN NOT NULL DEFAULT FALSE;
 ALTER TABLE characters ADD COLUMN IF NOT EXISTS debug_speed_multiplier SMALLINT NOT NULL DEFAULT 1 CHECK (debug_speed_multiplier IN (1,2,4,8));
+
+ALTER TABLE characters DROP CONSTRAINT IF EXISTS characters_party_species_check;
+ALTER TABLE characters ADD CONSTRAINT characters_party_species_check
+    CHECK (cardinality(party_species) BETWEEN 0 AND 6 AND 0 < ALL(party_species) AND 1026 > ALL(party_species));
+ALTER TABLE character_pokemon DROP CONSTRAINT IF EXISTS character_pokemon_species_check;
+ALTER TABLE character_pokemon ADD CONSTRAINT character_pokemon_species_check CHECK (species BETWEEN 1 AND 1025);
+ALTER TABLE character_box_pokemon DROP CONSTRAINT IF EXISTS character_box_pokemon_species_check;
+ALTER TABLE character_box_pokemon ADD CONSTRAINT character_box_pokemon_species_check CHECK (species BETWEEN 1 AND 1025);

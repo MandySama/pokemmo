@@ -96,6 +96,112 @@ public final class KantoWorld implements ClientWorld {
     private byte[] sentSettings;
     private long nextRequestAt;
     private boolean disposed;
+    private top.totodile.pokemmo.protocol.KantoNpcs localNpcs;
+    private Function<byte[], CompletableFuture<top.totodile.pokemmo.protocol.NpcPackets.Snapshot>> npcAuthority;
+    private CompletableFuture<top.totodile.pokemmo.protocol.NpcPackets.Snapshot> npcReply;
+    private final Map<FireRedAtlas.Key, Map<Integer, top.totodile.pokemmo.protocol.NpcPackets.State>> npcStates = new HashMap<>();
+    private final Map<FireRedAtlas.Key, Long> npcClocks = new HashMap<>();
+    private long nextNpcPoll, npcRenderTime;
+    private boolean conversing;
+
+    public void setNpcAuthority(Function<byte[], CompletableFuture<top.totodile.pokemmo.protocol.NpcPackets.Snapshot>> authority) {
+        npcAuthority = authority;
+    }
+
+    private void applyNpcs(top.totodile.pokemmo.protocol.NpcPackets.Snapshot snapshot, long now) {
+        if (disposed) return;
+        var key = new FireRedAtlas.Key(snapshot.group(), snapshot.map());
+        Map<Integer, top.totodile.pokemmo.protocol.NpcPackets.State> states = new HashMap<>();
+        for (var state : snapshot.states()) states.put(state.id(), state);
+        npcStates.put(key, states); npcClocks.put(key, now);
+    }
+
+    private void updateNpcs(long now) {
+        npcRenderTime = now;
+        if (appearance.region() != 0 || atlas == null) return;
+        if (npcReply != null && npcReply.isDone()) {
+            if (!npcReply.isCompletedExceptionally()) applyNpcs(npcReply.join(), now);
+            npcReply = null;
+        }
+        if (npcAuthority != null) {
+            if (npcReply == null && now >= nextNpcPoll && transfer == null && pendingTransfer == null) {
+                npcReply = npcAuthority.apply(top.totodile.pokemmo.protocol.NpcPackets.request(0, 0));
+                nextNpcPoll = now + 100_000_000L;
+            }
+        } else if (authority == null) {
+            try {
+                if (localNpcs == null) localNpcs = new top.totodile.pokemmo.protocol.KantoNpcs(new top.totodile.pokemmo.protocol.FireRedWorldRules());
+                localNpcs.update(position(), stepping ? new Position(current.group(), current.map(), fromX, fromY, position().elevation(), facing) : null, now); applyNpcs(localNpcs.snapshot(position(), now), now);
+            } catch (IOException error) { throw new IllegalStateException(error); }
+        }
+    }
+
+    public boolean canInteractPc() {
+        if (disposed || stepping || entering || transfer != null || pendingTransfer != null || worldReply != null
+                || conversing || facing != 1 || !top.totodile.pokemmo.rom.PokemonCenters.contains(region(), current.group(), current.map())) return false;
+        int targetY = y - 1;
+        if (x < 0 || x >= map.width() / 16 || targetY < 0 || targetY >= map.height() / 16) return false;
+        try { return map.behavior(x, targetY) == 0x83; }
+        catch (IOException error) { throw new IllegalStateException(error); }
+    }
+
+    public boolean hasNpcInFront() {
+        int tx = x + (facing == 2 ? -1 : facing == 3 ? 1 : 0);
+        int ty = y + (facing == 1 ? -1 : facing == 0 ? 1 : 0);
+        for (var npc : npcs) {
+            var state = npcState(npc, current);
+            if ((state == null ? npc.x() : state.x()) == tx && (state == null ? npc.y() : state.y()) == ty) return true;
+        }
+        return false;
+    }
+
+    /** 面前一格交互；移动中及过图时不锁定目标。 */
+    public CompletableFuture<List<Integer>> interactNpc() {
+        if (appearance.region() != 0 || stepping || entering || transfer != null || pendingTransfer != null
+                || worldReply != null || conversing) return CompletableFuture.completedFuture(List.of());
+        int targetX = x + (facing == 2 ? -1 : facing == 3 ? 1 : 0);
+        int targetY = y + (facing == 1 ? -1 : facing == 0 ? 1 : 0);
+        FireRedAtlas.Npc target = null;
+        for (var npc : npcs) {
+            var state = npcState(npc, current);
+            if ((state == null ? npc.x() : state.x()) == targetX && (state == null ? npc.y() : state.y()) == targetY) { target = npc; break; }
+        }
+        if (target == null) return CompletableFuture.completedFuture(List.of());
+        final FireRedAtlas.Npc selected = target;
+        conversing = true; clearKeys();
+        CompletableFuture<top.totodile.pokemmo.protocol.NpcPackets.Snapshot> response;
+        if (npcAuthority != null) response = npcAuthority.apply(top.totodile.pokemmo.protocol.NpcPackets.request(1, target.id()));
+        else if (localNpcs != null) {
+            localNpcs.talk(position(), target.id(), npcRenderTime);
+            response = CompletableFuture.completedFuture(localNpcs.snapshot(position(), npcRenderTime));
+        } else { conversing = false; return CompletableFuture.completedFuture(List.of()); }
+        return response.thenApply(snapshot -> {
+            // 网络线程只返回文本 ID，场景快照仍由 GUI 线程轮询更新。
+            if (snapshot.talking() != selected.id()) return List.<Integer>of();
+            try { return atlas.npcDialogue(selected, appearance.gender()); }
+            catch (IOException error) { throw new java.util.concurrent.CompletionException(error); }
+        });
+    }
+
+    public void endNpcConversation() {
+        conversing = false; clearKeys();
+        if (npcAuthority != null) npcAuthority.apply(top.totodile.pokemmo.protocol.NpcPackets.request(2, 255));
+        else if (localNpcs != null) localNpcs.talk(position(), 255, npcRenderTime);
+    }
+
+    private top.totodile.pokemmo.protocol.NpcPackets.State npcState(FireRedAtlas.Npc npc, FireRedAtlas.Key key) {
+        return npcStates.getOrDefault(key, Map.of()).get(npc.id());
+    }
+
+    private float npcCoordinate(FireRedAtlas.Npc npc, FireRedAtlas.Key key, boolean horizontal) {
+        var state = npcState(npc, key);
+        if (state == null) return horizontal ? npc.x() : npc.y();
+        float progress = state.remaining() == 0 ? 1 : Math.min(1, Math.max(0,
+                (275 - state.remaining() + (npcRenderTime - npcClocks.getOrDefault(key, npcRenderTime)) / 1_000_000f) / 275f));
+        return horizontal ? state.fromX() + (state.x() - state.fromX()) * progress
+                : state.fromY() + (state.y() - state.fromY()) * progress;
+    }
+
     private top.totodile.pokemmo.protocol.PartyMember follower;
     private CompletableFuture<BufferedImage[]> followerImages;
     private final FollowerTrail followerTrail = new FollowerTrail();
@@ -111,9 +217,8 @@ public final class KantoWorld implements ClientWorld {
         if (member == null) return;
         followerImages = CompletableFuture.supplyAsync(() -> {
             try {
-                var rom = new top.totodile.pokemmo.RomFiles(top.totodile.pokemmo.ClientFiles.data("../roms")).selected(4);
-                if (rom == null) throw new IOException("Missing HGSS ROM");
-                return top.totodile.pokemmo.rom.FollowerSprites.load(rom, member.species());
+                var roms = new top.totodile.pokemmo.RomFiles(top.totodile.pokemmo.ClientFiles.data("../roms"));
+                return top.totodile.pokemmo.rom.FollowerSprites.load(roms.selected(4), roms.selected(0), member.species());
             } catch (IOException error) { throw new java.util.concurrent.CompletionException(error); }
         });
     }
@@ -414,7 +519,7 @@ public final class KantoWorld implements ClientWorld {
     }
 
     private static int npcSpriteKey(FireRedAtlas.Npc npc) {
-        return 128 + npc.graphics() * 4 + npc.direction();
+        return 128 + npc.graphics() * 16 + Math.min(npc.direction(), 2) * 3;
     }
 
     public KantoWorld(FireRedMap map, AvatarAssets assets, Appearance appearance) throws IOException {
@@ -520,6 +625,7 @@ public final class KantoWorld implements ClientWorld {
 
     /** 一次只走一个格子；长帧不积攒补走，松键后完成当前步。 */
     public void update(long now) {
+        updateNpcs(now);
         if (worldReply != null) {
             if (!worldReply.isDone()) return;
             applyReply(now);
@@ -552,6 +658,7 @@ public final class KantoWorld implements ClientWorld {
             acknowledgeLoaded();
             return;
         }
+        if (conversing) return;
         if (entering) {
             if (now - entryFadeStarted < ENTRY_FADE_NANOS) return;
             entering = false;
@@ -630,7 +737,11 @@ public final class KantoWorld implements ClientWorld {
     }
 
     private boolean occupied(int x, int y) {
-        for (var npc : npcs) if (npc.x() == x && npc.y() == y) return true;
+        for (var npc : npcs) {
+            var state = npcState(npc, current);
+            if (state == null ? npc.x() == x && npc.y() == y
+                    : state.x() == x && state.y() == y || state.remaining() > 0 && state.fromX() == x && state.fromY() == y) return true;
+        }
         return false;
     }
 
@@ -749,7 +860,7 @@ public final class KantoWorld implements ClientWorld {
         sprite(facing, frame);
         Sprite sprite = sprites.get(avatarSpriteKey(facing, frame));
         java.util.List<Actor> actors = new java.util.ArrayList<>();
-        for (var npc : npcs) actors.add(new Actor(npc.y() * 16, npcLayer(npc), () -> drawNpc(npc, left, top, scale)));
+        for (var npc : npcs) actors.add(new Actor((int) (npcCoordinate(npc, current, false) * 16), npcLayer(npc), () -> drawNpc(npc, current, left, top, scale)));
         int playerLayer = map.elevation(x, y) >= 3 ? 2 : 1;
         if (follower != null) {
             int fx = (int) Math.round(followerTrail.x(now)), fy = (int) Math.round(followerTrail.y(now));
@@ -786,7 +897,7 @@ public final class KantoWorld implements ClientWorld {
                         neighborLeft, neighborTop, scale, (layer,row) -> {
                             glColor4f(1, 1, 1, 1);
                             for (var npc : neighbor.npcs()) {
-                                if (npcLayer(npc) == layer && (layer==2||npc.y()==row)) drawNpc(npc, neighborLeft, neighborTop, scale);
+                                if (npcLayer(npc) == layer && (layer==2||(int)npcCoordinate(npc, entry.getKey(), false)==row)) drawNpc(npc, entry.getKey(), neighborLeft, neighborTop, scale);
                             }
                         }, null);
             }
@@ -803,8 +914,10 @@ public final class KantoWorld implements ClientWorld {
             entry.getValue().renderer().close();
             iterator.remove();
         }
+        npcStates.keySet().retainAll(scenes.keySet());
+        npcClocks.keySet().retainAll(scenes.keySet());
         java.util.Set<Integer> used = new java.util.HashSet<>();
-        for (Scene scene : scenes.values()) for (var npc : scene.npcs()) used.add(npcSpriteKey(npc));
+        for (Scene scene : scenes.values()) for (var npc : scene.npcs()) for (int i = 0; i < 9; i++) used.add(128 + npc.graphics() * 16 + i);
         sprites.entrySet().removeIf(entry -> {
             if (entry.getKey() < 128 || used.contains(entry.getKey())) return false;
             glDeleteTextures(entry.getValue().texture()); return true;
@@ -815,9 +928,21 @@ public final class KantoWorld implements ClientWorld {
         return npc.elevation() < 3 ? 1 : 2;
     }
 
-    private void drawNpc(FireRedAtlas.Npc npc, int left, int top, int scale) {
-        Sprite sprite = sprites.get(npcSpriteKey(npc));
-        int px = npc.x() * 16, py = npc.y() * 16;
+    private void drawNpc(FireRedAtlas.Npc npc, FireRedAtlas.Key key, int left, int top, int scale) {
+        var state = npcState(npc, key);
+        int facing = state == null ? npc.direction() : state.facing();
+        boolean walking = state != null && state.remaining() > 0
+                && npcRenderTime - npcClocks.getOrDefault(key, npcRenderTime) < state.remaining() * 1_000_000L;
+        int walkFrame = walking ? (int)((npcRenderTime / 140_000_000L) % 4) : 0;
+        walkFrame = walkFrame == 1 ? 1 : walkFrame == 3 ? 2 : 0;
+        int spriteKey = 128 + npc.graphics() * 16 + Math.min(facing, 2) * 3 + walkFrame;
+        Sprite sprite = sprites.get(spriteKey);
+        if (sprite == null) {
+            try { var image = atlas.npcSprite(npc, true, 1, facing, walkFrame); upload(spriteKey, image.image(), image.scale()); }
+            catch (IOException error) { throw new IllegalStateException(error); }
+            sprite = sprites.get(spriteKey);
+        }
+        int px = (int)(npcCoordinate(npc, key, true) * 16), py = (int)(npcCoordinate(npc, key, false) * 16);
         Sprite shadow = sprites.get(64);
         draw(shadow, left + (px - 4.5f + shadow.width * 0.125f) * scale,
                 top + (py - 5 + shadow.height * 0.125f) * scale,
@@ -825,7 +950,7 @@ public final class KantoWorld implements ClientWorld {
         float width = sprite.width * sprite.scale, height = sprite.height * sprite.scale;
         draw(sprite, left + (px + (sprite.scale == 0.75f ? 0.5f : 0) - (width - 16) / 2f) * scale,
                 top + (py - (height - 16)) * scale,
-                width * scale, height * scale, npc.direction() == 3);
+                width * scale, height * scale, facing == 3);
     }
 
     private long movementNanos() {
@@ -883,5 +1008,6 @@ public final class KantoWorld implements ClientWorld {
         scenes.clear();
         for (Sprite sprite : sprites.values()) glDeleteTextures(sprite.texture);
         sprites.clear();
+        npcStates.clear(); npcClocks.clear(); npcReply = null; npcAuthority = null; localNpcs = null;
     }
 }

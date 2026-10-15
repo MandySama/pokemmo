@@ -13,6 +13,7 @@ public final class FireRedMaps {
     private static final Map<Integer, int[]> UNOVA_SIZES = load("unova");
     private static final Map<Integer, int[]> SINNOH_SIZES = load("sinnoh");
     private static final Map<Integer, int[]> EMERALD2_SIZES = load("emerald2");
+    private static final Map<Integer, int[]> JOHTO_SIZES = load("johto");
     private FireRedMaps() { }
     private static Map<Integer, int[]> load(String name) {
         Map<Integer, int[]> sizes = new HashMap<>();
@@ -32,9 +33,9 @@ public final class FireRedMaps {
         return contains(0, group, map, x, y);
     }
     public static boolean contains(int region, int group, int map, int x, int y) {
-        if (region < 0 || region > 4) return false;
+        if (region < 0 || region > 5) return false;
         if (group < 0 || group > 255 || map < 0 || map > 255) return false;
-        int[] size = (region == 0 ? SIZES : region == 1 ? EMERALD_SIZES : region == 2 ? UNOVA_SIZES : region == 3 ? SINNOH_SIZES : EMERALD2_SIZES).get(group * 256 + map);
+        int[] size = (region == 0 ? SIZES : region == 1 ? EMERALD_SIZES : region == 2 ? UNOVA_SIZES : region == 3 ? SINNOH_SIZES : region == 4 ? EMERALD2_SIZES : JOHTO_SIZES).get(group * 256 + map);
         return size != null && x >= 0 && y >= 0 && x < size[0] && y < size[1];
     }
 }

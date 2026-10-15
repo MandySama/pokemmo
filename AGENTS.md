@@ -188,7 +188,11 @@ mvn -o -s target/maven-central-settings.xml '-Dmaven.repo.local=C:/Users/21156/.
 
 - 上方快捷道具栏由 `GameItemBar` 提供九个栏位，人物上方居中，`data/themes/default/theme.xml` 的 `game-item-bar` 控制栏位尺寸与数字字体；栏位数字下方绘制已注册道具的黑白 ROM 图标（复用 `CatalogIcons`，后台解码、GUI 线程上传），进入世界 `open`、离开世界 `close` 释放。背包道具槽右键经 `BagWindow.openHotbarMenu` 弹出 TWL `Menu`：注册子菜单写 1–9 栏位，已注册时提供取消注册，回调由 `LoginScreen.HotbarBinding` 转发，同一道具只保留一个栏位。绑定持久化在 `HotbarSettings` 的 `client.hotbar.item_id1–9`，与 `ClientSettings` 分开并写入前重读，避免两个实例互相覆盖；首次运行缺省绑定栏位 2 为自行车 5450、栏位 5 为城镇地图 5442，已写入配置的栏位不再套用默认值。主键盘 1–9 与鼠标点击栏位共用 `GameItemBar.activate`：栏位 2 切换自行车（转发 `KantoWorld.toggleBicycle`），栏位 5 打开城镇地图窗口（不再是地图传送），其余已注册道具暂只高亮、使用逻辑待接通。`target/GameItemBarSmoke.java` 检查顶部居中、九栏位、图标上传、默认绑定、栏位点击与按键激活、2 切换自行车、5 打开城镇地图且不打开传送菜单、退出释放。
 
-- 城镇地图 `TownMapWindow` 由快捷栏栏位 5（城镇地图道具 5442）在游戏内打开，`data/themes/default/theme.xml` 的 `town-map` 控制内容边距、标签样式与玩家光标尺寸和颜色。火红卡带自带一张手绘区域图，不是玩法地图拼接：`FireRedRegionMap` 从卡带固定地址解码 LZ77（类型 0x10，标志位按高位先读）压缩的 4bpp 图块集（320 个图块）、30×20 图块层（索引 0 与越界调色板视为透明，调色板位选 4 组 16 色 BGR555 之一）与 4 张大区图（关都 + 七之岛三张），并裁剪掉四周留白取中央 192×144。窗口按整数倍放大居中绘制这张图，城镇圆点本来就画在图上；玩家落点取地图头的地区编号，查卡带的两层 15×22 地点网格（`oY` 主网格 + `Gt` 补充网格，197 为空白哨兵值）得到「大区 + 列 + 行」，换算成像素时落点格心在 `(列+4)*8+4-24, (行+4)*8+4-16`；当前地图没有编号（室内、船、特殊区域）时沿传送事件（跳过 127/255 动态出口，BFS 最多 16 跳）向外上溯到最近有编号的地图，因此室内也定位到所在城镇，跨大区时会自动换成对应的大区图。解码在打开窗口时同步完成（毫秒级），纹理只在 GUI 线程创建，关闭窗口释放纹理但保留像素缓存。绿宝石等没有该区域图的卡带 `FireRedAtlas.regionMap()` 返回 null，退回原有 `TownMapRegion` 拼接渲染（城镇用主题的 `markerColor` 圆点、玩家用光标区分）。`target/smoke/RegionMapSmoke.java` 校验四张大区图尺寸、88..98 号地区（真新镇…金黄市）的网格落点与图上圆点重合、七之岛落在大区 1..3、`FireRedAtlas` 暴露的地区编号，并在 `target/region-map-reference-kanto.png` 存在时与开发期独立解出的整幅位图逐像素比对；`target/GameItemBarSmoke.java` 覆盖窗口内的区域图选择、3 倍缩放尺寸、光标像素位置与关闭释放。
+- 城镇地图 `TownMapWindow` 由快捷栏栏位 5（城镇地图道具 5442）在游戏内打开，`data/themes/default/theme.xml` 的 `town-map` 控制内容边距、标签样式与玩家光标尺寸和颜色。关都火红与丰缘绿宝石卡带都自带手绘区域图，不是玩法地图拼接；解码公共逻辑在抽象基类 `GbaRegionMap`（按大区缓存解码结果、按地区编号反查「大区 + 列 + 行」落点、LZ77 类型 0x10 解压、BGR555 转换），`FireRedAtlas.regionMap()` 返回 `GbaRegionMap`：`region==0` 解码火红、`region==1` 解码绿宝石，结构校验失败（改版卡带）返回 null，调用方退回原有 `TownMapRegion` 拼接渲染（城镇用主题的 `markerColor` 圆点、玩家用光标区分）。
+  - 火红 `FireRedRegionMap`：从卡带固定地址解码 LZ77（类型 0x10，标志位按高位先读）压缩的 4bpp 图块集（320 个图块）、30×20 图块层（索引 0 与越界调色板视为透明，调色板位选 4 组 16 色 BGR555 之一）与 4 张大区图（关都 + 七之岛三张），裁剪掉四周留白取中央 192×144；玩家落点查两层 15×22 地点网格（`oY` 主网格 + `Gt` 补充网格，197 为空白哨兵值），格心像素在 `(列+4)*8+4-24, (行+4)*8+4-16`。
+  - 绿宝石 `EmeraldRegionMap`：丰缘只有一张 256×160 大区图，图块集为 8bpp（233 个 8×8 图块，每字节一个调色板索引），图块层每条目 1 字节、铺在 512×160 的画布上且只显示左半边，调色板是一段未压缩的 256 色 BGR555（索引 0 透明）；固定地址为调色板 `0x59F65C`、图块集 `0x59F77C`、图块层 `0x5A04E0`、地点网格 `0x5A096C`。落点查单层 15×28 地点网格（213 为空白哨兵值），光标像素在 `(列*8+14, 行*8+21)`，与图上自绘的城市胶囊／小镇圆点重合；校验项为两段 LZ77 的解压长度与 1..15 号地区全部能定位。
+  - 窗口行为两种卡带一致：按整数倍放大居中绘制，城镇标记本来就画在图上；当前地图没有编号（室内、船、特殊区域）时沿传送事件（跳过 127/255 动态出口，BFS 最多 16 跳）向外上溯到最近有编号的地图，跨大区时自动换成对应大区图；解码在打开窗口时同步完成（毫秒级），纹理只在 GUI 线程创建，关闭窗口释放纹理但保留像素缓存。
+  - `target/smoke/RegionMapSmoke.java` 校验关都四张大区图尺寸、88..98 号地区（真新镇…金黄市）的网格落点与图上圆点逐像素重合、七之岛落在大区 1..3，并校验丰缘图 256×160、1..15 号地区（古辰镇…彩幽市）的网格落点 5×5 窗口内落在图上自绘地标胶囊的本体色上、空白哨兵与未知地区返回 null、改版 BPEE 卡带（漆黑的魅影）与原版逐像素一致、绿宝石 `FireRedAtlas` 暴露 `EmeraldRegionMap` 且出生地图 0/0 锚定橙华市；关都部分在 `target/region-map-reference-kanto.png` 存在时与开发期独立解出的整幅位图逐像素比对。`target/GameItemBarSmoke.java` 覆盖窗口内的区域图选择、3 倍缩放尺寸、光标像素位置与关闭释放（当前因其它会话未提交改动在栏位尺寸断言处先失败，属既有问题）。
 
 ## 关都与丰缘双地区
 
@@ -217,9 +221,11 @@ mvn -o -s target/maven-central-settings.xml '-Dmaven.repo.local=C:/Users/21156/.
 
 - 名片图鉴与最高驯服图标使用黑白 ROM 物品 5431／5216，按原生 24×24 绘制在对应统计前，与金钱、战斗点、时间形成五行。后台解码后在 GUI 线程上传共享 48×24 纹理，关闭取消结果并释放，图标不截获点击。`target/TrainerCardIconsSmoke` 验证真实 OpenGL 上传、两图标尺寸、点击图标关闭及释放。
 
-- 游戏左上角 `WorldInfoPanel` 展示地点、余额、游戏时钟，复用原 `main-hud.png` 中三个 18×18 图标（本地 `world-hud.png`），描边字体，三行步距 23；GM 入口移动到信息块下方。地点 ID 来自 GBA 地图头 +20，火红为 139912+section，绿宝石为 141000+section；绿宝石类型 8 的动态秘密基地 section87 使用共用基地名 section86。语言 XML 补齐地图名称，覆盖 425+518 张地图。
+- 游戏左上角 `WorldInfoPanel` 展示地点、余额、游戏时钟，复用原 `main-hud.png` 中三个 18×18 图标（本地 `world-hud.png`），描边字体，三行步距 23；GM 入口移动到信息块下方。地点 ID 来自 GBA 地图头 +20，火红为 139912+section，绿宝石为 141000+section；绿宝石类型 8 的动态秘密基地 section87 使用共用基地名 section86。语言 XML 补齐地图名称，覆盖 425+518 张地图。第三个图标位后续替换为按时段切换的日出／太阳／月亮图标，见下方「HUD 频道／时段／季节补充」。
 - 世界内每五秒共用 0x77 刷新余额和名片统计，关闭名片不停止 HUD 刷新。0x77 响应末尾增加服务端游戏秒数，采用 UTC Unix 秒×4，客户端以不可变时钟采样和单调时间推进，显示 HH:mm；不使用客户端本地时区，不在此次修改地图绘制现有的环境时间参数，也不宣称与外部服务器时钟相位一致。需要同时重启客户端和 game 服务。退出游戏隐藏信息块，迟到的其他世界余额响应忽略。
 - `target/WorldInfoSmoke` 验证 943 张地图名称覆盖、出生地及切图更新、余额格式、午夜换日、真实 OpenGL 位置与退出隐藏；`WorldInfoNetworkSmoke` 使用隔离 PostgreSQL 账号及加密 TCP 验证服务端时钟、四倍推进，以及关闭名片后余额仍刷新，结束清理测试数据。
+
+- HUD 频道／时段／季节补充：`WorldInfoPanel.update` 签名扩展为 `(name, channel, seconds)`，地点行拼接固定频道 `Ch. N`（当前 `LoginScreen.SERVER_CHANNEL = 1`，尚无多频道服务端来源）；时间行改为「星期X, HH:mm, 季节」。星期按游戏日 `floorDiv(seconds, 86400) % 7` 取第 0 天为星期一（即每 6 现实小时轮转一天），时段按 `MORNING_MINUTE=240 / DAY_MINUTE=660 / NIGHT_MINUTE=1260` 划分清晨 04:00–10:59、白天 11:00–20:59、夜晚 21:00–03:59，与原版游戏时钟一致；季节按现实月份 `(month-1)%4` 于每月 1 日 UTC 0 点切换（1 月春、2 月夏…），与参考截图 10 月显示「夏」吻合。主题新增 `world-info.morning/day/night` 三张 18×18 图标（取自 `world-hud.png`，替代原单一 `world-info.time`），`PeriodIcon.paintWidget` 按当前时段绘制并依赖 TWL 每帧重绘，无需显式 invalidate。语言 ID 9700–9706 为星期一至星期日、9707–9710 为春夏秋冬。未接入玩家本地时区与真实频道号，也未改动地图绘制的环境时间参数。
 
 - 右下角小图标名称提示按原客户端桌面小 HUD 的 `ChatBadgePrefixLabel` 设置 150ms 延迟；`GameHudBar.IconButton` 实现 `TooltipPositionAdjuster`，以按钮顶边中央和 BOTTOM 对齐，窗口边缘由 TWL 限制，不跟随图标内的鼠标移动。延迟由 `game-hud.icon.tooltipDelay` 控制。`target/HudTooltipSmoke` 用真实 OpenGL/TWL 验证 149/151ms 门槛、首中末图标位置、右边界限制、锚点稳定和移出隐藏；结论来自源码核对及本项目测试，未运行原客户端。
 
@@ -269,7 +275,7 @@ mvn -o -s target/maven-central-settings.xml '-Dmaven.repo.local=C:/Users/21156/.
 - target/FollowerSpriteSmoke 解码并输出五只默认精灵接触表，已目视核对种族正确；FollowerUiSmoke 用真实 OpenGL/TWL 检查拖动预览、地图释放请求、拖动不弹菜单、八帧上传、上一格跟随／转弯／停止、过图重置、收回、空槽忽略、格子绑定排序后切换、精灵切换与纹理清理；FollowerNetworkSmoke 用隔离 PostgreSQL 和加密 TCP 检查认证队伍选择、切换、收回、空槽拒绝且连接保留，覆盖关都及丰缘，结束删除测试数据。结论来自源码核对与本项目测试，未运行原客户端。
 - 图鉴详情由 `PokedexDetailPanel` 在现有图鉴窗口内切换，整窗五标签顺序为资料、技能、种族值、野生分布、进化树；170×185 精灵框、右侧资料键值行、右下返回按钮沿用主题资源。`PokedexData` 从黑白 ROM 读取基础资料、等级招式、努力值、携带物品和进化关系；普通战斗精灵从 `/a/0/0/4` 解码，NCER 共用文件 4，LZ10/LZ11 由 `NdsCompression` 处理。异步 CPU 解析，GUI 线程上传，切换或关闭丢弃旧结果并释放纹理；不凭队伍数据授予图鉴记录。Esc 从详情返回列表，再次关闭窗口。PvP 层级、野生分布及叫声尚未接通，不宣称 ROM 数据为线上平衡数据。
 
-- 队伍菜单“资料”由 `PokemonSummaryWindow` 打开独立 506×316 窗口，图集复用 `party-health.png` 中精灵资料背景与七个标签图标。窗口与图鉴独立，不依赖图鉴解锁；只显示服务端已有种族、闪光／头目标记及 HP 中当前已接通的普通精灵图、头目标记和 HP，种族属性从黑白 ROM 读取。等级、性格、个体特性、携带物、亲密度、能力、EV／IV、当前技能、经历、奖章没有个体存档，显示 --，不可拿种族基础值或升级招式冒充。窗口纳入置顶、Esc、退出清理，异步解析结果在切换／关闭时丢弃。`target/PokemonSummaryUiSmoke` 覆盖菜单入口、七页、HP、纹理上传、背包并存与 Esc 清理。
+- 队伍菜单“资料”由 `PokemonSummaryWindow` 打开独立 506×316 窗口，图集复用 `party-health.png` 中精灵资料背景与七个标签图标。窗口与图鉴独立，不依赖图鉴解锁；只显示服务端已有种族、闪光／头目标记及 HP 中当前已接通的普通精灵图、头目标记和 HP，种族属性从黑白 ROM 读取。等级、性格、个体特性、携带物、亲密度、能力、EV／IV、当前技能、经历、奖章没有个体存档，显示 --，不可拿种族基础值或升级招式冒充。窗口纳入置顶、Esc、退出清理，异步解析结果在切换／关闭时丢弃；同类窗口可同时打开多个并按序号级联偏移，图像区可点击切换正／背面，见下方「详情窗口多开与正／背面切换」。`target/PokemonSummaryUiSmoke` 覆盖菜单入口、七页、HP、纹理上传、背包并存与 Esc 清理。
 
 - 精灵资料窗口布局更正为标题栏左侧九图标、右侧标题；左侧资料表，右侧精灵背景与名称等级，属性标牌在 (277,246)，头目标记在右侧状态区，携带道具在底部。背景与字段来自 `monster-info.png` 同源 `party-health.png`，属性色核对 `EventTriggerHandlerRegistry`，属性／头目／标记图来自已存在的 `trainer-atlas.png`（与 main.png 内容相同）。类型徽标使用 ROM 类型到图集编号的映射（火起跳过编号 9）；动态切换 TWL theme 必须调用 reapplyTheme，否则新背景不会应用。首页字段顺序按源码及截图：Object Id／图鉴／名称／性格／原住／经验／升级还需，图鉴图标使用 ROM 物品 5431 并接通现有图鉴。没有个体状态的数据不绘制捕获球／性别／闪光／锁定标记，精灵仍为静态普通图，属性粒子动画未接入。较早的七标签与左右布局说明由本条取代。
 
@@ -370,6 +376,8 @@ mvn -o -s target/maven-central-settings.xml '-Dmaven.repo.local=C:/Users/21156/.
 
 - 聊天窗口更新：展开初始408×196，收起24×24气泡，`place` 保持左下角锚点并按客户区裁剪；顶部5像素和右边5像素把手调整宽高，最小408×140，右上角同时调整两轴，锁定按钮阻止缩放。尺寸与展开状态保留于当前客户端窗口生命周期。五频道Local/Global/Trade/Whispers/Battle独立筛选，系统信息属于Local，最多100条记录；原来的全部/系统标签约定由此替代。语言／设置菜单和提示音、链接入口仅UI，发送仍禁用。气泡使用原图集，chat-tools.png为本项目绘制的工具图标。`ChatExpandUiSmoke` 使用实际鼠标事件检查收起／展开、频道筛选、锚定缩放、锁定与语言菜单及OpenGL截图。
 
+- 聊天窗口默认状态修正：进入世界时聊天框默认为收起气泡（24×24），不再默认展开。`ChatPanel` 的 `expanded` 初值与构造末尾的 `setExpanded` 都改为 false，展开仍由气泡按钮触发，展开后尺寸、缩放、锁定行为不变；同一客户端窗口生命周期内保留用户手动切换的结果。`target/ChatExpandUiSmoke.java` 已改为先断言默认 24×24、内容隐藏且展开按钮可见，再覆盖展开、频道筛选、收起、重新展开、锚定缩放、锁定及语言菜单，真实 OpenGL/TWL 截图通过。
+
 - 邮箱仅展示：电脑菜单MAIL打开 `MailWindow`，初始474×556并居中，三个页签读取／发送／已发送；没有邮件服务数据时保持空列表和0/250，不展示截图样例内容。写信字段及发送／清空／附件操作禁用，无协议或数据库变更。主题mail-window复用图集与主题背景；顶层游戏窗口管理纳入邮箱，Esc／关闭隐藏，退出角色同时隐藏。`MailUiSmoke` 验证电脑入口、尺寸、空计数、三页签、禁用发送及Esc。
 
 - 邮箱静态展示需求更新：用户明确要求使用所给截图中的7封邮件，替代此前空邮箱约定。MailWindow内置列表结构、文字仍由语言XML提供，日期固定1／2／2／17／17／18／467天，计数7/250。初始474×556，选中邮件扩展924×556并重新居中，左434像素列表、右侧发件人／主题／正文／回复；正文按当前字体宽度换行并顶对齐，ZVTI正文与截图一致。其余邮件截图未提供正文时显示无内容。回复只切写信表单并填接收人、主题；删除图标不写入、发送禁用，无网络邮件业务。`MailStaticUiSmoke`验证列表数据、选中高亮与扩展、正文、回复预填及Esc，截图在target。
@@ -392,7 +400,87 @@ mvn -o -s target/maven-central-settings.xml '-Dmaven.repo.local=C:/Users/21156/.
 - 宝可梦动画错位修正：NCER OAM 的attr0第8位开启仿射时，attr1第12/13位属于矩阵编号，不能作横纵翻转；双尺寸仿射需给图块坐标补半宽／半高。PokedexData.renderCell已修正，PokemonAnimation的部件矩阵顺序与源实现一致。`PokemonOamRegression`用非对称线性像素验证两类仿射标志／原点，避免此前仅检查帧非空漏掉肢体断裂；PokemonAnimationSmoke六种精灵重新生成检查。
 - `SummaryParticles`替代固定正弦／下落轨迹：读取外部VFX各控制器的发射率、数量、寿命、矩形／椭圆生成范围、尺寸、旋转速度曲线、极坐标加速度、阻尼与透明度曲线；固定60Hz推进，使用资料窗口67度视角、z=2相机投影，原APS纹理做旋转与渐隐。草系type12当前为20粒/秒、1.5秒寿命、上限60，符合资源参数。仍为资料窗口的CPU公告板绘制路径，不是整个三维粒子引擎移植，未覆盖所有原VFX influencer。`PokemonSummaryMotionFixSmoke`检查原参数粒子密度、旋转推进、连续OpenGL截图和九页回归；PokedexSweepSmoke重新通过649种／1298正反面静态精灵，确认共享解码修复未破坏图鉴。
 
+- 详情窗口多开与正／背面切换：`LoginScreen` 不再持有单个 `pokemonSummary` 字段，改为 `List<PokemonSummaryWindow> pokemonSummaries`。队伍菜单的“资料”走 `openSummary(member)`，每次新建一个窗口并 `add` 到屏幕，位置在居中点基础上按序号 `index*26` 向右下偏移并夹在客户区内，`placedGameWindows` 预先登记保证首帧布局不把它重新居中；`closeSummary(window)` 负责 `setHardVisible(false)`、释放纹理、清理列表与 `placedGameWindows`、`removeChild`。`topGameWindow()` 把列表并入候选集，Esc 分支改用 `top instanceof PokemonSummaryWindow` 只关闭最上面那一个；`pokemonSummaryVisible(false)`（注销、断线、离图、野生遭遇、GM 菜单）仍一次性关闭全部。`PokemonSummaryWindow` 构造改为无参并新增 `setCloseAction(Runnable)`，因为窗口需要在构造后才能拿到自身引用做关闭回调。
+- 背面素材走 `PokemonAnimation.load(rom,species,shiny,true)`（调色板基址 +9 的背面资源，与战斗场景同一路径），异步结果为 `Loaded` 增加 `backFrames`；正面帧与背面帧打包进同一张图集（宽度 = 8 格 × 格宽 + 48 像素图标区，见下方内容裁剪修复），正面占前 `frontRows` 行、背面接在其后，图鉴与精灵球图标仍放第 0 行右侧，因此仍只需一个纹理实例。图像区新增透明按钮 `pictureHit`（主题 `picture-hit`，背景 `none`），它被放在子控件最后以便命中测试优先，尺寸位置与 `picture` 完全一致；点击时先 `requestKeyboardFocus()` 把该窗口置顶，再翻转 `showingBack` 并记录 `flipStart`。`picture.paintWidget` 在 360ms 内把绘制宽度按 `|cos(πt)|` 收窄再展开，`t<0.5` 画旧朝向、`t≥0.5` 画新朝向，视觉上等同于转身。语言 9711 为提示文案。
+- 验证：`mvn -o -q -Dmaven.legacyLocalRepo=true compile` EXIT=0；新增 `target/PokemonSummaryMultiSmoke.java`（隐藏 GLFW 真实 OpenGL/TWL）覆盖两个窗口同时可见、位置差 26 像素、旧窗口位置不被改动、偏移后仍在客户区内、新窗口置顶、命中区与图像区几何一致、正／背面帧来自不同图集区域、点击后翻转并置位 `flipStart`、150ms 时画面确实重绘、动画结束后 `flipStart` 复位且朝向保持、背面与正面渲染差异远大于同朝向噪声（把 `animation`／`backAnimation` 固定为单帧并清空 `particleEffect` 后同朝向噪声为 0，正↔背面差异 5904 像素）、再次点击回正面、Esc 只关闭最上面窗口且被关窗口纹理已释放、`pokemonSummaryVisible(false)` 清空全部；`PokemonSummaryUiSmoke`／`PokemonSummaryMotionFixSmoke`／`PokemonSummaryStyleSmoke` 同步改为从 `pokemonSummaries` 取最后一个窗口，三个测试仍 PASS。截图 `target/pokemon-summary-multi.png`（两个窗口级联）与 `target/pokemon-summary-back.png`（背面）。
+- 回归说明：`PartyPanelSmoke`（`dragging` 字段）、`PartySlotsSmoke`（`shinyMarker` 字段）、`PokedexSmoke`（仍按 V 打开图鉴，现为 N）、`GameItemBarSmoke`（栏宽）、`MailUiSmoke`（仍期望空邮箱，现为静态 7 封）在本轮之前就已因更早会话的改动失效，与本轮无关；`WildEncounterUiSmoke` 需要把 `battle/target/classes` 加进类路径才能跑通（加了以后 PASS）。本次仅客户端改动，无协议变更。
+
+- 精灵动画画布按内容裁剪修复头部截断：资料窗口原用 `PokemonAnimation.load` 的固定 96×96 画布合成动画帧，而 BW 战斗动画的部件坐标把脚底锚在画布中心线上、身体向上延伸，高个体（盖诺赛克特 649、快龙 149、土地云 645 实测触边）头部超出画布顶被截掉；静态精灵路径（内容范围相对中心 −35..+33）不受影响。新增 `PokemonAnimation.loadSummary(rom,species,shiny)`：从 96 画布起步、内容触边时换更大画布重渲染，正／背面帧按并集边界裁剪成同尺寸同锚点的格子（`SummaryFrames` 记录格尺寸与原画布中心在格内的锚点），窗口图集宽度改为 8 格 × 格宽 + 48 像素图标区；绘制按锚点把脚底放回历史画布中心线（整数运算保持旧落点，普通 2 倍、异色 221 像素约定不变，翻转收缩围绕锚点进行），动画加载失败回退的静态精灵沿用 96 格默认锚点。`target/SummarySpriteClipSmoke.java` 校验 649 旧 96 画布顶部触边（回归标记）、裁剪帧严格落在格内、内容底边等于锚点行、窗口格字段 {80,75,39,73}、绘制矩形完全落在图像区内、真实 OpenGL 截图头顶带出现紫色身体像素（渲染前清空粒子效果），另校验妙蛙种子不受影响；`PokemonSummaryUiSmoke`／`PokemonSummaryMotionFixSmoke`／`PokemonSummaryStyleSmoke`／`PokemonSummaryMultiSmoke` 仍 PASS。
+
 - 丰缘2为逻辑地区4，ROM管理槽5、配置client.roms.em2；与原丰缘地区1分开。FireRedAtlas(Path,boolean)的modified模式支持改版最后地图组的填充尾部，不套用原丰缘增强补丁及HGSS NPC替换。地图目录emerald2.csv与emerald2-world.gz从本地漆黑的魅影5.0EX ROM生成，共707张地图；ExportWorldRules第四参数启用改版模式。新角色出生沿用改版1/1或1/3 (4,4)，GM传送独立目录。地区4暂未接徽章进度，驯服上限按零徽章计算。服务端需重启以加载地区4约束及通行目录。Hoenn2Smoke验证707张地图像素解码、432968格高度目录、26处传送及独立ROM导入；未实际登录游玩。
 - 改版NPC查表函数不再含原第二处指令特征；FireRedNpcSprites优先原定位，缺失时按连续主角描述尺寸／调色板标签扫描后置扩展表。丰缘2保留改版原NPC图，不使用原丰缘HGSS替换；Hoenn2Smoke补充未白镇固定NPC解码检查。
 
 - 丰缘2传送目录新增地图组34–37全部189张扩展地图（与原绿宝石目录差集一致），section5，名称使用独立语言ID251000–251188的地图组／编号标识，未冒用原版地点名。落点选择至少两方向可通行的内部格，排除NPC及传送格。TeleportMenuWindow丰缘2首页保留26处常用地点，后8页每页24处扩展地点，末页21处；其他地区不显示翻页控件。Hoenn2TeleportUiSmoke覆盖189个真实控件回调、9页边界、来回翻页和地区切换；Hoenn2Smoke检查新增落点通行与服务端位置有效性。本次仅直接传送，未新增二周目剧情机制或真实TCP联调。
+
+- 野生遭遇首期展示：新增纯Java Maven模块battle，WildEncounter管理LOADING／FLASH／SLIDE／ANNOUNCE／THROW／RELEASE／READY／ENDING／CLOSED生命周期；无GLFW、TWL依赖，未接战斗裁决或结果持久化。3号快捷栏初始化绑定1179甜甜香气陶笛，数量始终6且不扣道具／PP；图标从现有1179.png直接作为主题图像显示，不等待CatalogIcons整图集。道具目录补入1179及101328／101329语言描述。
+- WildEncounterPanel使用角色当前队伍首只HP>0成员，野生种族1–649、等级3–30随机，HP按种族／等级／合法随机HP个体值计算，性别遵循种族比例；当前全图鉴抽取，不按地图分布且不是服务端遇敌裁决。双方CPU动画从黑白ROM解析，PokemonAnimation新增back重载读取+9后的背面资源，色板仍取种族18／19；不支持动画时回退同朝向静态图。外观包view1的5帧合成真实角色背面投球；精灵球图标沿个体球编号映射，弧线／旋转投球及径向白光释放。圆盘与独立场景现在由BattleScene读取ROM模型绘制；血条来自battle-hud.png，操作框使用chat-hud.png通用按钮图集。闪烁取LinearTimelineSequence分段曲线，800ms后500ms收暗，双方滑入700ms，停稳后显示野生遭遇文字1000ms，投球600ms、出现600ms；投球开始显示己方出场文字，4200ms后显示按钮。上述为源码核对，未运行原客户端。
+- 遭遇期间全屏控件接管输入，阻止移动、快捷键和重复开启；四按钮仅在READY出现，任一按钮走350ms退场，不修改HP／PP／经验／金钱。加载失败提示并恢复；离图／断线／退出取消异步结果并释放全部战斗纹理。WildEncounterUiSmoke用隐藏OpenGL窗口检查3键、固定6、正背面动画、投球五帧、分阶段截图、四按钮退出及纹理释放；未进行本次真实TCP战斗联调。
+
+- 战斗展示修正：PokedexData.renderCell同优先级OAM按编号从大到小绘制，避免低编号眼部图块被身体覆盖；不将该绘制错误当作睡眠状态。PokemonAnimation.loadBattle自192起按需扩展至256／384／512，检测全部动作边缘后统一裁掉透明空白，保留2像素透明边，图集按实际宽高和OpenGL纹理尺寸上限上传；图鉴／资料原96画布接口保留。不要恢复固定96画布或局部战斗裁剪。
+- WildEncounterPanel黑幕透明度由主题backdropOpacity控制，当前0.68，仍透出地图；用户最新澄清全屏黑幕之上仍有独立战斗背景。HUD、队伍图标及操作框不随大窗口整体放大；战斗视口按760×540水平居中、距顶部50绘制，宝可梦按实际像素边界居中并限制最大展示宽高。操作按钮拆分粗体标题／说明文字，首个按钮默认金色焦点框；标题子控件不消费鼠标事件。性别图标使用既有图集，避免setTheme在已挂载控件上不自动重载导致标记缺失。
+- WildEncounterWideUiSmoke覆盖1920×1080下盖诺赛克特完整出场、文字阶段、固定控件宽度、四按钮退出、失败／取消释放；BattleSpriteBoundsSmoke检查6种正背面共2624帧完整边界；PokemonOamRegression新增同优先级覆盖与扩展原点；PokedexSweepSmoke重新覆盖649种／1298静态图。验证为本项目OpenGL及ROM解码检查，未运行原客户端或进行本次TCP战斗联调。
+
+- 操作框已切换为原rbattle通用button图集（现有chat-hud.png与main-hud.png哈希一致），使用52×52九宫格源图、50ms四帧悬停过渡／400ms两帧焦点动画；控件209×52、间隔2。不要重新使用battle-hud换人按钮裁片或手绘焦点框。名称／标题采用14号粗体加#484848描边，说明文字12号拉丁／14号CJK加#434343描边。
+- 遭遇界面加载和待操作阶段不显示准备文字；只在ANNOUNCE／THROW／RELEASE显示原遭遇／投球内容。HP条采用200×8、对方HUD偏移(70,9)、己方(80,8)，保留左侧HP标识；经验条读取当前个体真实experience和成长曲线，仅有个体数据时显示，100级进度为0。相关尺寸、间距与图像通过wild-encounter主题配置。
+- WildEncounterUiSmoke补充无准备提示、真实个体经验比例和经验资源的OpenGL检查，截图battle-experience-style.png；WildEncounterWideUiSmoke继续检查大窗口固定控件尺寸与四个操作退出。当前仍为展示流程，未进行本次真实TCP战斗联调或原客户端运行验证。
+
+- BattleScene从黑白ROM /a/0/1/1读取平台1、背景46与骨骼动画50，复用NitroModel解析；动画按原播放倍率2循环，平台按三维镜头透视绘制并在入场中滑入。CPU资源后台读取，模型在GUI线程创建、绘制及释放；视口独立清除颜色与深度，恢复OpenGL矩阵／状态，演员裁剪在战斗视口内，全屏地图遮罩仍由主题控制。当前统一使用截图中的室外场景，不按地图／昼夜切换。名称等级分别锚定对方HUD+50、己方HUD+65，HP数字在200像素血量区域居中；队伍图标去掉图块透明留白后以36像素无框横排、间隔4。BattleSceneUiSmoke检查1024×768与1920×1080、ROM动态背景、长时间循环、文字对齐、四操作退出和模型／纹理释放；属于本项目OpenGL验证。
+
+- 遭遇及投球提示使用wild-encounter.message主题，独立26号字体、TOPLEFT对齐、17/17/7/7内边距，背景为none，共用战斗区域底部遮罩，避免叠加label1.background形成第二块深色底板；文案仍由252000／252001提供，不恢复准备状态文字。
+
+- 对战队伍图标的头目描边色与闪光头目描边色均传透明色，不添加蓝色或其他彩色边缘；仅调整WildEncounterPanel调用，保留其他页面的头目图标样式及战斗精灵头目倍率。
+
+- 遭遇提示已按最新截图改为底部完整760×116区域中的大号左上文字，不再与操作按钮区域共用420×106的居中布局。
+
+- BattleScene在入场4200ms后启动35秒镜头循环，每段5秒，沿默认视角／左移／复位／敌方推进／复位／偏转／升高／复位采样，使用正弦缓入缓出；相机位置、观察点独立插值，保留默认距离3与俯角-10。actorPose通过同一相机投影平台脚点及深度倍率驱动二维精灵，避免只移动圆盘而精灵留在原处；HUD、队伍图标、文字与按钮不随镜头移动。当前镜头仅用于待操作展示，不包含招式镜头。BattleSceneUiSmoke覆盖两个尺寸、七段轨迹、精灵投影改变、35秒回原点及四个操作退出释放，属于本项目OpenGL验证，未运行原客户端。
+
+- 丰缘城镇地图的地区编号0为未白镇，GbaRegionMap允许有效编号0、统一使用-1作为空白网格值；FireRedRegionMap双层合并也初始化为-1，避免空白格误定位为未白镇。EmeraldRegionMap校验0..15地点，0号图块为有效海面，不可跳过。TownMapWindow无地点落点时仍加载现有大区或默认0区，仅隐藏玩家标记。RegionMapSmoke覆盖关都四区与丰缘两版ROM的解码和落点，HoennTownMapUiSmoke用真实OpenGL验证原版／丰缘2未白镇区域图、标记和释放。
+
+- 合众／神奥城镇地图由NdsRegionMap合成NCGR／NCLR／NSCR双层资源，复用GbaRegionMap的图像及像素落点接口：黑白/a/0/8/5的0号调色板、7/5号图块、16/17号图层；白金/graphic/tmap_gra.narc的0号调色板、19号图块、22/24号图层。合众地点读/a/0/8/6的54字节记录；神奥读取主矩阵和data/maps/sinnoh-town-map.xml的209项地点映射，室内按地点名／传送关联定位，解析结果按地图ID缓存。TownMapWindow新增NDS ROM入口，按路径缓存CPU区域图，跨地区切换重置区域图纹理和索引，关闭释放GPU纹理；LoginScreen按地区2/3选择ROM槽0/3，不再因atlas为空拒绝打开。NdsRegionMapSmoke和NdsTownMapUiSmoke验证两区出生定位、双层解码、真实OpenGL绘制、重复切区、返回GBA与纹理释放；未加入飞行或点击传送。
+
+- 首个招式展示接入撞击33：WildEncounter新增SELECT_MOVE／MOVE阶段，FIGHT进入招式选择，返回或Esc回READY，chooseMove仅接受选择阶段的33；MOVE持续1600ms后回READY，期间忽略重复出招与退出请求，其余三操作仍结束遭遇。MovePresentation为纯Java采样时间轴：400ms预备、160ms冲出、400ms回位、500ms命中特效窗口。WildEncounterPanel后台读取黑白/a/0/0/6的195号粒子纹理，使用2号星形和3号冲击环、主题impactColor；出招显示252005文本，攻击方短促冲出、受击方抖动和闪烁，关闭释放全部特效纹理。镜头在MOVE冻结，恢复时扣除暂停时长避免跳变。当前固定撞击为独立展示入口，不写个体招式表、不扣HP／PP、不结算伤害，未实现完整原粒子控制器或招式音效。TackleModelSmoke检查纯Java阶段、无效／重复操作、采样与恢复；TackleUiSmoke检查真实OpenGL招式选择／返回、文案、命中帧、输入锁、镜头暂停连续恢复、重复使用及资源释放；早期四按钮全部退出的临时smoke预期已不适用FIGHT。
+
+- 盖诺赛克特跟随修正：GameServer对已认证角色队伍的普通跟随种族上限由493扩为649，空槽／越界仍拒绝，闪光限制保持。KantoWorld按世代选择资源；FollowerSprites保留HGSS四向接口，新增HGSS／BW双ROM入口，494..649使用黑白战斗正背面动画取两帧、最近邻缩放到48画布，向上用背面，左右复用正面并镜像。此为缺少专用四向素材的回退，不是完整第五世代四向行走图，不改变NDS世界尚未接入跟随的状态。PartyPanel队伍槽拦截右键按下／松开，松开时直接打开该成员详情；左键菜单和拖拽保留。FollowerFixUiSmoke验证649可见8帧、HGSS回归、真实世界上传／收回及右键详情／左键菜单；GenesectFollowerNetworkSmoke使用隔离PostgreSQL账号及临时TCP服务验证649选择、收回、空槽拒绝，结束删除测试数据。客户端与game服务需同时重启载入修改。
+
+- 战斗换宠／背包：WildEncounter新增BAG／SELECT_PARTY／SWITCH_LOADING／SWITCHING，configureParty保存本次队伍HP快照与activeSlot，selectParty拒绝当前成员、HP0、越界及重复请求；资源加载成功后提交activeSlot并播放600ms出场，失败回选择页。WildEncounterPanel使用本次真实队伍构建六格选择窗，异步加载新成员背面动画、更新HUD及真实经验，替换后删除旧背面图集，退出取消pendingSwitch并释放所有纹理；窗口返回、X、Esc取消选择，不改变角色队伍顺序或持久化数据。背包按钮经LoginScreen打开已有BagWindow，保持战斗和移动锁，关闭／Esc回READY；battleView仅允许查看、分类、搜索及提示，屏蔽普通使用／注册／销毁菜单，Ctrl+Tab／Ctrl+Shift+Tab仍切分类，关闭清除battleView。BattlePartyModelSmoke验证袋内状态保留、换宠合法性、加载失败恢复及600ms时序；SwitchBagUiSmoke验证真实OpenGL选择窗、切换与HUD、取消、当前库存背包、Esc／分类快捷键、移动锁、重复切换资源数量稳定与退出释放；TackleUiSmoke回归出招流程。当前仍为本地战斗展示，未加入战斗道具效果或服务端战斗裁决。
+
+
+## 关都 NPC 移动与文字对话（2026-10-15）
+
+- 本条替代关都 NPC 仅静态显示、不能对话的旧状态；丰缘及 NDS 地区仍保持本次修改前的行为。`FireRedAtlas.Npc` 保留 ROM 24 字节事件中的移动类型、横纵范围（+10 的两个半字节）及脚本指针（+16）；仍只显示无隐藏标记且图形编号小于 0xF0 的事件，不执行地图剧情以增删 NPC。
+- `/maps/kanto-npcs.csv` 是无图像的服务器目录，当前卡带导出 1,040 条事件；`ExportKantoNpcs <火红 ROM> <output.csv>` 可重建，需与世界通行资源保持同一卡带来源。ROM 的可移动类型将零活动范围按一格处理；支持随机徘徊、限定方向转身、旋转、往返、顺序路线、跟随玩家方向及原地行走。NPC 不越过活动范围、不可通行地块或传送格；移动期间保留起点与终点占位，并避让玩家当前格及未完成步的起点。ROM 中少数地图外脚本占位保留原始定义，超过合法坐标编码的事件不发送运动快照。
+- `WorldSession` 为活动角色持有 `KantoNpcs`，按请求推进当前地图的 NPC 状态，最多保留16张已访问地图；当前不是多个玩家共享的区域 NPC 服务，也不将 NPC 位置写入角色数据库。玩家移动使用动态占位替代关都出生格占位；丰缘继续使用原规则。`NpcPackets` 0x82 动作0轮询、1交互、2结束，客户端至多一个轮询在途，间隔100ms；服务器检查活动世界、加载状态、移动结束、正前方一格与高度，交谈期间拒绝玩家移动并锁住目标。客户端和 game 服务需要同时更新重启。
+- `KantoWorld` 按服务器快照插值，NPC 的行走及朝向纹理按需上传；GBA 0–8帧、HGSS 16／17／8帧资源使用对应帧映射，右向镜像左向，按插值脚底位置与地图行分层。纹理随场景缓存淘汰或退出释放；邻接地图尚未成为当前地图时不持续推进其 NPC。离线世界使用同一运动模型。
+- 面向相邻 NPC 按J打开 `NpcDialog`，J／回车／空格翻页，Esc或末页关闭，支持鼠标按钮；没有面前NPC时仍保留既有电脑入口。对话期间清键，禁止世界移动，结束恢复固定朝向或巡游。`FireRedNpcDialogue` 有界读取卡带脚本的文本／调用／条件分支，使用初始变量、未置剧情标记及角色性别，不调用 special，不执行战斗、商店、治疗、奖励和剧情写操作。训练家仅展示开战前文本。当前卡带的1,040条可见事件中992条可获得文字，合计841个文本ID，直接复用现有中文表并加入 `strings_zh.xml`；没有可读文字的特殊事件不虚构对话。
+- `KantoNpcSimulationSmoke` 遍历425图、模拟每图36秒，验证活动范围、有效移动边界、动态占位、协议往返、对话锁定及841条中文；195个NPC发生位移、378个NPC发生转向。`KantoNpcNetworkSmoke` 使用隔离PostgreSQL账号与真实加密TCP，验证移动快照、相邻交谈、朝向、移动锁定、结束与远程交互拒绝，并回归原移动／传送／存档检查；结束清理隔离记录。`KantoNpcUiSmoke` 检查实际OpenGL/TWL、J交互、中文分页、WASD锁定、Esc／重开、NPC行走帧与释放，截图在target；不是原客户端运行实测。
+
+- `KantoNpcSpriteSmoke` 验证92种可见图形的三朝向、站立及两步帧，覆盖GBA和HGSS共1,656次解码；`ExportKantoNpcs` 重建目录与已保存资源逐行一致。NPC对话主题复用现有白色气泡和黑色字体，长段落按最多五行拆页。
+
+
+## 九世代目录与招式展示（2026-10-15）
+
+- 全国图鉴、综合搜索、队伍与服务端种族上限统一使用 `PokemonCatalog.MAX_SPECIES=1025`。1–649 保留黑白 ROM 规则；650–1025 从只读客户端 `pokedex_data.json`、`data.pak` 与 `resources.zip` 导入并按全国编号重新索引。`tools/import_reference_gen9.py` 可重复生成 `pokemon-gen9.dat.gz`、外部详情及图像包；内部编号不直接进入游戏协议。属性9为妖精，转换成当前目录17；原始招式 flags1是命中率、flags4是PP，不能反转。原扩展资源没有性别比例与成长曲线，保留缺失性别及原条目默认成长值，不宣称这些字段是完整九世代规则。
+- `ExtendedPokemonSprites` 从 `data/resources/pokemon-gen9.zip` 加载PNG/GIF，GIF按覆盖、清除和还原方式合成，延时重采样到30Hz；战斗与资料沿用脚底锚点及动态边界裁剪。图鉴小图标图集扩到2048×1056，前半剪影、后半彩色。妖精标签使用语言230009，不能复用一般属性的烘焙文字。新增特性描述使用220000命名空间。
+- `PokemonIndividual` 写入格式2，特性改为unsigned short，继续读取格式1；招式编号允许到1000、PP上限160、特性上限310。数据库幂等迁移队伍、个体表及箱子表的种族约束到1025，保留已有数据；客户端和game服务需要同时重启。
+- 493之后跟随按用户要求暂时停用：`FollowerSprites` 的BW正背面回退保留为注释，客户端PartyPanel与GameServer均限制至493。此前允许649跟随的说明和旧smoke预期已被此需求取代；右键打开资料仍保留。
+- `tools/import_reference_animations.py` 导出561个招式（1–559、584、619）的参数目录，覆盖2406次fE0/dA0粒子控制器调用。纯Java `MoveAnimations` 位于battle模块，只存时间与参数；客户端 `BattleParticles` 读取外部particles.zip（938个VFX定义）和ROM APS／自定义PNG；松散文件的妖精背景及断崖之剑配置按优先级覆盖归档，负责二维公告板投影、发射寿命、颜色透明度与旋转。`MovePresentation` 提供位移／缩放／染色和背景明暗采样。复杂原始并行序列、拖尾、全部influencer、招式镜头及音效尚未等价移植，不可宣称全部动画视觉与原客户端完全一致。
+- 技能选择页下拉框提供替换测试，异步准备好后才能出招，不改写个体技能或HP／PP。替换释放上一套纹理，关闭取消future并释放GPU资源；播放按各招式时长回READY。撞击33保留已有1600ms表现。
+- `Gen9CatalogSmoke` 遍历1025种、1504套新增普通／闪光正背面图、14995条招式、484条进化关系及个体编解码；`AllMoveResourcesSmoke` 检查561注册和2406粒子调用；`AllMoveUiSmoke` 在真实OpenGL上下文循环替换／播放561招式及退出释放。`Gen9PokedexUiSmoke` 检查1025列表、650／700／888／1025详情标签、重新锁定隐私与释放；`Gen9SearchUiSmoke` 检查1025列表与末号实际添加回调，`Gen9SummaryUiSmoke` 检查650／700／888／1025九页与纹理；`Gen9NetworkSmoke` 使用隔离账号进行加密TCP添加、PostgreSQL存档／重入与跟随限制检查，结束删除测试行。均为本项目验证，未运行原客户端。
+
+- 电脑菜单触发条件更新（2026-10-15）：J 为场景交互键，仅关都／丰缘宝可梦中心一楼、站定且朝上面对 ROM 0x83 电脑地块时打开电脑菜单；`data/maps/pokemon-centers.csv` 限定中心地图，住宅电脑、室外、远离电脑、错误朝向及移动／过图期间均不触发。面前有 NPC 时继续优先进行 NPC 文字对话。此条替代“没有面前 NPC 时打开电脑”的旧行为；菜单功能和 GM 随身电脑入口不变。
+
+- `target/PcWorldGuardSmoke` 验证关都／丰缘35处中心电脑地块、错误朝向、室外、住宅电脑、移动与淡入期间拒绝，实际J打开／Esc关闭菜单，并回归NPC文字对话；真实OpenGL/TWL通过。
+
+- 对话按键更新：电脑菜单和NPC对话均支持K取消，保留Esc；NPC文字气泡移除“下一页”和“关闭”按钮，只显示正文，J推进到下一页／末页结束，保留回车和空格推进。K在对话分支消费，不切换世界跑步状态。
+
+- 电脑功能菜单支持角色纵向移动键W／S切换选项，同时保留↑／↓，按住时沿用GLFW重复事件；菜单期间这些按键不驱动角色。
+
+
+## 城都地图入图（2026-10-15）
+
+- 城都使用本项目地区编号5，避免与已使用编号4的丰缘2冲突；卡带及原实现中的HGSS地区编号仍为4，地点语言ID采用144000命名空间，不可混为145000。新角色与GM地区目录增加城都，ROM入口使用现有导入类型4（心金／魂银），不修改原项目。人物出生在若叶镇主角家二楼：地图头64，协议group=0/map=64，(6,6)；一楼63，若叶镇60。不能把61/62的空木研究所误当主角家。
+- `HeartGoldMaps` 独立实现 `NdsMaps`：解压ARM9，以33489410／11076050特征定位后加16得到24字节地图头；area取+1、matrix取+4、events取+16、地点名取+18、室内类型取+21低三位（4），不能仅用非零矩阵判断室内。矩阵`/a/0/4/1`、地形`/a/0/6/5`、区域元数据`/a/0/4/2`、纹理`/a/0/4/4`、事件`/a/0/3/2`，建筑按室内类型选择`/a/1/4/8`或`/a/0/4/0`。HGSS地形头为20字节，+18保存附加块长度；属性、建筑、BMD与BPLC位置须算入此块。高度面元复用`PlatinumTerrain`，矩阵保留垂直偏移。
+- `JohtoWorld` 复用 `NdsWorld` 镜头、角色、按格移动、淡出淡入和缓存；`BlackWhiteWorldRules(5)`读取`johto-world.gz`，角色位置目录读取`johto.csv`。540个地图头来自整张HGSS卡带，含卡带中重制关都部分，不与火红地区混用。`ExportJohtoRules`生成服务端资源；`johto-teleports.xml`先提供若叶镇(695,397)、一楼(3,9)、二楼(6,6)三个入口，其余地图沿卡带连接和传送访问。
+- 协议角色、位置、宝可梦遇见地区及数据库角色地区范围扩至0–5；原有编号和数据保留，地区与位置仍走原子存档／跨地区通道。城都没有接入徽章进度，本次名片驯服上限只使用初值20，不读取神奥徽章冒充城都进度。客户端和game服务需同时更新重启。本次范围是地图解析、入图、移动与传送，不接入城都NPC／剧情或城镇地图窗口。
+- `JohtoRulesSmoke`检查主角家两层和若叶镇往返；`JohtoWorldSmoke`在真实OpenGL绘制出生房间与若叶镇人物／建筑。`JohtoAtlasSweep`覆盖540个地图头、676个地形块、720896个地形层格子和1317条传送记录，518个有所属可行走格的地图实际OpenGL绘制通过，22个无所属可行走格不声称实测入图。当前仅实测本机心金卡带，没有魂银卡带运行验证。
+- `JohtoCreationNetworkSmoke`用隔离PostgreSQL账号检查城都创建、入图、权威移动、存档、重新入图及非法地图拒绝；`JohtoRegionNetworkSmoke`检查跨城都／原地区传送、角色调试状态与位置、重连及归属。`JohtoEntryUiSmoke`使用实际创建窗口选城都、点击创建／入图、GLFW方向键发起移动，以及六地区菜单实际点击／OpenGL切换和存档重连；测试结束删除隔离数据。上述是本项目测试，未运行原客户端。

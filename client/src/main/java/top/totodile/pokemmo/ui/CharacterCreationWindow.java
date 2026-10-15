@@ -31,7 +31,7 @@ final class CharacterCreationWindow extends ResizableFrame {
     private final Label nameLabel = label(1053);
     private final Label regionLabel = label(1060);
     private final EditField name = new CharacterNameField();
-    private final ComboBox<String> region = combo(ClientStrings.get(250000), ClientStrings.get(250001), ClientStrings.get(250002), ClientStrings.get(250003), ClientStrings.get(250004));
+    private final ComboBox<String> region = combo(ClientStrings.get(250000), ClientStrings.get(250001), ClientStrings.get(250002), ClientStrings.get(250003), ClientStrings.get(250004), ClientStrings.get(250005));
     private final Button create = new Button(ClientStrings.get(1051));
     private final Button previous = new Button();
     private final Button next = new Button();

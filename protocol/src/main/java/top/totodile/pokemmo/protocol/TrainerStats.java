@@ -12,18 +12,19 @@ public record TrainerStats(int caught, long money, long battlePoints, long onlin
             {20, 24, 28, 33, 35, 38, 44, 48, 58, 100}};
 
     public static int obedience(int region, int badges) {
+        if (region == 5 && badges == 0) return 20;
         if (region < 0 || region >= CAPS.length || badges < 0 || badges > 9)
             throw new IllegalArgumentException("Invalid badge progress");
         return CAPS[region][badges];
     }
 
     public boolean valid() {
-        return caught >= 0 && caught <= 649 && money >= 0 && battlePoints >= 0
+        return caught >= 0 && caught <= PokemonCatalog.MAX_SPECIES && money >= 0 && battlePoints >= 0
                 && onlineSeconds >= 0 && obedience >= 1 && obedience <= 100;
     }
 
     public static TrainerStats initial(int region, boolean unlocked) {
-        return new TrainerStats(unlocked ? 649 : 0, 0, 0, 0, obedience(region, 0));
+        return new TrainerStats(unlocked ? PokemonCatalog.MAX_SPECIES : 0, 0, 0, 0, obedience(region, 0));
     }
 
     static void write(PacketData data, TrainerStats stats) {

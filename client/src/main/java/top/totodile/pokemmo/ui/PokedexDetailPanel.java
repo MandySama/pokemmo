@@ -38,7 +38,7 @@ final class PokedexDetailPanel extends Widget implements AutoCloseable {
     private CompletableFuture<BufferedImage[]> spriteResult;
     private final Image[] images = new Image[2];
     private Texture texture;
-    private int species, maximum = 649, tab;
+    private int species, maximum = top.totodile.pokemmo.protocol.PokemonCatalog.MAX_SPECIES, tab;
     private boolean known, backView, failed;
 
     PokedexDetailPanel(Runnable returnToList, IntConsumer select) {
@@ -94,7 +94,7 @@ final class PokedexDetailPanel extends Widget implements AutoCloseable {
     private static String text(int id) { return ClientStrings.get(id); }
     private static String optional(int id) { try { return text(id); } catch(IllegalArgumentException error) { return text(9365); } }
     private static String format(int id,Object value) { return text(id).replace("{00}",String.valueOf(value)); }
-    private static String type(int id) { return optional(230000+(id>=9?id+1:id)); }
+    private static String type(int id) { return optional(230000+(id==17?9:id>=9?id+1:id)); }
     private static String item(int id) { return optional(245000+id); }
 
     private void refresh() {
@@ -129,7 +129,7 @@ final class PokedexDetailPanel extends Widget implements AutoCloseable {
                 for(int i=0;i<7;i++)content.stat(text(labels[i]),i<6?record.stats().get(i):total,i<6?255:680,i);
             } else if(tab==4) {
                 var family=data.family(species);
-                if(family.isEmpty())content.line("",text(9378));
+                if(family.isEmpty())content.line("", species > 649 ? text(252008) : text(9378));
                 for(var evolution:family) {
                     content.link(optional(150000+evolution.from())+" → "+optional(150000+evolution.target()),()->select.accept(evolution.target()));
                     content.line("",condition(evolution));

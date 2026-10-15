@@ -174,14 +174,14 @@ final class PcBoxWindow extends ResizableFrame implements AutoCloseable {
             add(marks[i]);
         }
         for (int i = 0; i < typeBadges.length; i++) {
-            typeBadges[i] = new Widget();
+            typeBadges[i] = new PokemonTypeBadge();
             typeBadges[i].setTheme("move-type-none");
             typeBadges[i].setVisible(false);
             add(typeBadges[i]);
         }
         for (int id : DETAIL_STRING_IDS) line(id);
         for (int i = 0; i < MOVE_ROWS; i++) {
-            Widget badge = new Widget();
+            Widget badge = new PokemonTypeBadge();
             badge.setTheme("move-type-none");
             badge.setVisible(false);
             add(badge);

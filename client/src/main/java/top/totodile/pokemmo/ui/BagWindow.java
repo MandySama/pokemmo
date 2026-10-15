@@ -80,6 +80,9 @@ final class BagWindow extends ResizableFrame implements AutoCloseable {
         select(0);
     }
 
+    private boolean battleView;
+    void setBattleView(boolean enabled) { battleView = enabled; }
+
     void open() {
         itemIcons.preload(inventory.keySet());
         search.setText("");
@@ -123,6 +126,7 @@ final class BagWindow extends ResizableFrame implements AutoCloseable {
 
     /** 右键道具弹出的注册菜单：注册子菜单 1-9，已注册时提供取消注册。 */
     private void openHotbarMenu(int itemId, int x, int y) {
+        if (battleView) return;
         if (hotbar == null || getGUI() == null) return;
         Menu menu = new Menu();
         Menu register = new Menu(ClientStrings.get(1412));
@@ -137,6 +141,7 @@ final class BagWindow extends ResizableFrame implements AutoCloseable {
         menu.openPopupMenu(this, x, y);
     }
     private void openItemMenu(int id,int x,int y) {
+        if (battleView) return;
         if(busy)return;
         var menu=new Menu();
         menu.add(new MenuAction(ClientStrings.get(1410),()->{if(!busy)use.accept(id);}).setEnabled(top.totodile.pokemmo.protocol.ItemLoot.usable(id)));

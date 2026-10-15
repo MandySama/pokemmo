@@ -1,6 +1,7 @@
 package top.totodile.pokemmo.ui;
 
 import de.matthiasmann.twl.Button;
+import de.matthiasmann.twl.Event;
 import de.matthiasmann.twl.ThemeInfo;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.GUI;
@@ -297,6 +298,7 @@ final class PartyPanel extends Widget implements AutoCloseable {
 
     private void follow(int index) {
         if (selectFollower == null || followResult != null || moveResult != null) return;
+        if (index >= 0 && (index >= members.size() || members.get(index).species() > 493)) { followFailed.run(); return; }
         requestedFollowerSlot = -1;
         followResult = selectFollower.apply(index);
     }
@@ -420,6 +422,15 @@ final class PartyPanel extends Widget implements AutoCloseable {
         @Override
         public boolean handleEvent(de.matthiasmann.twl.Event event) {
             if (event.isMouseEvent()) { dragX = event.getMouseX(); dragY = event.getMouseY(); }
+            if ((event.getType() == Event.Type.MOUSE_BTNDOWN || event.getType() == Event.Type.MOUSE_BTNUP)
+                    && event.getMouseButton() == Event.MOUSE_RBUTTON) {
+                if (event.getType() == Event.Type.MOUSE_BTNUP && index < members.size() && isInside(dragX, dragY)) {
+                    if (menu != null) menu.closePopup();
+                    menuOpened.run();
+                    openSummary.accept(members.get(index));
+                }
+                return true;
+            }
             return super.handleEvent(event);
         }
         @Override

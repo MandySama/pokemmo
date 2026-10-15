@@ -14,7 +14,7 @@ final class CatalogIcons implements AutoCloseable {
     private CompletableFuture<Pixels> pending;
     private Texture items, pokemon;
     private final java.util.Map<Integer, Image> itemImages = new java.util.HashMap<>();
-    private final Image[] pokemonImages = new Image[650];
+    private final Image[] pokemonImages = new Image[top.totodile.pokemmo.protocol.PokemonCatalog.MAX_SPECIES + 1];
     void open() {
         if (pending != null || items != null) return;
         pending = CompletableFuture.supplyAsync(() -> {
@@ -52,7 +52,7 @@ final class CatalogIcons implements AutoCloseable {
                     itemImages.put(item.id(), items.getImage(index % 64 * 24, index / 64 * 24, 24, 24, Color.WHITE, false, Texture.Rotation.NONE));
                     index++;
                 }
-                if (pokemon != null) for (int i = 1; i <= 649; i++) pokemonImages[i] = pokemon.getImage(1024 + (i - 1) % 32 * 32, (i - 1) / 32 * 32, 32, 32, Color.WHITE, false, Texture.Rotation.NONE);
+                if (pokemon != null) for (int i = 1; i <= top.totodile.pokemmo.protocol.PokemonCatalog.MAX_SPECIES; i++) pokemonImages[i] = pokemon.getImage(1024 + (i - 1) % 32 * 32, (i - 1) / 32 * 32, 32, 32, Color.WHITE, false, Texture.Rotation.NONE);
             }
         }
         return isPokemon ? pokemonImages[id] : itemImages.get(id);

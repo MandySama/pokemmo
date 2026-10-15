@@ -41,9 +41,13 @@ final class HgssNpcSprites {
     }
 
     BufferedImage image(int graphics, int direction) throws IOException {
+        return image(graphics, direction, 0);
+    }
+
+    BufferedImage image(int graphics, int direction, int walkFrame) throws IOException {
         Integer replacement = replacements.get(graphics);
         if (replacement == null) return null;
-        int key = graphics * 4 + direction;
+        int key = graphics * 16 + direction * 3 + walkFrame;
         if (images.containsKey(key)) return images.get(key);
         try {
             // 外观编号从 1 开始，NARC 分配表的文件索引从 0 开始。
@@ -60,6 +64,14 @@ final class HgssNpcSprites {
                 case 8 -> FRAMES_8[direction];
                 default -> Math.min(direction, textures.size() - 1);
             };
+            if (walkFrame != 0) {
+                frame = switch (textures.size()) {
+                    case 16 -> new int[][]{{12, 14}, {8, 10}, {1, 3}}[direction][walkFrame - 1];
+                    case 17 -> new int[][]{{13, 15}, {9, 11}, {1, 3}}[direction][walkFrame - 1];
+                    case 8 -> new int[]{3, 1, 5}[direction];
+                    default -> frame;
+                };
+            }
             var entry = textures.get(frame);
             int params = ushort(data, entry.offset() + 2);
             int format = params >> 10 & 7;

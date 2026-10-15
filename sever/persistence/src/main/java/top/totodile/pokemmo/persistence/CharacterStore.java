@@ -28,8 +28,8 @@ public final class CharacterStore {
             List<CharacterInfo> result = new ArrayList<>();
             try (ResultSet rows = query.executeQuery()) {
                 while (rows.next()) result.add(new CharacterInfo(rows.getLong(1), new Appearance(rows.getString(2),
-                        rows.getInt(3), rows.getInt(4), rows.getInt(5), integers(rows.getArray(6)), integers(rows.getArray(7))), new Position(rows.getInt(8), rows.getInt(9), rows.getInt(10), rows.getInt(11), rows.getInt(12), rows.getInt(13), returnPoint(rows.getArray(14))), rows.getTimestamp(15).toInstant().getEpochSecond(), rows.getBoolean(16), new TrainerStats(rows.getBoolean(16) ? 649 : 0, rows.getLong(17), rows.getLong(18), rows.getLong(19),
-                                TrainerStats.obedience(rows.getInt(5), rows.getInt(5) == 4 ? 0 : rows.getInt(rows.getInt(5) == 0 ? 20 : rows.getInt(5) == 1 ? 21 : rows.getInt(5) == 2 ? 27 : 28))), PokemonStore.load(connection,rows.getLong(1),party(rows.getArray(22), rows.getArray(23), rows.getArray(24), rows.getArray(25), rows.getArray(26))), rows.getBoolean(29), rows.getBoolean(30), rows.getInt(31)));
+                        rows.getInt(3), rows.getInt(4), rows.getInt(5), integers(rows.getArray(6)), integers(rows.getArray(7))), new Position(rows.getInt(8), rows.getInt(9), rows.getInt(10), rows.getInt(11), rows.getInt(12), rows.getInt(13), returnPoint(rows.getArray(14))), rows.getTimestamp(15).toInstant().getEpochSecond(), rows.getBoolean(16), new TrainerStats(rows.getBoolean(16) ? top.totodile.pokemmo.protocol.PokemonCatalog.MAX_SPECIES : 0, rows.getLong(17), rows.getLong(18), rows.getLong(19),
+                                TrainerStats.obedience(rows.getInt(5), rows.getInt(5) >= 4 ? 0 : rows.getInt(rows.getInt(5) == 0 ? 20 : rows.getInt(5) == 1 ? 21 : rows.getInt(5) == 2 ? 27 : 28))), PokemonStore.load(connection,rows.getLong(1),party(rows.getArray(22), rows.getArray(23), rows.getArray(24), rows.getArray(25), rows.getArray(26))), rows.getBoolean(29), rows.getBoolean(30), rows.getInt(31)));
             }
             return List.copyOf(result);
         }
@@ -264,7 +264,7 @@ public final class CharacterStore {
                         inventory.put(id, quantity);
                     }
                 } else if (action == 2) {
-                    if (id < 1 || id > 649 || amount < 1 || amount > 100) status = top.totodile.pokemmo.protocol.SearchPackets.Status.INVALID;
+                    if (id < 1 || id > top.totodile.pokemmo.protocol.PokemonCatalog.MAX_SPECIES || amount < 1 || amount > 100) status = top.totodile.pokemmo.protocol.SearchPackets.Status.INVALID;
                     else if (members.size() == 6) status = top.totodile.pokemmo.protocol.SearchPackets.Status.PARTY_FULL;
                     else {
                         int hp = top.totodile.pokemmo.protocol.PokemonCatalog.hp(id, amount);
@@ -396,8 +396,8 @@ public final class CharacterStore {
             try (var rows = q.executeQuery()) {
                 if (!rows.next()) throw new SQLException("Character stats unavailable");
                 int region = rows.getInt(1);
-                return new TrainerStats(rows.getBoolean(2) ? 649 : 0, rows.getLong(3), rows.getLong(4),
-                        Math.max(onlineSeconds, rows.getLong(5)), TrainerStats.obedience(region, region == 4 ? 0 : rows.getInt(region == 0 ? 6 : region == 1 ? 7 : region == 2 ? 8 : 9)));
+                return new TrainerStats(rows.getBoolean(2) ? top.totodile.pokemmo.protocol.PokemonCatalog.MAX_SPECIES : 0, rows.getLong(3), rows.getLong(4),
+                        Math.max(onlineSeconds, rows.getLong(5)), TrainerStats.obedience(region, region >= 4 ? 0 : rows.getInt(region == 0 ? 6 : region == 1 ? 7 : region == 2 ? 8 : 9)));
             }
         }
     }
@@ -435,7 +435,7 @@ public final class CharacterStore {
     public boolean saveWorldState(int account, long character, Position p, long onlineSeconds, Boolean cycling) throws SQLException {
         if (!p.valid()) return false;
         try (Connection c = database.connect(); PreparedStatement q = c.prepareStatement(
-                "UPDATE characters SET map_group=?,map_id=?,position_x=?,position_y=?,elevation=?,facing=?,return_position=?,online_seconds=GREATEST(online_seconds,?),cycling=COALESCE(?,cycling) WHERE id=? AND account_id=? AND ((region=0 AND ?) OR (region=1 AND ?) OR (region=2 AND ?) OR (region=3 AND ?) OR (region=4 AND ?))")) {
+                "UPDATE characters SET map_group=?,map_id=?,position_x=?,position_y=?,elevation=?,facing=?,return_position=?,online_seconds=GREATEST(online_seconds,?),cycling=COALESCE(?,cycling) WHERE id=? AND account_id=? AND ((region=0 AND ?) OR (region=1 AND ?) OR (region=2 AND ?) OR (region=3 AND ?) OR (region=4 AND ?) OR (region=5 AND ?))")) {
             q.setInt(1,p.group()); q.setInt(2,p.map()); q.setInt(3,p.x()); q.setInt(4,p.y());
             q.setInt(5,p.elevation()); q.setInt(6,p.facing());
             var r = p.returnPoint();
@@ -443,7 +443,7 @@ public final class CharacterStore {
                     : new Integer[]{r.group(), r.map(), r.x(), r.y(), r.facing()});
             try {
                 q.setArray(7, values); q.setLong(8, onlineSeconds); q.setObject(9, cycling, Types.BOOLEAN); q.setLong(10,character); q.setInt(11,account);
-                q.setBoolean(12, p.valid(0)); q.setBoolean(13, p.valid(1)); q.setBoolean(14, p.valid(2)); q.setBoolean(15, p.valid(3)); q.setBoolean(16, p.valid(4));
+                q.setBoolean(12, p.valid(0)); q.setBoolean(13, p.valid(1)); q.setBoolean(14, p.valid(2)); q.setBoolean(15, p.valid(3)); q.setBoolean(16, p.valid(4)); q.setBoolean(17, p.valid(5));
                 return q.executeUpdate() == 1;
             } finally { values.free(); }
         }

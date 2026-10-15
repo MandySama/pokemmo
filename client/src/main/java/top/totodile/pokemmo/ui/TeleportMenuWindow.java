@@ -27,11 +27,11 @@ final class TeleportMenuWindow extends ResizableFrame {
         }
     }
 
-    private static final int[] REGION_TITLES = {250000, 250001, 250002, 250003, 250004};
-    private static final int[][] SECTION_TITLES = {{9262, 9263}, {9273, 9274, 9275, 9276}, {9492, 9493}, {9492, 9493}, {9273, 9274, 9275, 9276, 250010}};
-    private static final String[] CATALOGS = {"maps/fire-red-teleports.xml", "maps/emerald-teleports.xml", "maps/unova-teleports.xml", "maps/sinnoh-teleports.xml", "maps/emerald2-teleports.xml"};
-    private final Catalog[] catalogs = new Catalog[5];
-    private final ToggleButton[] regions = new ToggleButton[5];
+    private static final int[] REGION_TITLES = {250000, 250001, 250002, 250003, 250004, 250005};
+    private static final int[][] SECTION_TITLES = {{9262, 9263}, {9273, 9274, 9275, 9276}, {9492, 9493}, {9492, 9493}, {9273, 9274, 9275, 9276, 250010}, {9492, 9493}};
+    private static final String[] CATALOGS = {"maps/fire-red-teleports.xml", "maps/emerald-teleports.xml", "maps/unova-teleports.xml", "maps/sinnoh-teleports.xml", "maps/emerald2-teleports.xml", "maps/johto-teleports.xml"};
+    private final Catalog[] catalogs = new Catalog[6];
+    private final ToggleButton[] regions = new ToggleButton[6];
     private int selected = -1;
     private int expansionPage;
     private static final int PAGE_SIZE = 24;

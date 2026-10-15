@@ -36,8 +36,8 @@ public final class PartyIcons {
         for (int i = 0; i < members.size(); i++) {
             PartyMember member = members.get(i);
             int sx = 1024 + (member.species() - 1) % 32 * 32, sy = (member.species() - 1) / 32 * 32;
-            int[] normal = member.shiny() ? palette(battle.file(member.species() * 20 + 18)) : null;
-            int[] shiny = member.shiny() ? palette(battle.file(member.species() * 20 + 19)) : null;
+            int[] normal = member.shiny() && member.species() <= 649 ? palette(battle.file(member.species() * 20 + 18)) : null;
+            int[] shiny = member.shiny() && member.species() <= 649 ? palette(battle.file(member.species() * 20 + 19)) : null;
             BufferedImage tile = new BufferedImage(TILE_SIZE, TILE_SIZE, BufferedImage.TYPE_INT_ARGB);
             for (int y = 0; y < 32; y++) for (int x = 0; x < 32; x++) {
                 int color = source.getRGB(sx + x, sy + y);

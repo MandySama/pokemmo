@@ -30,10 +30,10 @@ final class SummaryParticles {
                       float x,float y,float z,float minX,float maxX,float minY,float maxY,Curve sizeX,Curve sizeY,
                       Curve alpha,float opacity,float spinMin,float spinMax,Curve spin,float force,float phiMin,float phiMax,
                       float thetaMin,float thetaMax,float damping,boolean ellipse) { }
-    private static final Curve ONE=new Curve(new float[]{1},new float[]{0});
-    private static float number(JsonValue value,String key,float fallback){return value==null?fallback:value.getFloat(key,fallback);}
-    private static float high(JsonValue value,float fallback){return number(value,"highMin",fallback);}
-    private static Curve curve(JsonValue node){return node==null?ONE:new Curve(node.get("scaling")==null?new float[]{1}:node.get("scaling").asFloatArray(),node.get("timeline")==null?new float[]{0}:node.get("timeline").asFloatArray());}
+    static final Curve ONE=new Curve(new float[]{1},new float[]{0});
+    static float number(JsonValue value,String key,float fallback){return value==null?fallback:value.getFloat(key,fallback);}
+    static float high(JsonValue value,float fallback){return number(value,"highMin",fallback);}
+    static Curve curve(JsonValue node){return node==null?ONE:new Curve(node.get("scaling")==null?new float[]{1}:node.get("scaling").asFloatArray(),node.get("timeline")==null?new float[]{0}:node.get("timeline").asFloatArray());}
 
     static List<Definition> load(Path rom,int type) throws IOException {
         var root=new JsonReader().parse(Files.readString(ClientFiles.data("particles/summary/type_"+type+".vfx")));
@@ -43,6 +43,12 @@ final class SummaryParticles {
             List<BufferedImage> textures;
             try {textures=ParticleTextures.load(rom,id);}catch(IOException|RuntimeException error){continue;}
             if(textures.isEmpty())continue;
+            definitions.add(definition(controller,textures));
+        }
+        return List.copyOf(definitions);
+    }
+
+    static Definition definition(JsonValue controller, List<BufferedImage> textures) {
             JsonValue shape=null,sx=null,sy=null,alpha=null,spin=null,force=null;float damping=0;
             for(var influence:controller.get("influencers")){
                 String name=influence.getString("class","");
@@ -54,7 +60,7 @@ final class SummaryParticles {
                     for(var velocity:influence.get("velocities")){
                         String kind=velocity.getString("class","");
                         if(kind.endsWith("Rotational2D"))spin=velocity;
-                        if(kind.endsWith("PolarAcceleration"))force=velocity;
+                        if((kind.endsWith("PolarAcceleration") || kind.endsWith("PolarAccelerationExt")))force=velocity;
                     }
                 }
             }
@@ -62,7 +68,7 @@ final class SummaryParticles {
             int texture=Math.max(0,Math.min(textures.size()-1,(int)number(range,"lowMin",0)));
             JsonValue rotation=spin==null?null:spin.get("strengthValue"),acceleration=force==null?null:force.get("strengthValue");
             float life=Math.max(.05f,Math.min(20,high(emitter.get("life"),1500)/1000));
-            definitions.add(new Definition(textures.get(texture),life,Math.max(0,Math.min(150,high(emitter.get("emission"),20))),
+            return new Definition(textures.get(texture),life,Math.max(0,Math.min(150,high(emitter.get("emission"),20))),
                     Math.min(300,emitter.getInt("maxParticleCount",60)),
                     shape==null?2:high(shape.get("spawnWidthValue"),2),shape==null?2:high(shape.get("spawnHeightValue"),2),shape==null?0:high(shape.get("spawnDepthValue"),0),
                     shape==null?0:number(shape.get("xOffsetValue"),"lowMin",0),shape==null?0:number(shape.get("yOffsetValue"),"lowMin",0),shape==null?0:number(shape.get("zOffsetValue"),"lowMin",0),
@@ -70,9 +76,7 @@ final class SummaryParticles {
                     high(rotation,0),number(rotation,"highMax",0),curve(rotation),high(acceleration,0),
                     force==null?0:high(force.get("phiValue"),0),force==null?0:number(force.get("phiValue"),"highMax",0),
                     force==null?0:high(force.get("thetaValue"),0),force==null?0:number(force.get("thetaValue"),"highMax",0),damping,
-                    shape!=null&&shape.getString("class","").contains("Ellipse")));
-        }
-        return List.copyOf(definitions);
+                    shape!=null&&shape.getString("class","").contains("Ellipse"));
     }
 
     private static final class Particle {

@@ -25,14 +25,17 @@ public final class FireRedAtlas {
     public record Connection(int direction, int offset, Key target) {
     }
 
-    public record Npc(int id, int graphics, int x, int y, int elevation, int movement, int flag) {
+    public record Npc(int id, int graphics, int x, int y, int elevation, int movement, int flag, int rangeX, int rangeY, int script) {
+        public Npc(int id, int graphics, int x, int y, int elevation, int movement, int flag) {
+            this(id, graphics, x, y, elevation, movement, flag, 0, 0, 0);
+        }
         /** 0xF0 起是剧情变量槽位，不能直接作为 ROM 精灵表下标。 */
         public boolean hasStaticGraphics() {
             return graphics < 0xF0;
         }
 
         public int direction() {
-            return switch (movement) { case 7 -> 1; case 9 -> 2; case 10 -> 3; default -> 0; };
+            return top.totodile.pokemmo.protocol.KantoNpcs.initialFacing(movement);
         }
     }
 
@@ -50,7 +53,7 @@ public final class FireRedAtlas {
     private FireRedNpcSprites npcSprites;
     private HgssNpcSprites replacementSprites;
     private boolean replacementsLoaded;
-    private FireRedRegionMap regionMap;
+    private GbaRegionMap regionMap;
     private boolean regionMapLoaded;
     private final boolean useHgssSprites = new top.totodile.pokemmo.ClientSettings().hgssSprites();
 
@@ -102,7 +105,9 @@ public final class FireRedAtlas {
                         for (int i = 0; i < objectCount; i++) {
                             int entry = entries + i * 24;
                             objects.add(new Npc(unsigned(entry), unsigned(entry + 1), ushort(entry + 4),
-                                    ushort(entry + 6), unsigned(entry + 8), unsigned(entry + 9), ushort(entry + 20)));
+                                    ushort(entry + 6), unsigned(entry + 8), unsigned(entry + 9), ushort(entry + 20),
+                                    unsigned(entry + 10) & 15, unsigned(entry + 10) >> 4,
+                                    isPointer(entry + 16) ? pointer(entry + 16) : 0));
                         }
                     }
                     int length = unsigned(events + 1);
@@ -147,17 +152,16 @@ public final class FireRedAtlas {
     }
 
     /**
-     * 卡带内嵌的区域地图（城镇地图）；仅火红卡带可用，其它版本返回 null 由调用方回退。
+     * 卡带内嵌的区域地图（城镇地图）；按卡带版本解码关都或丰缘的图，其它版本返回 null
+     * 由调用方回退到按玩法地图拼接。
      */
-    public FireRedRegionMap regionMap() {
+    public GbaRegionMap regionMap() {
         if (!regionMapLoaded) {
             regionMapLoaded = true;
-            if (region == 0) {
-                try {
-                    regionMap = FireRedRegionMap.load(rom);
-                } catch (IOException exception) {
-                    regionMap = null;
-                }
+            try {
+                regionMap = region == 0 ? FireRedRegionMap.load(rom) : EmeraldRegionMap.load(rom);
+            } catch (IOException exception) {
+                regionMap = null;
             }
         }
         return regionMap;
@@ -183,12 +187,21 @@ public final class FireRedAtlas {
         return npcs.get(key);
     }
 
+    public List<Integer> npcDialogue(Npc npc, int gender) throws IOException {
+        if (region != 0 || npc.script() == 0) return List.of();
+        return new FireRedNpcDialogue(rom).textIds(npc.script(), gender);
+    }
+
     public BufferedImage npcImage(Npc npc) throws IOException {
         return npcSprite(npc, true, 1).image();
     }
 
     /** 原始模式使用卡带像素；替换图像保留原画布，以独立比例保持脚底锚点。 */
     public NpcSprite npcSprite(Npc npc, boolean enhanced, int season) throws IOException {
+        return npcSprite(npc, enhanced, season, npc.direction(), 0);
+    }
+
+    public NpcSprite npcSprite(Npc npc, boolean enhanced, int season, int facing, int walkFrame) throws IOException {
         enhanced = enhanced && !modified;
         if (enhanced && useHgssSprites && !replacementsLoaded) {
             Path selected = new top.totodile.pokemmo.RomFiles(top.totodile.pokemmo.ClientFiles.data("../roms")).selected(4);
@@ -196,11 +209,11 @@ public final class FireRedAtlas {
             replacementsLoaded = true;
         }
         if (enhanced && useHgssSprites && replacementSprites != null) {
-            BufferedImage image = replacementSprites.image(npc.graphics(), Math.min(npc.direction(), 2));
+            BufferedImage image = replacementSprites.image(npc.graphics(), Math.min(facing, 2), walkFrame);
             if (image != null) return new NpcSprite(image, 0.75f);
         }
         if (npcSprites == null) npcSprites = new FireRedNpcSprites(rom);
-        return new NpcSprite(npcSprites.image(npc.graphics(), Math.min(npc.direction(), 2), season, enhanced), 1);
+        return new NpcSprite(npcSprites.image(npc.graphics(), walkFrame == 0 ? Math.min(facing, 2) : 3 + Math.min(facing, 2) * 2 + walkFrame - 1, season, enhanced), 1);
     }
 
     private int find(byte[] pattern) throws IOException {

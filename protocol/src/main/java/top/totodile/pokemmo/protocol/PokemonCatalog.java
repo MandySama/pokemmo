@@ -9,10 +9,11 @@ public final class PokemonCatalog {
     public record LearnedMove(int level,int id,int pp,int type,int category,int power,int accuracy) { }
     public record Species(List<Integer> stats,int type1,int type2,int gender,int ability1,int ability2,
                           int hiddenAbility,int growth,int friendship,List<LearnedMove> moves) { }
+    public static final int MAX_SPECIES = 1025;
     private static final Species[] SPECIES=load();
     private static final Map<Integer,Integer> LOCATIONS=locations();
     private PokemonCatalog() { }
-    public static Species get(int id) {if(id<1||id>649)throw new IllegalArgumentException("Invalid species");return SPECIES[id];}
+    public static Species get(int id) {if(id<1||id>MAX_SPECIES)throw new IllegalArgumentException("Invalid species");return SPECIES[id];}
     public static int hp(int id,int level) {return stat(id,level,0,0,0,0);}
     public static int stat(int id,int level,int nature,int index,int iv,int ev) {
         if(level<1||level>100||nature<0||nature>24||index<0||index>5||iv<0||iv>31||ev<0||ev>252)throw new IllegalArgumentException("Invalid stats");
@@ -47,13 +48,13 @@ public final class PokemonCatalog {
             if(input==null)throw new IOException("Missing Pokemon locations");
             try(var reader=new BufferedReader(new InputStreamReader(input,java.nio.charset.StandardCharsets.UTF_8))){for(String line;(line=reader.readLine())!=null;){if(line.startsWith("#")||line.isBlank())continue;String[] f=line.split(",");result.put(Integer.parseInt(f[0])<<16|Integer.parseInt(f[1])<<8|Integer.parseInt(f[2]),Integer.parseInt(f[3]));}}
         }catch(IOException e){throw new ExceptionInInitializerError(e);}
-        for(int region=2;region<=3;region++)try(var input=PokemonCatalog.class.getResourceAsStream(region==2?"/maps/unova.csv":"/maps/sinnoh.csv")){
+        for(int region : new int[]{2,3,5})try(var input=PokemonCatalog.class.getResourceAsStream(region==2?"/maps/unova.csv":region==5?"/maps/johto.csv":"/maps/sinnoh.csv")){
             if(input==null)throw new IOException("Missing Unova locations");
             try(var reader=new BufferedReader(new InputStreamReader(input,java.nio.charset.StandardCharsets.UTF_8))){for(String line;(line=reader.readLine())!=null;){String[] f=line.split(",");result.put(region<<16|Integer.parseInt(f[0])<<8|Integer.parseInt(f[1]),Integer.parseInt(f[4]));}}
         }catch(IOException e){throw new ExceptionInInitializerError(e);}return Map.copyOf(result);
     }
     private static Species[] load() {
-        Species[] result=new Species[650];
+        Species[] result=new Species[MAX_SPECIES + 1];
         try(var raw=PokemonCatalog.class.getResourceAsStream("/catalog/pokemon.dat.gz")) {
             if(raw==null)throw new IOException("Missing Pokemon catalog");
             try(var in=new DataInputStream(new GZIPInputStream(raw))){
@@ -69,6 +70,23 @@ public final class PokemonCatalog {
                 if(in.read()!=-1)throw new IOException("Trailing catalog data");
             }
         }catch(IOException e){throw new ExceptionInInitializerError(e);}
+        try (var raw = PokemonCatalog.class.getResourceAsStream("/catalog/pokemon-gen9.dat.gz");
+             var in = new DataInputStream(new GZIPInputStream(Objects.requireNonNull(raw)))) {
+            if (in.readInt() != 0x504b4439 || in.readInt() != MAX_SPECIES - 649) throw new IOException("Invalid extended catalog");
+            for (int id = 650; id <= MAX_SPECIES; id++) {
+                if (in.readUnsignedShort() != id) throw new IOException("Invalid extended species index");
+                List<Integer> stats = new ArrayList<>();
+                for (int i = 0; i < 6; i++) stats.add(in.readUnsignedByte());
+                int t1 = in.readUnsignedByte(), t2 = in.readUnsignedByte();
+                int a1 = in.readUnsignedShort(), a2 = in.readUnsignedShort(), ha = in.readUnsignedShort();
+                int gender = in.readUnsignedByte(), growth = in.readUnsignedByte(), friendship = in.readUnsignedByte();
+                int count = in.readUnsignedShort();
+                List<LearnedMove> moves = new ArrayList<>();
+                for (int i = 0; i < count; i++) moves.add(new LearnedMove(in.readUnsignedByte(), in.readUnsignedShort(), in.readUnsignedByte(), in.readUnsignedByte(), in.readUnsignedByte(), in.readUnsignedShort(), in.readUnsignedByte()));
+                result[id] = new Species(List.copyOf(stats), t1, t2, gender, a1, a2, ha, growth, friendship, List.copyOf(moves));
+            }
+            if (in.read() != -1) throw new IOException("Trailing extended catalog data");
+        } catch (IOException e) { throw new ExceptionInInitializerError(e); }
         return result;
     }
 }

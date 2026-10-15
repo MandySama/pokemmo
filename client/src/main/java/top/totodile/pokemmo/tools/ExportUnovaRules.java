@@ -17,8 +17,8 @@ public final class ExportUnovaRules {
     }
 
     static void export(Path rom, Path output, int region) throws Exception {
-        top.totodile.pokemmo.rom.NdsMaps maps = region == 2 ? new BlackWhiteMaps(rom) : new top.totodile.pokemmo.rom.PlatinumMaps(rom);
-        String name = region == 2 ? "unova" : "sinnoh";
+        top.totodile.pokemmo.rom.NdsMaps maps = region == 2 ? new BlackWhiteMaps(rom) : region == 5 ? new top.totodile.pokemmo.rom.HeartGoldMaps(rom) : new top.totodile.pokemmo.rom.PlatinumMaps(rom);
+        String name = region == 2 ? "unova" : region == 5 ? "johto" : "sinnoh";
         Files.createDirectories(output);
         var matrices = new HashMap<Integer, top.totodile.pokemmo.rom.NdsMaps.Matrix>();
         StringBuilder sizes = new StringBuilder();
@@ -39,7 +39,7 @@ public final class ExportUnovaRules {
                 data.writeInt(tileWidth); data.writeInt(tileHeight);
                 sizes.append(header.id() >>> 8).append(',').append(header.id() & 255).append(',')
                         .append(matrix.width() * tileWidth).append(',').append(matrix.height() * tileHeight)
-                        .append(',').append(140000 + region * 1000 + header.name()).append('\n');
+                        .append(',').append(140000 + (region == 5 ? 4 : region) * 1000 + header.name()).append('\n');
                 var warps = maps.warps(header.id());
                 data.writeInt(warps.size());
                 for (var warp : warps) {
@@ -56,7 +56,7 @@ public final class ExportUnovaRules {
                 data.writeBoolean(matrix.headers() != null);
                 for (int id : matrix.models()) data.writeInt(id);
                 if (matrix.headers() != null) for (int id : matrix.headers()) data.writeInt(id);
-                if (region == 3) for (float value : matrix.offsets()) data.writeFloat(value);
+                if (region != 2) for (float value : matrix.offsets()) data.writeFloat(value);
             }
             data.writeInt(maps.chunkCount());
             for (int id = 0; id < maps.chunkCount(); id++) {

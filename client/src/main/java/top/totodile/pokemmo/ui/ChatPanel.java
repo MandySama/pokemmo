@@ -40,7 +40,7 @@ final class ChatPanel extends Widget implements AutoCloseable {
     }
     private int getWidthOfPanel(){return getWidth();}
     private final java.util.List<String[]> records = new java.util.ArrayList<>();
-    private boolean expanded = true;
+    private boolean expanded = false;
     private int preferredWidth = 408, preferredHeight = 196;
     private boolean resizing;
     private int dragX, dragY, dragWidth, dragHeight;
@@ -85,7 +85,7 @@ final class ChatPanel extends Widget implements AutoCloseable {
             menu.openPopupMenu(channel, channel.getX(), channel.getY());
         });
         resizeTop.setTheme("handle");resizeRight.setTheme("handle");add(resizeTop);add(resizeRight);
-        select(0); setExpanded(true); setVisible(false);
+        select(0); setExpanded(false); setVisible(false);
     }
 
     private void setup(Button button, String theme, int tooltip, Runnable action) {
