@@ -191,6 +191,10 @@ public final class AvatarAssets {
     }
 
     public List<Item> choices(int category, int gender) {
+        return choices(category, gender, false);
+    }
+
+    public List<Item> choices(int category, int gender, boolean wardrobe) {
         List<Item> result = new ArrayList<>();
         if (category == 1 || category == 4 || category == 5 || category == 7) {
             result.add(new Item(category, -1, "", 0, new short[0][], views()));
@@ -199,7 +203,7 @@ public final class AvatarAssets {
             int flags = item.flags;
             int requiredGender = (flags & 1) != 0 ? 0 : (flags & 2) != 0 ? 1 : -1;
             if (item.category == category && (requiredGender == -1 || requiredGender == gender)
-                    && (flags & 4) == 0 && (flags & 1024) == 0 && (category != 3 || item.id >= 2)) {
+                    && (wardrobe || (flags & 4) == 0) && (flags & 1024) == 0 && (category != 3 || item.id >= 2)) {
                 result.add(item);
             }
         }

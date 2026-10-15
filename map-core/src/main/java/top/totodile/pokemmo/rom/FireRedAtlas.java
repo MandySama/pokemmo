@@ -49,6 +49,7 @@ public final class FireRedAtlas {
     private final Map<Key, Integer> locationNames = new LinkedHashMap<>();
     private final Map<Key, Integer> sections = new LinkedHashMap<>();
     private final Map<Key, Area> areas = new LinkedHashMap<>();
+    private final Map<Key, FireRedStoryData.Events> storyEvents = new LinkedHashMap<>();
     private final Map<Key, List<Npc>> npcs = new LinkedHashMap<>();
     private FireRedNpcSprites npcSprites;
     private HgssNpcSprites replacementSprites;
@@ -103,6 +104,8 @@ public final class FireRedAtlas {
                 locationNames.put(key, (region == 0 ? 139912 : 141000) + section);
                 int columns = integer(layout), rows = integer(layout + 4);
                 if (columns < 1 || rows < 1 || columns > 256 || rows > 256) throw new IOException("Invalid map dimensions");
+                storyEvents.put(key, region == 0 && !modified ? FireRedStoryData.read(rom, header)
+                        : new FireRedStoryData.Events(List.of(), List.of()));
                 List<Warp> warps = new ArrayList<>();
                 List<Npc> objects = new ArrayList<>();
                 if (isPointer(header + 4)) {
@@ -190,9 +193,22 @@ public final class FireRedAtlas {
         return FireRedMap.load(rom, key.group(), key.map(), enhanced && !modified);
     }
 
+    public FireRedStoryData.Events storyEvents(Key key) throws IOException {
+        area(key);
+        return storyEvents.get(key);
+    }
+
+    public FireRedStoryData.Opening opening(FireRedStoryData.Coordinate event) throws IOException {
+        return FireRedStoryData.opening(rom, event.script());
+    }
+
     public List<Npc> npcs(Key key) throws IOException {
         area(key);
         return npcs.get(key);
+    }
+
+    public List<FireRedDialogue> npcDialogueDetails(Npc npc, int gender) throws IOException {
+        return new FireRedNpcDialogue(rom).dialogue(npc.script(), gender);
     }
 
     public List<Integer> npcDialogue(Npc npc, int gender) throws IOException {

@@ -31,6 +31,17 @@ public final class BlackWhiteWorldRules implements WorldRules {
     private final Map<Integer, Matrix> matrices = new HashMap<>();
     private final Terrain[][] chunks;
 
+    @Override
+    public int encounterBehavior(Position p) {
+        int id = p.group() * 256 + p.map();
+        if (id < 0 || id >= headers.length || headerAt(id, p.x(), p.y()) != id
+                || !walkable(id, p.x(), p.y(), p.elevation())) return -1;
+        Header h = header(id);
+        Matrix matrix = matrix(id);
+        int chunk = matrix.chunks()[p.y() / h.tileHeight() * matrix.width() + p.x() / h.tileWidth()];
+        return NdsEncounterTiles.get(region).behavior(chunk, p.elevation(), p.x() % h.tileWidth(), p.y() % h.tileHeight());
+    }
+
     public BlackWhiteWorldRules() throws IOException { this(2); }
 
     public BlackWhiteWorldRules(int region) throws IOException {

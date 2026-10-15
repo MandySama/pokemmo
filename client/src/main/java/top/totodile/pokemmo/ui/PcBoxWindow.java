@@ -119,8 +119,13 @@ final class PcBoxWindow extends ResizableFrame implements AutoCloseable {
     private PartyMember shown;
     private Texture iconTexture, spriteTexture, barIconTexture;
     private Image[] stripIcons = new Image[0];
-    private volatile BufferedImage iconPixels;
-    private volatile int iconGeneration;
+    private BufferedImage iconPixels;
+    private final LatestIconRequest iconRequests = new LatestIconRequest();
+    private CompletableFuture<BufferedImage> iconRequest;
+    private record IconStyle(List<PartyIcons.Appearance> appearances, int outline, int shinyOutline, float size, float intensity) { }
+    private IconStyle iconStyle;
+    private IconStyle uploadedIconStyle;
+    private List<PartyIcons.Appearance> displayedIcons = List.of();
     private Image sprite;
     private CompletableFuture<Loaded> spriteRequest;
     private Image healthBackground;
@@ -317,7 +322,12 @@ final class PcBoxWindow extends ResizableFrame implements AutoCloseable {
     /** 拖拽图标画在窗口之上，需要由宿主界面按整屏尺寸摆放。 */
     Widget dragOverlay() { return dragOverlay; }
 
+    private boolean refreshPokemonPending;
+
+    void refreshPokemon() { refreshPokemonPending = true; }
+
     void open() {
+        refreshPokemonPending = false;
         clear();
         requestParty();
         requestBox(0, true);
@@ -537,6 +547,13 @@ final class PcBoxWindow extends ResizableFrame implements AutoCloseable {
     protected void paintWidget(GUI gui) {
         super.paintWidget(gui);
         updateRequests(gui);
+        if (refreshPokemonPending && isVisible() && !busy && partyRequest == null && boxRequest == null) {
+            refreshPokemonPending = false;
+            cancelPick();
+            cache.clear();
+            requestParty();
+            requestBox(currentBox, true);
+        }
         GlfwTwlRenderer renderer = (GlfwTwlRenderer) gui.getRenderer();
         if (barIconSheet != null) {
             BufferedImage sheet = barIconSheet;
@@ -547,16 +564,24 @@ final class PcBoxWindow extends ResizableFrame implements AutoCloseable {
                 barIcons[i].setImage(barIconTexture.getImage(i * BAR_ICON_SIZE, 0, BAR_ICON_SIZE, BAR_ICON_SIZE,
                         Color.WHITE, false, Texture.Rotation.NONE));
         }
+        if (iconRequest != null && iconRequest.isDone()) {
+            try { iconPixels = iconRequest.getNow(null); }
+            catch (java.util.concurrent.CompletionException | java.util.concurrent.CancellationException error) { iconPixels = null; }
+            if (iconPixels == null) iconStyle = null;
+            iconRequest = null;
+        }
         BufferedImage pixels = iconPixels;
         if (pixels != null) {
             iconPixels = null;
-            if (iconTexture != null) iconTexture.destroy();
+            Texture oldTexture = iconTexture;
             iconTexture = renderer.uploadImage(pixels);
             int tiles = pixels.getWidth() / PartyIcons.TILE_SIZE;
             stripIcons = new Image[tiles];
             for (int i = 0; i < tiles; i++)
                 stripIcons[i] = iconTexture.getImage(i * PartyIcons.TILE_SIZE, 0, PartyIcons.TILE_SIZE, PartyIcons.TILE_SIZE,
                         Color.WHITE, false, Texture.Rotation.NONE);
+            uploadedIconStyle = iconStyle;
+            if (oldTexture != null) oldTexture.destroy();
         }
     }
 
@@ -671,15 +696,34 @@ final class PcBoxWindow extends ResizableFrame implements AutoCloseable {
     private void rebuildIcons() {
         List<PartyMember> strip = new ArrayList<>(party);
         for (Map.Entry<Integer, PartyMember> entry : entries.entrySet()) strip.add(entry.getValue());
-        if (iconTexture != null) iconTexture.destroy();
-        iconTexture = null;
-        stripIcons = new Image[0];
-        int generation = ++iconGeneration;
-        if (strip.isEmpty()) return;
+        var appearances = PartyIcons.appearances(strip);
+        var style = new IconStyle(appearances, alphaOutline, shinyAlphaGlow, glowSize, glowIntensity);
+        if (style.equals(iconStyle)) return;
+        Image[] previous = stripIcons;
+        stripIcons = new Image[strip.size()];
+        for (int i = 0; i < appearances.size(); i++) for (int j = 0; j < displayedIcons.size(); j++) {
+            if (appearances.get(i).equals(displayedIcons.get(j)) && previous[j] != null) { stripIcons[i] = previous[j]; break; }
+        }
+        displayedIcons = appearances;
+        iconStyle = style;
+        boolean reuseTexture = iconTexture != null && uploadedIconStyle != null
+                && uploadedIconStyle.outline() == style.outline() && uploadedIconStyle.shinyOutline() == style.shinyOutline()
+                && uploadedIconStyle.size() == style.size() && uploadedIconStyle.intensity() == style.intensity()
+                && !appearances.isEmpty();
+        for (int i = 0; i < appearances.size(); i++) reuseTexture &= stripIcons[i] != null;
+        iconPixels = null;
+        if (iconRequest != null) iconRequest.cancel(false);
+        if (reuseTexture) { iconRequests.cancel(); iconRequest = null; return; }
+        if (strip.isEmpty()) {
+            iconRequests.cancel(); iconRequest = null;
+            if (iconTexture != null) iconTexture.destroy();
+            iconTexture = null;
+            return;
+        }
         List<PartyMember> snapshot = List.copyOf(strip);
         int outline = alphaOutline, shinyGlow = shinyAlphaGlow;
         float size = glowSize, intensity = glowIntensity;
-        CompletableFuture.supplyAsync(() -> {
+        iconRequest = iconRequests.submit(() -> {
             try {
                 var rom = new RomFiles(ClientFiles.data("../roms")).selected(0);
                 if (rom == null) return null;
@@ -689,8 +733,7 @@ final class PcBoxWindow extends ResizableFrame implements AutoCloseable {
                         "Unable to load PC box icons", exception);
                 return null;
             }
-        // 切换箱子可能连续发起解码，只有最新一次的结果可以落到纹理。
-        }).thenAccept(pixels -> { if (generation == iconGeneration) iconPixels = pixels; });
+        });
     }
 
     private Image icon(int index) {
@@ -858,7 +901,12 @@ final class PcBoxWindow extends ResizableFrame implements AutoCloseable {
         if (iconTexture != null) iconTexture.destroy();
         iconTexture = null;
         iconPixels = null;
-        iconGeneration++;
+        iconRequests.cancel();
+        if (iconRequest != null) iconRequest.cancel(false);
+        iconRequest = null;
+        iconStyle = null;
+        uploadedIconStyle = null;
+        displayedIcons = List.of();
         stripIcons = new Image[0];
         if (barIconTexture != null) barIconTexture.destroy();
         barIconTexture = null;

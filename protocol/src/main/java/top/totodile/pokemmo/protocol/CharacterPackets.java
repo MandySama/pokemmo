@@ -7,6 +7,7 @@ import java.util.List;
 /** 角色请求只携带外观，所属账号由已认证的游戏会话确定。 */
 public final class CharacterPackets {
     public static final int LIMIT = 3;
+    public static final int OUTFIT = 0x84;
     public enum Status { SUCCESS, LIMIT_REACHED, NAME_TAKEN, INVALID, SYSTEM_ERROR }
     public record Appearance(String name, int gender, int skin, int region, int[] items, int[] colors) {
         public Appearance {
@@ -48,7 +49,11 @@ public final class CharacterPackets {
                     && facing >= 0 && facing < 4 && (returnPoint == null || returnPoint.valid(region));
         }
     }
-    public record CharacterInfo(long id, Appearance appearance, Position position, long createdAt, boolean dexUnlocked, TrainerStats stats, List<PartyMember> party, boolean cycling, boolean noclip, int speedMultiplier) {
+    public record CharacterInfo(long id, Appearance appearance, Position position, long createdAt, boolean dexUnlocked, TrainerStats stats, List<PartyMember> party, boolean cycling, boolean noclip, int speedMultiplier, boolean wildEncounters) {
+        public CharacterInfo(long id, Appearance appearance, Position position, long createdAt, boolean dexUnlocked,
+                             TrainerStats stats, List<PartyMember> party, boolean cycling, boolean noclip, int speedMultiplier) {
+            this(id, appearance, position, createdAt, dexUnlocked, stats, party, cycling, noclip, speedMultiplier, true);
+        }
         public CharacterInfo(long id, Appearance appearance, Position position, long createdAt, boolean dexUnlocked, TrainerStats stats, List<PartyMember> party, boolean cycling) {
             this(id, appearance, position, createdAt, dexUnlocked, stats, party, cycling, false, 1);
         }
@@ -135,6 +140,29 @@ public final class CharacterPackets {
         List<CharacterInfo> characters = decodeList(copy);
         if (characters.size() != 1) throw new IOException("Character entry rejected");
         return characters.getFirst();
+    }
+
+    public static byte[] outfitRequest(Appearance appearance) {
+        byte[] packet = createRequest(appearance);
+        packet[0] = (byte) OUTFIT;
+        return packet;
+    }
+    public static Appearance decodeOutfit(byte[] packet) throws IOException {
+        if (packet.length == 0 || (packet[0] & 255) != OUTFIT) throw new IOException("Unexpected outfit request");
+        byte[] copy = packet.clone();
+        copy[0] = 3;
+        return decodeCreate(copy);
+    }
+    public static byte[] outfitResponse(CreationResult result) {
+        byte[] packet = createResponse(result);
+        packet[0] = (byte) OUTFIT;
+        return packet;
+    }
+    public static CreationResult decodeOutfitResult(byte[] packet) throws IOException {
+        if (packet.length == 0 || (packet[0] & 255) != OUTFIT) throw new IOException("Unexpected outfit result");
+        byte[] copy = packet.clone();
+        copy[0] = 3;
+        return decodeResult(copy);
     }
 
     public static byte[] listRequest() { return new byte[]{2}; }
@@ -233,7 +261,7 @@ public final class CharacterPackets {
             TrainerStats.write(data, character.stats());
             PartyMember.write(data, character.party());
             data.putByte(character.cycling() ? 1 : 0);
-            data.putByte(character.noclip() ? 1 : 0).putByte(character.speedMultiplier());
+            data.putByte(character.noclip() ? 1 : 0).putByte(character.speedMultiplier()).putByte(character.wildEncounters() ? 1 : 0);
         }
     }
     private static List<CharacterInfo> readList(PacketData data) throws IOException {
@@ -250,7 +278,7 @@ public final class CharacterPackets {
             if (createdAt < 0) throw new IOException("Invalid character creation time");
             int dexUnlocked = data.byteValue();
             if (dexUnlocked > 1) throw new IOException("Invalid Pokedex state");
-            result.add(new CharacterInfo(id, appearance, position, createdAt, dexUnlocked == 1, TrainerStats.read(data), PartyMember.read(data), data.booleanValue(), data.booleanValue(), data.byteValue()));
+            result.add(new CharacterInfo(id, appearance, position, createdAt, dexUnlocked == 1, TrainerStats.read(data), PartyMember.read(data), data.booleanValue(), data.booleanValue(), data.byteValue(), data.booleanValue()));
         }
         return List.copyOf(result);
     }

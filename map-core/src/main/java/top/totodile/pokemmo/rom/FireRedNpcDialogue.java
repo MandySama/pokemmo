@@ -14,17 +14,27 @@ final class FireRedNpcDialogue {
     }
 
     List<Integer> textIds(int script, int gender) throws IOException {
-        List<Integer> texts = new ArrayList<>();
+        return dialogue(script, gender).stream().map(FireRedDialogue::textId).toList();
+    }
+
+    List<FireRedDialogue> dialogue(int script, int gender) throws IOException {
+        List<FireRedDialogue> texts = new ArrayList<>();
+        Map<Integer, FireRedDialogue.Buffer> buffers = new HashMap<>();
         Deque<Integer> calls = new ArrayDeque<>();
         Map<Integer, Integer> variables = new HashMap<>();
         int pc = script, comparison = 0, text = -1;
         Set<String> visited = new HashSet<>();
         for (int budget = 0; budget < 2048 && pc > 0 && pc < rom.length; budget++) {
             if (!visited.add(pc + ":" + calls.size() + ":" + comparison)) break;
-            int op = u8(pc), length = LENGTHS[op];
+            int op = u8(pc), length = switch (op) {
+                case 0x7d, 0x7f, 0x80, 0x81, 0x82, 0x83, 0x84 -> 4;
+                case 0x7e -> 2;
+                case 0x85 -> 6;
+                default -> LENGTHS[op];
+            };
             if (op == 0x5c && pc + 10 <= rom.length) {
                 int intro = pointer(pc + 6);
-                if (intro > 0 && u8(pc + 1) != 3) texts.add(intro);
+                if (intro > 0 && u8(pc + 1) != 3) texts.add(new FireRedDialogue(intro, buffers));
                 return List.copyOf(texts);
             }
             if (length == 0 || pc + length > rom.length) break;
@@ -55,7 +65,7 @@ final class FireRedNpcDialogue {
                 case 0x08, 0x09:
                     int standard = u8(pc + 1);
                     if (standard >= 2 && standard <= 6 && text > 0) {
-                        texts.add(text);
+                        texts.add(new FireRedDialogue(text, buffers));
                         // 确认框和有选择的脚本只展示当前文本，不猜测玩家的后续选择。
                         if (standard == 5) return List.copyOf(texts);
                     } else return List.copyOf(texts);
@@ -82,7 +92,26 @@ final class FireRedNpcDialogue {
                 case 0x2b:
                     comparison = -1;
                     break;
+                case 0x7d, 0x80, 0x82, 0x83, 0x84:
+                    buffers.put(u8(pc + 1), new FireRedDialogue.Buffer(op, value(u16(pc + 2), variables)));
+                    break;
+                case 0x7e, 0x7f:
+                    buffers.put(u8(pc + 1), new FireRedDialogue.Buffer(op, op == 0x7e ? 0 : value(u16(pc + 2), variables)));
+                    break;
+                case 0x85:
+                    buffers.put(u8(pc + 1), new FireRedDialogue.Buffer(op, pointer(pc + 2)));
+                    break;
                 case 0x25, 0x26:
+                    if (u16(pc + (op == 0x25 ? 1 : 3)) == 252) {
+                        int[][] trades = {{63,122},{61,124},{32,29},{21,83},{33,30},{55,108},{26,101},{48,114},{77,86}};
+                        int trade = variables.getOrDefault(0x8004, 0);
+                        if (trade >= 0 && trade < trades.length) {
+                            buffers.put(0, new FireRedDialogue.Buffer(0x7d, trades[trade][0]));
+                            buffers.put(1, new FireRedDialogue.Buffer(0x7d, trades[trade][1]));
+                            if (op == 0x26) variables.put(u16(pc + 1), trades[trade][0]);
+                        }
+                        break;
+                    }
                     // 此轮只读文本，不调用卡带 special；默认结果避免执行剧情效果。
                     if (op == 0x26) variables.put(u16(pc + 1), 0);
                     break;
@@ -91,7 +120,7 @@ final class FireRedNpcDialogue {
                     break;
                 case 0x67:
                     int address = pointer(pc + 1);
-                    if (address > 0) texts.add(address);
+                    if (address > 0) texts.add(new FireRedDialogue(address, buffers));
                     break;
                 // 仅跳过音效、等待、锁定、朝向、文本展示和文本颜色等展示指令。
                 case 0x00,
@@ -125,15 +154,7 @@ final class FireRedNpcDialogue {
                         0x6b,
                         0x6c,
                         0x6d,
-                        0x7d,
-                        0x7e,
-                        0x7f,
-                        0x80,
                         0x81,
-                        0x82,
-                        0x83,
-                        0x84,
-                        0x85,
                         0xa1,
                         0x9d,
                         0x9e,

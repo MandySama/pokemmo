@@ -14,6 +14,7 @@ public record PartyMember(int species, boolean shiny, boolean alpha, int hp, int
         if (hp < 0 || maxHp < 1 || maxHp > 65535 || hp > maxHp) throw new IllegalArgumentException("Invalid party HP");
         if (species < 1 || species > PokemonCatalog.MAX_SPECIES) throw new IllegalArgumentException("Invalid party species");
         if(individual!=null){
+            if (individual.form() != 0 && species != 6) throw new IllegalArgumentException("Unsupported species form");
             var rule=PokemonCatalog.get(species);
             long min=PokemonCatalog.experience(rule.growth(),Math.max(1,level));
             long next=PokemonCatalog.experience(rule.growth(),Math.min(100,level+1));

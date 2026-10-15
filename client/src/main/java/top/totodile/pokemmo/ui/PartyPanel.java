@@ -21,6 +21,11 @@ import java.util.concurrent.CompletableFuture;
 final class PartyPanel extends Widget implements AutoCloseable {
     private List<PartyMember> members = List.of();
     private CompletableFuture<BufferedImage> iconResult;
+    private final LatestIconRequest iconRequests = new LatestIconRequest();
+    private record IconStyle(List<PartyIcons.Appearance> appearances, int outline, int shinyOutline, float size, float intensity) { }
+    private IconStyle iconStyle;
+    private IconStyle uploadedIconStyle;
+    private List<PartyIcons.Appearance> displayedIcons = List.of();
     private Texture texture;
     private Image healthBackground;
     private final Image[] healthFill = new Image[3];
@@ -184,7 +189,14 @@ final class PartyPanel extends Widget implements AutoCloseable {
     void setParty(List<PartyMember> party) {
         PartyMember previousFollower = selectedFollower;
         int previousSlot = boundFollowerSlot;
-        close();
+        dragIndex = -1;
+        dragOverlay.setVisible(false);
+        if (menu != null) menu.closePopup();
+        menu = null;
+        if (moveResult != null) moveResult.cancel(false);
+        moveResult = null;
+        if (followResult != null) followResult.cancel(false);
+        followResult = null;
         selectedFollower = previousFollower;
         boundFollowerSlot = previousSlot;
         members = PartyMember.validate(party);
@@ -205,12 +217,34 @@ final class PartyPanel extends Widget implements AutoCloseable {
                 slots[i].setTooltipContent(text);
             } else slots[i].setTooltipContent(null);
         }
-        if (members.isEmpty()) return;
+        var appearances = PartyIcons.appearances(members);
+        var style = new IconStyle(appearances, alphaOutline, shinyAlphaGlow, glowSize, glowIntensity);
+        if (style.equals(iconStyle)) return;
+        Image[] previous = icons.clone();
+        java.util.Arrays.fill(icons, null);
+        for (int i = 0; i < appearances.size(); i++) for (int j = 0; j < displayedIcons.size(); j++) {
+            if (appearances.get(i).equals(displayedIcons.get(j)) && previous[j] != null) { icons[i] = previous[j]; break; }
+        }
+        displayedIcons = appearances;
+        iconStyle = style;
+        boolean reuseTexture = texture != null && uploadedIconStyle != null
+                && uploadedIconStyle.outline() == style.outline() && uploadedIconStyle.shinyOutline() == style.shinyOutline()
+                && uploadedIconStyle.size() == style.size() && uploadedIconStyle.intensity() == style.intensity()
+                && !appearances.isEmpty();
+        for (int i = 0; i < appearances.size(); i++) reuseTexture &= icons[i] != null;
+        if (iconResult != null) iconResult.cancel(false);
+        if (reuseTexture) { iconRequests.cancel(); iconResult = null; return; }
+        if (members.isEmpty()) {
+            iconRequests.cancel(); iconResult = null;
+            if (texture != null) texture.destroy();
+            texture = null;
+            return;
+        }
         List<PartyMember> snapshot = members;
         int outline = alphaOutline;
         int shinyGlow = shinyAlphaGlow;
         float size = glowSize, intensity = glowIntensity;
-        iconResult = CompletableFuture.supplyAsync(() -> {
+        iconResult = iconRequests.submit(() -> {
             try {
                 var rom = new RomFiles(ClientFiles.data("../roms")).selected(0);
                 if (rom == null) return null;
@@ -242,13 +276,18 @@ final class PartyPanel extends Widget implements AutoCloseable {
         }
         super.paintWidget(gui);
         if (iconResult != null && iconResult.isDone()) {
-            BufferedImage pixels = iconResult.getNow(null);
+            BufferedImage pixels;
+            try { pixels = iconResult.getNow(null); }
+            catch (java.util.concurrent.CompletionException | java.util.concurrent.CancellationException error) { pixels = null; }
             iconResult = null;
             if (pixels != null) {
+                Texture oldTexture = texture;
                 texture = ((GlfwTwlRenderer) gui.getRenderer()).uploadImage(pixels);
                 for (int i = 0; i < members.size(); i++)
                     icons[i] = texture.getImage(i * PartyIcons.TILE_SIZE, 0, PartyIcons.TILE_SIZE, PartyIcons.TILE_SIZE, Color.WHITE, false, Texture.Rotation.NONE);
-            }
+                uploadedIconStyle = iconStyle;
+                if (oldTexture != null) oldTexture.destroy();
+            } else iconStyle = null;
         }
     }
 
@@ -264,7 +303,11 @@ final class PartyPanel extends Widget implements AutoCloseable {
         menu = null;
         if (moveResult != null) moveResult.cancel(false);
         moveResult = null;
-        if (iconResult != null) iconResult.cancel(true);
+        iconRequests.cancel();
+        iconStyle = null;
+        uploadedIconStyle = null;
+        displayedIcons = List.of();
+        if (iconResult != null) iconResult.cancel(false);
         iconResult = null;
         if (texture != null) texture.destroy();
         texture = null;

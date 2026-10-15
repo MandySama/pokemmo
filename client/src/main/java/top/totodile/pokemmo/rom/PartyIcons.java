@@ -28,37 +28,74 @@ public final class PartyIcons {
         return render(rom, members, alphaColor, shinyAlphaColor, glowSize, glowIntensity, Math.max(1, members.size()));
     }
 
+    public record Appearance(int species, boolean shiny, boolean alpha, String costume) { }
+    private record Key(IconImageCache.Source rom, IconImageCache.Source extended, Appearance appearance,
+                       String costumeVersion, int alphaColor, int shinyAlphaColor, float glowSize, float glowIntensity) { }
+    private static final IconImageCache<Key> TILES = new IconImageCache<>(1024, 8L * 1024 * 1024);
+
+    /** 外观键不包含 HP、等级、昵称及个体能力值，可在 GUI 线程比较而无需读取图片。 */
+    public static List<Appearance> appearances(List<PartyMember> members) {
+        return members.stream().map(member -> new Appearance(member.species(), member.shiny(), member.alpha(),
+                PokemonCostumes.selected(member))).toList();
+    }
+
     private static BufferedImage render(Path rom, List<PartyMember> members, int alphaColor, int shinyAlphaColor,
                                         float glowSize, float glowIntensity, int tiles) throws IOException {
+        var romVersion = IconImageCache.Source.of(rom);
+        var extended = IconImageCache.Source.of(top.totodile.pokemmo.ClientFiles.data("resources/pokemon-gen9.zip"));
         BufferedImage source = PokedexIcons.load(rom);
-        NdsArchive battle = members.stream().anyMatch(PartyMember::shiny) ? new NdsArchive(rom, "/a/0/0/4") : null;
+        NdsArchive[] battle = {null};
         BufferedImage result = new BufferedImage(tiles * TILE_SIZE, TILE_SIZE, BufferedImage.TYPE_INT_ARGB);
+        var appearances = appearances(members);
         for (int i = 0; i < members.size(); i++) {
             PartyMember member = members.get(i);
-            int sx = 1024 + (member.species() - 1) % 32 * 32, sy = (member.species() - 1) / 32 * 32;
-            int[] normal = member.shiny() && member.species() <= 649 ? palette(battle.file(member.species() * 20 + 18)) : null;
-            int[] shiny = member.shiny() && member.species() <= 649 ? palette(battle.file(member.species() * 20 + 19)) : null;
-            BufferedImage tile = new BufferedImage(TILE_SIZE, TILE_SIZE, BufferedImage.TYPE_INT_ARGB);
-            for (int y = 0; y < 32; y++) for (int x = 0; x < 32; x++) {
-                int color = source.getRGB(sx + x, sy + y);
-                if ((color >>> 24) == 0) continue;
-                if (normal != null) color = recolor(color, normal, shiny);
-                if (member.alpha()) {
-                    for (int dy = -1; dy <= 1; dy++) for (int dx = -1; dx <= 1; dx++) {
-                        int nx = x + dx, ny = y + dy;
-                        if (nx < 0 || nx >= 32 || ny < 0 || ny >= 32
-                                || (source.getRGB(sx + nx, sy + ny) >>> 24) == 0)
-                            tile.setRGB(nx + PADDING, ny + PADDING, member.shiny() ? shinyAlphaColor : alphaColor);
-                    }
-                }
-                tile.setRGB(x + PADDING, y + PADDING, color);
-            }
-            BufferedImage glow = member.alpha() && glowSize > 0 ? glow(tile, member.shiny() ? shinyAlphaColor : alphaColor,
-                    glowSize, glowIntensity) : tile;
+            var key = new Key(romVersion, extended, appearances.get(i), PokemonCostumes.iconVersion(member),
+                    alphaColor, shinyAlphaColor, glowSize, glowIntensity);
+            var tile = TILES.get(key, () -> {
+                if (member.shiny() && member.species() <= 649 && battle[0] == null)
+                    battle[0] = new NdsArchive(rom, "/a/0/0/4");
+                return tile(source, battle[0], member, alphaColor, shinyAlphaColor, glowSize, glowIntensity);
+            });
             result.setRGB(i * TILE_SIZE, 0, TILE_SIZE, TILE_SIZE,
-                    glow.getRGB(0, 0, TILE_SIZE, TILE_SIZE, null, 0, TILE_SIZE), 0, TILE_SIZE);
+                    tile.getRGB(0, 0, TILE_SIZE, TILE_SIZE, null, 0, TILE_SIZE), 0, TILE_SIZE);
         }
         return result;
+    }
+
+    private static BufferedImage tile(BufferedImage source, NdsArchive battle, PartyMember member,
+            int alphaColor, int shinyAlphaColor, float glowSize, float glowIntensity) throws IOException {
+        BufferedImage costume = PokemonCostumes.image(member, false);
+        if (costume != null) {
+            var tile = new BufferedImage(TILE_SIZE, TILE_SIZE, BufferedImage.TYPE_INT_ARGB);
+            var graphics = tile.createGraphics();
+            graphics.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION, java.awt.RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+            double scale = Math.min(32.0 / costume.getWidth(), 32.0 / costume.getHeight());
+            int width = Math.max(1, (int) Math.round(costume.getWidth() * scale));
+            int height = Math.max(1, (int) Math.round(costume.getHeight() * scale));
+            graphics.drawImage(costume, (TILE_SIZE - width) / 2, (TILE_SIZE - height) / 2, width, height, null);
+            graphics.dispose();
+            return tile;
+        }
+        int sx = 1024 + (member.species() - 1) % 32 * 32, sy = (member.species() - 1) / 32 * 32;
+        int[] normal = member.shiny() && member.species() <= 649 ? palette(battle.file(member.species() * 20 + 18)) : null;
+        int[] shiny = member.shiny() && member.species() <= 649 ? palette(battle.file(member.species() * 20 + 19)) : null;
+        BufferedImage tile = new BufferedImage(TILE_SIZE, TILE_SIZE, BufferedImage.TYPE_INT_ARGB);
+        for (int y = 0; y < 32; y++) for (int x = 0; x < 32; x++) {
+            int color = source.getRGB(sx + x, sy + y);
+            if ((color >>> 24) == 0) continue;
+            if (normal != null) color = recolor(color, normal, shiny);
+            if (member.alpha()) {
+                for (int dy = -1; dy <= 1; dy++) for (int dx = -1; dx <= 1; dx++) {
+                    int nx = x + dx, ny = y + dy;
+                    if (nx < 0 || nx >= 32 || ny < 0 || ny >= 32
+                            || (source.getRGB(sx + nx, sy + ny) >>> 24) == 0)
+                        tile.setRGB(nx + PADDING, ny + PADDING, member.shiny() ? shinyAlphaColor : alphaColor);
+                }
+            }
+            tile.setRGB(x + PADDING, y + PADDING, color);
+        }
+        return member.alpha() && glowSize > 0 ? glow(tile, member.shiny() ? shinyAlphaColor : alphaColor,
+                glowSize, glowIntensity) : tile;
     }
 
     /** 在图标透明区域预计算非 HQ 的 3×5 采样柔光，避免固定管线全局切换着色器。 */

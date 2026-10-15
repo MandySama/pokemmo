@@ -34,7 +34,21 @@ public class NdsWorld implements ClientWorld {
     private final NdsMaps maps;
     private final BlackWhiteWorldRules rules;
     private final AvatarAssets assets;
-    private final Appearance appearance;
+    private EncounterCatalog.Selection wildEncounter;
+
+    @Override
+    public EncounterCatalog.Selection takeWildEncounter() {
+        if (stepping || entering) return null;
+        var result = wildEncounter; wildEncounter = null;
+        return result;
+    }
+
+    @Override
+    public int encounterBehavior() {
+        return rules.encounterBehavior(position);
+    }
+
+    private Appearance appearance;
     private final AvatarAssets.Item[] items = new AvatarAssets.Item[12];
     private final PerspectiveCamera camera = new PerspectiveCamera(35, 1024, 768);
     private final Map<SceneKey, BlackWhiteMapPreview> scenes = new LinkedHashMap<>(16, 0.75f, true);
@@ -55,7 +69,7 @@ public class NdsWorld implements ClientWorld {
         this.maps = maps; this.assets = assets; this.appearance = appearance;
         rules = new BlackWhiteWorldRules(appearance.region());
         for (int category = 1; category < items.length; category++) {
-            for (var item : assets.choices(category, appearance.gender())) {
+            for (var item : assets.choices(category, appearance.gender(), true)) {
                 if (item.id == appearance.items()[category]) { items[category] = item; break; }
             }
         }
@@ -65,6 +79,21 @@ public class NdsWorld implements ClientWorld {
         }
         camera.near = 0.01f; camera.far = 80;
         position = previous = Position.spawn(appearance.region(), appearance.gender());
+    }
+
+    @Override
+    public void replaceOutfit(Appearance next) {
+        if (next.region() != appearance.region() || next.gender() != appearance.gender() || next.skin() != appearance.skin())
+            throw new IllegalArgumentException("Outfit identity mismatch");
+        appearance = next;
+        java.util.Arrays.fill(items, null);
+        for (int category = 1; category < items.length; category++) {
+            for (var item : assets.choices(category, next.gender(), true)) {
+                if (item.id == next.items()[category]) { items[category] = item; break; }
+            }
+        }
+        sprites.values().forEach(sprite -> glDeleteTextures(sprite.texture()));
+        sprites.clear();
     }
 
     @Override public int region() { return appearance.region(); }
@@ -153,6 +182,7 @@ public class NdsWorld implements ClientWorld {
     }
 
     private void accept(WorldPackets.Result result, long now) throws IOException {
+        if (result.encounter() != null) { wildEncounter = result.encounter(); clearKeys(); }
         if (result.warp()) {
             pendingTransfer = result.position(); transferring = true; transferStarted = now;
             clearKeys(); stepping = false;
@@ -179,7 +209,7 @@ public class NdsWorld implements ClientWorld {
             if (reply.isCompletedExceptionally()) { reply = null; clearKeys(); return; }
             var result = reply.join(); reply = null; accept(result, now);
         }
-        if (reply != null || entering || stepping || transferring || now < nextRequest) return;
+        if (reply != null || entering || stepping || wildEncounter != null || transferring || now < nextRequest) return;
         int direction = held[lastPressed] ? lastPressed : -1;
         if (direction < 0) for (int i = 0; i < held.length; i++) if (held[i]) { direction = i; break; }
         if (direction < 0) return;

@@ -1696,6 +1696,21 @@
         <theme name="label" ref="label"/>
         <theme name="button" ref="button"><param name="border"><border>7,4</border></param></theme>
     </theme>
+    <theme name="story-menu" ref="teleport-menu" allowWildcard="true">
+        <theme name="entries" ref="settings-panel.settings-scrollpane" allowWildcard="true">
+            <theme name="content" ref="-defaults" allowWildcard="true">
+                <theme name="category" ref="settings-panel.category"/>
+                <theme name="heading" ref="label"/>
+                <theme name="button" ref="button"/>
+            </theme>
+        </theme>
+    </theme>
+    <theme name="story-replay-controls" ref="dialoglayout" allowWildcard="true">
+        <param name="background"><image>modal-shade</image></param>
+        <param name="border"><border>10</border></param>
+        <theme name="label" ref="label"/>
+        <theme name="button" ref="button"/>
+    </theme>
     <theme name="town-map" ref="logingui.rom-panel" allowWildcard="true">
         <param name="contentLeft"><int>14</int></param>
         <param name="contentTop"><int>50</int></param>
@@ -2071,6 +2086,8 @@
 <images file="res/party-health.png" filter="nearest"><area name="summary.move-card" xywh="22,118,164,42"/></images>
 <images file="res/mail-pokemon-marks.png" filter="nearest"><area name="summary.particle-marker" xywh="0,13,12,13"/></images>
 <theme name="pokemon-summary" ref="resizableframe" allowWildcard="true">
+    <param name="formDisplayWidth"><int>120</int></param>
+    <param name="formDisplayHeight"><int>96</int></param>
 <theme name="particle-slot" ref="button"><param name="background"><image>ui-button.background</image></param><param name="overlay"><image>summary.particle-marker</image></param></theme>
 
 <theme name="move-arrow" ref="button"><param name="background"><image>none</image></param><param name="border"><border>0</border></param></theme>
@@ -2306,6 +2323,7 @@
     <images file="res/encounter-white.png"><area name="encounter.white" xywh="0,0,1,1"/></images>
     <images file="res/battle-hud.png" filter="nearest">
         <area name="encounter.enemy" xywh="0,36,307,28"/>
+        <area name="encounter.horde" xywh="326,65,239,28"/>
         <area name="encounter.self" xywh="0,66,299,40"/>
         <grid name="encounter.health-track" weightsX="0,1,0" weightsY="1">
             <area xywh="35,8,2,6"/>
@@ -2349,6 +2367,8 @@
     <fontDef name="encounter-message" filename="res/fonts/NotoSansCJK-Medium.ttc" color="#FFFFFF" size="26" size_cjk="26" border_width="1" border_color="#434343"/>
     <fontDef name="encounter-description" filename="res/fonts/NotoSansCJK-Medium.ttc" color="#FFFFFF" size="12" size_cjk="14" border_width="1" border_color="#434343"/>
     <theme name="wild-encounter" ref="-defaults" allowWildcard="true">
+        <param name="gigantamaxFrontScale"><float>1.7</float></param>
+        <param name="gigantamaxBackScale"><float>1.35</float></param>
         <param name="impactColor"><color>#FFF1B0</color></param>
         <param name="actionWidth"><int>209</int></param>
         <param name="actionHeight"><int>52</int></param>
@@ -2360,7 +2380,13 @@
         <param name="partyIconGap"><int>4</int></param>
         <param name="experienceBackground"><image>encounter.experience.background</image></param>
         <param name="experienceImage"><image>encounter.experience.fill</image></param>
-        <param name="backdropOpacity"><float>0.68</float></param>
+        <param name="backdropOpacity"><float>0.45</float></param>
+        <param name="hordeHud"><image>encounter.horde</image></param>
+        <param name="hordeHudWidth"><int>120</int></param>
+        <param name="hordeHudGap"><int>12</int></param>
+        <param name="hordeHudTop"><int>86</int></param>
+        <param name="hordeCenter"><int>740</int></param>
+        <param name="hordeSpacing"><int>40</int></param>
         <param name="healthBackground"><image>encounter.health-track</image></param>
         <param name="enemyHud"><image>encounter.enemy</image></param>
         <param name="selfHud"><image>encounter.self</image></param>
@@ -2411,6 +2437,9 @@
         </theme>
     </theme>
     <theme name="npc-dialog" ref="-defaults" allowWildcard="true">
+        <param name="autoAdvanceBaseMillis"><int>800</int></param>
+        <param name="autoAdvancePerCharacterMillis"><int>30</int></param>
+        <param name="autoAdvanceMaxMillis"><int>6000</int></param>
         <theme name="panel" ref="dialoglayout">
             <param name="background"><image>text-bubble.background</image></param>
             <param name="border"><border>16,24,16,24</border></param>

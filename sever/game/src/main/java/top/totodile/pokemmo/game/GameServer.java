@@ -234,6 +234,33 @@ public final class GameServer implements AutoCloseable {
                         catch (java.sql.SQLException exception) { LOGGER.log(System.Logger.Level.ERROR, "Unable to update Pokedex", exception); }
                     }
                     channel.send(new byte[]{0x76, (byte) (success ? 1 : 0), (byte) (unlocked ? 1 : 0)});
+                } else if ((command[0] & 255) == PokemonConfigPackets.OPCODE) {
+                    var request = PokemonConfigPackets.decodeRequest(command);
+                    var result = new PokemonConfigPackets.Result(
+                            PokemonConfigPackets.Status.INVALID, null, java.util.List.of());
+                    if (world != null && activeCharacter != 0 && characters != null) {
+                        try {
+                            result = characters.configurePokemon(accountId, activeCharacter, request,
+                                    Boolean.parseBoolean(System.getProperty("pokemmo.game.debug", "true")));
+                        } catch (java.sql.SQLException error) {
+                            LOGGER.log(System.Logger.Level.ERROR, "Unable to configure Pokemon", error);
+                            result = new PokemonConfigPackets.Result(
+                                    PokemonConfigPackets.Status.SYSTEM_ERROR, null, java.util.List.of());
+                        }
+                    }
+                    channel.send(PokemonConfigPackets.response(result));
+                } else if ((command[0] & 255) == CharacterPackets.OUTFIT) {
+                    var appearance = CharacterPackets.decodeOutfit(command);
+                    var result = new CharacterPackets.CreationResult(CharacterPackets.Status.INVALID, java.util.List.of());
+                    if (world != null && activeCharacter != 0 && characters != null
+                            && Boolean.parseBoolean(System.getProperty("pokemmo.game.debug", "true"))) {
+                        try { result = characters.replaceOutfit(accountId, activeCharacter, appearance); }
+                        catch (java.sql.SQLException error) {
+                            LOGGER.log(System.Logger.Level.ERROR, "Unable to replace outfit", error);
+                            result = new CharacterPackets.CreationResult(CharacterPackets.Status.SYSTEM_ERROR, java.util.List.of());
+                        }
+                    }
+                    channel.send(CharacterPackets.outfitResponse(result));
                 } else if (command[0] == top.totodile.pokemmo.protocol.PcPackets.OPCODE) {
                     if (world == null || activeCharacter == 0 || characters == null) throw new IOException("No active PC character");
                     int action = top.totodile.pokemmo.protocol.PcPackets.decodeAction(command);
@@ -281,7 +308,7 @@ public final class GameServer implements AutoCloseable {
                                 top.totodile.pokemmo.protocol.PcPackets.CREATE_BOX, status));
                     }
                 } else if (command[0] == WorldPackets.MOVE || command[0] == WorldPackets.LOADED
-                        || command[0] == WorldPackets.SETTINGS || command[0] == WorldPackets.TELEPORT || (command[0] & 255) == NpcPackets.OPCODE) {
+                        || command[0] == WorldPackets.SETTINGS || command[0] == WorldPackets.TELEPORT || (command[0] & 255) == EncounterPackets.OPCODE || (command[0] & 255) == NpcPackets.OPCODE || (command[0] & 255) == StoryPackets.OPCODE) {
                     if (world == null) throw new IOException("No active world");
                     channel.send(world.handle(command));
                 } else if (command[0] == WorldPackets.SAVE) {

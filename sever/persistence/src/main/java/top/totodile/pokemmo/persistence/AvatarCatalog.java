@@ -62,6 +62,9 @@ public final class AvatarCatalog {
         data.position(data.position() + count);
     }
     public boolean valid(Appearance appearance) {
+        return valid(appearance, false);
+    }
+    public boolean valid(Appearance appearance, boolean wardrobe) {
         if (!appearance.valid()) return false;
         int[] ids = appearance.items(), colors = appearance.colors();
         for (int category = 0; category < 12; category++) {
@@ -76,7 +79,7 @@ public final class AvatarCatalog {
             if (item == null) return false;
             int flags = item.flags();
             int gender = (flags & 1) != 0 ? 0 : (flags & 2) != 0 ? 1 : -1;
-            if ((flags & (4 | 1024)) != 0 || gender != -1 && gender != appearance.gender()
+            if ((flags & (wardrobe ? 1024 : 4 | 1024)) != 0 || gender != -1 && gender != appearance.gender()
                     || category == 3 && id < 2 || (flags & 16) == 0 && colors[category] != 0) return false;
         }
         Item hair = items.get(2 * 65536 + ids[2]);

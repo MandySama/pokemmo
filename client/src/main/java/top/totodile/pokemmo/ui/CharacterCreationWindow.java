@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
-/** 新角色外观表单；服务端创建接口接通前不允许提交。 */
+/** 角色外观表单与服饰配色预览。 */
 final class CharacterCreationWindow extends ResizableFrame {
     private static final int[] CATEGORIES = {1, 2, 3, 4, 5, 6, 7, 8, 9, 11};
     private static final int[][] WALK_FRAMES = {
@@ -48,6 +48,7 @@ final class CharacterCreationWindow extends ResizableFrame {
     private AvatarAssets assets;
     private java.util.function.Consumer<top.totodile.pokemmo.protocol.CharacterPackets.Appearance> onCreate;
     private boolean submitting;
+    private boolean wardrobe;
     private boolean rebuilding;
     private boolean previewDirty = true;
     private int previewMode;
@@ -168,9 +169,52 @@ final class CharacterCreationWindow extends ResizableFrame {
 
     AvatarAssets assets() { return assets; }
 
+    void editOutfit(top.totodile.pokemmo.protocol.CharacterPackets.Appearance appearance) {
+        wardrobe = true;
+        rebuilding = true;
+        submitting = false;
+        itemColors.clear();
+        Arrays.fill(selected, null);
+        name.setText(appearance.name());
+        region.setSelected(appearance.region());
+        options.get(0).setSelected(appearance.gender());
+        options.get(1).setSelected(appearance.skin());
+        closeColors();
+        rebuilding = false;
+        rebuildChoices(false);
+        rebuilding = true;
+        int[] ids = appearance.items(), colors = appearance.colors();
+        for (int row = 0; row < CATEGORIES.length; row++) {
+            int category = CATEGORIES[row];
+            List<AvatarAssets.Item> entries = choices.get(row);
+            for (int index = 0; index < entries.size(); index++) {
+                AvatarAssets.Item item = entries.get(index);
+                if (item.id != ids[category]) continue;
+                options.get(row + 2).setSelected(index);
+                selected[category] = item;
+                palette[category] = colors[category];
+                itemColors.put(category * 65536 + item.id, colors[category]);
+                colorButtons.get(row).setVisible(item.colorable());
+                break;
+            }
+        }
+        rebuilding = false;
+        previewMode = 0;
+        previewDirty = true;
+        setTitle(ClientStrings.get(9590));
+        setSubmitting(false);
+    }
+
+    void cancelEditing(Runnable close) {
+        if (submitting) return;
+        if (coloringCategory >= 0) closeColors();
+        else close.run();
+    }
+
     void reset() {
         rebuilding = true;
         submitting = false;
+        wardrobe = false;
         name.setText("");
         Arrays.fill(selected, null);
         itemColors.clear();
@@ -199,13 +243,17 @@ final class CharacterCreationWindow extends ResizableFrame {
 
     void setSubmitting(boolean value) {
         submitting = value;
-        create.setText(ClientStrings.get(value ? 9024 : 1051));
+        create.setText(ClientStrings.get(value ? (wardrobe ? 9591 : 9024) : (wardrobe ? 54 : 1051)));
         name.setEnabled(!value);
         region.setEnabled(!value);
         previous.setEnabled(!value && assets != null);
         next.setEnabled(!value && assets != null);
         for (int i = 0; i < options.size(); i++) {
             options.get(i).setEnabled(options.get(i).getModel().getNumEntries() > 1);
+        }
+        if (wardrobe) {
+            options.get(0).setEnabled(false);
+            options.get(1).setEnabled(false);
         }
         if (assets != null) updateHat();
         colorButtons.forEach(button -> button.setEnabled(true));
@@ -222,7 +270,7 @@ final class CharacterCreationWindow extends ResizableFrame {
         for (int i = 0; i < CATEGORIES.length; i++) {
             int category = CATEGORIES[i];
             AvatarAssets.Item old = selected[category];
-            List<AvatarAssets.Item> entries = assets.choices(category, options.get(0).getSelected());
+            List<AvatarAssets.Item> entries = assets.choices(category, options.get(0).getSelected(), wardrobe);
             choices.set(i, entries);
             ComboBox<String> combo = options.get(i + 2);
             combo.setModel(new SimpleChangableListModel<>(entries.stream().map(Object::toString).toArray(String[]::new)));
@@ -246,6 +294,9 @@ final class CharacterCreationWindow extends ResizableFrame {
         if (rebuilding || assets == null) return;
         int row = rowFor(category);
         updateSelected(category, row, options.get(row + 2).getSelected());
+        if (wardrobe && category == 2 && selected[2] != null && (selected[2].flags & 65536) != 0) {
+            options.get(2).setSelected(0);
+        }
         updateHat();
         previewDirty = true;
     }
@@ -297,6 +348,7 @@ final class CharacterCreationWindow extends ResizableFrame {
     }
 
     private void setIdentityVisible(boolean visible) {
+        visible &= !wardrobe;
         nameLabel.setVisible(visible);
         name.setVisible(visible);
         regionLabel.setVisible(visible);
@@ -437,6 +489,7 @@ final class CharacterCreationWindow extends ResizableFrame {
         previewImages.clear();
         swatchTextures.forEach(Texture::destroy);
         swatchTextures.clear();
+        for (Button button : swatches) ((SwatchButton) button).image = null;
         previewDirty = true;
     }
 

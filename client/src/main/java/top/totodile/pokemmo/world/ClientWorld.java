@@ -1,5 +1,6 @@
 package top.totodile.pokemmo.world;
 
+import top.totodile.pokemmo.protocol.EncounterCatalog;
 import top.totodile.pokemmo.protocol.CharacterPackets.Position;
 import top.totodile.pokemmo.protocol.PartyMember;
 import top.totodile.pokemmo.protocol.WorldPackets;
@@ -11,6 +12,9 @@ import java.util.function.Function;
 
 /** 游戏窗口与各地区世界的交互边界。 */
 public interface ClientWorld extends AutoCloseable {
+    void replaceOutfit(top.totodile.pokemmo.protocol.CharacterPackets.Appearance appearance);
+    default EncounterCatalog.Selection takeWildEncounter() { return null; }
+    default int encounterBehavior() { return -1; }
     String locationName();
     int region();
     FireRedAtlas atlas();

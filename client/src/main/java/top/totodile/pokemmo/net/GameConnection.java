@@ -1,5 +1,7 @@
 package top.totodile.pokemmo.net;
 
+import top.totodile.pokemmo.protocol.EncounterPackets;
+import top.totodile.pokemmo.protocol.PokemonConfigPackets;
 import top.totodile.pokemmo.protocol.GameAdmission;
 import top.totodile.pokemmo.protocol.CharacterPackets;
 import top.totodile.pokemmo.protocol.GameEndpoint;
@@ -101,6 +103,43 @@ public final class GameConnection implements AutoCloseable {
         });
     }
 
+    public synchronized CompletableFuture<EncounterPackets.Snapshot> encounterCommand(int action, boolean enabled) {
+        if (!connected || closed) return CompletableFuture.failedFuture(new IOException("Game connection closed"));
+        CompletableFuture<byte[]> response = new CompletableFuture<>();
+        if (!offerCommand(new Pending(EncounterPackets.request(action, enabled), response)))
+            return CompletableFuture.failedFuture(new IOException("Game command queue full"));
+        return response.thenApply(packet -> {
+            try { return EncounterPackets.decode(packet); }
+            catch (IOException error) { throw new java.util.concurrent.CompletionException(error); }
+        });
+    }
+
+    public synchronized CompletableFuture<PokemonConfigPackets.Result> configurePokemon(
+            PokemonConfigPackets.Request request) {
+        if (!connected || closed) return CompletableFuture.failedFuture(new IOException("Game connection closed"));
+        CompletableFuture<byte[]> response = new CompletableFuture<>();
+        if (!offerCommand(new Pending(PokemonConfigPackets.request(request), response)))
+            return CompletableFuture.failedFuture(new IOException("Game command queue full"));
+        return response.thenApply(packet -> {
+            try { return PokemonConfigPackets.decodeResponse(packet); }
+            catch (IOException error) { throw new java.util.concurrent.CompletionException(error); }
+        });
+    }
+
+    public synchronized CompletableFuture<CharacterPackets.CreationResult> replaceOutfit(CharacterPackets.Appearance appearance) {
+        if (!connected || closed) return CompletableFuture.failedFuture(new IOException("Game connection closed"));
+        CompletableFuture<byte[]> response = new CompletableFuture<>();
+        if (!offerCommand(new Pending(CharacterPackets.outfitRequest(appearance), response)))
+            return CompletableFuture.failedFuture(new IOException("Game command queue full"));
+        return response.thenApply(packet -> {
+            try {
+                var result = CharacterPackets.decodeOutfitResult(packet);
+                if (result.status() == CharacterPackets.Status.SUCCESS) characters = result.characters();
+                return result;
+            } catch (IOException error) { throw new java.util.concurrent.CompletionException(error); }
+        });
+    }
+
     public synchronized CompletableFuture<CharacterPackets.CreationResult> deleteCharacter(long id) {
         if (!connected || closed) return CompletableFuture.failedFuture(new IOException("Game connection closed"));
         CompletableFuture<byte[]> response = new CompletableFuture<>();
@@ -159,6 +198,16 @@ public final class GameConnection implements AutoCloseable {
         if (!offerCommand(new Pending(packet, response))) return CompletableFuture.failedFuture(new IOException("Game command queue full"));
         return response.thenApply(bytes -> {
             try { return top.totodile.pokemmo.protocol.NpcPackets.decode(bytes); }
+            catch (IOException error) { throw new java.util.concurrent.CompletionException(error); }
+        });
+    }
+
+    public synchronized CompletableFuture<top.totodile.pokemmo.protocol.StoryPackets.Snapshot> storyCommand(byte[] packet) {
+        if (!connected || closed) return CompletableFuture.failedFuture(new IOException("Game connection closed"));
+        CompletableFuture<byte[]> response = new CompletableFuture<>();
+        if (!offerCommand(new Pending(packet, response))) return CompletableFuture.failedFuture(new IOException("Game command queue full"));
+        return response.thenApply(bytes -> {
+            try { return top.totodile.pokemmo.protocol.StoryPackets.decode(bytes); }
             catch (IOException error) { throw new java.util.concurrent.CompletionException(error); }
         });
     }

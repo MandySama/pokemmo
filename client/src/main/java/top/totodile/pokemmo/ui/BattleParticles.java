@@ -21,11 +21,24 @@ final class BattleParticles {
                       float delay, float duration, int minimum, float[] colors, float[] colorTimes,
                       float velocity, float velocityPhi, float velocityTheta) { }
     static List<Definition> load(Path rom, int move) throws IOException {
+        return loadEffects(rom, MoveAnimations.get(move).effects());
+    }
+    static List<Definition> loadShiny(Path rom) throws IOException {
+        // 普通星星闪光按 152 双控制器、422 星光序列播放。
+        return loadEffects(rom, List.of(
+                new MoveAnimations.Effect(152, 0, 1, 0, 400, .4f),
+                new MoveAnimations.Effect(152, 1, 1, 0, 400, .4f),
+                new MoveAnimations.Effect(422, 2, 1, 400, 400, .4f),
+                new MoveAnimations.Effect(152, 0, 1, 800, 400, .4f),
+                new MoveAnimations.Effect(152, 1, 1, 800, 400, .4f),
+                new MoveAnimations.Effect(422, 2, 1, 1200, 400, .4f)));
+    }
+    private static List<Definition> loadEffects(Path rom, List<MoveAnimations.Effect> requested) throws IOException {
         List<Definition> result = new ArrayList<>();
         Map<Integer, List<BufferedImage>> textures = new HashMap<>();
         Map<Integer, JsonValue> effects = new HashMap<>();
         try (var zip = new ZipFile(ClientFiles.data("battle/particles.zip").toFile())) {
-            for (var effect : MoveAnimations.get(move).effects()) {
+            for (var effect : requested) {
                 JsonValue resource = effects.get(effect.archive());
                 if (resource == null) {
                     String path = "particle/"+MoveAnimations.resource(effect.archive())+".vfx";

@@ -1,5 +1,7 @@
 package top.totodile.pokemmo.persistence;
 
+import top.totodile.pokemmo.protocol.PokemonConfigPackets;
+
 import top.totodile.pokemmo.protocol.CharacterPackets;
 import top.totodile.pokemmo.protocol.TrainerStats;
 import top.totodile.pokemmo.protocol.PartyMember;
@@ -23,13 +25,13 @@ public final class CharacterStore {
         try (Connection connection = database.connect()) { return list(connection, account); }
     }
     private List<CharacterInfo> list(Connection connection, int account) throws SQLException {
-        try (PreparedStatement query = connection.prepareStatement("SELECT id,name,gender,skin,region,items,colors,map_group,map_id,position_x,position_y,elevation,facing,return_position,created_at,dex_unlocked,money,battle_points,online_seconds,CASE WHEN kanto_champion THEN 9 ELSE kanto_badges END,CASE WHEN hoenn_champion THEN 9 ELSE hoenn_badges END,party_species,party_flags,party_hp,party_max_hp,party_levels,CASE WHEN unova_champion THEN 9 ELSE unova_badges END,CASE WHEN sinnoh_champion THEN 9 ELSE sinnoh_badges END,cycling,debug_noclip,debug_speed_multiplier FROM characters WHERE account_id=? ORDER BY id")) {
+        try (PreparedStatement query = connection.prepareStatement("SELECT id,name,gender,skin,region,items,colors,map_group,map_id,position_x,position_y,elevation,facing,return_position,created_at,dex_unlocked,money,battle_points,online_seconds,CASE WHEN kanto_champion THEN 9 ELSE kanto_badges END,CASE WHEN hoenn_champion THEN 9 ELSE hoenn_badges END,party_species,party_flags,party_hp,party_max_hp,party_levels,CASE WHEN unova_champion THEN 9 ELSE unova_badges END,CASE WHEN sinnoh_champion THEN 9 ELSE sinnoh_badges END,cycling,debug_noclip,debug_speed_multiplier,wild_encounters_enabled FROM characters WHERE account_id=? ORDER BY id")) {
             query.setInt(1, account);
             List<CharacterInfo> result = new ArrayList<>();
             try (ResultSet rows = query.executeQuery()) {
                 while (rows.next()) result.add(new CharacterInfo(rows.getLong(1), new Appearance(rows.getString(2),
                         rows.getInt(3), rows.getInt(4), rows.getInt(5), integers(rows.getArray(6)), integers(rows.getArray(7))), new Position(rows.getInt(8), rows.getInt(9), rows.getInt(10), rows.getInt(11), rows.getInt(12), rows.getInt(13), returnPoint(rows.getArray(14))), rows.getTimestamp(15).toInstant().getEpochSecond(), rows.getBoolean(16), new TrainerStats(rows.getBoolean(16) ? top.totodile.pokemmo.protocol.PokemonCatalog.MAX_SPECIES : 0, rows.getLong(17), rows.getLong(18), rows.getLong(19),
-                                TrainerStats.obedience(rows.getInt(5), rows.getInt(5) >= 4 ? 0 : rows.getInt(rows.getInt(5) == 0 ? 20 : rows.getInt(5) == 1 ? 21 : rows.getInt(5) == 2 ? 27 : 28))), PokemonStore.load(connection,rows.getLong(1),party(rows.getArray(22), rows.getArray(23), rows.getArray(24), rows.getArray(25), rows.getArray(26))), rows.getBoolean(29), rows.getBoolean(30), rows.getInt(31)));
+                                TrainerStats.obedience(rows.getInt(5), rows.getInt(5) >= 4 ? 0 : rows.getInt(rows.getInt(5) == 0 ? 20 : rows.getInt(5) == 1 ? 21 : rows.getInt(5) == 2 ? 27 : 28))), PokemonStore.load(connection,rows.getLong(1),party(rows.getArray(22), rows.getArray(23), rows.getArray(24), rows.getArray(25), rows.getArray(26))), rows.getBoolean(29), rows.getBoolean(30), rows.getInt(31), rows.getBoolean(32)));
             }
             return List.copyOf(result);
         }
@@ -97,6 +99,52 @@ public final class CharacterStore {
             update.setArray(5, levelsArray);
             update.setLong(6, character); update.setInt(7, account); update.executeUpdate();
         } finally { speciesArray.free(); flagsArray.free(); hpArray.free(); maxHpArray.free(); levelsArray.free(); }
+    }
+
+    /** 个体配置与箱子搬移共用角色行锁，避免修改时槽位变化导致写入另一只个体。 */
+    public PokemonConfigPackets.Result configurePokemon(int account, long character,
+            PokemonConfigPackets.Request request, boolean debug) throws SQLException {
+        var invalid = new PokemonConfigPackets.Result(
+                PokemonConfigPackets.Status.INVALID, null, List.of());
+        if (!debug) return new PokemonConfigPackets.Result(
+                PokemonConfigPackets.Status.DISABLED, null, List.of());
+        try (Connection connection = database.connect()) {
+            connection.setAutoCommit(false);
+            try {
+                List<PartyMember> members;
+                try (var query = connection.prepareStatement(
+                        "SELECT party_species,party_flags,party_hp,party_max_hp,party_levels FROM characters WHERE id=? AND account_id=? FOR UPDATE")) {
+                    query.setLong(1, character); query.setInt(2, account);
+                    try (var row = query.executeQuery()) {
+                        if (!row.next()) { connection.rollback(); return invalid; }
+                        members = new ArrayList<>(PokemonStore.load(connection, character,
+                                party(row.getArray(1), row.getArray(2), row.getArray(3), row.getArray(4), row.getArray(5))));
+                    }
+                }
+                var boxes = new ArrayList<>(PokemonStore.loadBoxes(connection, character));
+                PartyMember updated = null;
+                for (int i = 0; i < members.size(); i++) {
+                    var member = members.get(i);
+                    if (member.individual().id() != request.individual()) continue;
+                    updated = PokemonConfigPackets.apply(member, request);
+                    members.set(i, updated); break;
+                }
+                if (updated == null) for (int i = 0; i < boxes.size(); i++) {
+                    var box = boxes.get(i);
+                    if (box.member().individual().id() != request.individual()) continue;
+                    updated = PokemonConfigPackets.apply(box.member(), request);
+                    boxes.set(i, new PokemonStore.Boxed(box.box(), box.slot(), updated)); break;
+                }
+                if (updated == null) { connection.rollback(); return invalid; }
+                PokemonStore.save(connection, character, members);
+                savePartyArrays(connection, account, character, members);
+                PokemonStore.saveBoxes(connection, character, boxes);
+                connection.commit();
+                return new PokemonConfigPackets.Result(
+                        PokemonConfigPackets.Status.SUCCESS, updated, members);
+            } catch (IllegalArgumentException error) { connection.rollback(); return invalid; }
+            catch (SQLException error) { connection.rollback(); throw error; }
+        }
     }
 
     /** 电脑箱子：队伍与箱子共用角色行锁，一次搬移在一个事务内完成。 */
@@ -357,6 +405,33 @@ public final class CharacterStore {
             }
         }
     }
+    public CreationResult replaceOutfit(int account, long character, Appearance appearance) throws SQLException {
+        if (!catalog.valid(appearance, true)) return new CreationResult(Status.INVALID, List.of());
+        try (Connection connection = database.connect()) {
+            connection.setAutoCommit(false);
+            try {
+                // 身份字段只用来确认打开表单时的角色，服饰更新不改变身份与地区。
+                try (PreparedStatement update = connection.prepareStatement(
+                        "UPDATE characters SET items=?,colors=? WHERE id=? AND account_id=? AND name=? AND gender=? AND skin=? AND region=?")) {
+                    Array items = connection.createArrayOf("smallint", boxed(appearance.items()));
+                    Array colors = connection.createArrayOf("smallint", boxed(appearance.colors()));
+                    try {
+                        update.setArray(1, items); update.setArray(2, colors);
+                        update.setLong(3, character); update.setInt(4, account);
+                        update.setString(5, appearance.name()); update.setInt(6, appearance.gender());
+                        update.setInt(7, appearance.skin()); update.setInt(8, appearance.region());
+                        if (update.executeUpdate() != 1) {
+                            connection.rollback(); return new CreationResult(Status.INVALID, List.of());
+                        }
+                    } finally { items.free(); colors.free(); }
+                }
+                List<CharacterInfo> result = list(connection, account);
+                connection.commit();
+                return new CreationResult(Status.SUCCESS, result);
+            } catch (SQLException error) { connection.rollback(); throw error; }
+        }
+    }
+
     public CreationResult delete(int account, long id) throws SQLException {
         try (Connection connection = database.connect()) {
             connection.setAutoCommit(false);
@@ -378,6 +453,15 @@ public final class CharacterStore {
             } catch (SQLException exception) { connection.rollback(); throw exception; }
         }
     }
+    /** 遭遇开关只保存当前已认证账号所属角色。 */
+    public boolean setWildEncounters(int account, long character, boolean enabled) throws SQLException {
+        try (var connection = database.connect(); var query = connection.prepareStatement(
+                "UPDATE characters SET wild_encounters_enabled=? WHERE id=? AND account_id=?")) {
+            query.setBoolean(1, enabled); query.setLong(2, character); query.setInt(3, account);
+            return query.executeUpdate() == 1;
+        }
+    }
+
     /** 调试图鉴只更新已认证账号所属角色，不接收客户端指定的账号。 */
     public boolean setDexUnlocked(int account, long character, boolean unlocked) throws SQLException {
         try (var connection = database.connect(); var query = connection.prepareStatement(
@@ -404,6 +488,25 @@ public final class CharacterStore {
 
     public boolean savePosition(int account, long character, Position p) throws SQLException {
         return saveWorldState(account, character, p, -1);
+    }
+
+    public boolean kantoOpeningComplete(int account, long character) throws SQLException {
+        try (var c = database.connect(); var q = c.prepareStatement(
+                "SELECT kanto_opening_complete FROM characters WHERE id=? AND account_id=?")) {
+            q.setLong(1, character); q.setInt(2, account);
+            try (var rows = q.executeQuery()) {
+                if (!rows.next()) throw new SQLException("Story character not owned");
+                return rows.getBoolean(1);
+            }
+        }
+    }
+
+    public void saveKantoOpening(int account, long character, boolean complete) throws SQLException {
+        try (var c = database.connect(); var q = c.prepareStatement(
+                "UPDATE characters SET kanto_opening_complete=? WHERE id=? AND account_id=?")) {
+            q.setBoolean(1, complete); q.setLong(2, character); q.setInt(3, account);
+            if (q.executeUpdate() != 1) throw new SQLException("Story save rejected");
+        }
     }
 
     public boolean saveDebugSettings(int account, long character, boolean noclip, int multiplier) throws SQLException {

@@ -213,7 +213,7 @@ final class CharacterSelectionWindow extends ResizableFrame {
                     int[] ids = appearance.items();
                     AvatarAssets.Item[] selected = new AvatarAssets.Item[12];
                     for (int category = 1; category < 12; category++) {
-                        for (var item : assets.choices(category, appearance.gender())) {
+                        for (var item : assets.choices(category, appearance.gender(), true)) {
                             if (item.id == ids[category]) { selected[category] = item; break; }
                         }
                     }

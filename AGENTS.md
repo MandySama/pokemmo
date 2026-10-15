@@ -488,3 +488,87 @@ mvn -o -s target/maven-central-settings.xml '-Dmaven.repo.local=C:/Users/21156/.
 - `JohtoCreationNetworkSmoke`用隔离PostgreSQL账号检查城都创建、入图、权威移动、存档、重新入图及非法地图拒绝；`JohtoRegionNetworkSmoke`检查跨城都／原地区传送、角色调试状态与位置、重连及归属。`JohtoEntryUiSmoke`使用实际创建窗口选城都、点击创建／入图、GLFW方向键发起移动，以及六地区菜单实际点击／OpenGL切换和存档重连；测试结束删除隔离数据。上述是本项目测试，未运行原客户端。
 
 - 地图解析与绘制分别位于独立 Maven 模块 `map-core`、`map-render`，保留 `top.totodile.pokemmo.rom` 包名。解析模块不可反向依赖 `client` 或 OpenGL；`FireRedAtlas` 的替换 ROM 路径及开关通过构造参数传入，客户端由 `MapSources.gba` 读取配置并组装。无替换参数的构造器仅使用 GBA 资源，适用于通行数据导出。世界移动、网络、角色及窗口仍由 client 负责；Nitro 解析工具也供登录背景、战斗与精灵资源复用。
+
+
+- 关都首段剧情通过 `FireRedStoryData` 索引火红全部 425 张地图的 228 个坐标事件与 584 条地图脚本记录；`ExportKantoStory` 导出 `kanto-story-events.csv` 与 `kanto-opening.csv`，服务端不读取 ROM 图像。真新镇 (12,1)/(13,1) 的 0x4050=0 坐标事件定位开场，解析脚本条件、调用、文本及博士 3 号事件的两条行走路线；运行时 `KantoOpening` 只执行叫停、走近和警告首段，不执行完整卡带剧情，也未接入带路进研究所或选初始宝可梦。J/回车/空格确认分页，Esc 不跳过剧情；服务端锁定移动、调试传送及普通 NPC 交互，末页确认提交 `characters.kanto_opening_complete` 后才解锁，未完成时重登在触发格重新开始。独立“剧情指令”入口与 GM 菜单、综合搜索同级，`StoryMenuWindow` 按 `data/maps/story-commands.xml` 的地图分组提供重置、重播与跳过首段，沿用服务端 debug 开关；重播先重置，再通过现有传送协议到北口。新增扩展封包 0x83，客户端与 game 服务需同时更新。`KantoStorySmoke` 检查全图事件索引、两条路线、重复确认及协议；`KantoStoryNetworkSmoke` 用隔离账号验证真实加密 TCP/PostgreSQL 的触发、锁定、路线、确认存档、重连与调试；`KantoStoryUiSmoke` 检查真实 OpenGL/TWL 的中文分页、博士动画、人物朝向、输入锁定及 GM 按钮布局。以上 smoke 位于 target，不纳入版本控制；此次未运行原客户端。
+
+- 剧情指令窗口（2026-10-15）从 GM 菜单独立，左侧地图分类、右侧剧情标题与操作；目前仅展示已接通的真新镇博士首段，其他地区禁用关都操作。打开清除方向键，与 GM／综合搜索互斥，Esc 仅关闭窗口；离开世界隐藏入口与窗口。`target/StoryMenuUiSmoke` 验证真实 OpenGL/TWL 的同级入口、地图分组、布局、输入锁定、Esc、窗口互斥及重置／跳过／重播和离图清理。
+
+
+## 关都完整章节调试重播（2026-10-15）
+
+- 本条替代此前“重置／重播／跳过首段”的 UI 约定；正式博士叫停首段的服务端触发与完成存档保持原行为。独立“剧情指令”入口保留，`story-commands.xml` 按地图分组，每项只显示一个“播放剧情”按钮。现有六个章节定义整理为 61 张地图的 89 个命名场景，包含条件分支和通用护士场景，不把 812 条 ROM 事件索引当作可执行剧情目录。地图和剧情两栏分别滚动。
+- `StoryReplayCatalog` 从 `data/story/kanto-replay.xml` 读取节点、演员、地图和初始条件；`StoryReplay` 只在内存执行分支、临时背包、宝可梦、徽章、冠军和阶段。`tools/import_kanto_story.py` 从只读剧情／地图定义生成目录，文本导入语言 XML，重复执行应保持产物不变。当前目录覆盖到冠军的关键主线定义，不宣称火红所有支线、地图机关和 ROM 脚本均已等价实现。
+- 用户明确选择战斗由手动胜／负推进，奖励和进度使用临时状态。`StoryReplayWindow` 创建独立离线 `KantoWorld` 副本，对话分页、三选初始宝可梦、是／否、角色步行、带路和切图在副本执行；战斗展示敌方队伍，胜利跳转后续节点、失败结束本次重播，不进行伤害结算。音乐动作当前展示事件提示。重播不发送在线位置、奖励或剧情存档请求，不修改正式角色数据；Esc／结束按钮释放副本并恢复原在线世界和未结束对话。断线、换角色和退出同步释放副本；重播期间普通游戏操作禁用，仍可从剧情入口重新选择场景。
+- `target/AllStoryReplaySmoke` 覆盖 89 个场景、男女和三种选择共 534 次成功路径，以及手动失败路径、文本及有界结束。`AllStoryReplayUiSmoke` 在真实 OpenGL/TWL 逐一执行绘制全部 89 场景，检查61组、89个单按钮、走位、切图、选择、临时效果及释放。`StoryReplayIsolationSmoke` 使用隔离 PostgreSQL 账号与真实加密 TCP，点击实际菜单启动道馆剧情、手动胜利并领取临时奖励，核对角色行（在线时长正常增长除外）、背包与个体数据不变、没有副本世界 RPC，Esc 后保留原在线世界。以上测试是本项目验证，未运行原客户端。
+
+- 地区4的可见名称统一为“漆黑的魅影”（语言ID250004），替代旧称“丰缘2”；内部地区编号、ROM槽位、配置键和 emerald2 资源名称保持不变。新角色地区下拉和地图传送地区按钮共用此语言ID。
+
+- 剧情播放流程更新：先在离线副本定位对应坐标事件或 NPC 交互格并完成淡入，再执行首条动作；结束／停止释放副本，原在线世界仍停留在播放前的位置。护士按 scriptSuffix 定位交互 NPC，研究所介绍从 (6,11) 开始。普通对话、提示及临时奖励完整绘制后自动翻页或执行下一条；是／否、初始宝可梦和手动战斗胜负在末页等待选择，不自动代选。“下一页”按钮隐藏，J／回车／空格仍可提前推进。NpcDialog 的页面绘制版本仅供重播判定，不改变普通 NPC 对话；阅读时长由主题 autoAdvanceBaseMillis／autoAdvancePerCharacterMillis／autoAdvanceMaxMillis 控制，默认 800ms + 每字30ms，上限6000ms，每页重新计时。`AutoStoryReplayUiSmoke` 不手动翻页执行全部89场景；`AutoStoryReplayIsolationSmoke` 验证真实 TCP/PostgreSQL 的自动对话、临时奖励和回原点，测试文件在 target。
+
+- 剧情战斗更新：`StoryReplayWindow` 内嵌独立 `WildEncounterPanel`，遇到 START_BATTLE／START_TRAINER_BATTLE 实际进入 ROM 背景、人物投球及宝可梦动画窗口；固定剧情敌方种族与等级，多只队伍通过下拉切换实际前景纹理。我方使用当前队伍及本场景临时领取的宝可梦，无可出战成员时使用临时初始宝可梦。支持招式展示与换宠，剧情战斗不操作正式背包；“退出战斗”回到剧情后才显示手动胜／负，继续保留不结算伤害和临时奖励约定。加载失败结束重播并通知，停止、断线或退出释放战斗与副本资源；普通随机野生遭遇入口保留。`StoryActualBattleUiSmoke` 在真实 OpenGL/TWL 验证小刚／首次劲敌／捕获教学三类固定入场、双方换宠、招式、退出判定、继续剧情和资源释放，并回归普通随机遭遇；`ActualBattleIsolationSmoke` 检查真实 TCP/PostgreSQL 下实际战斗前后正式角色和库存保持不变。此前仅显示队伍文字的战斗说明被本条替代。
+
+- 替换时装是与 GM 菜单同级的游戏内入口，复用 `CharacterCreationWindow` 的服饰、48 色配色及五种预览，打开恢复当前角色外观；姓名和地区隐藏，性别肤色只读，关闭不提交。替换列表允许 flags 4 的服饰，仍排除 flags 1024 并按性别筛选；创建角色继续使用原筛选。扩展封包 `0x84` 仅修改会话当前角色的 `items/colors`，验证账号归属、身份字段、服饰和颜色并受 game debug 开关控制。收到成功响应后在 GUI 线程更新地图人物、名片、角色卡片及后续战斗外观，释放旧人物纹理；重登读取数据库。`target/OutfitSmoke.java` 使用隔离账号检查真实 PostgreSQL、加密 TCP、归属拒绝、debug 开关、重入读取、TWL 配色/提交状态、成功后的界面同步、配色纹理重开及关都／合众 OpenGL 人物纹理替换，测试账号结束删除；未运行原客户端。
+
+- 关都对话中的 {06} 是劲敌名字，显示为语言 ID9560“青绿”；`KantoDialogueText` 统一展开 {01}/{PLAYER}/%CHARACTER_NAME% 与 {06}/{RIVAL}/%RIVAL_NAME%，普通 NPC 对话与剧情播放共用，原始语言文本保留占位符。
+
+- 宝可梦详情图像右键打开 `PokemonConfigurationMenu` 的分级设置菜单，左键继续正背面翻转。已接通闪光、头目、性别、普通／隐藏特性、性格、整组个体值、整组及单项努力值、亲密度和精灵球；数值预设为 IV 31／15／0／随机，整组 EV 85／42／0，单项 EV 252／126／0，亲密度 255／127／0。扩展封包 `0x85` 只携带个体 ID 与操作，服务端验证当前角色所属队伍／箱子和 debug 开关，角色行锁内校验并保存，不能修改其他角色个体；总 EV 不得超过 510，数值变更重算 HP 上限并保留已损失 HP（濒死仍为零）。成功后 GUI 线程刷新同一个体的所有详情窗口、队伍及 PC 缓存，保留详情页签与朝向；提交中全局防重入，关闭详情释放菜单与旧纹理。`target/PokemonConfigurationSmoke.java` 检查预设和协议、真实 PostgreSQL／加密 TCP、越权／非法值／debug 拒绝、存箱后按 ID 修改及重入恢复、实际 TWL 右键菜单／子菜单点击／刷新／左键翻转／关闭清理，结束删除隔离账号。原客户端只核对源码，未运行实测。
+
+- 关都对话缓冲更新：`FireRedDialogue` 为每条文本保存不可变的字符串缓冲快照；`FireRedNpcDialogue` 读取 0x7D–0x85 的种族、队伍昵称、道具、招式、数字、标准徽章及文本缓冲，并只读展开交换物种 special 252（火红九组交换）。缓冲指令使用包含槽位字节的实际长度，不能沿用旧长度表漏掉的槽位。`KantoWorld` 将当前交谈的快照交给 `KantoDialogueText`，普通 NPC 和剧情播放分别使用正式队伍及临时选择上下文，不执行奖励或交换。译文1701291最后一句数量槽修正为 {02}。剧情1629522使用劲敌对应的初始宝可梦，避免误显示玩家选择。
+- `target/AllPlaceholderSmoke` 遍历425图当前可见NPC、男女共2002次文本展示，以及89场景男女三选共534次重播中的1070次文本展示，缺失文本和残留占位符均为零；`AllPlaceholderUiSmoke` 通过真实OpenGL/TWL展示玩家／劲敌姓名、30／50种图鉴门槛和徽章，包含分页。此覆盖不代表未接通剧情分支或其他地区的全部动态文本已实现；未运行原客户端。
+
+## 宝可梦融合时装试用（2026-10-15）
+
+- `data/cosmetics/pokemon/catalog.xml` 定义时装 id、原种族、融合对象和像素倍率；当前1.4、6.25、25.6三款来自FusionDex，原PNG、作者、页面、图片URL和SHA-256保存在对应目录及sources.json。`tools/download_fusion_samples.py` 可重新下载缺失文件，不覆盖已有图片；没有核实素材的通用再分发授权，作者授权尚未取得，不应把网站公开下载视为开放许可。
+- `PokemonCostumes` 按个体ID在本机 `config/pokemon-costumes.properties` 保存外观，不发送配置RPC，不改变正式种族、属性、招式、闪光标记及个体编码。资料图片右键的“宝可梦时装”仅列原种族对应条目及“原始外观”；保存前重读磁盘、临时文件原子替换，失败不更新内存。当前不是服务端时装存档或跨客户端同步。
+- 资料正面与队伍／箱子图标使用融合图；战斗图像按对应方向读取，缺少背面或闪光PNG时使用原种族资源。跟随沿用原外观，不拿正面图伪造四向或背面。原文件为3倍像素的静态正面图，运行时裁剪透明范围并按目录倍率缩小；资料正背面共用锚点和并集画布。
+- `target/FusionCostumeSmoke.java` 在真实OpenGL/TWL检查三款素材的实际菜单回调、资料正背面切换、固定对手实际战斗窗口的融合正面纹理与原种族数据、战斗资源释放、图标加载、本机选择落盘、同种不同个体隔离、非法条目拒绝、还原、背面／闪光回退、个体字节不变与纹理释放；测试结束恢复原配置。此测试未运行原客户端，未声称素材包含背面、动画、闪光或跟随。
+
+
+## 喷火龙形态试用（2026-10-15）
+
+- 详情右键“设置 → 形态”仅对喷火龙显示普通／Mega X／Mega Y／超极巨化四项，当前项禁用；`PokemonConfigPackets.Action.FORM` 追加在枚举末尾，沿用 0x85 的个体归属、debug 开关、事务存档和 UI 刷新。`PokemonIndividual` v3 末尾增加 form 字节（0–3），保留旧构造器默认 0，读取 v1／v2 默认普通；`PartyMember` 拒绝非喷火龙的非零形态。修改其他配置保留 form，队伍／箱子继续使用已有 individual_data，不新增数据库列。客户端与 game 服务必须同时更新。
+- `PokemonForms` 读取 `data/resources/pokemon-forms/6/{megax,megay,gmax}` 的普通／闪光正背面 GIF，复用 `ExtendedPokemonSprites` 解码帧延时和 disposal；按正背面并集尺寸组成原始像素画布与共用脚底锚点，概要与战斗使用对应动画。外部非普通形态优先于本机融合时装，恢复普通时保留原时装选择；图标及跟随沿用原种族，属性、特性及战斗数值不改变，不实现变身过程、回合限制或变身道具。
+- 12 份 GIF 来自 Pokemon Showdown，URL 与 SHA-256 在 sources.json；`tools/download_pokemon_forms.py` 仅补齐缺失素材。公开下载不代表取得通用再分发授权，未声称素材开放许可。
+- `target/PokemonFormsSmoke.java` 检查旧 v2 存档、形态协议往返、非法种族／值拒绝、闪光与头目独立、全部 12 份动画、真实 TWL 右键形态菜单、概要正背面及三形态战斗 OpenGL 上传／绘制／释放；截图位于 target/pokemon-forms-menu.png、pokemon-megay-summary.png 与 pokemon-form-battle-1/2/3.png。`PokemonFormsNetworkSmoke` 使用隔离账号检查真实 PostgreSQL／加密 TCP、四形态保存、越权与 debug 拒绝、存箱、其他配置保留形态及断线重连读取，结束删除测试账号。未运行原客户端。
+
+
+## 五地区野外遭遇与图鉴分布（2026-10-15）
+
+- 此条替代早期“快捷栏全图鉴随机抽取、没有服务端遇敌裁决”和“野生分布标签禁用”的约定。五地区由 `EncounterCatalog` 共用 `protocol` 下地图槽位目录：关都124图／丰缘116图／合众112地图头／神奥154图／城都135地图头有遭遇数据；没有目录的地图不回退到全图鉴。用户明确要求漆黑的魅影暂时无野外遭遇，地区4没有目录，主动诱敌也拒绝。
+- `tools/import_wild_encounters.py` 导入三地区地图定义中的种族、等级、概率和权重，关都只取 FireRed 分支；丰缘 bank 减50。GBA 的内部种族编号不能直接当作全国编号，按 `tools/encounter-national-species.csv` 的名称映射转换（刺尾虫内部290→全国265）。`NdsWildEncounters` 从黑白 `/a/1/2/6` 读取232字节单季／928字节四季表，地图头+20为遭遇索引；HGSS地图头首字节为索引，心金 `/a/0/3/7`、魂银 `/a/1/3/6`，草地等级共用，早／昼／夜种族分列。NDS模型的地块行为和阻挡按层另行导出，服务端不读ROM或图像。已实际导出本机黑、白金、心金卡带；魂银分支只核对结构，未用魂银ROM运行。
+- `WorldSession` 在接受有效移动后按当前位置、草丛／洞穴地块、地图概率、短步数冷却和累积概率抽取，骑车对陆地概率乘0.8；碰墙、转向、切图、剧情锁定、无可战队伍不入场。合众按现实UTC月份循环季节，城都按服务端四倍时间选早晨04–09／白天10–19／夜晚时段。普通道路不因地图有草地表而刷怪，NDS使用实际高度层的地形行为。当前随机行走只接陆地／深色草丛；水面、钓鱼、碎岩等目录用于图鉴展示，未新增冲浪或钓鱼操作。
+- `WorldPackets.Result` 附带可选遭遇；`KantoWorld`／`NdsWorld` 停止下一步请求并在当前格移动完成后交给 `LoginScreen`，调用 `WildEncounterPanel.startWild` 使用权威种族与等级，沿用普通野生战斗按钮。服务端持有本场遭遇并锁定移动／传送，扩展封包0x86管理查询、开关、甜甜香气及离场确认；界面结束或加载失败后确认离场，断线丢弃会话状态。不增加伤害、捕获、奖励或队伍扣血。
+- GM底部增加野外随机遭遇按钮，显示服务端真实状态，提交期间防重入，数据库成功后才更新。`characters.wild_encounters_enabled` 默认true，按角色持久化并随角色协议恢复；关闭只禁止随机行走，甜甜香气仍可在有效遭遇地块按地图主动诱敌。game debug关闭时随机遭遇保持开启，拒绝关闭请求。
+- 图鉴详情的野生分布标签接通同一目录，按种族显示地区、地点、遭遇方式、等级范围及季节／时段；同名地点楼层合并等级，季节、时段和方式分别保留。未遇见条目仍隐藏资料，无目录的种族显示没有分布，不补示例地点。
+- `target/EncounterCatalogSmoke` 遍历五地区全部槽位并检查种族／等级、编号转换、实际NDS地形和协议；`FieldEncounterNetworkSmoke` 用隔离PostgreSQL账号和真实加密TCP在五地区实际移动触发自然遭遇，检查关闭后50步不触发、角色开关恢复、地图诱敌、战斗移动锁定／离场和地区4拒绝。`FieldEncounterUiSmoke` 使用真实OpenGL／TWL检查GM实际点击与布局、五地区图鉴分布／季节／时段及模拟移动响应的入场时机；`FieldEncounterEndToEndSmoke` 连接临时game服务实际入图、点击GM写盘、按键移动到自然遭遇、渲染地图对应对手并确认退出恢复移动。测试结束删除隔离账号，未运行原客户端。
+
+- 超极巨化战斗额外倍率由 `wild-encounter.gigantamaxFrontScale/gigantamaxBackScale` 控制，默认主题为 1.7／1.35；绘制时按当前敌方／我方个体的 form=3 应用，保持脚底锚点并叠加镜头、出场和招式缩放，换宠路径自然沿用。普通／Mega／概要不变。`target/GigantamaxScaleSmoke.java` 检查四形态倍率与真实战斗 OpenGL 绘制／释放，截图 target/pokemon-gmax-large-3.png。
+
+## 宝可梦图标缓存与刷新（2026-10-15）
+
+- `PokedexIcons.load` 共享 CPU 图集，缓存键包含规范化 ROM／扩展 ZIP 路径、文件大小和修改时间；扩展376种小图标在同一个 ZipFile 生命周期内读取，不再逐只重复打开ZIP。缓存最多2张／24MiB；同一资源并发首载合并，失败不缓存。共享图像只读，不持有文件句柄或OpenGL对象。
+- `PartyIcons` 以种族、闪光、头目、所选时装、原资源版本及描边／柔光参数缓存42像素成品，最多1024项／8MiB；HP、等级、昵称、个体能力不进入外观键。`PokemonCostumes` 的裁剪缩放图最多64项／8MiB，按图片路径、大小、修改时间失效。上述是缓存像素预算，不代表全部进程内存或解码临时分配上限。
+- 队伍／箱子将数据更新和图像更新分离：外观相同不解码、不上传；已有外观的换序／移除直接重排图像引用。新外观请求期间保留旧纹理，仅在仍匹配的槽位复用旧图，新种族不显示上一只的图片；新图上传完成后删除旧纹理。窗口关闭取消待处理结果并释放本窗口纹理，CPU缓存保留供其他窗口复用。
+- `LatestIconRequest` 使用两个后台守护线程，每窗口最多一个执行中任务和一个最新待执行任务；重复刷新覆盖排队任务，已在执行的共享首载不被取消打断。GUI只接收当前future的结果，旧请求不能回写窗口；不使用公共线程池堆积过时箱子解码任务。当前未引入共享GPU图集或首次预热。
+- `target/IconCacheSmoke` 对比优化前源码的1025种完整图集和4100种普通／闪光／头目组合逐像素一致，检查8并发共享首载、文件版本失效、LRU容量与失败重试。`IconRefreshUiSmoke` 用真实OpenGL/TWL检查1000次HP／等级刷新不换纹理、换序引用正确、旧纹理保留、新种族不串图、连续100请求及退出；阻塞首任务测试100排队刷新仅执行首个和最后一个。适配后的 `PcBoxUiSmoke` 检查图像future完成和非空图，而非仅图像数组长度，并覆盖快速100次图像切换、保留／替换纹理、原拖拽／存取／创建箱子／失败提示和关闭。`FusionCostumeSmoke` 回归三款时装、图标、实际战斗图与资源释放。
+- 本机六只混合队伍解码基线重复加载1478–1907ms，优化后缓存重复读取约2.5–8.5ms；图鉴重复读取由约1569ms降至0.4–0.6ms。首次冷加载仍约1.7秒，在后台执行；以上为独立加载测试，不代表完整游戏帧率或所有机器的耗时。1000次队伍HP／等级更新在本次隐藏OpenGL测试中合计约15.5ms。未运行原客户端。
+
+- `PokemonForms` 不再把原始 GIF 双线性缩小到 120×96 后放大；只裁剪／平移透明边界，保留原始像素和帧时序，GPU 上传沿用最近邻过滤。概要绘制以主题 `pokemon-summary.formDisplayWidth/formDisplayHeight`（120／96）控制内容显示范围，战斗沿用独立尺寸与超极巨化倍率。此调整改善现有素材清晰度，不代表已替换为手绘像素素材或接通完整 MOD 资源覆盖。`PokemonFormsSmoke` 增加全部 12 份动画的逐帧原始像素一致性检查，截图 target/pokemon-form-crisp-1/2/3.png 与 pokemon-megay-crisp-summary.png。
+
+- 野外闪光概率按用户要求暂设为 1/2：`EncounterCatalog.Table.roll` 每次选中遭遇后抽取一次，`Selection.shiny` 经移动和主动诱敌响应传递给战斗个体；自然遭遇与甜甜香气共用，不影响固定剧情对手。客户端与 game 服务需同时重启。
+
+
+## Mega 像素 MOD 素材（2026-10-15）
+
+- 喷火龙 Mega X／Y 改用 AdamantSceptile 的 PokeMMO Mega Sprites 2.1.3 两个 MOD 中的 `sprites/battlesprites/006-{front,back}-{n,s}.gif`，共8份96×96动画；在 `data/resources/pokemon-forms-mod/6/{megax,megay}` 独立存放，原 Showdown 文件保留。`PokemonForms.load` 按形态选资源根目录；形态ID、协议、存档、数值及超极巨化倍率不变，不额外启用整个MOD包或替换其他种族。
+- 各目录保留原包 info.xml，sources.json 记录作者、原帖、MediaFire下载页、包内路径、原ZIP与GIF的SHA-256；`tools/import_pokemon_form_mods.py` 下载公开包后仅按固定条目导入，不执行包内容。作者原帖鸣谢MBCMechachu、Diegotoon20、Showdown Gen5资源及Pokemon Indigo背面动画；保留鸣谢不等于已取得通用再分发授权。
+- 超极巨化仍使用原Showdown四份GIF：实际检查mrshinori发布的Gmax.zip及TIMOD 2.0清单均没有喷火龙超极巨化，mexiko35合集链接返回404；Tensala的Gigamax-HD.zip是约956MiB的HD渲染素材，未拿它冒充像素素材。未下载整个HD包，仅核对公共下载元数据与ZIP目录。
+- 适配后的 `target/PokemonFormsSmoke.java` 检查8份MOD动画及4份原超极巨化动画逐帧像素、普通／闪光、正背面、实际菜单和概要／战斗OpenGL绘制释放；截图 target/pokemon-megay-mod-summary.png 与 pokemon-form-mod-1/2/3.png。未运行原客户端。
+
+## 香气群怪与闪光入场（2026-10-16）
+
+- `EncounterCatalog.Table.rollHorde` 随机选择 3／5 只，再逐只使用当前地图槽抽取种族、等级和暂定 1/2 闪光；普通移动继续调用单只 `roll`。`Selection` 保存首只与不可嵌套的同伴，遭遇封包按数量 0／1／3／5 编解码。香气在服务端抽取；客户端离线入口使用同一逻辑，漆黑的魅影仍无遭遇。
+- `WildEncounterPanel` 同时上传／绘制所有群怪与名称血条，保留普通野生操作，不使用剧情队伍切换菜单冒充群怪。闪光个体入场使用 `BattleParticles.loadShiny` 的 152 双控制器和 422 星光序列，普通单只、群怪及己方闪光出场均可播放；素材沿用现有粒子包和黑白 ROM，资源随战斗关闭释放。原项目核对 `ShinyParticleEffect` 普通闪光分支与 `BattleFormat.HORDE`，未运行原客户端；此处未接通闪光音效、秘密闪光或完整群怪回合结算。客户端与 game 服务需同时重启。
+
+- `HordeCatalogSmoke` 遍历五地区目录验证 3／5 群体、地图槽范围、独立闪光和协议往返；`FieldEncounterNetworkSmoke` 使用隔离 PostgreSQL 账号和真实加密 TCP 检查五地区香气群怪、自然单只、开关保存、战斗移动锁及漆黑无遭遇，结束删除测试账号。`HordeUiSmoke` 用真实 OpenGL/TWL 验证单只及 3／5 群体纹理、闪光粒子、入场完成和关闭释放，截图在 `target/horde-shiny-1/3/5.png`。

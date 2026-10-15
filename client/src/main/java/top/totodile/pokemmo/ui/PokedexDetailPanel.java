@@ -3,6 +3,7 @@ package top.totodile.pokemmo.ui;
 import de.matthiasmann.twl.*;
 import de.matthiasmann.twl.renderer.Image;
 import de.matthiasmann.twl.renderer.Texture;
+import top.totodile.pokemmo.protocol.EncounterCatalog;
 import top.totodile.pokemmo.ClientFiles;
 import top.totodile.pokemmo.ClientStrings;
 import top.totodile.pokemmo.RomFiles;
@@ -56,7 +57,7 @@ final class PokedexDetailPanel extends Widget implements AutoCloseable {
             int page=i;
             tabs[i]=new Button(ClientStrings.get(labels[i]));
             tabs[i].addCallback(() -> { tab=page; refresh(); });
-            if (i==3) { tabs[i].setEnabled(false); tabs[i].setTooltipContent(ClientStrings.get(9360)); }
+
             add(tabs[i]);
         }
         scroll.setTheme("entries"); scroll.setFixed(ScrollPane.Fixed.HORIZONTAL); add(scroll);
@@ -101,6 +102,7 @@ final class PokedexDetailPanel extends Widget implements AutoCloseable {
         content.clear(); category.setText(known?optional(351000+species):text(9302));
         for(int i=0;i<5;i++)tabs[i].getModel().setSelected(i==tab);
         if(!known)content.line("",text(9359));
+        else if(tab==3)showDistribution();
         else if(failed)content.line("",text(9364));
         else if(data==null)content.line("",text(9363));
         else {
@@ -137,6 +139,28 @@ final class PokedexDetailPanel extends Widget implements AutoCloseable {
             }
         }
         scroll.setScrollPositionY(0); content.invalidateLayout(); invalidateLayout();
+    }
+
+    private void showDistribution() {
+        var distributions = EncounterCatalog.distribution(species);
+        if (distributions.isEmpty()) { content.line("", text(1791)); return; }
+        // 同名地图的楼层合并展示等级范围，季节、时段与遭遇方式保留独立条目。
+        java.util.Map<java.util.List<Integer>, int[]> grouped = new java.util.LinkedHashMap<>();
+        for (var entry : distributions) {
+            var table = entry.table();
+            var key = java.util.List.of(table.region(), table.name(), table.kind(), table.season(), table.time());
+            int[] range = grouped.computeIfAbsent(key, ignored -> new int[]{101, 0});
+            range[0] = Math.min(range[0], entry.min()); range[1] = Math.max(range[1], entry.max());
+        }
+        for (var entry : grouped.entrySet()) {
+            var key = entry.getKey(); int[] levels = entry.getValue();
+            String where = optional(key.get(1));
+            int[] modes = {9740, 1789, 9742, 1786, 9744, 1788, 9746, 110249, 245445, 245446, 245447};
+            String condition = optional(modes[key.get(2)]) + "  Lv. " + levels[0] + (levels[0] == levels[1] ? "" : "–" + levels[1]);
+            if (key.get(3) >= 0) condition += " / " + optional(9707 + key.get(3));
+            if (key.get(4) >= 0) condition += " / " + optional(1770 + key.get(4));
+            content.line(text(250000 + key.get(0)), where + "\n" + condition);
+        }
     }
 
     private static String condition(PokedexData.Evolution e) {

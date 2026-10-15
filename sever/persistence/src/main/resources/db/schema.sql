@@ -128,3 +128,7 @@ ALTER TABLE character_pokemon DROP CONSTRAINT IF EXISTS character_pokemon_specie
 ALTER TABLE character_pokemon ADD CONSTRAINT character_pokemon_species_check CHECK (species BETWEEN 1 AND 1025);
 ALTER TABLE character_box_pokemon DROP CONSTRAINT IF EXISTS character_box_pokemon_species_check;
 ALTER TABLE character_box_pokemon ADD CONSTRAINT character_box_pokemon_species_check CHECK (species BETWEEN 1 AND 1025);
+
+ALTER TABLE characters ADD COLUMN IF NOT EXISTS kanto_opening_complete BOOLEAN NOT NULL DEFAULT FALSE;
+
+ALTER TABLE characters ADD COLUMN IF NOT EXISTS wild_encounters_enabled BOOLEAN NOT NULL DEFAULT TRUE;

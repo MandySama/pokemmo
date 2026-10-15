@@ -119,7 +119,7 @@ final class TrainerCardWindow extends ResizableFrame implements AutoCloseable {
                 AvatarAssets.Item[] selected = new AvatarAssets.Item[12];
                 int[] ids = appearance.items();
                 for (int category = 1; category < selected.length; category++) {
-                    for (var item : assets.choices(category, appearance.gender()))
+                    for (var item : assets.choices(category, appearance.gender(), true))
                         if (item.id == ids[category]) { selected[category] = item; break; }
                 }
                 var pixels = assets.render(appearance.skin(), selected, appearance.colors(), 2, appearance.gender());

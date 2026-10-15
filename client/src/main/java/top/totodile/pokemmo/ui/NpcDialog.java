@@ -7,10 +7,21 @@ import java.util.*;
 /** NPC 文本按段分页，交互期间由上层锁定世界输入。 */
 final class NpcDialog extends Widget {
     private final DialogLayout panel = new DialogLayout();
-    private final Label message = new Label();
+    private final Label message = new Label() {
+        @Override
+        protected boolean handleEvent(Event event) {
+            return NpcDialog.this.handleEvent(event);
+        }
+    };
     private List<String> paragraphs = List.of();
     private int page;
+    private long pageRevision;
+    private long renderedRevision = -1;
+    private int autoAdvanceBaseMillis = 800;
+    private int autoAdvancePerCharacterMillis = 30;
+    private int autoAdvanceMaxMillis = 6000;
     private Runnable onClose = () -> {};
+    private Runnable onAdvance = this::advance;
 
     NpcDialog() {
         setTheme("/npc-dialog");
@@ -25,6 +36,22 @@ final class NpcDialog extends Widget {
 
     void setOnClose(Runnable callback) {
         onClose = callback;
+    }
+
+    void setOnAdvance(Runnable callback) {
+        onAdvance = callback;
+    }
+
+    @Override
+    protected boolean handleEvent(Event event) {
+        if (event.isMouseEvent() && panel.isInside(event.getMouseX(), event.getMouseY())) {
+            if (event.getType() == Event.Type.MOUSE_BTNDOWN
+                    && event.getMouseButton() == Event.MOUSE_LBUTTON) {
+                onAdvance.run();
+            }
+            return true;
+        }
+        return super.handleEvent(event);
     }
 
     void open(List<String> texts) {
@@ -60,11 +87,38 @@ final class NpcDialog extends Widget {
         if (pages.isEmpty()) return;
         paragraphs = List.copyOf(pages);
         page = 0;
+        pageRevision++;
         setVisible(true);
         invalidateLayout();
     }
 
+    @Override
+    protected void applyTheme(ThemeInfo themeInfo) {
+        super.applyTheme(themeInfo);
+        autoAdvanceBaseMillis = Math.max(1, themeInfo.getParameter("autoAdvanceBaseMillis", 800));
+        autoAdvancePerCharacterMillis = Math.max(0, themeInfo.getParameter("autoAdvancePerCharacterMillis", 30));
+        autoAdvanceMaxMillis = Math.max(autoAdvanceBaseMillis, themeInfo.getParameter("autoAdvanceMaxMillis", 6000));
+    }
+
+    @Override
+    protected void paintWidget(GUI gui) {
+        super.paintWidget(gui);
+        renderedRevision = pageRevision;
+    }
+
+    long pageRevision() { return pageRevision; }
+    boolean pageDisplayed() { return isVisible() && renderedRevision == pageRevision; }
+    long autoAdvanceDelayNanos() {
+        String text = paragraphs.isEmpty() ? "" : paragraphs.get(page);
+        long millis = Math.min(autoAdvanceMaxMillis,
+                autoAdvanceBaseMillis + (long) text.codePointCount(0, text.length()) * autoAdvancePerCharacterMillis);
+        return millis * 1_000_000L;
+    }
+
+    boolean lastPage() { return page + 1 >= paragraphs.size(); }
+
     void advance() {
+        pageRevision++;
         if (++page >= paragraphs.size()) close();
         else invalidateLayout();
     }

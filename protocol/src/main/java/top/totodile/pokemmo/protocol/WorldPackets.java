@@ -20,7 +20,10 @@ public final class WorldPackets {
     public record Move(int x, int y, int direction, boolean running) {
     }
 
-    public record Result(Position position, boolean moved, boolean warp, int millis, Position approach) {
+    public record Result(Position position, boolean moved, boolean warp, int millis, Position approach, EncounterCatalog.Selection encounter) {
+        public Result(Position position, boolean moved, boolean warp, int millis, Position approach) {
+            this(position, moved, warp, millis, approach, null);
+        }
         public Result(Position position, boolean moved, boolean warp, int millis) {
             this(position, moved, warp, millis, null);
         }
@@ -51,6 +54,7 @@ public final class WorldPackets {
         CharacterPackets.writePosition(data, result.position());
         data.putByte(result.approach() == null ? 0 : 1);
         if (result.approach() != null) CharacterPackets.writePosition(data, result.approach());
+        EncounterPackets.writeSelection(data, result.encounter());
         return data.written();
     }
 
@@ -62,8 +66,10 @@ public final class WorldPackets {
         if (millis < 1 || millis > 1000) throw new IOException("Invalid movement duration");
         Position position = CharacterPackets.readPosition(data);
         Position approach = data.booleanValue() ? CharacterPackets.readPosition(data) : null;
+        var encounter = EncounterPackets.readSelection(data);
         data.end();
+        if (encounter != null && (!moved || warp)) throw new IOException("Unexpected encounter in movement result");
         if (approach != null && (!warp || !moved)) throw new IOException("Unexpected warp approach");
-        return new Result(position, moved, warp, millis, approach);
+        return new Result(position, moved, warp, millis, approach, encounter);
     }
 }

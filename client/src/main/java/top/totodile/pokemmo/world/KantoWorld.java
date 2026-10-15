@@ -2,6 +2,7 @@ package top.totodile.pokemmo.world;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
+import top.totodile.pokemmo.protocol.EncounterCatalog;
 import top.totodile.pokemmo.avatar.AvatarAssets;
 import top.totodile.pokemmo.protocol.CharacterPackets.Appearance;
 import top.totodile.pokemmo.protocol.CharacterPackets.ReturnPoint;
@@ -43,7 +44,22 @@ public final class KantoWorld implements ClientWorld {
     private ReturnPoint returnPoint;
     private List<FireRedAtlas.Npc> npcs = List.of();
     private final AvatarAssets assets;
-    private final Appearance appearance;
+    private EncounterCatalog.Selection wildEncounter;
+
+    @Override
+    public EncounterCatalog.Selection takeWildEncounter() {
+        if (stepping || entering) return null;
+        var result = wildEncounter; wildEncounter = null;
+        return result;
+    }
+
+    @Override
+    public int encounterBehavior() {
+        try { return map.walkable(x, y) ? map.behavior(x, y) : -1; }
+        catch (IOException error) { return -1; }
+    }
+
+    private Appearance appearance;
     private final AvatarAssets.Item[] items = new AvatarAssets.Item[12];
     private final Map<Integer, Sprite> sprites = new HashMap<>();
     private final boolean[] held = new boolean[4];
@@ -65,6 +81,23 @@ public final class KantoWorld implements ClientWorld {
         if (atlas == null) return top.totodile.pokemmo.ClientStrings.get(9282);
         try { return top.totodile.pokemmo.ClientStrings.get(atlas.locationName(current)); }
         catch (IOException | IllegalArgumentException error) { return top.totodile.pokemmo.ClientStrings.get(9282); }
+    }
+
+    @Override
+    public void replaceOutfit(Appearance next) {
+        if (next.region() != appearance.region() || next.gender() != appearance.gender() || next.skin() != appearance.skin())
+            throw new IllegalArgumentException("Outfit identity mismatch");
+        appearance = next;
+        java.util.Arrays.fill(items, null);
+        for (int category = 1; category < items.length; category++) {
+            for (var item : assets.choices(category, next.gender(), true)) {
+                if (item.id == next.items()[category]) { items[category] = item; break; }
+            }
+        }
+        sprites.entrySet().removeIf(entry -> {
+            if (entry.getKey() >= 0) return false;
+            glDeleteTextures(entry.getValue().texture()); return true;
+        });
     }
 
     public int region() { return appearance.region(); }
@@ -103,6 +136,112 @@ public final class KantoWorld implements ClientWorld {
     private final Map<FireRedAtlas.Key, Long> npcClocks = new HashMap<>();
     private long nextNpcPoll, npcRenderTime;
     private boolean conversing;
+
+    private Function<byte[], CompletableFuture<top.totodile.pokemmo.protocol.StoryPackets.Snapshot>> storyAuthority;
+    private CompletableFuture<top.totodile.pokemmo.protocol.StoryPackets.Snapshot> storyReply;
+    private top.totodile.pokemmo.protocol.StoryPackets.Snapshot story;
+    private top.totodile.pokemmo.protocol.KantoOpening localOpening;
+    private FireRedAtlas.Npc storyActor;
+    private long nextStoryPoll, storyClock;
+    private int presentedStoryPhase;
+    private int pendingStoryAction = -1;
+    private boolean replayStory;
+
+    public void setStoryAuthority(Function<byte[], CompletableFuture<top.totodile.pokemmo.protocol.StoryPackets.Snapshot>> callback) {
+        storyAuthority = callback;
+    }
+
+    public boolean storyActive() { return story != null && story.active(); }
+
+    /** 对话只在首次收到该阶段时交给 UI，轮询不重置分页。 */
+    public int takeStoryText() {
+        if (story == null || story.text() == 0 || presentedStoryPhase == story.phase()) return 0;
+        presentedStoryPhase = story.phase();
+        return story.text();
+    }
+
+    public void advanceStory() {
+        if (storyActive()) storyCommand(top.totodile.pokemmo.protocol.StoryPackets.ADVANCE);
+    }
+
+    public void debugStory(int action) {
+        if (region() != 0 || stepping || worldReply != null || transfer != null || entering) return;
+        clearKeys();
+        replayStory = action == top.totodile.pokemmo.protocol.StoryPackets.START;
+        storyCommand(replayStory ? top.totodile.pokemmo.protocol.StoryPackets.RESET : action);
+    }
+
+    private void storyCommand(int action) {
+        int phase = story == null ? 0 : story.phase();
+        if (storyReply != null) { if (action != 0) pendingStoryAction = action; return; }
+        if (storyAuthority != null) storyReply = storyAuthority.apply(top.totodile.pokemmo.protocol.StoryPackets.request(action, phase));
+        else if (authority == null && localOpening != null) {
+            if (action == 1) localOpening.advance(phase, npcRenderTime);
+            else if (action == 2 || action == 3) localOpening.reset(action == 3);
+            storyReply = CompletableFuture.completedFuture(localOpening.snapshot(npcRenderTime));
+        }
+    }
+
+    private void updateStory(long now) {
+        if (region() != 0 || atlas == null) return;
+        if (storyReply != null && storyReply.isDone()) {
+            story = storyReply.join(); storyReply = null; storyClock = now;
+            var actor = story.actor();
+            storyActor = actor == null ? null : new FireRedAtlas.Npc(actor.id(), story.graphics(), actor.x(), actor.y(),
+                    story.elevation(), 0, 0);
+            if (story.phase() == 0) presentedStoryPhase = 0;
+            if (storyActive()) clearKeys();
+            if (story.phase() == 2 || story.phase() == 3) facing = 0;
+            if (replayStory && story.phase() == 0 && pendingStoryAction < 0) {
+                replayStory = false;
+                try { teleport(3, 0, 12, 1, now); }
+                catch (IOException error) { throw new IllegalStateException(error); }
+            }
+        }
+        if (storyReply == null && pendingStoryAction >= 0) {
+            int action = pendingStoryAction; pendingStoryAction = -1; storyCommand(action);
+        }
+        if (storyReply != null || stepping || entering || transfer != null || pendingTransfer != null || worldReply != null) return;
+        if (storyAuthority == null && authority == null) {
+            try { if (localOpening == null) localOpening = new top.totodile.pokemmo.protocol.KantoOpening(false); }
+            catch (IOException error) { throw new IllegalStateException(error); }
+            localOpening.onPosition(position());
+        }
+        if (now >= nextStoryPoll) {
+            storyCommand(top.totodile.pokemmo.protocol.StoryPackets.POLL);
+            nextStoryPoll = now + 50_000_000L;
+        }
+    }
+
+    private boolean replayMode;
+    private final Map<Integer, FireRedAtlas.Npc> replayActors = new HashMap<>();
+    private final Map<Integer, top.totodile.pokemmo.protocol.NpcPackets.State> replayStates = new HashMap<>();
+    private final Map<Integer, Long> replayClocks = new HashMap<>();
+
+    public Appearance appearance() { return appearance; }
+    public boolean canStartReplay() {
+        return !disposed && !stepping && !entering && transfer == null && pendingTransfer == null && worldReply == null;
+    }
+    public void setReplayMode() { replayMode = true; clearKeys(); }
+    public void clearReplayActors() { replayActors.clear(); replayStates.clear(); replayClocks.clear(); }
+    public boolean replayMoving() { return stepping || entering; }
+
+    public void replayPlayerStep(int tx, int ty, long now) {
+        if (!replayMode || Math.abs(tx - x) + Math.abs(ty - y) != 1) throw new IllegalArgumentException("Invalid scripted player step");
+        fromX = x; fromY = y;
+        facing = tx < x ? 2 : tx > x ? 3 : ty < y ? 1 : 0;
+        x = tx; y = ty;
+        stepStarted = animationStarted = now; stepNanos = STEP_NANOS;
+        stepping = animating = true;
+    }
+
+    public void replayActor(int id, int graphics, int elevation, int tx, int ty, int fx, int fy, int direction, long now) {
+        if (!replayMode) throw new IllegalStateException("No replay world");
+        replayActors.put(id, new FireRedAtlas.Npc(id, graphics, tx, ty, elevation, 0, 0));
+        int remaining = tx == fx && ty == fy ? 0 : 275;
+        replayStates.put(id, new top.totodile.pokemmo.protocol.NpcPackets.State(id, tx, ty, fx, fy, direction, remaining));
+        replayClocks.put(id, now);
+    }
 
     public void setNpcAuthority(Function<byte[], CompletableFuture<top.totodile.pokemmo.protocol.NpcPackets.Snapshot>> authority) {
         npcAuthority = authority;
@@ -178,9 +317,19 @@ public final class KantoWorld implements ClientWorld {
         return response.thenApply(snapshot -> {
             // 网络线程只返回文本 ID，场景快照仍由 GUI 线程轮询更新。
             if (snapshot.talking() != selected.id()) return List.<Integer>of();
-            try { return atlas.npcDialogue(selected, appearance.gender()); }
+            try {
+                dialogueDetails = atlas.npcDialogueDetails(selected, appearance.gender());
+                return dialogueDetails.stream().map(top.totodile.pokemmo.rom.FireRedDialogue::textId).toList();
+            }
             catch (IOException error) { throw new java.util.concurrent.CompletionException(error); }
         });
+    }
+
+    private volatile java.util.List<top.totodile.pokemmo.rom.FireRedDialogue> dialogueDetails = java.util.List.of();
+
+    public java.util.Map<Integer, top.totodile.pokemmo.rom.FireRedDialogue.Buffer> dialogueBuffers(int textId) {
+        return dialogueDetails.stream().filter(text -> text.textId() == textId).findFirst()
+                .map(top.totodile.pokemmo.rom.FireRedDialogue::buffers).orElse(java.util.Map.of());
     }
 
     public void endNpcConversation() {
@@ -190,14 +339,22 @@ public final class KantoWorld implements ClientWorld {
     }
 
     private top.totodile.pokemmo.protocol.NpcPackets.State npcState(FireRedAtlas.Npc npc, FireRedAtlas.Key key) {
+        if (replayMode && key.equals(current) && replayStates.containsKey(npc.id())) return replayStates.get(npc.id());
+        if (storyActor != null && key.equals(current) && npc.id() == storyActor.id()) return story.actor();
         return npcStates.getOrDefault(key, Map.of()).get(npc.id());
+    }
+
+    private long npcClock(FireRedAtlas.Npc npc, FireRedAtlas.Key key) {
+        if (replayMode && key.equals(current) && replayClocks.containsKey(npc.id())) return replayClocks.get(npc.id());
+        return storyActor != null && key.equals(current) && npc.id() == storyActor.id() ? storyClock
+                : npcClocks.getOrDefault(key, npcRenderTime);
     }
 
     private float npcCoordinate(FireRedAtlas.Npc npc, FireRedAtlas.Key key, boolean horizontal) {
         var state = npcState(npc, key);
         if (state == null) return horizontal ? npc.x() : npc.y();
         float progress = state.remaining() == 0 ? 1 : Math.min(1, Math.max(0,
-                (275 - state.remaining() + (npcRenderTime - npcClocks.getOrDefault(key, npcRenderTime)) / 1_000_000f) / 275f));
+                (275 - state.remaining() + (npcRenderTime - npcClock(npc, key)) / 1_000_000f) / 275f));
         return horizontal ? state.fromX() + (state.x() - state.fromX()) * progress
                 : state.fromY() + (state.y() - state.fromY()) * progress;
     }
@@ -332,6 +489,7 @@ public final class KantoWorld implements ClientWorld {
             return;
         }
         var reply = worldReply.join();
+        if (reply.encounter() != null) { wildEncounter = reply.encounter(); clearKeys(); }
         worldReply = null;
         if (!replyMoves || disposed) return;
         if (!reply.moved()) nextRequestAt = now + 100_000_000L;
@@ -528,7 +686,7 @@ public final class KantoWorld implements ClientWorld {
         this.appearance = appearance;
         int[] ids = appearance.items();
         for (int category = 1; category < items.length; category++) {
-            for (var item : assets.choices(category, appearance.gender())) {
+            for (var item : assets.choices(category, appearance.gender(), true)) {
                 if (item.id == ids[category]) { items[category] = item; break; }
             }
         }
@@ -625,7 +783,14 @@ public final class KantoWorld implements ClientWorld {
 
     /** 一次只走一个格子；长帧不积攒补走，松键后完成当前步。 */
     public void update(long now) {
+        if (replayMode) {
+            npcRenderTime = now;
+            if (stepping && now - stepStarted >= stepNanos) stepping = animating = false;
+            if (entering && now - entryFadeStarted >= ENTRY_FADE_NANOS) entering = false;
+            return;
+        }
         updateNpcs(now);
+        updateStory(now);
         if (worldReply != null) {
             if (!worldReply.isDone()) return;
             applyReply(now);
@@ -673,7 +838,7 @@ public final class KantoWorld implements ClientWorld {
             if (authority == null && warp(facing, now, true)) return;
             publishPosition();
         }
-        if (stepping) return;
+        if (stepping || wildEncounter != null || storyActive()) return;
         int direction = held[lastPressed] ? lastPressed : -1;
         if (direction < 0) for (int i = 0; i < held.length; i++) if (held[i]) { direction = i; break; }
         if (direction < 0) return;
@@ -860,7 +1025,13 @@ public final class KantoWorld implements ClientWorld {
         sprite(facing, frame);
         Sprite sprite = sprites.get(avatarSpriteKey(facing, frame));
         java.util.List<Actor> actors = new java.util.ArrayList<>();
-        for (var npc : npcs) actors.add(new Actor((int) (npcCoordinate(npc, current, false) * 16), npcLayer(npc), () -> drawNpc(npc, current, left, top, scale)));
+        var visibleNpcs = new java.util.ArrayList<>(npcs);
+        if (replayMode) {
+            visibleNpcs.removeIf(npc -> replayActors.containsKey(npc.id()));
+            visibleNpcs.addAll(replayActors.values());
+        }
+        if (storyActor != null && current.equals(new FireRedAtlas.Key(3, 0))) visibleNpcs.add(storyActor);
+        for (var npc : visibleNpcs) actors.add(new Actor((int) (npcCoordinate(npc, current, false) * 16), npcLayer(npc), () -> drawNpc(npc, current, left, top, scale)));
         int playerLayer = map.elevation(x, y) >= 3 ? 2 : 1;
         if (follower != null) {
             int fx = (int) Math.round(followerTrail.x(now)), fy = (int) Math.round(followerTrail.y(now));
@@ -918,6 +1089,8 @@ public final class KantoWorld implements ClientWorld {
         npcClocks.keySet().retainAll(scenes.keySet());
         java.util.Set<Integer> used = new java.util.HashSet<>();
         for (Scene scene : scenes.values()) for (var npc : scene.npcs()) for (int i = 0; i < 9; i++) used.add(128 + npc.graphics() * 16 + i);
+        for (var npc : replayActors.values()) for (int i = 0; i < 9; i++) used.add(128 + npc.graphics() * 16 + i);
+        if (storyActor != null) for (int i = 0; i < 9; i++) used.add(128 + storyActor.graphics() * 16 + i);
         sprites.entrySet().removeIf(entry -> {
             if (entry.getKey() < 128 || used.contains(entry.getKey())) return false;
             glDeleteTextures(entry.getValue().texture()); return true;
@@ -932,7 +1105,7 @@ public final class KantoWorld implements ClientWorld {
         var state = npcState(npc, key);
         int facing = state == null ? npc.direction() : state.facing();
         boolean walking = state != null && state.remaining() > 0
-                && npcRenderTime - npcClocks.getOrDefault(key, npcRenderTime) < state.remaining() * 1_000_000L;
+                && npcRenderTime - npcClock(npc, key) < state.remaining() * 1_000_000L;
         int walkFrame = walking ? (int)((npcRenderTime / 140_000_000L) % 4) : 0;
         walkFrame = walkFrame == 1 ? 1 : walkFrame == 3 ? 2 : 0;
         int spriteKey = 128 + npc.graphics() * 16 + Math.min(facing, 2) * 3 + walkFrame;
@@ -1000,6 +1173,8 @@ public final class KantoWorld implements ClientWorld {
 
     @Override public void close() {
         disposed = true;
+        clearReplayActors();
+        storyAuthority = null; storyReply = null; story = null; storyActor = null; localOpening = null;
         clearFollower();
         clearDoor();
         clearKeys();

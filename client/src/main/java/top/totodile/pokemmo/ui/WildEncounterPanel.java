@@ -3,6 +3,7 @@ package top.totodile.pokemmo.ui;
 import de.matthiasmann.twl.*;
 import de.matthiasmann.twl.renderer.Image;
 import de.matthiasmann.twl.renderer.Texture;
+import top.totodile.pokemmo.protocol.EncounterCatalog;
 import top.totodile.pokemmo.*;
 import top.totodile.pokemmo.avatar.AvatarAssets;
 import top.totodile.pokemmo.battle.WildEncounter;
@@ -26,7 +27,7 @@ import java.util.function.Consumer;
 /** 单次野生遭遇的展示层，纹理上传与释放均在 GUI 线程。 */
 final class WildEncounterPanel extends Widget implements AutoCloseable {
     private record Pixels(List<BufferedImage> front, List<BufferedImage> back,
-                          List<BufferedImage> trainer, BufferedImage ball, BufferedImage party, List<BufferedImage> impact, BattleScene.Resources scene) { }
+                          List<BufferedImage> trainer, BufferedImage ball, BufferedImage party, List<BufferedImage> impact, BattleScene.Resources scene, List<List<BufferedImage>> horde, List<BattleParticles.Definition> shiny) { }
 
     private record SwitchPixels(PartyMember member, List<BufferedImage> frames) { }
     private final PartyChoiceWindow partyChoice = new PartyChoiceWindow();
@@ -34,7 +35,13 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
     private Path battleRom;
     private CompletableFuture<SwitchPixels> pendingSwitch;
     private long switchRequested;
-    private Texture backTexture;
+    private Texture backTexture, frontTexture;
+    private record EnemyPixels(PartyMember member, List<BufferedImage> frames) { }
+    private CompletableFuture<EnemyPixels> pendingEnemy;
+    private long enemyRequested;
+    private List<PartyMember> scriptedOpponents = List.of();
+    private boolean scripted, trainerBattle;
+    private final ComboBox<String> opponentChoice = new ComboBox<>(new SimpleChangableListModel<>());
     private long backStarted;
     private Runnable openBag = () -> { };
     private final Button[] actions = new Button[4];
@@ -65,6 +72,15 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
     private WildEncounter encounter;
     private BattleScene scene;
     private PartyMember self, enemy;
+    private List<PartyMember> wildOpponents = List.of();
+    private record HordeSprite(Image[] frames, int bottom, float center, float zoom) { }
+    private List<HordeSprite> hordeSprites = List.of();
+    private final Label[] hordeNames = new Label[5];
+    private final GenderLabel[] hordeGenders = new GenderLabel[5];
+    private Image hordeHud;
+    private int hordeHudWidth = 120, hordeHudGap = 12, hordeHudTop = 86;
+    private int hordeCenter = 740, hordeSpacing = 40;
+    private BattleParticles shinyParticles;
     private Image[] front, back, trainer, party;
     private Image ball, releaseGlow, white, enemyHud, selfHud, healthImage, healthBackground;
     private Image experienceBackground, experienceImage;
@@ -74,6 +90,7 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
     private int partyIconSize = 36, partyIconGap = 4;
     private int frontBottom, backBottom;
     private float frontCenter, backCenter, frontZoom, backZoom;
+    private float gigantamaxFrontScale = 1, gigantamaxBackScale = 1;
     private float backdropOpacity = .68f;
     private final GenderLabel enemyGender = new GenderLabel(), selfGender = new GenderLabel();
     private long now;
@@ -116,7 +133,16 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
         for (Label label : new Label[]{enemyName, selfName, hp, message}) { label.setTheme("label"); add(label); }
         enemyName.setTheme("name"); selfName.setTheme("name"); hp.setTheme("name"); message.setTheme("message");
         add(enemyGender); add(selfGender);
+        for (int i = 0; i < hordeNames.length; i++) {
+            hordeNames[i] = new Label(); hordeNames[i].setTheme("name");
+            hordeNames[i].setVisible(false); add(hordeNames[i]);
+            hordeGenders[i] = new GenderLabel(); hordeGenders[i].setVisible(false); add(hordeGenders[i]);
+        }
         add(partyChoice);
+        opponentChoice.setTheme("test-move");
+        opponentChoice.addCallback(this::chooseEnemy);
+        opponentChoice.setVisible(false);
+        add(opponentChoice);
         setVisible(false);
     }
 
@@ -149,7 +175,7 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
         pendingSwitch = CompletableFuture.supplyAsync(() -> {
             try {
                 List<BufferedImage> frames;
-                try { frames = PokemonAnimation.loadBattle(rom, selected.species(), selected.shiny(), true).images(); }
+                try { frames = animation(rom, selected, true, new PokedexData(rom)); }
                 catch (IOException | RuntimeException unsupported) { frames = List.of(new PokedexData(rom).sprite(selected.species(), true, selected.shiny())); }
                 return new SwitchPixels(selected, frames);
             }
@@ -172,13 +198,42 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
     }
 
     void start(Path rom, AvatarAssets assets, Appearance appearance, List<PartyMember> members, long milliseconds) {
+        start(rom, assets, appearance, members, List.of(), false, milliseconds, null);
+    }
+
+    void startScripted(Path rom, AvatarAssets assets, Appearance appearance, List<PartyMember> members,
+                       List<PartyMember> opponents, boolean trainer, long milliseconds) {
+        if (opponents.isEmpty()) throw new IllegalArgumentException("Empty scripted opponent team");
+        start(rom, assets, appearance, members, opponents, trainer, milliseconds, null);
+    }
+
+    void startWild(Path rom, AvatarAssets assets, Appearance appearance, List<PartyMember> members,
+                   EncounterCatalog.Selection selected, long milliseconds) {
+        if (active()) return;
+        wildOpponents = selected.selections().stream().map(EncounterCatalog.Selection::member).toList();
+        start(rom, assets, appearance, members, List.of(), false, milliseconds, selected.member());
+    }
+
+    boolean readyForOutcome() {
+        return encounter != null && encounter.update(now) == WildEncounter.Phase.READY && pendingEnemy == null;
+    }
+
+    private void start(Path rom, AvatarAssets assets, Appearance appearance, List<PartyMember> members,
+                       List<PartyMember> opponents, boolean trainerBattle, long milliseconds, PartyMember selectedWild) {
         if (active()) return;
         self = members.stream().filter(member -> member.hp() > 0).findFirst().orElse(null);
         if (self == null) { failure.accept(ClientStrings.get(252004)); return; }
         var random = java.util.concurrent.ThreadLocalRandom.current();
-        var roll = WildEncounter.roll(random);
-        int hpValue = PokemonCatalog.stat(roll.species(), roll.level(), 0, 0, random.nextInt(32), 0);
-        enemy = new PartyMember(roll.species(), false, false, hpValue, hpValue, roll.level());
+        if (opponents.isEmpty() && selectedWild == null) { failure.accept(ClientStrings.get(9732)); return; }
+        scripted = !opponents.isEmpty();
+        this.trainerBattle = trainerBattle;
+        scriptedOpponents = List.copyOf(opponents);
+        enemy = scripted ? scriptedOpponents.getFirst() : selectedWild;
+        opponentChoice.setModel(new SimpleChangableListModel<>(scriptedOpponents.stream()
+                .map(member -> name(member) + " Lv." + member.level()).toArray(String[]::new)));
+        if (scripted) opponentChoice.setSelected(0);
+        ((ActionButton) actions[3]).setLabels(scripted ? 9553 : 5106, scripted ? 9554 : 5107);
+        actions[1].setTooltipContent(scripted ? ClientStrings.get(9556) : null);
         int ratio = PokemonCatalog.get(enemy.species()).gender();
         setGender(enemyGender, ratio == 255 ? 2 : ratio == 254 ? 1 : ratio == 0 ? 0 : random.nextInt(256) < ratio ? 1 : 0);
         setGender(selfGender, self.individual() == null ? 2 : self.individual().gender());
@@ -191,6 +246,15 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
         }
         PartyMember selected = self;
         PartyMember wild = enemy;
+        List<PartyMember> wildSnapshot = wildOpponents;
+        for (int i = 0; i < hordeNames.length; i++) {
+            if (i < wildSnapshot.size()) {
+                var opponent = wildSnapshot.get(i);
+                hordeNames[i].setText(name(opponent) + " Lv. " + opponent.level());
+                int genderRatio = PokemonCatalog.get(opponent.species()).gender();
+                setGender(hordeGenders[i], genderRatio == 255 ? 2 : genderRatio == 254 ? 1 : genderRatio == 0 ? 0 : random.nextInt(256) < genderRatio ? 1 : 0);
+            }
+        }
         List<PartyMember> snapshot = List.copyOf(members);
         this.members = snapshot;
         battleRom = rom;
@@ -217,7 +281,7 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
                 AvatarAssets.Item[] items = new AvatarAssets.Item[12];
                 int[] ids = appearance.items();
                 for (int category = 1; category < items.length; category++) {
-                    for (var item : assets.choices(category, appearance.gender())) {
+                    for (var item : assets.choices(category, appearance.gender(), true)) {
                         if (item.id == ids[category]) { items[category] = item; break; }
                     }
                 }
@@ -230,16 +294,46 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
                 if (ballId > 0 && ballId < 5000) ballId += 5000;
                 var ballItem = ItemCatalog.get(ballId);
                 if (ballItem == null || ballId < 5001) ballItem = ItemCatalog.get(5004);
+                List<List<BufferedImage>> hordeFrames = new ArrayList<>();
+                if (wildSnapshot.size() > 1) for (var opponent : wildSnapshot)
+                    hordeFrames.add(animation(rom, opponent, false, data));
+                var shiny = BattleParticles.loadShiny(rom);
                 return new Pixels(frontFrames, backFrames, throwsFrames, iconSource.image(ballItem),
-                        PartyIcons.loadStrip(rom, snapshot, 0, 0, 0, 1.25f), ParticleTextures.load(rom, 195), BattleScene.load(rom));
+                        PartyIcons.loadStrip(rom, snapshot, 0, 0, 0, 1.25f), ParticleTextures.load(rom, 195), BattleScene.load(rom), hordeFrames, shiny);
             } catch (IOException exception) { throw new java.util.concurrent.CompletionException(exception); }
         });
         invalidateLayout();
     }
 
+    private void chooseEnemy() {
+        int index = opponentChoice.getSelected();
+        if (!readyForOutcome() || index < 0 || index >= scriptedOpponents.size()
+                || scriptedOpponents.get(index) == enemy) return;
+        PartyMember selected = scriptedOpponents.get(index);
+        Path rom = battleRom;
+        enemyRequested = now;
+        pendingEnemy = CompletableFuture.supplyAsync(() -> {
+            try { return new EnemyPixels(selected, animation(rom, selected, false, new PokedexData(rom))); }
+            catch (IOException error) { throw new java.util.concurrent.CompletionException(error); }
+        });
+    }
+
     private static List<BufferedImage> animation(Path rom, PartyMember member, boolean back, PokedexData data) throws IOException {
-        try { return PokemonAnimation.loadBattle(rom, member.species(), member.shiny(), back).images(); }
+        try {
+            if (PokemonForms.active(member)) {
+                var form = PokemonForms.load(member);
+                return back ? form.back() : form.front();
+            }
+            var costume = PokemonCostumes.image(member, back);
+            if (costume != null) return List.of(costume);
+            return PokemonAnimation.loadBattle(rom, member.species(), member.shiny(), back).images();
+        }
         catch (IOException | RuntimeException unsupported) { return List.of(data.sprite(member.species(), back, member.shiny())); }
+    }
+
+    private float formScale(PartyMember member, boolean back) {
+        if (!PokemonForms.active(member) || member.individual().form() != 3) return 1;
+        return back ? gigantamaxBackScale : gigantamaxFrontScale;
     }
 
     private static String name(PartyMember member) {
@@ -275,6 +369,7 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
                 pending = null;
                 GlfwTwlRenderer renderer = (GlfwTwlRenderer) getGUI().getRenderer();
                 front = uploadFrames(renderer, pixels.front());
+                frontTexture = textures.getLast();
                 back = uploadFrames(renderer, pixels.back());
                 backTexture = textures.getLast();
                 trainer = uploadFrames(renderer, pixels.trainer());
@@ -292,6 +387,16 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
                 for (int i = 0; i < impact.length; i++) impact[i] = upload(renderer, pixels.impact().get(i));
                 scene = new BattleScene(pixels.scene());
                 releaseGlow = upload(renderer, glowPixels());
+                List<HordeSprite> nextHorde = new ArrayList<>();
+                for (var frames : pixels.horde()) {
+                    int[] box = bounds(frames);
+                    nextHorde.add(new HordeSprite(uploadFrames(renderer, frames), box[3], (box[0]+box[2])/2f,
+                            Math.min(1.5f, Math.min(105f/Math.max(1,box[2]-box[0]),105f/Math.max(1,box[3]-box[1])))));
+                }
+                hordeSprites = List.copyOf(nextHorde);
+                List<Image> stars = new ArrayList<>();
+                for (var definition : pixels.shiny()) stars.add(upload(renderer, definition.particle().texture()));
+                shinyParticles = stars.isEmpty() ? null : new BattleParticles(pixels.shiny(), stars);
                 encounter.loaded(now);
             } catch (RuntimeException error) {
                 System.getLogger(getClass().getName()).log(System.Logger.Level.WARNING, "Unable to load encounter", error);
@@ -324,26 +429,54 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
             }
             pendingSwitch = null;
         }
+        if (pendingEnemy != null && (pendingEnemy.isDone() || now - enemyRequested > 30000)) {
+            var result = pendingEnemy; pendingEnemy = null;
+            try {
+                if (!result.isDone()) { result.cancel(true); throw new IllegalStateException("Scripted opponent load timed out"); }
+                var pixels = result.join();
+                var previous = frontTexture;
+                front = uploadFrames((GlfwTwlRenderer) getGUI().getRenderer(), pixels.frames());
+                frontTexture = textures.getLast();
+                enemy = pixels.member();
+                int[] box = bounds(pixels.frames());
+                frontBottom = box[3]; frontCenter = (box[0] + box[2]) / 2f;
+                frontZoom = Math.min(1.9f, Math.min(180f / Math.max(1, box[2] - box[0]), 130f / Math.max(1, box[3] - box[1])));
+                enemyName.setText(name(enemy) + "  Lv. " + enemy.level());
+                setGender(enemyGender, enemy.individual() == null ? 2 : enemy.individual().gender());
+                if (previous != null) { previous.destroy(); textures.remove(previous); }
+            } catch (RuntimeException error) {
+                close(); failure.accept(ClientStrings.get(252003)); return;
+            }
+        }
         WildEncounter.Phase phase = encounter.update(now);
         if (phase == WildEncounter.Phase.CLOSED) { close(); finished.run(); return; }
         partyChoice.setHardVisible(phase == WildEncounter.Phase.SELECT_PARTY);
         partyChoice.refresh();
         boolean ready = phase == WildEncounter.Phase.READY;
         boolean wasReady = actions[0].isVisible();
-        for (Button action : actions) { action.setVisible(ready); action.setEnabled(ready); }
+        for (Button action : actions) { action.setVisible(ready); action.setEnabled(ready && pendingEnemy == null); }
+        if (scripted) actions[1].setEnabled(false);
+        opponentChoice.setVisible(scriptedOpponents.size() > 1 && phase.ordinal() >= WildEncounter.Phase.READY.ordinal());
+        opponentChoice.setEnabled(ready && pendingEnemy == null);
         boolean selecting = phase == WildEncounter.Phase.SELECT_MOVE;
         boolean wasSelecting = move.isVisible();
         move.setVisible(selecting); moveBack.setVisible(selecting); testMove.setVisible(selecting); testMoveLabel.setVisible(selecting);
         if (selecting && !wasSelecting) move.requestKeyboardFocus();
         if (ready && !wasReady) actions[0].requestKeyboardFocus();
-        enemyName.setVisible(phase.ordinal() >= WildEncounter.Phase.ANNOUNCE.ordinal());
+        boolean horde = wildOpponents.size() > 1;
+        for (int i = 0; i < hordeNames.length; i++) {
+            boolean visible = horde && i < wildOpponents.size() && phase.ordinal() >= WildEncounter.Phase.ANNOUNCE.ordinal();
+            hordeNames[i].setVisible(visible); hordeGenders[i].setVisible(visible);
+        }
+        enemyName.setVisible(!horde && phase.ordinal() >= WildEncounter.Phase.ANNOUNCE.ordinal());
         enemyGender.setVisible(enemyName.isVisible());
         boolean ownVisible = phase.ordinal() >= WildEncounter.Phase.RELEASE.ordinal();
         selfName.setVisible(ownVisible); hp.setVisible(ownVisible); selfGender.setVisible(ownVisible);
         message.setVisible(phase == WildEncounter.Phase.ANNOUNCE
                 || phase == WildEncounter.Phase.THROW || phase == WildEncounter.Phase.RELEASE || phase == WildEncounter.Phase.MOVE || phase == WildEncounter.Phase.SWITCH_LOADING || phase == WildEncounter.Phase.SWITCHING);
         if (phase != WildEncounter.Phase.LOADING)
-            message.setText(ClientStrings.get(phase.ordinal() >= WildEncounter.Phase.THROW.ordinal() ? 252001 : 252000).replace("{00}", name(phase.ordinal() >= WildEncounter.Phase.THROW.ordinal() ? self : enemy)));
+            message.setText(ClientStrings.get(phase.ordinal() >= WildEncounter.Phase.THROW.ordinal() ? 252001 : trainerBattle ? 9555 : 252000).replace("{00}", name(phase.ordinal() >= WildEncounter.Phase.THROW.ordinal() ? self : enemy)));
+        if (phase == WildEncounter.Phase.ANNOUNCE && horde) message.setText(ClientStrings.get(9748));
         if (phase == WildEncounter.Phase.SWITCH_LOADING) message.setText(ClientStrings.get(252007).replace("{00}",name(self)));
         if (phase == WildEncounter.Phase.MOVE) message.setText(ClientStrings.get(252005)
                 .replace("{00}", name(self)).replace("{01}", ClientStrings.get(110000+encounter.moveId())));
@@ -398,7 +531,15 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
         white = theme.getImage("whiteImage"); enemyHud = theme.getImage("enemyHud");
         selfHud = theme.getImage("selfHud"); healthImage = theme.getImage("healthImage");
         healthBackground = theme.getImage("healthBackground");
+        hordeHud = theme.getImage("hordeHud");
+        hordeHudWidth = theme.getParameter("hordeHudWidth", 120);
+        hordeHudGap = theme.getParameter("hordeHudGap", 12);
+        hordeHudTop = theme.getParameter("hordeHudTop", 86);
+        hordeCenter = theme.getParameter("hordeCenter", 740);
+        hordeSpacing = theme.getParameter("hordeSpacing", 40);
         backdropOpacity = theme.getParameter("backdropOpacity", .68f);
+        gigantamaxFrontScale = theme.getParameter("gigantamaxFrontScale", 1f);
+        gigantamaxBackScale = theme.getParameter("gigantamaxBackScale", 1f);
         actionWidth = theme.getParameter("actionWidth", 209); actionHeight = theme.getParameter("actionHeight", 52);
         actionGap = theme.getParameter("actionGap", 2);
         healthWidth = theme.getParameter("healthWidth", 200);
@@ -419,6 +560,12 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
         moveBack.setPosition(x(144 + actionWidth + actionGap), y(484)); moveBack.setSize(size(actionWidth), size(actionHeight));
         testMoveLabel.setPosition(x(144),y(542));testMoveLabel.setSize(size(150),size(30));
         testMove.setPosition(x(294),y(542));testMove.setSize(size(actionWidth*2+actionGap-150),size(30));
+        opponentChoice.setPosition(x(554), y(180)); opponentChoice.setSize(size(330), size(28));
+        for (int i = 0; i < hordeNames.length; i++) {
+            int center = 514 + (hordeColumn(i)-1)*(hordeHudWidth+hordeHudGap);
+            placeName(hordeNames[i], hordeGenders[i], x(center-hordeHudWidth/2f+6),
+                    y(hordeHudTop+hordeRow(i)*28-18), size(hordeHudWidth-12));
+        }
         message.setPosition(x(134), y(474)); message.setSize(size(760), size(116));
         for (int i = 0; i < actions.length; i++) {
             actions[i].setPosition(x(144 + i % 2 * (actionWidth+actionGap)), y(484) + size(i / 2 * (actionHeight+actionGap)));
@@ -435,6 +582,15 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
             org.lwjgl.opengl.GL11.glTranslatef(-x(center),-y(bottom),0);
             sprite(image,center,bottom,foot,zoom,anchor);
         } finally {org.lwjgl.opengl.GL11.glPopMatrix();renderer.popGlobalTintColor();}
+    }
+
+    private int hordeColumn(int index) {
+        if (wildOpponents.size() == 5) return index == 0 ? 0 : index == 4 ? 2 : index-1;
+        return index;
+    }
+
+    private int hordeRow(int index) {
+        return wildOpponents.size() == 5 && (index == 0 || index == 4) ? 1 : 0;
     }
 
     private float ownAnchor() { return 377; }
@@ -477,7 +633,7 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
             if (freezeCamera && !cameraFrozen) { frozenCameraTime = cameraTime; cameraFrozen = true; }
             if (!freezeCamera && cameraFrozen) { cameraPaused = elapsed - frozenCameraTime; cameraFrozen = false; }
             if (!freezeCamera) cameraTime = elapsed - cameraPaused;
-            scene.draw(x(134), y(50), size(760), size(540), getWidth(), getHeight(),
+            scene.drawPlatforms(x(134), y(50), size(760), size(540), getWidth(), getHeight(),
                     Math.max(0, (freezeCamera ? frozenCameraTime : cameraTime)-1300)/1000f, slide);
             long attackTime=casting?encounter.moveElapsed(now):MoveAnimations.get(encounter.moveId()).duration();
             var ownAttack=casting?MovePresentation.actor(encounter.moveId(),attackTime,14):new MovePresentation.Actor(0,0,1,1,1);
@@ -490,7 +646,23 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
             enemyX += enemyPose.dx() + attack.shake();
             ownX += ownPose.dx();
             if (casting && attack.flash()) gui.getRenderer().pushGlobalTintColor(1, 1, 1, .3f);
-            actorSprite(gui,front[(int) (Math.max(0, elapsed - 2000) * 30 / 1000) % front.length], enemyX, 311 + enemyPose.dy(), frontBottom, frontZoom * enemyPose.scale(), frontCenter, enemyAttack);
+            if (hordeSprites.isEmpty()) {
+            actorSprite(gui,front[(int) (Math.max(0, elapsed - 2000) * 30 / 1000) % front.length], enemyX, 311 + enemyPose.dy(), frontBottom, frontZoom * enemyPose.scale() * formScale(enemy, false), frontCenter, enemyAttack);
+                if (enemy.shiny() && shinyParticles != null)
+                    shinyParticles.draw(this, elapsed-2000, x(ownX), y(450), x(enemyX), y(260+enemyPose.dy()), scale*2);
+            } else {
+                int[] order = hordeSprites.size() == 5 ? new int[]{0,2,4,1,3} : new int[]{0,1,2};
+                for (int i : order) {
+                    var sprite = hordeSprites.get(i);
+                    float center = hordeCenter+(i-(hordeSprites.size()-1)/2f)*hordeSpacing+(1-slide)*700+enemyPose.dx();
+                    float floor = 311+(i%2==0?-8:6)+enemyPose.dy();
+                    var actor = i == 0 ? enemyAttack : new MovePresentation.Actor(0,0,1,1,1);
+                    actorSprite(gui, sprite.frames()[(int)(Math.max(0,elapsed-2000)*30/1000)%sprite.frames().length],
+                            center, floor, sprite.bottom(), sprite.zoom()*enemyPose.scale(), sprite.center(), actor);
+                    if (wildOpponents.get(i).shiny() && shinyParticles != null)
+                        shinyParticles.draw(this,elapsed-2000,x(ownX),y(450),x(center),y(floor-40),scale*1.6f);
+                }
+            }
             if (casting && attack.flash()) gui.getRenderer().popGlobalTintColor();
             if (elapsed < 3600) {
                 int frame = Math.max(0, Math.min(4, (int) ((elapsed - 3000) / 120)));
@@ -508,13 +680,15 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
                 float release = phase == WildEncounter.Phase.SWITCHING ? Math.min(1,encounter.switchElapsed(now)/600f)
                         : Math.min(1, (elapsed - 3600) / 600f);
                 actorSprite(gui,back[(int) (Math.max(0, elapsed - backStarted) * 30 / 1000) % back.length], ownX + (enemyX-ownX)*.32f*attack.advance(), 572 + ownPose.dy() - 55*attack.advance(), backBottom,
-                        backZoom * ownPose.scale() * Math.max(.01f, release), backCenter, ownAttack);
+                        backZoom * ownPose.scale() * Math.max(.01f, release) * formScale(self, true), backCenter, ownAttack);
                 if (release < .4f) {
                     gui.getRenderer().pushGlobalTintColor(1, 1, 1, 1 - release / .4f);
                     try { releaseGlow.draw(getAnimationState(), x(ownX - 100), y(400), size(200), size(200)); }
                     finally { gui.getRenderer().popGlobalTintColor(); }
                 }
             }
+            if (self.shiny() && shinyParticles != null && elapsed >= 4200)
+                shinyParticles.draw(this, elapsed-backStarted-600, x(ownX), y(450), x(ownX), y(450), scale*2);
             if (casting && encounter.moveId() == MovePresentation.TACKLE && attack.alpha() > 0 && impact != null) {
                 float cx = enemyX, cy = 311 + enemyPose.dy() - 45*enemyPose.scale();
                 float diameter = (65 + 90*attack.impact())*enemyPose.scale();
@@ -530,10 +704,17 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
             gui.getRenderer().pushGlobalTintColor(0, 0, 0, .35f);
             try { white.draw(getAnimationState(), x(134), y(474), size(760), size(116)); }
             finally { gui.getRenderer().popGlobalTintColor(); }
-            if (elapsed >= 2000) {
+            if (elapsed >= 2000 && hordeSprites.isEmpty()) {
                 enemyHud.draw(getAnimationState(), enemyHudX, enemyHudY, size(307), size(28));
                 healthBackground.draw(getAnimationState(), enemyHudX + size(enemyHealthX), enemyHudY + size(9), size(healthWidth), size(8));
                 healthImage.draw(getAnimationState(), enemyHudX + size(enemyHealthX+1), enemyHudY + size(10), size(healthWidth-2), size(6));
+            }
+            if (elapsed >= 2000 && !hordeSprites.isEmpty()) for (int i = 0; i < hordeSprites.size(); i++) {
+                int center = 514+(hordeColumn(i)-1)*(hordeHudWidth+hordeHudGap);
+                int hx = x(center-hordeHudWidth/2f), hy = y(hordeHudTop+hordeRow(i)*28);
+                hordeHud.draw(getAnimationState(),hx,hy,size(hordeHudWidth),size(14));
+                healthBackground.draw(getAnimationState(),hx+size(10),hy+size(5),size(hordeHudWidth-20),size(5));
+                healthImage.draw(getAnimationState(),hx+size(11),hy+size(6),size(hordeHudWidth-22),size(3));
             }
             if (elapsed >= 3600) {
                 selfHud.draw(getAnimationState(), selfHudX, selfHudY, size(299), size(40));
@@ -651,6 +832,11 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
             add(title); add(description);
         }
 
+        void setLabels(int titleId, int descriptionId) {
+            title.setText(ClientStrings.get(titleId));
+            description.setText(ClientStrings.get(descriptionId));
+        }
+
         @Override protected void layout() {
             super.layout();
             title.setPosition(getX(), getY() + 6); title.setSize(getWidth(), 20);
@@ -674,11 +860,18 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
     }
 
     @Override public void close() {
+        if (pendingEnemy != null) pendingEnemy.cancel(true);
+        pendingEnemy = null;
+        opponentChoice.setVisible(false);
+        scriptedOpponents = List.of(); scripted = trainerBattle = false; frontTexture = null;
         if (pending != null) pending.cancel(true);
         pending = null;
         if (pendingSwitch != null) pendingSwitch.cancel(true);
         pendingSwitch = null;
         partyChoice.setHardVisible(false);
+        wildOpponents = List.of(); hordeSprites = List.of(); shinyParticles = null;
+        for (var label : hordeNames) label.setVisible(false);
+        for (var label : hordeGenders) label.setVisible(false);
         members = List.of(); battleRom = null; backTexture = null;
         if (scene != null) scene.close();
         scene = null;

@@ -56,6 +56,12 @@ public final class FireRedWorldRules implements WorldRules {
     private final int region;
     private final Map<Integer, Area> areas = new HashMap<>();
 
+    @Override
+    public int encounterBehavior(Position p) {
+        Area area = areas.get(p.group() * 256 + p.map());
+        return area != null && area.walkable(p.x(), p.y()) ? area.behavior(p.x(), p.y()) : -1;
+    }
+
     public FireRedWorldRules() throws IOException { this(0); }
 
     public FireRedWorldRules(int region) throws IOException {

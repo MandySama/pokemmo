@@ -19,6 +19,18 @@ final class GmMenuWindow extends ResizableFrame {
         invalidateLayout();
     }
 
+    private final Button wildEncounters = new Button();
+    private boolean wildEnabled = true;
+    private java.util.function.Consumer<Boolean> wildChanged = value -> { };
+
+    void setWildChanged(java.util.function.Consumer<Boolean> callback) { wildChanged = callback; }
+    void setWildBusy(boolean busy) { wildEncounters.setEnabled(!busy); }
+    void setWildEncounters(boolean enabled) {
+        wildEnabled = enabled;
+        wildEncounters.setText(ClientStrings.get(enabled ? 9730 : 9731));
+        invalidateLayout();
+    }
+
     private final Button speed = new Button(ClientStrings.get(9272).replace("{00}", "1"));
     private int speedMultiplier = 1;
     private java.util.function.IntConsumer speedChanged = value -> { };
@@ -100,7 +112,10 @@ final class GmMenuWindow extends ResizableFrame {
         panel.add(speed);
         unlockDex.addCallback(() -> dexChanged.accept(!dexUnlocked));
         panel.add(unlockDex);
-        rows.add(new Widget[]{last[0], noclip, speed, unlockDex});
+        setWildEncounters(true);
+        wildEncounters.addCallback(() -> wildChanged.accept(!wildEnabled));
+        panel.add(wildEncounters);
+        rows.add(new Widget[]{last[0], noclip, speed, unlockDex, wildEncounters});
     }
 
     private void heading(int id) {
