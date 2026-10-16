@@ -8,6 +8,11 @@ import top.totodile.pokemmo.avatar.AvatarAssets;
 import top.totodile.pokemmo.protocol.CharacterPackets.CharacterInfo;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.awt.image.BufferedImage;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
+import top.totodile.pokemmo.rom.PartyIcons;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.LongConsumer;
@@ -19,6 +24,7 @@ final class CharacterSelectionWindow extends ResizableFrame {
     private final Button delete = new Button(ClientStrings.get(1065));
     private final Button logout = new Button(ClientStrings.get(1159));
     private AvatarAssets assets;
+    private Supplier<Path> partyRom = () -> null;
     private LongConsumer onDelete;
     private java.util.function.Consumer<CharacterInfo> onEnter;
     private long selectedId;
@@ -43,6 +49,7 @@ final class CharacterSelectionWindow extends ResizableFrame {
     }
 
     void setAssets(AvatarAssets assets) { this.assets = assets; }
+    void setPartyRom(Supplier<Path> source) { partyRom = source; }
     void setOnEnter(java.util.function.Consumer<CharacterInfo> callback) { onEnter = callback; }
     void setOnDelete(LongConsumer callback) { onDelete = callback; }
 
@@ -180,6 +187,13 @@ final class CharacterSelectionWindow extends ResizableFrame {
         private final Label name;
         private Texture texture;
         private Image image;
+        private Texture partyTexture;
+        private Image[] partyImages = new Image[0];
+        private CompletableFuture<BufferedImage> partyResult;
+        private final LatestIconRequest partyLoader = new LatestIconRequest();
+        private boolean partyFailed;
+        private int partyLeft = 65, partyTop = 35, partySize = 42, partyGap = 32;
+        private int alphaOutline = Color.WHITE.toARGB(), shinyAlphaGlow = Color.WHITE.toARGB();
         private int avatarTop = 27;
         private int avatarLeft;
         private boolean failed;
@@ -198,6 +212,12 @@ final class CharacterSelectionWindow extends ResizableFrame {
             super.applyTheme(theme);
             avatarTop = theme.getParameter("avatarTop", 27);
             avatarLeft = theme.getParameter("avatarLeft", 0);
+            partyLeft = theme.getParameter("partyLeft", 65);
+            partyTop = theme.getParameter("partyTop", 35);
+            partySize = theme.getParameter("partySize", 42);
+            partyGap = theme.getParameter("partyGap", 32);
+            alphaOutline = theme.getParameter("alphaOutline", Color.WHITE).toARGB();
+            shinyAlphaGlow = theme.getParameter("shinyAlphaGlow", Color.WHITE).toARGB();
         }
         @Override protected void layout() {
             super.layout();
@@ -206,6 +226,7 @@ final class CharacterSelectionWindow extends ResizableFrame {
         }
         @Override protected void paintWidget(GUI gui) {
             super.paintWidget(gui);
+            paintParty(gui);
             if (assets == null || failed) return;
             if (image == null) {
                 try {
@@ -228,7 +249,49 @@ final class CharacterSelectionWindow extends ResizableFrame {
             }
             image.draw(getAnimationState(), getX() + avatarLeft, getY() + avatarTop);
         }
+        private void paintParty(GUI gui) {
+            if (character.party().isEmpty() || partyFailed) return;
+            if (partyImages.length == 0 && partyResult == null) {
+                Path rom = partyRom.get();
+                if (rom == null) return;
+                var members = character.party();
+                int alpha = alphaOutline, shiny = shinyAlphaGlow;
+                partyResult = partyLoader.submit(() -> {
+                    try { return PartyIcons.loadStrip(rom, members, alpha, shiny, 0, 1.25f); }
+                    catch (IOException error) { throw new java.util.concurrent.CompletionException(error); }
+                });
+            }
+            if (partyResult != null && partyResult.isDone()) {
+                var result = partyResult;
+                partyResult = null;
+                try {
+                    BufferedImage pixels = result.join();
+                    partyTexture = ((GlfwTwlRenderer) gui.getRenderer()).uploadImage(pixels);
+                    partyImages = new Image[character.party().size()];
+                    for (int i = 0; i < partyImages.length; i++)
+                        partyImages[i] = partyTexture.getImage(i*PartyIcons.TILE_SIZE, 0,
+                                PartyIcons.TILE_SIZE, PartyIcons.TILE_SIZE, Color.WHITE, false, Texture.Rotation.NONE);
+                } catch (RuntimeException error) {
+                    if (partyTexture != null) partyTexture.destroy();
+                    partyTexture = null;
+                    partyImages = new Image[0];
+                    partyFailed = true;
+                    System.getLogger(getClass().getName()).log(System.Logger.Level.WARNING, "Unable to render character party", error);
+                }
+            }
+            for (int i = 0; i < partyImages.length; i++)
+                partyImages[i].draw(getAnimationState(), getX()+partyLeft+i%3*partyGap,
+                        getY()+partyTop+i/3*partyGap, partySize, partySize);
+        }
+
         private void release() {
+            partyLoader.cancel();
+            if (partyResult != null) partyResult.cancel(false);
+            partyResult = null;
+            if (partyTexture != null) partyTexture.destroy();
+            partyTexture = null;
+            partyImages = new Image[0];
+            partyFailed = false;
             if (texture != null) texture.destroy();
             texture = null;
             image = null;

@@ -7,7 +7,12 @@ import java.util.concurrent.ThreadLocalRandom;
 /** 角色所属宝可梦的持久化个体资料；槽位变化不改变身份或训练记录。 */
 public record PokemonIndividual(long id,String nickname,long originalTrainerId,String originalTrainer,int nature,int ability,int gender,
         int friendship,long experience,int heldItem,int ball,long metAt,int metRegion,int metGroup,int metMap,int metLevel,
-        List<Integer> ivs,List<Integer> evs,List<Move> moves,int marks,List<Integer> ribbons,List<Integer> contest,List<Integer> particles,int form) {
+        List<Integer> ivs,List<Integer> evs,List<Move> moves,int marks,List<Integer> ribbons,List<Integer> contest,List<Integer> particles,int form,String status) {
+    public PokemonIndividual(long id,String nickname,long originalTrainerId,String originalTrainer,int nature,int ability,int gender,
+            int friendship,long experience,int heldItem,int ball,long metAt,int metRegion,int metGroup,int metMap,int metLevel,
+            List<Integer> ivs,List<Integer> evs,List<Move> moves,int marks,List<Integer> ribbons,List<Integer> contest,List<Integer> particles,int form) {
+        this(id,nickname,originalTrainerId,originalTrainer,nature,ability,gender,friendship,experience,heldItem,ball,metAt,metRegion,metGroup,metMap,metLevel,ivs,evs,moves,marks,ribbons,contest,particles,form, "");
+    }
     public PokemonIndividual(long id,String nickname,long originalTrainerId,String originalTrainer,int nature,int ability,int gender,
             int friendship,long experience,int heldItem,int ball,long metAt,int metRegion,int metGroup,int metMap,int metLevel,
             List<Integer> ivs,List<Integer> evs,List<Move> moves,int marks,List<Integer> ribbons,List<Integer> contest,List<Integer> particles) {
@@ -18,6 +23,7 @@ public record PokemonIndividual(long id,String nickname,long originalTrainerId,S
         public Move {if(id<1||id>1000||pp<0||maxPp<1||pp>maxPp||maxPp>160||ppUps<0||ppUps>3)throw new IllegalArgumentException("Invalid move");}
     }
     public PokemonIndividual {
+        if (!List.of("", "brn", "par", "slp", "frz", "psn", "tox").contains(status)) throw new IllegalArgumentException("Invalid status");
         if (form < 0 || form > 3) throw new IllegalArgumentException("Invalid Pokemon form");
         ivs=List.copyOf(ivs);evs=List.copyOf(evs);moves=List.copyOf(moves);ribbons=List.copyOf(ribbons);contest=List.copyOf(contest);particles=List.copyOf(particles);
         if(id<=0||originalTrainerId<=0||nickname==null||nickname.length()>16||originalTrainer==null||originalTrainer.isBlank()||originalTrainer.length()>16||nature<0||nature>24||ability<1||ability>310||gender<0||gender>2||friendship<0||friendship>255||experience<0||experience>1640000||heldItem<0||heldItem>65535||ball<1||ball>65535||metAt<0||metRegion<0||metRegion>5||metGroup<0||metGroup>255||metMap<0||metMap>255||metLevel<1||metLevel>100||marks<0||marks>31)throw new IllegalArgumentException("Invalid Pokemon individual");
@@ -38,24 +44,33 @@ public record PokemonIndividual(long id,String nickname,long originalTrainerId,S
         int ability=rule.ability2()>0&&random.nextBoolean()?rule.ability2():rule.ability1();
         return new PokemonIndividual(random.nextLong(1,Long.MAX_VALUE),"",trainerId,trainer,random.nextInt(25),ability,gender,rule.friendship(),PokemonCatalog.experience(rule.growth(),level),0,4,now,region,group,map,level,ivs,List.of(0,0,0,0,0,0),PokemonCatalog.moves(species,level),0,List.of(),List.of(0,0,0,0,0,0),List.of());
     }
+    public PokemonIndividual battleState(List<Move> nextMoves, String nextStatus) {
+        return new PokemonIndividual(id,nickname,originalTrainerId,originalTrainer,nature,ability,gender,friendship,
+                experience,heldItem,ball,metAt,metRegion,metGroup,metMap,metLevel,ivs,evs,nextMoves,marks,ribbons,contest,particles,form,nextStatus);
+    }
+
+    public PokemonIndividual withNickname(String name) {
+        return new PokemonIndividual(id,name,originalTrainerId,originalTrainer,nature,ability,gender,friendship,experience,heldItem,ball,metAt,metRegion,metGroup,metMap,metLevel,ivs,evs,moves,marks,ribbons,contest,particles,form,status);
+    }
     public int stat(int species,int level,int index){return PokemonCatalog.stat(species,level,nature,index,ivs.get(index),evs.get(index));}
     public byte[] encode(){PacketData data=new PacketData(1024);write(data);return data.written();}
     public static PokemonIndividual decode(byte[] bytes)throws IOException {var data=new PacketData(bytes);var result=read(data);data.end();return result;}
     void write(PacketData d){
-        d.putByte(3).putLong(id).putString(nickname).putLong(originalTrainerId).putString(originalTrainer).putByte(nature).putShort(ability).putByte(gender).putByte(friendship).putLong(experience).putShort(heldItem).putShort(ball).putLong(metAt).putByte(metRegion).putByte(metGroup).putByte(metMap).putByte(metLevel);
+        d.putByte(4).putLong(id).putString(nickname).putLong(originalTrainerId).putString(originalTrainer).putByte(nature).putShort(ability).putByte(gender).putByte(friendship).putLong(experience).putShort(heldItem).putShort(ball).putLong(metAt).putByte(metRegion).putByte(metGroup).putByte(metMap).putByte(metLevel);
         for(int v:ivs)d.putByte(v);for(int v:evs)d.putByte(v);d.putByte(moves.size());for(var m:moves)d.putShort(m.id()).putByte(m.pp()).putByte(m.maxPp()).putByte(m.ppUps());
-        d.putByte(marks).putByte(ribbons.size());for(int v:ribbons)d.putShort(v);for(int v:contest)d.putByte(v);d.putByte(particles.size());for(int v:particles)d.putShort(v);d.putByte(form);
+        d.putByte(marks).putByte(ribbons.size());for(int v:ribbons)d.putShort(v);for(int v:contest)d.putByte(v);d.putByte(particles.size());for(int v:particles)d.putShort(v);d.putByte(form).putString(status);
     }
     static PokemonIndividual read(PacketData d)throws IOException {
         try {
-            int version = d.byteValue(); if(version != 1 && version != 2 && version != 3)throw new IOException("Unsupported individual format");
+            int version = d.byteValue(); if(version != 1 && version != 2 && version != 3 && version != 4)throw new IOException("Unsupported individual format");
             long id=d.longValue();String nick=d.string(16);long trainerId=d.longValue();String trainer=d.string(16);int nature=d.byteValue(),ability=version == 1 ? d.byteValue() : d.shortValue(),gender=d.byteValue(),friendship=d.byteValue();long exp=d.longValue();int item=d.shortValue(),ball=d.shortValue();long met=d.longValue();int region=d.byteValue(),group=d.byteValue(),map=d.byteValue(),level=d.byteValue();
             List<Integer> iv=new ArrayList<>(),ev=new ArrayList<>();for(int i=0;i<6;i++)iv.add(d.byteValue());for(int i=0;i<6;i++)ev.add(d.byteValue());
             int n=d.byteValue();if(n>4)throw new IOException("Too many moves");List<Move> moves=new ArrayList<>();for(int i=0;i<n;i++)moves.add(new Move(d.shortValue(),d.byteValue(),d.byteValue(),d.byteValue()));
             int marks=d.byteValue();n=d.byteValue();if(n>64)throw new IOException("Too many ribbons");List<Integer> ribbons=new ArrayList<>();for(int i=0;i<n;i++)ribbons.add(d.shortValue());List<Integer> contest=new ArrayList<>();for(int i=0;i<6;i++)contest.add(d.byteValue());
             n=d.byteValue();if(n>64)throw new IOException("Too many particles");List<Integer> particles=new ArrayList<>();for(int i=0;i<n;i++)particles.add(d.shortValue());
             int form = version >= 3 ? d.byteValue() : 0;
-            return new PokemonIndividual(id,nick,trainerId,trainer,nature,ability,gender,friendship,exp,item,ball,met,region,group,map,level,iv,ev,moves,marks,ribbons,contest,particles,form);
+            String status = version >= 4 ? d.string(3) : "";
+            return new PokemonIndividual(id,nick,trainerId,trainer,nature,ability,gender,friendship,exp,item,ball,met,region,group,map,level,iv,ev,moves,marks,ribbons,contest,particles,form,status);
         }catch(IllegalArgumentException e){throw new IOException("Invalid individual",e);}
     }
 }

@@ -19,7 +19,9 @@ public final class KantoNpcs {
         }
     }
 
-    private static final Map<Integer, List<Definition>> DEFINITIONS = load();
+    private static final Map<Integer, List<Definition>> DEFINITIONS = load("kanto-npcs.csv");
+    private static final Map<Integer, List<Definition>> HOENN_DEFINITIONS = load("emerald-npcs.csv");
+    private final Map<Integer, List<Definition>> catalogue;
     private final FireRedWorldRules rules;
     private final Map<Integer, List<Actor>> maps = new LinkedHashMap<>();
     private int talking = -1, talkingMap = -1;
@@ -53,6 +55,8 @@ public final class KantoNpcs {
 
     public KantoNpcs(FireRedWorldRules rules) {
         this.rules = rules;
+        catalogue = rules.region() == 0 ? DEFINITIONS : HOENN_DEFINITIONS;
+        if (rules.region() != 0 && rules.region() != 1) throw new IllegalArgumentException("Unsupported NPC region");
     }
 
     public static List<Definition> definitions(int group, int map) {
@@ -63,7 +67,7 @@ public final class KantoNpcs {
         return maps.computeIfAbsent(
                 key,
                 k ->
-                        DEFINITIONS.getOrDefault(k, List.of()).stream()
+                        catalogue.getOrDefault(k, List.of()).stream()
                                 .filter(d -> d.x() <= 255 && d.y() <= 255)
                                 .map(d -> new Actor(d, k))
                                 .toList());
@@ -105,6 +109,10 @@ public final class KantoNpcs {
 
     public boolean occupied(int group, int map, int x, int y, long now) {
         for (Actor actor : actors(group * 256 + map)) if (actor.occupies(x, y, now)) return true;
+        return false;
+    }
+    public boolean occupiedExcept(int group,int map,int x,int y,long now,Set<Integer> controlled) {
+        for(Actor actor:actors(group*256+map))if(!controlled.contains(actor.definition.id())&&actor.occupies(x,y,now))return true;
         return false;
     }
 
@@ -271,9 +279,9 @@ public final class KantoNpcs {
                         .toList());
     }
 
-    private static Map<Integer, List<Definition>> load() {
+    private static Map<Integer, List<Definition>> load(String resource) {
         Map<Integer, List<Definition>> result = new HashMap<>();
-        try (var stream = KantoNpcs.class.getResourceAsStream("/maps/kanto-npcs.csv")) {
+        try (var stream = KantoNpcs.class.getResourceAsStream("/maps/" + resource)) {
             if (stream == null) throw new IOException("Missing Kanto NPC catalogue");
             try (var reader =
                     new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {

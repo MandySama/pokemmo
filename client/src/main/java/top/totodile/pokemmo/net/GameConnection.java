@@ -103,6 +103,28 @@ public final class GameConnection implements AutoCloseable {
         });
     }
 
+    public synchronized CompletableFuture<top.totodile.pokemmo.protocol.TrainerPackets.Ready> trainerBattle() {
+        if (!connected || closed) return CompletableFuture.failedFuture(new IOException("Game connection closed"));
+        CompletableFuture<byte[]> response = new CompletableFuture<>();
+        if (!offerCommand(new Pending(top.totodile.pokemmo.protocol.TrainerPackets.request(), response)))
+            return CompletableFuture.failedFuture(new IOException("Game command queue full"));
+        return response.thenApply(packet -> {
+            try { return top.totodile.pokemmo.protocol.TrainerPackets.decode(packet); }
+            catch (IOException error) { throw new java.util.concurrent.CompletionException(error); }
+        });
+    }
+
+    public synchronized CompletableFuture<top.totodile.pokemmo.protocol.BattlePackets.State> battleCommand(top.totodile.pokemmo.protocol.BattlePackets.Request request) {
+        if (!connected || closed) return CompletableFuture.failedFuture(new IOException("Game connection closed"));
+        CompletableFuture<byte[]> response = new CompletableFuture<>();
+        if (!offerCommand(new Pending(top.totodile.pokemmo.protocol.BattlePackets.request(request), response)))
+            return CompletableFuture.failedFuture(new IOException("Game command queue full"));
+        return response.thenApply(packet -> {
+            try { return top.totodile.pokemmo.protocol.BattlePackets.decode(packet); }
+            catch (IOException error) { throw new java.util.concurrent.CompletionException(error); }
+        });
+    }
+
     public synchronized CompletableFuture<EncounterPackets.Snapshot> encounterCommand(int action, boolean enabled) {
         if (!connected || closed) return CompletableFuture.failedFuture(new IOException("Game connection closed"));
         CompletableFuture<byte[]> response = new CompletableFuture<>();
@@ -218,6 +240,17 @@ public final class GameConnection implements AutoCloseable {
         if (!offerCommand(new Pending(packet, response))) return CompletableFuture.failedFuture(new IOException("Game command queue full"));
         return response.thenApply(bytes -> {
             try { return top.totodile.pokemmo.protocol.WorldPackets.decodeResult(bytes); }
+            catch (IOException error) { throw new java.util.concurrent.CompletionException(error); }
+        });
+    }
+
+    public synchronized CompletableFuture<top.totodile.pokemmo.protocol.StoryProgressPackets.Result> storyProgress(int action, String scene, long token) {
+        if (!connected || closed) return CompletableFuture.failedFuture(new IOException("Game connection closed"));
+        var response = new CompletableFuture<byte[]>();
+        if (!offerCommand(new Pending(top.totodile.pokemmo.protocol.StoryProgressPackets.request(action, scene, token), response)))
+            return CompletableFuture.failedFuture(new IOException("Game command queue full"));
+        return response.thenApply(bytes -> {
+            try { return top.totodile.pokemmo.protocol.StoryProgressPackets.decode(bytes); }
             catch (IOException error) { throw new java.util.concurrent.CompletionException(error); }
         });
     }

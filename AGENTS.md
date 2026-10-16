@@ -572,3 +572,149 @@ mvn -o -s target/maven-central-settings.xml '-Dmaven.repo.local=C:/Users/21156/.
 - `WildEncounterPanel` 同时上传／绘制所有群怪与名称血条，保留普通野生操作，不使用剧情队伍切换菜单冒充群怪。闪光个体入场使用 `BattleParticles.loadShiny` 的 152 双控制器和 422 星光序列，普通单只、群怪及己方闪光出场均可播放；素材沿用现有粒子包和黑白 ROM，资源随战斗关闭释放。原项目核对 `ShinyParticleEffect` 普通闪光分支与 `BattleFormat.HORDE`，未运行原客户端；此处未接通闪光音效、秘密闪光或完整群怪回合结算。客户端与 game 服务需同时重启。
 
 - `HordeCatalogSmoke` 遍历五地区目录验证 3／5 群体、地图槽范围、独立闪光和协议往返；`FieldEncounterNetworkSmoke` 使用隔离 PostgreSQL 账号和真实加密 TCP 检查五地区香气群怪、自然单只、开关保存、战斗移动锁及漆黑无遭遇，结束删除测试账号。`HordeUiSmoke` 用真实 OpenGL/TWL 验证单只及 3／5 群体纹理、闪光粒子、入场完成和关闭释放，截图在 `target/horde-shiny-1/3/5.png`。
+
+- 群怪画面按用户提供的三只／五只截图调整：`hordeColumn/hordeRow` 将五只的 HUD 放在上排三格与下排两端；使用 `battle-hud.png` 的 `(326,65,239,28)` 悬浮血条，名称等级与性别居中，群怪在敌方同一平台紧凑错位并按前后顺序绘制。`BattleScene.drawPlatforms` 只清深度、保留当前地图颜色，战斗背景压暗程度与群怪间距／血条尺寸由主题提供；底部四个操作按钮改为紧凑两行。精灵球图标在原实现表示已捕获，本项目无真实捕获记录时不显示该标识。`HordeUiSmoke` 检查 3／5 HUD 行列布局、单只回归、实际 OpenGL 绘制与释放；未运行原客户端。
+
+- 香气响应在 `LoginScreen.updateFieldEncounters` 校验数量仅为 3／5，旧服务返回单只时显示字符串 9750，并沿原 FINISH 通道解锁世界，不在客户端补抽群体。`ScentHotbarEndToEndSmoke` 从实际第三快捷栏 `useHotbarItem(2)` 触发，使用隔离 PostgreSQL 账号、加密 TCP 与真实 OpenGL/TWL，实测先后返回 5 只和 3 只，逐只比较服务端种族／等级／闪光与战斗成员，检查离场释放；测试结束删除测试账号。
+
+
+- 2026-10-16 按用户要求，仅撤销“保留原始像素／移除双线性缩小”的一次修改：`PokemonForms` 恢复120×96内容范围归一化与双线性缩小，概要恢复直接按原画布约定显示，移除 formDisplayWidth/formDisplayHeight 主题参数。保留Mega X／Y的MOD资源路径、个体形态存档及超极巨化1.7／1.35倍率，未改GPU既有过滤或群怪实现。上文原始像素流程描述是已撤销的历史记录。
+- 用户提供的“mega，极巨化，未来种，古代种，阿罗拉，伽勒尔形态MOD 2.zip”实际info.xml为Tim011的[TIMOD] VARIANT FORMS 2.0。检查1519个ZIP条目：喷火龙仅有006-front/back-n-f/m四份Mega X／Y动画，无超极巨化喷火龙或对应闪光战斗GIF；没有把这四份文件错误接入form=3。包内有其他种族的极巨化素材，未扩大范围导入。
+- 本次论坛Client Customization站内搜索gigantamax／gmax后，实际下载检查原TIMOD（161432）和MEGAPOKEMMO（189342）的喷火龙条目，均为Mega X／Y。Tensala的Gigamax-HD包按HTTP Range提取喷火龙四份GIF并核验ZIP CRC，保存在target/gmax-hd-candidate，仅作候选未接入；正面955×878、背面634×619、各144帧，包含普通／闪光，属于HD渲染资源。
+
+- 战斗操作区文字修正：按用户最新要求恢复改小前样式：操作区从 474 开始，主题默认 209×52 按钮、2 像素间距及 116 像素底栏，按钮从 484 开始排列；`controlHeight` 按两行字体的真实首选高度保底，`footerPixels` 在小窗口保留足够空间。招式选择、返回与招式调试选择器共用底栏位置，裁剪范围包含底栏，不再将操作区下移。`BattleFooterUiSmoke` 在真实 OpenGL/TWL 检查单只、3／5 群怪的文字行高、按钮边界、战斗／返回点击，以及 1024×768 与 800×600 布局，截图位于 `target/battle-footer-fixed-1/3/5.png`。
+
+- 按用户要求放大群怪敌方信息：悬浮血条恢复资源原始 239×28，名称等级使用与单只相同的 `encounter-name` 14 号字体、性别图标 16 像素；保留上三／下两端排列，两行基准间距 56，名称高度按字体真实首选值保底，避免小窗口裁字。血条宽度、行间距仍由主题管理。
+
+
+## 其他种族超极巨化（2026-10-16）
+
+- 用户提供TIMOD 2.0 ZIP中的9种超极巨化已接入：12、25、52、68、99、131、133、143、569。`PokemonFormsCatalog` 在protocol共享可用种族／形态校验，普通=0、Mega X/Y=1/2仍只用于喷火龙、超极巨化=3；菜单只列该种族可用项。`PartyMember`及`PokemonConfigPackets.apply`使用同一校验，沿用v3个体编码、归属检查、debug权限及数据库个体存档，无新封包或列。
+- 18份普通正背面GIF／PNG导入 `data/resources/pokemon-forms-mod/<species>/gmax`，各目录保留info.xml；gmax-sources.json记录源ZIP与资源哈希及条目。`tools/import_gmax_mod.py <ZIP路径>`重新导入这些固定条目，不执行包内文件。喷火龙资源不变。
+- `PokemonForms` 支持GIF及PNG，闪光文件不存在时使用同一形态普通配色，不伪造闪光调色板，个体闪光标记仍保留。巨钳蟹、卡比兽为静态图，伊布背面为静态图；其余使用源GIF。归一化与双线性缩小继续保留，概要及战斗沿用现有共用锚点与超极巨化倍率；不新增跟随、图标、属性数值或变身规则。
+- `target/OtherGmaxNetworkSmoke.java` 使用隔离账号验证9种真实PostgreSQL／加密TCP设置、普通还原、闪光标记、越权／debug／非法Mega拒绝、存箱和重连恢复，结束删除测试账号。`OtherGmaxSmoke`覆盖9种普通／闪光配色回退、菜单、协议、静态／动画资源、概要正背面与战斗真实OpenGL绘制释放；测试运行使用target/gmax-runtime-verify编译产物快照避免其他构建删除共享输出。截图target/gmax-species-25/143/569.png。未运行原客户端。
+
+- 群怪站位按用户要求略拉开：主题 `hordeSpacing` 从 40 调到 50，`hordePlatformScale` 为 1.2，仅将敌方群怪平台的水平面放大 20%，中心／平台高度、己方平台及单只遭遇保持原值；使用同一镜头和入场插值。
+- 混合包的003／009素材经外形和原目录清单复核是Mega妙蛙花／水箭龟，已排除，不能将其作为超极巨化资源。
+
+## Infinite Fusion 全目录时装（2026-10-16）
+
+- 本条替代三款试用和“战斗缺少背面回原种族”的旧约定。`tools/import_fusion_catalog.py` 从官方CUSTOM_SPRITES、Sprite_Credits.csv、PIF图鉴Wiki和PokeAPI全国编号生成 `data/cosmetics/pokemon/fusion-catalog.tsv.gz`、fusion-species.tsv及fusion-sources.json；当前全量236,511条双宝可梦融合含替代版本，来源582个内部编号映射至567个全国种族。内部255是梦妖魔429，582是土地云645，不能直接当作全国编号。一个三重融合和四个非图片目录项不属于A+B时装，不生成缺少自定义原画的自动融合。
+- 目录后台懒加载，按全国种族和时装ID索引；A作为头部或身体的条目均进入A的选择列表，自融合不重复。原catalog.xml的三款本地图优先保留。右键“宝可梦时装”按另一种族分页、每页最多24项，替代版本也分页；标签保留源融合ID以区分形态及版本，作者在菜单提示中显示，不创建二十多万张GPU纹理。
+- `FusionSpriteSheets` 使用官方96像素、20列图表，body原始编号直接计算格子而非减一。首次选择在后台下载对应head/alt图表，验证PNG与尺寸后临时文件原子落盘；按源项目每分钟15次请求限流、网络超时及文件大小限制。支持无认证HTTP的HTTPS_PROXY／HTTP_PROXY，未设置时沿用JDK代理配置，不输出代理凭据。已下载图在 `data/cosmetics/pokemon/sheets`，该缓存目录忽略Git；图片与文件句柄不会随目录全部展开，CPU图表缓存最多2张／48MiB。
+- `PokemonSummaryWindow` 先异步准备素材，成功才保存选择并刷新；下载失败保留原时装和已显示纹理，关闭窗口丢弃迟到结果，下载可继续留下可复用缓存。绑定仍是本机个体ID，不消费或修改另一只宝可梦、不发送数值配置RPC、不改变正式种族／招式／形态／闪光标记。缺少闪光融合图时使用该融合普通正面，避免闪光成员穿时装后回原种族。
+- 战斗加载与换宠统一调用 `PokemonCostumes.battleImage`，己方背面请求也取融合正面；已选时装在战斗和资料正面优先于外部Mega／超极巨化外观，战斗不叠加超极巨化图片倍率。没有时装时保留原正背面、形态、动画及倍率。资料的背面查看和地图跟随沿用原种族资源，不宣称存在融合背面或四向素材。
+- `target/AllFusionCostumeSmoke` 遍历全部236,511条唯一时装及567种选择索引，检查全国编号映射、两种融合方向、替代版本和菜单分页；实际HTTP下载1、6、6a、255四张官方图表，验证三类基础／跨编号／替代素材、异步选择、落盘及CPU缓存。真实OpenGL/TWL战斗检查己方换宠后背面请求取得同一张融合正面、闪光普通图回退、个体编码不变、还原及资源释放；配置在测试后恢复。尚未逐张下载或绘制所有目录图片，不把全目录接入表述为所有图片已离线下载。此次未运行原客户端；作者信息保留，通用再分发授权未核实。
+
+- 同一 `AllFusionCostumeSmoke offline` 在全新JVM中使用不可达代理验证四张已缓存图表完全离线复用，并对未缓存25.1触发真实连接失败，检查界面失败提示、原GPU纹理和原选择保留，以及关闭后的迟到结果不写盘。另验证已穿时装的form=3使用融合正面且倍率为1；这是对最新时装优先约定的检查，未变更其个体form记录。
+
+
+## 超极巨化登场镜头（2026-10-16）
+
+- `BattleScene.setHeightOffset` 抬高真实透视镜头与观察目标并适当后移，近景平台和我方精灵共同补偿高度以保留小体型可见范围，基准镜头保持原值；平台与二维精灵通过actorPose共用投影，HUD／操作区不参与。`WildEncounterPanel.updateGigantamaxCamera` 在敌方可见（2000ms）或己方可见（3600ms）后按主题时长平滑抬高，有超极巨化时保持，无超极巨化时回落；支持剧情敌方、普通野生／群怪和我方，关闭重置。
+- 当前主题 `gigantamaxCameraLift=0.5`、`gigantamaxCameraTransitionMillis=600`，`gigantamaxFrontScale/gigantamaxBackScale` 调整为2.3／2.0。倍率与镜头参数沿用主题，普通／Mega及概要不变；群怪逐个按对应形态倍率绘制。此段为当前值，替代此前1.7／1.35的战斗倍率。
+- `target/GigantamaxCameraSmoke.java` 使用独立编译输出快照检查普通／仅敌方／仅我方／双方超极巨化四场景、300ms中点及600ms完成、普通切换回落、关闭清理、真实OpenGL绘制和完整35秒镜头巡航；巡航采样中敌方内容顶部最低74.7像素，未越过50像素视口顶边；补充检查敌方超极巨化时我方普通个体的顶部仍位于操作区上方。截图target/gmax-camera-0/1/2/3.png。未运行原客户端。
+
+- 三只群怪使用独立主题参数 `hordeThreeSpacing=75`，五只继续使用 `hordeSpacing=50`；平台大小、中心与前后错位保持现有值。
+
+## 角色选择卡片队伍（2026-10-16）
+
+- `CharacterSelectionWindow.CharacterCard` 使用已有角色列表 `CharacterInfo.party`，不新增协议或示例宠物。训练家右侧按队伍顺序两行三列排列，空队伍不生成图标；主题管理 `partyLeft/partyTop/partySize/partyGap` 及头目描边色。`LoginScreen` 提供黑白 ROM 路径，卡片通过 `LatestIconRequest` 后台调用 `PartyIcons.loadStrip`，GUI 线程上传；复用闪光、头目及个体本机时装外观。列表重建、注销和退出取消未消费结果并释放图标纹理；图标加载失败不影响训练家或角色点击。
+- 已核对原客户端 `AvatarCustomizerComponent` 与 `CollapsibleSectionLabel` 的六槽、队伍顺序和三列两行布局，未运行原客户端。`CharacterPartyCardsSmoke` 使用隔离 PostgreSQL 账号和临时加密 TCP 服务读取 0／1／6 队伍，检查种族顺序、真实 TWL/OpenGL 卡片图标／训练家／空队伍、列表重建、异步取消与释放；结束删除测试账号，截图为 `target/character-party-cards.png`。
+
+- 用户随后明确要求俯视：`gigantamaxCameraPitch=25` 在原镜头角度上增加向下俯仰；`BattleScene` 以同一过渡量把观察点移到双平台中心，收束巡航到固定俯视机位，普通状态保留七段巡航。近景平台及我方精灵共同增加取景高度补偿；真实透视投影、HUD固定和原体型倍率保留。二维精灵仍用已有正背面素材，不伪造顶部视角图。
+- 更新 `GigantamaxCameraSmoke` 验证实际camera.direction比普通镜头更向下、25度配置、四场景及600ms过渡、普通我方在操作区上方可见、回落和资源释放；全巡航时间采样中的敌方顶部最低87.3像素。新截图target/gmax-overhead-0/1/2/3.png。编译通过，未运行原客户端。
+
+## 超极巨化体型对照取景（2026-10-16）
+
+- 用户否定圆盘倾斜方案后，移除额外俯仰及近景平台高度补偿；上述抬高／25度俯视方案已被替代。BattleScene.setGigantamaxFraming 保持原镜头朝向，将视野从50度平滑扩大到72度并收束到初始巡航机位，垂直构图偏移0.15；平台保持原位置和朝向。actorPose 的倍率计入视野角变化，使普通精灵与平台共同缩小，只有超极巨化额外放大。
+- 当前主题 gigantamaxFrontScale/gigantamaxBackScale=3.0／2.4，gigantamaxCameraFieldOfView=72，gigantamaxCameraVerticalOffset=0.15，过渡仍为600毫秒；移除旧Lift／Pitch参数。普通与Mega及概要保持原行为，场上无超极巨化时恢复原取景。
+- target/GigantamaxScaleContrastSmoke.java 使用编译输出快照检查四种登场组合、半程／完整过渡、恢复、关闭及真实OpenGL绘制释放，并校验镜头direction/up与原机位一致；35秒采样敌方顶部最低77.7像素。截图target/gmax-contrast-0/1/2/3.png。Maven编译通过，未运行原客户端。
+
+- 后续修正：极巨化取景保留七段巡航，不再固定初始机位；扩大FOV时沿镜头方向推进，以近景深度补偿焦距变化，保持近处尺寸并缩小远景。actorPose在极巨化过渡中移除旧屏幕布局偏移，完成后脚底直接绑定圆盘世界中心投影。当前正面／背面额外倍率为2.5／1.6，替代3.0／2.4以避免恢复巡航后的裁切。GigantamaxDepthSmoke验证四组合、600ms过渡、圆盘与脚底投影一致、远近倍率、恢复及OpenGL释放；35秒采样敌方顶部最低54.3像素，截图target/gmax-depth-0/1/2/3.png。编译通过。
+
+- 用户随后要求极巨化再放大一点：主题正面／背面倍率由2.5／1.6提高约10%至2.75／1.76，镜头、圆盘及脚底投影逻辑保持原值。
+
+- 用户继续要求在当前尺寸上再放大20%：极巨化主题正面／背面倍率由2.75／1.76调整为3.3／2.112，镜头、圆盘和脚底投影逻辑保持不变。
+
+
+## Showdown 在线单打接入（2026-10-16）
+
+- `battle-engine` 锁定 npm `pokemon-showdown` 0.11.10；`worker.cjs` 使用私有常驻 Node.js 进程和 JSON 行请求／有界二进制 Base64 响应。`ShowdownWorker` 按有序通道复用多场会话，15 秒超时或进程失败销毁进程；generation 防止旧战斗误接入重启后的进程。运行工作目录默认仓库根目录，可用 `pokemmo.battle.engine`／`pokemmo.battle.node` 指定脚本与 node.exe。部署执行 `npm --prefix battle-engine ci --ignore-scripts`，无需安装 Showdown 网页或连接公共服务；MIT 声明在 THIRD_PARTY_LICENSE.txt。
+- 仅在线自然单只野生遭遇调用新增0x87；世界会话从服务端当前遭遇和正式队伍创建 `ShowdownBattle`，不能提交任意对手或能力值。按九世代基础规则运行，但能力值使用当前公共目录与个体计算结果；融合／Mega／超极巨化仍只影响外观。携带物没有完整编号映射，非零携带物暂拒绝创建实际战斗。野生 AI 随机选择合法招式；RUN 暂直接离场。不宣称 PokeMMO 全规则、捕捉、背包、经验、奖励、群怪或剧情实际结算。
+- 请求包含战斗ID、revision及操作槽位，过期／跨战斗／非法操作不能推进。引擎导出当前合法招式ID和PP，兼容挣扎、变身及蓄力恢复请求；客户端不再使用招式调试目录作为在线招式选择。服务端每个已确认回合按起始队伍全量核对，在角色行锁事务中保存HP、PP和状态，成功才响应；战斗中阻止配置、队伍排序、PC搬移及搜索写入，读取库存仍可用。退出／断线释放引擎会话，保留最后已提交结果。
+- `PokemonIndividual` v4 末尾追加状态字符串，继续读取v1–v3；配置修改保留状态，箱子自动沿个体编码保存。睡眠的跨战斗计数当前重新初始化；中毒的战内计数由引擎管理。本版未增加中心治疗或败北传送。客户端与game服务必须同时更新。
+- 客户端按事件顺序播放双方招式、HP变化、状态、倒下和换宠；对手招式反向使用现有粒子锚点，未配置招式动画回退为碰撞表现。强制换宠不能取消，资源切换后再继续播放；完成／离场释放GPU资源，并同步队伍HUD。FINISH用于资源加载失败或界面结束后的会话清理，已提交HP／PP不会回滚。群怪、离线与剧情调试沿用原展示流程。
+- `npm --prefix battle-engine test` 验证真实引擎的HP／能力值恢复、伤害、免疫、麻痹、PP扣除及换宠不恢复PP、重复／非法选择、强制换宠、胜负、离场、首位倒下和挣扎。`target/ShowdownNetworkSmoke.java` 使用隔离PostgreSQL账号和真实加密TCP，验证自然单打、回合落库、重复提交拒绝、战斗配置锁及重入恢复，结束删除账号。`ShowdownUiSmoke` 使用本项目真实OpenGL/TWL及Node引擎，实际点击招式、强制换宠和离场按钮，检查合法招式列表、HP、纹理与释放；`ShowdownBoundarySmoke`检查v4状态、旧v3、协议选项、跨战斗拒绝、进程中断及新会话恢复。未运行原客户端。
+
+- 用户要求镜头位置稍提高：gigantamaxCameraVerticalOffset由0.15调整为0.25，同时平移镜头与观察目标，保留角度、巡航及3.3／2.112倍率。
+
+
+## NPC 气泡样式（2026-10-16）
+
+- 按用户截图，`NpcDialog` 从屏幕底部移到人物上方，复用 text-bubble.png／text-bubble-tail.png 及图集中的32像素翻页箭头；独立 npc-bubble-text 24号粗体不影响电脑对话字体。宽度取客户区一半夹在600–900内并收进窗口，正文内边距36／50／40／50，每页最多3行，箭头保留右侧空间。尾巴在底板之前绘制并压入28像素，按高度限制斜度，尖端指向人物头顶；小窗口无法容纳尾巴时隐藏尾巴，底板保持在客户区内。
+- 主题提供宽度、高度、留白、尾巴、箭头与文字保留宽度。NPC与剧情重播共用样式；原翻页回调、J／回车／空格、取消和重播自动翻页时序保持。末页箭头沿用确认关闭行为，没有新增关闭按钮。已核对原客户端 MessageBoxBubble、npc-interaction-popup 主题和原图集；未运行原客户端。
+- `target/BubbleStyleSmoke.java` 使用本项目真实OpenGL/TWL验证上方布局、尾巴与箭头、内边距、点击箭头／正文／留白仅翻一页、右键／外部点击不翻及末页关闭；截图target/npc-bubble-style.png。
+
+- 单行气泡按用户新截图改为 TOPLEFT，避免 LEFT 的垂直居中把文字下移；保留150最小高度、原圆角及多行布局。`BubbleSingleLineSmoke` 使用真实OpenGL/TWL检查单行左上对齐、150最小高度、尾巴／箭头、点击翻页和末页关闭；截图target/npc-bubble-single-line.png。
+
+
+## 游戏内工具入口外移（2026-10-16）
+
+- 按用户要求暂时隐藏GM菜单入口，`gmMenuVisible`保持隐藏，保留旧菜单代码。`GmMenuWindow.detachImplementedButtons`把地图传送、随身电脑、穿墙、移动倍速、图鉴解锁、野外遭遇六个原按钮移交LoginScreen，清除旧布局对这些控件的引用，复用同一回调与状态更新通道。
+- 左侧顺序为综合搜索、剧情指令、替换时装、上述六个工具，无原GM入口空行。世界渲染同步穿墙／倍率／图鉴／遭遇文字；提交中的图鉴和遭遇按钮继续禁用，重播／战斗／入图或退出期间禁用全部工具，离开世界隐藏。点击释放方向键，持久化和网络协议不变。
+- `target/WorldToolsSmoke.java` 使用真实OpenGL/TWL，验证六按钮属于根控件、原GM入口与打开路径隐藏、左侧顺序及边界，实际点击穿墙／倍速／地图传送，检查PC／图鉴／遭遇原回调、busy传递和离图隐藏；截图target/world-tools-external.png。Maven编译通过，未运行原客户端。
+
+## 正式角色剧情场景标记与回退（2026-10-16）
+
+- 剧情指令89个场景各提供播放与回到触发前。StoryProgressPackets使用0x88与服务端场景目录kanto-story-scenes.csv，正式角色story_completed保存场景完成标记；播放开始校验未完成并签发会话token，正常结束才提交完成，失败或Esc取消不完成。客户端按完成状态禁用播放，服务端仍独立检查；调试权限及角色归属沿用现有会话。
+- 回退只重置所选场景完成标记及正式位置，不清除其他场景，不回滚道具、队伍、徽章。演出节点的flags/stage等仍用目录初始条件和隔离内存，不应称为完整主线变量快照恢复。首段兼容kanto_opening_complete，重置落在12,2，避免直接站到草丛触发格自动开播；其他场景使用预设交互前位置。标记与位置在同一SQL中提交，WorldSession按saveLock再会话锁的顺序串行重置和定时存档，防旧位置覆盖。客户端采用权威落点并确认LOADED，不再重复请求传送。
+- tools/import_kanto_story.py同步生成两个按钮及服务端场景目录。StoryProgressNetworkSmoke验证真实加密TCP/PostgreSQL的89个目录项、完成门槛、token过期、取消、回退提交、旧开场兼容、归属和重登；StoryProgressUiSmoke验证真实OpenGL/TWL按钮点击、178个按钮、播完禁用、正式位置回退、不自动播放及取消，截图target/story-progress-completed.png与story-progress-reset.png。测试使用隔离账号并清理，未运行原客户端。
+
+- 开场入口关联修正：StoryProgressPackets.completionScenes明确town_stop包含escort，完整播放前者同条SQL写入两项，单独完成escort不反向完成town_stop。resetScenes对这两个入口共同清除，防完整场景仍完成而其片段未完成；服务端与客户端同步清除旧开场状态。读取旧存档时，已完成opening投影为escort完成，不需用户重播；其他场景不受影响。扩展StoryProgressNetworkSmoke及StoryProgressUiSmoke检查完整／片段方向、双入口禁用、联动回退、无关状态保留及真实界面点击，截图target/story-opening-linked-complete.png和story-opening-linked-reset.png。
+
+## 开场实际播放连续接入（2026-10-16）
+
+- 上一轮仅联动完成标记，没有接通自然开场。现在LoginScreen在KantoWorld首次收到开场phase1时接管完整town_stop脚本，自动执行叫停、走近、GUIDE、切入研究所与MAP_READY的lab_introduction，不再停在旧短开场，也无需点击escort入口。保留12/13触发列。服务端只对合法自然phase1放行完整开场的BEGIN，后续COMPLETE/CANCEL校验token；自然流程不依赖debug权限，其他调试操作仍需权限。
+- 完整开场和escort完成后，服务端将正式角色落点4/3的6,4与场景标记同条提交，客户端采用权威落点，角色留在研究所；开场、带路、研究所介绍三入口按实际包含关系联动。自然开场取消则清除相关标记并回到12,2，可再次触发。旧kanto_opening_complete但没有正式完整场景标记的存档只表示旧叫停完成，不再凭该布尔值假定带路／研究所介绍已执行。其他章节仍沿用现有隔离演出，不代表全部主线变量都已在线实现。
+- OpeningContinuityUiSmoke以真实加密TCP/PostgreSQL/OpenGL测试12与13两列自然触发，关闭服务端debug，不点击剧情菜单，检查MOVE_NPC/GUIDE/CHANGE_MAP/MOVE_PLAYER/DIALOGUE同次执行、进入研究所、最终正式位置与进度提交；截图target/opening-continuity-finished-12/13.png。StoryProgressNetworkSmoke复测通过。
+
+- 完成／取消请求等待期间抑制旧开场对话，采用权威落点后关闭旧对话，避免研究所里重现草丛叫停文本。自然开场取消分支也已通过加密网络／PostgreSQL／OpenGL验证，回到12,2且没有场景完成标记。
+
+
+## 关都单人训练家战（2026-10-16）
+
+- `FireRedTrainers` 从本机英文火红ROM识别训练家表、升级招式指针表及战斗招式PP表，四种队伍布局按8／16字节步长解析。已解码742组、1754只；保留等级、IV（原数值乘31／255）、默认或自定义招式、原始携带物及引擎映射。种族映射避免GBA内部编号与全国编号混用。`ExportKantoTrainers` 结合NPC脚本0x5C导出当前可见的353个单人挑战点，服务端使用kanto-trainers.csv，不读取卡带。双打、隐藏剧情演员及视线自动发现不在当前入口内。
+- `FireRedDialogue.TrainerBattle` 保留训练家编号、类型、战败和战后文本。NpcDialog区分正常翻完与取消，只有正常翻完在线NPC对白才请求0x89；服务端根据当前已验证相邻NPC的谈话锁查询目录，不能提交任意训练家ID／队伍。提前取消不开战。普通非训练家返回空结果；无可战队伍拒绝。0x82快照附带战后文本ID，已击败时直接显示战后对白。
+- ShowdownBattle支持服务端训练家完整队伍，首次准备的队伍快照同时交给客户端与引擎，不二次随机。引擎自动补充对方强制换宠，结果附带enemyActive，客户端按换宠事件异步替换对方模型；训练家战禁止RUN及调试对手选择。训练家携带物已映射；原卡带星星沙／金珠保留rawItem但不应用持有战斗效果。玩家队伍非零携带物限制仍保留。能力值、特性／性格采用现有项目个体模型，敌方AI仍随机合法招式，不宣称原卡带人格或完整训练家AI。
+- 胜利在saveBattleParty同一角色锁事务中写入character_trainers，再更新会话击败集合；断线／失败／取消不标记击败，重登恢复且不重复挑战。只接单人战斗及击败记录，不执行剩余剧情脚本、徽章、奖金、经验或败北传送。0x89、0x87结果及0x82快照变化要求客户端与game服务同时重启。战斗结束展示战败中文文本并用现有名字占位格式器处理；已补齐834个引用中缺失的474条文本。
+- `TrainerCatalogSmoke` 验证742组ROM解析、1754个体、353目录与ROM字段／招式一致、353组实际引擎创建、协议。`TrainerNetworkSmoke` 用隔离PostgreSQL账号和真实加密TCP验证常青森林RICK两只6级独角虫／绿毛虫、原招式、相邻门槛、禁逃跑、自动换宠、完整队伍胜利、同事务存档及重入战后对白／拒绝重复。`TrainerEndToEndSmoke` 使用真实客户端GLFW/TWL、Node和临时game服务，实际J交互，检查取消、翻完自动开战、点击招式、对方模型切换、战败文字及纹理释放，2回合胜利；截图target/trainer-rick-victory.png，结束删除隔离账号。测试使用独立编译输出避免并行构建刷新classes，未运行原客户端。
+
+## 撤销自然触发转重播（2026-10-16）
+
+- 用户明确纠正：播放只允许在对应正式剧情触发前；回到剧情前必须恢复正式阶段／标记，不是启动重播。上一节自然开场自动接入StoryReplayWindow、完成后强制传送研究所及相关completionTarget／completeStoryCheckpoint已撤销。自然触发恢复KantoOpening原有正式处理，不创建重播世界；不要重新引入自动重播桥接。
+- 开场正式触发后服务端禁止BEGIN，客户端剧情运行期间禁用播放操作；回退清除kanto_opening_complete、关联场景标记、服务端当前开场phase及客户端缓存，落在12,2并保持未触发。其它场景的完整正式flags／vars状态机尚未接通，现有story_completed不足以表示任意主线状态回滚，不得宣称已实现完整主线回退。OpeningNativeResetUiSmoke验证真实TCP/PostgreSQL/OpenGL自然触发不重播、触发后播放拒绝、正式标记和phase回退、回退不自动开播及触发前重新允许播放。
+
+- 喷雾模式（2026-10-16）：原左侧野外随机遭遇开关改为“喷雾模式”，9730对应wildEnabled=true显示关闭，9731对应wildEnabled=false显示开启。继续复用0x86 SET与wild_encounters_enabled，服务端成功才更新，重登恢复；开启阻止随机行走遭遇，不改变主动香气和NPC挑战。没有增加第二个相反开关或新存档字段。
+
+## 正式世界开场连续状态机（2026-10-16）
+
+- 用户再次确认要求正常触发后自动衔接带路。真正断点为KantoOpening在phase3确认后直接完成；现在phase3后转5（正式博士／玩家走位）、6（进入研究所等待加载确认）、7（室内走近）、8–11（四段对白），最后才回到4完成。1–3及5–11期间均锁定自由操作。未恢复任何自然触发转StoryReplayWindow的桥接，剧情菜单仍是单独调试入口。
+- 路线通过公共火红通行数据寻路，目标和文本在protocol maps/kanto-opening-continuation.properties；StoryPackets0x83附带正式玩家位置、一步起点、剩余时长和切图状态。KantoWorld沿用步行插值、正式场景缓存及淡出淡入，服务端LOADED后继续室内动作；客户端渲染剧情博士覆盖相同ID普通NPC，按地图分隔，结束后博士仍在研究所。客户端与game服务需同时更新重启。
+- 最后一段确认后CharacterStore.finishKantoOpening同条SQL提交正式落点、kanto_opening_complete与开场／带路／研究所介绍完成标记；与定时存档共用saveLock锁序。回到拦路前清除这些标记和当前阶段，并落在12,2。此实现只覆盖开场至研究所介绍，不代表全部主线已接通。
+- NativeOpeningStateSmoke覆盖两列路线及完整协议往返；NativeOpeningContinuityUiSmoke以真实加密TCP/PostgreSQL/OpenGL、关闭debug、正常踏入12/13触发格，检查全部正式phase、所有对白、博士和玩家走位、正式切图、最终落点提交和重置，始终断言StoryReplayWindow未启动。截图target/native-opening-finished-12/13.png。
+
+## 剧情实现依据（用户明确约定，2026-10-16）
+
+- 非特殊情况不要自行编写、简化或重新编排剧情。当前火红剧情以用户导入GBA ROM中的原脚本为依据，解析并执行原有前置条件、flags／vars、NPC显隐、移动、对话、选择、奖励及战斗分支；不能把仅提取文本或动作、手工状态机串联、调试重播当作正式剧情的完整实现。
+- 回到某剧情之前，应恢复对应正式脚本触发前的变量、事件标记及依赖状态；播放入口应校验真实脚本前置条件。不能只清除已播放记录或把正常触发改为重播。
+- 现有KantoOpening手工状态机及kanto-opening-continuation.properties仅为当前不完整实现，后续需按ROM脚本执行替换，不继续以手工补动作扩展主线。原服务端JSON剧情和重播目录可以辅助核对，不替代GBA脚本作为当前正式剧情依据。确有原脚本无法直接适配的特殊情况时，应先说明原因和差异，不擅自改变剧情语义。
+
+## 2026-10-16 正式开场改为 ROM 指令执行
+
+- 本节替代前述 KantoOpening 手写阶段、隔离重播桥接、finishKantoOpening 和预设路线的开场约定；这些实现已移除。正式世界使用 GbaScriptRuntime 执行 gba-opening-program.txt.gz 中的原始 ROM 字节、条件跳转、flags／vars、NPC显隐、逐条移动、对话、选择、奖励和 trainerbattle；不再手写剧情阶段补顺序。
+- 当前接入范围是真新镇北口至研究所选宠和青绿首战。地图载入运行原地图脚本，青绿显隐与选宠前出门阻拦由 ROM 决定；未实现的指令或 special 明确失败，不猜测推进，不能宣称全关都脚本已接通。音效／音乐命令尚未接入播放，表情动作保留等待时间但未绘制表情。
+- characters.gba_story_state 保存 ROM哈希、指令地址、调用栈、队列、flags／vars、演员移动、等待及触发前检查点。正式位置和脚本状态同步保存，回到触发前恢复检查点，不启动重播；已有个体／物品保留，character_script_gifts 防止重复发放。触发后不能再通过播放入口绕过条件。
+- 导出工具 ExportGbaScriptData 与 tools/export_gba_opening.py 从本机 ROM 及原版指令定义生成资源，流程见README；服务端不直接读取ROM。旧重播目录只作历史调试资料，不作为正式主线执行来源。
+- 本次验证：GbaOpeningVmSmoke / GbaAllStartersSmoke 检查三种选宠及对应青绿队伍；GbaStateResumeSmoke 检查脚本等待状态保存恢复、flags／vars回退、回退不自动播放及正式播放条件；GbaStoryNetworkSmoke 使用隔离账号、真实加密TCP/PostgreSQL及Showdown检查连续开场、阻止出门、拒绝／确认选宠、5级个体、命名、双方球显隐、首战与战后脚本；GbaNativeUiSmoke 使用真实OpenGL/TWL检查正式世界连贯、预览、居中是／否弹窗及鼠标拒绝、回退，全程未进入StoryReplayWindow。GbaGiftCompatibilitySmoke 检查已有测试队伍保留、命名实际奖励个体及重复奖励幂等。临时测试均位于target，不作为永久资源依赖。
+- 选宠后文本缺失修复：此前网络测试仅验证文本ID流转，界面只测到拒绝选择，未覆盖收到宝可梦对白，导致1630989缺失崩溃。tools/import_gba_script_texts.py从执行目录的loadword／message／trainerbattle指针提取全部文本ID，导入缺失中文；当前补齐44条并通过GbaScriptStringsSmoke使用实际ClientStrings逐条读取全部79个对白及三种初始宝可梦名称。后续更新执行目录必须同时运行文本检查，不以网络状态通过替代语言资源完整性验证。

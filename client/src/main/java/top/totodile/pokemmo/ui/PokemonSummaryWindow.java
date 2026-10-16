@@ -27,7 +27,6 @@ final class PokemonSummaryWindow extends ResizableFrame implements AutoCloseable
     private Image[] backAnimation = new Image[0];
     /** 图集格尺寸与原 96 画布中心在格内的锚点，动画帧按锚点摆回原脚底位置。 */
     private int cellWidth = 96, cellHeight = 96, anchorX = 48, anchorY = 48;
-    private int formDisplayWidth = 120, formDisplayHeight = 96;
     /** 点击图像区在正／背面之间切换，翻转动画用时 360ms。 */
     private boolean showingBack;
     private long flipStart = -1;
@@ -79,10 +78,6 @@ final class PokemonSummaryWindow extends ResizableFrame implements AutoCloseable
                 // 显示尺寸沿用 96 画布的约定（普通 2 倍、异色闪光个体更大），锚点是原画布中心
                 // 在裁剪格内的位置，脚底仍落在旧实现的画布中心线上；收缩围绕身体锚点进行。
                 double scale=size/96.0;
-                if (member != null && top.totodile.pokemmo.rom.PokemonForms.active(member)) {
-                    scale *= Math.min(1, Math.min(formDisplayWidth / (double) Math.max(1, cellWidth - 4),
-                            formDisplayHeight / (double) Math.max(1, cellHeight - 4)));
-                }
                 double shrink=flipStart<0?1:Math.abs(Math.cos(Math.PI*flip));
                 int width=(int)Math.round(cellWidth*scale*shrink);
                 int height=(int)Math.round(cellHeight*scale);
@@ -158,7 +153,7 @@ final class PokemonSummaryWindow extends ResizableFrame implements AutoCloseable
     }
 
     private void openConfigurationMenu(int x, int y) {
-        if (configure == null || configuring || member == null || member.individual() == null) return;
+        if (configure == null || configuring || pendingCostume != null || member == null || member.individual() == null) return;
         requestKeyboardFocus();
         if (configurationMenu != null) configurationMenu.closePopup();
         configurationMenu = new PokemonConfigurationMenu(member, request -> {
@@ -170,12 +165,25 @@ final class PokemonSummaryWindow extends ResizableFrame implements AutoCloseable
 
     void setCostumeChanged(Runnable action) { costumeChanged = action; }
 
+    private CompletableFuture<String> pendingCostume;
+
     private void applyCostume(String id) {
+        if (member == null || pendingCostume != null) return;
+        if (id.isEmpty()) { commitCostume(id); return; }
+        configuring = true;
+        item.setText(ClientStrings.get(9811));
+        pendingCostume = CompletableFuture.supplyAsync(() -> {
+            try { top.totodile.pokemmo.rom.PokemonCostumes.prepare(id); return id; }
+            catch (java.io.IOException error) { throw new java.util.concurrent.CompletionException(error); }
+        });
+    }
+
+    private void commitCostume(String id) {
         try {
             top.totodile.pokemmo.rom.PokemonCostumes.select(member, id);
             updateIndividual(member);
             costumeChanged.run();
-        } catch (java.io.IOException error) {
+        } catch (java.io.IOException | IllegalArgumentException error) {
             item.setText(ClientStrings.get(9795));
             System.getLogger(PokemonSummaryWindow.class.getName()).log(System.Logger.Level.WARNING, "Unable to save Pokemon costume", error);
         }
@@ -198,6 +206,7 @@ final class PokemonSummaryWindow extends ResizableFrame implements AutoCloseable
 
     void open(PartyMember member) {
         close(); configuring=false; this.member=member; page=0;
+        top.totodile.pokemmo.rom.PokemonCostumes.preloadCatalog();
         showingBack=false; flipStart=-1;
         String title=ClientStrings.get(150000+member.species());
         setTitle(ClientStrings.get(0)+" "+ClientStrings.get(1801));
@@ -223,6 +232,7 @@ final class PokemonSummaryWindow extends ResizableFrame implements AutoCloseable
                 try {
                     // 大画布渲染后按内容裁剪；高个体（如盖诺赛克特）在固定 96 画布下头部会被截。
                     var summary=top.totodile.pokemmo.rom.PokemonForms.active(member)
+                            && top.totodile.pokemmo.rom.PokemonCostumes.selected(member).isEmpty()
                             ? top.totodile.pokemmo.rom.PokemonForms.load(member)
                             : top.totodile.pokemmo.rom.PokemonCostumes.summary(
                                     top.totodile.pokemmo.rom.PokemonAnimation.loadSummary(rom,member.species(),member.shiny()), member);
@@ -244,8 +254,6 @@ final class PokemonSummaryWindow extends ResizableFrame implements AutoCloseable
 
     @Override protected void applyTheme(ThemeInfo info) {
         super.applyTheme(info);
-        formDisplayWidth = info.getParameter("formDisplayWidth", 120);
-        formDisplayHeight = info.getParameter("formDisplayHeight", 96);
         for(int i=0;i<18;i++) {backgrounds[i]=info.getImage("typeBackground"+i);nameplates[i]=info.getImage("nameplate"+i);}
     }
 
@@ -393,6 +401,16 @@ final class PokemonSummaryWindow extends ResizableFrame implements AutoCloseable
     }
 
     @Override protected void paintWidget(GUI gui) {
+        if (pendingCostume != null && pendingCostume.isDone()) {
+            var completed = pendingCostume;
+            pendingCostume = null;
+            configuring = false;
+            try { commitCostume(completed.join()); }
+            catch (java.util.concurrent.CompletionException | java.util.concurrent.CancellationException error) {
+                item.setText(ClientStrings.get(9812));
+                System.getLogger(PokemonSummaryWindow.class.getName()).log(System.Logger.Level.WARNING, "Unable to load fusion costume", error);
+            }
+        }
         if(pending!=null&&pending.isDone()) {
             var result=pending;pending=null;
             try {
@@ -426,6 +444,8 @@ final class PokemonSummaryWindow extends ResizableFrame implements AutoCloseable
     }
 
     @Override public void close() {
+        if (pendingCostume != null) pendingCostume.cancel(false);
+        pendingCostume = null;
         if (configurationMenu != null) { configurationMenu.closePopup(); configurationMenu = null; }
         if(pending!=null)pending.cancel(true);pending=null;
         if(texture!=null)texture.destroy();texture=null;image=null;animation=new Image[0];backAnimation=new Image[0];ribbonImages=new Image[0];

@@ -1,0 +1,13 @@
+火红 GBA 地图数据清单
+来源：firered.gba
+ROM SHA-256：3d0c79f1627022e18765766f6cb5ea067f6b5bf7dca115552189ad65a5c3a8ac
+地图=425，格子=233741，传送=1294，连接=116，NPC=1648，坐标事件=228，地图脚本=584
+
+所有 CSV 为 UTF-8 BOM，含表头。group/map 为零基地图编号；x/y 为零基格子坐标，每格16×16像素。
+maps.csv：地图总清单；name 来自项目中文语言表，并非 ROM 中文文本；type 为原始地图类型。
+warps.csv：传送事件；index/target_warp 均为零基事件索引，dynamic_target 表示动态返回目标，不能按固定地图解析。
+connections.csv：连接方向值 1南/2北/3西/4东/5下潜/6浮出，offset 为带符号格子偏移。
+npcs.csv：全部物件事件，包含隐藏标记非零及动态图形槽位；flag 为隐藏标记编号，static_graphics 表示 graphics<240。
+tiles.csv：逐格地形阻挡、高度及行为；walkable 仅为地形阻挡判断，不包含NPC占位、剧情条件或相邻格高度可达性。
+coordinate-events.csv：坐标触发条件。map-scripts.csv：地图脚本类型及条件；script_offset 为相对ROM起点的十六进制偏移，不是完整脚本反编译。
+使用当前项目解析器、enhanced=false，未应用地图增强补丁或HGSS替换；未导出图像、调色板、完整脚本、背景事件或遭遇表。

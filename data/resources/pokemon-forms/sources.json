@@ -1,0 +1,66 @@
+{
+  "source": "Pokemon Showdown sprite collection",
+  "rights": "Pokemon imagery belongs to its respective rights holders; public availability does not establish redistribution permission.",
+  "files": [
+    {
+      "file": "6/megax/front-n.gif",
+      "url": "https://play.pokemonshowdown.com/sprites/ani/charizard-megax.gif",
+      "sha256": "6d01d016c5243ca3471da036570ba73ac03a0476358400449c82b71507959579"
+    },
+    {
+      "file": "6/megax/back-n.gif",
+      "url": "https://play.pokemonshowdown.com/sprites/ani-back/charizard-megax.gif",
+      "sha256": "ae03e9ab4ed786b2e0a7d55690a0fa52056e33ee85a6e979e550dd6e5b4eb1f8"
+    },
+    {
+      "file": "6/megax/front-s.gif",
+      "url": "https://play.pokemonshowdown.com/sprites/ani-shiny/charizard-megax.gif",
+      "sha256": "6f20a2330748e4eae475d37cbefdfe36f776cee2e7104934ae7522d73c4fe8fa"
+    },
+    {
+      "file": "6/megax/back-s.gif",
+      "url": "https://play.pokemonshowdown.com/sprites/ani-back-shiny/charizard-megax.gif",
+      "sha256": "24b98e4966b65ab5ad1fc4fe4a17914ba046fdd75bb0166c930fb2563292b877"
+    },
+    {
+      "file": "6/megay/front-n.gif",
+      "url": "https://play.pokemonshowdown.com/sprites/ani/charizard-megay.gif",
+      "sha256": "fe323548dc762d2019c19fdaad133dd8a8615f08e46c094834403537572bdb31"
+    },
+    {
+      "file": "6/megay/back-n.gif",
+      "url": "https://play.pokemonshowdown.com/sprites/ani-back/charizard-megay.gif",
+      "sha256": "61e6ba1ed9d59d46132bd560a25abdbccae4bfb4db44938e47caefec03722976"
+    },
+    {
+      "file": "6/megay/front-s.gif",
+      "url": "https://play.pokemonshowdown.com/sprites/ani-shiny/charizard-megay.gif",
+      "sha256": "9a629c667668a7a5db6963cf0112b57a9a0ff0982aa14d39f1681a939aec64fb"
+    },
+    {
+      "file": "6/megay/back-s.gif",
+      "url": "https://play.pokemonshowdown.com/sprites/ani-back-shiny/charizard-megay.gif",
+      "sha256": "5a901979192622ad701813224dad586c274d93e95f7b2be10f31a91b59f5963f"
+    },
+    {
+      "file": "6/gmax/front-n.gif",
+      "url": "https://play.pokemonshowdown.com/sprites/ani/charizard-gmax.gif",
+      "sha256": "2d35776719dca732cfde4ad8852851106cefa49c90e7e7070fff4198dab7419a"
+    },
+    {
+      "file": "6/gmax/back-n.gif",
+      "url": "https://play.pokemonshowdown.com/sprites/ani-back/charizard-gmax.gif",
+      "sha256": "f1e50564c678a4cdd75494155b5c4573b2a428d5c5e8419a0acbcf73aaa25820"
+    },
+    {
+      "file": "6/gmax/front-s.gif",
+      "url": "https://play.pokemonshowdown.com/sprites/ani-shiny/charizard-gmax.gif",
+      "sha256": "eeeeecc85535511e4a845077bd62c10e0f2c17a51a0d92ee68b1b2a10232756b"
+    },
+    {
+      "file": "6/gmax/back-s.gif",
+      "url": "https://play.pokemonshowdown.com/sprites/ani-back-shiny/charizard-gmax.gif",
+      "sha256": "fd0bcb79f3662da046e633608d0f840dde7a3f9c812fb6996a1e359fac4f94c9"
+    }
+  ]
+}

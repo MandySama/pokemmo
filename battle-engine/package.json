@@ -1,0 +1,17 @@
+{
+  "name": "pokemmo-battle-engine",
+  "version": "1.0.0",
+  "description": "Private server-side Pokemon Showdown singles adapter",
+  "main": "worker.cjs",
+  "scripts": {
+    "test": "node test.cjs",
+    "start": "node worker.cjs"
+  },
+  "keywords": [],
+  "author": "",
+  "type": "commonjs",
+  "dependencies": {
+    "pokemon-showdown": "0.11.10"
+  },
+  "private": true
+}

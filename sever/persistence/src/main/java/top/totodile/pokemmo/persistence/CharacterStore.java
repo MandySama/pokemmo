@@ -1,6 +1,7 @@
 package top.totodile.pokemmo.persistence;
 
 import top.totodile.pokemmo.protocol.PokemonConfigPackets;
+import top.totodile.pokemmo.protocol.StoryProgressPackets;
 
 import top.totodile.pokemmo.protocol.CharacterPackets;
 import top.totodile.pokemmo.protocol.TrainerStats;
@@ -158,6 +159,39 @@ public final class CharacterStore {
                 return new top.totodile.pokemmo.protocol.PcPackets.PartyState(row.getInt(1),
                         PokemonStore.load(connection, character, party(row.getArray(2), row.getArray(3), row.getArray(4), row.getArray(5), row.getArray(6))));
             }
+        }
+    }
+
+    /** 按个体身份核对战斗起始队伍，在同一事务中保存HP、PP和异常状态。 */
+    public void saveBattleParty(int account, long character, List<PartyMember> expected, List<PartyMember> next) throws SQLException {
+        saveBattleParty(account,character,expected,next,0);
+    }
+    public java.util.Set<Integer> defeatedTrainers(int account,long character) throws SQLException {
+        var result=new java.util.HashSet<Integer>();
+        try(var c=database.connect();var q=c.prepareStatement("SELECT t.trainer_id FROM character_trainers t JOIN characters c ON c.id=t.character_id WHERE c.account_id=? AND c.id=?")) {
+            q.setInt(1,account);q.setLong(2,character);try(var row=q.executeQuery()){while(row.next())result.add(row.getInt(1));}
+        }
+        return result;
+    }
+    public void saveBattleParty(int account,long character,List<PartyMember> expected,List<PartyMember> next,int trainer) throws SQLException {
+        try (var connection = database.connect()) {
+            connection.setAutoCommit(false);
+            try {
+                List<PartyMember> current;
+                try (var q = connection.prepareStatement("SELECT party_species,party_flags,party_hp,party_max_hp,party_levels FROM characters WHERE id=? AND account_id=? FOR UPDATE")) {
+                    q.setLong(1,character);q.setInt(2,account);
+                    try(var row=q.executeQuery()) {
+                        if(!row.next())throw new SQLException("Battle character missing");
+                        current=PokemonStore.load(connection,character,party(row.getArray(1),row.getArray(2),row.getArray(3),row.getArray(4),row.getArray(5)));
+                    }
+                }
+                if(!current.equals(expected))throw new SQLException("Battle party changed");
+                PokemonStore.save(connection,character,next);PokemonStore.sync(connection,character,next);
+                if(trainer>0)try(var q=connection.prepareStatement("INSERT INTO character_trainers(character_id,trainer_id) VALUES (?,?) ON CONFLICT DO NOTHING")) {
+                    q.setLong(1,character);q.setInt(2,trainer);q.executeUpdate();
+                }
+                connection.commit();
+            } catch(SQLException|RuntimeException error){connection.rollback();throw error;}
         }
     }
 
@@ -509,12 +543,143 @@ public final class CharacterStore {
         }
     }
 
+    public java.util.Set<String> storyCompleted(int account, long character) throws SQLException {
+        try (var c = database.connect(); var q = c.prepareStatement(
+                "SELECT story_completed,kanto_opening_complete,gba_story_state FROM characters WHERE id=? AND account_id=?")) {
+            q.setLong(1, character); q.setInt(2, account);
+            try (var rows = q.executeQuery()) {
+                if (!rows.next()) throw new SQLException("Story character not owned");
+                var array = rows.getArray(1);
+                var result = new java.util.HashSet<String>();
+                try { for (Object value : (Object[]) array.getArray()) result.add(value.toString()); }
+                finally { array.free(); }
+                boolean legacy=rows.getString(3).isBlank();
+                boolean fullOpening = legacy && result.contains(StoryProgressPackets.OPENING) && rows.getBoolean(2);
+                if (legacy&&rows.getBoolean(2)) result.add(StoryProgressPackets.OPENING);
+                else if(legacy) result.remove(StoryProgressPackets.OPENING);
+                // 旧自然开场仅完成叫停，不能把它当成已执行带路与研究所对白。
+                if (fullOpening)
+                    result.addAll(StoryProgressPackets.completionScenes(StoryProgressPackets.OPENING));
+                result.retainAll(StoryProgressPackets.scenes());
+                return java.util.Set.copyOf(result);
+            }
+        }
+    }
+
+    /** 场景标记与旧开场标记同条提交，奖励与角色物品不参与剧情重置。 */
+    public boolean setStoryCompleted(int account, long character, String scene, boolean completed) throws SQLException {
+        if (StoryProgressPackets.scene(scene) == null) throw new IllegalArgumentException("Unknown story scene");
+        String sql = completed
+                ? "UPDATE characters SET story_completed=ARRAY(SELECT DISTINCT v FROM unnest(story_completed || ?::text[]) v),kanto_opening_complete=CASE WHEN ? THEN TRUE ELSE kanto_opening_complete END WHERE id=? AND account_id=? AND NOT (?=ANY(story_completed)) AND NOT (? AND kanto_opening_complete)"
+                : "UPDATE characters SET story_completed=ARRAY(SELECT v FROM unnest(story_completed) v WHERE NOT(v=ANY(?::text[]))),kanto_opening_complete=CASE WHEN ? THEN FALSE ELSE kanto_opening_complete END WHERE id=? AND account_id=?";
+        try (var c = database.connect(); var q = c.prepareStatement(sql)) {
+            var affected = completed ? StoryProgressPackets.completionScenes(scene) : StoryProgressPackets.resetScenes(scene);
+            var array = c.createArrayOf("text", affected.toArray(String[]::new));
+            try {
+                boolean opening = affected.contains(StoryProgressPackets.OPENING);
+                q.setArray(1, array); q.setBoolean(2, opening); q.setLong(3, character); q.setInt(4, account);
+                if (completed) { q.setString(5, scene); q.setBoolean(6, opening); }
+                return q.executeUpdate() == 1;
+            } finally { array.free(); }
+        }
+    }
+
+    public boolean resetStoryCheckpoint(int account, long character, String scene, Position target) throws SQLException {
+        if (StoryProgressPackets.scene(scene) == null || !target.valid(0)) throw new IllegalArgumentException("Invalid story checkpoint");
+        try (var c = database.connect(); var q = c.prepareStatement(
+                "UPDATE characters SET story_completed=ARRAY(SELECT v FROM unnest(story_completed) v WHERE NOT(v=ANY(?::text[]))),kanto_opening_complete=CASE WHEN ? THEN FALSE ELSE kanto_opening_complete END,map_group=?,map_id=?,position_x=?,position_y=?,elevation=?,facing=?,return_position=ARRAY[]::smallint[] WHERE id=? AND account_id=? AND region=0")) {
+            var affected = StoryProgressPackets.resetScenes(scene);
+            var array = c.createArrayOf("text", affected.toArray(String[]::new));
+            try {
+                q.setArray(1, array); q.setBoolean(2, affected.contains(StoryProgressPackets.OPENING));
+                q.setInt(3, target.group()); q.setInt(4, target.map()); q.setInt(5, target.x()); q.setInt(6, target.y());
+                q.setInt(7, target.elevation()); q.setInt(8, target.facing()); q.setLong(9, character); q.setInt(10, account);
+                return q.executeUpdate() == 1;
+            } finally { array.free(); }
+        }
+    }
+
     public boolean saveDebugSettings(int account, long character, boolean noclip, int multiplier) throws SQLException {
         if (multiplier != 1 && multiplier != 2 && multiplier != 4 && multiplier != 8) return false;
         try (var c = database.connect(); var q = c.prepareStatement(
                 "UPDATE characters SET debug_noclip=?,debug_speed_multiplier=? WHERE id=? AND account_id=?")) {
             q.setBoolean(1, noclip); q.setInt(2, multiplier); q.setLong(3, character); q.setInt(4, account);
             return q.executeUpdate() == 1;
+        }
+    }
+
+    public String gbaStoryState(int account,long character)throws SQLException {
+        try(var c=database.connect();var q=c.prepareStatement("SELECT gba_story_state FROM characters WHERE id=? AND account_id=?")){
+            q.setLong(1,character);q.setInt(2,account);try(var r=q.executeQuery()){if(!r.next())throw new SQLException("Story character not owned");return r.getString(1);}
+        }
+    }
+
+    public void saveGbaStory(int account,long character,String state,Position p,int townStage,int labStage)throws SQLException {
+        try(var c=database.connect()){saveGbaStory(c,account,character,state,p,townStage,labStage);}
+    }
+
+    private static void saveGbaStory(Connection c,int account,long character,String state,Position p,int townStage,int labStage)throws SQLException {
+        var completed=new java.util.ArrayList<String>();
+        if(townStage>=1){completed.add(StoryProgressPackets.OPENING);completed.add(StoryProgressPackets.ESCORT);}
+        if(labStage>=2)completed.add(StoryProgressPackets.LAB_INTRODUCTION);
+        var affected=StoryProgressPackets.resetScenes(StoryProgressPackets.OPENING);
+        var remove=c.createArrayOf("text",affected.toArray(String[]::new));var add=c.createArrayOf("text",completed.toArray(String[]::new));
+        try(var q=c.prepareStatement("UPDATE characters SET gba_story_state=?,kanto_opening_complete=?,story_completed=ARRAY(SELECT DISTINCT v FROM unnest(ARRAY(SELECT v FROM unnest(story_completed) v WHERE NOT(v=ANY(?::text[]))) || ?::text[]) v),map_group=?,map_id=?,position_x=?,position_y=?,elevation=?,facing=?,return_position=ARRAY[]::smallint[] WHERE id=? AND account_id=? AND region=0")){
+            q.setString(1,state);q.setBoolean(2,townStage>=1);q.setArray(3,remove);q.setArray(4,add);q.setInt(5,p.group());q.setInt(6,p.map());q.setInt(7,p.x());q.setInt(8,p.y());q.setInt(9,p.elevation());q.setInt(10,p.facing());q.setLong(11,character);q.setInt(12,account);
+            if(q.executeUpdate()!=1)throw new SQLException("GBA state save rejected");
+        }finally{remove.free();add.free();}
+    }
+
+    /** ROM 奖励、个体和下一指令地址同事务提交，断线重试不能重复发放。 */
+    public int gbaStoryEffect(int account,long character,String operation,int first,int second,String argument,String state,Position p,int townStage,int labStage)throws SQLException {
+        try(var c=database.connect()){
+            c.setAutoCommit(false);
+            try {
+                String name;
+                java.util.ArrayList<PartyMember> party;
+                try(var q=c.prepareStatement("SELECT name,party_species,party_flags,party_hp,party_max_hp,party_levels FROM characters WHERE id=? AND account_id=? FOR UPDATE")){q.setLong(1,character);q.setInt(2,account);try(var r=q.executeQuery()){if(!r.next())throw new SQLException("Story character not owned");name=r.getString(1);party=new java.util.ArrayList<>(PokemonStore.load(c,character,party(r.getArray(2),r.getArray(3),r.getArray(4),r.getArray(5),r.getArray(6))));}}
+                int result=1;
+                if(operation.equals("pokemon")){
+                    int instruction=Integer.parseInt(argument);boolean given=false;
+                    try(var q=c.prepareStatement("SELECT species FROM character_script_gifts WHERE character_id=? AND rom_hash=? AND instruction=?")){q.setLong(1,character);q.setString(2,top.totodile.pokemmo.protocol.GbaScriptProgram.INSTANCE.romHash());q.setInt(3,instruction);try(var r=q.executeQuery()){if(r.next()){if(r.getInt(1)!=first)throw new SQLException("Starter reward already granted with a different species");given=true;}}}
+                    if(!given){
+                        var d=top.totodile.pokemmo.protocol.PokemonIndividual.create(first,second,false,character,name,0,p.group(),p.map(),java.time.Instant.now().getEpochSecond());
+                        for(int trainer:new int[]{326,327,328}){var t=top.totodile.pokemmo.protocol.TrainerCatalog.scriptTrainer(trainer);if(t!=null&&t.mons().getFirst().species()==first)d=d.battleState(t.mons().getFirst().moves(),"");}
+                        int hp=d.stat(first,second,0);var mon=new PartyMember(first,false,false,hp,hp,second,d);
+                        if(party.size()<6){party.add(mon);result=0;}else{
+                            var boxes=new java.util.ArrayList<>(PokemonStore.loadBoxes(c,character));int slot=-1;
+                            for(int i=0;i<14*30;i++){int box=i/30,s=i%30;if(boxes.stream().noneMatch(b->b.box()==box&&b.slot()==s)){slot=i;break;}}
+                            if(slot<0)throw new SQLException("No space for script Pokemon");boxes.add(new PokemonStore.Boxed(slot/30,slot%30,mon));PokemonStore.saveBoxes(c,character,boxes);result=1;
+                        }
+                        try(var q=c.prepareStatement("INSERT INTO character_script_gifts(character_id,rom_hash,instruction,individual_id,species) VALUES(?,?,?,?,?)")){q.setLong(1,character);q.setString(2,top.totodile.pokemmo.protocol.GbaScriptProgram.INSTANCE.romHash());q.setInt(3,instruction);q.setLong(4,d.id());q.setInt(5,first);q.executeUpdate();}
+                    }
+                }else if(operation.equals("heal")){
+                    for(int i=0;i<party.size();i++){var m=party.get(i);var moves=m.individual().moves().stream().map(v->new top.totodile.pokemmo.protocol.PokemonIndividual.Move(v.id(),v.maxPp(),v.maxPp(),v.ppUps())).toList();party.set(i,new PartyMember(m.species(),m.shiny(),m.alpha(),m.maxHp(),m.maxHp(),m.level(),m.individual().battleState(moves,"")));}
+                }else if(operation.equals("nickname")){
+                    if(argument.length()>16)throw new SQLException("Invalid script nickname");
+                    long gift=0;
+                    // 当前开场目录只有一次 givemon，旧角色的测试队伍不能改变奖励个体的命名目标。
+                    try(var q=c.prepareStatement("SELECT individual_id FROM character_script_gifts WHERE character_id=? AND rom_hash=?")){
+                        q.setLong(1,character);q.setString(2,top.totodile.pokemmo.protocol.GbaScriptProgram.INSTANCE.romHash());
+                        try(var r=q.executeQuery()){if(r.next())gift=r.getLong(1);if(r.next())throw new SQLException("Ambiguous script nickname target");}
+                    }
+                    int index=first;
+                    if(gift!=0){index=-1;for(int i=0;i<party.size();i++)if(party.get(i).individual().id()==gift)index=i;}
+                    if(index>=0&&index<party.size()){
+                        var m=party.get(index);party.set(index,new PartyMember(m.species(),m.shiny(),m.alpha(),m.hp(),m.maxHp(),m.level(),m.individual().withNickname(argument)));
+                    }else{
+                        var boxes=new java.util.ArrayList<>(PokemonStore.loadBoxes(c,character));boolean found=false;
+                        for(int i=0;i<boxes.size();i++){var b=boxes.get(i);var m=b.member();if(m.individual().id()==gift){boxes.set(i,new PokemonStore.Boxed(b.box(),b.slot(),new PartyMember(m.species(),m.shiny(),m.alpha(),m.hp(),m.maxHp(),m.level(),m.individual().withNickname(argument))));found=true;break;}}
+                        if(!found)throw new SQLException("Script nickname target missing");PokemonStore.saveBoxes(c,character,boxes);
+                    }
+                }else if(operation.startsWith("item-")){
+                    int owned=0;try(var q=c.prepareStatement("SELECT quantity FROM character_inventory WHERE character_id=? AND item_id=?")){q.setLong(1,character);q.setInt(2,first);try(var r=q.executeQuery()){if(r.next())owned=r.getInt(1);}}
+                    if(operation.equals("item-check"))result=owned>=second?1:0;
+                    else {int quantity=operation.equals("item-add")?owned+second:owned-second;if(quantity<0)result=0;else try(var q=c.prepareStatement("INSERT INTO character_inventory(character_id,item_id,quantity) VALUES(?,?,?) ON CONFLICT(character_id,item_id) DO UPDATE SET quantity=EXCLUDED.quantity")){q.setLong(1,character);q.setInt(2,first);q.setInt(3,quantity);q.executeUpdate();}}
+                }else throw new SQLException("Unknown script host operation");
+                savePartyArrays(c,account,character,party);PokemonStore.save(c,character,party);
+                saveGbaStory(c,account,character,state,p,townStage,labStage);c.commit();return result;
+            }catch(SQLException|RuntimeException e){c.rollback();throw e;}
         }
     }
 

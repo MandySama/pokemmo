@@ -17,10 +17,31 @@ final class WorldSession implements AutoCloseable {
     private int region;
     private boolean wildEnabled = true;
     private EncounterCatalog.Selection activeEncounter;
+    private ShowdownBattle battle;
+    private TrainerCatalog.Trainer activeTrainer;
+    private java.util.List<PartyMember> trainerParty;
+    private final java.util.Set<Integer> defeatedTrainers;
+    private java.util.List<PartyMember> savedBattleParty;
     private final WildEncounterState encounters = new WildEncounterState();
 
     private KantoNpcs npcs;
-    private KantoOpening opening;
+    private GbaScriptRuntime opening;
+    private long savedScriptVersion=-1;
+    private boolean scriptBattle;
+    private GbaScriptRuntime createScriptRuntime(Position position)throws SQLException,IOException {
+        savedScriptVersion=-1;
+        return new GbaScriptRuntime(store.gbaStoryState(account,character),position,(operation,first,second,argument)->{
+            try{return store.gbaStoryEffect(account,character,operation,first,second,argument,opening.save(),opening.position(),opening.variable(0x4050),opening.variable(0x4055));}
+            catch(SQLException e){throw new IOException("ROM script host operation failed: "+operation,e);}
+        });
+    }
+    private void persistScript()throws SQLException,IOException {
+        if(opening==null||opening.version()==savedScriptVersion)return;
+        var p=opening.position();
+        if(opening.active())position=rules.at(p.group(),p.map(),p.x(),p.y(),p.facing(),null);
+        store.saveGbaStory(account,character,opening.save(),position,opening.variable(0x4050),opening.variable(0x4055));
+        saved=position;savedScriptVersion=opening.version();
+    }
     private final CharacterStore store;
     private final int account;
     private final long character;
@@ -33,6 +54,8 @@ final class WorldSession implements AutoCloseable {
     private boolean loading = true, cycling, savedCycling, noclip, closed;
     private int multiplier = 1;
     private long readyAt;
+    private String playingStory;
+    private long storyToken;
     private long loadDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(30);
     private final Object saveLock = new Object();
     private volatile SQLException saveFailure;
@@ -41,13 +64,14 @@ final class WorldSession implements AutoCloseable {
                  ScheduledExecutorService scheduler) throws SQLException, IOException {
         this.rules = rules;
         region = info.appearance().region();
-        if (info.appearance().region() == 0) npcs = new KantoNpcs((FireRedWorldRules) rules);
+        if (info.appearance().region() == 0 || info.appearance().region() == 1) npcs = new KantoNpcs((FireRedWorldRules) rules);
         this.store = store;
         this.account = account;
         character = info.id();
-        if (npcs != null) opening = new KantoOpening(store.kantoOpeningComplete(account, character));
+        defeatedTrainers=store.defeatedTrainers(account,character);
         onlineBase = savedOnline = info.stats().onlineSeconds();
         position = saved = info.position();
+        if(region==0&&npcs!=null)opening=createScriptRuntime(position);
         cycling = savedCycling = info.cycling();
         noclip = debugEnabled() && info.noclip();
         multiplier = debugEnabled() ? info.speedMultiplier() : 1;
@@ -61,12 +85,104 @@ final class WorldSession implements AutoCloseable {
         }, 200, 200, TimeUnit.MILLISECONDS);
     }
 
-    synchronized byte[] handle(byte[] packet) throws IOException, SQLException {
+    byte[] handle(byte[] packet) throws IOException, SQLException {
+        // 重置落点与定时位置存档共用锁序，防止旧快照覆盖刚提交的检查点。
+        if (packet.length > 1 && ((packet[0] & 255) == StoryProgressPackets.OPCODE
+                || (packet[0] & 255) == StoryPackets.OPCODE || (packet[0] & 255) == NpcPackets.OPCODE
+                || (packet[0] & 255) == EncounterPackets.OPCODE)) {
+            synchronized (saveLock) { synchronized (this) { return handleLocked(packet); } }
+        }
+        synchronized (this) { return handleLocked(packet); }
+    }
+
+    private byte[] handleLocked(byte[] packet) throws IOException, SQLException {
         checkHealthy();
         int opcode = packet[0] & 255;
         int duration = (cycling ? 80 : 275) / multiplier;
         long npcNow = System.nanoTime();
+        if (opcode == StoryProgressPackets.OPCODE) {
+            var request = StoryProgressPackets.readRequest(packet);
+            if (region != 0 || !debugEnabled()) throw new IOException("Story debug disabled");
+            var completed = store.storyCompleted(account, character);
+            boolean accepted = true;
+            Position destination = null;
+            boolean nativeScript=false;
+            switch (request.action()) {
+                case StoryProgressPackets.QUERY -> { }
+                case StoryProgressPackets.RESET -> {
+                    if (loading || npcNow < readyAt || activeEncounter != null || playingStory != null
+                            || opening != null && opening.active() && !request.scene().equals(StoryProgressPackets.OPENING)) accepted = false;
+                    else {
+                        accepted=opening!=null&&opening.entry(request.scene())!=0;
+                        if (accepted) {
+                            var target=opening.resetScene(request.scene(),npcNow);
+                            position = saved = rules.at(target.group(),target.map(),target.x(),target.y(),target.facing(),null); destination = position; movementFrom = null;
+                            persistScript();nativeScript=true;
+                            if (npcs != null) npcs.talk(position, 255, npcNow);
+                            encounters.reset(); loading = true;
+                            loadDeadline = npcNow + TimeUnit.SECONDS.toNanos(30);
+                        }
+                    }
+                }
+                case StoryProgressPackets.BEGIN -> {
+                    accepted = !loading && npcNow >= readyAt && activeEncounter == null && opening!=null&&opening.canStart(request.scene());
+                    if (accepted) {
+                        var target=opening.startScene(request.scene(),npcNow);position=saved=rules.at(target.group(),target.map(),target.x(),target.y(),target.facing(),null);
+                        destination=position;nativeScript=true;persistScript();loading=true;loadDeadline=npcNow+TimeUnit.SECONDS.toNanos(30);
+                    }
+                }
+                case StoryProgressPackets.COMPLETE, StoryProgressPackets.CANCEL -> {
+                    accepted = request.scene().equals(playingStory) && request.token() == storyToken;
+                    if (accepted) {
+                        if (request.action() == StoryProgressPackets.COMPLETE) {
+                            accepted = store.setStoryCompleted(account, character, playingStory, true);
+                        }
+                        playingStory = null;
+                    }
+                }
+                default -> throw new IOException("Invalid story progress action");
+            }
+            var available=new java.util.HashSet<String>();if(opening!=null)for(String scene:StoryProgressPackets.scenes())if(opening.canStart(scene))available.add(scene);
+            return StoryProgressPackets.response(new StoryProgressPackets.Result(accepted,storyToken,store.storyCompleted(account,character),destination,nativeScript,java.util.Set.copyOf(available)));
+        }
+        if (playingStory != null && (opcode == WorldPackets.MOVE || opcode == WorldPackets.TELEPORT))
+            return response(false, false, duration);
         if (npcs != null && !loading && (opening == null || !opening.active())) npcs.update(position, npcNow < readyAt ? movementFrom : null, npcNow);
+        if(opcode==TrainerPackets.OPCODE) {
+            if(packet.length!=1)throw new IOException("Invalid trainer request");
+            var snapshot=npcs==null?null:npcs.snapshot(position,npcNow);
+            var trainer=region!=0||snapshot==null?null:TrainerCatalog.get(position.group(),position.map(),snapshot.talking());
+            if(trainer==null)return TrainerPackets.response(new TrainerPackets.Ready(0,0,"",0,0,java.util.List.of()));
+            if(defeatedTrainers.contains(trainer.id()))return TrainerPackets.response(new TrainerPackets.Ready(2,trainer.id(),trainer.name(),trainer.defeat(),trainer.after(),java.util.List.of()));
+            if(activeEncounter!=null||loading||playingStory!=null||!hasAliveParty())return TrainerPackets.response(new TrainerPackets.Ready(3,trainer.id(),trainer.name(),0,0,java.util.List.of()));
+            activeTrainer=trainer;var party=trainer.party();trainerParty=party;var first=party.getFirst();
+            activeEncounter=new EncounterCatalog.Selection(first.species(),first.level(),0,false);
+            return TrainerPackets.response(new TrainerPackets.Ready(1,trainer.id(),trainer.name(),trainer.defeat(),trainer.after(),party));
+        }
+        if (opcode == BattlePackets.OPCODE) {
+            var request=BattlePackets.readRequest(packet);
+            try {
+                if(battle==null) {
+                    if(request.action()!=BattlePackets.START||activeEncounter==null||activeEncounter.selections().size()!=1)
+                        throw new IOException("No single encounter");
+                    savedBattleParty=store.pcParty(account,character).party();
+                    battle=activeTrainer==null?new ShowdownBattle(savedBattleParty,activeEncounter):new ShowdownBattle(savedBattleParty,trainerParty,true);
+                }
+                var result=battle.handle(request);
+                if(result.accepted()&&(!result.party().equals(savedBattleParty)||activeTrainer!=null&&result.outcome()==1)) {
+                    store.saveBattleParty(account,character,savedBattleParty,result.party(),activeTrainer!=null&&result.outcome()==1?activeTrainer.id():0);savedBattleParty=result.party();
+                    if(activeTrainer!=null&&result.outcome()==1)defeatedTrainers.add(activeTrainer.id());
+                }
+                return BattlePackets.response(result);
+            } catch(IOException error) {
+                System.getLogger(WorldSession.class.getName()).log(System.Logger.Level.ERROR,"Battle engine failure",error);
+                if(battle!=null){battle.close();battle=null;}
+                var party=savedBattleParty==null?store.pcParty(account,character).party():savedBattleParty;
+                int active=0;for(int i=0;i<party.size();i++)if(party.get(i).hp()>0){active=i;break;}
+                if(party.isEmpty())throw error;
+                return BattlePackets.response(new BattlePackets.State(false,1,0,5,active,false,1,1,party,java.util.List.of(),java.util.List.of()));
+            }
+        }
         if (opcode == EncounterPackets.OPCODE) {
             PacketData request = new PacketData(packet); request.byteValue();
             int action = request.byteValue(); boolean enabled = request.booleanValue(); request.end();
@@ -76,7 +192,13 @@ final class WorldSession implements AutoCloseable {
                 else if (!store.setWildEncounters(account, character, enabled)) accepted = false;
                 else { wildEnabled = enabled; encounters.reset(); }
             } else if (action == EncounterPackets.FINISH) {
-                activeEncounter = null; encounters.reset();
+                if(scriptBattle&&battle!=null){
+                    int outcome=battle.state().outcome();
+                    if(outcome!=1&&outcome!=2)return EncounterPackets.response(new EncounterPackets.Snapshot(wildEnabled,false,activeEncounter));
+                    opening.battleFinished(outcome==1,npcNow);persistScript();scriptBattle=false;
+                }
+                if (battle != null) { battle.close(); battle = null; savedBattleParty = null; }
+                activeTrainer=null; trainerParty=null; activeEncounter = null; encounters.reset();
             } else if (action == EncounterPackets.SCENT) {
                 if (activeEncounter != null || loading || npcNow < readyAt || opening != null && opening.active()
                         || npcs != null && npcs.talking()) accepted = false;
@@ -89,36 +211,40 @@ final class WorldSession implements AutoCloseable {
             return EncounterPackets.response(new EncounterPackets.Snapshot(wildEnabled, accepted, activeEncounter));
         }
         if (opcode == StoryPackets.OPCODE) {
-            if (packet.length != 3 || (packet[1] & 255) > StoryPackets.START || (packet[2] & 255) > 4)
-                throw new IOException("Invalid story operation");
-            if (opening == null) return StoryPackets.response(new StoryPackets.Snapshot(4, 0, 0, 0, null));
-            int action = packet[1] & 255;
-            if (action >= StoryPackets.RESET) {
-                if (!debugEnabled()) throw new IOException("Story debug disabled");
-                if (loading || npcNow < readyAt) return StoryPackets.response(opening.snapshot(npcNow));
-                if (action == StoryPackets.START) opening.onPosition(position);
-                else {
-                    store.saveKantoOpening(account, character, action == StoryPackets.SKIP);
-                    opening.reset(action == StoryPackets.SKIP);
-                }
-            } else if (action == StoryPackets.ADVANCE) {
-                // 完成存档先提交，失败时保留原阶段，不能向客户端宣称完成。
-                if ((packet[2] & 255) == 3 && opening.snapshot(npcNow).phase() == 3)
-                    store.saveKantoOpening(account, character, true);
-                if ((packet[2] & 255) == 1 && opening.snapshot(npcNow).phase() == 1)
-                    position = new Position(position.group(), position.map(), position.x(), position.y(),
-                            position.elevation(), 0, position.returnPoint());
-                opening.advance(packet[2] & 255, npcNow);
-            } else if (!loading && npcNow >= readyAt) opening.onPosition(position);
-            return StoryPackets.response(opening.snapshot(npcNow));
+            var request=StoryPackets.readRequest(packet);
+            if(opening==null)return StoryPackets.response(new StoryPackets.Snapshot(0,0,0,0,null));
+            if(request.action()==StoryPackets.RESET||request.action()==StoryPackets.START||request.action()==StoryPackets.SKIP){
+                if(!debugEnabled())throw new IOException("Story debug disabled");
+                if(request.action()==StoryPackets.SKIP)throw new IOException("ROM scripts cannot be skipped by changing a completion flag");
+                if(request.action()==StoryPackets.RESET)position=opening.resetScene(StoryProgressPackets.OPENING,npcNow);
+                else opening.startScene(StoryProgressPackets.OPENING,npcNow);
+            }else if(request.action()!=StoryPackets.POLL)opening.acknowledge(request.phase(),request.action(),request.answer(),request.name(),npcNow);
+            if(!loading&&npcNow>=readyAt&&activeEncounter==null)opening.onPosition(position,npcNow);
+            var snapshot=opening.snapshot(npcNow);
+            if(opening.mode()==GbaScriptRuntime.BATTLE&&activeEncounter==null){
+                activeTrainer=TrainerCatalog.scriptTrainer(opening.trainer());if(activeTrainer==null)throw new IOException("Missing ROM trainer party");
+                trainerParty=activeTrainer.party();var first=trainerParty.getFirst();activeEncounter=new EncounterCatalog.Selection(first.species(),first.level(),0,false);scriptBattle=true;
+            }
+            if(snapshot.player()!=null&&snapshot.active()){
+                var p=snapshot.player();boolean warp=p.group()!=position.group()||p.map()!=position.map();
+                position=rules.at(p.group(),p.map(),p.x(),p.y(),p.facing(),null);
+                if(warp){loading=true;loadDeadline=npcNow+TimeUnit.SECONDS.toNanos(30);encounters.reset();}
+            }
+            persistScript();return StoryPackets.response(snapshot);
         }
         if (opcode == NpcPackets.OPCODE) {
             if (packet.length != 3 || (packet[1] & 255) > 2) throw new IOException("Invalid NPC operation");
             if (npcs == null) return NpcPackets.response(new NpcPackets.Snapshot(position.group(), position.map(), -1, java.util.List.of()));
             int action = packet[1] & 255;
+            if(action==1&&opening!=null&&!loading&&npcNow>=readyAt&&opening.interact(position,packet[2]&255,npcNow))
+                return NpcPackets.response(new NpcPackets.Snapshot(position.group(),position.map(),-1,java.util.List.of()));
             if (action == 2) npcs.talk(position, 255, npcNow);
             else if (action == 1 && (opening == null || !opening.active()) && !loading && !closed && npcNow >= readyAt) npcs.talk(position, packet[2] & 255, npcNow);
-            return NpcPackets.response(npcs.snapshot(position, npcNow));
+            var snapshot=npcs.snapshot(position,npcNow);
+            var trainer=region==0?TrainerCatalog.get(position.group(),position.map(),snapshot.talking()):null;
+            if(trainer!=null&&defeatedTrainers.contains(trainer.id()))
+                snapshot=new NpcPackets.Snapshot(snapshot.group(),snapshot.map(),snapshot.talking(),snapshot.states(),trainer.after()>0?trainer.after():trainer.defeat());
+            return NpcPackets.response(snapshot);
         }
         if (opcode == WorldPackets.MOVE) {
             var request = WorldPackets.decodeMove(packet);
@@ -128,10 +254,10 @@ final class WorldSession implements AutoCloseable {
                 return response(false, false, duration);
             var result = npcs == null ? rules.move(position, request.direction(), noclip)
                     : ((FireRedWorldRules) rules).move(position, request.direction(), noclip,
-                    p -> npcs.occupied(p.group(), p.map(), p.x(), p.y(), now));
+                    p -> npcs.occupiedExcept(p.group(),p.map(),p.x(),p.y(),now,opening==null?java.util.Set.of():opening.actorViews().stream().map(GbaScriptRuntime.ActorView::id).collect(java.util.stream.Collectors.toSet()))||opening!=null&&opening.occupied(p));
             movementFrom = position;
             position = result.position();
-            if (opening != null && result.moved() && !result.warp()) opening.onPosition(position);
+            if (opening != null && result.moved() && !result.warp()) opening.onPosition(position,now);
             if (result.moved()) {
                 readyAt = now + TimeUnit.MILLISECONDS.toNanos(duration);
                 loading = result.warp();
@@ -155,6 +281,7 @@ final class WorldSession implements AutoCloseable {
             if (loading) {
                 loading = false;
                 readyAt = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(500);
+                if (opening != null) opening.arrived(readyAt);
             }
             return response(false, false, duration);
         }
@@ -209,8 +336,8 @@ final class WorldSession implements AutoCloseable {
                 rules = targetRules;
                 this.region = region;
                 encounters.reset();
-                npcs = region == 0 ? new KantoNpcs((FireRedWorldRules) rules) : null;
-                opening = region == 0 ? new KantoOpening(store.kantoOpeningComplete(account, character)) : null;
+                npcs = region == 0 || region == 1 ? new KantoNpcs((FireRedWorldRules) rules) : null;
+                opening = region == 0 ? createScriptRuntime(target) : null;
                 position = saved = target;
                 savedOnline = online; savedCycling = cycling;
                 loading = true; readyAt = 0;
@@ -274,10 +401,13 @@ final class WorldSession implements AutoCloseable {
         }
     }
 
+    synchronized boolean battling() { return battle != null && battle.state().outcome() == 0; }
+
     @Override
     public void close() throws SQLException {
         synchronized (this) {
             if (!closed) {
+                if (battle != null) { battle.close(); battle = null; }
                 onlineStopped = System.nanoTime();
                 closed = true;
             }

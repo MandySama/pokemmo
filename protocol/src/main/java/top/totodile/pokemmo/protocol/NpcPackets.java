@@ -10,7 +10,8 @@ public final class NpcPackets {
 
     public record State(int id, int x, int y, int fromX, int fromY, int facing, int remaining) {}
 
-    public record Snapshot(int group, int map, int talking, List<State> states) {
+    public record Snapshot(int group, int map, int talking, List<State> states, int dialogueText) {
+        public Snapshot(int group,int map,int talking,List<State> states) { this(group,map,talking,states,0); }
         public Snapshot {
             states = List.copyOf(states);
         }
@@ -40,6 +41,7 @@ public final class NpcPackets {
                     .putShort(state.fromY())
                     .putByte(state.facing())
                     .putShort(state.remaining());
+        data.putInt(snapshot.dialogueText());
         return data.written();
     }
 
@@ -70,7 +72,8 @@ public final class NpcPackets {
                             > 1) throw new IOException("Invalid NPC state");
             states.add(state);
         }
+        int dialogueText=data.intValue();
         data.end();
-        return new Snapshot(group, map, talking, states);
+        return new Snapshot(group, map, talking, states,dialogueText);
     }
 }

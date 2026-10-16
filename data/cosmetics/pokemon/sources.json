@@ -1,0 +1,35 @@
+[
+  {
+    "id": "1.4",
+    "base": 1,
+    "donor": 4,
+    "artist": "el_keks",
+    "page": "https://www.fusiondex.org/1.4/",
+    "image": "https://cdn.fusiondex.org/AzvWRO3tNImyTnJDJBFrn_6K/dn/pif/1.4.png",
+    "sha256": "033bd644eded3489b24e724324116b9ffe8acef6eebb04b4a98e7c312bf95ed7",
+    "license": "No general reuse license verified; author permission not obtained. Local prototype only.",
+    "variants": "Static normal front only; missing back/shiny/follower use original species."
+  },
+  {
+    "id": "6.25",
+    "base": 6,
+    "donor": 25,
+    "artist": "phoenix99125",
+    "page": "https://www.fusiondex.org/6.25/",
+    "image": "https://cdn.fusiondex.org/lR7y9eHlrV-YvorxUPKwZX6f/dn/pif/6.25.png",
+    "sha256": "951ef2f5e1e5ad5f98be8af150f2b0657e9ff9e66418e15f4b37dd4b63524457",
+    "license": "No general reuse license verified; author permission not obtained. Local prototype only.",
+    "variants": "Static normal front only; missing back/shiny/follower use original species."
+  },
+  {
+    "id": "25.6",
+    "base": 25,
+    "donor": 6,
+    "artist": "toad900",
+    "page": "https://www.fusiondex.org/25.6/",
+    "image": "https://cdn.fusiondex.org/tXCeKECMoLSECLaN6H5gEwKm/dn/pif/25.6.png",
+    "sha256": "b5709e28408ca0b48408b68de87e601302a61f2a1219bf651b6c42c0278a26ef",
+    "license": "No general reuse license verified; author permission not obtained. Local prototype only.",
+    "variants": "Static normal front only; missing back/shiny/follower use original species."
+  }
+]

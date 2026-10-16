@@ -4,6 +4,7 @@ import de.matthiasmann.twl.*;
 import de.matthiasmann.twl.renderer.Image;
 import de.matthiasmann.twl.renderer.Texture;
 import top.totodile.pokemmo.protocol.EncounterCatalog;
+import top.totodile.pokemmo.protocol.BattlePackets;
 import top.totodile.pokemmo.*;
 import top.totodile.pokemmo.avatar.AvatarAssets;
 import top.totodile.pokemmo.battle.WildEncounter;
@@ -26,6 +27,104 @@ import java.util.function.Consumer;
 
 /** 单次野生遭遇的展示层，纹理上传与释放均在 GUI 线程。 */
 final class WildEncounterPanel extends Widget implements AutoCloseable {
+    private java.util.function.Function<BattlePackets.Request, CompletableFuture<BattlePackets.State>> battleTransport;
+    private Consumer<List<PartyMember>> partyChanged = list -> { };
+    private CompletableFuture<BattlePackets.State> pendingBattle;
+    private BattlePackets.State battleState, resultToApply;
+    private final java.util.ArrayDeque<BattlePackets.Event> serverEvents = new java.util.ArrayDeque<>();
+    private long eventUntil;
+    private String serverMessage = "";
+    private boolean enemyCasting, selectingServerMove;
+    private int serverMoveSlot = 1;
+    private int enemySlot, lastOutcome;
+    int lastOutcome() { return lastOutcome; }
+
+    void connectBattle(java.util.function.Function<BattlePackets.Request, CompletableFuture<BattlePackets.State>> transport,
+                       Consumer<List<PartyMember>> listener) {
+        battleTransport = transport; partyChanged = listener;
+        pendingBattle = transport.apply(new BattlePackets.Request(BattlePackets.START,0,0,0));
+    }
+    private void submitBattle(int action, int slot) {
+        if(pendingBattle!=null || resultToApply!=null || battleState==null || battleState.outcome()!=0)return;
+        pendingBattle=battleTransport.apply(new BattlePackets.Request(action,battleState.battle(),battleState.revision(),slot));
+    }
+    private void configureServerMoves() {
+        if(battleState==null || self==null)return;
+        selectingServerMove=true;
+        var labels=new java.util.ArrayList<String>();
+        for(var option:battleState.options()) {
+            String title=ClientStrings.get(option.id()==0?9832:110000+option.id());
+            labels.add(title+"  "+ClientStrings.get(9357)+" "+option.pp()+" / "+option.maxPp());
+        }
+        testMove.setModel(new SimpleChangableListModel<>(labels.toArray(String[]::new)));
+        if(!labels.isEmpty()){testMove.setSelected(0);serverMoveSlot=battleState.legalMoves().getFirst();}
+        move.setText(ClientStrings.get(9820));testMoveLabel.setText(ClientStrings.get(9821));
+        selectingServerMove=false;
+    }
+    private void tickBattle() {
+        if(battleTransport==null)return;
+        if(pendingBattle!=null && pendingBattle.isDone()) {
+            try {
+                var result=pendingBattle.join();pendingBattle=null;
+                resultToApply=result;serverEvents.clear();serverEvents.addAll(result.events());eventUntil=now;
+            }catch(RuntimeException error){pendingBattle=null;close();finished.run();failure.accept(ClientStrings.get(9822));return;}
+        }
+        if(pendingMove!=null || pendingSwitch!=null || pendingEnemy!=null || resultToApply==null || encounter==null || encounter.update(now).ordinal()<WildEncounter.Phase.READY.ordinal() || now<eventUntil)return;
+        if(!serverEvents.isEmpty()) {
+            var event=serverEvents.removeFirst();enemyCasting=event.side()==1;
+            String actor=name(enemyCasting?enemy:self);
+            if(event.kind()==5) {
+                if(event.side()==1 && trainerBattle && event.value()!=enemySlot && event.value()<scriptedOpponents.size()) {
+                    enemySlot=event.value();loadEnemy(scriptedOpponents.get(enemySlot));eventUntil=now+600;return;
+                }
+                if(event.side()==0 && event.value()!=encounter.activeSlot()) {
+                    encounter.serverParty(members.stream().mapToInt(PartyMember::hp).toArray(),true);
+                    loadParty(event.value());eventUntil=now+600;
+                }
+                return;
+            }
+            if(event.kind()==4) {
+                if(enemyCasting) enemy=new PartyMember(enemy.species(),enemy.shiny(),enemy.alpha(),Math.min(event.value(),enemy.maxHp()),enemy.maxHp(),enemy.level());
+                else updateSelf(new PartyMember(self.species(),self.shiny(),self.alpha(),Math.min(event.value(),self.maxHp()),self.maxHp(),self.level(),self.individual()));
+                eventUntil=now+350;return;
+            }
+            if(event.kind()==0) {
+                if(pendingMove!=null)pendingMove.cancel(false);pendingMove=null;
+                for(var texture:moveTextures)texture.destroy();moveTextures.clear();moveParticles=null;
+                if(MoveAnimations.supports(event.value()) && event.value()!=MovePresentation.TACKLE) {
+                    int moveId=event.value();Path rom=battleRom;
+                    pendingMove=CompletableFuture.supplyAsync(()->{
+                        try{return BattleParticles.load(rom,moveId);}catch(IOException error){throw new java.util.concurrent.CompletionException(error);}
+                    });
+                }
+                encounter.playServerMove(event.value(),now);
+                serverMessage=ClientStrings.get(252005).replace("{00}",actor).replace("{01}",ClientStrings.get(110000+event.value()));
+                eventUntil=now+MoveAnimations.get(encounter.moveId()).duration();
+            }else {
+                serverMessage=ClientStrings.get(event.kind()==1?9823:event.kind()==2?9824:9825).replace("{00}",actor);
+                eventUntil=now+800;
+            }
+            return;
+        }
+        var result=resultToApply;resultToApply=null;battleState=result;members=result.party();
+        if(result.active()!=encounter.activeSlot()) {
+            encounter.serverParty(members.stream().mapToInt(PartyMember::hp).toArray(),true);
+            loadParty(result.active());
+        } else updateSelf(members.get(result.active()));
+        if(trainerBattle && result.enemyActive()!=enemySlot && result.enemyActive()<scriptedOpponents.size()) {
+            enemySlot=result.enemyActive();loadEnemy(scriptedOpponents.get(enemySlot));
+        }
+        enemy=new PartyMember(enemy.species(),enemy.shiny(),enemy.alpha(),result.enemyHp(),result.enemyMaxHp(),enemy.level());
+        partyChanged.accept(members);enemyCasting=false;
+        if(pendingSwitch==null) encounter.serverParty(members.stream().mapToInt(PartyMember::hp).toArray(),result.forceSwitch());
+        configureServerMoves();
+        if(result.outcome()!=0) {
+            serverMessage=ClientStrings.get(result.outcome()==1?9826:result.outcome()==2?9827:result.outcome()==4?9828:result.outcome()==5?9822:9829);
+            eventUntil=now+1800;
+        } else if(!result.accepted()) serverMessage=ClientStrings.get(9830);
+        else serverMessage="";
+    }
+
     private record Pixels(List<BufferedImage> front, List<BufferedImage> back,
                           List<BufferedImage> trainer, BufferedImage ball, BufferedImage party, List<BufferedImage> impact, BattleScene.Resources scene, List<List<BufferedImage>> horde, List<BattleParticles.Definition> shiny) { }
 
@@ -78,19 +177,25 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
     private final Label[] hordeNames = new Label[5];
     private final GenderLabel[] hordeGenders = new GenderLabel[5];
     private Image hordeHud;
-    private int hordeHudWidth = 120, hordeHudGap = 12, hordeHudTop = 86;
-    private int hordeCenter = 740, hordeSpacing = 40;
+    private float hordePlatformScale = 1.2f;
+    private int hordeHudWidth = 239, hordeHudGap = 12, hordeHudTop = 86, hordeRowGap = 56;
+    private int hordeCenter = 740, hordeSpacing = 50, hordeThreeSpacing = 75;
     private BattleParticles shinyParticles;
     private Image[] front, back, trainer, party;
     private Image ball, releaseGlow, white, enemyHud, selfHud, healthImage, healthBackground;
     private Image experienceBackground, experienceImage;
     private float experienceFraction;
     private int actionWidth = 209, actionHeight = 52, actionGap = 2;
+    private int footerTop = 474, footerHeight = 116;
     private int healthWidth = 200, enemyHealthX = 70, selfHealthX = 80;
     private int partyIconSize = 36, partyIconGap = 4;
     private int frontBottom, backBottom;
     private float frontCenter, backCenter, frontZoom, backZoom;
     private float gigantamaxFrontScale = 1, gigantamaxBackScale = 1;
+    private float gigantamaxCameraVerticalOffset, gigantamaxCameraBlend, gigantamaxCameraFieldOfView = 50;
+    private int gigantamaxCameraTransitionMillis = 600;
+    private long gigantamaxCameraTime;
+    private boolean gigantamaxCameraRaised;
     private float backdropOpacity = .68f;
     private final GenderLabel enemyGender = new GenderLabel(), selfGender = new GenderLabel();
     private long now;
@@ -112,6 +217,7 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
             actions[i].setTheme("action");
             actions[i].addCallback(() -> {
                 if (encounter != null) {
+                    if(battleTransport!=null && index==3){submitBattle(BattlePackets.RUN,0);return;}
                     encounter.choose(WildEncounter.Action.values()[index], now);
                     if (encounter.update(now) == WildEncounter.Phase.BAG) openBag.run();
                 }
@@ -120,12 +226,16 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
         }
         move.setTheme("move");
         moveBack.setTheme("move");
-        move.addCallback(() -> { if (encounter != null) encounter.chooseMove(selectedMove, now); });
+        move.addCallback(() -> { if (battleTransport!=null) submitBattle(BattlePackets.MOVE,serverMoveSlot); else if (encounter != null) encounter.chooseMove(selectedMove, now); });
         moveBack.addCallback(() -> { if (encounter != null) encounter.cancelMove(now); });
         testMove.setTheme("test-move");testMove.setTooltipContent(ClientStrings.get(252009));
         testMove.setSelected(testMoveIds.indexOf(selectedMove));
         testMove.addCallback(() -> {
             int index=testMove.getSelected();
+            if(battleTransport!=null) {
+                if(!selectingServerMove && battleState!=null && index>=0 && index<battleState.legalMoves().size())serverMoveSlot=battleState.legalMoves().get(index);
+                return;
+            }
             if (index>=0) replaceTestMove(testMoveIds.get(index));
         });
         add(move); add(moveBack); add(testMove); add(testMoveLabel); testMoveLabel.setTheme("test-label");testMoveLabel.setVisible(false);testMove.setVisible(false);
@@ -134,7 +244,7 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
         enemyName.setTheme("name"); selfName.setTheme("name"); hp.setTheme("name"); message.setTheme("message");
         add(enemyGender); add(selfGender);
         for (int i = 0; i < hordeNames.length; i++) {
-            hordeNames[i] = new Label(); hordeNames[i].setTheme("name");
+            hordeNames[i] = new Label(); hordeNames[i].setTheme("horde-name");
             hordeNames[i].setVisible(false); add(hordeNames[i]);
             hordeGenders[i] = new GenderLabel(); hordeGenders[i].setVisible(false); add(hordeGenders[i]);
         }
@@ -168,6 +278,13 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
     boolean bagOpen() { return encounter != null && encounter.update(now) == WildEncounter.Phase.BAG; }
 
     private void chooseParty(int slot) {
+        if(battleTransport!=null) {
+            if(slot<0||slot>=members.size()||slot==encounter.activeSlot()||members.get(slot).hp()==0)return;
+            submitBattle(BattlePackets.SWITCH,slot);return;
+        }
+        loadParty(slot);
+    }
+    private void loadParty(int slot) {
         if (encounter == null || pendingSwitch != null || !encounter.selectParty(slot, now)) return;
         PartyMember selected = members.get(slot);
         Path rom = battleRom;
@@ -221,6 +338,7 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
     private void start(Path rom, AvatarAssets assets, Appearance appearance, List<PartyMember> members,
                        List<PartyMember> opponents, boolean trainerBattle, long milliseconds, PartyMember selectedWild) {
         if (active()) return;
+        lastOutcome=0;enemySlot=0;
         self = members.stream().filter(member -> member.hp() > 0).findFirst().orElse(null);
         if (self == null) { failure.accept(ClientStrings.get(252004)); return; }
         var random = java.util.concurrent.ThreadLocalRandom.current();
@@ -310,6 +428,10 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
         if (!readyForOutcome() || index < 0 || index >= scriptedOpponents.size()
                 || scriptedOpponents.get(index) == enemy) return;
         PartyMember selected = scriptedOpponents.get(index);
+        loadEnemy(selected);
+    }
+
+    private void loadEnemy(PartyMember selected) {
         Path rom = battleRom;
         enemyRequested = now;
         pendingEnemy = CompletableFuture.supplyAsync(() -> {
@@ -320,20 +442,39 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
 
     private static List<BufferedImage> animation(Path rom, PartyMember member, boolean back, PokedexData data) throws IOException {
         try {
+            var costume = PokemonCostumes.battleImage(member);
+            if (costume != null) return List.of(costume);
             if (PokemonForms.active(member)) {
                 var form = PokemonForms.load(member);
                 return back ? form.back() : form.front();
             }
-            var costume = PokemonCostumes.image(member, back);
-            if (costume != null) return List.of(costume);
             return PokemonAnimation.loadBattle(rom, member.species(), member.shiny(), back).images();
         }
         catch (IOException | RuntimeException unsupported) { return List.of(data.sprite(member.species(), back, member.shiny())); }
     }
 
     private float formScale(PartyMember member, boolean back) {
+        if (!PokemonCostumes.selected(member).isEmpty()) return 1;
         if (!PokemonForms.active(member) || member.individual().form() != 3) return 1;
         return back ? gigantamaxBackScale : gigantamaxFrontScale;
+    }
+
+    private static boolean gigantamax(PartyMember member) {
+        return member != null && PokemonForms.active(member) && member.individual().form() == 3;
+    }
+
+    private void updateGigantamaxCamera(long elapsed, WildEncounter.Phase phase) {
+        boolean visible = elapsed >= 2000 && (gigantamax(enemy) || wildOpponents.stream().anyMatch(WildEncounterPanel::gigantamax))
+                || elapsed >= 3600 && phase != WildEncounter.Phase.SWITCH_LOADING && gigantamax(self);
+        float target = visible ? 1 : 0;
+        if (visible != gigantamaxCameraRaised) {
+            gigantamaxCameraRaised = visible;
+            gigantamaxCameraTime = now;
+        }
+        float step = Math.max(0, now - gigantamaxCameraTime) / (float) gigantamaxCameraTransitionMillis;
+        gigantamaxCameraTime = now;
+        gigantamaxCameraBlend += Math.clamp(target - gigantamaxCameraBlend, -step, step);
+        scene.setGigantamaxFraming(gigantamaxCameraFieldOfView, gigantamaxCameraVerticalOffset, gigantamaxCameraBlend);
     }
 
     private static String name(PartyMember member) {
@@ -358,6 +499,9 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
                     images.add(texture.getImage(0,0,definition.particle().texture().getWidth(),definition.particle().texture().getHeight(),Color.WHITE,false,Texture.Rotation.NONE));
                 }
                 moveParticles=new BattleParticles(definitions,images);move.setEnabled(true);
+                if(battleTransport!=null && resultToApply!=null && encounter.update(now)==WildEncounter.Phase.MOVE) {
+                    encounter.playServerMove(encounter.moveId(),now);eventUntil=now+MoveAnimations.get(encounter.moveId()).duration();
+                }
             } catch(RuntimeException error) {
                 for(var texture:moveTextures)texture.destroy();moveTextures.clear();
                 move.setEnabled(false);failure.accept(ClientStrings.get(252003));
@@ -419,6 +563,7 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
                 backZoom = Math.min(pixels.member().alpha() ? 4.3f : 3.6f,
                         Math.min(360f/Math.max(1,box[2]-box[0]),260f/Math.max(1,box[3]-box[1])));
                 updateSelf(pixels.member());
+                if(battleTransport!=null)configureServerMoves();
                 encounter.switchLoaded(now);
                 backStarted = encounter.elapsed(now);
                 if (previous != null) { previous.destroy(); textures.remove(previous); }
@@ -448,18 +593,24 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
                 close(); failure.accept(ClientStrings.get(252003)); return;
             }
         }
+        tickBattle();
+        if(encounter==null)return;
+        if(battleState!=null && battleState.outcome()!=0 && resultToApply==null && now>=eventUntil && encounter.update(now)!=WildEncounter.Phase.ENDING && encounter.update(now)!=WildEncounter.Phase.CLOSED)encounter.finish(now);
         WildEncounter.Phase phase = encounter.update(now);
         if (phase == WildEncounter.Phase.CLOSED) { close(); finished.run(); return; }
         partyChoice.setHardVisible(phase == WildEncounter.Phase.SELECT_PARTY);
         partyChoice.refresh();
         boolean ready = phase == WildEncounter.Phase.READY;
         boolean wasReady = actions[0].isVisible();
-        for (Button action : actions) { action.setVisible(ready); action.setEnabled(ready && pendingEnemy == null); }
-        if (scripted) actions[1].setEnabled(false);
-        opponentChoice.setVisible(scriptedOpponents.size() > 1 && phase.ordinal() >= WildEncounter.Phase.READY.ordinal());
+        for (Button action : actions) { action.setVisible(ready); action.setEnabled(ready && pendingEnemy == null && pendingBattle==null && resultToApply==null && (battleState==null||battleState.outcome()==0)); }
+        if (scripted || battleTransport!=null) actions[1].setEnabled(false);
+        if(trainerBattle && battleTransport!=null)actions[3].setEnabled(false);
+        opponentChoice.setVisible(battleTransport==null && scriptedOpponents.size() > 1 && phase.ordinal() >= WildEncounter.Phase.READY.ordinal());
         opponentChoice.setEnabled(ready && pendingEnemy == null);
         boolean selecting = phase == WildEncounter.Phase.SELECT_MOVE;
         boolean wasSelecting = move.isVisible();
+        move.setEnabled(pendingBattle==null && resultToApply==null && (battleTransport==null||battleState!=null&&!battleState.legalMoves().isEmpty()));
+        testMove.setEnabled(pendingBattle==null && resultToApply==null);
         move.setVisible(selecting); moveBack.setVisible(selecting); testMove.setVisible(selecting); testMoveLabel.setVisible(selecting);
         if (selecting && !wasSelecting) move.requestKeyboardFocus();
         if (ready && !wasReady) actions[0].requestKeyboardFocus();
@@ -480,6 +631,9 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
         if (phase == WildEncounter.Phase.SWITCH_LOADING) message.setText(ClientStrings.get(252007).replace("{00}",name(self)));
         if (phase == WildEncounter.Phase.MOVE) message.setText(ClientStrings.get(252005)
                 .replace("{00}", name(self)).replace("{01}", ClientStrings.get(110000+encounter.moveId())));
+        if(battleTransport!=null && (pendingBattle!=null || !serverMessage.isEmpty())) {
+            message.setVisible(true);message.setText(pendingBattle!=null?ClientStrings.get(9831):serverMessage);
+        }
         invalidateLayout();
     }
 
@@ -532,16 +686,24 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
         selfHud = theme.getImage("selfHud"); healthImage = theme.getImage("healthImage");
         healthBackground = theme.getImage("healthBackground");
         hordeHud = theme.getImage("hordeHud");
-        hordeHudWidth = theme.getParameter("hordeHudWidth", 120);
+        hordePlatformScale = theme.getParameter("hordePlatformScale", 1.2f);
+        hordeHudWidth = theme.getParameter("hordeHudWidth", 239);
         hordeHudGap = theme.getParameter("hordeHudGap", 12);
         hordeHudTop = theme.getParameter("hordeHudTop", 86);
+        hordeRowGap = theme.getParameter("hordeRowGap", 56);
         hordeCenter = theme.getParameter("hordeCenter", 740);
-        hordeSpacing = theme.getParameter("hordeSpacing", 40);
+        hordeSpacing = theme.getParameter("hordeSpacing", 50);
+        hordeThreeSpacing = theme.getParameter("hordeThreeSpacing", 75);
         backdropOpacity = theme.getParameter("backdropOpacity", .68f);
         gigantamaxFrontScale = theme.getParameter("gigantamaxFrontScale", 1f);
         gigantamaxBackScale = theme.getParameter("gigantamaxBackScale", 1f);
+        gigantamaxCameraFieldOfView = theme.getParameter("gigantamaxCameraFieldOfView", 50f);
+        gigantamaxCameraVerticalOffset = theme.getParameter("gigantamaxCameraVerticalOffset", 0f);
+        gigantamaxCameraTransitionMillis = Math.max(1, theme.getParameter("gigantamaxCameraTransitionMillis", 600));
         actionWidth = theme.getParameter("actionWidth", 209); actionHeight = theme.getParameter("actionHeight", 52);
         actionGap = theme.getParameter("actionGap", 2);
+        footerTop = theme.getParameter("footerTop", 474);
+        footerHeight = theme.getParameter("footerHeight", 116);
         healthWidth = theme.getParameter("healthWidth", 200);
         enemyHealthX = theme.getParameter("enemyHealthX", 70); selfHealthX = theme.getParameter("selfHealthX", 80);
         partyIconSize = theme.getParameter("partyIconSize", 36); partyIconGap = theme.getParameter("partyIconGap", 4);
@@ -556,20 +718,27 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
         placeName(selfName, selfGender, selfHudX+size(65), selfHudY-size(22), size(234));
         hp.setPosition(selfHudX+size(80), selfHudY+size(16)); hp.setSize(size(200), size(24));
         partyChoice.setPosition(x(234), y(150)); partyChoice.setSize(size(560), size(318));
-        move.setPosition(x(144), y(484)); move.setSize(size(actionWidth), size(actionHeight));
-        moveBack.setPosition(x(144 + actionWidth + actionGap), y(484)); moveBack.setSize(size(actionWidth), size(actionHeight));
-        testMoveLabel.setPosition(x(144),y(542));testMoveLabel.setSize(size(150),size(30));
-        testMove.setPosition(x(294),y(542));testMove.setSize(size(actionWidth*2+actionGap-150),size(30));
+        move.setPosition(x(144), y(footerTop+10)); move.setSize(size(actionWidth), controlHeight());
+        moveBack.setPosition(x(144 + actionWidth + actionGap), y(footerTop+10)); moveBack.setSize(size(actionWidth), controlHeight());
+        testMoveLabel.setPosition(x(144),y(footerTop+10)+controlHeight()+size(actionGap));testMoveLabel.setSize(size(150),size(30));
+        testMove.setPosition(x(294),y(footerTop+10)+controlHeight()+size(actionGap));testMove.setSize(size(actionWidth*2+actionGap-150),size(30));
         opponentChoice.setPosition(x(554), y(180)); opponentChoice.setSize(size(330), size(28));
         for (int i = 0; i < hordeNames.length; i++) {
             int center = 514 + (hordeColumn(i)-1)*(hordeHudWidth+hordeHudGap);
-            placeName(hordeNames[i], hordeGenders[i], x(center-hordeHudWidth/2f+6),
-                    y(hordeHudTop+hordeRow(i)*28-18), size(hordeHudWidth-12));
+            int genderWidth = hordeGenders[i].value == 2 ? 0 : size(20);
+            int textWidth = Math.min(size(hordeHudWidth-18)-genderWidth, hordeNames[i].getPreferredWidth());
+            int nameX = x(center)-(textWidth+genderWidth)/2;
+            int nameHeight = Math.max(size(24), hordeNames[i].getPreferredHeight());
+            int nameY = y(hordeHudTop+hordeRow(i)*hordeRowGap)-nameHeight;
+            hordeNames[i].setPosition(nameX, nameY);
+            hordeNames[i].setSize(textWidth, nameHeight);
+            hordeGenders[i].setPosition(nameX+textWidth+size(4), nameY+(nameHeight-size(16))/2);
+            hordeGenders[i].setSize(size(16), size(16));
         }
-        message.setPosition(x(134), y(474)); message.setSize(size(760), size(116));
+        message.setPosition(x(134), y(footerTop)); message.setSize(size(760), footerPixels());
         for (int i = 0; i < actions.length; i++) {
-            actions[i].setPosition(x(144 + i % 2 * (actionWidth+actionGap)), y(484) + size(i / 2 * (actionHeight+actionGap)));
-            actions[i].setSize(size(actionWidth), size(actionHeight));
+            actions[i].setPosition(x(144 + i % 2 * (actionWidth+actionGap)), y(footerTop+10) + i / 2 * (controlHeight()+size(actionGap)));
+            actions[i].setSize(size(actionWidth), controlHeight());
         }
     }
 
@@ -582,6 +751,16 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
             org.lwjgl.opengl.GL11.glTranslatef(-x(center),-y(bottom),0);
             sprite(image,center,bottom,foot,zoom,anchor);
         } finally {org.lwjgl.opengl.GL11.glPopMatrix();renderer.popGlobalTintColor();}
+    }
+
+    private int controlHeight() {
+        ActionButton action = (ActionButton) actions[0];
+        return Math.max(size(actionHeight), action.title.getPreferredHeight()
+                + action.description.getPreferredHeight() + size(3)*2);
+    }
+
+    private int footerPixels() {
+        return Math.max(size(footerHeight), controlHeight()*2+size(actionGap)+size(20));
     }
 
     private int hordeColumn(int index) {
@@ -622,7 +801,7 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
         shade(gui, backdropOpacity * opacity * Math.min(1, Math.max(0, (elapsed - 800) / 500f)), false);
         if (elapsed < 1300) { shade(gui, WildEncounter.flash(elapsed), true); return; }
         gui.getRenderer().pushGlobalTintColor(1, 1, 1, opacity);
-        gui.getRenderer().clipEnter(x(134), y(50), size(760), size(540));
+        gui.getRenderer().clipEnter(x(134), y(50), size(760), size(footerTop-50)+footerPixels());
         try {
             float slide = Math.min(1, (elapsed - 1300) / 700f);
             slide = 1 - (float) Math.pow(1 - slide, 3);
@@ -633,32 +812,37 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
             if (freezeCamera && !cameraFrozen) { frozenCameraTime = cameraTime; cameraFrozen = true; }
             if (!freezeCamera && cameraFrozen) { cameraPaused = elapsed - frozenCameraTime; cameraFrozen = false; }
             if (!freezeCamera) cameraTime = elapsed - cameraPaused;
+            updateGigantamaxCamera(elapsed, phase);
             scene.drawPlatforms(x(134), y(50), size(760), size(540), getWidth(), getHeight(),
-                    Math.max(0, (freezeCamera ? frozenCameraTime : cameraTime)-1300)/1000f, slide);
+                    Math.max(0, (freezeCamera ? frozenCameraTime : cameraTime)-1300)/1000f, slide,
+                    hordeSprites.isEmpty() ? 1 : hordePlatformScale);
             long attackTime=casting?encounter.moveElapsed(now):MoveAnimations.get(encounter.moveId()).duration();
             var ownAttack=casting?MovePresentation.actor(encounter.moveId(),attackTime,14):new MovePresentation.Actor(0,0,1,1,1);
             var enemyAttack=casting?MovePresentation.actor(encounter.moveId(),attackTime,16):new MovePresentation.Actor(0,0,1,1,1);
+            if(enemyCasting) { var swap=ownAttack;ownAttack=enemyAttack;enemyAttack=swap; }
             float dim=casting?MovePresentation.backdrop(encounter.moveId(),attackTime):0;
             if(dim>0) {gui.getRenderer().pushGlobalTintColor(0,0,0,dim);try{white.draw(getAnimationState(),x(134),y(50),size(760),size(540));}finally{gui.getRenderer().popGlobalTintColor();}}
             var attack = MovePresentation.sample(encounter.moveId(), casting ? encounter.moveElapsed(now) : MoveAnimations.get(encounter.moveId()).duration());
             var enemyPose = scene.actorPose(false);
             var ownPose = scene.actorPose(true);
-            enemyX += enemyPose.dx() + attack.shake();
-            ownX += ownPose.dx();
+            enemyX += enemyPose.dx() + (enemyCasting?0:attack.shake());
+            ownX += ownPose.dx() + (enemyCasting?attack.shake():0);
+            if(enemyCasting)enemyX+=(ownX-enemyX)*.32f*attack.advance();
             if (casting && attack.flash()) gui.getRenderer().pushGlobalTintColor(1, 1, 1, .3f);
             if (hordeSprites.isEmpty()) {
-            actorSprite(gui,front[(int) (Math.max(0, elapsed - 2000) * 30 / 1000) % front.length], enemyX, 311 + enemyPose.dy(), frontBottom, frontZoom * enemyPose.scale() * formScale(enemy, false), frontCenter, enemyAttack);
+            if(enemy.hp()>0) actorSprite(gui,front[(int) (Math.max(0, elapsed - 2000) * 30 / 1000) % front.length], enemyX, 311 + enemyPose.dy(), frontBottom, frontZoom * enemyPose.scale() * formScale(enemy, false), frontCenter, enemyAttack);
                 if (enemy.shiny() && shinyParticles != null)
                     shinyParticles.draw(this, elapsed-2000, x(ownX), y(450), x(enemyX), y(260+enemyPose.dy()), scale*2);
             } else {
                 int[] order = hordeSprites.size() == 5 ? new int[]{0,2,4,1,3} : new int[]{0,1,2};
                 for (int i : order) {
                     var sprite = hordeSprites.get(i);
-                    float center = hordeCenter+(i-(hordeSprites.size()-1)/2f)*hordeSpacing+(1-slide)*700+enemyPose.dx();
+                    int spacing = hordeSprites.size() == 3 ? hordeThreeSpacing : hordeSpacing;
+                    float center = hordeCenter+(i-(hordeSprites.size()-1)/2f)*spacing+(1-slide)*700+enemyPose.dx();
                     float floor = 311+(i%2==0?-8:6)+enemyPose.dy();
                     var actor = i == 0 ? enemyAttack : new MovePresentation.Actor(0,0,1,1,1);
                     actorSprite(gui, sprite.frames()[(int)(Math.max(0,elapsed-2000)*30/1000)%sprite.frames().length],
-                            center, floor, sprite.bottom(), sprite.zoom()*enemyPose.scale(), sprite.center(), actor);
+                            center, floor, sprite.bottom(), sprite.zoom()*enemyPose.scale()*formScale(wildOpponents.get(i), false), sprite.center(), actor);
                     if (wildOpponents.get(i).shiny() && shinyParticles != null)
                         shinyParticles.draw(this,elapsed-2000,x(ownX),y(450),x(center),y(floor-40),scale*1.6f);
                 }
@@ -676,10 +860,10 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
                         ball.draw(getAnimationState(), -size(11), -size(11), size(22), size(22));
                     } finally { org.lwjgl.opengl.GL11.glPopMatrix(); }
                 }
-            } else if (phase != WildEncounter.Phase.SWITCH_LOADING) {
+            } else if (phase != WildEncounter.Phase.SWITCH_LOADING && self.hp()>0) {
                 float release = phase == WildEncounter.Phase.SWITCHING ? Math.min(1,encounter.switchElapsed(now)/600f)
                         : Math.min(1, (elapsed - 3600) / 600f);
-                actorSprite(gui,back[(int) (Math.max(0, elapsed - backStarted) * 30 / 1000) % back.length], ownX + (enemyX-ownX)*.32f*attack.advance(), 572 + ownPose.dy() - 55*attack.advance(), backBottom,
+                actorSprite(gui,back[(int) (Math.max(0, elapsed - backStarted) * 30 / 1000) % back.length], ownX + (enemyCasting?0:(enemyX-ownX)*.32f*attack.advance()), 572 + ownPose.dy() - (enemyCasting?0:55*attack.advance()), backBottom,
                         backZoom * ownPose.scale() * Math.max(.01f, release) * formScale(self, true), backCenter, ownAttack);
                 if (release < .4f) {
                     gui.getRenderer().pushGlobalTintColor(1, 1, 1, 1 - release / .4f);
@@ -690,7 +874,7 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
             if (self.shiny() && shinyParticles != null && elapsed >= 4200)
                 shinyParticles.draw(this, elapsed-backStarted-600, x(ownX), y(450), x(ownX), y(450), scale*2);
             if (casting && encounter.moveId() == MovePresentation.TACKLE && attack.alpha() > 0 && impact != null) {
-                float cx = enemyX, cy = 311 + enemyPose.dy() - 45*enemyPose.scale();
+                float cx = enemyCasting?ownX:enemyX, cy = enemyCasting?522+ownPose.dy():311 + enemyPose.dy() - 45*enemyPose.scale();
                 float diameter = (65 + 90*attack.impact())*enemyPose.scale();
                 gui.getRenderer().pushGlobalTintColor(impactColor.getRed()/255f, impactColor.getGreen()/255f,
                         impactColor.getBlue()/255f, attack.alpha());
@@ -700,21 +884,23 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
                 } finally { gui.getRenderer().popGlobalTintColor(); }
             }
             if (casting && encounter.moveId() != MovePresentation.TACKLE && moveParticles != null)
-                moveParticles.draw(this,encounter.moveElapsed(now),x(ownX),y(572+ownPose.dy()-50),x(enemyX),y(311+enemyPose.dy()-45*enemyPose.scale()),scale);
+                moveParticles.draw(this,encounter.moveElapsed(now),x(enemyCasting?enemyX:ownX),
+                        y(enemyCasting?311+enemyPose.dy()-45*enemyPose.scale():572+ownPose.dy()-50),
+                        x(enemyCasting?ownX:enemyX),y(enemyCasting?572+ownPose.dy()-50:311+enemyPose.dy()-45*enemyPose.scale()),scale);
             gui.getRenderer().pushGlobalTintColor(0, 0, 0, .35f);
-            try { white.draw(getAnimationState(), x(134), y(474), size(760), size(116)); }
+            try { white.draw(getAnimationState(), x(134), y(footerTop), size(760), footerPixels()); }
             finally { gui.getRenderer().popGlobalTintColor(); }
             if (elapsed >= 2000 && hordeSprites.isEmpty()) {
                 enemyHud.draw(getAnimationState(), enemyHudX, enemyHudY, size(307), size(28));
                 healthBackground.draw(getAnimationState(), enemyHudX + size(enemyHealthX), enemyHudY + size(9), size(healthWidth), size(8));
-                healthImage.draw(getAnimationState(), enemyHudX + size(enemyHealthX+1), enemyHudY + size(10), size(healthWidth-2), size(6));
+                healthImage.draw(getAnimationState(), enemyHudX + size(enemyHealthX+1), enemyHudY + size(10), size((healthWidth-2f)*enemy.hp()/enemy.maxHp()), size(6));
             }
             if (elapsed >= 2000 && !hordeSprites.isEmpty()) for (int i = 0; i < hordeSprites.size(); i++) {
                 int center = 514+(hordeColumn(i)-1)*(hordeHudWidth+hordeHudGap);
-                int hx = x(center-hordeHudWidth/2f), hy = y(hordeHudTop+hordeRow(i)*28);
-                hordeHud.draw(getAnimationState(),hx,hy,size(hordeHudWidth),size(14));
-                healthBackground.draw(getAnimationState(),hx+size(10),hy+size(5),size(hordeHudWidth-20),size(5));
-                healthImage.draw(getAnimationState(),hx+size(11),hy+size(6),size(hordeHudWidth-22),size(3));
+                int hx = x(center-hordeHudWidth/2f), hy = y(hordeHudTop+hordeRow(i)*hordeRowGap);
+                hordeHud.draw(getAnimationState(),hx,hy,size(hordeHudWidth),size(28));
+                healthBackground.draw(getAnimationState(),hx+size(20),hy+size(10),size(hordeHudWidth-40),size(8));
+                healthImage.draw(getAnimationState(),hx+size(21),hy+size(11),size(hordeHudWidth-42),size(6));
             }
             if (elapsed >= 3600) {
                 selfHud.draw(getAnimationState(), selfHudX, selfHudY, size(299), size(40));
@@ -763,18 +949,19 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
             setTheme("party-window");
             setTitle(ClientStrings.get(0));
             setResizableAxis(ResizableAxis.NONE);
-            addCloseCallback(() -> { if (encounter != null) encounter.cancelParty(now); });
+            addCloseCallback(() -> { if (encounter != null && (battleState==null||!battleState.forceSwitch())) encounter.cancelParty(now); });
             for (int i = 0; i < cards.length; i++) { cards[i] = new MemberCard(i); add(cards[i]); }
             cancel.setTheme("button");
-            cancel.addCallback(() -> { if (encounter != null) encounter.cancelParty(now); });
+            cancel.addCallback(() -> { if (encounter != null && (battleState==null||!battleState.forceSwitch())) encounter.cancelParty(now); });
             add(cancel);
             setHardVisible(false);
         }
         void refresh() {
+            cancel.setEnabled(battleState==null||!battleState.forceSwitch());
             for (int i = 0; i < cards.length; i++) {
                 boolean present = i < members.size();
                 cards[i].setVisible(present);
-                cards[i].setEnabled(present && encounter != null && i != encounter.activeSlot() && members.get(i).hp() > 0);
+                cards[i].setEnabled(present && encounter != null && pendingBattle==null && resultToApply==null && i != encounter.activeSlot() && members.get(i).hp() > 0);
                 if (present) {
                     PartyMember member = members.get(i);
                     String state = encounter != null && i == encounter.activeSlot() ? " · " + ClientStrings.get(252006) : "";
@@ -839,8 +1026,12 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
 
         @Override protected void layout() {
             super.layout();
-            title.setPosition(getX(), getY() + 6); title.setSize(getWidth(), 20);
-            description.setPosition(getX(), getY() + 24); description.setSize(getWidth(), 20);
+            int padding = size(3);
+            int lineHeight = (getHeight()-padding*2)/2;
+            title.setPosition(getX()+padding, getY()+padding);
+            title.setSize(getWidth()-padding*2, lineHeight);
+            description.setPosition(getX()+padding, getY()+padding+lineHeight);
+            description.setSize(getWidth()-padding*2, lineHeight);
         }
 
     }
@@ -853,13 +1044,20 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
         }
         if (active() && event.isKeyPressedEvent() && event.getKeyCode() == Event.KEY_ESCAPE
                 && encounter.update(now) == WildEncounter.Phase.SELECT_PARTY) {
-            encounter.cancelParty(now);
+            if(battleState==null||!battleState.forceSwitch()) encounter.cancelParty(now);
             return true;
         }
         return active() || super.handleEvent(event);
     }
 
     @Override public void close() {
+        if(battleState!=null)lastOutcome=battleState.outcome();
+        battleTransport=null;pendingBattle=null;battleState=resultToApply=null;serverEvents.clear();serverMessage="";enemyCasting=false;
+        testMove.setModel(new SimpleChangableListModel<>(testMoveIds.stream().map(id -> id + "  " + ClientStrings.get(110000+id)).toArray(String[]::new)));
+        testMoveLabel.setText(ClientStrings.get(252009));
+        gigantamaxCameraBlend = 0;
+        gigantamaxCameraRaised = false;
+        gigantamaxCameraTime = now;
         if (pendingEnemy != null) pendingEnemy.cancel(true);
         pendingEnemy = null;
         opponentChoice.setVisible(false);

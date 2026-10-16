@@ -72,6 +72,17 @@ public final class WildEncounter {
         if (update(milliseconds) == Phase.SELECT_MOVE) phase = Phase.READY;
     }
 
+    public void playServerMove(int move, long milliseconds) {
+        moveId = MoveAnimations.supports(move) ? move : MovePresentation.TACKLE;
+        moveStarted = milliseconds;
+        phase = Phase.MOVE;
+    }
+    public void serverParty(int[] hp, boolean forced) {
+        partyHp = hp.clone();
+        phase = forced ? Phase.SELECT_PARTY : Phase.READY;
+    }
+    public void finish(long milliseconds) { ending = milliseconds; phase = Phase.ENDING; }
+
     public int moveId() { return moveId; }
 
     public long moveElapsed(long milliseconds) { return Math.max(0, milliseconds - moveStarted); }

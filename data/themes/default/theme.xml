@@ -466,10 +466,12 @@
     </images>
     <images file="res/text-bubble.png" filter="nearest">
         <area name="text-bubble.background" xywh="0,0,128,128" splitx="L63,R63" splity="T63,B63"/>
+        <area name="text-bubble-arrow.background" xywh="128,0,32,32"/>
     </images>
     <images file="res/text-bubble-tail.png" filter="linear">
         <area name="text-bubble-tail.background" xywh="0,0,20,132"/>
     </images>
+    <fontDef name="npc-bubble-text" filename="res/fonts/NotoSansCJK-Bold.ttc" color="#202020" size_cjk="24"/>
     <fontDef name="bubble-text" filename="res/fonts/NotoSansCJK-Bold.ttc" color="#111111" size_cjk="20"/>
     <fontDef name="trainer-name" filename="res/fonts/NotoSans-SemiCondensedBlack.ttf" color="#434343" size="18"/>
     <fontDef name="default" filename="res/fonts/NotoSansCJK-Medium.ttc" color="#FFFFFF"/>
@@ -1460,6 +1462,12 @@
                 <param name="background"><image>character-card.background</image></param>
                 <param name="avatarTop"><int>27</int></param>
                 <param name="avatarLeft"><int>0</int></param>
+                <param name="partyLeft"><int>65</int></param>
+                <param name="partyTop"><int>35</int></param>
+                <param name="partySize"><int>42</int></param>
+                <param name="partyGap"><int>32</int></param>
+                <param name="alphaOutline"><color>#c2141d</color></param>
+                <param name="shinyAlphaGlow"><color>#FFD700</color></param>
                 <theme name="name" ref="label">
                     <param name="font"><font>pb-dark</font></param>
                     <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
@@ -2086,8 +2094,6 @@
 <images file="res/party-health.png" filter="nearest"><area name="summary.move-card" xywh="22,118,164,42"/></images>
 <images file="res/mail-pokemon-marks.png" filter="nearest"><area name="summary.particle-marker" xywh="0,13,12,13"/></images>
 <theme name="pokemon-summary" ref="resizableframe" allowWildcard="true">
-    <param name="formDisplayWidth"><int>120</int></param>
-    <param name="formDisplayHeight"><int>96</int></param>
 <theme name="particle-slot" ref="button"><param name="background"><image>ui-button.background</image></param><param name="overlay"><image>summary.particle-marker</image></param></theme>
 
 <theme name="move-arrow" ref="button"><param name="background"><image>none</image></param><param name="border"><border>0</border></param></theme>
@@ -2366,10 +2372,17 @@
     <fontDef name="encounter-name" filename="res/fonts/NotoSansCJK-Bold.ttc" color="#FFFFFF" size="14" size_cjk="14" border_width="1" border_color="#484848"/>
     <fontDef name="encounter-message" filename="res/fonts/NotoSansCJK-Medium.ttc" color="#FFFFFF" size="26" size_cjk="26" border_width="1" border_color="#434343"/>
     <fontDef name="encounter-description" filename="res/fonts/NotoSansCJK-Medium.ttc" color="#FFFFFF" size="12" size_cjk="14" border_width="1" border_color="#434343"/>
+    <fontDef name="encounter-small" filename="res/fonts/NotoSansCJK-Bold.ttc" color="#FFFFFF" size="11" size_cjk="11" border_width="1" border_color="#484848"/>
+    <fontDef name="encounter-action-description" filename="res/fonts/NotoSansCJK-Medium.ttc" color="#FFFFFF" size="10" size_cjk="10" border_width="1" border_color="#434343"/>
     <theme name="wild-encounter" ref="-defaults" allowWildcard="true">
-        <param name="gigantamaxFrontScale"><float>1.7</float></param>
-        <param name="gigantamaxBackScale"><float>1.35</float></param>
+        <param name="gigantamaxFrontScale"><float>3.3</float></param>
+        <param name="gigantamaxBackScale"><float>2.112</float></param>
+        <param name="gigantamaxCameraFieldOfView"><float>72</float></param>
+        <param name="gigantamaxCameraVerticalOffset"><float>0.25</float></param>
+        <param name="gigantamaxCameraTransitionMillis"><int>600</int></param>
         <param name="impactColor"><color>#FFF1B0</color></param>
+        <param name="footerTop"><int>474</int></param>
+        <param name="footerHeight"><int>116</int></param>
         <param name="actionWidth"><int>209</int></param>
         <param name="actionHeight"><int>52</int></param>
         <param name="actionGap"><int>2</int></param>
@@ -2382,11 +2395,14 @@
         <param name="experienceImage"><image>encounter.experience.fill</image></param>
         <param name="backdropOpacity"><float>0.45</float></param>
         <param name="hordeHud"><image>encounter.horde</image></param>
-        <param name="hordeHudWidth"><int>120</int></param>
+        <param name="hordeHudWidth"><int>239</int></param>
         <param name="hordeHudGap"><int>12</int></param>
         <param name="hordeHudTop"><int>86</int></param>
+        <param name="hordeRowGap"><int>56</int></param>
+        <param name="hordePlatformScale"><float>1.2</float></param>
         <param name="hordeCenter"><int>740</int></param>
-        <param name="hordeSpacing"><int>40</int></param>
+        <param name="hordeSpacing"><int>50</int></param>
+        <param name="hordeThreeSpacing"><int>75</int></param>
         <param name="healthBackground"><image>encounter.health-track</image></param>
         <param name="enemyHud"><image>encounter.enemy</image></param>
         <param name="selfHud"><image>encounter.self</image></param>
@@ -2395,6 +2411,7 @@
         <theme name="label" ref="label">
             <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
         </theme>
+        <theme name="horde-name" ref="label"><param name="font"><font>encounter-name</font></param></theme>
         <theme name="name" ref="label"><param name="font"><font>encounter-name</font></param></theme>
         <theme name="message" ref="label">
             <param name="font"><font>encounter-message</font></param>
@@ -2437,15 +2454,27 @@
         </theme>
     </theme>
     <theme name="npc-dialog" ref="-defaults" allowWildcard="true">
+        <param name="minBubbleWidth"><int>600</int></param>
+        <param name="maxBubbleWidth"><int>900</int></param>
+        <param name="minBubbleHeight"><int>150</int></param>
+        <param name="headGap"><int>140</int></param>
+        <param name="margin"><int>24</int></param>
+        <param name="tailSlant"><int>70</int></param>
+        <param name="tailInset"><int>28</int></param>
+        <param name="arrowSize"><int>32</int></param>
+        <param name="arrowInset"><int>20</int></param>
+        <param name="textRightReserve"><int>56</int></param>
+        <theme name="tail" ref="-defaults"><param name="tailImage"><image>text-bubble-tail.background</image></param></theme>
+        <theme name="arrow" ref="-defaults"><param name="background"><image>text-bubble-arrow.background</image></param></theme>
         <param name="autoAdvanceBaseMillis"><int>800</int></param>
         <param name="autoAdvancePerCharacterMillis"><int>30</int></param>
         <param name="autoAdvanceMaxMillis"><int>6000</int></param>
         <theme name="panel" ref="dialoglayout">
             <param name="background"><image>text-bubble.background</image></param>
-            <param name="border"><border>16,24,16,24</border></param>
+            <param name="border"><border>36,50,40,50</border></param>
             <theme name="message" ref="label">
-                <param name="font"><font>bubble-text</font></param>
-                <param name="textAlignment"><enum type="alignment">LEFT</enum></param>
+                <param name="font"><font>npc-bubble-text</font></param>
+                <param name="textAlignment"><enum type="alignment">TOPLEFT</enum></param>
             </theme>
         </theme>
     </theme>

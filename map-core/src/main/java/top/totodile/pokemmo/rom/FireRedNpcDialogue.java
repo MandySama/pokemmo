@@ -34,7 +34,12 @@ final class FireRedNpcDialogue {
             };
             if (op == 0x5c && pc + 10 <= rom.length) {
                 int intro = pointer(pc + 6);
-                if (intro > 0 && u8(pc + 1) != 3) texts.add(new FireRedDialogue(intro, buffers));
+                if (intro > 0 && u8(pc + 1) != 3) {
+                    int type=u8(pc+1), end=pc+((type==1||type==2||type==4||type==7)?18:(type==6||type==8)?22:14);
+                    int after=end+6<rom.length&&u8(end)==0x0f?pointer(end+2):0;
+                    texts.add(new FireRedDialogue(intro, buffers,
+                            new FireRedDialogue.TrainerBattle(u16(pc+2),type,pointer(pc+10),after)));
+                }
                 return List.copyOf(texts);
             }
             if (length == 0 || pc + length > rom.length) break;
@@ -102,7 +107,7 @@ final class FireRedNpcDialogue {
                     buffers.put(u8(pc + 1), new FireRedDialogue.Buffer(op, pointer(pc + 2)));
                     break;
                 case 0x25, 0x26:
-                    if (u16(pc + (op == 0x25 ? 1 : 3)) == 252) {
+                    if (rom[0xae] == 'R' && u16(pc + (op == 0x25 ? 1 : 3)) == 252) {
                         int[][] trades = {{63,122},{61,124},{32,29},{21,83},{33,30},{55,108},{26,101},{48,114},{77,86}};
                         int trade = variables.getOrDefault(0x8004, 0);
                         if (trade >= 0 && trade < trades.length) {

@@ -27,6 +27,7 @@ final class GmMenuWindow extends ResizableFrame {
     void setWildBusy(boolean busy) { wildEncounters.setEnabled(!busy); }
     void setWildEncounters(boolean enabled) {
         wildEnabled = enabled;
+        // 喷雾模式与随机遇敌状态相反，文字只跟随服务端已确认的值。
         wildEncounters.setText(ClientStrings.get(enabled ? 9730 : 9731));
         invalidateLayout();
     }
@@ -116,6 +117,15 @@ final class GmMenuWindow extends ResizableFrame {
         wildEncounters.addCallback(() -> wildChanged.accept(!wildEnabled));
         panel.add(wildEncounters);
         rows.add(new Widget[]{last[0], noclip, speed, unlockDex, wildEncounters});
+    }
+
+    /** 已接通的控件移交给世界入口，继续复用状态与回调。 */
+    List<Button> detachImplementedButtons() {
+        List<Button> buttons = List.of(teleport, computer, noclip, speed, unlockDex, wildEncounters);
+        for (Button button : buttons) panel.removeChild(button);
+        rows.replaceAll(row -> java.util.Arrays.stream(row).filter(widget -> !buttons.contains(widget)).toArray(Widget[]::new));
+        rows.removeIf(row -> row.length == 0);
+        return buttons;
     }
 
     private void heading(int id) {

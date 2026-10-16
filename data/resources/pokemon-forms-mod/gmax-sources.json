@@ -1,0 +1,118 @@
+{
+  "source_archive": "mega，极巨化，未来种，古代种，阿罗拉，伽勒尔形态MOD 2.zip",
+  "archive_sha256": "0f04d9e4a67be2a7e19e264d42503f42d34cb649f6a84a08cbf445e28a3815ca",
+  "author": "Tim011",
+  "mod": "[TIMOD] VARIANT FORMS",
+  "version": "2.0",
+  "shiny": "No shiny form assets supplied; shiny individuals use normal form colors.",
+  "files": [
+    {
+      "species": 12,
+      "file": "12/gmax/front-n.gif",
+      "archive_entry": "sprites/battlesprites/012-front-n.gif",
+      "sha256": "a8e21b55cbae489d4d1f66f804a56d5963123957ca8becc87cec0e759b37a462"
+    },
+    {
+      "species": 12,
+      "file": "12/gmax/back-n.gif",
+      "archive_entry": "sprites/battlesprites/012-back-n.gif",
+      "sha256": "387835c67188a6f0ef4fcae2c13f428a7f74bab541ea186354855596e9f2a2f3"
+    },
+    {
+      "species": 25,
+      "file": "25/gmax/front-n.gif",
+      "archive_entry": "sprites/battlesprites/025-front-n.gif",
+      "sha256": "82e552036400847899de086cfc985c93ccf6fa766f6dca77098a8812b22cdc57"
+    },
+    {
+      "species": 25,
+      "file": "25/gmax/back-n.gif",
+      "archive_entry": "sprites/battlesprites/025-back-n.gif",
+      "sha256": "b34b8168b59c68b804003af68960f285341c547d0904c6d82995e71fa14b6562"
+    },
+    {
+      "species": 52,
+      "file": "52/gmax/front-n.gif",
+      "archive_entry": "sprites/battlesprites/052-front-n.gif",
+      "sha256": "c33d4f4bd3e16124a80680d4ad5f2721252c4774d97ec29bd26809ddf6528816"
+    },
+    {
+      "species": 52,
+      "file": "52/gmax/back-n.gif",
+      "archive_entry": "sprites/battlesprites/052-back-n.gif",
+      "sha256": "fe0d69d6c83defa245fedc4f0ed277c979b061080af224814a21474ad8a70a6b"
+    },
+    {
+      "species": 68,
+      "file": "68/gmax/front-n.gif",
+      "archive_entry": "sprites/battlesprites/068-front-n.gif",
+      "sha256": "bb7d900b12868c2511e02332352e76fed01aa237cfb6a35a4deb8d868f8befee"
+    },
+    {
+      "species": 68,
+      "file": "68/gmax/back-n.gif",
+      "archive_entry": "sprites/battlesprites/068-back-n.gif",
+      "sha256": "93435300d5b2f84ebd6fc853936e999d42ac71ff5e954e259b30c41ba3bfe85f"
+    },
+    {
+      "species": 99,
+      "file": "99/gmax/front-n.png",
+      "archive_entry": "sprites/battlesprites/099-front-n.png",
+      "sha256": "b0c5f22d2f6bb9acc4dc0d3434292d9a0b786cea19a850ef705d6bb6754df3a2"
+    },
+    {
+      "species": 99,
+      "file": "99/gmax/back-n.png",
+      "archive_entry": "sprites/battlesprites/099-back-n.png",
+      "sha256": "ec3464c7f553c6ee75827617cfc5efb3d05faa0cd2d9a1f1e90ce7df76808ad2"
+    },
+    {
+      "species": 131,
+      "file": "131/gmax/front-n.gif",
+      "archive_entry": "sprites/battlesprites/131-front-n.gif",
+      "sha256": "aef7a125bae9d12e3fc00ec88623e5622d17bd6dc630e540317ff39da297674d"
+    },
+    {
+      "species": 131,
+      "file": "131/gmax/back-n.gif",
+      "archive_entry": "sprites/battlesprites/131-back-n.gif",
+      "sha256": "494c9c8637121b30f73513e1c3dd586d7d9a9306d00136402f23aa567ab551b1"
+    },
+    {
+      "species": 133,
+      "file": "133/gmax/front-n.gif",
+      "archive_entry": "sprites/battlesprites/133-front-n.gif",
+      "sha256": "99b314a9266cd9f1f8976828a09f59d0ace63f2d53e9b72b28c3405c225b2a77"
+    },
+    {
+      "species": 133,
+      "file": "133/gmax/back-n.png",
+      "archive_entry": "sprites/battlesprites/133-back-n.png",
+      "sha256": "03317ea876b1509a6aaac128b68b15425748013a0e5b650fe9766e2ff25c1882"
+    },
+    {
+      "species": 143,
+      "file": "143/gmax/front-n.png",
+      "archive_entry": "sprites/battlesprites/143-front-n.png",
+      "sha256": "6d12e311cbdd47974285d5094223e5d5d060ea69c0cc0aa1ec8e1168a6c3453b"
+    },
+    {
+      "species": 143,
+      "file": "143/gmax/back-n.png",
+      "archive_entry": "sprites/battlesprites/143-back-n.png",
+      "sha256": "c6452d4efd315c942105afea6daf31638229703d6afd9ddb92d9277cae8b7c98"
+    },
+    {
+      "species": 569,
+      "file": "569/gmax/front-n.gif",
+      "archive_entry": "sprites/battlesprites/569-front-n.gif",
+      "sha256": "074642db320a21c90c6d6b1ed86489ee0971a5a222a6291b70ef2920ae1d1e34"
+    },
+    {
+      "species": 569,
+      "file": "569/gmax/back-n.gif",
+      "archive_entry": "sprites/battlesprites/569-back-n.gif",
+      "sha256": "db58032d7d9ec5fbd77dcf9e6a41a08666770078e2bac8c4e60eb73f73ec78ea"
+    }
+  ]
+}

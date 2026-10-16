@@ -54,6 +54,7 @@ public final class FireRedWorldRules implements WorldRules {
     }
 
     private final int region;
+    public int region() { return region; }
     private final Map<Integer, Area> areas = new HashMap<>();
 
     @Override

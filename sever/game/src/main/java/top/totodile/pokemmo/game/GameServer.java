@@ -193,6 +193,7 @@ public final class GameServer implements AutoCloseable {
                     var request = top.totodile.pokemmo.protocol.SearchPackets.decodeRequest(command);
                     top.totodile.pokemmo.protocol.SearchPackets.Result result;
                     try {
+                        if (world.battling() && request.action()!=SearchPackets.INVENTORY) throw new java.sql.SQLException("Battle in progress");
                         result = characters.search(accountId, activeCharacter, request,
                                 Boolean.parseBoolean(System.getProperty("pokemmo.game.debug", "true")));
                     } catch (java.sql.SQLException exception) {
@@ -204,7 +205,7 @@ public final class GameServer implements AutoCloseable {
                 } else if (command[0] == top.totodile.pokemmo.protocol.PartyPackets.OPCODE) {
                     if (world == null || activeCharacter == 0) throw new IOException("No active party");
                     int[] move = top.totodile.pokemmo.protocol.PartyPackets.decodeMove(command);
-                    var party = characters.moveParty(accountId, activeCharacter, move[0], move[1]);
+                    var party = world.battling() ? null : characters.moveParty(accountId, activeCharacter, move[0], move[1]);
                     channel.send(top.totodile.pokemmo.protocol.PartyPackets.response(party != null,
                             party == null ? java.util.List.of() : party));
                 } else if (command[0] == top.totodile.pokemmo.protocol.FollowerPackets.OPCODE) {
@@ -238,7 +239,7 @@ public final class GameServer implements AutoCloseable {
                     var request = PokemonConfigPackets.decodeRequest(command);
                     var result = new PokemonConfigPackets.Result(
                             PokemonConfigPackets.Status.INVALID, null, java.util.List.of());
-                    if (world != null && activeCharacter != 0 && characters != null) {
+                    if (world != null && !world.battling() && activeCharacter != 0 && characters != null) {
                         try {
                             result = characters.configurePokemon(accountId, activeCharacter, request,
                                     Boolean.parseBoolean(System.getProperty("pokemmo.game.debug", "true")));
@@ -291,7 +292,7 @@ public final class GameServer implements AutoCloseable {
                         var move = top.totodile.pokemmo.protocol.PcPackets.decodeMove(command);
                         var status = top.totodile.pokemmo.protocol.PcPackets.Status.SYSTEM_ERROR;
                         try {
-                            status = characters.pcMove(accountId, activeCharacter, move);
+                            if (!world.battling()) status = characters.pcMove(accountId, activeCharacter, move);
                         } catch (java.sql.SQLException exception) {
                             LOGGER.log(System.Logger.Level.ERROR, "Unable to move PC Pokemon", exception);
                         }
@@ -308,7 +309,7 @@ public final class GameServer implements AutoCloseable {
                                 top.totodile.pokemmo.protocol.PcPackets.CREATE_BOX, status));
                     }
                 } else if (command[0] == WorldPackets.MOVE || command[0] == WorldPackets.LOADED
-                        || command[0] == WorldPackets.SETTINGS || command[0] == WorldPackets.TELEPORT || (command[0] & 255) == EncounterPackets.OPCODE || (command[0] & 255) == NpcPackets.OPCODE || (command[0] & 255) == StoryPackets.OPCODE) {
+                        || command[0] == WorldPackets.SETTINGS || command[0] == WorldPackets.TELEPORT || (command[0] & 255) == TrainerPackets.OPCODE || (command[0] & 255) == BattlePackets.OPCODE || (command[0] & 255) == EncounterPackets.OPCODE || (command[0] & 255) == NpcPackets.OPCODE || (command[0] & 255) == StoryPackets.OPCODE || (command[0] & 255) == StoryProgressPackets.OPCODE) {
                     if (world == null) throw new IOException("No active world");
                     channel.send(world.handle(command));
                 } else if (command[0] == WorldPackets.SAVE) {

@@ -104,7 +104,7 @@ public final class FireRedAtlas {
                 locationNames.put(key, (region == 0 ? 139912 : 141000) + section);
                 int columns = integer(layout), rows = integer(layout + 4);
                 if (columns < 1 || rows < 1 || columns > 256 || rows > 256) throw new IOException("Invalid map dimensions");
-                storyEvents.put(key, region == 0 && !modified ? FireRedStoryData.read(rom, header)
+                storyEvents.put(key, !modified ? FireRedStoryData.read(rom, header)
                         : new FireRedStoryData.Events(List.of(), List.of()));
                 List<Warp> warps = new ArrayList<>();
                 List<Npc> objects = new ArrayList<>();
@@ -207,13 +207,40 @@ public final class FireRedAtlas {
         return npcs.get(key);
     }
 
-    public List<FireRedDialogue> npcDialogueDetails(Npc npc, int gender) throws IOException {
-        return new FireRedNpcDialogue(rom).dialogue(npc.script(), gender);
+    private FireRedTrainers trainers;
+    public FireRedTrainers.Trainer trainer(int id) throws IOException {
+        if(region!=0)throw new IOException("FireRed trainers required");
+        if(trainers==null)trainers=new FireRedTrainers(rom);
+        return trainers.trainer(id);
     }
 
+    public List<FireRedDialogue> npcDialogueDetails(Npc npc, int gender) throws IOException {
+        var dialogue = new FireRedNpcDialogue(rom).dialogue(npc.script(), gender);
+        if (region == 0) return dialogue;
+        var species = new java.util.HashMap<Integer, Integer>();
+        try (var input = FireRedAtlas.class.getResourceAsStream("/gba-national-species.csv")) {
+            if (input == null) throw new IOException("Missing GBA species mapping");
+            for (var line : new String(input.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).split("\\R")) {
+                if (line.isBlank() || line.startsWith("#")) continue;
+                var fields = line.split(",");species.put(Integer.parseInt(fields[0]), Integer.parseInt(fields[1]));
+            }
+        }
+        return dialogue.stream().map(text -> {
+            var buffers = new java.util.HashMap<Integer, FireRedDialogue.Buffer>();
+            text.buffers().forEach((slot, buffer) -> buffers.put(slot, new FireRedDialogue.Buffer(buffer.command(),
+                    buffer.command() == 0x85 ? localizedTextId(buffer.value())
+                            : buffer.command() == 0x7d ? species.getOrDefault(buffer.value(), buffer.value()) : buffer.value())));
+            var battle = text.battle();
+            return new FireRedDialogue(localizedTextId(text.textId()), buffers, battle == null ? null
+                    : new FireRedDialogue.TrainerBattle(battle.id(), battle.type(), localizedTextId(battle.defeatText()), localizedTextId(battle.afterText())));
+        }).toList();
+    }
+
+    private int localizedTextId(int address) { return address == 0 ? 0 : address | region << 28; }
+
     public List<Integer> npcDialogue(Npc npc, int gender) throws IOException {
-        if (region != 0 || npc.script() == 0) return List.of();
-        return new FireRedNpcDialogue(rom).textIds(npc.script(), gender);
+        if (npc.script() == 0) return List.of();
+        return npcDialogueDetails(npc, gender).stream().map(FireRedDialogue::textId).toList();
     }
 
     public BufferedImage npcImage(Npc npc) throws IOException {

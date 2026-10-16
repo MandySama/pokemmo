@@ -1,0 +1,92 @@
+{
+  "topic": "https://forums.pokemmo.com/index.php?/topic/154855-mega-evolution-sprites-2d/",
+  "credits": [
+    "MBCMechachu",
+    "Diegotoon20",
+    "Pokemon Showdown Gen 5 sprite resource",
+    "Pokemon Indigo fan game (animated back sprites)"
+  ],
+  "rights": "Source and artist credits retained. Public download does not establish a general redistribution license.",
+  "files": [
+    {
+      "file": "6/megax/front-n.gif",
+      "archive_entry": "sprites/battlesprites/006-front-n.gif",
+      "sha256": "03496344ffa9f9171ef07c2684c9297bb78aac96e8d5729e47628ab335123479",
+      "mod": "PokeMMO Mega Sprites megax",
+      "version": "2.1.3",
+      "author": "AdamantSceptile",
+      "download_page": "https://www.mediafire.com/file/dodwkr5767f1c88/PokeMMO+Mega+Sprites+-+X.zip/file",
+      "archive_sha256": "e101355d922e0e5e976c1b5d94d091a9a710bce8af8575545609728d86b6fecd"
+    },
+    {
+      "file": "6/megax/front-s.gif",
+      "archive_entry": "sprites/battlesprites/006-front-s.gif",
+      "sha256": "4d8fa7ec37bf2fd15f8d35eb8becb41061f2874d5cd2753f994022a9ad962797",
+      "mod": "PokeMMO Mega Sprites megax",
+      "version": "2.1.3",
+      "author": "AdamantSceptile",
+      "download_page": "https://www.mediafire.com/file/dodwkr5767f1c88/PokeMMO+Mega+Sprites+-+X.zip/file",
+      "archive_sha256": "e101355d922e0e5e976c1b5d94d091a9a710bce8af8575545609728d86b6fecd"
+    },
+    {
+      "file": "6/megax/back-n.gif",
+      "archive_entry": "sprites/battlesprites/006-back-n.gif",
+      "sha256": "092d9fe762a00fb980db65f72d7299a9636f4258d91ed945048a592e00904ecf",
+      "mod": "PokeMMO Mega Sprites megax",
+      "version": "2.1.3",
+      "author": "AdamantSceptile",
+      "download_page": "https://www.mediafire.com/file/dodwkr5767f1c88/PokeMMO+Mega+Sprites+-+X.zip/file",
+      "archive_sha256": "e101355d922e0e5e976c1b5d94d091a9a710bce8af8575545609728d86b6fecd"
+    },
+    {
+      "file": "6/megax/back-s.gif",
+      "archive_entry": "sprites/battlesprites/006-back-s.gif",
+      "sha256": "dddd71623f889414ccbca0506c063a7e025270a680f9dc978cdb92330aa26df8",
+      "mod": "PokeMMO Mega Sprites megax",
+      "version": "2.1.3",
+      "author": "AdamantSceptile",
+      "download_page": "https://www.mediafire.com/file/dodwkr5767f1c88/PokeMMO+Mega+Sprites+-+X.zip/file",
+      "archive_sha256": "e101355d922e0e5e976c1b5d94d091a9a710bce8af8575545609728d86b6fecd"
+    },
+    {
+      "file": "6/megay/front-n.gif",
+      "archive_entry": "sprites/battlesprites/006-front-n.gif",
+      "sha256": "b5de8e7eeb6cff85be0fff08fbd403be9ec16a28951bfaeb81a35170f2dcd2a3",
+      "mod": "PokeMMO Mega Sprites megay",
+      "version": "2.1.3",
+      "author": "AdamantSceptile",
+      "download_page": "https://www.mediafire.com/file/h6m938xz2xgcz6n/PokeMMO+Mega+Sprites+-+Y.zip/file",
+      "archive_sha256": "54b8300805a1e97b72cbf7254ca662d4b48f08b9d64edb012601bc9a4eec1a1f"
+    },
+    {
+      "file": "6/megay/front-s.gif",
+      "archive_entry": "sprites/battlesprites/006-front-s.gif",
+      "sha256": "e2598b751ccb902d13585f71f551545e16c3979e3e2946c45b862af385a12558",
+      "mod": "PokeMMO Mega Sprites megay",
+      "version": "2.1.3",
+      "author": "AdamantSceptile",
+      "download_page": "https://www.mediafire.com/file/h6m938xz2xgcz6n/PokeMMO+Mega+Sprites+-+Y.zip/file",
+      "archive_sha256": "54b8300805a1e97b72cbf7254ca662d4b48f08b9d64edb012601bc9a4eec1a1f"
+    },
+    {
+      "file": "6/megay/back-n.gif",
+      "archive_entry": "sprites/battlesprites/006-back-n.gif",
+      "sha256": "c640e7249adc230d620f79c35fee88309ab879c2ceeb5a02d414e62da2dd276d",
+      "mod": "PokeMMO Mega Sprites megay",
+      "version": "2.1.3",
+      "author": "AdamantSceptile",
+      "download_page": "https://www.mediafire.com/file/h6m938xz2xgcz6n/PokeMMO+Mega+Sprites+-+Y.zip/file",
+      "archive_sha256": "54b8300805a1e97b72cbf7254ca662d4b48f08b9d64edb012601bc9a4eec1a1f"
+    },
+    {
+      "file": "6/megay/back-s.gif",
+      "archive_entry": "sprites/battlesprites/006-back-s.gif",
+      "sha256": "26d658006a64191bda85382c8a20faab95c9a2826b2f9b154d7470bef9f0f86b",
+      "mod": "PokeMMO Mega Sprites megay",
+      "version": "2.1.3",
+      "author": "AdamantSceptile",
+      "download_page": "https://www.mediafire.com/file/h6m938xz2xgcz6n/PokeMMO+Mega+Sprites+-+Y.zip/file",
+      "archive_sha256": "54b8300805a1e97b72cbf7254ca662d4b48f08b9d64edb012601bc9a4eec1a1f"
+    }
+  ]
+}

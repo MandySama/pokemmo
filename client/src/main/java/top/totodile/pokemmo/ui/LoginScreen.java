@@ -7,6 +7,8 @@ import org.lwjgl.glfw.GLFW;
 import top.totodile.pokemmo.protocol.EncounterCatalog;
 import top.totodile.pokemmo.protocol.EncounterPackets;
 import top.totodile.pokemmo.protocol.PokemonConfigPackets;
+import top.totodile.pokemmo.protocol.StoryProgressPackets;
+import top.totodile.pokemmo.protocol.GbaScriptRuntime;
 import top.totodile.pokemmo.ClientFiles;
 import top.totodile.pokemmo.ClientStrings;
 import top.totodile.pokemmo.DebugSettings;
@@ -114,8 +116,11 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     private final PartyPanel partyPanel = new PartyPanel();
     private final GameItemBar gameItemBar = new GameItemBar();
     private top.totodile.pokemmo.protocol.CharacterPackets.Appearance battleAppearance;
+    private CompletableFuture<top.totodile.pokemmo.protocol.TrainerPackets.Ready> trainerReadyResult;
+    private ClientWorld trainerWorld;
+    private top.totodile.pokemmo.protocol.TrainerPackets.Ready currentTrainer;
     private final WildEncounterPanel encounterPanel = new WildEncounterPanel(
-            () -> { bagVisible(false); if (world != null) world.clearKeys(); },
+            this::battleFinished,
             message -> showNotification(message, System.nanoTime()));
     private final HotbarSettings hotbarSettings = new HotbarSettings();
     private final Button outfitEntry = new Button(ClientStrings.get(9590));
@@ -123,11 +128,23 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     private CompletableFuture<top.totodile.pokemmo.protocol.CharacterPackets.CreationResult> outfitResult;
     private ClientWorld outfitWorld;
     private CharacterInfo worldCharacter;
+    private final java.util.List<Button> worldTools = new java.util.ArrayList<>();
     private final Button gmEntry = new Button(ClientStrings.get(9200));
     private final Button storyEntry = new Button(ClientStrings.get(9523));
     private final StoryReplayWindow storyReplay = new StoryReplayWindow();
     private boolean replayHiddenNpcDialog;
     private ClientWorld replaySourceWorld;
+    private CompletableFuture<StoryProgressPackets.Result> storyProgressResult;
+    private StoryMenuWindow.Command pendingStoryCommand;
+    private int pendingStoryProgressAction;
+    private ClientWorld storyProgressWorld;
+    private GameConnection storyProgressConnection;
+    private final GbaMonPicture scriptPicture=new GbaMonPicture();
+    private int scriptDrawnSerial=-1,scriptChoiceSerial=-1,scriptBattleSerial=-1;
+    private CompletableFuture<top.totodile.pokemmo.protocol.PcPackets.PartyState> scriptPartyResult;
+    private boolean scriptPartyStartsBattle;
+    private ClientWorld scriptPartyWorld;
+    private ClientWorld scriptContextWorld;
     private final StoryMenuWindow storyMenu = new StoryMenuWindow(() -> storyMenuVisible(false), this::executeStoryCommand);
     private final Button searchEntry = new Button(ClientStrings.get(9500));
     private final SearchWindow searchWindow = new SearchWindow(() -> searchVisible(false));
@@ -328,6 +345,13 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         });
         gmMenu.setOpenTeleport(() -> { storyMenuVisible(false); gmMenuVisible(false); teleportMenuVisible(true); });
         gmMenu.setOpenComputer(() -> { storyMenuVisible(false); gmMenuVisible(false); pcBoxVisible(true); });
+        worldTools.addAll(gmMenu.detachImplementedButtons());
+        for (Button button : worldTools) {
+            button.setTheme("/button");
+            button.setVisible(false);
+            button.addCallback(() -> { if (world != null) world.clearKeys(); });
+            add(button);
+        }
         pcBox.setCommands(this::pcParty, this::pcBoxPage, this::pcMove, this::pcCreateBox);
         // PC 搬移成功后拿到的权威队伍同步给世界队伍面板，免得只能注销重登才看到变化。
         pcBox.setPartyListener(list -> partyPanel.setParty(list));
@@ -337,6 +361,8 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         pcDialog.setOnChoose(this::choosePcDialog);
         add(pcDialog);
         npcDialog.setOnClose(this::endNpcDialogue);
+        npcDialog.setOnAdvance(this::advanceNativeDialogue);
+        add(scriptPicture);
         add(npcDialog);
         mailWindow.addCloseCallback(() -> mailVisible(false));
         add(mailWindow);
@@ -358,6 +384,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         add(characterCreation);
         characterCreation.setOnCreate(this::createCharacter);
         characterSelection.setAssets(characterCreation.assets());
+        characterSelection.setPartyRom(() -> clientManagement.selectedRom(0));
         characterSelection.setOnDelete(this::deleteCharacter);
         characterSelection.setOnEnter(this::enterCharacter);
         loading.setTheme("loading");
@@ -502,11 +529,17 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         gameItemBar.setPosition(getInnerX() + (getInnerWidth() - gameItemBar.getWidth()) / 2, getInnerY() + gameItemBar.topOffset());
         gmEntry.adjustSize();
         gmEntry.setPosition(getInnerX() + 5, worldInfo.getBottom() + 5);
-        searchEntry.adjustSize(); searchEntry.setPosition(getInnerX()+5,gmEntry.getBottom()+5);
+        searchEntry.adjustSize(); searchEntry.setPosition(getInnerX()+5,worldInfo.getBottom()+5);
         storyEntry.adjustSize();
         storyEntry.setPosition(getInnerX() + 5, searchEntry.getBottom() + 5);
         outfitEntry.adjustSize();
         outfitEntry.setPosition(getInnerX() + 5, storyEntry.getBottom() + 5);
+        int toolY = outfitEntry.getBottom() + 5;
+        for (Button button : worldTools) {
+            button.adjustSize();
+            button.setPosition(getInnerX() + 5, toolY);
+            toolY = button.getBottom() + 5;
+        }
         outfitWindow.setSize(880, 680);
         outfitWindow.setPosition(getInnerX() + (getInnerWidth() - 880) / 2,
                 getInnerY() + (getInnerHeight() - 680) / 2);
@@ -685,6 +718,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         }
         updateLoginState(now);
         updateWorldEntry(now);
+        updateStoryProgress(now);
         if (storyReplay.active() && (world != storyReplay.source() || worldLogoutResult != null || enterResult != null)) storyReplay.close();
         try { if (storyReplay.active()) storyReplay.tick(now); }
         catch (RuntimeException error) {
@@ -696,6 +730,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
             replayHiddenNpcDialog = false; replaySourceWorld = null;
         }
         updateNpcDialogue(now);
+        updateTrainerBattle(now);
         updateDexChange(now);
         updateOutfit(now);
         updatePokemonConfiguration(now);
@@ -728,12 +763,28 @@ public final class LoginScreen extends Widget implements AutoCloseable {
                 reportSceneFailure(exception);
             }
         }
-        storyMenu.setBusy(!(world instanceof top.totodile.pokemmo.world.KantoWorld kanto) || !kanto.canStartReplay());
+        storyMenu.setBusy(gameConnection == null || storyProgressResult != null || world == null || world.region() != 0 || !(world instanceof top.totodile.pokemmo.world.KantoWorld kanto) || !kanto.canStartReplay() || kanto.storyActive());
         storyEntry.setVisible(world != null);
         storyEntry.setEnabled(worldLogoutResult == null && enterResult == null);
         outfitEntry.setVisible(world != null);
         outfitEntry.setEnabled(worldLogoutResult == null && enterResult == null && !storyReplay.active() && !encounterPanel.active());
-        gmEntry.setVisible(world != null);
+        gmEntry.setVisible(false);
+        boolean toolsEnabled = world != null && worldLogoutResult == null && enterResult == null
+                && !storyReplay.active() && !encounterPanel.active() && trainerReadyResult==null;
+        for (Button button : worldTools) {
+            button.setVisible(world != null);
+            button.setEnabled(toolsEnabled);
+        }
+        gmMenu.setTeleportEnabled(toolsEnabled);
+        gmMenu.setComputerEnabled(toolsEnabled);
+        gmMenu.setDexUnlocked(pokedex.isUnlocked());
+        gmMenu.setDexBusy(!toolsEnabled || dexChangeResult != null);
+        gmMenu.setWildEncounters(wildEnabled);
+        gmMenu.setWildBusy(!toolsEnabled || wildRequest != null);
+        if (world != null) {
+            gmMenu.setNoclip(world.noclip());
+            gmMenu.setSpeedMultiplier(world.speedMultiplier());
+        }
         gmEntry.setEnabled(worldLogoutResult == null && enterResult == null && !storyReplay.active());
         searchEntry.setVisible(world != null); searchEntry.setEnabled(worldLogoutResult == null && enterResult == null && !storyReplay.active());
         gameHud.setEnabled(worldLogoutResult == null && enterResult == null && !storyReplay.active());
@@ -937,7 +988,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
             world.setAuthority(packet -> session.worldCommand(packet).whenComplete((result, error) -> {
                 if (error != null) session.close();
             }));
-            if (world instanceof top.totodile.pokemmo.world.KantoWorld kanto && world.region() == 0)
+            if (world instanceof top.totodile.pokemmo.world.KantoWorld kanto && world.region() <= 1)
                 kanto.setNpcAuthority(packet -> session.npcCommand(packet).whenComplete((result, error) -> {
                     if (error != null) session.close();
                 }));
@@ -1291,7 +1342,10 @@ public final class LoginScreen extends Widget implements AutoCloseable {
                     if (!result.accepted()) showNotification(ClientStrings.get(wildRequestAction == EncounterPackets.SCENT ? 9732 : 9513), now);
                     else if (result.encounter() != null && !encounterPanel.active() && wildRequestAction != EncounterPackets.SET) {
                         onlineWildBattle = true;
-                        startWildEncounter(result.encounter());
+                        int count = result.encounter().selections().size();
+                        if (wildRequestAction == EncounterPackets.SCENT && count != 3 && count != 5)
+                            showNotification(ClientStrings.get(9750), now);
+                        else startWildEncounter(result.encounter());
                     }
                 }
             } catch (RuntimeException error) {
@@ -1321,6 +1375,8 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         if (menuConfirmation != null) menuConfirmation.closePopup();
         encounterPanel.startWild(clientManagement.selectedRom(0), characterCreation.assets(), battleAppearance,
                 partyPanel.party(), selected, System.nanoTime() / 1_000_000);
+        if (encounterPanel.active() && gameConnection!=null && selected.selections().size()==1)
+            encounterPanel.connectBattle(gameConnection::battleCommand,partyPanel::setParty);
         if (encounterPanel.active()) raiseGameWindow(encounterPanel);
     }
 
@@ -1675,19 +1731,26 @@ public final class LoginScreen extends Widget implements AutoCloseable {
 
     /** 世界交互共用 J；电脑菜单仅在中心面对电脑地块时打开。 */
     private void openNpcDialogue() {
-        if (!(world instanceof top.totodile.pokemmo.world.KantoWorld kanto) || world.region() != 0) return;
+        if (!(world instanceof top.totodile.pokemmo.world.KantoWorld kanto) || world.region() > 1) return;
         npcConversationWorld = kanto;
         npcDialogueResult = kanto.interactNpc();
     }
 
     private void updateNpcDialogue(long now) {
         if (storyReplay.active()) return;
+        if (storyProgressResult != null && pendingStoryProgressAction != StoryProgressPackets.QUERY) return;
+        updateNativeScript(now);
         if (world instanceof top.totodile.pokemmo.world.KantoWorld kanto && kanto.storyActive()
                 && !npcDialog.isVisible() && npcDialogueResult == null) {
             int text = kanto.takeStoryText();
             if (text > 0) {
                 storyDialogue = true;
-                npcDialog.open(java.util.List.of(ClientStrings.get(text)));
+                String formatted=KantoDialogueText.format(ClientStrings.get(text),characterName);
+                var state=kanto.scriptSnapshot();if(state!=null)for(var buffer:state.buffers().entrySet()){
+                    int slot=buffer.getKey();if(slot<3)formatted=formatted.replace(String.format("{%02X}",slot+2),ClientStrings.get(150000+buffer.getValue()));
+                    else if(slot>=256&&slot<259)formatted=formatted.replace(String.format("{%02X}",slot-256+2),Integer.toString(buffer.getValue()));
+                }
+                npcDialog.open(java.util.List.of(formatted));
                 raiseGameWindow(npcDialog);
             }
         }
@@ -1708,11 +1771,118 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     private void endNpcDialogue() {
         if (storyDialogue) {
             storyDialogue = false;
-            if (world instanceof top.totodile.pokemmo.world.KantoWorld kanto) kanto.advanceStory();
+            if (world instanceof KantoWorld kanto && kanto.scriptSnapshot()!=null) {
+                var s=kanto.scriptSnapshot();
+                if(s.mode()==GbaScriptRuntime.BUTTON)kanto.scriptAnswer(top.totodile.pokemmo.protocol.StoryPackets.ADVANCE,0,"");
+                else if(s.mode()==GbaScriptRuntime.YESNO)showScriptChoice(kanto,false);
+            }
+            return;
         }
         npcDialogueResult = null;
+        if(npcConversationWorld!=null && world==npcConversationWorld && npcDialog.completed()
+                && gameConnection!=null && trainerReadyResult==null && !storyReplay.active()) {
+            trainerWorld=world;trainerReadyResult=gameConnection.trainerBattle();world.clearKeys();
+        }
         if (npcConversationWorld != null) npcConversationWorld.endNpcConversation();
         npcConversationWorld = null;
+    }
+
+    private void advanceNativeDialogue(){
+        if(world instanceof KantoWorld k&&k.scriptSnapshot()!=null&&k.scriptSnapshot().mode()==GbaScriptRuntime.YESNO&&npcDialog.lastPage()&&npcDialog.pageDisplayed()){showScriptChoice(k,false);return;}
+        npcDialog.advance();
+    }
+
+    private void requestScriptParty(boolean battle){
+        if(gameConnection==null||scriptPartyResult!=null)return;scriptPartyWorld=world;scriptPartyStartsBattle=battle;scriptPartyResult=gameConnection.pcParty();
+    }
+
+    private void updateNativeScript(long now){
+        if(world!=scriptContextWorld){scriptContextWorld=world;scriptDrawnSerial=scriptChoiceSerial=scriptBattleSerial=-1;scriptPicture.close();scriptPartyResult=null;}
+        if(!(world instanceof KantoWorld k)||k.scriptSnapshot()==null){scriptPicture.close();return;}
+        var s=k.scriptSnapshot();
+        if (!s.active() && scriptBattleSerial >= 0 && !encounterPanel.active()) {
+            scriptBattleSerial = -1;
+            requestScriptParty(false);
+        }
+        scriptPicture.show(clientManagement.selectedRom(0),s.picture());
+        scriptPicture.setSize(192,192);scriptPicture.setPosition(getInnerX()+getInnerWidth()-240,getInnerY()+getInnerHeight()/2-96);
+        if(storyDialogue&&npcDialog.isVisible()&&s.text()==0){storyDialogue=false;npcDialog.close();}
+        if(s.mode()==GbaScriptRuntime.DRAW&&npcDialog.pageDisplayed()&&npcDialog.lastPage()&&scriptDrawnSerial!=s.phase()){
+            scriptDrawnSerial=s.phase();k.scriptAnswer(top.totodile.pokemmo.protocol.StoryPackets.DRAWN,0,"");
+        }
+        if(s.mode()==GbaScriptRuntime.YESNO&&npcDialog.pageDisplayed()&&npcDialog.lastPage())showScriptChoice(k,false);
+        if(s.mode()==GbaScriptRuntime.NAME)showScriptChoice(k,true);
+        if(s.mode()==GbaScriptRuntime.BATTLE&&!encounterPanel.active()&&scriptPartyResult==null&&scriptBattleSerial!=s.phase()){
+            scriptBattleSerial=s.phase();requestScriptParty(true);
+        }
+        if(scriptPartyResult!=null&&scriptPartyResult.isDone()){
+            var future=scriptPartyResult;scriptPartyResult=null;
+            if(world==scriptPartyWorld)try{
+                partyPanel.setParty(future.join().party());
+                if(scriptPartyStartsBattle&&s.mode()==GbaScriptRuntime.BATTLE){
+                    var trainer=top.totodile.pokemmo.protocol.TrainerCatalog.scriptTrainer(s.trainer());
+                    if(trainer==null)throw new IllegalStateException("Missing ROM battle trainer");
+                    onlineWildBattle=true;currentTrainer=null;
+                    encounterPanel.startScripted(clientManagement.selectedRom(0),characterCreation.assets(),battleAppearance,partyPanel.party(),trainer.party(),true,now/1_000_000);
+                    encounterPanel.connectBattle(gameConnection::battleCommand,partyPanel::setParty);raiseGameWindow(encounterPanel);
+                }
+            }catch(RuntimeException e){showNotification(ClientStrings.get(9548).replace("{00}",String.valueOf(e.getMessage())),now);}
+        }
+    }
+
+    private void showScriptChoice(KantoWorld k,boolean naming){
+        var s=k.scriptSnapshot();if(scriptChoiceSerial==s.phase()||menuConfirmation!=null&&menuConfirmation.isOpen())return;
+        scriptChoiceSerial=s.phase();
+        var content=new DialogLayout();content.setTheme("character-delete-error");
+        var popup=new PopupWindow(this){@Override protected void layout(){content.adjustSize();content.setPosition(getX()+(getWidth()-content.getWidth())/2,getY()+(getHeight()-content.getHeight())/2);}};
+        popup.setTheme("/rom-modal");popup.setCloseOnClickedOutside(false);popup.setCloseOnEscape(false);
+        var yes=new Button(ClientStrings.get(naming?52:50));var no=new Button(ClientStrings.get(naming?53:51));
+        var input=new EditField();input.setMaxTextLength(16);
+        yes.addCallback(()->{popup.closePopup();storyDialogue=false;npcDialog.close();k.scriptAnswer(naming?top.totodile.pokemmo.protocol.StoryPackets.NICKNAME:top.totodile.pokemmo.protocol.StoryPackets.CHOICE,1,naming?input.getText():"");requestScriptParty(false);});
+        no.addCallback(()->{popup.closePopup();storyDialogue=false;npcDialog.close();k.scriptAnswer(naming?top.totodile.pokemmo.protocol.StoryPackets.NICKNAME:top.totodile.pokemmo.protocol.StoryPackets.CHOICE,0,"");requestScriptParty(false);});
+        var horizontal=content.createParallelGroup();var vertical=content.createSequentialGroup();
+        if(naming){var label=new Label(ClientStrings.get(9566));horizontal.addWidget(label).addWidget(input);vertical.addWidget(label).addGap(8).addWidget(input).addGap(8);}
+        horizontal.addGroup(content.createSequentialGroup().addWidget(yes).addGap(8).addWidget(no));vertical.addGroup(content.createParallelGroup(yes,no));
+        content.setHorizontalGroup(horizontal);content.setVerticalGroup(vertical);popup.add(content);menuConfirmation=popup;
+        if (popup.openPopup()) {
+            popup.setPosition(0, 0);
+            popup.setSize(getGUI().getWidth(), getGUI().getHeight());
+            if (naming) input.requestKeyboardFocus();
+            else no.requestKeyboardFocus();
+        }
+    }
+
+    private void updateTrainerBattle(long now) {
+        if(world!=trainerWorld){trainerReadyResult=null;currentTrainer=null;return;}
+        if(trainerReadyResult==null)return;
+        world.clearKeys();
+        if(!trainerReadyResult.isDone())return;
+        var pending=trainerReadyResult;trainerReadyResult=null;
+        try {
+            var ready=pending.join();
+            if(ready.status()!=1) {
+                if(ready.status()==3)showNotification(ClientStrings.get(252004),now);
+                return;
+            }
+            currentTrainer=ready;onlineWildBattle=true;
+            outfitVisible(false);storyMenuVisible(false);teleportMenuVisible(false);pcBoxVisible(false);
+            searchVisible(false);bagVisible(false);pokemonSummaryVisible(false);pokedexVisible(false);
+            encounterPanel.startScripted(clientManagement.selectedRom(0),characterCreation.assets(),battleAppearance,
+                    partyPanel.party(),ready.party(),true,now/1_000_000);
+            if(encounterPanel.active()) {
+                encounterPanel.connectBattle(gameConnection::battleCommand,partyPanel::setParty);
+                raiseGameWindow(encounterPanel);
+            }
+        }catch(RuntimeException error){currentTrainer=null;showNotification(ClientStrings.get(9822),now);}
+    }
+
+    private void battleFinished() {
+        bagVisible(false);if(world!=null)world.clearKeys();
+        var trainer=currentTrainer;currentTrainer=null;
+        if(trainer!=null && encounterPanel.lastOutcome()==1 && world==trainerWorld) {
+            try {npcDialog.open(java.util.List.of(KantoDialogueText.format(ClientStrings.get(trainer.defeat()),characterName,java.util.Map.of(),partyPanel.party())));raiseGameWindow(npcDialog);}
+            catch(IllegalArgumentException ignored){ }
+        }
     }
 
     private void openPcDialog() {
@@ -1775,6 +1945,66 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     private void executeStoryCommand(StoryMenuWindow.Command command) {
         if (!(world instanceof top.totodile.pokemmo.world.KantoWorld kanto)
                 || world.region() != command.region() || command.region() != 0 || !kanto.canStartReplay()) return;
+        if (gameConnection == null || storyProgressResult != null) return;
+        requestStoryProgress(command.action() == 2 ? StoryProgressPackets.RESET : StoryProgressPackets.BEGIN, command, 0);
+    }
+
+    private void requestStoryProgress(int action, StoryMenuWindow.Command command, long token) {
+        if (gameConnection == null || world == null || world.region() != 0 || storyProgressResult != null) return;
+        pendingStoryProgressAction = action; pendingStoryCommand = command;
+        storyProgressWorld = world; storyProgressConnection = gameConnection;
+        storyProgressResult = gameConnection.storyProgress(action, command == null ? "" : command.scene(), token);
+        storyMenu.setBusy(true);
+    }
+
+    private void updateStoryProgress(long now) {
+        if (storyProgressResult == null || !storyProgressResult.isDone()) return;
+        var future = storyProgressResult; storyProgressResult = null;
+        var command = pendingStoryCommand; pendingStoryCommand = null;
+        if (world != storyProgressWorld || gameConnection != storyProgressConnection || world == null) {
+            if (pendingStoryProgressAction == StoryProgressPackets.BEGIN && command != null) {
+                var connection = storyProgressConnection;
+                future.thenAccept(result -> {
+                    if (result.accepted()) connection.storyProgress(StoryProgressPackets.CANCEL, command.scene(), result.token());
+                });
+            }
+            return;
+        }
+        try {
+            var result = future.join();
+            storyMenu.setCompleted(result.completed());
+            storyMenu.setAvailable(result.available());
+            if (!result.accepted()) { showNotification(ClientStrings.get(9565), now); return; }
+            if (pendingStoryProgressAction == StoryProgressPackets.RESET) {
+                scriptDrawnSerial=scriptChoiceSerial=scriptBattleSerial=-1;scriptPicture.close();
+                ((KantoWorld) world).restoreStoryPosition(result.position(), StoryProgressPackets.resetScenes(command.scene()).contains(StoryProgressPackets.OPENING), now);
+                npcDialog.close();
+                showNotification(ClientStrings.get(9564), now);
+            } else if (pendingStoryProgressAction == StoryProgressPackets.BEGIN) {
+                if(result.nativeScript()){
+                    scriptDrawnSerial=scriptChoiceSerial=scriptBattleSerial=-1;
+                    storyMenuVisible(false);((KantoWorld)world).restoreStoryPosition(result.position(),true,now);return;
+                }
+                var connection = gameConnection;
+                var sourceWorld = world;
+                try {
+                    startStoryPlayback(command, (KantoWorld) world);
+                    storyReplay.onCompletion(completed -> {
+                        if (gameConnection == connection && world == sourceWorld)
+                            requestStoryProgress(completed ? StoryProgressPackets.COMPLETE : StoryProgressPackets.CANCEL, command, result.token());
+                        else connection.storyProgress(StoryProgressPackets.CANCEL, command.scene(), result.token());
+                    });
+                } catch (RuntimeException error) {
+                    requestStoryProgress(StoryProgressPackets.CANCEL, command, result.token());
+                    throw error;
+                }
+            }
+        } catch (IOException | RuntimeException error) {
+            showNotification(ClientStrings.get(9548).replace("{00}", String.valueOf(error.getMessage())), now);
+        }
+    }
+
+    private void startStoryPlayback(StoryMenuWindow.Command command, KantoWorld kanto) {
         storyMenuVisible(false);
         encounterPanel.close();
         gameMenu.closePopup();
@@ -1790,7 +2020,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
             storyReplay.start(command.scene(), kanto, characterCreation.assets(), characterName, System.nanoTime());
             raiseGameWindow(storyReplay);
         } catch (IOException | RuntimeException error) {
-            showNotification(ClientStrings.get(9548).replace("{00}", error.getMessage()), System.nanoTime());
+            throw new IllegalStateException(error);
         }
     }
 
@@ -1850,33 +2080,15 @@ public final class LoginScreen extends Widget implements AutoCloseable {
             pokemonSummaryVisible(false);
             var position = world.position();
             storyMenu.selectMap(world.region(), position.group(), position.map());
+            requestStoryProgress(StoryProgressPackets.QUERY, null, 0);
         }
         storyMenu.setHardVisible(visible);
         if (visible) { raiseGameWindow(storyMenu); storyMenu.requestKeyboardFocus(); }
     }
 
     private void gmMenuVisible(boolean visible) {
-        if (visible) outfitVisible(false);
-        if (visible) {
-            storyMenuVisible(false);
-            searchVisible(false);
-            pcBoxVisible(false);
-            trainerCardVisible(false);
-            bagVisible(false);
-            pokedexVisible(false); pokemonSummaryVisible(false);
-            teleportMenu.setHardVisible(false);
-            gmMenu.setTeleportEnabled(world != null);
-            gmMenu.setComputerEnabled(world != null);
-            gmMenu.setDexUnlocked(pokedex.isUnlocked());
-            gmMenu.setDexBusy(dexChangeResult != null);
-            gmMenu.setWildEncounters(wildEnabled);
-            gmMenu.setWildBusy(wildRequest != null);
-            gmMenu.setNoclip(world != null && world.noclip());
-            gmMenu.setSpeedMultiplier(world == null ? 1 : world.speedMultiplier());
-        }
+        gmMenu.setHardVisible(false);
         if (world != null) world.clearKeys();
-        gmMenu.setHardVisible(visible);
-        if (visible) gmMenu.requestKeyboardFocus();
     }
 
     public void attachInput(long window) {
@@ -1918,7 +2130,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
             if (yOffset != 0) gui.handleMouseWheel((int) Math.signum(yOffset));
         });
         GLFW.glfwSetCharCallback(window, (w, codepoint) -> {
-            if ((world == null || bag.isVisible() || pokedex.isVisible() || searchWindow.isVisible() || settings.isVisible()) && Character.isBmpCodePoint(codepoint)) {
+            if ((world == null || bag.isVisible() || pokedex.isVisible() || searchWindow.isVisible() || settings.isVisible() || menuConfirmation!=null&&menuConfirmation.isOpen()) && Character.isBmpCodePoint(codepoint)) {
                 gui.handleKey(Event.KEY_NONE, (char) codepoint, true);
                 gui.handleKey(Event.KEY_NONE, (char) codepoint, false);
             }
@@ -1974,6 +2186,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
                 return;
             }
             if (world instanceof top.totodile.pokemmo.world.KantoWorld kanto && kanto.storyActive()) {
+                if(menuConfirmation!=null&&menuConfirmation.isOpen()){int translated=GlfwKeyMap.translate(key);if(translated!=Event.KEY_NONE)gui.handleKey(translated,Event.CHAR_NONE,action!=GLFW.GLFW_RELEASE);return;}
                 if (gmMenu.isVisible()) {
                     if (key == GLFW.GLFW_KEY_ESCAPE && action == GLFW.GLFW_PRESS) gmMenuVisible(false);
                     else {
@@ -1983,7 +2196,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
                     return;
                 }
                 if (action == GLFW.GLFW_PRESS && npcDialog.isVisible()
-                        && (key == GLFW.GLFW_KEY_J || key == GLFW.GLFW_KEY_ENTER || key == GLFW.GLFW_KEY_SPACE)) npcDialog.advance();
+                        && (key == GLFW.GLFW_KEY_J || key == GLFW.GLFW_KEY_ENTER || key == GLFW.GLFW_KEY_SPACE)) advanceNativeDialogue();
                 return;
             }
             if (world != null && (npcDialog.isVisible() || npcDialogueResult != null)) {
@@ -2009,7 +2222,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
             if (world != null && !outfitWindow.isVisible() && !gmMenu.isVisible() && !teleportMenu.isVisible()
                     && action == GLFW.GLFW_PRESS && !editingGameSearch()) {
                 if (key == GLFW.GLFW_KEY_J && topGameWindow() == null) {
-                    if (world instanceof top.totodile.pokemmo.world.KantoWorld kanto && world.region() == 0 && kanto.hasNpcInFront()) openNpcDialogue(); else openPcDialog();
+                    if (world instanceof top.totodile.pokemmo.world.KantoWorld kanto && world.region() <= 1 && kanto.hasNpcInFront()) openNpcDialogue(); else openPcDialog();
                     return;
                 }
                 if (key == GLFW.GLFW_KEY_B) { bagVisible(!bag.isVisible()); return; }
@@ -2101,6 +2314,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
 
     @Override
     public void close() {
+        scriptPicture.close();
         storyReplay.close();
         encounterPanel.close();
         mailWindow.close();

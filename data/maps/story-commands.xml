@@ -1,0 +1,477 @@
+<?xml version='1.0' encoding='utf-8'?>
+<story-commands>
+    <map region="0" group="3" map="0" name="980046">
+        <story name="980227" scene="kanto.pallet_town.opening/PalletTown/town_stop">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="4" map="3" name="980049">
+        <story name="980228" scene="kanto.pallet_town.opening/PalletTown_ProfessorOaksLab/lab_introduction">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+        <story name="980229" scene="kanto.pallet_town.opening/PalletTown_ProfessorOaksLab/leave_before_choice">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+        <story name="980230" scene="kanto.pallet_town.opening/PalletTown_ProfessorOaksLab/challenge">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+        <story name="980233" scene="kanto.pallet_town.opening/PalletTown_ProfessorOaksLab/choose_again">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+        <story name="980234" scene="kanto.pallet_town.opening/PalletTown_ProfessorOaksLab/choose_starter">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+        <story name="980235" scene="kanto.pallet_town.opening/PalletTown_ProfessorOaksLab/rival_after">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+        <story name="980236" scene="kanto.pallet_town.opening/PalletTown_ProfessorOaksLab/dex">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+        <story name="980237" scene="kanto.pallet_town.opening/PalletTown_ProfessorOaksLab/ball">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+        <story name="980238" scene="kanto.pallet_town.opening/PalletTown_ProfessorOaksLab/aide">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+        <story name="980221" scene="kanto.oak_parcel/PalletTown_ProfessorOaksLab/pokedex">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+        <story name="980222" scene="kanto.oak_parcel/PalletTown_ProfessorOaksLab/deliver">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+        <story name="980223" scene="kanto.oak_parcel/PalletTown_ProfessorOaksLab/go_to_city">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+        <story name="980224" scene="kanto.oak_parcel/PalletTown_ProfessorOaksLab/advice">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="4" map="0" name="980047">
+        <story name="980231" scene="kanto.pallet_town.opening/PalletTown_PlayersHouse_1F/mother">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="5" map="3" name="980156">
+        <story name="980220" scene="kanto.oak_parcel/ViridianCity_Mart/pickup">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="3" map="1" name="980153">
+        <story name="980241" scene="kanto.viridian_city.catch_tutorial/ViridianCity/capture">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+        <story name="980242" scene="kanto.viridian_city.catch_tutorial/ViridianCity/no_ball">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+        <story name="980243" scene="kanto.viridian_city.catch_tutorial/ViridianCity/completed">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="10" map="12" name="980248">
+        <story name="980239" scene="kanto.common.pokemon_center_nurse/CeladonCity_PokemonCenter_1F/nurse">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="7" map="3" name="980250">
+        <story name="980239" scene="kanto.common.pokemon_center_nurse/CeruleanCity_PokemonCenter_1F/nurse">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="12" map="5" name="980252">
+        <story name="980239" scene="kanto.common.pokemon_center_nurse/CinnabarIsland_PokemonCenter_1F/nurse">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="36" map="0" name="980258">
+        <story name="980239" scene="kanto.common.pokemon_center_nurse/FiveIsland_PokemonCenter_1F/nurse">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="35" map="1" name="980264">
+        <story name="980239" scene="kanto.common.pokemon_center_nurse/FourIsland_PokemonCenter_1F/nurse">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="11" map="5" name="980266">
+        <story name="980239" scene="kanto.common.pokemon_center_nurse/FuchsiaCity_PokemonCenter_1F/nurse">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="13" map="0" name="980268">
+        <story name="980239" scene="kanto.common.pokemon_center_nurse/IndigoPlateau_PokemonCenter_1F/nurse">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="8" map="0" name="980270">
+        <story name="980239" scene="kanto.common.pokemon_center_nurse/LavenderTown_PokemonCenter_1F/nurse">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="32" map="0" name="980277">
+        <story name="980239" scene="kanto.common.pokemon_center_nurse/OneIsland_PokemonCenter_1F/nurse">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="6" map="5" name="980280">
+        <story name="980239" scene="kanto.common.pokemon_center_nurse/PewterCity_PokemonCenter_1F/nurse">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="21" map="0" name="980292">
+        <story name="980239" scene="kanto.common.pokemon_center_nurse/Route10_PokemonCenter_1F/nurse">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="16" map="0" name="980308">
+        <story name="980239" scene="kanto.common.pokemon_center_nurse/Route4_PokemonCenter_1F/nurse">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="14" map="6" name="980316">
+        <story name="980239" scene="kanto.common.pokemon_center_nurse/SaffronCity_PokemonCenter_1F/nurse">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="31" map="3" name="980318">
+        <story name="980239" scene="kanto.common.pokemon_center_nurse/SevenIsland_PokemonCenter_1F/nurse">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="37" map="0" name="980337">
+        <story name="980239" scene="kanto.common.pokemon_center_nurse/SixIsland_PokemonCenter_1F/nurse">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="34" map="1" name="980346">
+        <story name="980239" scene="kanto.common.pokemon_center_nurse/ThreeIsland_PokemonCenter_1F/nurse">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="33" map="2" name="980349">
+        <story name="980239" scene="kanto.common.pokemon_center_nurse/TwoIsland_PokemonCenter_1F/nurse">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="9" map="1" name="980351">
+        <story name="980239" scene="kanto.common.pokemon_center_nurse/VermilionCity_PokemonCenter_1F/nurse">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="5" map="4" name="980353">
+        <story name="980239" scene="kanto.common.pokemon_center_nurse/ViridianCity_PokemonCenter_1F/nurse">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="6" map="2" name="980051">
+        <story name="980159" scene="kanto.early_route_to_vermilion/PewterCity_Gym/brock">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="3" map="41" name="980087">
+        <story name="980160" scene="kanto.early_route_to_vermilion/Route22/route22_early_rival">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+        <story name="980210" scene="kanto.mainline_to_champion/Route22/route22_rival">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="1" map="3" name="980039">
+        <story name="980161" scene="kanto.early_route_to_vermilion/MtMoon_B2F/fossil">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+        <story name="980185" scene="kanto.mainline_to_champion/MtMoon_B2F/dome_fossil">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+        <story name="980186" scene="kanto.mainline_to_champion/MtMoon_B2F/helix_fossil">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="3" map="3" name="980007">
+        <story name="980162" scene="kanto.early_route_to_vermilion/CeruleanCity/cerulean_rival">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+        <story name="980163" scene="kanto.early_route_to_vermilion/CeruleanCity/cerulean_rocket">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="3" map="43" name="980091">
+        <story name="980164" scene="kanto.early_route_to_vermilion/Route24/rocket">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="30" map="0" name="980093">
+        <story name="980165" scene="kanto.early_route_to_vermilion/Route25_SeaCottage/bill">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="7" map="5" name="980009">
+        <story name="980166" scene="kanto.early_route_to_vermilion/CeruleanCity_Gym/misty">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="3" map="5" name="980148">
+        <story name="980167" scene="kanto.early_route_to_vermilion/VermilionCity/vermilion_arrival">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+        <story name="980168" scene="kanto.early_route_to_vermilion/VermilionCity/ss_anne_boarding">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="1" map="6" name="980136">
+        <story name="980169" scene="kanto.early_route_to_vermilion/SSAnne_2F_Corridor/ss_anne_rival">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="1" map="11" name="980137">
+        <story name="980170" scene="kanto.early_route_to_vermilion/SSAnne_CaptainsOffice/captain">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="9" map="6" name="980149">
+        <story name="980171" scene="kanto.early_route_to_vermilion/VermilionCity_Gym/surge">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="1" map="94" name="980063">
+        <story name="980183" scene="kanto.mainline_to_champion/PokemonTower_7F/tower_fuji">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="1" map="89" name="980062">
+        <story name="980184" scene="kanto.mainline_to_champion/PokemonTower_2F/tower_rival">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="12" map="4" name="980014">
+        <story name="980187" scene="kanto.mainline_to_champion/CinnabarIsland_PokemonLab_ExperimentRoom/fossil_lab">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="8" map="2" name="980036">
+        <story name="980188" scene="kanto.mainline_to_champion/LavenderTown_VolunteerPokemonHouse/fuji_flute">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="1" map="45" name="980071">
+        <story name="980189" scene="kanto.mainline_to_champion/RocketHideout_B4F/hideout_giovanni">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+        <story name="980190" scene="kanto.mainline_to_champion/RocketHideout_B4F/lift_key">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="10" map="14" name="980003">
+        <story name="980191" scene="kanto.mainline_to_champion/CeladonCity_GameCorner/game_corner_rocket">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="10" map="16" name="980004">
+        <story name="980192" scene="kanto.mainline_to_champion/CeladonCity_Gym/erika">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="11" map="7" name="980031">
+        <story name="980193" scene="kanto.mainline_to_champion/FuchsiaCity_WardensHouse/warden">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="1" map="66" name="980104">
+        <story name="980194" scene="kanto.mainline_to_champion/SafariZone_West/gold_teeth">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="11" map="0" name="980030">
+        <story name="980195" scene="kanto.mainline_to_champion/FuchsiaCity_SafariZone_Entrance/safari_entry">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="1" map="71" name="980103">
+        <story name="980196" scene="kanto.mainline_to_champion/SafariZone_SecretHouse/safari_prize">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="1" map="62" name="980060">
+        <story name="980197" scene="kanto.mainline_to_champion/PokemonMansion_B1F/mansion_key">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="11" map="3" name="980028">
+        <story name="980198" scene="kanto.mainline_to_champion/FuchsiaCity_Gym/koga">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="1" map="57" name="980124">
+        <story name="980199" scene="kanto.mainline_to_champion/SilphCo_11F/silph_giovanni">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="1" map="53" name="980125">
+        <story name="980200" scene="kanto.mainline_to_champion/SilphCo_7F/silph_rival">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+        <story name="980201" scene="kanto.mainline_to_champion/SilphCo_7F/lapras_gift">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="14" map="3" name="980106">
+        <story name="980202" scene="kanto.mainline_to_champion/SaffronCity_Gym/sabrina">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="12" map="0" name="980012">
+        <story name="980203" scene="kanto.mainline_to_champion/CinnabarIsland_Gym/blaine">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="5" map="1" name="980154">
+        <story name="980204" scene="kanto.mainline_to_champion/ViridianCity_Gym/giovanni">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="1" map="75" name="980058">
+        <story name="980205" scene="kanto.mainline_to_champion/PokemonLeague_LoreleisRoom/lorelei">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="1" map="76" name="980054">
+        <story name="980206" scene="kanto.mainline_to_champion/PokemonLeague_BrunosRoom/bruno">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="1" map="77" name="980053">
+        <story name="980207" scene="kanto.mainline_to_champion/PokemonLeague_AgathasRoom/agatha">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="1" map="78" name="980057">
+        <story name="980208" scene="kanto.mainline_to_champion/PokemonLeague_LancesRoom/lance">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="1" map="79" name="980055">
+        <story name="980209" scene="kanto.mainline_to_champion/PokemonLeague_ChampionsRoom/champion">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="28" map="0" name="980088">
+        <story name="980211" scene="kanto.mainline_to_champion/Route22_NorthEntrance/boulder_gate">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="3" map="42" name="980089">
+        <story name="980212" scene="kanto.mainline_to_champion/Route23/cascade_gate">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+        <story name="980213" scene="kanto.mainline_to_champion/Route23/thunder_gate">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+        <story name="980214" scene="kanto.mainline_to_champion/Route23/rainbow_gate">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+        <story name="980215" scene="kanto.mainline_to_champion/Route23/soul_gate">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+        <story name="980216" scene="kanto.mainline_to_champion/Route23/marsh_gate">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+        <story name="980217" scene="kanto.mainline_to_champion/Route23/volcano_gate">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+        <story name="980218" scene="kanto.mainline_to_champion/Route23/earth_gate">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+    <map region="0" group="1" map="80" name="980056">
+        <story name="980219" scene="kanto.mainline_to_champion/PokemonLeague_HallOfFame/hall_of_fame">
+            <command action="4" name="9530" />
+            <command action="2" name="9562" />
+        </story>
+    </map>
+</story-commands>
