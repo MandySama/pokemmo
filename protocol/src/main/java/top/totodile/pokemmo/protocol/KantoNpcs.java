@@ -262,6 +262,18 @@ public final class KantoNpcs {
         return talking >= 0;
     }
 
+    /** 剧情结束后从最终落点恢复日常活动，保留一段停顿供玩家继续交互。 */
+    public void resume(int group, int map, NpcPackets.State state, long now) {
+        for (Actor actor : actors(group * 256 + map)) {
+            if (actor.definition.id() != state.id()) continue;
+            actor.x = actor.fromX = state.x();
+            actor.y = actor.fromY = state.y();
+            actor.facing = state.facing();
+            actor.ends = now;
+            actor.next = now + 800_000_000L;
+        }
+    }
+
     public NpcPackets.Snapshot snapshot(Position player, long now) {
         int key = player.group() * 256 + player.map();
         return new NpcPackets.Snapshot(

@@ -125,6 +125,17 @@ public final class GameConnection implements AutoCloseable {
         });
     }
 
+    public synchronized CompletableFuture<top.totodile.pokemmo.protocol.BattleResumePackets.Snapshot> resumeBattle() {
+        if (!connected || closed) return CompletableFuture.failedFuture(new IOException("Game connection closed"));
+        CompletableFuture<byte[]> response = new CompletableFuture<>();
+        if (!offerCommand(new Pending(top.totodile.pokemmo.protocol.BattleResumePackets.request(), response)))
+            return CompletableFuture.failedFuture(new IOException("Game command queue full"));
+        return response.thenApply(packet -> {
+            try { return top.totodile.pokemmo.protocol.BattleResumePackets.decode(packet); }
+            catch (IOException error) { throw new java.util.concurrent.CompletionException(error); }
+        });
+    }
+
     public synchronized CompletableFuture<EncounterPackets.Snapshot> encounterCommand(int action, boolean enabled) {
         if (!connected || closed) return CompletableFuture.failedFuture(new IOException("Game connection closed"));
         CompletableFuture<byte[]> response = new CompletableFuture<>();

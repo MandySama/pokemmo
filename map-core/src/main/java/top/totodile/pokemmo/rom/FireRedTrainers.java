@@ -6,6 +6,43 @@ import java.util.*;
 
 /** 读取火红训练家表、四种队伍布局及升级招式；输出不含图像的战斗资料。 */
 public final class FireRedTrainers {
+    /** 按训练家条目的外观编号读取64×64战斗正面图及独立调色板。 */
+    public static java.awt.image.BufferedImage portrait(java.nio.file.Path path, int id) throws IOException {
+        byte[] rom = java.nio.file.Files.readAllBytes(path);
+        var trainers = new FireRedTrainers(rom);
+        if (id < 1 || id >= 743) throw new IOException("Invalid trainer portrait ID");
+        int picture = trainers.u8(trainers.table + id * 40 + 3);
+        int table = -1, count = rom[0xae] == 'E' ? 93 : 148;
+        for (int at = 0; at < rom.length - (count + 8) * 8; at += 4) {
+            boolean valid = true;
+            for (int i = 0; i < 8 && valid; i++) {
+                int entry = at + i * 8, palette = at + (count + i) * 8;
+                int pixels = trainers.ptr(entry), colors = trainers.ptr(palette);
+                valid = trainers.u16(entry + 4) == 2048 && trainers.u16(entry + 6) == i
+                        && trainers.u16(palette + 4) == i
+                        && pixels >= 0 && colors >= 0
+                        && trainers.u8(pixels) == 16 && trainers.u16(pixels + 1) == 2048
+                        && trainers.u8(colors) == 16 && trainers.u16(colors + 1) == 32;
+            }
+            if (valid) { table = at; break; }
+        }
+        if (table < 0 || picture >= count) throw new IOException("Missing trainer portrait tables");
+        var pixels = NdsCompression.decode(java.nio.ByteBuffer.wrap(rom,
+                trainers.ptr(table + picture * 8), rom.length - trainers.ptr(table + picture * 8))
+                .slice().order(java.nio.ByteOrder.LITTLE_ENDIAN));
+        var colors = NdsCompression.decode(java.nio.ByteBuffer.wrap(rom,
+                trainers.ptr(table + (count + picture) * 8), rom.length - trainers.ptr(table + (count + picture) * 8))
+                .slice().order(java.nio.ByteOrder.LITTLE_ENDIAN));
+        var image = new java.awt.image.BufferedImage(64, 64, java.awt.image.BufferedImage.TYPE_INT_ARGB);
+        for (int y = 0; y < 64; y++) for (int x = 0; x < 64; x++) {
+            int packed = pixels.get(((y / 8) * 8 + x / 8) * 32 + y % 8 * 4 + x % 8 / 2) & 255;
+            int index = (packed >> ((x & 1) * 4)) & 15;
+            int color = colors.getShort(index * 2) & 65535;
+            if (index != 0) image.setRGB(x, y, 0xff000000 | (color & 31) * 255 / 31 << 16
+                    | (color >> 5 & 31) * 255 / 31 << 8 | (color >> 10 & 31) * 255 / 31);
+        }
+        return image;
+    }
     public record Move(int id, int pp) { }
     public record Mon(int species, int level, int iv, int heldItem, List<Move> moves, int rawHeldItem) {
         public Mon { moves = List.copyOf(moves); }

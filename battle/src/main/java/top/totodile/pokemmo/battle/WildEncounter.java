@@ -18,6 +18,12 @@ public final class WildEncounter {
     private int moveId = MovePresentation.TACKLE;
     private int[] partyHp = new int[0];
     private int activeSlot = -1, requestedSlot = -1;
+    private int introductionDelay;
+
+    public void trainerIntroduction() {
+        if (phase != Phase.LOADING) throw new IllegalStateException("Encounter already loaded");
+        introductionDelay = 1800;
+    }
 
     public void loaded(long milliseconds) {
         if (phase != Phase.LOADING) throw new IllegalStateException("Encounter already loaded");
@@ -42,6 +48,7 @@ public final class WildEncounter {
             return phase;
         }
         long elapsed = elapsed(milliseconds);
+        if (elapsed >= 2000) elapsed = Math.max(1300, elapsed - introductionDelay);
         phase = elapsed < 1300 ? Phase.FLASH : elapsed < 2000 ? Phase.SLIDE
                 : elapsed < 3000 ? Phase.ANNOUNCE : elapsed < 3600 ? Phase.THROW : elapsed < 4200 ? Phase.RELEASE : Phase.READY;
         return phase;
@@ -97,6 +104,13 @@ public final class WildEncounter {
     }
 
     public int activeSlot() { return activeSlot; }
+
+    public void restoreParty(int[] hp, int active) {
+        if (phase != Phase.LOADING || hp == null || hp.length < 1 || hp.length > 6 || active < 0 || active >= hp.length)
+            throw new IllegalArgumentException("Invalid recovered battle party");
+        for (int value : hp) if (value < 0) throw new IllegalArgumentException("Invalid party HP");
+        partyHp = hp.clone(); activeSlot = active;
+    }
 
     public boolean selectParty(int slot, long milliseconds) {
         if (update(milliseconds) != Phase.SELECT_PARTY || slot < 0 || slot >= partyHp.length

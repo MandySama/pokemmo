@@ -175,6 +175,10 @@ public final class FireRedWorldRules implements WorldRules {
         return move(position, direction, noclip, null);
     }
 
+    public static boolean ledgeJump(int behavior, int direction) {
+        return behavior == switch (direction) { case 0 -> 0x3b; case 1 -> 0x3a; case 2 -> 0x39; case 3 -> 0x38; default -> -1; };
+    }
+
     public Decision move(Position position, int direction, boolean noclip, java.util.function.Predicate<Position> occupied) {
         return move(position,direction,noclip,occupied,null);
     }
@@ -217,6 +221,17 @@ public final class FireRedWorldRules implements WorldRules {
             if (!found) return new Decision(position, false, false);
         }
         Area target = area(group, map);
+        if (!noclip && !crossing && ledgeJump(target.behavior(x, y), direction)) {
+            int landingX = x + (direction == 2 ? -1 : direction == 3 ? 1 : 0);
+            int landingY = y + (direction == 1 ? -1 : direction == 0 ? 1 : 0);
+            if (!target.walkable(landingX, landingY)) return new Decision(position, false, false);
+            Position landing = at(group, map, landingX, landingY, direction, position.returnPoint());
+            Boolean collision = collisionOverride == null ? null : collisionOverride.apply(landing);
+            if (Boolean.TRUE.equals(collision) || (occupied == null
+                    ? target.occupied.contains(landingY * 65536 + landingX) : occupied.test(landing)))
+                return new Decision(position, false, false);
+            return new Decision(landing, true, false);
+        }
         boolean door = false;
         if (direction == 1 && target.behavior(x, y) == 0x69) {
             for (Warp warp : target.warps) {

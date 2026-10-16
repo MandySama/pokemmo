@@ -135,8 +135,11 @@ maps_by_key = {m.get("key"): m for m in root.findall("map")}
 scene_rows = ["# scene,group,map,pretrigger_x,pretrigger_y"]
 for scene in root.findall("scene"):
     m = maps_by_key[scene.get("map")]
-    y = "2" if scene.get("node") == "town_stop" else scene.get("y")
-    scene_rows.append(",".join((scene.get("id"), m.get("group"), m.get("map"), scene.get("x"), y)))
+    y = {"town_stop":"2", "lab_introduction":"12", "champion":"19", "hall_of_fame":"12"}.get(scene.get("node"),scene.get("y"))
+    x = "10" if scene.get("node") == "bill" else scene.get("x")
+    if scene.get("node") == "bill":y="7"
+    if scene.get("node") == "pickup":x,y="4","7"
+    scene_rows.append(",".join((scene.get("id"), m.get("group"), m.get("map"), x, y)))
 (ROOT / "protocol/src/main/resources/maps/kanto-story-scenes.csv").write_text("\n".join(scene_rows) + "\n", encoding="utf-8")
 # Append only newly generated language entries without rewriting existing file formatting.
 original=strings_path.read_text(encoding="utf-8")

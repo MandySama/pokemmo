@@ -13,6 +13,8 @@ public final class GbaScriptProgram {
     private static final class Hoenn { static final GbaScriptProgram INSTANCE = load(1); }
     public static GbaScriptProgram forRegion(int region) { if(region==0)return INSTANCE;if(region==1)return Hoenn.INSTANCE;throw new IllegalArgumentException("Unsupported script region"); }
     final int region;
+    final NavigableMap<Integer,Integer> dexRatings = new TreeMap<>();
+    final Map<Integer,Integer> tmMoves = new HashMap<>();
     final Map<Integer,Integer> species = new HashMap<>();
     final Map<Integer,Integer> standards = new HashMap<>();
     final Map<Integer,CharacterPackets.Position> heals = new HashMap<>();
@@ -33,6 +35,8 @@ public final class GbaScriptProgram {
                     switch (f[0]) {
                         case "sha256" -> result.hash = f[1];
                         case "init" -> result.initializer = Integer.parseInt(f[1]);
+                        case "dexrating" -> result.dexRatings.put(n(f,1),n(f,2));
+                        case "tmmove" -> result.tmMoves.put(n(f,1),n(f,2));
                         case "species" -> result.species.put(n(f,1),n(f,2));
                         case "std" -> result.standards.put(n(f,1),n(f,2));
                         case "heal" -> result.heals.put(n(f,1),new CharacterPackets.Position(n(f,2),n(f,3),n(f,4),n(f,5),3,0));

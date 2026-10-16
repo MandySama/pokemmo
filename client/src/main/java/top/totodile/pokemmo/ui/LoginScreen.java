@@ -56,6 +56,9 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     private ClientWorld pokemonConfigWorld;
 
     private CompletableFuture<CharacterInfo> enterResult;
+    private CompletableFuture<top.totodile.pokemmo.protocol.BattleResumePackets.Snapshot> battleResumeResult;
+    private ClientWorld battleResumeWorld;
+    private boolean resumedScriptBattle;
     private CompletableFuture<?> worldMapResult;
     private static final int[] MENU_STRING_IDS = {1172, 1175, 1190, 1005, 1006, 1007, 1124, 1008, 1009};
     private final EditField account = new UsernameEditField();
@@ -161,6 +164,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     private final PcDialog pcDialog = new PcDialog();
     private final NpcDialog npcDialog = new NpcDialog();
     private boolean storyDialogue;
+    private int storyDialogueText;
     private CompletableFuture<java.util.List<Integer>> npcDialogueResult;
     private ClientWorld npcConversationWorld;
     private final MailWindow mailWindow = new MailWindow();
@@ -721,6 +725,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         }
         updateLoginState(now);
         updateWorldEntry(now);
+        updateBattleResume(now);
         updateStoryProgress(now);
         if (storyReplay.active() && (world != storyReplay.source() || worldLogoutResult != null || enterResult != null)) storyReplay.close();
         try { if (storyReplay.active()) storyReplay.tick(now); }
@@ -773,7 +778,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         outfitEntry.setEnabled(worldLogoutResult == null && enterResult == null && !storyReplay.active() && !encounterPanel.active());
         gmEntry.setVisible(false);
         boolean toolsEnabled = world != null && worldLogoutResult == null && enterResult == null
-                && !storyReplay.active() && !encounterPanel.active() && trainerReadyResult==null;
+                && battleResumeResult == null && !storyReplay.active() && !encounterPanel.active() && trainerReadyResult==null;
         for (Button button : worldTools) {
             button.setVisible(world != null);
             button.setEnabled(toolsEnabled);
@@ -974,7 +979,9 @@ public final class LoginScreen extends Widget implements AutoCloseable {
             wildEnabled = character.wildEncounters();
             gmMenu.setWildEncounters(wildEnabled);
             wildRequest = null;
-            requestWildEncounter(EncounterPackets.QUERY, true);
+            battleResumeWorld = world;
+            battleResumeResult = gameConnection.resumeBattle();
+            resumedScriptBattle = false;
             worldCharacter = character;
             battleAppearance = character.appearance();
             characterName = character.appearance().name();
@@ -1017,6 +1024,8 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     }
 
     private void backToLogin() {
+        if (battleResumeResult != null) battleResumeResult.cancel(false);
+        battleResumeResult = null; battleResumeWorld = null; resumedScriptBattle = false;
         encounterPanel.close(); battleAppearance = null;
         if (worldLogoutResult != null) { worldLogoutResult.cancel(false); worldLogoutResult = null; }
         gameMenu.closePopup();
@@ -1311,7 +1320,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     }
 
     private void startWildEncounter() {
-        if (world == null || battleAppearance == null || encounterPanel.active() || wildRequest != null) return;
+        if (world == null || battleAppearance == null || encounterPanel.active() || wildRequest != null || battleResumeResult != null) return;
         if (gameConnection != null) {
             requestWildEncounter(EncounterPackets.SCENT, true);
         } else {
@@ -1364,6 +1373,26 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         if (onlineWildBattle && !encounterPanel.active() && wildRequest == null) {
             requestWildEncounter(EncounterPackets.FINISH, wildEnabled);
             onlineWildBattle = false;
+        }
+    }
+
+    private void updateBattleResume(long now) {
+        if (battleResumeResult == null) return;
+        if (world != battleResumeWorld) { battleResumeResult = null; resumedScriptBattle = false; return; }
+        if (!battleResumeResult.isDone()) return;
+        var pending = battleResumeResult; battleResumeResult = null;
+        try {
+            var snapshot = pending.join();
+            if (snapshot.state() == null) return;
+            world.clearKeys();
+            currentTrainer = snapshot.trainer(); trainerWorld = world;
+            resumedScriptBattle = snapshot.scriptBattle(); onlineWildBattle = true;
+            encounterPanel.resumeBattle(clientManagement.selectedRom(0), characterCreation.assets(), battleAppearance,
+                    snapshot, gameConnection::battleCommand, partyPanel::setParty, gameConnection::close, now / 1_000_000);
+            raiseGameWindow(encounterPanel);
+        } catch (RuntimeException error) {
+            System.getLogger(getClass().getName()).log(System.Logger.Level.WARNING, "Unable to recover battle", error);
+            if (gameConnection != null) gameConnection.close();
         }
     }
 
@@ -1750,7 +1779,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
                 && !npcDialog.isVisible() && npcDialogueResult == null) {
             int text = kanto.takeStoryText();
             if (text > 0) {
-                storyDialogue = true;
+                storyDialogue = true;storyDialogueText=text;
                 String formatted=KantoDialogueText.format(ClientStrings.get(text),characterName,java.util.Map.of(),partyPanel.party(),world.region(),battleAppearance==null?0:battleAppearance.gender());
                 var state=kanto.scriptSnapshot();if(state!=null)for(var buffer:state.buffers().entrySet()){
                     int slot=buffer.getKey();if(slot<3)formatted=formatted.replace(String.format("{%02X}",slot+2),ClientStrings.get(150000+buffer.getValue()));
@@ -1786,7 +1815,9 @@ public final class LoginScreen extends Widget implements AutoCloseable {
             storyDialogue = false;
             if (world instanceof KantoWorld kanto && kanto.scriptSnapshot()!=null) {
                 var s=kanto.scriptSnapshot();
+                if(s.text()!=storyDialogueText)return;
                 if(s.mode()==GbaScriptRuntime.BUTTON)kanto.scriptAnswer(top.totodile.pokemmo.protocol.StoryPackets.ADVANCE,0,"");
+                else if(s.mode()==GbaScriptRuntime.DRAW&&npcDialog.completed())kanto.scriptAnswer(top.totodile.pokemmo.protocol.StoryPackets.DRAWN,0,"");
                 else if(s.mode()==GbaScriptRuntime.YESNO)showScriptChoice(kanto,false);
             }
             return;
@@ -1801,7 +1832,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     }
 
     private void advanceNativeDialogue(){
-        if(world instanceof KantoWorld k&&k.scriptSnapshot()!=null&&k.scriptSnapshot().mode()==GbaScriptRuntime.YESNO&&npcDialog.lastPage()&&npcDialog.pageDisplayed()){showScriptChoice(k,false);return;}
+        if(world instanceof KantoWorld k&&k.scriptSnapshot()!=null&&k.scriptSnapshot().mode()==GbaScriptRuntime.YESNO&&storyDialogueText==k.scriptSnapshot().text()&&npcDialog.lastPage()&&npcDialog.pageDisplayed()){showScriptChoice(k,false);return;}
         npcDialog.advance();
     }
 
@@ -1813,6 +1844,8 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         if(world!=scriptContextWorld){scriptContextWorld=world;scriptWasActive=false;scriptDrawnSerial=scriptChoiceSerial=scriptBattleSerial=-1;scriptPicture.close();scriptPartyResult=null;}
         if(!(world instanceof KantoWorld k)||k.scriptSnapshot()==null){scriptPicture.close();return;}
         var s=k.scriptSnapshot();
+        if (battleResumeResult != null) return;
+        if (resumedScriptBattle && s.mode() == GbaScriptRuntime.BATTLE) { scriptBattleSerial = s.phase(); resumedScriptBattle = false; }
         if(scriptWasActive&&!s.active()){inventoryRequestedWorld=null;requestScriptParty(false);}
         scriptWasActive=s.active();
         if (!s.active() && scriptBattleSerial >= 0 && !encounterPanel.active()) {
@@ -1822,10 +1855,11 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         scriptPicture.show(clientManagement.selectedRom(0),s.mode()==GbaScriptRuntime.STARTER?scriptStarterPreview:s.picture());
         scriptPicture.setSize(192,192);scriptPicture.setPosition(getInnerX()+getInnerWidth()-240,getInnerY()+getInnerHeight()/2-96);
         if(storyDialogue&&npcDialog.isVisible()&&s.text()==0){storyDialogue=false;npcDialog.close();}
-        if(s.mode()==GbaScriptRuntime.DRAW&&npcDialog.pageDisplayed()&&npcDialog.lastPage()&&scriptDrawnSerial!=s.phase()){
+        if(s.mode()==GbaScriptRuntime.DRAW&&storyDialogue&&storyDialogueText==s.text()&&npcDialog.pageDisplayed()&&npcDialog.lastPage()&&scriptDrawnSerial!=s.phase()){
             scriptDrawnSerial=s.phase();k.scriptAnswer(top.totodile.pokemmo.protocol.StoryPackets.DRAWN,0,"");
         }
-        if(s.mode()==GbaScriptRuntime.YESNO&&npcDialog.pageDisplayed()&&npcDialog.lastPage())showScriptChoice(k,false);
+        if(s.mode()==GbaScriptRuntime.YESNO&&storyDialogueText==s.text()&&npcDialog.pageDisplayed()&&npcDialog.lastPage())showScriptChoice(k,false);
+        if(s.mode()==GbaScriptRuntime.MULTICHOICE&&(!npcDialog.isVisible()||storyDialogueText==s.text()&&npcDialog.pageDisplayed()&&npcDialog.lastPage()))showScriptMenu(k);
         if(s.mode()==GbaScriptRuntime.NAME)showScriptChoice(k,true);
         if(s.mode()==GbaScriptRuntime.STARTER)showScriptStarter(k);
         if(s.mode()==GbaScriptRuntime.CLOCK)showScriptClock(k);
@@ -1879,6 +1913,20 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         boolean readOnly=s.buffers().getOrDefault(529,0)==1;var label=new Label(ClientStrings.get(readOnly?9910:9901));var input=new EditField();input.setMaxTextLength(5);input.setReadOnly(readOnly);input.setText(java.time.LocalTime.ofSecondOfDay(s.buffers().getOrDefault(530,0)*60L).format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")));var ok=new Button(ClientStrings.get(52));
         ok.addCallback(()->{try{var time=java.time.LocalTime.parse(input.getText(),java.time.format.DateTimeFormatter.ofPattern("H:mm").withResolverStyle(java.time.format.ResolverStyle.STRICT));popup.closePopup();world.scriptAnswer(StoryPackets.CHOICE,time.getHour()*60+time.getMinute(),"");}catch(java.time.DateTimeException e){input.setErrorMessage(ClientStrings.get(9902));}});
         content.setHorizontalGroup(content.createParallelGroup().addWidget(label).addWidget(input).addWidget(ok));content.setVerticalGroup(content.createSequentialGroup().addWidget(label).addGap(8).addWidget(input).addGap(8).addWidget(ok));openScriptPopup(popup);input.requestKeyboardFocus();
+    }
+
+    private void showScriptMenu(KantoWorld world) {
+        var state=world.scriptSnapshot();
+        if(scriptChoiceSerial==state.phase()||menuConfirmation!=null&&menuConfirmation.isOpen())return;
+        scriptChoiceSerial=state.phase();
+        var content=new DialogLayout();content.setTheme("native-script");var popup=scriptPopup(content);
+        var horizontal=content.createParallelGroup();var vertical=content.createSequentialGroup();
+        for(int option=0;option<state.buffers().getOrDefault(541,0);option++){
+            int answer=option;var button=new Button(ClientStrings.get(state.buffers().get(550+option)));
+            button.addCallback(()->{popup.closePopup();storyDialogue=false;npcDialog.close();world.scriptAnswer(StoryPackets.CHOICE,answer,"");requestScriptParty(false);});
+            horizontal.addWidget(button);vertical.addWidget(button).addGap(6);
+        }
+        content.setHorizontalGroup(horizontal);content.setVerticalGroup(vertical);openScriptPopup(popup);
     }
 
     private void showScriptChoice(KantoWorld k,boolean naming){
@@ -2187,6 +2235,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
             }
         });
         GLFW.glfwSetKeyCallback(window, (w, key, scan, action, mods) -> {
+            if (battleResumeResult != null) return;
             if (encounterPanel.active()) {
                 if (bag.isVisible() && key == GLFW.GLFW_KEY_TAB && action == GLFW.GLFW_PRESS
                         && (mods & GLFW.GLFW_MOD_CONTROL) != 0 && !gui.hasOpenPopups()) {

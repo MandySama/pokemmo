@@ -80,6 +80,20 @@ while queue:
 out=root/'protocol/src/main/resources/maps/gba-opening-program.txt.gz'
 lines=['sha256,'+hashlib.sha256(rom).hexdigest(),'init,'+str(initial[0])]+events
 lines += [f'std,{i},{at}' for i,at in enumerate(standards)]
+tm_candidates=[at for at in range(len(rom)-116) if rom.startswith(struct.pack('<3H',264,337,352),at)]
+tm_tables={rom[at:at+116] for at in tm_candidates}
+if len(tm_tables)!=1:raise ValueError('Cannot identify native TM/HM move table')
+lines += [f'tmmove,{289+i},{move}' for i,move in enumerate(struct.unpack('<58H',tm_tables.pop()))]
+chars={chr(65+i):0xbb+i for i in range(26)}|{chr(97+i):0xd5+i for i in range(26)}|{str(i):0xa1+i for i in range(10)}|{' ':0,'é':0x1b,"'":0xb4,',':0xb8,'.':0xad,'!':0xab,'?':0xac,':':0xf0,'-':0xae}
+for name,line in re.findall(r'PokedexRating_Text_(LessThan\d+|Complete)::\s*\.string "([^"\\]+)',(audit/'data/text/pokedex_rating.inc').read_text(encoding='utf-8')):
+    pattern=bytearray()
+    for char in line:
+        if char not in chars:break
+        pattern.append(chars[char])
+    hits=[match.start() for match in re.finditer(re.escape(bytes(pattern)),rom)]
+    if len(hits)!=1:raise ValueError('Cannot identify Pokedex rating '+name)
+    lines.append(f'dexrating,{160 if name=="Complete" else int(name[8:])},{hits[0]}')
+
 for pc,data in sorted(nodes.items()):lines.append(f'code,{pc},{data.hex()}')
 for pc,data in sorted(moves.items()):lines.append(f'move,{pc},{data.hex()}')
 specials=re.findall(r'^\s*def_special\s+(\w+)',(audit/'data/specials.inc').read_text(),re.M)

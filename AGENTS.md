@@ -1,5 +1,15 @@
 # 项目协作约定
 
+- 实际单打断线恢复由 `GameServer.suspendedBattles` 按账号＋角色持有 `WorldSession.BattleContinuation`，保留原 `ShowdownBattle` 及对手／剧情上下文；离开世界或断线后仍关闭普通世界会话并停止在线计时，删除角色及服务关闭时释放引擎。`0x8A` 查询只针对已认证会话的当前角色，返回不含历史事件的快照。入图先查询恢复，客户端按原出战槽位加载纹理并跳过开场，支持濒死成员的强制换宠与完成但未确认离场的结果；剧情战恢复后复用原 BATTLE 阶段确认。资源加载失败会断开连接保留服务端战斗，不发送离场确认。当前仅跨客户端退出／掉线，不跨 game 服务进程重启；客户端和 game 服务需同时更新。`target/BattleReconnectNetworkSmoke.java` 使用隔离 PostgreSQL 账号、真实加密 TCP、Node 引擎和自动入图 UI，覆盖 NPC／自然野生单打、角色隔离、回合与HP／PP／状态、强制换宠、陈旧请求、胜利及离场清理；`BattleReconnectUiSmoke` 使用真实网络快照检查 OpenGL 恢复、强制换宠和纹理释放，结束删除测试账号行。
+
+- 战斗招式页由 `WildEncounterPanel.moveSlots` 显示四格实际招式、类别、属性和PP；在线提交 `MoveOption.slot`，按 `legalMoves` 禁用不可用项。自定义选择在右下格右侧，仅替换本方演出ID，不改变服务端招式或结算；默认项恢复原演出，位置宽度取主题。四格主操作及招式按钮将方向键、J交给网格导航，Enter／空格沿用Button确认，父控件必须先分发焦点子控件事件。未命中通过检查当前MOVE到下一个MOVE之间的MISS事件跳过粒子加载和人物动画，保留文字提示。`target/BattleControlsUiSmoke.java` 验证真实OpenGL/TWL布局、方向键／确认、零PP禁用、服务端槽位、自定义演出、未命中跳过、正常命中、异步取消和多尺寸；服务端响应为模拟数据。
+
+- 正式 NPC 训练家战从目录队伍的 `originalTrainerId` 读取卡带训练家外观，`FireRedTrainers.portrait` 解码 GBA 正面图；`WildEncounter.trainerIntroduction` 在原出场流程中增加1800毫秒，`WildEncounterPanel` 先绘制训练家，再退场投球及释放宝可梦。对方队伍图标使用已有 `PartyIcons`，按真实战斗事件更新倒下状态；资源跟随战斗纹理统一释放。没有训练家资料的临时剧情展示队伍保留既有出场流程。`target/TrainerIntroUiSmoke.java` 覆盖真实 OpenGL 出场时序、队伍、纹理释放及野生遭遇回归，`TrainerPortraitSmoke` 检查多种训练家图像；未以本次测试宣称原客户端运行实测。
+
+- `WildEncounterPanel` 按窗口宽／1024与高／768的较小值缩放，最大倍率取主题 `wild-encounter.maximumScale`，默认 2；不能恢复固定 1 倍上限。`target/BattleResizeSmoke.java` 使用真实 OpenGL 场景验证连续调整大小、上限、缩回及按钮边界。
+
+- 普通 GBA NPC 的剧情移动结束后，`GbaScriptRuntime.resumeNpcs` 将最终位置与朝向交还 `KantoNpcs` 并释放控制标记；隐藏标记及动态图形物件保留剧情控制。在线会话与离线世界在日常更新前执行交接，旧存档也会恢复。真新镇告示牌女孩入口已加入 `kanto-story-followups.csv`；修改需同时更新客户端与 game 服务。`target/PalletNpcResumeSmoke.java` 验证 ROM 对白、剧情移位、存档恢复交接、重复交互和恢复徘徊。
+
 - 房门动画由 `FireRedMap.doorFrames` 读取 ROM 门表、4bpp 帧及逐图块调色板，`KantoWorld` 在服务端响应的 approach 和离线入门路径中先播放 120ms 开门，再走入；室外门落点在 500ms 淡入中走出并关门（380/440ms 换帧）。`GbaMapPreview` 暂时替换门范围的上层图块，上下门帧分别在底层和普通上层之后插入。门纹理在切图、淡入结束及关闭时释放。`target/DoorAnimationSmoke` 检查离线进出屋，`DoorNetworkAnimationSmoke` 使用模拟服务端响应检查动画时序和真实 OpenGL 截图，未进行本次真实 TCP 联调；`DoorDecodeSmoke` 遍历 425 图解码了 195 个有门动画的传送点。
 
 本文件适用于整个仓库，记录截至 2026-10-12 已确认的开发约定，供新会话接续。实现状态以实际源码为准，先阅读本文件和 README.md，再检查 Git 工作区；后续需求变化时同步更新。
@@ -754,5 +764,39 @@ mvn -o -s target/maven-central-settings.xml '-Dmaven.repo.local=C:/Users/21156/.
 - `python tools/import_gba_script_texts.py --program protocol/src/main/resources/maps/gba-hoenn-program.txt.gz --region 1 <中文XML...>` 校验本章219个原始文本引用。客户端与game服务同时构建重启，数据库字段由启动幂等初始化。
 - 临时验证：HoennAllStartersSmoke覆盖两种性别×三种初始种族的原脚本分支；HoennRewardNetworkSmoke／HoennStoryNetworkSmoke使用隔离PostgreSQL角色、加密TCP和实际Showdown战斗；HoennNativeUiSmoke使用真实OpenGL/TWL检查时钟无效输入、鼠标确认、选宠及自动进入战斗。关都GbaAllStartersSmoke和GbaStateResumeSmoke回归通过。音效、表情及卡车摇晃等原生画面效果尚不等同于GBA原画面完整复现。
 
-- 关都剧情“回到某剧情前”要求完整目标边界，前面的剧情已完成、目标与后续重新触发。目前正式接通的 OPENING／LAB_INTRODUCTION 已改为从初始 ROM 状态构造边界，研究所边界通过无奖励宿主执行开场到入所 WARP 前获得，清除旧检查点／临时状态；不再依赖角色已经历快照。saveKantoCheckpoint 在同一事务替换关都完成集合并保存 ROM 状态和位置。其他尚未接通的菜单节点仍禁用，不能称为关都全剧情任意跳转。KantoCanonicalCheckpointSmoke 验证新档前跳、回退、反复跳转、存档恢复及无奖励副作用；KantoCheckpointPersistenceSmoke 验证 PostgreSQL 标识同步、后续清除及归属拒绝。
+- 关都剧情“回到某剧情前”要求完整目标边界，前面的剧情已完成、目标与后续重新触发；当前接通范围、存档和验证见下方“关都后续剧情节点与跳转”。
 - 最终联调补充：HoennStoryNetworkSmoke已完整通过原卡车出口、搬家与时钟、劲敌见面、正常地图连接触发救援、真实选宠／救援战／命名／劲敌战、图鉴与五球落库，以及重登入图、检查点回滚不自动播放、原条件播放和重复物品奖励幂等；测试中另已覆盖实际战败返回治疗。HoennNativeUiSmoke确认火稚鸡预览实际解码上传，时钟设置09:30后继续母亲原对白。协议回退落点校验同时接受合法关都及丰缘坐标。
+
+## 随身PC拖拽操作（2026-10-16）
+
+- LoginScreen窗口置顶时将队伍和PC的拖拽覆盖层放到窗口之上，避免拿起图标被窗口背景盖住。PcBoxWindow使用独立dragSource与dropTarget，不通过Image引用判断源格；图标异步重新上传后更新正在拖动的图像，避免持有已释放纹理。源格拖动期间隐藏图标和等级。
+- 目标格命中与高亮共用targetAt，网格间隙按相邻格中心区域平分；箱网格和队伍栏之间的空白不吸附。主题pc-drop-target使用已有选中边框。Esc取消、关闭、窗口外落点清除图像与目标高亮，取消后的鼠标松开不会发出搬移；槽位右键不再被DraggableButton当作搬移起点。数据刷新过程中不开始新拖拽。
+- 扩展target/PcBoxUiSmoke以真实OpenGL/TWL检查置顶后的覆盖层顺序、拖动图标、间隙落点与高亮、取消后松手零请求，并回归存入、交换、失败、新建箱子和资源释放；测试使用模拟PC响应，未进行本次真实TCP／数据库存取联调。原客户端仅检查了源码与主题，未运行原客户端。
+
+
+## 关都后续剧情节点与跳转（2026-10-16）
+
+- 现有关都目录 88 个节点接入正式 ROM 入口；`kanto-story-entries.csv` 定义节点、原地址、NPC／触发变量和 54 个主线边界的顺序，`kanto-story-followups.csv` 包含比尔电脑／领取船票、游戏厅海报、基地守卫／透视镜、幽灵塔守卫、西尔佛钥匙和可交互的枯叶道馆开关等补充原入口。`tools/export_kanto_story_entries.py` 从已导出的 ROM 事件绑定；不可按菜单显示顺序回滚，也不可用旧隔离重播代替正式脚本。
+- `ExportGbaScriptData events` 读取火红全图事件；`tools/export_gba_opening.py` 导出 25,206 条指令及 367 组移动、标准脚本、原 TM／HM 表和图鉴评价文本地址。训练家战类型 3 长度为 10，1／2 的剧情续接在 +14，6／8 在 +18，4／7 的第三指针是文本；不得混为剧情地址。`gba-opening-trainers.csv` 随导出目录同步更新，客户端与 game 服务使用同一份资源。
+- 跳转从新游戏原状态执行先前节点及必要后续原入口，使用无数据库副作用的宿主；按性别／既有初始种族缓存边界。恢复时清除目标与后续临时状态、旧检查点和移动，保留既有初始种族分支，不依赖角色曾经游玩过。比尔需执行电脑与领取船票才算完成，基地坂木需领取透视镜；不能把一段对白结束当作完整任务完成。NPC 前的背景交互仅向关都开放目录中的剧情电脑、海报和道馆开关，普通电脑继续使用既有 PC 窗口。
+- 逻辑剧情道具计数保存在 VM buffers 的 6000+原道具 ID；前跳不会实际发宠物、道具或删背包，后续 KEY／TM/HM 条件可以读取该剧情前置，消费会扣除逻辑计数。真实奖励仍通过数据库宿主发放。地面物品共用标准脚本 1，收据键区分原对象入口和道具；其他奖励保留调用位置以区分同一 NPC 不同阶段的领取。重复跳转不能造成重复发奖，也不能因同一领取例程拒绝另一个对象的不同道具。
+- 完成标记在 VM 中使用经碰撞检查的稳定场景散列，避免目录重排破坏存档；主要阶段同时从原 vars／flags 推导。关都保存将 ROM 状态、完整完成集合与位置同事务提交；重置时重建 `character_trainers` 的关都记录并同步在线集合。训练家战显示原开战对白，胜利后继续原分支，已击败者不再开战；普通关都战败终止本段并治疗返回，初始劲敌战保留可败分支。丰缘保留独立逻辑。
+- 剧情快照 core 超过原 UTF 长度时压缩，读取兼容原未压缩快照；全图演员读取上限增加为 10000。`0x88` 响应的完成／可播放集合使用同一目录中的短索引，避免完整字符串集合超过加密帧限制；请求仍携带场景名称，客户端与 game 必须一起更新重启。
+- 已接通原多选菜单、治疗、原道具口袋与招式机名称、比尔摄影机对象／镜头插值和机器图块动画、训练家 flags 与剧情后续。关都图鉴领取不写丰缘图鉴领取字段。仍不能声称复刻全部游戏演出：老人教程目前使用已有野生战入口，未复刻老人自动投球；治疗／名人堂场地效果按等待继续，名人堂完整记录画面和片尾未绘制，粉丝俱乐部副系统及剧情音效仍未接通。
+- 验证程序位于忽略的 target：`KantoFullStoryStateSmoke` 对 88 个节点随机顺序前跳／回退、完整原指令及补充入口、精确前段完成集合、逐段封包和压缩存档恢复；`KantoAllStoryNetworkSmoke` 使用隔离账号、真实 PostgreSQL／加密 TCP 验证 88 个随机跳转、训练家回退、正式 BEGIN、无奖励副作用。`KantoQuestRewardSmoke` 验证不同共用地面领取例程、真实钥匙消费、回退领取幂等和逻辑前置。`KantoNodesUiSmoke`／`KantoBillUiFlowSmoke` 使用真实 OpenGL／TWL 与 TCP 验证 176 个操作控件、后续地图重置、正式播放及比尔连贯交互；测试截图在 target。
+
+- 补充地图边界：重置先执行目标的加载／转场／入图脚本初始化演员与图块，再暂停原地图帧触发；地图准备型节点可点击播放或离图后重新进入触发，不能从已走进室内的位置再执行入口强制行走。包裹节点暂停在友好商店入口 (4,7)，研究所介绍为 (6,12)，冠军房间为 (6,19)，名人堂为 (5,12)。四天王 NPC 前先执行原房间入场脚本形成 0x4068 的正确阶段，避免行走时重复入场。未接通地图不执行坐标／自动地图事件或托管演员，普通电脑入口不被剧情背景交互接管。
+
+- 接续兼容：读取旧开场存档时先补齐当前 ROM 的默认演员，再覆盖已保存演员，避免旧存档仅有真新镇／研究所而后续地图找不到对象；序号形式的临时场景标记转换为稳定标记。原发奖／口袋提示连续出现时，客户端只确认当前实际显示的文本，完成 DRAW 页关闭也发送确认，防止快速翻页卡住或跳过尚未显示的下一段。
+
+## 入图断线：真新镇告示牌教学（2026-10-16）
+
+- 正式角色恢复到PalletTown_EventScript_SignLadyShowSign的延迟等待时，首次剧情轮询继续执行0x1658b1的SetWalkingIntoSignVars，VM此前未适配该special，抛出IOException并断开游戏连接。入服握手和角色列表正常，不能将此故障归因于SLF4J未安装日志provider或PC拖拽。
+- 已按火红src/script.c补齐SetWalkingIntoSignVars及其后DisableMsgBoxWalkaway：保存对白取消／步行取消限制的界面状态（buffers628、629），不改剧情flags／vars或跳过后续原对白；桌面对白沿用现有移动锁定。服务端已选角色后的非正常连接异常提升为WARNING，正常EOF／Socket关闭仍为DEBUG。
+- target/EntryDiagnose复制当前账号三个角色行到隔离测试账号，真实PostgreSQL／加密TCP验证选角、LOADED、连续NPC／剧情轮询和原教学对白确认；修复前稳定复现指定special异常，修复后三个地区角色均通过。测试副本与账号已清理，原角色没有重置或修改。AdmissionDiagnose另验证运行中游戏服务的握手、凭证与角色列表解码正常。生效需重启game服务，协议未改变。
+
+## GBA单向台阶跳跃（2026-10-16）
+
+- FireRedWorldRules按ROM行为0x38／39／3A／3B识别向右／左／上／下跳台阶：面对相符台阶时跨过一格障碍，落到两格外的可通行且无NPC占用位置；反方向仍按原阻挡，不改地图碰撞，不开启穿墙。服务端跳跃耗时550ms并应用既有移动倍速；落点通过现有移动响应保存，无新增封包字段。
+- KantoWorld同图移动响应保留实际起点，避免把两格跳跃误当一格插值；人物按进度绘制12个ROM像素高的抛物感弧线，阴影与镜头保持地面路径。离线路径使用相同方向识别和落点检查。GBA三地区共用行为值，不影响NDS移动。
+- target/LedgeSmoke读取本机火红1号道路(3/19)，覆盖61个向下台阶可行落点、反向拒绝、占用拒绝与协议往返；真实OpenGL检查客户端接受两格落点、实际起点插值及中途绘制，截图target/ledge-jump-mid.png。客户端测试使用模拟权威响应，本次未进行真实TCP跳跃联调；编译通过。客户端与game服务需同时重启。

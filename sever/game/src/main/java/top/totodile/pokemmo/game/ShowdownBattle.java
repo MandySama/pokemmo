@@ -11,6 +11,8 @@ final class ShowdownBattle implements AutoCloseable {
     private List<PartyMember> party;
     private BattlePackets.State state;
     private final boolean trainerBattle;
+    private final List<PartyMember> opponents;
+    private int faintMask;
     ShowdownBattle(List<PartyMember> party, EncounterCatalog.Selection encounter) throws IOException {
         this(party,wildParty(encounter),false);
     }
@@ -21,14 +23,20 @@ final class ShowdownBattle implements AutoCloseable {
         return List.of(new PartyMember(encounter.species(),encounter.shiny(),false,hp,hp,encounter.level(),d));
     }
     ShowdownBattle(List<PartyMember> party,List<PartyMember> opponents,boolean trainer) throws IOException {
-        this.party=List.copyOf(party);trainerBattle=trainer;
+        this.party=List.copyOf(party);trainerBattle=trainer;this.opponents=List.copyOf(opponents);
         if(party.isEmpty()||party.stream().noneMatch(p->p.hp()>0)||opponents.isEmpty()||opponents.size()>6)throw new IOException("Invalid battle parties");
         byte[] data=ShowdownWorker.call("{\"action\":\"start\",\"battle\":\""+id+"\",\"party\":"+team(party,false)+",\"enemy\":"+team(opponents,true)+",\"allowRun\":"+!trainer+"}",0);
         generation=ShowdownWorker.generation();state=read(data);
     }
     BattlePackets.State state() {return state;}
+    List<PartyMember> opponents() { return opponents; }
+    boolean trainerBattle() { return trainerBattle; }
+    int faintMask() { return faintMask; }
+    BattlePackets.State snapshot() {
+        return new BattlePackets.State(true,id,state.revision(),state.outcome(),state.active(),state.forceSwitch(),state.enemyHp(),state.enemyMaxHp(),party,List.of(),state.legalMoves(),state.options(),state.enemyActive());
+    }
     BattlePackets.State handle(BattlePackets.Request request) throws IOException {
-        if(request.action()==BattlePackets.START)return state;
+        if(request.action()==BattlePackets.START)return snapshot();
         if(request.battle()!=id||request.revision()!=state.revision()||state.outcome()!=0)return rejected();
         if(trainerBattle&&request.action()==BattlePackets.RUN)return rejected();
         String action=switch(request.action()){case BattlePackets.MOVE->"move";case BattlePackets.SWITCH->"switch";case BattlePackets.RUN->"run";default->throw new IOException("Invalid battle action");};
@@ -48,6 +56,12 @@ final class ShowdownBattle implements AutoCloseable {
         }
         int n=d.shortValue();if(n>1024)throw new IOException("Engine event overflow");var events=new ArrayList<BattlePackets.Event>();
         for(int i=0;i<n;i++)events.add(new BattlePackets.Event(d.byteValue(),d.byteValue(),d.shortValue()));
+        int enemySlot = state == null ? 0 : state.enemyActive();
+        for (var event : events) {
+            if (event.side() != 1) continue;
+            if (event.kind() == 5) enemySlot = event.value();
+            else if (event.kind() == 1 || event.kind() == 4 && event.value() == 0) faintMask |= 1 << enemySlot;
+        }
         n=d.byteValue();if(n>4)throw new IOException("Engine move overflow");var legal=new ArrayList<Integer>();for(int i=0;i<n;i++)legal.add(d.byteValue());
         n=d.byteValue();if(n>4)throw new IOException("Engine option overflow");var options=new ArrayList<BattlePackets.MoveOption>();
         for(int i=0;i<n;i++)options.add(new BattlePackets.MoveOption(d.byteValue(),d.shortValue(),d.byteValue(),d.byteValue()));int enemyActive=d.byteValue();d.end();

@@ -330,6 +330,7 @@ public final class KantoWorld implements ClientWorld {
         } else if (authority == null) {
             try {
                 if (localNpcs == null) localNpcs = new top.totodile.pokemmo.protocol.KantoNpcs(new top.totodile.pokemmo.protocol.FireRedWorldRules(appearance.region()));
+                if (localOpening != null) localOpening.resumeNpcs(localNpcs, now);
                 localNpcs.update(position(), stepping ? new Position(current.group(), current.map(), fromX, fromY, position().elevation(), facing) : null, now); applyNpcs(localNpcs.snapshot(position(), now), now);
             } catch (IOException error) { throw new IllegalStateException(error); }
         }
@@ -351,7 +352,7 @@ public final class KantoWorld implements ClientWorld {
             var state = npcState(npc, current);
             if ((state == null ? npc.x() : state.x()) == tx && (state == null ? npc.y() : state.y()) == ty) return true;
         }
-        if(region()==1){try{return atlas.storyEvents(current).backgrounds().stream().anyMatch(b->b.x()==tx&&b.y()==ty);}catch(IOException e){throw new IllegalStateException(e);}}
+        if(region()<=1){try{return atlas.storyEvents(current).backgrounds().stream().anyMatch(b->b.x()==tx&&b.y()==ty&&(region()==1||top.totodile.pokemmo.protocol.KantoStoryScenes.backgroundScript(b.script())));}catch(IOException e){throw new IllegalStateException(e);}}
         return false;
     }
 
@@ -366,7 +367,7 @@ public final class KantoWorld implements ClientWorld {
             var state = npcState(npc, current);
             if ((state == null ? npc.x() : state.x()) == targetX && (state == null ? npc.y() : state.y()) == targetY) { target = npc; break; }
         }
-        if(target==null&&region()==1){try{for(var b:atlas.storyEvents(current).backgrounds())if(b.x()==targetX&&b.y()==targetY){target=new FireRedAtlas.Npc(255,0,b.x(),b.y(),b.elevation(),0,0,0,0,b.script());break;}}catch(IOException e){throw new IllegalStateException(e);}}
+        if(target==null&&region()<=1){try{for(var b:atlas.storyEvents(current).backgrounds())if(b.x()==targetX&&b.y()==targetY&&(region()==1||top.totodile.pokemmo.protocol.KantoStoryScenes.backgroundScript(b.script()))){target=new FireRedAtlas.Npc(255,0,b.x(),b.y(),b.elevation(),0,0,0,0,b.script());break;}}catch(IOException e){throw new IllegalStateException(e);}}
         if (target == null) return CompletableFuture.completedFuture(List.of());
         final FireRedAtlas.Npc selected = target;
         conversing = true; clearKeys();
@@ -600,8 +601,8 @@ public final class KantoWorld implements ClientWorld {
             try {
                 var key = new FireRedAtlas.Key(p.group(), p.map());
                 Scene destination = scene(key);
-                fromX = p.x() - (facing == 2 ? -1 : facing == 3 ? 1 : 0);
-                fromY = p.y() - (facing == 1 ? -1 : facing == 0 ? 1 : 0);
+                fromX = key.equals(current) ? x : p.x() - (facing == 2 ? -1 : facing == 3 ? 1 : 0);
+                fromY = key.equals(current) ? y : p.y() - (facing == 1 ? -1 : facing == 0 ? 1 : 0);
                 current = key;
                 map = destination.map();
                 renderer = destination.renderer();
@@ -934,7 +935,16 @@ public final class KantoWorld implements ClientWorld {
             publishPosition();
             return;
         }
-        if (!noclip && ((!map.canMove(x, y, nextX, nextY) && !canEnterDoor(nextX, nextY, direction))
+        boolean jump;
+        try { jump = !noclip && top.totodile.pokemmo.protocol.FireRedWorldRules.ledgeJump(map.behavior(nextX, nextY), direction); }
+        catch (IOException error) { throw new IllegalStateException(error); }
+        if (jump) {
+            nextX += direction == 2 ? -1 : direction == 3 ? 1 : 0;
+            nextY += direction == 1 ? -1 : direction == 0 ? 1 : 0;
+            if (nextX < 0 || nextY < 0 || nextX >= map.width() / 16 || nextY >= map.height() / 16
+                    || !map.walkable(nextX, nextY) || occupied(nextX, nextY)) { publishPosition(); return; }
+        }
+        if (!noclip && !jump && ((!map.canMove(x, y, nextX, nextY) && !canEnterDoor(nextX, nextY, direction))
                 || occupied(nextX, nextY))) { publishPosition(); return; }
         fromX = x;
         fromY = y;
@@ -943,7 +953,7 @@ public final class KantoWorld implements ClientWorld {
         if (!animating || now - stepStarted > 320_000_000L) animationStarted = now;
         animating = true;
         stepStarted = now;
-        stepNanos = movementNanos();
+        stepNanos = jump ? 550_000_000L / speedMultiplier : movementNanos();
         stepping = true;
         if (direction == 1 && canEnterDoor(x, y, direction) && startDoor(x, y, now, false)) {
             stepStarted += 120_000_000L;
@@ -1097,9 +1107,18 @@ public final class KantoWorld implements ClientWorld {
         // 地图坐标先截断到 ROM 像素，再进入正交投影，人物和镜头使用相同位置。
         int px = (int) ((fromX + (x - fromX) * progress) * 16);
         int py = (int) ((fromY + (y - fromY) * progress) * 16);
+        int jumpLift = stepping && Math.abs(x - fromX) + Math.abs(y - fromY) == 2
+                ? (int) Math.round(Math.sin(progress * Math.PI) * 12) : 0;
         int scale = WorldCamera.scale(width);
-        int left = WorldCamera.origin(width, px + 8, scale);
-        int top = WorldCamera.origin(height, py + 12, scale);
+        int focusX=px,focusY=py;
+        var camera=scriptActorsOn(current)&&storyActive()?scriptActorStates.get(127):null;
+        if(camera!=null){
+            float cameraProgress=camera.remaining()==0?1:Math.min(1,Math.max(0,(275-camera.remaining()+(now-storyClock)/1_000_000f)/275f));
+            focusX=(int)((camera.fromX()+(camera.x()-camera.fromX())*cameraProgress)*16);
+            focusY=(int)((camera.fromY()+(camera.y()-camera.fromY())*cameraProgress)*16);
+        }
+        int left = WorldCamera.origin(width, focusX + 8, scale);
+        int top = WorldCamera.origin(height, focusY + 12, scale);
         if (now - stepStarted > 320_000_000L) animating = false;
         int animation = animating ? (int) (Math.max(0, now - animationStarted) / ((running && !cycling ? 140_000_000L : 160_000_000L) / speedMultiplier) % 4) : 0;
         int mode = cycling ? 2 : running && animating ? 1 : 0;
@@ -1128,7 +1147,7 @@ public final class KantoWorld implements ClientWorld {
             draw(shadow, left + (px - 4.5f + shadow.width * 0.125f) * scale,
                     top + (py - 5 + shadow.height * 0.125f) * scale,
                     shadow.width * 0.75f * scale, shadow.height * 0.75f * scale, false);
-            draw(sprite, left + (px - 13.5f) * scale, top + (py - 20) * scale,
+            draw(sprite, left + (px - 13.5f) * scale, top + (py - 20 - jumpLift) * scale,
                     sprite.width * 0.75f * scale, sprite.height * 0.75f * scale, facing == 3);
         }));
         actors.sort(java.util.Comparator.comparingInt(Actor::y));

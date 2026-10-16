@@ -133,7 +133,8 @@ final class StoryMenuWindow extends ResizableFrame {
         for (var group : maps) for (var button : group.commands) {
             var operation = operations.get(button);
             boolean done = completed.contains(operation.scene());
-            boolean connected = operation.scene().equals(top.totodile.pokemmo.protocol.StoryProgressPackets.OPENING)
+            boolean connected = top.totodile.pokemmo.protocol.KantoStoryScenes.entry(operation.scene()) != null
+                    || operation.scene().equals(top.totodile.pokemmo.protocol.StoryProgressPackets.OPENING)
                     || operation.scene().equals(top.totodile.pokemmo.protocol.StoryProgressPackets.LAB_INTRODUCTION)
                     || operation.scene().equals(top.totodile.pokemmo.protocol.StoryProgressPackets.HOENN_OPENING)
                     || operation.scene().equals(top.totodile.pokemmo.protocol.StoryProgressPackets.HOENN_RESCUE)

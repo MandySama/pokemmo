@@ -30,18 +30,37 @@ final class WorldSession implements AutoCloseable {
     private GbaScriptRuntime opening;
     private long savedScriptVersion=-1;
     private boolean scriptBattle;
+    record BattleContinuation(ShowdownBattle battle, EncounterCatalog.Selection encounter, TrainerCatalog.Trainer trainer,
+                              java.util.List<PartyMember> opponents, java.util.List<PartyMember> savedParty, boolean script) implements AutoCloseable {
+        @Override public void close() { if (battle != null) battle.close(); }
+    }
+
+    synchronized BattleContinuation detachBattle() {
+        if (activeEncounter == null || activeEncounter.selections().size() != 1) return null;
+        var result = new BattleContinuation(battle, activeEncounter, activeTrainer, trainerParty, savedBattleParty, scriptBattle);
+        battle = null;
+        return result;
+    }
+
+    synchronized void restoreBattle(BattleContinuation continuation) {
+        battle = continuation.battle(); activeEncounter = continuation.encounter(); activeTrainer = continuation.trainer();
+        trainerParty = continuation.opponents(); savedBattleParty = continuation.savedParty(); scriptBattle = continuation.script();
+    }
     private GbaScriptRuntime createScriptRuntime(Position position)throws SQLException,IOException {
         savedScriptVersion=-1;
-        return new GbaScriptRuntime(region,gender,store.gbaStoryState(account,character,region),position,(operation,first,second,argument)->{
+        var runtime=new GbaScriptRuntime(region,gender,store.gbaStoryState(account,character,region),position,(operation,first,second,argument)->{
             try{return store.gbaStoryEffect(account,character,region,operation,first,second,argument,opening.save(),opening.position(),opening.variable(0x4050),opening.variable(0x4055));}
             catch(SQLException e){throw new IOException("ROM script host operation failed: "+operation,e);}
         });
+        if(region==0)for(int trainer:defeatedTrainers)runtime.markTrainerDefeated(trainer);
+        return runtime;
     }
     private void persistScript()throws SQLException,IOException {
         if(opening==null||opening.version()==savedScriptVersion)return;
         var p=opening.position();
         if(opening.active())position=rules.at(p.group(),p.map(),p.x(),p.y(),p.facing(),p.returnPoint());
-        store.saveGbaStory(account,character,region,opening.save(),position,opening.variable(0x4050),opening.variable(0x4055));
+        if(region==0)store.saveKantoCheckpoint(account,character,opening.save(),position,opening.variable(0x4050),opening.variable(0x4055),opening.completedScenes(),opening.flags(),false);
+        else store.saveGbaStory(account,character,region,opening.save(),position,opening.variable(0x4050),opening.variable(0x4055));
         saved=position;savedScriptVersion=opening.version();
     }
     private final CharacterStore store;
@@ -115,7 +134,7 @@ final class WorldSession implements AutoCloseable {
                 case StoryProgressPackets.QUERY -> { }
                 case StoryProgressPackets.RESET -> {
                     if (loading || npcNow < readyAt || activeEncounter != null || playingStory != null
-                            || opening != null && opening.active() && !request.scene().equals(StoryProgressPackets.OPENING)&&!request.scene().equals(StoryProgressPackets.HOENN_OPENING)) accepted = false;
+                            || region==1&&opening!=null&&opening.active()&&!request.scene().equals(StoryProgressPackets.HOENN_OPENING)) accepted = false;
                     else {
                         accepted=opening!=null&&opening.canReset(request.scene());
                         if (accepted) {
@@ -123,7 +142,8 @@ final class WorldSession implements AutoCloseable {
                             position = saved = rules.at(target.group(),target.map(),target.x(),target.y(),target.facing(),null); destination = position; movementFrom = null;
                             if (region == 0) {
                                 store.saveKantoCheckpoint(account, character, opening.save(), position,
-                                        opening.variable(0x4050), opening.variable(0x4055));
+                                        opening.variable(0x4050), opening.variable(0x4055), opening.completedScenes(), opening.flags(), true);
+                                defeatedTrainers.clear();for(int flag:opening.flags())if(flag>0x500&&flag<=0x500+742)defeatedTrainers.add(flag-0x500);
                                 savedScriptVersion = opening.version();
                             } else persistScript();
                             nativeScript=true;
@@ -156,7 +176,10 @@ final class WorldSession implements AutoCloseable {
         }
         if (playingStory != null && (opcode == WorldPackets.MOVE || opcode == WorldPackets.TELEPORT))
             return response(false, false, duration);
-        if (npcs != null && !loading && (opening == null || !opening.active())) npcs.update(position, npcNow < readyAt ? movementFrom : null, npcNow,opening==null?java.util.Set.of():opening.actorViews().stream().map(GbaScriptRuntime.ActorView::id).collect(java.util.stream.Collectors.toSet()));
+        if (npcs != null && !loading && (opening == null || !opening.active())) {
+            if (opening != null) opening.resumeNpcs(npcs, npcNow);
+            npcs.update(position, npcNow < readyAt ? movementFrom : null, npcNow,opening==null?java.util.Set.of():opening.actorViews().stream().map(GbaScriptRuntime.ActorView::id).collect(java.util.stream.Collectors.toSet()));
+        }
         if (ndsNpcs != null && !loading) ndsNpcs.update(position, npcNow < readyAt ? movementFrom : null, npcNow);
         if(opcode==TrainerPackets.OPCODE) {
             if(packet.length!=1)throw new IOException("Invalid trainer request");
@@ -168,6 +191,14 @@ final class WorldSession implements AutoCloseable {
             activeTrainer=trainer;var party=trainer.party();trainerParty=party;var first=party.getFirst();
             activeEncounter=new EncounterCatalog.Selection(first.species(),first.level(),0,false);
             return TrainerPackets.response(new TrainerPackets.Ready(1,trainer.id(),trainer.name(),trainer.defeat(),trainer.after(),party));
+        }
+        if (opcode == BattleResumePackets.OPCODE) {
+            if (packet.length != 1) throw new IOException("Invalid battle recovery request");
+            if (activeEncounter == null || activeEncounter.selections().size() != 1) return BattleResumePackets.response(BattleResumePackets.Snapshot.empty());
+            if (battle == null) handleLocked(BattlePackets.request(new BattlePackets.Request(BattlePackets.START,0,0,0)));
+            if (battle == null) throw new IOException("Battle recovery failed");
+            var trainer = activeTrainer == null ? null : new TrainerPackets.Ready(1,activeTrainer.id(),activeTrainer.name(),activeTrainer.defeat(),activeTrainer.after(),activeTrainer.party());
+            return BattleResumePackets.response(new BattleResumePackets.Snapshot(battle.trainerBattle(),scriptBattle,activeEncounter,trainer,battle.opponents(),battle.faintMask(),battle.snapshot()));
         }
         if (opcode == BattlePackets.OPCODE) {
             var request=BattlePackets.readRequest(packet);
@@ -181,7 +212,7 @@ final class WorldSession implements AutoCloseable {
                 var result=battle.handle(request);
                 if(result.accepted()&&(!result.party().equals(savedBattleParty)||activeTrainer!=null&&result.outcome()==1)) {
                     store.saveBattleParty(account,character,savedBattleParty,result.party(),activeTrainer!=null&&result.outcome()==1?activeTrainer.id():0);savedBattleParty=result.party();
-                    if(activeTrainer!=null&&result.outcome()==1)defeatedTrainers.add(activeTrainer.id());
+                    if(activeTrainer!=null&&result.outcome()==1){defeatedTrainers.add(activeTrainer.id());if(opening!=null)opening.markTrainerDefeated(activeTrainer.id());}
                 }
                 return BattlePackets.response(result);
             } catch(IOException error) {
@@ -276,6 +307,10 @@ final class WorldSession implements AutoCloseable {
                 result = new FireRedWorldRules.Decision(new Position(position.group(), position.map(), position.x(), position.y(), position.elevation(), request.direction(), position.returnPoint()), false, false);
             movementFrom = position;
             position = result.position();
+            if (result.moved() && !result.warp() && movementFrom.group() == position.group()
+                    && movementFrom.map() == position.map()
+                    && Math.abs(position.x() - movementFrom.x()) + Math.abs(position.y() - movementFrom.y()) == 2)
+                duration = Math.max(1, 550 / multiplier);
             if (opening != null && result.moved() && !result.warp()) opening.onPosition(position,now);
             if (result.moved()) {
                 readyAt = now + TimeUnit.MILLISECONDS.toNanos(duration);

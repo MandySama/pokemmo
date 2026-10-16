@@ -25,6 +25,22 @@ public final class GameServer implements AutoCloseable {
     private final Set<Socket> connections = ConcurrentHashMap.newKeySet();
     private final Set<Integer> accounts = ConcurrentHashMap.newKeySet();
     private final ConcurrentHashMap<String, Long> consumed = new ConcurrentHashMap<>();
+    private record CharacterKey(int account, long character) { }
+    // 网络会话释放后仅保留战斗；角色与在线计时仍按普通退出提交，服务关闭时释放引擎资源。
+    private final ConcurrentHashMap<CharacterKey, WorldSession.BattleContinuation> suspendedBattles = new ConcurrentHashMap<>();
+    private volatile boolean stopping;
+
+    private void releaseWorld(WorldSession world, int account, long character) throws java.sql.SQLException {
+        var continuation = world.detachBattle();
+        if (continuation != null) {
+            if (stopping) continuation.close();
+            else {
+                var previous = suspendedBattles.put(new CharacterKey(account, character), continuation);
+                if (previous != null && previous.battle() != continuation.battle()) previous.close();
+            }
+        }
+        world.close();
+    }
     private final Semaphore connectionLimit = new Semaphore(128);
     private final int serverId;
     private final int capacity;
@@ -153,6 +169,10 @@ public final class GameServer implements AutoCloseable {
                         }
                         result = characters == null ? new CharacterPackets.CreationResult(CharacterPackets.Status.SYSTEM_ERROR, java.util.List.of())
                                 : characters.delete(accountId, id);
+                        if (result.status() == CharacterPackets.Status.SUCCESS) {
+                            var suspended = suspendedBattles.remove(new CharacterKey(accountId, id));
+                            if (suspended != null) suspended.close();
+                        }
                     } catch (IOException exception) {
                         result = new CharacterPackets.CreationResult(CharacterPackets.Status.INVALID, java.util.List.of());
                     } catch (java.sql.SQLException exception) {
@@ -163,13 +183,17 @@ public final class GameServer implements AutoCloseable {
                 } else if (command[0] == 4) {
                     long id = CharacterPackets.decodeEnter(command);
                     if (world != null) {
-                        world.close();
+                        releaseWorld(world, accountId, activeCharacter);
                         world = null;
                     }
                     var owned = characters == null ? java.util.List.<CharacterPackets.CharacterInfo>of()
                             : characters.list(accountId).stream().filter(character -> character.id() == id).toList();
                     activeCharacter = owned.isEmpty() ? 0 : id;
-                    if (!owned.isEmpty()) world = new WorldSession(worldRules[owned.getFirst().appearance().region()], characters, accountId, owned.getFirst(), saves);
+                    if (!owned.isEmpty()) {
+                        world = new WorldSession(worldRules[owned.getFirst().appearance().region()], characters, accountId, owned.getFirst(), saves);
+                        var continuation = suspendedBattles.remove(new CharacterKey(accountId, id));
+                        if (continuation != null) world.restoreBattle(continuation);
+                    }
                     channel.send(new byte[]{4, (byte) (owned.isEmpty() ? 0 : 1)});
                 } else if (command[0] == 5) {
                     if (command.length != 1 || world == null) throw new IOException("Invalid player load request");
@@ -218,7 +242,7 @@ public final class GameServer implements AutoCloseable {
                     channel.send(top.totodile.pokemmo.protocol.FollowerPackets.response(followerAccepted, followerAccepted ? member : null));
                 } else if (command[0] == 0x78) {
                     if (command.length != 1 || world == null) throw new IOException("No active world to logout");
-                    world.close();
+                    releaseWorld(world, accountId, activeCharacter);
                     world = null;
                     activeCharacter = 0;
                     channel.send(CharacterPackets.leaveResponse(characters.list(accountId)));
@@ -309,7 +333,7 @@ public final class GameServer implements AutoCloseable {
                                 top.totodile.pokemmo.protocol.PcPackets.CREATE_BOX, status));
                     }
                 } else if (command[0] == WorldPackets.MOVE || command[0] == WorldPackets.LOADED
-                        || command[0] == WorldPackets.SETTINGS || command[0] == WorldPackets.TELEPORT || (command[0] & 255) == TrainerPackets.OPCODE || (command[0] & 255) == BattlePackets.OPCODE || (command[0] & 255) == EncounterPackets.OPCODE || (command[0] & 255) == NpcPackets.OPCODE || (command[0] & 255) == StoryPackets.OPCODE || (command[0] & 255) == StoryProgressPackets.OPCODE) {
+                        || command[0] == WorldPackets.SETTINGS || command[0] == WorldPackets.TELEPORT || (command[0] & 255) == TrainerPackets.OPCODE || (command[0] & 255) == BattlePackets.OPCODE || (command[0] & 255) == BattleResumePackets.OPCODE || (command[0] & 255) == EncounterPackets.OPCODE || (command[0] & 255) == NpcPackets.OPCODE || (command[0] & 255) == StoryPackets.OPCODE || (command[0] & 255) == StoryProgressPackets.OPCODE) {
                     if (world == null) throw new IOException("No active world");
                     channel.send(world.handle(command));
                 } else if (command[0] == WorldPackets.SAVE) {
@@ -320,11 +344,14 @@ public final class GameServer implements AutoCloseable {
                 } else throw new IOException("Unexpected game command");
             }
         } catch (IOException | GeneralSecurityException | java.sql.SQLException exception) {
-            LOGGER.log(System.Logger.Level.DEBUG, "Game connection closed", exception);
+            boolean normalClose = exception instanceof java.io.EOFException
+                    || exception instanceof java.net.SocketException;
+            LOGGER.log(activeCharacter != 0 && !normalClose ? System.Logger.Level.WARNING : System.Logger.Level.DEBUG,
+                    "Game connection closed", exception);
         } catch (RuntimeException exception) {
             LOGGER.log(System.Logger.Level.ERROR, "Unexpected game session failure", exception);
         } finally {
-            if (world != null) try { world.close(); } catch (java.sql.SQLException e) {
+            if (world != null) try { releaseWorld(world, accountId, activeCharacter); } catch (java.sql.SQLException e) {
                 LOGGER.log(System.Logger.Level.ERROR, "Unable to save world on disconnect", e);
             }
             if (accountId != null) accounts.remove(accountId);
@@ -335,6 +362,7 @@ public final class GameServer implements AutoCloseable {
 
     @Override
     public void close() throws IOException {
+        stopping = true;
         listener.close();
         for (Socket socket : connections) {
             try {
@@ -350,5 +378,7 @@ public final class GameServer implements AutoCloseable {
             Thread.currentThread().interrupt(); workers.shutdownNow();
         }
         saves.shutdown();
+        for (var suspended : suspendedBattles.values()) suspended.close();
+        suspendedBattles.clear();
     }
 }

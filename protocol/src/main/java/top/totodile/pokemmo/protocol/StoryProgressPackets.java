@@ -39,6 +39,8 @@ public final class StoryProgressPackets {
         } catch (IOException | RuntimeException error) { throw new ExceptionInInitializerError(error); }
     }
     public static Scene scene(String id) { return SCENES.get(id); }
+    private static String indexedScene(int index) throws IOException {if(index<0||index>=SCENES.size())throw new IOException("Invalid story scene index");return new ArrayList<>(SCENES.keySet()).get(index);}
+    private static int sceneIndex(String scene){int index=new ArrayList<>(SCENES.keySet()).indexOf(scene);if(index<0)throw new IllegalArgumentException("Unknown story scene");return index;}
     public static Set<String> scenes() { return SCENES.keySet(); }
     /** 完整开场包含带路片段，单独播放带路不会反向完成整段开场。 */
     public static Set<String> completionScenes(String scene) {
@@ -64,10 +66,10 @@ public final class StoryProgressPackets {
     }
     public static byte[] response(Result result) {
         var data = new PacketData(40000).putByte(OPCODE).putByte(result.accepted() ? 1 : 0).putLong(result.token()).putShort(result.completed().size());
-        for (String scene : new TreeSet<>(result.completed())) data.putString(scene);
+        for (String scene : new TreeSet<>(result.completed())) data.putShort(sceneIndex(scene));
         var p = result.position(); data.putByte(p == null ? 0 : 1);
         if (p != null) data.putByte(p.group()).putByte(p.map()).putShort(p.x()).putShort(p.y()).putByte(p.elevation()).putByte(p.facing());
-        data.putByte(result.nativeScript()?1:0).putShort(result.available().size());for(String id:result.available())data.putString(id);
+        data.putByte(result.nativeScript()?1:0).putShort(result.available().size());for(String id:result.available())data.putShort(sceneIndex(id));
         return data.written();
     }
     public static Result decode(byte[] packet) throws IOException {
@@ -77,11 +79,11 @@ public final class StoryProgressPackets {
         if (count > SCENES.size()) throw new IOException("Invalid story count");
         Set<String> completed = new HashSet<>();
         for (int i = 0; i < count; i++) {
-            String scene = data.string(200);
-            if (scene(scene) == null || !completed.add(scene)) throw new IOException("Invalid completed scene");
+            String scene = indexedScene(data.shortValue());
+            if (!completed.add(scene)) throw new IOException("Invalid completed scene");
         }
         CharacterPackets.Position p = data.booleanValue() ? new CharacterPackets.Position(data.byteValue(), data.byteValue(), data.shortValue(), data.shortValue(), data.byteValue(), data.byteValue()) : null;
-        boolean nativeScript=data.booleanValue();int allowed=data.shortValue();if(allowed>SCENES.size())throw new IOException("Invalid scene availability");var available=new HashSet<String>();for(int i=0;i<allowed;i++){String id=data.string(200);if(scene(id)==null)throw new IOException("Invalid available scene");available.add(id);}data.end();
+        boolean nativeScript=data.booleanValue();int allowed=data.shortValue();if(allowed>SCENES.size())throw new IOException("Invalid scene availability");var available=new HashSet<String>();for(int i=0;i<allowed;i++){String id=indexedScene(data.shortValue());if(!available.add(id))throw new IOException("Duplicate available scene");}data.end();
         if (p != null && !p.valid(0) && !p.valid(1)) throw new IOException("Invalid story destination");
         return new Result(accepted,token,Set.copyOf(completed),p,nativeScript,Set.copyOf(available));
     }
