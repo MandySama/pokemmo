@@ -12,6 +12,10 @@ import java.util.function.Function;
 
 /** 游戏窗口与各地区世界的交互边界。 */
 public interface ClientWorld extends AutoCloseable {
+    default void setNpcAuthority(Function<byte[], CompletableFuture<top.totodile.pokemmo.protocol.NpcPackets.Snapshot>> authority) { }
+    default boolean hasNpcInFront() { return false; }
+    default CompletableFuture<java.util.List<Integer>> interactNpc() { return CompletableFuture.completedFuture(java.util.List.of()); }
+    default void endNpcConversation() { }
     void replaceOutfit(top.totodile.pokemmo.protocol.CharacterPackets.Appearance appearance);
     default EncounterCatalog.Selection takeWildEncounter() { return null; }
     default int encounterBehavior() { return -1; }

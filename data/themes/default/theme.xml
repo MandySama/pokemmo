@@ -235,6 +235,10 @@
         <area name="pcslot.border.selected2" xywh="66,157,60,50" inset="-1"/>
         <area name="pcslot.border.filtered" xywh="129,157,60,50"/>
         <area name="pcslot.border.filtered2" xywh="129,157,60,50" inset="-1"/>
+        <select name="pc-drop-target" center="true">
+            <alias ref="pcslot.border.selected2" if="dropTarget"/>
+            <alias ref="none"/>
+        </select>
         <composed name="pc-slot.background">
             <select center="true">
                 <alias ref="pcslot.bg.active" if="filtered"/>
@@ -1463,9 +1467,9 @@
                 <param name="avatarTop"><int>27</int></param>
                 <param name="avatarLeft"><int>0</int></param>
                 <param name="partyLeft"><int>65</int></param>
-                <param name="partyTop"><int>35</int></param>
-                <param name="partySize"><int>42</int></param>
-                <param name="partyGap"><int>32</int></param>
+                <param name="partyTop"><int>32</int></param>
+                <param name="partySize"><int>48</int></param>
+                <param name="partyGap"><int>36</int></param>
                 <param name="alphaOutline"><color>#c2141d</color></param>
                 <param name="shinyAlphaGlow"><color>#FFD700</color></param>
                 <theme name="name" ref="label">
@@ -1678,6 +1682,12 @@
                 <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
             </theme>
             <theme name="button" ref="button"><param name="minHeight"><int>28</int></param></theme>
+        </theme>
+        <theme name="native-script" ref="character-delete-panel" allowWildcard="true">
+            <theme name="togglebutton" ref="button">
+                <param name="minWidth"><int>110</int></param>
+                <param name="minHeight"><int>30</int></param>
+            </theme>
         </theme>
     </theme>
     <theme name="gm-menu" ref="resizableframe" allowWildcard="true">
@@ -2024,6 +2034,7 @@
         </theme>
         <theme name="slot" ref="-defaults">
             <param name="background"><image>pc-slot.background</image></param>
+            <param name="overlay"><image>pc-drop-target</image></param>
             <param name="minWidth"><int>32</int></param>
             <param name="minHeight"><int>32</int></param>
             <param name="tooltipDelay"><int>100</int></param>

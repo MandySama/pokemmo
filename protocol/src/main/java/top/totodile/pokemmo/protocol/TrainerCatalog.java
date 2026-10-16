@@ -22,11 +22,14 @@ public final class TrainerCatalog {
     private TrainerCatalog() { }
     public static Trainer get(int group,int map,int npc){return ENTRIES.get(group<<16|map<<8|npc);}
     public static Collection<Trainer> all(){return ENTRIES.values();}
-    private static final Map<Integer,Trainer> SCRIPT_TRAINERS=scriptTrainers();
+    private static final Map<Integer,Trainer> SCRIPT_TRAINERS=scriptTrainers(0);
+    private static final class HoennScripts { static final Map<Integer,Trainer> TRAINERS=scriptTrainers(1); }
     public static Trainer scriptTrainer(int id){return SCRIPT_TRAINERS.get(id);}
-    private static Map<Integer,Trainer> scriptTrainers(){
+    public static Trainer scriptTrainer(int region,int id){return region==0?scriptTrainer(id):HoennScripts.TRAINERS.get(id);}
+    public static Collection<Trainer> scriptTrainersForRegion(int region){return (region==0?SCRIPT_TRAINERS:HoennScripts.TRAINERS).values();}
+    private static Map<Integer,Trainer> scriptTrainers(int region){
         var result=new HashMap<Integer,Trainer>();
-        try(var input=TrainerCatalog.class.getResourceAsStream("/maps/gba-opening-trainers.csv")){
+        try(var input=TrainerCatalog.class.getResourceAsStream(region==0?"/maps/gba-opening-trainers.csv":"/maps/gba-hoenn-trainers.csv")){
             if(input==null)throw new IOException("Missing ROM script trainers");
             for(String line:new String(input.readAllBytes(),StandardCharsets.UTF_8).split("\\R")){
                 if(line.isBlank())continue;String[] parts=line.split(";"),f=parts[0].split(",");var mons=new ArrayList<Mon>();

@@ -8,8 +8,10 @@ import java.util.*;
 public final class FireRedStoryData {
     public record Coordinate(int x, int y, int elevation, int variable, int value, int script) { }
     public record MapScript(int type, int variable, int value, int script) { }
-    public record Events(List<Coordinate> coordinates, List<MapScript> scripts) {
-        public Events { coordinates = List.copyOf(coordinates); scripts = List.copyOf(scripts); }
+    public record Background(int x, int y, int elevation, int kind, int script) { }
+    public record Events(List<Coordinate> coordinates, List<MapScript> scripts, List<Background> backgrounds) {
+        public Events(List<Coordinate> coordinates, List<MapScript> scripts) { this(coordinates,scripts,List.of()); }
+        public Events { coordinates = List.copyOf(coordinates); scripts = List.copyOf(scripts); backgrounds = List.copyOf(backgrounds); }
     }
     public record Opening(int stopText, int warningText, int actor, List<Integer> approach) {
         public Opening { approach = List.copyOf(approach); }
@@ -22,6 +24,7 @@ public final class FireRedStoryData {
         var reader = new FireRedStoryData(rom);
         List<Coordinate> coordinates = new ArrayList<>();
         List<MapScript> scripts = new ArrayList<>();
+        List<Background> backgrounds = new ArrayList<>();
         int events = reader.ptr(header + 4);
         if (events > 0 && reader.u8(events + 2) > 0) {
             int entries = reader.requiredPtr(events + 12);
@@ -31,6 +34,14 @@ public final class FireRedStoryData {
                 if (reader.u16(at + 12) == 0 && reader.u16(at + 14) == 0) continue;
                 coordinates.add(new Coordinate(reader.u16(at), reader.u16(at + 2), reader.u8(at + 4),
                         reader.u16(at + 6), reader.u16(at + 8), reader.requiredPtr(at + 12)));
+            }
+        }
+        if (events > 0 && reader.u8(events + 3) > 0) {
+            int entries = reader.requiredPtr(events + 16);
+            for (int i = 0; i < reader.u8(events + 3); i++) {
+                int entry = entries + i * 12, kind = reader.u8(entry + 5);
+                if (reader.u16(entry+8)==0 && reader.u16(entry+10)==0) continue;
+                if (kind <= 4) backgrounds.add(new Background(reader.u16(entry),reader.u16(entry+2),reader.u8(entry+4),kind,reader.requiredPtr(entry+8)));
             }
         }
         int at = reader.ptr(header + 8);
@@ -48,7 +59,7 @@ public final class FireRedStoryData {
             } else scripts.add(new MapScript(type, 0, 0, target));
             if (budget == 31) throw new IOException("Map scripts exceed budget");
         }
-        return new Events(coordinates, scripts);
+        return new Events(coordinates, scripts, backgrounds);
     }
 
     /** 解码叫停至警告的首段；未知命令立即失败，不猜测后续指令边界。 */

@@ -164,6 +164,46 @@ public final class BattleScene implements AutoCloseable {
                 initial.y - current.y + offsetY * (zoom * retainedOffset - 1), zoom);
     }
 
+    public float[] particleCameraMatrix() { return camera.combined.val.clone(); }
+    public float[] particleCameraView() { return camera.view.val.clone(); }
+
+    public float[] actorMovement(boolean own, float horizontal, float vertical) {
+        return actorMovement(own, horizontal, vertical, 0);
+    }
+
+    public float[] actorMovement(boolean own, float horizontal, float vertical, float depth) {
+        Vector3 base = new Vector3(own ? 3 : 5.25f, 2.5f, own ? 4 : 1);
+        Vector3 moved = new Vector3(base).add(horizontal, vertical, depth);
+        float baseDepth = new Vector3(base).sub(camera.position).dot(camera.direction);
+        float movedDepth = new Vector3(moved).sub(camera.position).dot(camera.direction);
+        if (movedDepth <= camera.near) return new float[]{10000, 10000, 1};
+        camera.project(base, 0, 0, 760, 540);
+        camera.project(moved, 0, 0, 760, 540);
+        return new float[]{moved.x - base.x, base.y - moved.y, baseDepth / movedDepth};
+    }
+
+    /** Billboard 的四角按镜头正交基旋转，再使用同一透视矩阵投影。 */
+    public float[] particleQuad(float[] particle, int offset, int x, int y, int width, int height) {
+        Vector3 center = new Vector3(particle[offset], particle[offset + 1], particle[offset + 2]);
+        if (new Vector3(center).sub(camera.position).dot(camera.direction) <= camera.near) return null;
+        Vector3 right = new Vector3(camera.direction).crs(camera.up).nor();
+        Vector3 up = new Vector3(right).crs(camera.direction).nor();
+        float halfWidth = particle[offset + 7] * particle[offset + 13];
+        float halfHeight = particle[offset + 8] * particle[offset + 14];
+        float cosine = particle[offset + 15], sine = particle[offset + 16];
+        float[] result = new float[8];
+        int corner = 0;
+        for (float[] sign : new float[][]{{-1, -1}, {1, -1}, {1, 1}, {-1, 1}}) {
+            float horizontal = halfWidth * sign[0], vertical = halfHeight * sign[1];
+            Vector3 point = new Vector3(center).mulAdd(right, horizontal * cosine + vertical * sine)
+                    .mulAdd(up, -horizontal * sine + vertical * cosine);
+            camera.project(point, 0, 0, width, height);
+            result[corner++] = x + point.x;
+            result[corner++] = y + height - point.y;
+        }
+        return result;
+    }
+
     private void drawPlatform(float x, float z, float seconds, boolean translucent, float scale) {
         glPushMatrix();
         glTranslatef(x, 2.5f, z); glScalef(16*scale, 16, 16*scale);

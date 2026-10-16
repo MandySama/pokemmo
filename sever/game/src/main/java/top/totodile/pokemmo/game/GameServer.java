@@ -320,7 +320,9 @@ public final class GameServer implements AutoCloseable {
                 } else throw new IOException("Unexpected game command");
             }
         } catch (IOException | GeneralSecurityException | java.sql.SQLException exception) {
-            LOGGER.log(System.Logger.Level.DEBUG, "Game connection closed: {0}", exception.getClass().getSimpleName());
+            LOGGER.log(System.Logger.Level.DEBUG, "Game connection closed", exception);
+        } catch (RuntimeException exception) {
+            LOGGER.log(System.Logger.Level.ERROR, "Unexpected game session failure", exception);
         } finally {
             if (world != null) try { world.close(); } catch (java.sql.SQLException e) {
                 LOGGER.log(System.Logger.Level.ERROR, "Unable to save world on disconnect", e);

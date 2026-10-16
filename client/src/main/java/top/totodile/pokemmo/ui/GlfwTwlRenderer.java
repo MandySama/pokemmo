@@ -332,6 +332,20 @@ final class GlfwTwlRenderer implements Renderer {
     }
 
     /** 纹理中的区域和颜色信息，不单独拥有 GPU 资源。 */
+    void drawParticleQuad(Image image, float[] vertices, float u, float v, float u2, float v2,
+                          float red, float green, float blue, float alpha) {
+        if (!(image instanceof TextureImage region)) throw new IllegalArgumentException("Unsupported particle image");
+        float[] global = tints.peek();
+        glBindTexture(GL_TEXTURE_2D, region.texture.id);
+        glColor4f(red * global[0], green * global[1], blue * global[2], alpha * global[3]);
+        glBegin(GL_QUADS);
+        glTexCoord2f(u, v2); glVertex2f(vertices[0], vertices[1]);
+        glTexCoord2f(u2, v2); glVertex2f(vertices[2], vertices[3]);
+        glTexCoord2f(u2, v); glVertex2f(vertices[4], vertices[5]);
+        glTexCoord2f(u, v); glVertex2f(vertices[6], vertices[7]);
+        glEnd();
+    }
+
     private final class TextureImage implements Image {
         private final ImageTexture texture;
         private final int x, y, width, height;

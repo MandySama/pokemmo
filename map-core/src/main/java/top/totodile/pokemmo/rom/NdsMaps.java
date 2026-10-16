@@ -43,6 +43,7 @@ public interface NdsMaps {
     }
 
 
+    java.nio.file.Path rom();
     List<Header> headers();
     Header header(int id);
     int chunkCount();

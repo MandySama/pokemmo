@@ -36,11 +36,13 @@ final class StoryMenuWindow extends ResizableFrame {
     private java.util.Set<String> available = java.util.Set.of();
     private final java.util.Map<Button, Command> operations = new java.util.HashMap<>();
     private final Widget mapList = new Widget() {
-        @Override public int getPreferredInnerHeight() { return maps.size() * 36; }
+        @Override public int getPreferredInnerHeight() { return (int) maps.stream().filter(m -> m.tab.isVisible()).count() * 36; }
         @Override protected void layout() {
-            for (int i = 0; i < maps.size(); i++) {
-                maps.get(i).tab.setPosition(getInnerX(), getInnerY() + i * 36);
-                maps.get(i).tab.setSize(getInnerWidth(), 30);
+            int i = 0;
+            for (var entry : maps) {
+                if (!entry.tab.isVisible()) continue;
+                entry.tab.setPosition(getInnerX(), getInnerY() + i++ * 36);
+                entry.tab.setSize(getInnerWidth(), 30);
             }
         }
     };
@@ -108,9 +110,11 @@ final class StoryMenuWindow extends ResizableFrame {
 
     void selectMap(int region, int group, int map) {
         this.region = region;
+        for (var entry : maps) entry.tab.setVisible(entry.region == region);
+        mapList.invalidateLayout();
         select(maps.stream().filter(m -> m.region == region && m.group == group && m.map == map)
                 .findFirst().orElseGet(() -> maps.stream().filter(m -> m.region == region).findFirst().orElse(maps.getFirst())));
-        mapScroll.setScrollPositionY(Math.max(0, maps.indexOf(selected) * 36 - 72));
+        mapScroll.setScrollPositionY(Math.max(0, maps.stream().filter(m->m.region==region).toList().indexOf(selected) * 36 - 72));
     }
 
     void setBusy(boolean busy) {
@@ -130,7 +134,10 @@ final class StoryMenuWindow extends ResizableFrame {
             var operation = operations.get(button);
             boolean done = completed.contains(operation.scene());
             boolean connected = operation.scene().equals(top.totodile.pokemmo.protocol.StoryProgressPackets.OPENING)
-                    || operation.scene().equals(top.totodile.pokemmo.protocol.StoryProgressPackets.LAB_INTRODUCTION);
+                    || operation.scene().equals(top.totodile.pokemmo.protocol.StoryProgressPackets.LAB_INTRODUCTION)
+                    || operation.scene().equals(top.totodile.pokemmo.protocol.StoryProgressPackets.HOENN_OPENING)
+                    || operation.scene().equals(top.totodile.pokemmo.protocol.StoryProgressPackets.HOENN_RESCUE)
+                    || operation.scene().equals(top.totodile.pokemmo.protocol.StoryProgressPackets.HOENN_DEX);
             button.setEnabled(group.region == region && !busy && connected
                     && (operation.action() != 4 || available.contains(operation.scene())));
             button.setTooltipContent(operation.action() == 4 && done ? ClientStrings.get(9563) : null);

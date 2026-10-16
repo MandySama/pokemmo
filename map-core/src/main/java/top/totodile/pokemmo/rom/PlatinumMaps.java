@@ -8,11 +8,14 @@ import java.util.*;
 
 /** 白金地图头、矩阵、地形、建筑和传送事件的独立解码。 */
 public final class PlatinumMaps implements NdsMaps {
+    private final Path rom;
+    @Override public Path rom() { return rom; }
     private final List<Header> headers = new ArrayList<>();
     private final NdsArchive matrices, models, textures, areas, buildings, events;
     private final Map<Integer, Chunk> decoded = new HashMap<>();
 
     public PlatinumMaps(Path rom) throws IOException {
+        this.rom = rom;
         ByteBuffer arm9 = NdsArchive.arm9(rom, false);
         int start = -1;
         for (int i = 0; i <= arm9.limit() - 8; i += 4) {

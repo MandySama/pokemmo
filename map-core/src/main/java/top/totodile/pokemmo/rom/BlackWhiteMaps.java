@@ -11,6 +11,8 @@ import java.util.Map;
 
 /** 黑白地图头、场景矩阵及四通道地形；CPU 数据不依赖 OpenGL。 */
 public final class BlackWhiteMaps implements NdsMaps {
+    private final Path rom;
+    @Override public Path rom() { return rom; }
     private final List<Header> headers = new ArrayList<>();
     private final NdsArchive matrices;
     private final NdsArchive models;
@@ -20,6 +22,7 @@ public final class BlackWhiteMaps implements NdsMaps {
     private final NdsArchive outdoorBuildings, indoorBuildings, outdoorTextures, indoorTextures;
     private final NdsArchive events;
     public BlackWhiteMaps(Path rom) throws IOException {
+        this.rom = rom;
         ByteBuffer table = new NdsArchive(rom, "/a/0/1/2").file(0);
         if (table.remaining() % 48 != 0) throw new IOException("Invalid BW map headers");
         for (int offset = 0; offset < table.limit(); offset += 48) {

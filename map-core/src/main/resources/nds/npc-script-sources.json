@@ -1,0 +1,32 @@
+{
+  "pt_macros": [
+    "pret/pokeplatinum",
+    "1dc13dcea40c04ab53f1f607de46023dc409ef20",
+    "asm/macros/scrcmd.inc"
+  ],
+  "pt_commands": [
+    "pret/pokeplatinum",
+    "1dc13dcea40c04ab53f1f607de46023dc409ef20",
+    "include/data/scripts/scrcmd.h"
+  ],
+  "hg_macros": [
+    "pret/pokeheartgold",
+    "708163e10169173d2bbab252538231721d983155",
+    "asm/macros/script.inc"
+  ],
+  "hg_names": [
+    "pret/pokeheartgold",
+    "708163e10169173d2bbab252538231721d983155",
+    "tools/py_scripts/scrcmd.json"
+  ],
+  "bw_widths": [
+    "Skareeg/SDSME",
+    "14f0e908a4dae9650ba1a52fd2b75fcd5ea7a011",
+    "Source/Map_Editor/Resources/ScriptsV/ScriptsBW.resx"
+  ],
+  "bw_names": [
+    "Skareeg/SDSME",
+    "14f0e908a4dae9650ba1a52fd2b75fcd5ea7a011",
+    "Source/Map_Editor/Resources/ScriptsV/ScriptNamesBW.resx"
+  ]
+}

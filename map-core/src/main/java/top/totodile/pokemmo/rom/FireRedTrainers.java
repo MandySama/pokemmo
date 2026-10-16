@@ -20,13 +20,15 @@ public final class FireRedTrainers {
 
     FireRedTrainers(byte[] rom) throws IOException {
         this.rom = rom;
+        boolean hoenn=rom[0xae]=='E';
         // 英文卡带的 RICK 条目位于102号；同时校验队伍指针，避免误认对白里的名字。
         int found = -1;
-        byte[] name = {(byte)0xcc,(byte)0xc3,(byte)0xbd,(byte)0xc5,(byte)0xff};
-        for(int at=4084;at<rom.length-40;at++) if(matches(at,name)) {
-            int candidate=at-102*40-4;
-            if(u8(candidate+102*40+32)==2 && ptr(candidate+102*40+36)>0
-                    && u8(candidate+103*40+32)>0) {found=candidate;break;}
+        byte[] name = hoenn?new byte[]{(byte)189,(byte)187,(byte)198,(byte)208,(byte)195,(byte)200,(byte)255}:new byte[]{(byte)0xcc,(byte)0xc3,(byte)0xbd,(byte)0xc5,(byte)0xff};
+        int anchor=hoenn?318:102;
+        for(int at=anchor*40+4;at<rom.length-40;at++) if(matches(at,name)) {
+            int candidate=at-anchor*40-4;
+            if(u8(candidate+anchor*40+32)==(hoenn?1:2) && ptr(candidate+anchor*40+36)>0
+                    && u8(candidate+(anchor+1)*40+32)>0) {found=candidate;break;}
         }
         if(found<0)throw new IOException("Unsupported FireRed trainer table");table=found;
         int bulb=find(new byte[]{0x21,2,0x2d,8,0x49,14,0x16,20});

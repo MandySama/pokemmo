@@ -30,6 +30,15 @@ final class KantoDialogueText {
         return result;
     }
 
+    static String format(String text, String player, Map<Integer, FireRedDialogue.Buffer> buffers,
+                         List<PartyMember> party, int region, int gender) {
+        if (region == 1) {
+            String rival = ClientStrings.get(gender == 0 ? 195513 : 195512);
+            text = text.replace("{06}", rival).replace("{RIVAL}", rival).replace("%RIVAL_NAME%", rival);
+        }
+        return format(text, player, buffers, party);
+    }
+
     private static String buffer(FireRedDialogue.Buffer buffer, List<PartyMember> party) {
         int value = buffer.value();
         try {

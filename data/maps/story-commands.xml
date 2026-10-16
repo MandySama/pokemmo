@@ -474,4 +474,13 @@
             <command action="2" name="9562" />
         </story>
     </map>
+    <map region="1" group="25" map="40" name="9904">
+        <story name="9907" scene="hoenn.opening/truck"><command action="4" name="9530"/><command action="2" name="9562"/></story>
+    </map>
+    <map region="1" group="0" map="16" name="141016">
+        <story name="9905" scene="hoenn.opening/rescue"><command action="4" name="9530"/><command action="2" name="9562"/></story>
+    </map>
+    <map region="1" group="1" map="4" name="9908">
+        <story name="9909" scene="hoenn.opening/pokedex"><command action="4" name="9530"/><command action="2" name="9562"/></story>
+    </map>
 </story-commands>

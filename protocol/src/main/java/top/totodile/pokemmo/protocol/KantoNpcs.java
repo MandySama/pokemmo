@@ -63,6 +63,11 @@ public final class KantoNpcs {
         return DEFINITIONS.getOrDefault(group * 256 + map, List.of());
     }
 
+    public static List<Definition> definitions(int region, int group, int map) {
+        if (region != 0 && region != 1) throw new IllegalArgumentException("Unsupported NPC region");
+        return (region == 0 ? DEFINITIONS : HOENN_DEFINITIONS).getOrDefault(group * 256 + map, List.of());
+    }
+
     private List<Actor> actors(int key) {
         return maps.computeIfAbsent(
                 key,
@@ -120,14 +125,16 @@ public final class KantoNpcs {
         update(player, null, now);
     }
 
-    public void update(Position player, Position reserved, long now) {
+    public void update(Position player, Position reserved, long now) { update(player,reserved,now,Set.of()); }
+
+    public void update(Position player, Position reserved, long now,Set<Integer> controlled) {
         int key = player.group() * 256 + player.map();
         Position lastPlayer = lastPlayers.put(key, player);
         boolean playerMoved =
                 lastPlayer != null
                         && (lastPlayer.x() != player.x() || lastPlayer.y() != player.y());
         for (Actor actor : actors(key)) {
-            if (now < actor.ends || actor.definition.id() == talking && key == talkingMap) continue;
+            if (controlled.contains(actor.definition.id()) || now < actor.ends || actor.definition.id() == talking && key == talkingMap) continue;
             actor.fromX = actor.x;
             actor.fromY = actor.y;
             int type = actor.definition.movement();
@@ -206,7 +213,7 @@ public final class KantoNpcs {
                                     && reserved.map() == player.map()
                                     && reserved.x() == x
                                     && reserved.y() == y)
-                            && !occupied(player.group(), player.map(), x, y, now);
+                            && !occupiedExcept(player.group(), player.map(), x, y, now,controlled);
             if (can) {
                 actor.x = x;
                 actor.y = y;

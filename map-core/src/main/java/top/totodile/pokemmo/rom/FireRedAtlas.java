@@ -209,7 +209,6 @@ public final class FireRedAtlas {
 
     private FireRedTrainers trainers;
     public FireRedTrainers.Trainer trainer(int id) throws IOException {
-        if(region!=0)throw new IOException("FireRed trainers required");
         if(trainers==null)trainers=new FireRedTrainers(rom);
         return trainers.trainer(id);
     }

@@ -14,6 +14,9 @@ public final class GbaMapPreview implements AutoCloseable {
     private int atlasSeason;
     private boolean borderVisible;
     private boolean closed;
+    private java.util.Map<Integer,Integer> scriptCells=java.util.Map.of();
+
+    public void setScriptCells(java.util.Map<Integer,Integer> cells) { scriptCells=java.util.Map.copyOf(cells); }
     private int doorX = -1, doorY = -1, doorWidth = 1, doorHeight = 1;
 
     public void setDoorArea(int x, int y, int width, int height) {
@@ -152,6 +155,7 @@ public final class GbaMapPreview implements AutoCloseable {
                             && y <= doorY && y > doorY - doorHeight) continue;
                     int cell = border ? map.borderCell(Math.floorMod(x, map.borderColumns()), Math.floorMod(y, map.borderRows()))
                             : map.cell(x, y);
+                    if(!border){var replacement=scriptCells.get(y*256+x);if(replacement!=null)cell=(cell&0xf000)|replacement;}
                     int sourceLayer = layer;
                     if (!border && (layer == 1 || layer == 2)) {
                         if (map.upperLayer(cell) != layer) continue;

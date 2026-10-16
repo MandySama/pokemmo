@@ -19,11 +19,11 @@ public final class ParticleTextures {
             for(int y=0;y<h;y++)for(int x=0;x<w;x++){
                 int p=y*w+x,index,alpha=255,value=b.get(pixels+(format==3?p/2:p))&255;
                 if(format==3){index=(value>>((p&1)*4))&15;if(index==0)alpha=0;}
-                else if(format==1){index=value&31;alpha=(value>>5)*255/7;}
-                else if(format==6){index=value&7;alpha=(value>>3)*255/31;}
+                else if(format==1){index=value&31;int encoded=(byte)value>>5;alpha=(encoded/2+encoded*4)*8;alpha|=alpha>>5;}
+                else if(format==6){index=value&7;alpha=((byte)value>>3)*8;}
                 else continue;
                 if(index*2>=paletteLength)continue;int c=b.getShort(palette+index*2)&65535;
-                image.setRGB(x,y,alpha<<24|(c&31)*255/31<<16|(c>>5&31)*255/31<<8|(c>>10&31)*255/31);
+                image.setRGB(x,y,alpha<<24|(c&31)*8<<16|(c>>5&31)*8<<8|(c>>10&31)*8);
             }
             result.add(image);offset=palette+paletteLength;
         }

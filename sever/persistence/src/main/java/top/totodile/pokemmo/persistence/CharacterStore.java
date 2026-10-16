@@ -614,8 +614,49 @@ public final class CharacterStore {
         }
     }
 
+    public String gbaStoryState(int account,long character,int region)throws SQLException {
+        if(region==0)return gbaStoryState(account,character);
+        if(region!=1)throw new IllegalArgumentException("Unsupported script region");
+        try(var c=database.connect();var q=c.prepareStatement("SELECT gba_hoenn_state FROM characters WHERE id=? AND account_id=?")){
+            q.setLong(1,character);q.setInt(2,account);try(var r=q.executeQuery()){if(!r.next())throw new SQLException("Story character not owned");return r.getString(1);}
+        }
+    }
+
+    public void saveGbaStory(int account,long character,int region,String state,Position p,int town,int lab)throws SQLException {
+        try(var c=database.connect()){saveGbaRegion(c,account,character,region,state,p,town,lab);}
+    }
+
+    private static void saveGbaRegion(Connection c,int account,long character,int region,String state,Position p,int town,int lab)throws SQLException {
+        if(region==0){saveGbaStory(c,account,character,state,p,town,lab);return;}
+        if(region!=1)throw new IllegalArgumentException("Unsupported script region");
+        var back=p.returnPoint();var array=c.createArrayOf("smallint",back==null?new Integer[0]:new Integer[]{back.group(),back.map(),back.x(),back.y(),back.facing()});
+        try(var q=c.prepareStatement("UPDATE characters SET gba_hoenn_state=?,map_group=?,map_id=?,position_x=?,position_y=?,elevation=?,facing=?,return_position=? WHERE id=? AND account_id=? AND region=1")){
+            q.setString(1,state);q.setInt(2,p.group());q.setInt(3,p.map());q.setInt(4,p.x());q.setInt(5,p.y());q.setInt(6,p.elevation());q.setInt(7,p.facing());q.setArray(8,array);q.setLong(9,character);q.setInt(10,account);if(q.executeUpdate()!=1)throw new SQLException("Hoenn story save rejected");
+        }finally{array.free();}
+    }
+
     public void saveGbaStory(int account,long character,String state,Position p,int townStage,int labStage)throws SQLException {
         try(var c=database.connect()){saveGbaStory(c,account,character,state,p,townStage,labStage);}
+    }
+
+    /** 整体替换关都剧情完成集合，与 ROM 状态和落点一起提交。 */
+    public void saveKantoCheckpoint(int account, long character, String state, Position position,
+            int townStage, int labStage) throws SQLException {
+        try (var connection = database.connect()) {
+            connection.setAutoCommit(false);
+            try {
+                try (var query = connection.prepareStatement("UPDATE characters SET story_completed=ARRAY(SELECT v FROM unnest(story_completed) v WHERE v NOT LIKE 'kanto.%') WHERE id=? AND account_id=? AND region=0")) {
+                    query.setLong(1, character);
+                    query.setInt(2, account);
+                    if (query.executeUpdate() != 1) throw new SQLException("Story character not owned");
+                }
+                saveGbaStory(connection, account, character, state, position, townStage, labStage);
+                connection.commit();
+            } catch (SQLException error) {
+                connection.rollback();
+                throw error;
+            }
+        }
     }
 
     private static void saveGbaStory(Connection c,int account,long character,String state,Position p,int townStage,int labStage)throws SQLException {
@@ -632,6 +673,10 @@ public final class CharacterStore {
 
     /** ROM 奖励、个体和下一指令地址同事务提交，断线重试不能重复发放。 */
     public int gbaStoryEffect(int account,long character,String operation,int first,int second,String argument,String state,Position p,int townStage,int labStage)throws SQLException {
+        return gbaStoryEffect(account,character,0,operation,first,second,argument,state,p,townStage,labStage);
+    }
+
+    public int gbaStoryEffect(int account,long character,int region,String operation,int first,int second,String argument,String state,Position p,int townStage,int labStage)throws SQLException {
         try(var c=database.connect()){
             c.setAutoCommit(false);
             try {
@@ -641,17 +686,17 @@ public final class CharacterStore {
                 int result=1;
                 if(operation.equals("pokemon")){
                     int instruction=Integer.parseInt(argument);boolean given=false;
-                    try(var q=c.prepareStatement("SELECT species FROM character_script_gifts WHERE character_id=? AND rom_hash=? AND instruction=?")){q.setLong(1,character);q.setString(2,top.totodile.pokemmo.protocol.GbaScriptProgram.INSTANCE.romHash());q.setInt(3,instruction);try(var r=q.executeQuery()){if(r.next()){if(r.getInt(1)!=first)throw new SQLException("Starter reward already granted with a different species");given=true;}}}
+                    try(var q=c.prepareStatement("SELECT species,individual_id FROM character_script_gifts WHERE character_id=? AND rom_hash=? AND instruction=?")){q.setLong(1,character);q.setString(2,top.totodile.pokemmo.protocol.GbaScriptProgram.forRegion(region).romHash());q.setInt(3,instruction);try(var r=q.executeQuery()){if(r.next()){if(r.getInt(1)!=first)throw new SQLException("Starter reward already granted with a different species");long giftId=r.getLong(2);result=party.stream().anyMatch(m->m.individual().id()==giftId)?0:1;given=true;}}}
                     if(!given){
-                        var d=top.totodile.pokemmo.protocol.PokemonIndividual.create(first,second,false,character,name,0,p.group(),p.map(),java.time.Instant.now().getEpochSecond());
-                        for(int trainer:new int[]{326,327,328}){var t=top.totodile.pokemmo.protocol.TrainerCatalog.scriptTrainer(trainer);if(t!=null&&t.mons().getFirst().species()==first)d=d.battleState(t.mons().getFirst().moves(),"");}
+                        var d=top.totodile.pokemmo.protocol.PokemonIndividual.create(first,second,false,character,name,region,p.group(),p.map(),java.time.Instant.now().getEpochSecond());
+                        for(var t:top.totodile.pokemmo.protocol.TrainerCatalog.scriptTrainersForRegion(region)){for(var m:t.mons())if(m.species()==first&&m.level()==second)d=d.battleState(m.moves(),"");}
                         int hp=d.stat(first,second,0);var mon=new PartyMember(first,false,false,hp,hp,second,d);
                         if(party.size()<6){party.add(mon);result=0;}else{
                             var boxes=new java.util.ArrayList<>(PokemonStore.loadBoxes(c,character));int slot=-1;
                             for(int i=0;i<14*30;i++){int box=i/30,s=i%30;if(boxes.stream().noneMatch(b->b.box()==box&&b.slot()==s)){slot=i;break;}}
                             if(slot<0)throw new SQLException("No space for script Pokemon");boxes.add(new PokemonStore.Boxed(slot/30,slot%30,mon));PokemonStore.saveBoxes(c,character,boxes);result=1;
                         }
-                        try(var q=c.prepareStatement("INSERT INTO character_script_gifts(character_id,rom_hash,instruction,individual_id,species) VALUES(?,?,?,?,?)")){q.setLong(1,character);q.setString(2,top.totodile.pokemmo.protocol.GbaScriptProgram.INSTANCE.romHash());q.setInt(3,instruction);q.setLong(4,d.id());q.setInt(5,first);q.executeUpdate();}
+                        try(var q=c.prepareStatement("INSERT INTO character_script_gifts(character_id,rom_hash,instruction,individual_id,species) VALUES(?,?,?,?,?)")){q.setLong(1,character);q.setString(2,top.totodile.pokemmo.protocol.GbaScriptProgram.forRegion(region).romHash());q.setInt(3,instruction);q.setLong(4,d.id());q.setInt(5,first);q.executeUpdate();}
                     }
                 }else if(operation.equals("heal")){
                     for(int i=0;i<party.size();i++){var m=party.get(i);var moves=m.individual().moves().stream().map(v->new top.totodile.pokemmo.protocol.PokemonIndividual.Move(v.id(),v.maxPp(),v.maxPp(),v.ppUps())).toList();party.set(i,new PartyMember(m.species(),m.shiny(),m.alpha(),m.maxHp(),m.maxHp(),m.level(),m.individual().battleState(moves,"")));}
@@ -660,7 +705,7 @@ public final class CharacterStore {
                     long gift=0;
                     // 当前开场目录只有一次 givemon，旧角色的测试队伍不能改变奖励个体的命名目标。
                     try(var q=c.prepareStatement("SELECT individual_id FROM character_script_gifts WHERE character_id=? AND rom_hash=?")){
-                        q.setLong(1,character);q.setString(2,top.totodile.pokemmo.protocol.GbaScriptProgram.INSTANCE.romHash());
+                        q.setLong(1,character);q.setString(2,top.totodile.pokemmo.protocol.GbaScriptProgram.forRegion(region).romHash());
                         try(var r=q.executeQuery()){if(r.next())gift=r.getLong(1);if(r.next())throw new SQLException("Ambiguous script nickname target");}
                     }
                     int index=first;
@@ -672,13 +717,26 @@ public final class CharacterStore {
                         for(int i=0;i<boxes.size();i++){var b=boxes.get(i);var m=b.member();if(m.individual().id()==gift){boxes.set(i,new PokemonStore.Boxed(b.box(),b.slot(),new PartyMember(m.species(),m.shiny(),m.alpha(),m.hp(),m.maxHp(),m.level(),m.individual().withNickname(argument))));found=true;break;}}
                         if(!found)throw new SQLException("Script nickname target missing");PokemonStore.saveBoxes(c,character,boxes);
                     }
+                }else if(operation.equals("starter-choice")){
+                    result=-1;try(var q=c.prepareStatement("SELECT species FROM character_script_gifts WHERE character_id=? AND rom_hash=? AND instruction=?")){q.setLong(1,character);q.setString(2,top.totodile.pokemmo.protocol.GbaScriptProgram.forRegion(region).romHash());q.setInt(3,first);try(var r=q.executeQuery()){if(r.next())result=switch(r.getInt(1)){case 252->0;case 255->1;case 258->2;default->throw new SQLException("Invalid saved starter species");};}}
+                }else if(operation.equals("party-count")){result=party.size();
+                }else if(operation.equals("lead-species")||operation.equals("party-species")){int index=operation.equals("lead-species")?0:first;result=index>=0&&index<party.size()?party.get(index).species():0;
+                }else if(operation.equals("clock-read")){try(var q=c.prepareStatement("SELECT (gba_hoenn_clock+FLOOR(EXTRACT(EPOCH FROM(NOW()-gba_hoenn_clock_set_at))/60)::integer)%1440 FROM characters WHERE id=? AND account_id=?")){q.setLong(1,character);q.setInt(2,account);try(var r=q.executeQuery()){r.next();result=r.getInt(1);}}
+                }else if(operation.equals("clock")){if(first<0||first>1439)throw new SQLException("Invalid clock time");try(var q=c.prepareStatement("UPDATE characters SET gba_hoenn_clock=?,gba_hoenn_clock_set_at=NOW() WHERE id=? AND account_id=?")){q.setInt(1,first);q.setLong(2,character);q.setInt(3,account);q.executeUpdate();}
+                }else if(operation.equals("dex-unlock")||operation.equals("dex-state")){try(var q=c.prepareStatement("UPDATE characters SET hoenn_pokedex_obtained=? WHERE id=? AND account_id=?")){q.setBoolean(1,first!=0);q.setLong(2,character);q.setInt(3,account);q.executeUpdate();}
                 }else if(operation.startsWith("item-")){
+                    boolean duplicate=false;
+                    if(operation.equals("item-add")&&!argument.isBlank()){
+                        try(var q=c.prepareStatement("INSERT INTO character_script_item_gifts(character_id,rom_hash,instruction,item_id,quantity) VALUES(?,?,?,?,?) ON CONFLICT DO NOTHING")){
+                            q.setLong(1,character);q.setString(2,top.totodile.pokemmo.protocol.GbaScriptProgram.forRegion(region).romHash());q.setInt(3,Integer.parseInt(argument));q.setInt(4,first);q.setInt(5,second);duplicate=q.executeUpdate()==0;
+                        }
+                    }
                     int owned=0;try(var q=c.prepareStatement("SELECT quantity FROM character_inventory WHERE character_id=? AND item_id=?")){q.setLong(1,character);q.setInt(2,first);try(var r=q.executeQuery()){if(r.next())owned=r.getInt(1);}}
                     if(operation.equals("item-check"))result=owned>=second?1:0;
-                    else {int quantity=operation.equals("item-add")?owned+second:owned-second;if(quantity<0)result=0;else try(var q=c.prepareStatement("INSERT INTO character_inventory(character_id,item_id,quantity) VALUES(?,?,?) ON CONFLICT(character_id,item_id) DO UPDATE SET quantity=EXCLUDED.quantity")){q.setLong(1,character);q.setInt(2,first);q.setInt(3,quantity);q.executeUpdate();}}
+                    else if(!duplicate){int quantity=operation.equals("item-add")?owned+second:owned-second;if(quantity<0)result=0;else if(quantity==0){try(var q=c.prepareStatement("DELETE FROM character_inventory WHERE character_id=? AND item_id=?")){q.setLong(1,character);q.setInt(2,first);q.executeUpdate();}}else try(var q=c.prepareStatement("INSERT INTO character_inventory(character_id,item_id,quantity) VALUES(?,?,?) ON CONFLICT(character_id,item_id) DO UPDATE SET quantity=EXCLUDED.quantity")){q.setLong(1,character);q.setInt(2,first);q.setInt(3,quantity);q.executeUpdate();}}
                 }else throw new SQLException("Unknown script host operation");
                 savePartyArrays(c,account,character,party);PokemonStore.save(c,character,party);
-                saveGbaStory(c,account,character,state,p,townStage,labStage);c.commit();return result;
+                saveGbaRegion(c,account,character,region,state,p,townStage,labStage);c.commit();return result;
             }catch(SQLException|RuntimeException e){c.rollback();throw e;}
         }
     }

@@ -63,6 +63,11 @@ for path in sorted((SOURCE / "resource/map/kanto").rglob("*.json")):
     encode(m,"npcs",d.get("npcs",[]));map_nodes[key]=m
 
 menu=ET.Element("story-commands")
+existing_menu=ROOT/"data/maps/story-commands.xml"
+if existing_menu.exists():
+    for group in ET.parse(existing_menu).getroot().findall("map"):
+        if group.get("region") != "0":menu.append(group)
+
 menu_maps={}; entries=0
 chapter_order = {name: i for i, name in enumerate(("pallet_town", "oak_parcel", "catch_tutorial", "pokemon_center_nurse", "early_route_to_vermilion", "mainline_to_champion"))}
 for path in sorted((SOURCE / "resource/story/kanto").rglob("*.jsonc"), key=lambda p: chapter_order[p.parent.name]):

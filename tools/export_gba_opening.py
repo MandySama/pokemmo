@@ -30,21 +30,40 @@ for at in range(len(rom)-3):
     while p<len(rom)-3 and rom[p]==0x29:flags.append(u16(p+1));p+=3
     if len(flags)>20 and 43 in flags and 44 in flags and 45 not in flags:initial.append(at)
 if len(initial)!=1:raise ValueError('Cannot identify ROM new-game map flag script')
-roots=initial[:]
+standard_npc=rom.find(bytes.fromhex('6a5a6700000000666d6c03'))
+if standard_npc<0:raise ValueError('Cannot locate standard dialogue script')
+needle=struct.pack('<I',standard_npc+0x08000000)
+tables=[];at=0
+while True:
+    at=rom.find(needle,at)
+    if at<0:break
+    start=at-8
+    if start>=0 and 0<ptr(start)<len(rom) and rom[ptr(start+12)]==0x69 and rom[ptr(start+16)]==0x67:tables.append(start)
+    at+=1
+if len(tables)!=1:raise ValueError('Cannot identify standard script table: '+str(tables))
+standards=[ptr(tables[0]+i*4) for i in range(10)]
+roots=initial[:]+standards
 for line in events:
     f=line.split(',')
+    if f[0]=='bg' and int(f[6])>=5:continue
     p=int(f[-1]);
     if p: roots.append(p)
-nodes={}; moves={}; queue=roots[:]
+nodes={}; moves={}; queue=roots[:]; parents={}
 while queue:
     pc=queue.pop()
     if pc in nodes:continue
     if not 0<pc<len(rom):raise ValueError(f'Invalid script address {pc:x}')
     op=rom[pc]; n=schema[op]
     if op==0x5c:
-        kind=rom[pc+1];n=18 if kind in [1,2,4,7] else 22 if kind in [6,8] else 14
-    if n==0:raise ValueError(f'Unknown instruction length {op:02x} at {pc:x}')
+        kind=rom[pc+1];n=10 if kind==3 else 18 if kind in [1,2,4,7] else 22 if kind in [6,8] else 14
+    if n==0:
+        trail=[pc]
+        while trail[-1] in parents:trail.append(parents[trail[-1]])
+        print('trail', [hex(v) for v in trail[:30]], 'root',hex(trail[-1]))
+        raise ValueError(f'Unknown instruction length {op:02x} at {pc:x}')
     data=rom[pc:pc+n];nodes[pc]=data
+    before=len(queue)
+    if op in [8,9] and rom[pc+1]<len(standards):queue.append(standards[rom[pc+1]])
     if op in [4,5]: queue.append(ptr(pc+1))
     if op in [6,7]:queue.append(ptr(pc+2))
     if op in [0x4f,0x50]:
@@ -53,11 +72,14 @@ while queue:
             q+=1
             if q-p>4096:raise ValueError('Movement budget')
         moves[p]=rom[p:q+1]
-    if op==0x5c and rom[pc+1] in [1,2,4,7]:queue.append(ptr(pc+14))
+    if op==0x5c and rom[pc+1] in [1,2]:queue.append(ptr(pc+14))
+    if op==0x5c and rom[pc+1] in [6,8]:queue.append(ptr(pc+18))
     if op not in [2,3,5,8,0x0c,0x0d]:queue.append(pc+n)
-    if len(nodes)>50000:raise ValueError('Script budget')
+    for child in queue[before:]:parents.setdefault(child,pc)
+    if len(nodes)>500000:raise ValueError('Script budget')
 out=root/'protocol/src/main/resources/maps/gba-opening-program.txt.gz'
 lines=['sha256,'+hashlib.sha256(rom).hexdigest(),'init,'+str(initial[0])]+events
+lines += [f'std,{i},{at}' for i,at in enumerate(standards)]
 for pc,data in sorted(nodes.items()):lines.append(f'code,{pc},{data.hex()}')
 for pc,data in sorted(moves.items()):lines.append(f'move,{pc},{data.hex()}')
 specials=re.findall(r'^\s*def_special\s+(\w+)',(audit/'data/specials.inc').read_text(),re.M)

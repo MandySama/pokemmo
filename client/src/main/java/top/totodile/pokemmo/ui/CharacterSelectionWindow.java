@@ -192,7 +192,7 @@ final class CharacterSelectionWindow extends ResizableFrame {
         private CompletableFuture<BufferedImage> partyResult;
         private final LatestIconRequest partyLoader = new LatestIconRequest();
         private boolean partyFailed;
-        private int partyLeft = 65, partyTop = 35, partySize = 42, partyGap = 32;
+        private int partyLeft = 65, partyTop = 32, partySize = 48, partyGap = 36;
         private int alphaOutline = Color.WHITE.toARGB(), shinyAlphaGlow = Color.WHITE.toARGB();
         private int avatarTop = 27;
         private int avatarLeft;
@@ -213,9 +213,9 @@ final class CharacterSelectionWindow extends ResizableFrame {
             avatarTop = theme.getParameter("avatarTop", 27);
             avatarLeft = theme.getParameter("avatarLeft", 0);
             partyLeft = theme.getParameter("partyLeft", 65);
-            partyTop = theme.getParameter("partyTop", 35);
-            partySize = theme.getParameter("partySize", 42);
-            partyGap = theme.getParameter("partyGap", 32);
+            partyTop = theme.getParameter("partyTop", 32);
+            partySize = theme.getParameter("partySize", 48);
+            partyGap = theme.getParameter("partyGap", 36);
             alphaOutline = theme.getParameter("alphaOutline", Color.WHITE).toARGB();
             shinyAlphaGlow = theme.getParameter("shinyAlphaGlow", Color.WHITE).toARGB();
         }

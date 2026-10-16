@@ -137,6 +137,7 @@ final class PcBoxWindow extends ResizableFrame implements AutoCloseable {
 
     // ---- 拖拽状态，覆盖层挂在 LoginScreen 顶层 ----
     private Image dragIcon;
+    private Slot dragSource, dropTarget;
     private int dragX, dragY;
     private final Widget dragOverlay = new Widget() {
         @Override protected void paintWidget(GUI gui) {
@@ -338,6 +339,7 @@ final class PcBoxWindow extends ResizableFrame implements AutoCloseable {
     /** Esc 先取消已经拿起的宝可梦，再交回上层关闭窗口。 */
     boolean cancelPick() {
         if (picked == null) return false;
+        endDrag();
         picked = null;
         applyPicked();
         return true;
@@ -582,6 +584,7 @@ final class PcBoxWindow extends ResizableFrame implements AutoCloseable {
                         Color.WHITE, false, Texture.Rotation.NONE);
             uploadedIconStyle = iconStyle;
             if (oldTexture != null) oldTexture.destroy();
+            if (dragSource != null) dragIcon = icon(dragSource.stripIndex());
         }
     }
 
@@ -875,6 +878,7 @@ final class PcBoxWindow extends ResizableFrame implements AutoCloseable {
     }
 
     private void clear() {
+        endDrag();
         cache.clear();
         entries.clear();
         fetching.clear();
@@ -928,23 +932,57 @@ final class PcBoxWindow extends ResizableFrame implements AutoCloseable {
     // ---- 拖拽搬移 ----
 
     private void beginDrag(Slot source) {
-        if (busy || moveRequest != null) return;
+        if (busy || moveRequest != null || partyRequest != null || boxRequest != null) return;
         PartyMember member = source.member();
         if (member == null) return;
         picked = source.location();
+        dragSource = source;
         shown = member;
         dragIcon = icon(source.stripIndex());
         dragOverlay.setVisible(true);
         applyPicked();
+        updateDropTarget();
+    }
+
+    private void endDrag() {
+        dragSource = null;
+        dragIcon = null;
+        dragOverlay.setVisible(false);
+        if (dropTarget != null) dropTarget.getAnimationState().setAnimationState(AnimationState.StateKey.get("dropTarget"), false);
+        dropTarget = null;
+    }
+
+    private Slot targetAt(int x, int y) {
+        for (Slot slot : boxSlots) if (slot.isInside(x, y)) return slot;
+        for (Slot slot : partySlots) if (slot.isInside(x, y)) return slot;
+        // 将相邻格之间的间隙平分，落点提示与松开判定使用同一区域。
+        for (Slot slot : boxSlots) {
+            if (x >= slot.getX() - columnGap / 2 && x < slot.getRight() + (columnGap + 1) / 2
+                    && y >= slot.getY() - slotGap / 2 && y < slot.getBottom() + (slotGap + 1) / 2) return slot;
+        }
+        for (Slot slot : partySlots) {
+            if (x >= slot.getX() && x < slot.getRight()
+                    && y >= slot.getY() - slotGap / 2 && y < slot.getBottom() + (slotGap + 1) / 2) return slot;
+        }
+        return null;
+    }
+
+    private void updateDropTarget() {
+        Slot target = dragSource == null ? null : targetAt(dragX, dragY);
+        if (target == dragSource) target = null;
+        if (target == dropTarget) return;
+        if (dropTarget != null) dropTarget.getAnimationState().setAnimationState(AnimationState.StateKey.get("dropTarget"), false);
+        dropTarget = target;
+        if (dropTarget != null) dropTarget.getAnimationState().setAnimationState(AnimationState.StateKey.get("dropTarget"), true);
     }
 
     private void finishDrag() {
-        dragOverlay.setVisible(false);
-        dragIcon = null;
+        if (dragSource == null) return;
         Pick from = picked;
+        Slot target = targetAt(dragX, dragY);
+        endDrag();
         if (from == null) return;
-        for (Slot target : boxSlots) if (target.isInside(dragX, dragY)) { drop(from, target); return; }
-        for (Slot target : partySlots) if (target.isInside(dragX, dragY)) { drop(from, target); return; }
+        if (target != null) { drop(from, target); return; }
         // 落在空白处或窗口外：只收回拿起状态，左侧资料保持。
         cancelPick();
         applyPicked();
@@ -1038,7 +1076,7 @@ final class PcBoxWindow extends ResizableFrame implements AutoCloseable {
             addCallback(this::clicked);
             setListener(new DragListener() {
                 public void dragStarted() { beginDrag(Slot.this); }
-                public void dragged(int deltaX, int deltaY) { }
+                public void dragged(int deltaX, int deltaY) { updateDropTarget(); }
                 public void dragStopped() { finishDrag(); }
             });
         }
@@ -1074,6 +1112,10 @@ final class PcBoxWindow extends ResizableFrame implements AutoCloseable {
 
         @Override
         public boolean handleEvent(Event event) {
+            if (event.isMouseEvent() && event.getMouseButton() == Event.MOUSE_RBUTTON) {
+                if (event.getType() == Event.Type.MOUSE_BTNDOWN) cancelPick();
+                return true;
+            }
             if (event.isMouseEvent()) { dragX = event.getMouseX(); dragY = event.getMouseY(); }
             return super.handleEvent(event);
         }
@@ -1083,7 +1125,7 @@ final class PcBoxWindow extends ResizableFrame implements AutoCloseable {
             super.paintWidget(gui);
             PartyMember member = member();
             Label badge = kind == PcPackets.PARTY ? partyLevels[slot] : slotLevels[slot];
-            badge.setVisible(member != null);
+            badge.setVisible(member != null && this != dragSource);
             badge.setText(member == null ? "" : Integer.toString(member.level()));
             String text = member == null ? null : ClientStrings.get(150000 + member.species());
             if (!java.util.Objects.equals(text, tooltip)) {
@@ -1093,7 +1135,7 @@ final class PcBoxWindow extends ResizableFrame implements AutoCloseable {
             if (member == null) return;
             Image image = icon(stripIndex());
             // 图标跟着光标走的时候，源格只留底板。
-            if (image != null && image != dragIcon)
+            if (image != null && this != dragSource)
                 image.draw(getAnimationState(), getX() + (getWidth() - PartyIcons.TILE_SIZE) / 2,
                         getY() + (getHeight() - PartyIcons.TILE_SIZE) / 2);
             if (shiny != null && member.shiny())

@@ -66,8 +66,8 @@ public final class NpcPackets {
                             data.shortValue());
             if (state.facing() > 3
                     || state.remaining() > 550
-                    || state.x() > 255
-                    || state.y() > 255
+                    || state.x() > 1023
+                    || state.y() > 1023
                     || Math.abs(state.x() - state.fromX()) + Math.abs(state.y() - state.fromY())
                             > 1) throw new IOException("Invalid NPC state");
             states.add(state);

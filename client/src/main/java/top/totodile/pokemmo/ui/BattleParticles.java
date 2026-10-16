@@ -7,6 +7,7 @@ import de.matthiasmann.twl.renderer.Image;
 import top.totodile.pokemmo.ClientFiles;
 import top.totodile.pokemmo.battle.MoveAnimations;
 import top.totodile.pokemmo.rom.ParticleTextures;
+import top.totodile.pokemmo.rom.BattleScene;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Path;
@@ -19,9 +20,23 @@ import static org.lwjgl.opengl.GL11.*;
 final class BattleParticles {
     record Definition(MoveAnimations.Effect effect, SummaryParticles.Definition particle,
                       float delay, float duration, int minimum, float[] colors, float[] colorTimes,
-                      float velocity, float velocityPhi, float velocityTheta) { }
+                      float velocity, float velocityPhi, float velocityTheta,
+                      OriginalBattleParticles.Definition original) {
+        Definition(MoveAnimations.Effect effect, SummaryParticles.Definition particle, float delay,
+                   float duration, int minimum, float[] colors, float[] colorTimes,
+                   float velocity, float velocityPhi, float velocityTheta) {
+            this(effect, particle, delay, duration, minimum, colors, colorTimes, velocity, velocityPhi, velocityTheta, null);
+        }
+        Definition(MoveAnimations.Effect effect, OriginalBattleParticles.Definition original) {
+            this(effect, null, 0, 0, 0, null, null, 0, 0, 0, original);
+        }
+        List<BufferedImage> textures() { return original == null ? List.of(particle.texture()) : original.textures(); }
+    }
     static List<Definition> load(Path rom, int move) throws IOException {
-        return loadEffects(rom, MoveAnimations.get(move).effects());
+        return OriginalBattleParticles.load(rom, move);
+    }
+    static List<Definition> load(Path rom, int move, boolean enemy) throws IOException {
+        return OriginalBattleParticles.load(rom, MoveAnimations.get(move, enemy ? "enemy" : ""));
     }
     static List<Definition> loadShiny(Path rom) throws IOException {
         // 普通星星闪光按 152 双控制器、422 星光序列播放。
@@ -88,9 +103,22 @@ final class BattleParticles {
     private final List<Definition> definitions;
     private final List<Image> images;
     private final List<List<Particle>> particles = new ArrayList<>();
+    private final List<OriginalBattleParticles> originals = new ArrayList<>();
     BattleParticles(List<Definition> definitions, List<Image> images) {
-        this.definitions = definitions; this.images = images;
+        this.definitions = definitions; this.images = new ArrayList<>();
+        int imageIndex = 0;
         for (int i=0;i<definitions.size();i++) {
+            var definition = definitions.get(i);
+            if (definition.original() != null) {
+                int count = definition.textures().size();
+                originals.add(new OriginalBattleParticles(definition.original(), images.subList(imageIndex, imageIndex + count)));
+                imageIndex += count;
+                this.images.add(null);
+                particles.add(List.of());
+                continue;
+            }
+            originals.add(null);
+            this.images.add(images.get(imageIndex++));
             var d=definitions.get(i); var p=d.particle(); var random=new Random(5107L+i*137);
             int count=Math.min(600,Math.max(d.minimum(),Math.round(p.rate()*d.duration())));
             var layer=new ArrayList<Particle>();
@@ -106,6 +134,7 @@ final class BattleParticles {
     private static float between(Random random,float a,float b){return a+random.nextFloat()*(b-a);}
     void draw(Widget target, long milliseconds, float ownX, float ownY, float enemyX, float enemyY, float scale) {
         for (int i=0;i<definitions.size();i++) {
+            if (originals.get(i) != null) continue;
             var d=definitions.get(i);var p=d.particle();
             float elapsed=(milliseconds-d.effect().start())/1000f;
             boolean opponent=d.effect().target()==1||d.effect().target()==2||d.effect().target()==3||d.effect().target()==11;
@@ -130,6 +159,18 @@ final class BattleParticles {
                 } finally {glPopMatrix();renderer.popGlobalTintColor();}
             }
         }
+    }
+    void drawOriginal(Widget widget, long milliseconds, BattleScene scene, boolean reverse,
+                      int x, int y, int width, int height) {
+        for (var original : originals) if (original != null)
+            original.draw(widget, milliseconds, scene, reverse, x, y, width, height);
+    }
+
+    int originalDrawnParticles() {
+        return originals.stream().filter(Objects::nonNull).mapToInt(OriginalBattleParticles::drawnParticles).sum();
+    }
+    void close() {
+        for (var original : originals) if (original != null) original.close();
     }
     private static float[] color(Definition d,float age) {
         int last=Math.min(d.colorTimes().length,d.colors().length/3)-1;

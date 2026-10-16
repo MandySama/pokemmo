@@ -62,7 +62,7 @@ public final class StoryPackets {
         if (data.booleanValue()) {
             player = new CharacterPackets.Position(data.byteValue(), data.byteValue(), data.shortValue(), data.shortValue(), data.byteValue(), data.byteValue());
             fromX = data.shortValue(); fromY = data.shortValue(); remaining = data.shortValue(); warp = data.booleanValue();
-            if (!player.valid(0) || remaining > 550 || Math.abs(player.x() - fromX) + Math.abs(player.y() - fromY) > 1)
+            if (!(player.valid(0)||player.valid(1)) || remaining > 550 || Math.abs(player.x() - fromX) + Math.abs(player.y() - fromY) > 2)
                 throw new IOException("Invalid story player movement");
         }
         boolean running=data.booleanValue();int mode=data.byteValue(),picture=data.shortValue(),trainer=data.shortValue(),doorX=data.intValue(),doorY=data.intValue(),doorState=data.byteValue();
@@ -70,14 +70,14 @@ public final class StoryPackets {
         var actors=new java.util.ArrayList<GbaScriptRuntime.ActorView>();for(int i=0;i<count;i++){
             int id=data.byteValue(),gfx=data.shortValue(),height=data.byteValue();boolean show=data.booleanValue();
             var s=new NpcPackets.State(id,data.shortValue(),data.shortValue(),data.shortValue(),data.shortValue(),data.byteValue(),data.shortValue());
-            if(s.facing()>3||s.remaining()>550||Math.abs(s.x()-s.fromX())+Math.abs(s.y()-s.fromY())>1)throw new IOException("Invalid script actor movement");
+            if(s.facing()>3||s.remaining()>550||Math.abs(s.x()-s.fromX())+Math.abs(s.y()-s.fromY())>2)throw new IOException("Invalid script actor movement");
             actors.add(new GbaScriptRuntime.ActorView(id,gfx,height,show,s));
         }
         count=data.shortValue();if(count>256)throw new IOException("Invalid script buffer count");var buffers=new java.util.HashMap<Integer,Integer>();for(int i=0;i<count;i++)buffers.put(data.shortValue(),data.intValue());
         data.end();
         if (phase < 0 || text < 0 || actor.facing() > 3 || actor.remaining() > 550
                 || actor.x() > 255 || actor.y() > 255
-                || Math.abs(actor.x() - actor.fromX()) + Math.abs(actor.y() - actor.fromY()) > 1)
+                || Math.abs(actor.x() - actor.fromX()) + Math.abs(actor.y() - actor.fromY()) > 2)
             throw new IOException("Invalid story state");
         return new Snapshot(phase,text,graphics,elevation,visible?actor:null,player,fromX,fromY,remaining,warp,running,mode,picture,trainer,doorX,doorY,doorState,java.util.List.copyOf(actors),java.util.Map.copyOf(buffers));
     }

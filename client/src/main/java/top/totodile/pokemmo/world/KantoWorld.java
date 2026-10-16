@@ -197,7 +197,7 @@ public final class KantoWorld implements ClientWorld {
     }
 
     private void updateStory(long now) {
-        if (region() != 0 || atlas == null) return;
+        if (region() > 1 || atlas == null) return;
         if (storyReply != null && storyReply.isDone()) {
             story = storyReply.join(); storyReply = null; storyClock = now;
             var actor = story.actor();
@@ -211,6 +211,7 @@ public final class KantoWorld implements ClientWorld {
             if (story.phase() == 0) presentedStoryPhase = 0;
             if (storyActive()) clearKeys();
             if (story.active() && story.player() != null) applyStoryMovement(story, now);
+            if(story.player()!=null){var source=scenes.get(new FireRedAtlas.Key(story.player().group(),story.player().map()));if(source!=null){var cells=new java.util.HashMap<Integer,Integer>();story.buffers().forEach((id,value)->{if(id>=20000)cells.put(id-20000,value);});source.renderer().setScriptCells(cells);}}
             if(story.doorState()!=lastScriptDoor&&story.doorX()>=0&&story.doorY()>=0&&story.doorX()<map.width()/16&&story.doorY()<map.height()/16){
                 lastScriptDoor=story.doorState();if(lastScriptDoor!=0)startDoor(story.doorX(),story.doorY(),now,lastScriptDoor==2);
             }
@@ -228,7 +229,7 @@ public final class KantoWorld implements ClientWorld {
         if (storyAuthority == null && authority == null) {
             try {
                 if (localOpening == null) {
-                    localOpening = new top.totodile.pokemmo.protocol.GbaScriptRuntime("",position(),(op,a,b,text)->{throw new IOException("Offline script host unavailable: "+op);});
+                    localOpening = new top.totodile.pokemmo.protocol.GbaScriptRuntime(region(),appearance.gender(),"",position(),(op,a,b,text)->{throw new IOException("Offline script host unavailable: "+op);});
                 }
                 if (story != null && story.warp() && !entering && transfer == null) localOpening.arrived(now);
                 localOpening.onPosition(position(),now);
@@ -350,6 +351,7 @@ public final class KantoWorld implements ClientWorld {
             var state = npcState(npc, current);
             if ((state == null ? npc.x() : state.x()) == tx && (state == null ? npc.y() : state.y()) == ty) return true;
         }
+        if(region()==1){try{return atlas.storyEvents(current).backgrounds().stream().anyMatch(b->b.x()==tx&&b.y()==ty);}catch(IOException e){throw new IllegalStateException(e);}}
         return false;
     }
 
@@ -364,6 +366,7 @@ public final class KantoWorld implements ClientWorld {
             var state = npcState(npc, current);
             if ((state == null ? npc.x() : state.x()) == targetX && (state == null ? npc.y() : state.y()) == targetY) { target = npc; break; }
         }
+        if(target==null&&region()==1){try{for(var b:atlas.storyEvents(current).backgrounds())if(b.x()==targetX&&b.y()==targetY){target=new FireRedAtlas.Npc(255,0,b.x(),b.y(),b.elevation(),0,0,0,0,b.script());break;}}catch(IOException e){throw new IllegalStateException(e);}}
         if (target == null) return CompletableFuture.completedFuture(List.of());
         final FireRedAtlas.Npc selected = target;
         conversing = true; clearKeys();

@@ -6,7 +6,7 @@ import java.util.*;
 /** 正式角色的场景完成标记；重置与播放使用同一场景标识。 */
 public final class StoryProgressPackets {
     public static final int OPCODE = 0x88, QUERY = 0, RESET = 1, BEGIN = 2, COMPLETE = 3, CANCEL = 4;
-    public record Scene(String id, int group, int map, int x, int y) { }
+    public record Scene(String id, int group, int map, int x, int y) { public int region(){return id.startsWith("hoenn.")?1:0;} }
     public record Request(int action, String scene, long token) { }
     public record Result(boolean accepted,long token,Set<String> completed,CharacterPackets.Position position,boolean nativeScript,Set<String> available) {
         public Result(boolean accepted,long token,Set<String> completed,CharacterPackets.Position position){this(accepted,token,completed,position,false,Set.of());}
@@ -15,6 +15,7 @@ public final class StoryProgressPackets {
     public static final String OPENING = "kanto.pallet_town.opening/PalletTown/town_stop";
     public static final String ESCORT = "kanto.pallet_town.opening/PalletTown/escort";
     public static final String LAB_INTRODUCTION = "kanto.pallet_town.opening/PalletTown_ProfessorOaksLab/lab_introduction";
+    public static final String HOENN_OPENING="hoenn.opening/truck", HOENN_RESCUE="hoenn.opening/rescue", HOENN_DEX="hoenn.opening/pokedex";
     private StoryProgressPackets() { }
     private static Map<String, Scene> load() {
         var scenes = new LinkedHashMap<String, Scene>();
@@ -26,6 +27,13 @@ public final class StoryProgressPackets {
                 var scene = new Scene(f[0], Integer.parseInt(f[1]), Integer.parseInt(f[2]), Integer.parseInt(f[3]), Integer.parseInt(f[4]));
                 if (!FireRedMaps.contains(0, scene.group(), scene.map(), scene.x(), scene.y())
                         || scenes.put(scene.id(), scene) != null) throw new IOException("Invalid story scene");
+            }
+            try(var hoenn=StoryProgressPackets.class.getResourceAsStream("/maps/hoenn-story-scenes.csv")){
+                if(hoenn==null)throw new IOException("Missing Hoenn story scenes");
+                for(String line:new String(hoenn.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8).split("\\R")){
+                    if(line.isBlank()||line.startsWith("#"))continue;var f=line.split(",");var scene=new Scene(f[0],Integer.parseInt(f[1]),Integer.parseInt(f[2]),Integer.parseInt(f[3]),Integer.parseInt(f[4]));
+                    if(!FireRedMaps.contains(1,scene.group(),scene.map(),scene.x(),scene.y())||scenes.put(scene.id(),scene)!=null)throw new IOException("Invalid Hoenn scene");
+                }
             }
             return Collections.unmodifiableMap(scenes);
         } catch (IOException | RuntimeException error) { throw new ExceptionInInitializerError(error); }
@@ -74,7 +82,7 @@ public final class StoryProgressPackets {
         }
         CharacterPackets.Position p = data.booleanValue() ? new CharacterPackets.Position(data.byteValue(), data.byteValue(), data.shortValue(), data.shortValue(), data.byteValue(), data.byteValue()) : null;
         boolean nativeScript=data.booleanValue();int allowed=data.shortValue();if(allowed>SCENES.size())throw new IOException("Invalid scene availability");var available=new HashSet<String>();for(int i=0;i<allowed;i++){String id=data.string(200);if(scene(id)==null)throw new IOException("Invalid available scene");available.add(id);}data.end();
-        if (p != null && !p.valid(0)) throw new IOException("Invalid story destination");
+        if (p != null && !p.valid(0) && !p.valid(1)) throw new IOException("Invalid story destination");
         return new Result(accepted,token,Set.copyOf(completed),p,nativeScript,Set.copyOf(available));
     }
 }

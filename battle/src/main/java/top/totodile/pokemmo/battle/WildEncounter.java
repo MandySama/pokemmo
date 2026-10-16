@@ -38,7 +38,7 @@ public final class WildEncounter {
             return phase;
         }
         if (phase == Phase.MOVE) {
-            if (moveElapsed(milliseconds) >= MoveAnimations.get(moveId).duration()) phase = Phase.READY;
+            if (moveElapsed(milliseconds) >= MoveAnimations.playback(moveId).duration()) phase = Phase.READY;
             return phase;
         }
         long elapsed = elapsed(milliseconds);
@@ -73,7 +73,7 @@ public final class WildEncounter {
     }
 
     public void playServerMove(int move, long milliseconds) {
-        moveId = MoveAnimations.supports(move) ? move : MovePresentation.TACKLE;
+        moveId = move;
         moveStarted = milliseconds;
         phase = Phase.MOVE;
     }

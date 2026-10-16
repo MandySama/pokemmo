@@ -176,6 +176,10 @@ public final class FireRedWorldRules implements WorldRules {
     }
 
     public Decision move(Position position, int direction, boolean noclip, java.util.function.Predicate<Position> occupied) {
+        return move(position,direction,noclip,occupied,null);
+    }
+
+    public Decision move(Position position,int direction,boolean noclip,java.util.function.Predicate<Position> occupied,java.util.function.Function<Position,Boolean> collisionOverride) {
         if (direction < 0 || direction > 3 || !position.valid(region)) throw new IllegalArgumentException("Invalid movement");
         position = at(position.group(), position.map(), position.x(), position.y(), direction, position.returnPoint());
         Decision standing = warp(position, direction, false);
@@ -225,7 +229,9 @@ public final class FireRedWorldRules implements WorldRules {
         int fromHeight = source.height(position.x(), position.y()), toHeight = target.height(x, y);
         boolean matchingHeight = fromHeight == toHeight || fromHeight == -1 || toHeight == -1
                 || toHeight == 14 || toHeight == -2 || fromHeight == 0 && toHeight == 2;
-        boolean blocked = (!target.walkable(x, y) || !crossing && !matchingHeight) && !door
+        Boolean overridden=collisionOverride==null?null:collisionOverride.apply(at(group,map,x,y,direction,position.returnPoint()));
+        boolean walkable=overridden==null?target.walkable(x,y):!overridden;
+        boolean blocked = (!walkable || !crossing && !matchingHeight) && !door
                 || (occupied == null ? target.occupied.contains(y * 65536 + x)
                 : occupied.test(at(group, map, x, y, direction, position.returnPoint())));
         if (!noclip && blocked) return new Decision(position, false, false);

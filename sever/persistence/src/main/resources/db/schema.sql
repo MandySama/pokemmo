@@ -134,6 +134,18 @@ ALTER TABLE characters ADD COLUMN IF NOT EXISTS kanto_opening_complete BOOLEAN N
 ALTER TABLE characters ADD COLUMN IF NOT EXISTS wild_encounters_enabled BOOLEAN NOT NULL DEFAULT TRUE;
 ALTER TABLE characters ADD COLUMN IF NOT EXISTS story_completed TEXT[] NOT NULL DEFAULT ARRAY[]::text[];
 ALTER TABLE characters ADD COLUMN IF NOT EXISTS gba_story_state TEXT NOT NULL DEFAULT '';
+ALTER TABLE characters ADD COLUMN IF NOT EXISTS gba_hoenn_state TEXT NOT NULL DEFAULT '';
+ALTER TABLE characters ADD COLUMN IF NOT EXISTS hoenn_pokedex_obtained BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE characters ADD COLUMN IF NOT EXISTS gba_hoenn_clock SMALLINT NOT NULL DEFAULT 0 CHECK (gba_hoenn_clock BETWEEN 0 AND 1439);
+ALTER TABLE characters ADD COLUMN IF NOT EXISTS gba_hoenn_clock_set_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+CREATE TABLE IF NOT EXISTS character_script_item_gifts (
+    character_id BIGINT NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
+    rom_hash TEXT NOT NULL,
+    instruction INTEGER NOT NULL,
+    item_id INTEGER NOT NULL,
+    quantity INTEGER NOT NULL,
+    PRIMARY KEY(character_id,rom_hash,instruction)
+);
 CREATE TABLE IF NOT EXISTS character_script_gifts (
     character_id BIGINT NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
     rom_hash TEXT NOT NULL,

@@ -465,7 +465,7 @@ mvn -o -s target/maven-central-settings.xml '-Dmaven.repo.local=C:/Users/21156/.
 - `ExtendedPokemonSprites` 从 `data/resources/pokemon-gen9.zip` 加载PNG/GIF，GIF按覆盖、清除和还原方式合成，延时重采样到30Hz；战斗与资料沿用脚底锚点及动态边界裁剪。图鉴小图标图集扩到2048×1056，前半剪影、后半彩色。妖精标签使用语言230009，不能复用一般属性的烘焙文字。新增特性描述使用220000命名空间。
 - `PokemonIndividual` 写入格式2，特性改为unsigned short，继续读取格式1；招式编号允许到1000、PP上限160、特性上限310。数据库幂等迁移队伍、个体表及箱子表的种族约束到1025，保留已有数据；客户端和game服务需要同时重启。
 - 493之后跟随按用户要求暂时停用：`FollowerSprites` 的BW正背面回退保留为注释，客户端PartyPanel与GameServer均限制至493。此前允许649跟随的说明和旧smoke预期已被此需求取代；右键打开资料仍保留。
-- `tools/import_reference_animations.py` 导出561个招式（1–559、584、619）的参数目录，覆盖2406次fE0/dA0粒子控制器调用。纯Java `MoveAnimations` 位于battle模块，只存时间与参数；客户端 `BattleParticles` 读取外部particles.zip（938个VFX定义）和ROM APS／自定义PNG；松散文件的妖精背景及断崖之剑配置按优先级覆盖归档，负责二维公告板投影、发射寿命、颜色透明度与旋转。`MovePresentation` 提供位移／缩放／染色和背景明暗采样。复杂原始并行序列、拖尾、全部influencer、招式镜头及音效尚未等价移植，不可宣称全部动画视觉与原客户端完全一致。
+- `tools/import_reference_animations.py` 同步粒子资源后调用 `import_move_timelines.py` 和 `import_particle_runtime.py`。561 个招式（1–559、584、619）统一使用原时间轴、CPU 粒子控制器及角色补间；主阶段共 2306 条粒子节点，另存 36 个蓄力／地形／道具／敌方分支。117／119／144／267 的主阶段原本为空，不能填充通用撞击效果。招式运镜和音效尚未完整迁移，不能宣称全部视觉完全一致。
 - 技能选择页下拉框提供替换测试，异步准备好后才能出招，不改写个体技能或HP／PP。替换释放上一套纹理，关闭取消future并释放GPU资源；播放按各招式时长回READY。撞击33保留已有1600ms表现。
 - `Gen9CatalogSmoke` 遍历1025种、1504套新增普通／闪光正背面图、14995条招式、484条进化关系及个体编解码；`AllMoveResourcesSmoke` 检查561注册和2406粒子调用；`AllMoveUiSmoke` 在真实OpenGL上下文循环替换／播放561招式及退出释放。`Gen9PokedexUiSmoke` 检查1025列表、650／700／888／1025详情标签、重新锁定隐私与释放；`Gen9SearchUiSmoke` 检查1025列表与末号实际添加回调，`Gen9SummaryUiSmoke` 检查650／700／888／1025九页与纹理；`Gen9NetworkSmoke` 使用隔离账号进行加密TCP添加、PostgreSQL存档／重入与跟随限制检查，结束删除测试行。均为本项目验证，未运行原客户端。
 
@@ -718,3 +718,41 @@ mvn -o -s target/maven-central-settings.xml '-Dmaven.repo.local=C:/Users/21156/.
 - 导出工具 ExportGbaScriptData 与 tools/export_gba_opening.py 从本机 ROM 及原版指令定义生成资源，流程见README；服务端不直接读取ROM。旧重播目录只作历史调试资料，不作为正式主线执行来源。
 - 本次验证：GbaOpeningVmSmoke / GbaAllStartersSmoke 检查三种选宠及对应青绿队伍；GbaStateResumeSmoke 检查脚本等待状态保存恢复、flags／vars回退、回退不自动播放及正式播放条件；GbaStoryNetworkSmoke 使用隔离账号、真实加密TCP/PostgreSQL及Showdown检查连续开场、阻止出门、拒绝／确认选宠、5级个体、命名、双方球显隐、首战与战后脚本；GbaNativeUiSmoke 使用真实OpenGL/TWL检查正式世界连贯、预览、居中是／否弹窗及鼠标拒绝、回退，全程未进入StoryReplayWindow。GbaGiftCompatibilitySmoke 检查已有测试队伍保留、命名实际奖励个体及重复奖励幂等。临时测试均位于target，不作为永久资源依赖。
 - 选宠后文本缺失修复：此前网络测试仅验证文本ID流转，界面只测到拒绝选择，未覆盖收到宝可梦对白，导致1630989缺失崩溃。tools/import_gba_script_texts.py从执行目录的loadword／message／trainerbattle指针提取全部文本ID，导入缺失中文；当前补齐44条并通过GbaScriptStringsSmoke使用实际ClientStrings逐条读取全部79个对白及三种初始宝可梦名称。后续更新执行目录必须同时运行文本检查，不以网络状态通过替代语言资源完整性验证。
+
+## 丰缘剧情前置：NPC移动、对话与ROM事件索引（2026-10-16）
+
+- 用户要求丰缘同样执行GBA原脚本，并明确NPC对话／移动未接通时优先补齐。本次先完成该前置链路；尚未接通丰缘正式主线VM、flags／vars存档、奖励、剧情强制行走和剧情战斗，不得把只读对话提取或事件索引称为主线已实现。
+- KantoNpcs复用公共活动与碰撞机制，按FireRedWorldRules.region选择独立kanto-npcs.csv／emerald-npcs.csv；WorldSession及KantoWorld开放地区1的同步、交互和本地模拟。服务端关都开场VM、训练家目录查询严格保持region0，防同号地图／事件串地区。
+- ExportGbaNpcs从绿宝石518图导出1634个flag=0且固定图形NPC，其中1386个NPC可读取当前文本分支，1154个独立文本ID。移动类型及范围保留ROM值，不手写NPC路线；只读对白解析不发放奖励、不更新剧情进度。活动使用现有随机活动调度，不宣称复现GBA逐帧随机数。
+- 丰缘对白ID为原ROM偏移 OR 0x10000000，字符串缓冲指针同样分区，种族缓冲通过gba-national-species.csv转全国编号；火红交换special编号不可用于绿宝石。中文表补齐1153个引用及小遥／祐树名称。tools/import_gba_script_texts.py --ids <文本ID清单> <中文源XML...>可复核资源完整性。
+- FireRedStoryData已读取绿宝石坐标及地图脚本，空脚本指针的坐标事件属于天气，不作为剧情。ExportGbaScriptData <绿宝石ROM> events protocol/src/main/resources/maps/emerald-story-events.csv导出全地区原始NPC／坐标／地图事件与ROM偏移；这只是执行器接入所需的索引，当前不会自动播放丰缘主线。
+- 本次验证：HoennNpcSimulationSmoke遍历518图，各模拟36秒，检查1634个NPC活动范围、地图边界、动态碰撞和协议，观察273个移动、589个转向，实际ClientStrings读取全部1154个对白；HoennNpcNetworkSmoke使用隔离PostgreSQL账号与真实加密TCP检查活动快照、碰撞、相邻／远程交互、谈话锁定和释放、避免关都剧情／训练家串用；HoennNpcUiSmoke使用真实OpenGL/TWL按J、翻页、输入锁定、Esc、重开及行走帧，截图target/hoenn-npc-dialogue.png与hoenn-npc-roaming.png。网络与界面为分开测试，未宣称丰缘主线联调。
+
+
+- `import_move_timelines.py` 编译并执行 561 个原招式源码，以记录适配器捕获工厂调用，由原 AnimationTimeline 计算嵌套串行／并行、延迟与重复；`MoveAnimations` 读取主时间轴及分支目录，不再使用手工两招覆盖或未知招式回退撞击。`OriginalBattleParticles` 与 `OriginalActorAnimation` 通过独立类加载器运行 CPU 控制器、WorldEntityTweenAccessor 和补间引擎，避免宿主 LibGDX 版本冲突。路径终点、旅行时长、颜色、角色高度及透明度保留；GPU 纹理由窗口管理，换招、重播及退出释放。当前敌方挑衅分支已选择，蓄力／地形／道具分支已导出，战斗事件的上下文选择仍需继续接通。
+- `tools/import_particle_runtime.py` 从本地客户端构建包导入 921 个逐字节保留的原类，生成约 1.3 MB 隔离运行包；`data/battle/particle-runtime.json` 与 `animation-source.json` 记录源包、源码及类 SHA-256。导入时核对 669 组原工厂参数的实际补间时长，检查 3316 个招式控制器配置。游戏运行仅依赖本地 data 资源，不读取外部源码目录。`OriginalAllMoveDirectionsSmoke` 在本项目真实 OpenGL/TWL 上下文验证 561 招双方共 1122 次替换／播放、空阶段、GL 错误及退出释放；这不代表原客户端实机联调。
+
+## 合众／神奥／城都日常 NPC（2026-10-16）
+
+- 用户确认此次范围是普通 NPC 的日常对话、转向和巡逻，不执行完整主线条件与事件移动。`NdsNpcData` 从黑白／白金／心金对象事件读取原始 local ID、图形、坐标、朝向、活动类型和范围，脚本按确定的指令宽度、调用／跳转与初始局部变量有界解析首个固定文本入口；未知指令、公共剧情调用、动态消息变量及缺失翻译不猜文本。NPC flags 为非零、BW 轨道对象及不能解码的图形不进入普通目录。可解码但依赖地图初始化脚本动态改变的对象仍以原始普通对象状态显示，不能称为执行了初始化剧情。
+- 三份 `protocol/maps/nds-npcs-{2,3,5}.csv.gz` 目前分别覆盖 1288／1942／1444 个普通对象，622／846／707 个对象有可用固定对白。中文文本按 NDS bank／entry 映射到独立字符串 ID 区间，并入 `data/strings/strings_zh.xml`；尚需脚本缓冲填充的 `{XX}` 对话先跳过，不把槽位随意替成角色名。`tools/import_nds_npc_commands.py` 锁定 pret/pokeplatinum、pret/pokeheartgold 及 SDSME 的原作者定义版本，来源随资源记录；原客户端核对 `BwMapZoneEvents`／`DpptMapZoneEvents`、NPC 图形登记与普通文本库结构，未运行原客户端。
+- `NdsNpcs` 持有每个世界会话的 NPC 活动状态。移动遵守 ROM 范围、地形、同图同高度、玩家当前／移动起点以及其他 NPC 起终点，不走进传送事件；275 毫秒逐格移动，随机游走、纵横活动、往返与方向序列独立于玩家移动倍率。对话只允许面对面相邻且目标不在移动途中，目标朝向玩家、停住，关闭／切图释放。只是普通活动模拟，不复现卡带逐帧随机数，也不是全服共享的 NPC 调度。
+- 服务端在 `WorldSession` 接入三地区快照、交谈与碰撞，客户端 `NdsWorld` 使用 `ClientWorld` 的共同 NPC 交互方法；沿用 `0x82`，NDS 矩阵坐标范围扩为 1023，保留方向、剩余时长与相邻一步校验。世界每 100 毫秒请求 NPC 快照，渲染端插值；旧图快照不应用到新图，交谈期间释放方向键。GBA 的脚本 VM 和对话缓冲仍由 KantoWorld 管理，不给 NDS NPC 发关都训练家开战请求。
+- `NdsNpcSprites` 解码各卡带四向及行走帧，BW 按 `/a/0/4/8` 登记表查 `/a/0/4/9`，白金使用 `/data/mmodel/mmodel.narc`，心金使用 `/a/0/8/1`。支持索引色与 A3I5／A5I3／直接色透明度；CPU 图像缓存最多 256 帧，世界 GPU 纹理最多 128 帧，切换与退出释放。原始对象图像不当作玩家装扮或用其他 NPC 替代未识别图形。
+- `NdsNpcDataSmoke` 遍历三地区已导出目录、语言 ID、所有 137／119／104 个图形的四向／行走帧与大坐标封包；`NdsNpcNetworkSmoke` 检查三地区原生巡逻范围／地形、真实 PostgreSQL／加密 TCP 快照、NPC 碰撞、相邻交谈、文本／转向、玩家锁定和结束解锁；`NdsNpcUiSmoke` 在三地区真实 OpenGL/TWL 场景通过 J 打开中文对白、Esc 关闭、确认服务端锁与 GPU 释放，截图为 `target/nds-npc-dialogue-2/3/5.png`。测试使用隔离账号并删除测试数据。客户端与 game 服务需同时更新重启。
+
+- 补完用户此前的角色选择队伍图标放大要求：图标绘制尺寸 42→48，格间距 32→36，顶部位置 35→32，仍为两行三列，完整图像范围保持在 200×120 卡片内。
+
+## 丰缘开场正式脚本、奖励与战斗（2026-10-16）
+
+- 此节更新上一节的接入状态：当前完成绿宝石搬家卡车、母亲搬家引导、房间时钟、初见劲敌、101号道路救援、选择初始宝可梦与首次野生战、研究所命名、103号道路劲敌战、图鉴与五颗精灵球领取。范围截至研究所变量0x4084=5，不表示整部丰缘主线完成。
+- `tools/export_gba_hoenn.py <绿宝石ROM> <pokeemerald指令定义目录>` 导出原地址、原指令及移动序列到 `gba-hoenn-program.txt.gz`；`ExportGbaScriptData <ROM> events protocol/src/main/resources/maps/emerald-story-events.csv` 同时保留NPC、坐标、地图与背景交互事件，`trainers`模式导出 `gba-hoenn-trainers.csv`。新增剧情必须扩展原脚本可达图，不能另写事件顺序替代ROM逻辑。命令宽度、special和movement编号按绿宝石独立解析；文本偏移使用地区命名空间。
+- 服务端按地区创建 `GbaScriptRuntime`。`characters.gba_hoenn_state` 与关都状态分离；首次进入空状态角色从原始卡车(25/40,2,2)开始。VM保存flags、vars、程序计数器、等待、对象及检查点；核心快照版本2新增剧情对象控制标识，兼容读取版本1。普通NPC继续原活动逻辑，剧情对象由VM接管。地图格修改为会话覆盖，不改共享通行目录或图集。
+- ChooseStarter适配原生选宠界面：实际赠送5级个体后自动开始蛇纹熊261、2级救援战。劲敌队伍按原性别／初始种族分支，实际回合结果驱动脚本；战败停止当前挑战并按ROM治疗点返回，不能按对白确认冒充获胜。命名针对实际奖励个体。
+- 图鉴领取记录为 `hoenn_pokedex_obtained`，不得与GM全图鉴开关 `dex_unlocked` 混用；时钟保存分钟和设置时间，查看读取真实经过时间。物品奖励执行原标准脚本ADD/REMOVE/CHECK，经独立 `character_script_item_gifts` 收据防重复；宝可梦使用既有脚本奖励收据。剧情回滚只恢复正式标记和触发位置，保留已经获得的个体与物品，再次走到奖励不能重复发放或更换已领取的初始种族。
+- 剧情指令提供搬家开场、101号道路博士求救、领取图鉴与精灵球。回到触发前恢复原flags／vars与检查点，不自动播放；播放按钮仅在原始脚本前提成立时启用。救援回退位置在未白镇(0/9,10,0)，从北边正常连接到101号道路(0/16,10,19)，不要使用越界y=20。
+- `python tools/import_gba_script_texts.py --program protocol/src/main/resources/maps/gba-hoenn-program.txt.gz --region 1 <中文XML...>` 校验本章219个原始文本引用。客户端与game服务同时构建重启，数据库字段由启动幂等初始化。
+- 临时验证：HoennAllStartersSmoke覆盖两种性别×三种初始种族的原脚本分支；HoennRewardNetworkSmoke／HoennStoryNetworkSmoke使用隔离PostgreSQL角色、加密TCP和实际Showdown战斗；HoennNativeUiSmoke使用真实OpenGL/TWL检查时钟无效输入、鼠标确认、选宠及自动进入战斗。关都GbaAllStartersSmoke和GbaStateResumeSmoke回归通过。音效、表情及卡车摇晃等原生画面效果尚不等同于GBA原画面完整复现。
+
+- 关都剧情“回到某剧情前”要求完整目标边界，前面的剧情已完成、目标与后续重新触发。目前正式接通的 OPENING／LAB_INTRODUCTION 已改为从初始 ROM 状态构造边界，研究所边界通过无奖励宿主执行开场到入所 WARP 前获得，清除旧检查点／临时状态；不再依赖角色已经历快照。saveKantoCheckpoint 在同一事务替换关都完成集合并保存 ROM 状态和位置。其他尚未接通的菜单节点仍禁用，不能称为关都全剧情任意跳转。KantoCanonicalCheckpointSmoke 验证新档前跳、回退、反复跳转、存档恢复及无奖励副作用；KantoCheckpointPersistenceSmoke 验证 PostgreSQL 标识同步、后续清除及归属拒绝。
+- 最终联调补充：HoennStoryNetworkSmoke已完整通过原卡车出口、搬家与时钟、劲敌见面、正常地图连接触发救援、真实选宠／救援战／命名／劲敌战、图鉴与五球落库，以及重登入图、检查点回滚不自动播放、原条件播放和重复物品奖励幂等；测试中另已覆盖实际战败返回治疗。HoennNativeUiSmoke确认火稚鸡预览实际解码上传，时钟设置09:30后继续母亲原对白。协议回退落点校验同时接受合法关都及丰缘坐标。

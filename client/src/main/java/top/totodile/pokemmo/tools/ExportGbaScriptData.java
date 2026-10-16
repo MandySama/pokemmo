@@ -19,13 +19,18 @@ public final class ExportGbaScriptData {
         var atlas = new FireRedAtlas(Path.of(args[0]));
         var lines = new ArrayList<String>();
         if (args[1].equals("events")) {
-            for (var key : List.of(new FireRedAtlas.Key(3, 0), new FireRedAtlas.Key(4, 3))) {
+            var maps = atlas.areas().stream().map(FireRedAtlas.Area::key).toList();
+            for (var key : maps) {
                 for (var n : atlas.npcs(key)) {
                     lines.add("npc," + key.group() + "," + key.map() + "," + n.id() + "," + n.graphics()
                             + "," + n.x() + "," + n.y() + "," + n.elevation() + "," + n.direction()
                             + "," + n.flag() + "," + n.script());
                 }
                 var events = atlas.storyEvents(key);
+                for (var b : events.backgrounds()) {
+                    lines.add("bg," + key.group() + "," + key.map() + "," + b.x() + "," + b.y()
+                            + "," + b.elevation() + "," + b.kind() + "," + b.script());
+                }
                 for (var c : events.coordinates()) {
                     lines.add("coord," + key.group() + "," + key.map() + "," + c.x() + "," + c.y()
                             + "," + c.elevation() + "," + c.variable() + "," + c.value() + "," + c.script());
@@ -38,7 +43,7 @@ public final class ExportGbaScriptData {
         } else if (args[1].equals("trainers")) {
             var ids = new TreeSet<Integer>();
             try (var stream = new GZIPInputStream(Files.newInputStream(
-                    Path.of("protocol/src/main/resources/maps/gba-opening-program.txt.gz")))) {
+                    Path.of("protocol/src/main/resources/maps/"+(atlas.region()==0?"gba-opening-program.txt.gz":"gba-hoenn-program.txt.gz"))))) {
                 for (var line : new String(stream.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).split("\\R")) {
                     if (!line.startsWith("code,")) continue;
                     var bytes = HexFormat.of().parseHex(line.split(",")[2]);

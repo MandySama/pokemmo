@@ -1,0 +1,4 @@
+# scene,group,map,pretrigger_x,pretrigger_y
+hoenn.opening/truck,25,40,2,2
+hoenn.opening/rescue,0,9,10,0
+hoenn.opening/pokedex,1,4,6,12
