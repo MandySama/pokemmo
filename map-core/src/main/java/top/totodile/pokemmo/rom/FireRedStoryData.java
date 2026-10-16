@@ -28,7 +28,7 @@ public final class FireRedStoryData {
             for (int i = 0; i < reader.u8(events + 2); i++) {
                 int at = entries + i * 16;
                 // 天气坐标事件没有脚本指针，不属于剧情触发器。
-                if (reader.u16(at + 6) == 0 && reader.ptr(at + 12) == 0) continue;
+                if (reader.u16(at + 12) == 0 && reader.u16(at + 14) == 0) continue;
                 coordinates.add(new Coordinate(reader.u16(at), reader.u16(at + 2), reader.u8(at + 4),
                         reader.u16(at + 6), reader.u16(at + 8), reader.requiredPtr(at + 12)));
             }
