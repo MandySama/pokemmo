@@ -1,5 +1,7 @@
 # 项目协作约定
 
+- 战斗 `MoveButton` 的提示同时覆盖按钮、名称、类别、PP和属性图标，使用现有TWL工具提示；效果说明使用语言ID `120000+招式编号`，缺失时仅展示已有数值，不生成效果描述。属性文字需将内部类型17映射到文本类型9、内部9及以上其余类型加一。`target/BattleMoveTooltipSmoke.java` 检查真实OpenGL悬停、中文说明、属性映射、子控件覆盖及原战斗控件回归。
+
 - 实际单打断线恢复由 `GameServer.suspendedBattles` 按账号＋角色持有 `WorldSession.BattleContinuation`，保留原 `ShowdownBattle` 及对手／剧情上下文；离开世界或断线后仍关闭普通世界会话并停止在线计时，删除角色及服务关闭时释放引擎。`0x8A` 查询只针对已认证会话的当前角色，返回不含历史事件的快照。入图先查询恢复，客户端按原出战槽位加载纹理并跳过开场，支持濒死成员的强制换宠与完成但未确认离场的结果；剧情战恢复后复用原 BATTLE 阶段确认。资源加载失败会断开连接保留服务端战斗，不发送离场确认。当前仅跨客户端退出／掉线，不跨 game 服务进程重启；客户端和 game 服务需同时更新。`target/BattleReconnectNetworkSmoke.java` 使用隔离 PostgreSQL 账号、真实加密 TCP、Node 引擎和自动入图 UI，覆盖 NPC／自然野生单打、角色隔离、回合与HP／PP／状态、强制换宠、陈旧请求、胜利及离场清理；`BattleReconnectUiSmoke` 使用真实网络快照检查 OpenGL 恢复、强制换宠和纹理释放，结束删除测试账号行。
 
 - 战斗招式页由 `WildEncounterPanel.moveSlots` 显示四格实际招式、类别、属性和PP；在线提交 `MoveOption.slot`，按 `legalMoves` 禁用不可用项。自定义选择在右下格右侧，仅替换本方演出ID，不改变服务端招式或结算；默认项恢复原演出，位置宽度取主题。四格主操作及招式按钮将方向键、J交给网格导航，Enter／空格沿用Button确认，父控件必须先分发焦点子控件事件。未命中通过检查当前MOVE到下一个MOVE之间的MISS事件跳过粒子加载和人物动画，保留文字提示。`target/BattleControlsUiSmoke.java` 验证真实OpenGL/TWL布局、方向键／确认、零PP禁用、服务端槽位、自定义演出、未命中跳过、正常命中、异步取消和多尺寸；服务端响应为模拟数据。

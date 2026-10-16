@@ -1208,6 +1208,24 @@ final class WildEncounterPanel extends Widget implements AutoCloseable {
                 for (var learned : PokemonCatalog.get(species).moves()) if (learned.id() == value.id()) { details = learned; break; }
             }
             category.setText(details == null ? "" : ClientStrings.get(details.category() == 0 ? 9377 : details.category() == 1 ? 9375 : 9376));
+            String tooltip = null;
+            if (value != null) {
+                var text = new StringBuilder(title.getText());
+                if (details != null) text.append('\n').append(ClientStrings.get(1706)).append(": ")
+                        .append(ClientStrings.get(230000 + (details.type() == 17 ? 9 : details.type() >= 9 ? details.type() + 1 : details.type()))).append(" / ").append(category.getText())
+                        .append('\n').append(ClientStrings.get(9355)).append(": ").append(details.power() == 0 ? "--" : details.power())
+                        .append("    ").append(ClientStrings.get(9356)).append(": ")
+                        .append(details.accuracy() == 0 || details.accuracy() > 100 ? "--" : details.accuracy() + "%");
+                text.append('\n').append(pp.getText());
+                try {
+                    String description = ClientStrings.get(120000 + value.id());
+                    text.append("\n\n").append(description.replaceAll("([^\\n]{28})(?=[^\\n])", "$1\n"));
+                }
+                catch (IllegalArgumentException missing) { }
+                tooltip = text.toString();
+            }
+            setTooltipContent(tooltip);
+            for (Widget child : new Widget[]{title, category, pp, type}) child.setTooltipContent(tooltip);
             type.setVisible(details != null);
             if (details != null) { type.setTheme("/pokemon-summary.type-" + details.type()); type.reapplyTheme(); }
         }
