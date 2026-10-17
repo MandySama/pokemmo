@@ -8,7 +8,9 @@ import java.util.*;
 public final class FireRedStoryData {
     public record Coordinate(int x, int y, int elevation, int variable, int value, int script) { }
     public record MapScript(int type, int variable, int value, int script) { }
-    public record Background(int x, int y, int elevation, int kind, int script) { }
+    public record Background(int x, int y, int elevation, int kind, int script, int hiddenItem) {
+        public Background(int x, int y, int elevation, int kind, int script) { this(x,y,elevation,kind,script,0); }
+    }
     public record Events(List<Coordinate> coordinates, List<MapScript> scripts, List<Background> backgrounds) {
         public Events(List<Coordinate> coordinates, List<MapScript> scripts) { this(coordinates,scripts,List.of()); }
         public Events { coordinates = List.copyOf(coordinates); scripts = List.copyOf(scripts); backgrounds = List.copyOf(backgrounds); }
@@ -42,6 +44,8 @@ public final class FireRedStoryData {
                 int entry = entries + i * 12, kind = reader.u8(entry + 5);
                 if (reader.u16(entry+8)==0 && reader.u16(entry+10)==0) continue;
                 if (kind <= 4) backgrounds.add(new Background(reader.u16(entry),reader.u16(entry+2),reader.u8(entry+4),kind,reader.requiredPtr(entry+8)));
+                else if (kind <= 7) backgrounds.add(new Background(reader.u16(entry),reader.u16(entry+2),reader.u8(entry+4),kind,0,
+                        reader.u16(entry+8) | reader.u16(entry+10) << 16));
             }
         }
         int at = reader.ptr(header + 8);

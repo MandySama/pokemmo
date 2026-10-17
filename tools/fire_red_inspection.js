@@ -1,5 +1,9 @@
 // Static inspection preserves alternate branches; it does not simulate a character save.
 const originalInspect = inspect;
+const relationNavigation = document.createElement('a');
+relationNavigation.href = 'relations.html';
+relationNavigation.textContent = relationViewLabel;
+document.querySelector('.site-nav')?.append(relationNavigation);
 function paragraph(parent, text) {
     const p = document.createElement('p');
     p.textContent = text;
@@ -13,6 +17,12 @@ function section(parent, title) {
 function scriptInfo(parent, event) {
     const info = scriptDetails[parseInt(event.script_offset, 16)];
     section(parent, '脚本与剧情归属');
+    const link = document.createElement('a');
+    const scope = current.npcs.includes(event) ? 'npc:' + key(current) + ':' + event.index
+        : 'script:' + event.script_offset.toUpperCase().replace('0X', '0x');
+    link.href = 'relations.html?map=' + encodeURIComponent(key(current)) + '&scope=' + encodeURIComponent(scope);
+    link.textContent = relationViewLabel;
+    parent.append(link);
     if (!info) {
         paragraph(parent, '没有可分析的脚本入口。');
         return;
@@ -85,14 +95,6 @@ inspect = function(kind, event) {
             }
         }
         scriptInfo(parent, event);
-        const link = document.createElement('a');
-        const editor = new URL('http://127.0.0.1:8765/');
-        if (location.protocol === 'http:' && location.hostname === '127.0.0.1') editor.port = location.port;
-        editor.searchParams.set('map', key(current));
-        if (kind === 'npcs') editor.searchParams.set('npc', event.id);
-        link.href = editor.href;
-        link.textContent = managedEditorLabel;
-        parent.append(link);
     }
 };
 const originalShow = show;

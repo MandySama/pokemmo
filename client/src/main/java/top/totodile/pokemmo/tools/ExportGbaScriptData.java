@@ -28,6 +28,11 @@ public final class ExportGbaScriptData {
                 }
                 var events = atlas.storyEvents(key);
                 for (var b : events.backgrounds()) {
+                    if (b.kind() >= 5) {
+                        lines.add("hidden," + key.group() + "," + key.map() + "," + b.x() + "," + b.y()
+                                + "," + b.elevation() + "," + b.kind() + "," + b.hiddenItem());
+                        continue;
+                    }
                     lines.add("bg," + key.group() + "," + key.map() + "," + b.x() + "," + b.y()
                             + "," + b.elevation() + "," + b.kind() + "," + b.script());
                 }

@@ -1,16 +1,30 @@
 # 项目协作约定
 
+- Esc 是单次导航操作：GLFW 的 REPEAT 不交给 UI 或地图，RELEASE 始终送达 TWL；`LoginScreen.dispatchUiKey` 在 Esc 按下分发完成后立即补齐 TWL 释放，避免弹窗关闭后接收层切换导致内部连发残留。不得只在当前弹窗可见时转发松键。`tools/tests/GameMenuEscapeUiSmoke.java` 使用实际 GLFW 回调和 OpenGL／TWL，世界替身统计输入，覆盖连续40次开关、长按、鼠标重开后等待、确认／设置／剧情窗口及不穿透地图，不代表原客户端实测。
+
+
+- `BattlePackets.State.enemyStatus` 随普通及恢复快照传递敌方主要异常状态；己方沿用个体状态。worker 额外转换 curestatus／fail／immune／cant／block／nothing，协议事件9～14；失败原因只传有界编号，未知原因用通用提示，不透传引擎日志。`WildEncounterPanel` 按事件更新双方状态标签，最终快照校准，换宠和恢复重新取当前成员状态；失败／免疫／挡招／无效果跳过命中演出，提示进入 Battle 记录。需同步更新 worker、game 服务和客户端。`battle-engine/status-feedback-test.cjs` 及 `tools/tests/BattleStatusFeedbackSmoke.java` 验证实际引擎和Java封包；`BattleStatusFeedbackUiSmoke` 使用实际引擎结果与真实OpenGL验证六种标签、解除、提示及恢复，未做本次真实TCP对战实测。
+
+
+- `WildEncounterPanel` 将实际播放的战斗事件通过回调写入 `ChatPanel` 的 Battle 频道（索引4），不依赖独立 chat 握手状态；按战斗编号／响应版本／事件序号防止重复记录，恢复快照不重播历史结果。战斗场景升至顶层时聊天框位于其上方，其他弹窗仍可覆盖。HP结算值与 `BattleHpAnimation` 显示插值分离，HP事件等待动画完成才处理下一项，归零之前保留精灵；换宠／恢复直接重置显示值。主题键 `hpAnimationMinDuration`／`hpAnimationMaxDuration` 默认350／1000毫秒。`tools/tests/BattleLogHpUiSmoke.java` 使用模拟响应及真实OpenGL验证血条、数字、回血、倒下顺序、记录分类和恢复；不代表本次真实TCP战斗实测。
+
+
+- GBA 运行诊断通过 `ScriptDiagnosticPackets` 的 `0x8C` 只查询当前认证角色。服务端必须在日常 NPC 更新与剧情 tick 之前返回，不得调用会推进脚本的 `snapshot`；运行器读取现有日常缓存及当前 actors，最近96条指令记录仅留内存。客户端入口为“剧情运行诊断”，手动刷新与分类查看；验证步骤在 `docs/gba-runtime-verification.md`，对应 `tools/tests/ScriptDiagnostic*Smoke.java`。查询条件满足不代表入口必然触发，不能把静态预览或某条路径通过当作全部剧情正确。
+
+
+- 关都背景交互执行导出目录中的全部背景入口，前方交互统一由 `GbaBackgroundEvents` 校验 ROM 朝向与高度（高度零为通配）。隐藏点保留 ROM 原始打包字段：低 16 位道具、随后 8 位标记索引、7 位数量、最高位脚下探测要求；标记从 1000 起。183 个隐藏点含 12 个代币点和 6 个脚下专用点，脚下点通过 NPC 请求 action 3 使用探测器并由服务端校验持有量。道具事务以 `0x40000000 + 隐藏标记` 去重，容量失败撤销本次领取凭据，允许腾出空间重试；领取标记及代币余额随 GBA 状态保存。背景脚本涉及尚无对应控件的独立界面时显示不可用提示并结束，不将其视为已实现。`target/KantoBackgroundSweep` 遍历 519 个背景入口和 183 个隐藏点，`KantoHiddenDatabaseSmoke` 验证真实数据库领取、重载、防重及容量重试；这两项不替代完整客户端 TCP／界面联调。
+
 - 战斗 `MoveButton` 的提示同时覆盖按钮、名称、类别、PP和属性图标，使用现有TWL工具提示；效果说明使用语言ID `120000+招式编号`，缺失时仅展示已有数值，不生成效果描述。属性文字需将内部类型17映射到文本类型9、内部9及以上其余类型加一。`target/BattleMoveTooltipSmoke.java` 检查真实OpenGL悬停、中文说明、属性映射、子控件覆盖及原战斗控件回归。
 
 - 实际单打断线恢复由 `GameServer.suspendedBattles` 按账号＋角色持有 `WorldSession.BattleContinuation`，保留原 `ShowdownBattle` 及对手／剧情上下文；离开世界或断线后仍关闭普通世界会话并停止在线计时，删除角色及服务关闭时释放引擎。`0x8A` 查询只针对已认证会话的当前角色，返回不含历史事件的快照。入图先查询恢复，客户端按原出战槽位加载纹理并跳过开场，支持濒死成员的强制换宠与完成但未确认离场的结果；剧情战恢复后复用原 BATTLE 阶段确认。资源加载失败会断开连接保留服务端战斗，不发送离场确认。当前仅跨客户端退出／掉线，不跨 game 服务进程重启；客户端和 game 服务需同时更新。`target/BattleReconnectNetworkSmoke.java` 使用隔离 PostgreSQL 账号、真实加密 TCP、Node 引擎和自动入图 UI，覆盖 NPC／自然野生单打、角色隔离、回合与HP／PP／状态、强制换宠、陈旧请求、胜利及离场清理；`BattleReconnectUiSmoke` 使用真实网络快照检查 OpenGL 恢复、强制换宠和纹理释放，结束删除测试账号行。
 
-- 战斗招式页由 `WildEncounterPanel.moveSlots` 显示四格实际招式、类别、属性和PP；在线提交 `MoveOption.slot`，按 `legalMoves` 禁用不可用项。自定义选择在右下格右侧，仅替换本方演出ID，不改变服务端招式或结算；默认项恢复原演出，位置宽度取主题。四格主操作及招式按钮将方向键、J交给网格导航，Enter／空格沿用Button确认，父控件必须先分发焦点子控件事件。未命中通过检查当前MOVE到下一个MOVE之间的MISS事件跳过粒子加载和人物动画，保留文字提示。`target/BattleControlsUiSmoke.java` 验证真实OpenGL/TWL布局、方向键／确认、零PP禁用、服务端槽位、自定义演出、未命中跳过、正常命中、异步取消和多尺寸；服务端响应为模拟数据。
+- 战斗招式页由 `WildEncounterPanel.moveSlots` 显示四格实际招式、类别、属性和PP；在线提交 `MoveOption.slot`，按 `legalMoves` 禁用不可用项。替换技能测试在右下格右侧，在线提交实际替换招式 ID 与原槽位，由服务端引擎按真实招式结算；仅当前战斗生效，默认项恢复原招式，位置宽度取主题。四格主操作及招式按钮将方向键、J交给网格导航，Enter／空格沿用Button确认，父控件必须先分发焦点子控件事件。未命中通过检查当前MOVE到下一个MOVE之间的MISS事件跳过粒子加载和人物动画，保留文字提示。`target/BattleControlsUiSmoke.java` 验证真实OpenGL/TWL布局、方向键／确认、零PP禁用、服务端槽位、自定义演出、未命中跳过、正常命中、异步取消和多尺寸；服务端响应为模拟数据。
 
 - 正式 NPC 训练家战从目录队伍的 `originalTrainerId` 读取卡带训练家外观，`FireRedTrainers.portrait` 解码 GBA 正面图；`WildEncounter.trainerIntroduction` 在原出场流程中增加1800毫秒，`WildEncounterPanel` 先绘制训练家，再退场投球及释放宝可梦。对方队伍图标使用已有 `PartyIcons`，按真实战斗事件更新倒下状态；资源跟随战斗纹理统一释放。没有训练家资料的临时剧情展示队伍保留既有出场流程。`target/TrainerIntroUiSmoke.java` 覆盖真实 OpenGL 出场时序、队伍、纹理释放及野生遭遇回归，`TrainerPortraitSmoke` 检查多种训练家图像；未以本次测试宣称原客户端运行实测。
 
 - `WildEncounterPanel` 按窗口宽／1024与高／768的较小值缩放，最大倍率取主题 `wild-encounter.maximumScale`，默认 2；不能恢复固定 1 倍上限。`target/BattleResizeSmoke.java` 使用真实 OpenGL 场景验证连续调整大小、上限、缩回及按钮边界。
 
-- 普通 GBA NPC 的剧情移动结束后，`GbaScriptRuntime.resumeNpcs` 将最终位置与朝向交还 `KantoNpcs` 并释放控制标记；隐藏标记及动态图形物件保留剧情控制。在线会话与离线世界在日常更新前执行交接，旧存档也会恢复。真新镇告示牌女孩入口已加入 `kanto-story-followups.csv`；修改需同时更新客户端与 game 服务。`target/PalletNpcResumeSmoke.java` 验证 ROM 对白、剧情移位、存档恢复交接、重复交互和恢复徘徊。
+- 普通 GBA NPC 的剧情移动结束后，`GbaScriptRuntime.resumeNpcs` 将最终位置、朝向、日常活动类型和永久原点交还 `KantoNpcs` 并释放控制标记；隐藏标记及动态图形物件保留剧情控制。在线会话与离线世界在日常更新前执行交接，旧存档也会恢复。真新镇告示牌女孩入口已加入 `kanto-story-followups.csv`；修改需同时更新客户端与 game 服务。`target/PalletNpcResumeSmoke.java` 验证 ROM 对白、剧情移位、存档恢复交接、重复交互和恢复徘徊。
 
 - 房门动画由 `FireRedMap.doorFrames` 读取 ROM 门表、4bpp 帧及逐图块调色板，`KantoWorld` 在服务端响应的 approach 和离线入门路径中先播放 120ms 开门，再走入；室外门落点在 500ms 淡入中走出并关门（380/440ms 换帧）。`GbaMapPreview` 暂时替换门范围的上层图块，上下门帧分别在底层和普通上层之后插入。门纹理在切图、淡入结束及关闭时释放。`target/DoorAnimationSmoke` 检查离线进出屋，`DoorNetworkAnimationSmoke` 使用模拟服务端响应检查动画时序和真实 OpenGL 截图，未进行本次真实 TCP 联调；`DoorDecodeSmoke` 遍历 425 图解码了 195 个有门动画的传送点。
 
@@ -802,3 +816,17 @@ mvn -o -s target/maven-central-settings.xml '-Dmaven.repo.local=C:/Users/21156/.
 - FireRedWorldRules按ROM行为0x38／39／3A／3B识别向右／左／上／下跳台阶：面对相符台阶时跨过一格障碍，落到两格外的可通行且无NPC占用位置；反方向仍按原阻挡，不改地图碰撞，不开启穿墙。服务端跳跃耗时550ms并应用既有移动倍速；落点通过现有移动响应保存，无新增封包字段。
 - KantoWorld同图移动响应保留实际起点，避免把两格跳跃误当一格插值；人物按进度绘制12个ROM像素高的抛物感弧线，阴影与镜头保持地面路径。离线路径使用相同方向识别和落点检查。GBA三地区共用行为值，不影响NDS移动。
 - target/LedgeSmoke读取本机火红1号道路(3/19)，覆盖61个向下台阶可行落点、反向拒绝、占用拒绝与协议往返；真实OpenGL检查客户端接受两格落点、实际起点插值及中途绘制，截图target/ledge-jump-mid.png。客户端测试使用模拟权威响应，本次未进行真实TCP跳跃联调；编译通过。客户端与game服务需同时重启。
+
+- GBA 关系工作区是只读 ROM 数据之上的独立可视化层。`tools/export_gba_relations.py` 读取原始事件表及指令生成 `exports/fire-red-map-viewer/relations-data.js`；`tools/gba_view` 是界面源文件。节点删减、连线改向、分组、备注和布局仅写浏览器草稿或 JSON 视图，绑定 ROM SHA-256；禁止让游戏执行端读取或应用视图文件。特殊函数保持不透明，共享脚本的物件影响为静态可能关系。
+
+- 关都地图图鉴入口为 `exports/fire-red-map-viewer/explorer.html`，源码在 `tools/kanto_explorer`，`tools/export_kanto_explorer.py` 校验 ROM 与脚本／关系数据 SHA-256 后生成离线资源；区域图及城市落点直接调用 `FireRedRegionMap`。日常活动标为边界范围，不伪造随机行走路线；剧情按用户选择的条件分支追踪调用栈、移动、坐标与显隐，遇跨图传送停止当前地图轨迹。此视图不模拟完整存档、不验证组合条件可达性，特殊函数保持不透明，原地转向不增加位移。中文界面使用语言 ID 981200 起。`tools/tests/kanto_explorer_browser.cjs` 用真实 Edge 检查总览、分支对白、博士带路逐格坐标及终点、传送落点、缩放和窄屏。
+
+- 战斗测试替换通过 `BattlePackets.Request.replacementMove` 的可选 u16 字段传递，0 为普通请求，65535 为恢复原槽位；客户端与 game 服务需同时更新。引擎保留原招式槽对象用于正常 PP 存档，测试招式使用独立 PP，不持久化为学会招式；同一替换不补 PP，换宠和保留引擎的断线恢复继续有效。非法、陈旧、强制换宠、变身／锁招或引擎禁止的替换会拒绝并保持原状态，新增替换需现有 debug 开关。`battle-engine/replacement-test.cjs`、`tools/tests/BattleReplacementSmoke.java` 覆盖真实引擎效果、PP、恢复和编码；`BattleReplacementUiSmoke` 使用真实 OpenGL/TWL 与模拟服务端响应检查实际招式 ID 提交及权威演出。
+
+- 图鉴全部事件说明由 `tools/kanto_explorer_semantics.py` 建立入口条件、状态读写与来源索引，`explorer-semantics.js` 展示触发方式、对白分组和可跳转的可能影响事件；临时变量与标记按地图隔离。静态可达写入不等于必经前置，相同入口与共用文本不等于先后关系；特殊函数与动态返回值不能臆造剧情含义，不恢复已撤销的事件执行顺序列表。
+
+- “宠物PP无限”是左侧工具开关，通过 `InfinitePpPackets` 0x8B 查询／设置已认证角色，`characters.debug_infinite_pp` 幂等建列并按角色持久化。客户端与 game 服务需同时更新。引擎只对己方槽位提供虚拟满 PP，保留独立真实 PP 用于存档；替换招式同样生效，关闭恢复原池，对手和招式限制不变。恢复保留战斗时重新同步角色开关。`battle-engine/infinite-pp-test.cjs`、`InfinitePpBattleSmoke` 验证真实引擎及快照，`InfinitePpNetworkSmoke` 使用隔离账号覆盖真实 PostgreSQL／加密 TCP、角色隔离、重连和 debug 校验，结束删除测试账号。
+
+- GBA NPC 交接保留 `setobjectmovementtype` 的真实活动类型，`setobjectxyperm`／`copyobjectxytoperm` 更新日常活动原点；缓存淘汰保留脚本覆盖，剧情回退及重新建立世界会话重建日常缓存。脚本核心存档格式 3 保存活动类型与原点，兼容 1／2；旧版空闲存档重新进入当前地图初始化以补齐规则。`NpcBehaviorHandoffSmoke` 覆盖真实导出脚本、站立／让路、迁移原点、缓存淘汰、回退、格式 2 迁移；`NpcBehaviorNetworkSmoke` 使用隔离 PostgreSQL 账号及真实加密 TCP 覆盖存档重连和回退缓存清理，结束删除测试行。88 个关都节点前跳／回退、完成集合与存档封包回归通过；本次未进行原客户端运行或新的 OpenGL 实测。
+
+- NPC 实际单打胜利后由 `BattleRewards` 与 `ShowdownBattle` 统一结算，逐对手记录参战槽位，结算时排除倒下者，经验按 ROM 基础值 × 对手等级 × 1.5 ÷ 7 ÷ 有效参战数计算，等级上限 100，升级保留已损失 HP。奖金使用 ROM 职业倍率 × 队尾等级；`tools/export_battle_rewards.py` 校验并导出火红／绿宝石奖金表及种族经验。当前只在整场胜利时发放，不接入升级学招、进化、道具／交换加成或野生奖励。`CharacterStore.saveBattleParty` 在角色锁事务内保存队伍、奖金和 `character_battle_rewards` 战斗编号凭据，重复结算不重复发放；已结束战斗不再向引擎切换无限 PP，避免恢复覆盖升级后的 HP。奖励事件使用现有封包事件种类 6／7／8，中文提示为 252110–252112；客户端与 game 服务需同时重启。`tools/tests/NpcRewardNetworkSmoke.java` 检查真实加密 TCP、PostgreSQL、Node 战斗的经验／奖金保存、倒下排除、成长上限、重复结算和重连；`NpcRewardUiSmoke` 使用真实 OpenGL/TWL 与模拟服务端奖励验证提示和 HUD。

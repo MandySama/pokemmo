@@ -188,7 +188,7 @@ public final class KantoWorld implements ClientWorld {
         if (storyAuthority != null) storyReply = storyAuthority.apply(top.totodile.pokemmo.protocol.StoryPackets.request(action, phase));
         else if (authority == null && localOpening != null) {
             try {
-                if(action==2)localOpening.resetScene(top.totodile.pokemmo.protocol.StoryProgressPackets.OPENING,npcRenderTime);
+                if(action==2){localOpening.resetScene(top.totodile.pokemmo.protocol.StoryProgressPackets.OPENING,npcRenderTime);if(localNpcs!=null)localOpening.resetNpcs(localNpcs,npcRenderTime);}
                 else if(action==4)localOpening.startScene(top.totodile.pokemmo.protocol.StoryProgressPackets.OPENING,npcRenderTime);
                 else localOpening.acknowledge(phase,action,0,"",npcRenderTime);
                 storyReply=CompletableFuture.completedFuture(localOpening.snapshot(npcRenderTime));
@@ -352,8 +352,13 @@ public final class KantoWorld implements ClientWorld {
             var state = npcState(npc, current);
             if ((state == null ? npc.x() : state.x()) == tx && (state == null ? npc.y() : state.y()) == ty) return true;
         }
-        if(region()<=1){try{return atlas.storyEvents(current).backgrounds().stream().anyMatch(b->b.x()==tx&&b.y()==ty&&(region()==1||top.totodile.pokemmo.protocol.KantoStoryScenes.backgroundScript(b.script())));}catch(IOException e){throw new IllegalStateException(e);}}
+        if(region()<=1){try{return atlas.storyEvents(current).backgrounds().stream().anyMatch(b->b.x()==tx&&b.y()==ty&&backgroundInteractive(b));}catch(IOException e){throw new IllegalStateException(e);}}
         return false;
+    }
+
+    private boolean backgroundInteractive(top.totodile.pokemmo.rom.FireRedStoryData.Background event) {
+        boolean supported = event.kind() <= 4 ? region() == 1 || top.totodile.pokemmo.protocol.KantoStoryScenes.backgroundScript(event.script()) : region() == 0;
+        return supported && top.totodile.pokemmo.protocol.GbaBackgroundEvents.matches(event.kind(),event.elevation(),facing,position().elevation(),event.hiddenItem());
     }
 
     /** 面前一格交互；移动中及过图时不锁定目标。 */
@@ -367,7 +372,7 @@ public final class KantoWorld implements ClientWorld {
             var state = npcState(npc, current);
             if ((state == null ? npc.x() : state.x()) == targetX && (state == null ? npc.y() : state.y()) == targetY) { target = npc; break; }
         }
-        if(target==null&&region()<=1){try{for(var b:atlas.storyEvents(current).backgrounds())if(b.x()==targetX&&b.y()==targetY&&(region()==1||top.totodile.pokemmo.protocol.KantoStoryScenes.backgroundScript(b.script()))){target=new FireRedAtlas.Npc(255,0,b.x(),b.y(),b.elevation(),0,0,0,0,b.script());break;}}catch(IOException e){throw new IllegalStateException(e);}}
+        if(target==null&&region()<=1){try{for(var b:atlas.storyEvents(current).backgrounds())if(b.x()==targetX&&b.y()==targetY&&backgroundInteractive(b)){target=new FireRedAtlas.Npc(255,0,b.x(),b.y(),b.elevation(),0,0,0,0,b.script());break;}}catch(IOException e){throw new IllegalStateException(e);}}
         if (target == null) return CompletableFuture.completedFuture(List.of());
         final FireRedAtlas.Npc selected = target;
         conversing = true; clearKeys();
@@ -691,6 +696,8 @@ public final class KantoWorld implements ClientWorld {
             story = null; storyReply = null; storyActor = null; presentedStoryPhase = 0;
             pendingStoryAction = -1; replayStory = false;
             if (localOpening != null) localOpening.resetScene(top.totodile.pokemmo.protocol.StoryProgressPackets.OPENING,now);
+            if (localOpening != null && localNpcs != null) localOpening.resetNpcs(localNpcs, now);
+            npcStates.clear(); npcClocks.clear(); npcReply = null;
             scriptActors.clear();scriptActorStates.clear();scriptManaged.clear();lastScriptDoor=0;
             queuedScriptAnswer=null;clearDoor();
         }

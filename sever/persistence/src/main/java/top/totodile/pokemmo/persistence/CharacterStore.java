@@ -15,6 +15,23 @@ import java.util.*;
 public final class CharacterStore {
     private final Database database;
     private final AvatarCatalog catalog;
+    public boolean infinitePp(int account, long character) throws SQLException {
+        try (var connection = database.connect(); var query = connection.prepareStatement(
+                "SELECT debug_infinite_pp FROM characters WHERE account_id=? AND id=?")) {
+            query.setInt(1, account); query.setLong(2, character);
+            try (var row = query.executeQuery()) {
+                if (!row.next()) throw new SQLException("Character missing");
+                return row.getBoolean(1);
+            }
+        }
+    }
+    public boolean setInfinitePp(int account, long character, boolean enabled) throws SQLException {
+        try (var connection = database.connect(); var query = connection.prepareStatement(
+                "UPDATE characters SET debug_infinite_pp=? WHERE account_id=? AND id=?")) {
+            query.setBoolean(1, enabled); query.setInt(2, account); query.setLong(3, character);
+            return query.executeUpdate() == 1;
+        }
+    }
     public CharacterStore(Database database, AvatarCatalog catalog) { this.database = database; this.catalog = catalog; }
     public boolean ownsAccount(int id, String username) throws SQLException {
         try (Connection connection = database.connect(); PreparedStatement query = connection.prepareStatement("SELECT 1 FROM accounts WHERE id=? AND username=?")) {
@@ -174,6 +191,13 @@ public final class CharacterStore {
         return result;
     }
     public void saveBattleParty(int account,long character,List<PartyMember> expected,List<PartyMember> next,int trainer) throws SQLException {
+        saveBattleParty(account, character, expected, next, trainer, 0, 0);
+    }
+
+    public void saveBattleParty(int account,long character,List<PartyMember> expected,List<PartyMember> next,
+                                int trainer,long rewardBattle,int prizeMoney) throws SQLException {
+        if (prizeMoney < 0 || rewardBattle < 0 || prizeMoney > 0 && rewardBattle == 0)
+            throw new IllegalArgumentException("Invalid battle reward");
         try (var connection = database.connect()) {
             connection.setAutoCommit(false);
             try {
@@ -185,8 +209,15 @@ public final class CharacterStore {
                         current=PokemonStore.load(connection,character,party(row.getArray(1),row.getArray(2),row.getArray(3),row.getArray(4),row.getArray(5)));
                     }
                 }
+                if (rewardBattle != 0) try (var q = connection.prepareStatement("INSERT INTO character_battle_rewards(character_id,battle_id) VALUES (?,?) ON CONFLICT DO NOTHING")) {
+                    q.setLong(1, character); q.setLong(2, rewardBattle);
+                    if (q.executeUpdate() == 0) { connection.rollback(); return; }
+                }
                 if(!current.equals(expected))throw new SQLException("Battle party changed");
                 PokemonStore.save(connection,character,next);PokemonStore.sync(connection,character,next);
+                if (prizeMoney > 0) try (var q = connection.prepareStatement("UPDATE characters SET money=money+? WHERE id=? AND account_id=?")) {
+                    q.setInt(1, prizeMoney); q.setLong(2, character); q.setInt(3, account); q.executeUpdate();
+                }
                 if(trainer>0)try(var q=connection.prepareStatement("INSERT INTO character_trainers(character_id,trainer_id) VALUES (?,?) ON CONFLICT DO NOTHING")) {
                     q.setLong(1,character);q.setInt(2,trainer);q.executeUpdate();
                 }
@@ -758,8 +789,18 @@ public final class CharacterStore {
                         }
                     }
                     int owned=0;try(var q=c.prepareStatement("SELECT quantity FROM character_inventory WHERE character_id=? AND item_id=?")){q.setLong(1,character);q.setInt(2,first);try(var r=q.executeQuery()){if(r.next())owned=r.getInt(1);}}
+                    if (operation.equals("item-add") && !duplicate) {
+                        var item = top.totodile.pokemmo.protocol.ItemCatalog.get(first);
+                        if (item == null || second < 1 || (long) owned + second > item.maxStack()) {
+                            result = 0;
+                            if (!argument.isBlank()) try (var q = c.prepareStatement("DELETE FROM character_script_item_gifts WHERE character_id=? AND rom_hash=? AND instruction=?")) {
+                                q.setLong(1,character); q.setString(2,top.totodile.pokemmo.protocol.GbaScriptProgram.forRegion(region).romHash());
+                                q.setInt(3,Integer.parseInt(argument)); q.executeUpdate();
+                            }
+                        }
+                    }
                     if(operation.equals("item-check"))result=owned>=second?1:0;
-                    else if(!duplicate){int quantity=operation.equals("item-add")?owned+second:owned-second;if(quantity<0)result=0;else if(quantity==0){try(var q=c.prepareStatement("DELETE FROM character_inventory WHERE character_id=? AND item_id=?")){q.setLong(1,character);q.setInt(2,first);q.executeUpdate();}}else try(var q=c.prepareStatement("INSERT INTO character_inventory(character_id,item_id,quantity) VALUES(?,?,?) ON CONFLICT(character_id,item_id) DO UPDATE SET quantity=EXCLUDED.quantity")){q.setLong(1,character);q.setInt(2,first);q.setInt(3,quantity);q.executeUpdate();}}
+                    else if(!duplicate && result != 0){int quantity=operation.equals("item-add")?owned+second:owned-second;if(quantity<0)result=0;else if(quantity==0){try(var q=c.prepareStatement("DELETE FROM character_inventory WHERE character_id=? AND item_id=?")){q.setLong(1,character);q.setInt(2,first);q.executeUpdate();}}else try(var q=c.prepareStatement("INSERT INTO character_inventory(character_id,item_id,quantity) VALUES(?,?,?) ON CONFLICT(character_id,item_id) DO UPDATE SET quantity=EXCLUDED.quantity")){q.setLong(1,character);q.setInt(2,first);q.setInt(3,quantity);q.executeUpdate();}}
                 }else throw new SQLException("Unknown script host operation");
                 savePartyArrays(c,account,character,party);PokemonStore.save(c,character,party);
                 saveGbaRegion(c,account,character,region,state,p,townStage,labStage);c.commit();return result;

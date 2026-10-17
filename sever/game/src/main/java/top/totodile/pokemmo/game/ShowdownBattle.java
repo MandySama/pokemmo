@@ -13,6 +13,8 @@ final class ShowdownBattle implements AutoCloseable {
     private final boolean trainerBattle;
     private final List<PartyMember> opponents;
     private int faintMask;
+    private final int[] participants = new int[6];
+    private boolean rewardsSettled;
     ShowdownBattle(List<PartyMember> party, EncounterCatalog.Selection encounter) throws IOException {
         this(party,wildParty(encounter),false);
     }
@@ -29,21 +31,62 @@ final class ShowdownBattle implements AutoCloseable {
         generation=ShowdownWorker.generation();state=read(data);
     }
     BattlePackets.State state() {return state;}
+    boolean needsRewards() { return trainerBattle && state.outcome() == 1 && !rewardsSettled; }
+
+    BattlePackets.State rewards(int region, int money) {
+        long[] experience = new long[party.size()];
+        for (int enemy = 0; enemy < opponents.size(); enemy++) {
+            int eligible = participants[enemy];
+            for (int slot = 0; slot < party.size(); slot++)
+                if (party.get(slot).hp() == 0) eligible &= ~(1 << slot);
+            if (eligible == 0) continue;
+            int gain = BattleRewards.experience(region, opponents.get(enemy), Integer.bitCount(eligible));
+            for (int slot = 0; slot < party.size(); slot++) if ((eligible & 1 << slot) != 0) experience[slot] += gain;
+        }
+        var next = new ArrayList<PartyMember>();
+        var events = new ArrayList<>(state.events());
+        for (int slot = 0; slot < party.size(); slot++) {
+            var old = party.get(slot);
+            var updated = BattleRewards.grow(old, experience[slot]);
+            next.add(updated);
+            long gained = updated.individual().experience() - old.individual().experience();
+            while (gained > 0) {
+                int chunk = (int) Math.min(65535, gained);
+                events.add(new BattlePackets.Event(BattlePackets.EXPERIENCE, slot, chunk)); gained -= chunk;
+            }
+            if (updated.level() > old.level()) events.add(new BattlePackets.Event(BattlePackets.LEVEL_UP, slot, updated.level()));
+        }
+        while (money > 0) {
+            int chunk = Math.min(65535, money);
+            events.add(new BattlePackets.Event(BattlePackets.PRIZE_MONEY, 0, chunk)); money -= chunk;
+        }
+        return new BattlePackets.State(true,id,state.revision(),state.outcome(),state.active(),state.forceSwitch(),
+                state.enemyHp(),state.enemyMaxHp(),List.copyOf(next),List.copyOf(events),state.legalMoves(),state.options(),state.enemyActive(),state.enemyStatus());
+    }
+
+    void rewardsSaved(BattlePackets.State result) {
+        state = result; party = result.party(); rewardsSettled = true;
+    }
+    void setInfinitePp(boolean enabled) throws IOException {
+        if (state.outcome() != 0) return;
+        state = read(ShowdownWorker.call("{\"action\":\"infinitePp\",\"battle\":\"" + id
+                + "\",\"revision\":" + state.revision() + ",\"enabled\":" + enabled + "}", generation));
+    }
     List<PartyMember> opponents() { return opponents; }
     boolean trainerBattle() { return trainerBattle; }
     int faintMask() { return faintMask; }
     BattlePackets.State snapshot() {
-        return new BattlePackets.State(true,id,state.revision(),state.outcome(),state.active(),state.forceSwitch(),state.enemyHp(),state.enemyMaxHp(),party,List.of(),state.legalMoves(),state.options(),state.enemyActive());
+        return new BattlePackets.State(true,id,state.revision(),state.outcome(),state.active(),state.forceSwitch(),state.enemyHp(),state.enemyMaxHp(),party,List.of(),state.legalMoves(),state.options(),state.enemyActive(),state.enemyStatus());
     }
     BattlePackets.State handle(BattlePackets.Request request) throws IOException {
         if(request.action()==BattlePackets.START)return snapshot();
         if(request.battle()!=id||request.revision()!=state.revision()||state.outcome()!=0)return rejected();
         if(trainerBattle&&request.action()==BattlePackets.RUN)return rejected();
         String action=switch(request.action()){case BattlePackets.MOVE->"move";case BattlePackets.SWITCH->"switch";case BattlePackets.RUN->"run";default->throw new IOException("Invalid battle action");};
-        state=read(ShowdownWorker.call("{\"action\":\""+action+"\",\"battle\":\""+id+"\",\"revision\":"+request.revision()+",\"slot\":"+request.slot()+"}",generation));
+        state=read(ShowdownWorker.call("{\"action\":\""+action+"\",\"battle\":\""+id+"\",\"revision\":"+request.revision()+",\"slot\":"+request.slot()+",\"replacementMove\":"+request.replacementMove()+"}",generation));
         return state;
     }
-    private BattlePackets.State rejected(){return new BattlePackets.State(false,id,state.revision(),state.outcome(),state.active(),state.forceSwitch(),state.enemyHp(),state.enemyMaxHp(),party,List.of(),state.legalMoves(),state.options(),state.enemyActive());}
+    BattlePackets.State rejected(){return new BattlePackets.State(false,id,state.revision(),state.outcome(),state.active(),state.forceSwitch(),state.enemyHp(),state.enemyMaxHp(),party,List.of(),state.legalMoves(),state.options(),state.enemyActive(),state.enemyStatus());}
     private BattlePackets.State read(byte[] bytes) throws IOException {
         var d=new PacketData(bytes);boolean accepted=d.booleanValue();int revision=d.shortValue(),outcome=d.byteValue(),active=d.byteValue();
         boolean forced=d.booleanValue();int enemyHp=d.shortValue(),enemyMax=d.shortValue(),count=d.byteValue();
@@ -57,16 +100,22 @@ final class ShowdownBattle implements AutoCloseable {
         int n=d.shortValue();if(n>1024)throw new IOException("Engine event overflow");var events=new ArrayList<BattlePackets.Event>();
         for(int i=0;i<n;i++)events.add(new BattlePackets.Event(d.byteValue(),d.byteValue(),d.shortValue()));
         int enemySlot = state == null ? 0 : state.enemyActive();
+        int playerSlot = state == null ? active : state.active();
+        participants[enemySlot] |= 1 << playerSlot;
         for (var event : events) {
+            if (event.kind() == 5) {
+                if (event.side() == 0) playerSlot = event.value(); else enemySlot = event.value();
+                participants[enemySlot] |= 1 << playerSlot;
+            }
             if (event.side() != 1) continue;
             if (event.kind() == 5) enemySlot = event.value();
             else if (event.kind() == 1 || event.kind() == 4 && event.value() == 0) faintMask |= 1 << enemySlot;
         }
         n=d.byteValue();if(n>4)throw new IOException("Engine move overflow");var legal=new ArrayList<Integer>();for(int i=0;i<n;i++)legal.add(d.byteValue());
         n=d.byteValue();if(n>4)throw new IOException("Engine option overflow");var options=new ArrayList<BattlePackets.MoveOption>();
-        for(int i=0;i<n;i++)options.add(new BattlePackets.MoveOption(d.byteValue(),d.shortValue(),d.byteValue(),d.byteValue()));int enemyActive=d.byteValue();d.end();
-        if(active>=count||outcome>4||enemyHp>enemyMax)throw new IOException("Invalid engine state");
-        party=List.copyOf(next);return new BattlePackets.State(accepted,id,revision,outcome,active,forced,enemyHp,enemyMax,party,List.copyOf(events),List.copyOf(legal),List.copyOf(options),enemyActive);
+        for(int i=0;i<n;i++)options.add(new BattlePackets.MoveOption(d.byteValue(),d.shortValue(),d.byteValue(),d.byteValue()));int enemyActive=d.byteValue(), enemyStatus=d.byteValue();d.end();
+        if(enemyStatus>6||active>=count||outcome>4||enemyHp>enemyMax)throw new IOException("Invalid engine state");
+        party=List.copyOf(next);return new BattlePackets.State(accepted,id,revision,outcome,active,forced,enemyHp,enemyMax,party,List.copyOf(events),List.copyOf(legal),List.copyOf(options),enemyActive,enemyStatus);
     }
     private static String team(List<PartyMember> party,boolean allowItems) throws IOException {
         var result=new ArrayList<String>();

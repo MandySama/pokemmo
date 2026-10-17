@@ -144,7 +144,7 @@ final class BagWindow extends ResizableFrame implements AutoCloseable {
         if (battleView) return;
         if(busy)return;
         var menu=new Menu();
-        menu.add(new MenuAction(ClientStrings.get(1410),()->{if(!busy)use.accept(id);}).setEnabled(top.totodile.pokemmo.protocol.ItemLoot.usable(id)));
+        menu.add(new MenuAction(ClientStrings.get(1410),()->{if(!busy)use.accept(id);}).setEnabled(top.totodile.pokemmo.protocol.ItemLoot.usable(id) || top.totodile.pokemmo.protocol.GbaBackgroundEvents.isItemfinder(id)));
         if(hotbar!=null){
             var register=new Menu(ClientStrings.get(1412));
             for(int i=0;i<9;i++){int slot=i;register.add(ClientStrings.get(1413).replace("{00}",Integer.toString(i+1)),()->hotbar.register(id,slot));}

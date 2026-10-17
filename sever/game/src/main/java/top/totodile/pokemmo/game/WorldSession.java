@@ -17,6 +17,7 @@ final class WorldSession implements AutoCloseable {
     private int region;
     private final int gender;
     private boolean wildEnabled = true;
+    private boolean infinitePp;
     private EncounterCatalog.Selection activeEncounter;
     private ShowdownBattle battle;
     private TrainerCatalog.Trainer activeTrainer;
@@ -42,9 +43,10 @@ final class WorldSession implements AutoCloseable {
         return result;
     }
 
-    synchronized void restoreBattle(BattleContinuation continuation) {
+    synchronized void restoreBattle(BattleContinuation continuation) throws IOException {
         battle = continuation.battle(); activeEncounter = continuation.encounter(); activeTrainer = continuation.trainer();
         trainerParty = continuation.opponents(); savedBattleParty = continuation.savedParty(); scriptBattle = continuation.script();
+        if (battle != null) battle.setInfinitePp(infinitePp);
     }
     private GbaScriptRuntime createScriptRuntime(Position position)throws SQLException,IOException {
         savedScriptVersion=-1;
@@ -93,11 +95,12 @@ final class WorldSession implements AutoCloseable {
         defeatedTrainers=store.defeatedTrainers(account,character);
         onlineBase = savedOnline = info.stats().onlineSeconds();
         position = saved = info.position();
-        if(region<=1&&npcs!=null){opening=createScriptRuntime(position);position=opening.position();persistScript();}
+        if(region<=1&&npcs!=null){opening=createScriptRuntime(position);position=opening.position();opening.resetNpcs(npcs,System.nanoTime());persistScript();}
         cycling = savedCycling = info.cycling();
         noclip = debugEnabled() && info.noclip();
         multiplier = debugEnabled() ? info.speedMultiplier() : 1;
         wildEnabled = !debugEnabled() || info.wildEncounters();
+        infinitePp = debugEnabled() && store.infinitePp(account, character);
         saving = scheduler.scheduleWithFixedDelay(() -> {
             try {
                 flush();
@@ -122,6 +125,25 @@ final class WorldSession implements AutoCloseable {
         int opcode = packet[0] & 255;
         int duration = (cycling ? 80 : 275) / multiplier;
         long npcNow = System.nanoTime();
+        if (opcode == ScriptDiagnosticPackets.OPCODE) {
+            ScriptDiagnosticPackets.readRequest(packet);
+            return ScriptDiagnosticPackets.response(opening == null
+                    ? new ScriptDiagnosticPackets.Snapshot(java.util.List.of(new ScriptDiagnosticPackets.Row(252065, "")))
+                    : opening.diagnostics(npcs, npcNow));
+        }
+        if (opcode == InfinitePpPackets.OPCODE) {
+            var request = InfinitePpPackets.read(packet);
+            boolean accepted = true;
+            if (request.action() == InfinitePpPackets.SET) {
+                if (request.enabled() && !debugEnabled()) accepted = false;
+                else if (!store.setInfinitePp(account, character, request.enabled())) accepted = false;
+                else {
+                    infinitePp = request.enabled();
+                    if (battle != null) battle.setInfinitePp(infinitePp);
+                }
+            }
+            return InfinitePpPackets.response(new InfinitePpPackets.State(infinitePp, accepted));
+        }
         if (opcode == StoryProgressPackets.OPCODE) {
             var request = StoryProgressPackets.readRequest(packet);
             if (region > 1 || !debugEnabled()) throw new IOException("Story debug disabled");
@@ -139,6 +161,7 @@ final class WorldSession implements AutoCloseable {
                         accepted=opening!=null&&opening.canReset(request.scene());
                         if (accepted) {
                             var target=opening.resetScene(request.scene(),npcNow);
+                            if (npcs != null) opening.resetNpcs(npcs, npcNow);
                             position = saved = rules.at(target.group(),target.map(),target.x(),target.y(),target.facing(),null); destination = position; movementFrom = null;
                             if (region == 0) {
                                 store.saveKantoCheckpoint(account, character, opening.save(), position,
@@ -195,7 +218,7 @@ final class WorldSession implements AutoCloseable {
         if (opcode == BattleResumePackets.OPCODE) {
             if (packet.length != 1) throw new IOException("Invalid battle recovery request");
             if (activeEncounter == null || activeEncounter.selections().size() != 1) return BattleResumePackets.response(BattleResumePackets.Snapshot.empty());
-            if (battle == null) handleLocked(BattlePackets.request(new BattlePackets.Request(BattlePackets.START,0,0,0)));
+            if (battle == null || activeTrainer != null && battle.needsRewards()) handleLocked(BattlePackets.request(new BattlePackets.Request(BattlePackets.START,0,0,0)));
             if (battle == null) throw new IOException("Battle recovery failed");
             var trainer = activeTrainer == null ? null : new TrainerPackets.Ready(1,activeTrainer.id(),activeTrainer.name(),activeTrainer.defeat(),activeTrainer.after(),activeTrainer.party());
             return BattleResumePackets.response(new BattleResumePackets.Snapshot(battle.trainerBattle(),scriptBattle,activeEncounter,trainer,battle.opponents(),battle.faintMask(),battle.snapshot()));
@@ -208,10 +231,19 @@ final class WorldSession implements AutoCloseable {
                         throw new IOException("No single encounter");
                     savedBattleParty=store.pcParty(account,character).party();
                     battle=activeTrainer==null&&!scriptBattle?new ShowdownBattle(savedBattleParty,activeEncounter):new ShowdownBattle(savedBattleParty,trainerParty,true);
+                    if (infinitePp) battle.setInfinitePp(true);
                 }
+                if (request.replacementMove() != 0 && request.replacementMove() != BattlePackets.RESTORE_MOVE && !debugEnabled())
+                    return BattlePackets.response(battle.rejected());
                 var result=battle.handle(request);
+                boolean reward = result.accepted() && activeTrainer != null && battle.needsRewards();
+                int prize = reward ? BattleRewards.money(region, activeTrainer) : 0;
+                if (reward) result = battle.rewards(region, prize);
                 if(result.accepted()&&(!result.party().equals(savedBattleParty)||activeTrainer!=null&&result.outcome()==1)) {
-                    store.saveBattleParty(account,character,savedBattleParty,result.party(),activeTrainer!=null&&result.outcome()==1?activeTrainer.id():0);savedBattleParty=result.party();
+                    store.saveBattleParty(account,character,savedBattleParty,result.party(),activeTrainer!=null&&result.outcome()==1?activeTrainer.id():0,
+                            reward ? result.battle() : 0, prize);
+                    if (reward) battle.rewardsSaved(result);
+                    savedBattleParty=result.party();
                     if(activeTrainer!=null&&result.outcome()==1){defeatedTrainers.add(activeTrainer.id());if(opening!=null)opening.markTrainerDefeated(activeTrainer.id());}
                 }
                 return BattlePackets.response(result);
@@ -257,7 +289,7 @@ final class WorldSession implements AutoCloseable {
             if(request.action()==StoryPackets.RESET||request.action()==StoryPackets.START||request.action()==StoryPackets.SKIP){
                 if(!debugEnabled())throw new IOException("Story debug disabled");
                 if(request.action()==StoryPackets.SKIP)throw new IOException("ROM scripts cannot be skipped by changing a completion flag");
-                if(request.action()==StoryPackets.RESET)position=opening.resetScene(StoryProgressPackets.OPENING,npcNow);
+                if(request.action()==StoryPackets.RESET){position=opening.resetScene(StoryProgressPackets.OPENING,npcNow);if(npcs!=null)opening.resetNpcs(npcs,npcNow);}
                 else opening.startScene(StoryProgressPackets.OPENING,npcNow);
             }else if(request.action()!=StoryPackets.POLL)opening.acknowledge(request.phase(),request.action(),request.answer(),request.name(),npcNow);
             if(!loading&&npcNow>=readyAt&&activeEncounter==null)opening.onPosition(position,npcNow);
@@ -275,7 +307,7 @@ final class WorldSession implements AutoCloseable {
             if(!snapshot.active()&&npcs!=null&&npcs.talking())npcs.talk(position,255,npcNow);persistScript();return StoryPackets.response(snapshot);
         }
         if (opcode == NpcPackets.OPCODE) {
-            if (packet.length != 3 || (packet[1] & 255) > 2) throw new IOException("Invalid NPC operation");
+            if (packet.length != 3 || (packet[1] & 255) > 3) throw new IOException("Invalid NPC operation");
             if (ndsNpcs != null) {
                 int action = packet[1] & 255;
                 if (action == 2) ndsNpcs.end(npcNow);
@@ -285,6 +317,10 @@ final class WorldSession implements AutoCloseable {
             }
             if (npcs == null) return NpcPackets.response(new NpcPackets.Snapshot(position.group(), position.map(), -1, java.util.List.of()));
             int action = packet[1] & 255;
+            if (action == 3 && region == 0 && opening != null && !loading && !closed && activeEncounter == null && npcNow >= readyAt) {
+                boolean found = opening.findUnderfootItem(position,npcNow); persistScript();
+                return NpcPackets.response(new NpcPackets.Snapshot(position.group(),position.map(),-1,java.util.List.of(),found ? 0 : opening.nearbyHiddenItem(position) ? 9847 : 9846));
+            }
             if(action==1&&opening!=null&&!loading&&npcNow>=readyAt){opening.syncNpcs(npcs.snapshot(position,npcNow),npcNow);if(opening.interact(position,packet[2]&255,npcNow)){npcs.talk(position,packet[2]&255,npcNow);return NpcPackets.response(new NpcPackets.Snapshot(position.group(),position.map(),-1,java.util.List.of()));}}
             if (action == 2) npcs.talk(position, 255, npcNow);
             else if (action == 1 && (opening == null || !opening.active()) && !loading && !closed && npcNow >= readyAt) npcs.talk(position, packet[2] & 255, npcNow);

@@ -13,6 +13,78 @@ public final class GbaScriptRuntime {
     public record ActorView(int id,int graphics,int elevation,boolean visible,NpcPackets.State state) { }
     private static final java.util.concurrent.ConcurrentMap<String,String> KANTO_BOUNDARIES=new java.util.concurrent.ConcurrentHashMap<>();
     private final GbaScriptProgram PROGRAM;
+    private final Deque<ScriptDiagnosticPackets.Row> diagnosticTrace = new ArrayDeque<>();
+    private String diagnosticComparison = "";
+    private void trace(int label, String value) {
+        if (diagnosticTrace.size() == 96) diagnosticTrace.removeFirst();
+        diagnosticTrace.addLast(new ScriptDiagnosticPackets.Row(label, value));
+    }
+    private static String hex(int value) { return String.format("0x%08X", value); }
+    /** 不调用 tick、snapshot 或日常 NPC 更新，避免观察改变执行进度。 */
+    public ScriptDiagnosticPackets.Snapshot diagnostics(KantoNpcs npcs, long time) {
+        var rows = new ArrayList<ScriptDiagnosticPackets.Row>();
+        rows.add(new ScriptDiagnosticPackets.Row(252040, PROGRAM.region + " / " + player.group() + "/" + player.map()
+                + "  (" + player.x() + ", " + player.y() + ")"));
+        rows.add(new ScriptDiagnosticPackets.Row(252041, PROGRAM.hash));
+        rows.add(new ScriptDiagnosticPackets.Row(252042, hex(pc) + " / " + mode + " / " + text + " / " + version));
+        for (var n : PROGRAM.npcs) {
+            if (n.group() != player.group() || n.map() != player.map()) continue;
+            var a = actors.get(key(n.group(), n.map(), n.id()));
+            var daily = npcs == null ? null : npcs.diagnostic(n.group(), n.map(), n.id());
+            boolean useDaily = !a.controlled && a.flag == 0 && daily != null;
+            int x = useDaily ? daily.x() : a.x, y = useDaily ? daily.y() : a.y;
+            int facing = useDaily ? daily.facing() : a.facing;
+            var definition = useDaily ? daily.definition() : null;
+            var original = KantoNpcs.definitions(PROGRAM.region, n.group(), n.map()).stream()
+                    .filter(d -> d.id() == n.id()).findFirst().orElse(null);
+            int movement = definition == null ? a.movement : definition.movement();
+            var effective = original == null ? null : new KantoNpcs.Definition(n.id(), 0, 0, original.elevation(), movement, original.rangeX(), original.rangeY());
+            int homeX = definition == null ? a.originX : definition.x(), homeY = definition == null ? a.originY : definition.y();
+            rows.add(new ScriptDiagnosticPackets.Row(252043, n.id() + " / " + (a.graphics >= 240 ? variable(0x4010 + a.graphics - 240) : a.graphics) + "  (" + x + ", " + y + ") / " + facing));
+            rows.add(new ScriptDiagnosticPackets.Row(visible(a) ? 252044 : 252045,
+                    (a.controlled ? "1" : "0") + " / " + hex(a.flag) + " / " + (flags.contains(a.flag) ? "1" : "0")));
+            rows.add(new ScriptDiagnosticPackets.Row(252046, movement + "  (" + homeX + ", " + homeY + ")  ("
+                    + (effective == null ? 0 : effective.radiusX()) + ", " + (effective == null ? 0 : effective.radiusY()) + ")"));
+            rows.add(new ScriptDiagnosticPackets.Row(252047, hex(n.script())));
+        }
+        for (var t : PROGRAM.triggers) {
+            if (t.group() != player.group() || t.map() != player.map()) continue;
+            rows.add(new ScriptDiagnosticPackets.Row(252048, t.kind() + "  (" + t.x() + ", " + t.y() + ") / "
+                    + t.elevation() + " / " + hex(t.script())));
+            if (t.variable() != 0) rows.add(new ScriptDiagnosticPackets.Row(
+                    variable(t.variable()) == t.value() ? 252049 : 252050,
+                    hex(t.variable()) + " : " + variable(t.variable()) + " == " + t.value()));
+        }
+        rows.add(new ScriptDiagnosticPackets.Row(252051, Integer.toString(diagnosticTrace.size())));
+        rows.addAll(diagnosticTrace);
+        return new ScriptDiagnosticPackets.Snapshot(rows);
+    }
+    private void traceInstruction(int address, int op, byte[] d) {
+        String at = hex(address) + "  ";
+        if (op == 0x21 || op == 0x22) {
+            diagnosticComparison = hex(u16(d, 1)) + "=" + value(u16(d, 1)) + " / "
+                    + (op == 0x21 ? u16(d, 3) : value(u16(d, 3)));
+            trace(252052, at + diagnosticComparison);
+        } else if (op == 0x2b || op == 0x60) {
+            int flag = op == 0x60 ? 0x500 + value(u16(d, 1)) : u16(d, 1);
+            diagnosticComparison = hex(flag) + "=" + (flags.contains(flag) ? 1 : 0);
+            trace(252053, at + diagnosticComparison);
+        } else if (op == 0x06 || op == 0x07) {
+            trace(condition(u8(d, 1)) ? 252054 : 252055,
+                    at + diagnosticComparison + " / " + comparison + new String[]{"<", "==", ">", "<=", ">=", "!="}[u8(d, 1)] + "0 -> " + hex(pointer(d, 2)));
+        } else if (op == 0x16 || op == 0x17 || op == 0x18 || op == 0x19 || op == 0x1a) {
+            trace(252056, at + hex(op) + " / " + hex(u16(d, 1)) + "=" + variable(u16(d, 1))
+                    + " / " + u16(d, 3) + "=" + value(u16(d, 3)));
+        } else if (op == 0x29 || op == 0x2a || op == 0xd0) {
+            trace(op == 0x2a ? 252058 : 252057, at + hex(u16(d, 1)));
+        } else if (op == 0x4f) {
+            trace(252059, at + value(u16(d, 1)) + " -> " + hex(pointer(d, 3)));
+        } else if (op == 0x57 || op >= 0x63 && op <= 0x65 || op == 0x53 || op == 0x55) {
+            trace(252060, at + hex(op) + " / " + HexFormat.of().formatHex(d));
+        } else if (op == 0x0f || op == 0x67 || op == 0x08 || op == 0x09) {
+            trace(252061, at + hex(op) + " / " + HexFormat.of().formatHex(d));
+        }
+    }
     private final int gender;
     private final Host host;
     private final Map<Integer,Integer> variables=new TreeMap<>(), buffers=new TreeMap<>();
@@ -28,6 +100,7 @@ public final class GbaScriptRuntime {
     private int loadedGroup=-1,loadedMap=-1;
     private static final class Actor {
         int group,map,id,graphics,elevation,flag,x,y,fromX,fromY,facing,index;
+        int movement, originX, originY;
         boolean invisible,controlled;
         byte[] moves=new byte[0];
         long ends;
@@ -44,9 +117,16 @@ public final class GbaScriptRuntime {
         if(!active()&&!(region==1&&(state==null||state.isBlank()))){player=position;playerFromX=position.x();playerFromY=position.y();}
     }
     private void initializeActors() {
-        for(var n:PROGRAM.npcs){var a=new Actor();a.group=n.group();a.map=n.map();a.id=n.id();a.graphics=n.graphics();a.elevation=n.elevation();a.flag=n.flag();a.controlled=n.flag()!=0||n.graphics()>=240;a.x=a.fromX=n.x();a.y=a.fromY=n.y();a.facing=n.facing();actors.put(key(a.group,a.map,a.id),a);}
+        for(var n:PROGRAM.npcs){var a=new Actor();a.group=n.group();a.map=n.map();a.id=n.id();a.graphics=n.graphics();a.elevation=n.elevation();a.flag=n.flag();a.controlled=n.flag()!=0||n.graphics()>=240;a.x=a.fromX=n.x();a.y=a.fromY=n.y();a.facing=n.facing();initializeNpcBehavior(a);actors.put(key(a.group,a.map,a.id),a);}
     }
     private static int key(int g,int m,int id){return g<<16|m<<8|id;}
+    private void initializeNpcBehavior(Actor actor) {
+        var definition = KantoNpcs.definitions(PROGRAM.region, actor.group, actor.map).stream()
+                .filter(d -> d.id() == actor.id).findFirst().orElse(null);
+        actor.originX = definition == null ? actor.x : definition.x();
+        actor.originY = definition == null ? actor.y : definition.y();
+        actor.movement = definition == null ? 0 : definition.movement();
+    }
     public boolean active(){return pc!=0||mode!=NONE||!queue.isEmpty();}
     public boolean complete(){return PROGRAM.region==0?variable(0x4055)>=4:variable(0x4084)>=5;}
     public int region(){return PROGRAM.region;}
@@ -96,7 +176,7 @@ public final class GbaScriptRuntime {
     private void enqueueMap(int kind){if(PROGRAM.region==0&&!KantoStoryScenes.supports(player.group(),player.map()))return;for(var t:PROGRAM.triggers)if(t.kind()==kind&&t.group()==player.group()&&t.map()==player.map()&&(PROGRAM.region!=0||kind!=2||KantoStoryScenes.frameScript(t.script()))&&(kind!=2||t.script()!=buffers.getOrDefault(602,0))&&(t.variable()==0||variable(t.variable())==t.value()))queue.add(t.script());}
     private void nextRoot() throws IOException {
         if(pc!=0||queue.isEmpty())return;
-        int start=queue.remove();if(PROGRAM.region==0){
+        int start=queue.remove();trace(252062, player.group()+"/"+player.map()+" -> "+hex(start));if(PROGRAM.region==0){
             buffers.put(598,start);
             for(var definition:KantoStoryScenes.progression())if(definition.script()==start&&(definition.variable()==0||variable(definition.variable())==definition.expected())){
                 if(definition.scene().endsWith("/deliver")&&variable(0x4055)!=5)continue;
@@ -116,17 +196,41 @@ public final class GbaScriptRuntime {
                     || !visible(a) || a.index < a.moves.length || time < a.ends) continue;
             if (KantoNpcs.definitions(PROGRAM.region, a.group, a.map).stream()
                     .noneMatch(d -> d.id() == a.id)) continue;
-            npcs.resume(a.group, a.map, new NpcPackets.State(a.id, a.x, a.y, a.x, a.y, a.facing, 0), time);
+            npcs.resume(a.group, a.map, new NpcPackets.State(a.id, a.x, a.y, a.x, a.y, a.facing, 0),
+                    a.movement, a.originX, a.originY, time);
             a.controlled = false;
             version++;
         }
+    }
+
+    /** 回退或加载会话后清除旧日常缓存，重新交接脚本保存的普通物件状态。 */
+    public void resetNpcs(KantoNpcs npcs, long time) {
+        npcs.reset();
+        for (var actor : actors.values()) if (actor.id != 255 && actor.flag == 0 && actor.graphics < 240)
+            actor.controlled = true;
+        resumeNpcs(npcs, time);
     }
 
     public boolean interact(Position p,int id,long time) throws IOException {
         if(active()||!PROGRAM.supports(p.group(),p.map()))return false;
         player=p;var a=actor(id);
         int tx=p.x()+(p.facing()==2?-1:p.facing()==3?1:0),ty=p.y()+(p.facing()==1?-1:p.facing()==0?1:0);
-        if(id==255){for(var t:PROGRAM.triggers)if(t.kind()>=100&&t.group()==p.group()&&t.map()==p.map()&&t.x()==tx&&t.y()==ty&&(PROGRAM.region!=0||KantoStoryScenes.backgroundScript(t.script()))){set(0x800c,p.facing()+1);queue.add(t.script());nextRoot();run(time);return true;}return false;}
+        if (id == 255) {
+            for (var t : PROGRAM.triggers) if (t.kind() >= 100 && t.group() == p.group() && t.map() == p.map()
+                    && t.x() == tx && t.y() == ty && GbaBackgroundEvents.matches(t.kind()-100,t.elevation(),p.facing(),p.elevation(),0)) {
+                set(0x800c,p.facing()+1); buffers.put(643,1); queue.add(t.script()); nextRoot(); run(time); return true;
+            }
+            if (PROGRAM.region == 0) for (var t : PROGRAM.hiddenItems) if (t.group() == p.group() && t.map() == p.map()
+                    && t.x() == tx && t.y() == ty && GbaBackgroundEvents.matches(t.kind(),t.elevation(),p.facing(),p.elevation(),t.data())) {
+                int flag = 1000 + (t.data() >>> 16 & 255);
+                if (flags.contains(flag)) return false;
+                if (PROGRAM.hiddenRoot == 0) throw new IOException("Missing hidden item script");
+                set(0x8004,flag); set(0x8005,t.data() & 65535); set(0x8006,t.data() >>> 24 & 127);
+                set(0x800c,p.facing()+1); buffers.put(641,flag);
+                queue.add(PROGRAM.hiddenRoot); nextRoot(); run(time); return true;
+            }
+            return false;
+        }
         if(a==null||!visible(a)||time<a.ends||a.x!=tx||a.y!=ty)return false;
         var definition=PROGRAM.npcs.stream().filter(n->n.group()==p.group()&&n.map()==p.map()&&n.id()==id).findFirst().orElseThrow();
         if(definition.script()==0||PROGRAM.region==0&&!KantoStoryScenes.npcScript(definition.script()))return false;
@@ -146,6 +250,26 @@ public final class GbaScriptRuntime {
             buffers.remove(512);buffers.remove(513);buffers.put(514,261);buffers.put(515,2);trainer=0;waitFor(BATTLE);
             host.effect("pokemon",new int[]{252,255,258}[answer],5,Integer.toString(buffers.get(516)));
         }
+    }
+
+    public boolean findUnderfootItem(Position p, long time) throws IOException {
+        if (PROGRAM.region != 0 || active() || PROGRAM.finderRoot == 0) return false;
+        player = p; now = time;
+        if (effect(PROGRAM.finderRoot,"item-check",261,1,"") == 0
+                && effect(PROGRAM.finderRoot,"item-check",5471,1,"") == 0) return false;
+        for (var t : PROGRAM.hiddenItems) if (t.group() == p.group() && t.map() == p.map() && t.x() == p.x() && t.y() == p.y()
+                && t.data() < 0 && (t.elevation() == 0 || t.elevation() == p.elevation())) {
+            int flag = 1000 + (t.data() >>> 16 & 255);
+            if (flags.contains(flag)) return false;
+            set(0x8004,flag); set(0x8005,t.data() & 65535); set(0x8006,t.data() >>> 24 & 127);
+            buffers.put(641,flag); queue.add(PROGRAM.finderRoot); nextRoot(); run(time); return true;
+        }
+        return false;
+    }
+
+    public boolean nearbyHiddenItem(Position p) {
+        return PROGRAM.hiddenItems.stream().anyMatch(t -> t.group() == p.group() && t.map() == p.map()
+                && Math.abs(t.x()-p.x()) + Math.abs(t.y()-p.y()) <= 7 && !flags.contains(1000+(t.data()>>>16&255)));
     }
     public void arrived(long time) throws IOException {if(mode!=WARP)return;mode=NONE;loadedGroup=player.group();loadedMap=player.map();variables.keySet().removeIf(k->k>=0x4000&&k<=0x400f);flags.removeIf(flag->flag<0x20);buffers.keySet().removeIf(k->k>=20000);var continuation=new ArrayDeque<>(queue);queue.clear();enqueueMap(3);enqueueMap(1);enqueueMap(4);enqueueMap(2);enqueueMap(5);queue.addAll(continuation);if(pc!=0){queue.addLast(pc);pc=0;}run(time);}
     public void battleFinished(boolean won,long time)throws IOException {if(mode!=BATTLE)return;now=time;set(0x800d,won?1:0);
@@ -173,7 +297,7 @@ public final class GbaScriptRuntime {
     }
     private void step(Actor a,long time)throws IOException {
         if(a.index>=a.moves.length||time<a.ends)return;
-        int op=u8(a.moves,a.index++);a.fromX=a.x;a.fromY=a.y;
+        int op=u8(a.moves,a.index++);trace(252067,a.group+"/"+a.map+" / "+a.id+" / ("+a.x+", "+a.y+") / "+PROGRAM.movementNames.getOrDefault(op,hex(op)));a.fromX=a.x;a.fromY=a.y;
         if(op==254){a.index=a.moves.length;return;}
         String name=PROGRAM.movementNames.get(op);if(name==null)throw new IOException("Unknown ROM movement "+op);
         int duration=1,dir=name.replace("_FAST", "").endsWith("DOWN")?0:name.replace("_FAST", "").endsWith("UP")?1:name.replace("_FAST", "").endsWith("LEFT")?2:name.replace("_FAST", "").endsWith("RIGHT")?3:-1;
@@ -201,9 +325,9 @@ public final class GbaScriptRuntime {
             if(mode!=NONE)return;
             if(pc==0){nextRoot();if(pc==0){
                 if(PROGRAM.region==0&&buffers.containsKey(590)&&kantoMilestoneComplete(KantoStoryScenes.markedEntry(buffers.get(590))))completeKantoEntry(buffers.remove(590));
-                locked=false;return;}}
+                buffers.remove(641);buffers.remove(643);locked=false;return;}}
             int address=pc;byte[] d=PROGRAM.code.get(pc);if(d==null)throw new IOException("Missing ROM opcode at "+Integer.toHexString(pc));
-            int op=u8(d,0);pc+=d.length;version++;
+            int op=u8(d,0);traceInstruction(address,op,d);pc+=d.length;version++;
             switch(op){
                 case 0x00,0x01 -> { }
                 case 0x02 -> {pc=0;calls.clear();locked=false;}
@@ -220,6 +344,12 @@ public final class GbaScriptRuntime {
                 case 0x25,0x26 -> {int output=op==0x26?u16(d,1):0,id=u16(d,op==0x26?3:1);String name=PROGRAM.specials.get(id);int result=0;
                     if(name==null)throw new IOException("Unknown GBA special "+id);
                     switch(name){
+                        case "SetSeenMon" -> buffers.put(6500+PROGRAM.nationalSpecies(variable(0x8004)),1);
+                        case "OpenMuseumFossilPic" -> result=1;
+                        case "CloseMuseumFossilPic" -> { }
+                        case "ShowBattleRecords","ShowBerryCrushRankings","ShowPokemonJumpRecords","ShowDodrioBerryPickingRecords" -> {text=9848;waitFor(BUTTON);}
+                        case "SetHiddenItemFlag" -> flags.add(variable(0x8004));
+                        case "CheckAddCoins" -> result = buffers.getOrDefault(642,0) + variable(0x8006) <= 9999 ? 1 : 0;
                         case "UpdatePickStateFromSpecialVar8005","SetFlavorTextFlagFromSpecialVars","QuestLog_CutRecording","DrawWholeMapView","Script_TryGainNewFanFromCounter" -> { }
                         case "GetQuestLogState" -> result=0;
                         case "IsNationalPokedexEnabled" -> result=flags.contains(0x840)?1:0;
@@ -260,7 +390,7 @@ public final class GbaScriptRuntime {
                         case "GetRivalSonDaughterString" -> buffer(768,0,gender==0?9788:9787);
                         case "SetUnlockedPokedexFlags" -> effect(address,"dex-unlock",1,0,"");
                         case "InitSecretBaseDecorationSprites","TurnOffTVScreen","TurnOnTVScreen" -> { }
-                        default -> throw new IOException("Unsupported GBA special "+name+" at "+Integer.toHexString(address));
+                        default -> { if (buffers.containsKey(643)) unavailableBackground(); else throw new IOException("Unsupported GBA special "+name+" at "+Integer.toHexString(address)); }
                     }
                     if(output!=0)set(output,result);
                 }
@@ -298,9 +428,9 @@ public final class GbaScriptRuntime {
                 case 0x62 -> flags.remove(0x500+value(u16(d,1)));
                 case 0x5e -> pc=buffers.getOrDefault(532,pc);
                 case 0x5f -> pc=buffers.getOrDefault(533,pc);
-                case 0x57,0x63 -> {int id=value(u16(d,1));var a=id==255?playerActor():actor(id);if(a==null)throw new IOException("Missing ROM actor");a.controlled=true;a.x=a.fromX=value(u16(d,3));a.y=a.fromY=value(u16(d,5));if(id==255){player=new Position(player.group(),player.map(),a.x,a.y,player.elevation(),player.facing(),player.returnPoint());playerFromX=a.x;playerFromY=a.y;}}
-                case 0x64 -> { }
-                case 0x65 -> {var a=actor(u16(d,1));if(a!=null)a.facing=KantoNpcs.initialFacing(u8(d,3));}
+                case 0x57,0x63 -> {int id=value(u16(d,1));var a=id==255?playerActor():actor(id);if(a==null)throw new IOException("Missing ROM actor");a.controlled=true;a.x=a.fromX=value(u16(d,3));a.y=a.fromY=value(u16(d,5));if(op==0x63){a.originX=a.x;a.originY=a.y;}if(id==255){player=new Position(player.group(),player.map(),a.x,a.y,player.elevation(),player.facing(),player.returnPoint());playerFromX=a.x;playerFromY=a.y;}}
+                case 0x64 -> {var a=actor(u16(d,1));if(a!=null){a.controlled=true;a.originX=a.x;a.originY=a.y;}}
+                case 0x65 -> {var a=actor(u16(d,1));if(a!=null){a.controlled=true;a.movement=u8(d,3);a.facing=KantoNpcs.initialFacing(a.movement);}}
                 case 0x66 -> { }
                 case 0x67 -> {int target=pointer(d,1);text=PROGRAM.textId(target<0?word:target);waitFor(DRAW);}
                 case 0x68 -> {text=0;serial++;}
@@ -311,13 +441,15 @@ public final class GbaScriptRuntime {
                 case 0x6f,0x70,0x71 -> {
                     int menu=u8(d,3);int[] choices=switch(menu){
                         case 0 -> new int[]{50,51};
+                        case 15 -> new int[]{9850,9851,9852,9853,9854,58};
                         case 21 -> new int[]{240357,51};
                         case 22 -> new int[]{240358,51};
                         case 23 -> new int[]{240354,51};
                         case 24 -> new int[]{240357,240354,51};
                         case 25 -> new int[]{240358,240354,51};
-                        default -> throw new IOException("Unsupported ROM menu " + menu);
+                        default -> null;
                     };
+                    if (choices == null) { if (buffers.containsKey(643)) { unavailableBackground(); break; } throw new IOException("Unsupported ROM menu " + menu); }
                     buffers.put(540,menu);buffers.put(541,choices.length);
                     for(int i=0;i<choices.length;i++)buffers.put(550+i,choices[i]);
                     waitFor(MULTICHOICE);
@@ -328,6 +460,8 @@ public final class GbaScriptRuntime {
                 case 0x9e -> { }
                 case 0x75 -> picture=value(u16(d,1));
                 case 0x76 -> picture=0;
+                case 0x78 -> {text=PROGRAM.textId(pointer(d,1));waitFor(DRAW);}
+                case 0x93,0x94,0x95 -> { }
                 case 0x79 -> set(0x800d,effect(address,"pokemon",value(u16(d,1)),u8(d,3),Integer.toString(address)));
                 case 0x7d -> buffer(0,u8(d,1),PROGRAM.nationalSpecies(value(u16(d,2))));
                 case 0x7e -> buffer(0,u8(d,1),effect(address,"lead-species",0,0,""));
@@ -346,12 +480,18 @@ public final class GbaScriptRuntime {
                 case 0xa2 -> {int x=value(u16(d,1)),y=value(u16(d,3));buffers.put(20000+y*256+x,(value(u16(d,5))&1023)|(value(u16(d,7))!=0?0xc00:0));}
                 case 0xa6 -> buffers.put(528,u8(d,1));
                 case 0x83 -> buffer(256,u8(d,1),value(u16(d,2)));
-                case 0x84 -> {int id=value(u16(d,2));int textId=PROGRAM.region==0&&id>=15&&id<=22?9570+id-15:switch(id){case 14->1401;case 15->1406;case 16->2;case 17->3;case 18->1402;case 24->1401;case 25->1402;case 26->2;case 27->3;case 28->1406;default->throw new IOException("Unsupported standard string "+id);};buffer(768,u8(d,1),textId);}
+                case 0x84 -> {int id=value(u16(d,2));int textId=PROGRAM.region==0&&id>=15&&id<=22?9570+id-15:switch(id){case 14->1401;case 15->1406;case 16->2;case 17->3;case 18->1402;case 23->9840;case 24->1401;case 25->1402;case 26->2;case 27->3;case 28->1406;default->throw new IOException("Unsupported standard string "+id);};buffer(768,u8(d,1),textId);}
                 case 0x97 -> { }
                 case 0xac,0xad -> {doorX=value(u16(d,1));doorY=value(u16(d,3));doorState=op==0xac?1:2;}
+                case 0xb3 -> set(u16(d,1),buffers.getOrDefault(642,0));
+                case 0xb4 -> {int coins=buffers.getOrDefault(642,0);set(0x800d,coins>=9999?1:0);buffers.put(642,Math.min(9999,coins+value(u16(d,1))));}
+                case 0xb5 -> {int coins=buffers.getOrDefault(642,0),count=value(u16(d,1));set(0x800d,coins<count?1:0);buffers.put(642,Math.max(0,coins-count));}
                 case 0xae -> {deadline=time+(doorState==1?120_000_000L:500_000_000L);waitFor(DELAY);}
-                default -> throw new IOException("Unsupported GBA opcode 0x"+Integer.toHexString(op)+" at ROM 0x"+Integer.toHexString(address));
+                default -> { if (buffers.containsKey(643)) unavailableBackground(); else throw new IOException("Unsupported GBA opcode 0x"+Integer.toHexString(op)+" at ROM 0x"+Integer.toHexString(address)); }
             }
+            if (op==0x16 || op==0x17 || op==0x18 || op==0x19 || op==0x1a)
+                trace(252066, hex(u16(d,1))+"="+variable(u16(d,1)));
+            if(text != 0 && (op==0x08 || op==0x09 || op==0x67 || op==0x78))trace(252063,Integer.toString(text));
             if(calls.size()>64)throw new IOException("GBA call stack budget exceeded");
         }
         throw new IOException("GBA instruction budget exceeded");
@@ -365,13 +505,13 @@ public final class GbaScriptRuntime {
     public String save()throws IOException {var out=new ByteArrayOutputStream();try(var d=new DataOutputStream(out)){d.writeUTF(PROGRAM.hash);d.writeUTF(core());d.writeInt(checkpoints.size());for(var e:checkpoints.entrySet()){d.writeInt(e.getKey());d.writeUTF(e.getValue());}}return Base64.getEncoder().encodeToString(out.toByteArray());}
     private String core()throws IOException {
         var out=new ByteArrayOutputStream();try(var d=new DataOutputStream(out)){
-            d.writeInt(2);for(int v:new int[]{pc,comparison,word,mode,serial,text,picture,trainer,waitActor,doorX,doorY,doorState,loadedGroup,loadedMap})d.writeInt(v);
+            d.writeInt(3);for(int v:new int[]{pc,comparison,word,mode,serial,text,picture,trainer,waitActor,doorX,doorY,doorState,loadedGroup,loadedMap})d.writeInt(v);
             d.writeLong(Math.max(0,deadline-now));d.writeBoolean(locked);d.writeBoolean(holdFrame);
             for(int v:new int[]{player.group(),player.map(),player.x(),player.y(),player.elevation(),player.facing(),playerFromX,playerFromY})d.writeInt(v);
             writeMap(d,variables);var savedBuffers=new TreeMap<>(buffers);for(int clock:new int[]{620,624})if(savedBuffers.containsKey(clock))savedBuffers.put(clock,Math.max(0,(int)(now/1_000_000L)-savedBuffers.get(clock)));writeMap(d,savedBuffers);d.writeInt(flags.size());for(int v:flags)d.writeInt(v);
             writeInts(d,calls);writeInts(d,queue);d.writeInt(actors.size());for(var a:actors.values()){
                 for(int v:new int[]{a.group,a.map,a.id,a.graphics,a.elevation,a.flag,a.x,a.y,a.fromX,a.fromY,a.facing,a.index})d.writeInt(v);
-                d.writeBoolean(a.invisible);d.writeBoolean(a.controlled);d.writeLong(Math.max(0,a.ends-now));d.writeInt(a.moves.length);d.write(a.moves);
+                d.writeBoolean(a.invisible);d.writeBoolean(a.controlled);d.writeLong(Math.max(0,a.ends-now));d.writeInt(a.moves.length);d.write(a.moves);d.writeInt(a.movement);d.writeInt(a.originX);d.writeInt(a.originY);
             }
         }
         byte[] bytes=out.toByteArray();
@@ -385,12 +525,18 @@ public final class GbaScriptRuntime {
     private static int bounded(int n,int max)throws IOException{if(n<0||n>max)throw new IOException("Invalid GBA state count");return n;}
     public void restore(String state)throws IOException {try(var d=new DataInputStream(new ByteArrayInputStream(Base64.getDecoder().decode(state)))){if(!d.readUTF().equals(PROGRAM.hash))throw new IOException("GBA script ROM mismatch");restoreCore(d.readUTF());checkpoints.clear();int n=bounded(d.readInt(),1000);for(int i=0;i<n;i++)checkpoints.put(d.readInt(),d.readUTF());}catch(IllegalArgumentException e){throw new IOException("Invalid GBA state",e);}}
     private void restoreCore(String core)throws IOException {
+        diagnosticComparison = "";
         byte[] bytes=Base64.getDecoder().decode(core);
         InputStream input=new ByteArrayInputStream(bytes);
         if(bytes.length>2&&(bytes[0]&255)==31&&(bytes[1]&255)==139)input=new java.util.zip.GZIPInputStream(input);
         try(var d=new DataInputStream(input)){
-            int format=d.readInt();if(format<1||format>2)throw new IOException("Unsupported GBA state version");pc=d.readInt();comparison=d.readInt();word=d.readInt();mode=d.readInt();serial=d.readInt();text=d.readInt();picture=d.readInt();trainer=d.readInt();waitActor=d.readInt();doorX=d.readInt();doorY=d.readInt();doorState=d.readInt();loadedGroup=d.readInt();loadedMap=d.readInt();deadline=now+d.readLong();locked=d.readBoolean();holdFrame=d.readBoolean();
-            player=new Position(d.readInt(),d.readInt(),d.readInt(),d.readInt(),d.readInt(),d.readInt());playerFromX=d.readInt();playerFromY=d.readInt();readMap(d,variables);readMap(d,buffers);for(int clock:new int[]{620,624})if(buffers.containsKey(clock))buffers.put(clock,(int)(now/1_000_000L)-buffers.get(clock));readInts(d,flags);readInts(d,calls);readInts(d,queue);actors.clear();initializeActors();int n=bounded(d.readInt(),10000);for(int i=0;i<n;i++){var a=new Actor();a.group=d.readInt();a.map=d.readInt();a.id=d.readInt();a.graphics=d.readInt();a.elevation=d.readInt();a.flag=d.readInt();a.x=d.readInt();a.y=d.readInt();a.fromX=d.readInt();a.fromY=d.readInt();a.facing=d.readInt();a.index=d.readInt();a.invisible=d.readBoolean();a.controlled=format==1||d.readBoolean();a.ends=now+d.readLong();a.moves=d.readNBytes(bounded(d.readInt(),4096));actors.put(key(a.group,a.map,a.id),a);}
+            int format=d.readInt();if(format<1||format>3)throw new IOException("Unsupported GBA state version");pc=d.readInt();comparison=d.readInt();word=d.readInt();mode=d.readInt();serial=d.readInt();text=d.readInt();picture=d.readInt();trainer=d.readInt();waitActor=d.readInt();doorX=d.readInt();doorY=d.readInt();doorState=d.readInt();loadedGroup=d.readInt();loadedMap=d.readInt();deadline=now+d.readLong();locked=d.readBoolean();holdFrame=d.readBoolean();
+            player=new Position(d.readInt(),d.readInt(),d.readInt(),d.readInt(),d.readInt(),d.readInt());playerFromX=d.readInt();playerFromY=d.readInt();readMap(d,variables);readMap(d,buffers);for(int clock:new int[]{620,624})if(buffers.containsKey(clock))buffers.put(clock,(int)(now/1_000_000L)-buffers.get(clock));readInts(d,flags);readInts(d,calls);readInts(d,queue);actors.clear();initializeActors();int n=bounded(d.readInt(),10000);for(int i=0;i<n;i++){var a=new Actor();a.group=d.readInt();a.map=d.readInt();a.id=d.readInt();a.graphics=d.readInt();a.elevation=d.readInt();a.flag=d.readInt();a.x=d.readInt();a.y=d.readInt();a.fromX=d.readInt();a.fromY=d.readInt();a.facing=d.readInt();a.index=d.readInt();a.invisible=d.readBoolean();a.controlled=format==1||d.readBoolean();a.ends=now+d.readLong();a.moves=d.readNBytes(bounded(d.readInt(),4096));
+                initializeNpcBehavior(a);
+                if(format>=3){a.movement=d.readInt();a.originX=d.readInt();a.originY=d.readInt();}
+                else if(a.controlled){a.originX=a.x;a.originY=a.y;}
+                actors.put(key(a.group,a.map,a.id),a);}
+            if(format<3&&!active()){loadedGroup=-1;loadedMap=-1;}
             if(PROGRAM.region==0){
                 var migrated=new HashSet<Integer>();
                 for(int flag:flags)if(flag>=0x10000&&flag<0x10000+KantoStoryScenes.entries().size())migrated.add(KantoStoryScenes.marker(KantoStoryScenes.entries().get(flag-0x10000).scene()));else migrated.add(flag);
@@ -653,8 +799,13 @@ public final class GbaScriptRuntime {
         if(followup.script()!=0)queue.add(followup.script());nextRoot();run(time);
     }
 
-    /** 地面道具共用领取例程，使用对象入口区分；其他奖励保留各自调用位置。 */
+    private void unavailableBackground() {
+        pc=0; calls.clear(); queue.clear(); text=9849; picture=0; waitFor(BUTTON);
+    }
+
+    /** 隐藏道具按领取标记去重，地面道具按对象入口区分，其他奖励保留调用位置。 */
     private int itemReceipt(int instruction,int item){
+        if (buffers.containsKey(641)) return 0x40000000 + buffers.get(641);
         if(buffers.getOrDefault(600,-1)==1)return buffers.getOrDefault(598,instruction)*375+item;
         return calls.isEmpty()?instruction:calls.peekLast();
     }

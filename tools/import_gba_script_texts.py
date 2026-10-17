@@ -25,7 +25,7 @@ with gzip.open(args.program, "rt") as stream:
         if not line.startswith("code,"):
             continue
         data = bytes.fromhex(line.strip().split(",")[2])
-        offsets = [2] if data[0] in [0x0f, 0x85] else [1] if data[0] == 0x67 else [6, 10] if data[0] == 0x5c else []
+        offsets = [2] if data[0] in [0x0f, 0x85] else [1] if data[0] in [0x67, 0x78] else [6, 10] if data[0] == 0x5c else []
         for offset in offsets:
             address = int.from_bytes(data[offset:offset + 4], "little") - 0x08000000
             if address > 0:

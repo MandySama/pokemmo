@@ -146,6 +146,27 @@ public final class GameConnection implements AutoCloseable {
             catch (IOException error) { throw new java.util.concurrent.CompletionException(error); }
         });
     }
+    public synchronized CompletableFuture<top.totodile.pokemmo.protocol.ScriptDiagnosticPackets.Snapshot> scriptDiagnostics() {
+        if (!connected || closed) return CompletableFuture.failedFuture(new IOException("Game connection closed"));
+        CompletableFuture<byte[]> response = new CompletableFuture<>();
+        if (!offerCommand(new Pending(top.totodile.pokemmo.protocol.ScriptDiagnosticPackets.request(), response)))
+            return CompletableFuture.failedFuture(new IOException("Game command queue full"));
+        return response.thenApply(packet -> {
+            try { return top.totodile.pokemmo.protocol.ScriptDiagnosticPackets.decode(packet); }
+            catch (IOException error) { throw new java.util.concurrent.CompletionException(error); }
+        });
+    }
+
+    public synchronized CompletableFuture<top.totodile.pokemmo.protocol.InfinitePpPackets.State> infinitePpCommand(int action, boolean enabled) {
+        if (!connected || closed) return CompletableFuture.failedFuture(new IOException("Game connection closed"));
+        CompletableFuture<byte[]> response = new CompletableFuture<>();
+        if (!offerCommand(new Pending(top.totodile.pokemmo.protocol.InfinitePpPackets.request(action, enabled), response)))
+            return CompletableFuture.failedFuture(new IOException("Game command queue full"));
+        return response.thenApply(packet -> {
+            try { return top.totodile.pokemmo.protocol.InfinitePpPackets.decode(packet); }
+            catch (IOException error) { throw new java.util.concurrent.CompletionException(error); }
+        });
+    }
 
     public synchronized CompletableFuture<PokemonConfigPackets.Result> configurePokemon(
             PokemonConfigPackets.Request request) {

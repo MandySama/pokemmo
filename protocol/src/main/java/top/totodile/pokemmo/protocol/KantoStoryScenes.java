@@ -129,7 +129,7 @@ public final class KantoStoryScenes {
     }
 
     public static boolean backgroundScript(int script) {
-        return FOLLOWUPS.stream().anyMatch(extra -> extra.npc() == 0 && extra.script() == script);
+        return GbaScriptProgram.forRegion(0).backgroundScript(script);
     }
 
     public static boolean npcScript(int script) {

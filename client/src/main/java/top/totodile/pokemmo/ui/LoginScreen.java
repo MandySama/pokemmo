@@ -58,6 +58,8 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     private CompletableFuture<CharacterInfo> enterResult;
     private CompletableFuture<top.totodile.pokemmo.protocol.BattleResumePackets.Snapshot> battleResumeResult;
     private ClientWorld battleResumeWorld;
+    private CompletableFuture<top.totodile.pokemmo.protocol.NpcPackets.Snapshot> itemfinderResult;
+    private ClientWorld itemfinderWorld;
     private boolean resumedScriptBattle;
     private CompletableFuture<?> worldMapResult;
     private static final int[] MENU_STRING_IDS = {1172, 1175, 1190, 1005, 1006, 1007, 1124, 1008, 1009};
@@ -133,6 +135,15 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     private ClientWorld outfitWorld;
     private CharacterInfo worldCharacter;
     private final java.util.List<Button> worldTools = new java.util.ArrayList<>();
+    private final Button diagnosticEntry = new Button(ClientStrings.get(252030));
+    private final ScriptDiagnosticWindow diagnosticWindow = new ScriptDiagnosticWindow(
+            () -> diagnosticVisible(false), this::requestDiagnostics);
+    private CompletableFuture<top.totodile.pokemmo.protocol.ScriptDiagnosticPackets.Snapshot> diagnosticResult;
+    private ClientWorld diagnosticWorld;
+    private final Button infinitePpEntry = new Button(ClientStrings.get(252020));
+    private boolean infinitePp;
+    private CompletableFuture<top.totodile.pokemmo.protocol.InfinitePpPackets.State> infinitePpResult;
+    private ClientWorld infinitePpWorld;
     private final Button gmEntry = new Button(ClientStrings.get(9200));
     private final Button storyEntry = new Button(ClientStrings.get(9523));
     private final StoryReplayWindow storyReplay = new StoryReplayWindow();
@@ -297,9 +308,10 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         add(partyPanel);
         add(gameItemBar);
         add(encounterPanel);
+        encounterPanel.setBattleLog(message -> chatPanel.addMessage(4, message));
         for (int slot = 0; slot < 9; slot++) gameItemBar.assign(slot, hotbarSettings.slot(slot));
         gameItemBar.setActivateListener(this::useHotbarItem);
-        bag.setUseAction(id -> searchCommand(top.totodile.pokemmo.protocol.SearchPackets.USE_ITEM,id,1));
+        bag.setUseAction(this::useBagItem);
         bag.setDestroyAction((id,amount)->searchCommand(top.totodile.pokemmo.protocol.SearchPackets.DESTROY_ITEM,id,amount));
         bag.setHotbarBinding(new BagWindow.HotbarBinding() {
             @Override public int slotOf(int itemId) { return gameItemBar.slotOf(itemId); }
@@ -353,6 +365,12 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         gmMenu.setOpenTeleport(() -> { storyMenuVisible(false); gmMenuVisible(false); teleportMenuVisible(true); });
         gmMenu.setOpenComputer(() -> { storyMenuVisible(false); gmMenuVisible(false); pcBoxVisible(true); });
         worldTools.addAll(gmMenu.detachImplementedButtons());
+        infinitePpEntry.setTooltipContent(ClientStrings.get(252022));
+        infinitePpEntry.addCallback(() -> requestInfinitePp(true, !infinitePp));
+        worldTools.add(infinitePpEntry);
+        diagnosticEntry.addCallback(() -> diagnosticVisible(!diagnosticWindow.isVisible()));
+        worldTools.add(diagnosticEntry);
+        diagnosticWindow.setHardVisible(false); add(diagnosticWindow);
         for (Button button : worldTools) {
             button.setTheme("/button");
             button.setVisible(false);
@@ -552,6 +570,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
                 getInnerY() + (getInnerHeight() - 680) / 2);
         storyReplay.setPosition(getInnerX(), getInnerY());
         storyReplay.setSize(getInnerWidth(), getInnerHeight());
+        diagnosticWindow.place(getInnerX(), getInnerY(), getInnerWidth(), getInnerHeight());
         storyMenu.setSize(820, 560);
         storyMenu.setPosition(getInnerX() + (getInnerWidth() - 820) / 2,
                 getInnerY() + (getInnerHeight() - 560) / 2);
@@ -726,6 +745,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         updateLoginState(now);
         updateWorldEntry(now);
         updateBattleResume(now);
+        updateItemfinder(now);
         updateStoryProgress(now);
         if (storyReplay.active() && (world != storyReplay.source() || worldLogoutResult != null || enterResult != null)) storyReplay.close();
         try { if (storyReplay.active()) storyReplay.tick(now); }
@@ -789,6 +809,10 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         gmMenu.setDexBusy(!toolsEnabled || dexChangeResult != null);
         gmMenu.setWildEncounters(wildEnabled);
         gmMenu.setWildBusy(!toolsEnabled || wildRequest != null);
+        diagnosticEntry.setEnabled(world != null && world.region() <= 1 && gameConnection != null
+                && worldLogoutResult == null && enterResult == null && !storyReplay.active() && !encounterPanel.active());
+        if (encounterPanel.active()) diagnosticVisible(false);
+        infinitePpEntry.setEnabled(toolsEnabled && gameConnection != null && infinitePpResult == null);
         if (world != null) {
             gmMenu.setNoclip(world.noclip());
             gmMenu.setSpeedMultiplier(world.speedMultiplier());
@@ -814,6 +838,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
             worldCharacter = null;
             searchVisible(false);
             storyMenu.setHardVisible(false);
+            diagnosticVisible(false); diagnosticResult = null;
             gmMenu.setHardVisible(false);
             teleportMenu.setHardVisible(false);
             townMap.close();
@@ -983,6 +1008,10 @@ public final class LoginScreen extends Widget implements AutoCloseable {
             battleResumeResult = gameConnection.resumeBattle();
             resumedScriptBattle = false;
             worldCharacter = character;
+            infinitePp = false;
+            infinitePpResult = null;
+            infinitePpEntry.setText(ClientStrings.get(252020));
+            requestInfinitePp(false, false);
             battleAppearance = character.appearance();
             characterName = character.appearance().name();
             pokedex.setAllUnlocked(character.dexUnlocked());
@@ -1024,6 +1053,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     }
 
     private void backToLogin() {
+        itemfinderResult = null; itemfinderWorld = null;
         if (battleResumeResult != null) battleResumeResult.cancel(false);
         battleResumeResult = null; battleResumeWorld = null; resumedScriptBattle = false;
         encounterPanel.close(); battleAppearance = null;
@@ -1315,8 +1345,27 @@ public final class LoginScreen extends Widget implements AutoCloseable {
             return;
         }
         if (itemId == HotbarSettings.BICYCLE_ITEM) { world.toggleBicycle(); return; }
+        if (top.totodile.pokemmo.protocol.GbaBackgroundEvents.isItemfinder(itemId)) { useBagItem(itemId); return; }
         if (itemId == HotbarSettings.TOWN_MAP_ITEM) townMapVisible(true);
         else if(top.totodile.pokemmo.protocol.ItemLoot.usable(itemId))searchCommand(top.totodile.pokemmo.protocol.SearchPackets.USE_ITEM,itemId,1);
+    }
+
+    private void useBagItem(int item) {
+        if (!top.totodile.pokemmo.protocol.GbaBackgroundEvents.isItemfinder(item)) {
+            searchCommand(top.totodile.pokemmo.protocol.SearchPackets.USE_ITEM,item,1); return;
+        }
+        if (world == null || world.region() != 0 || gameConnection == null || itemfinderResult != null || encounterPanel.active()) return;
+        world.clearKeys(); bagVisible(false); itemfinderWorld = world;
+        itemfinderResult = gameConnection.npcCommand(top.totodile.pokemmo.protocol.NpcPackets.request(3,255));
+    }
+
+    private void updateItemfinder(long now) {
+        if (itemfinderResult == null) return;
+        if (world != itemfinderWorld) { itemfinderResult = null; return; }
+        if (!itemfinderResult.isDone()) return;
+        var pending = itemfinderResult; itemfinderResult = null;
+        try { var result = pending.join(); if (result.dialogueText() > 0) showNotification(ClientStrings.get(result.dialogueText()),now); }
+        catch (RuntimeException error) { showNotification(ClientStrings.get(9030),now); }
     }
 
     private void startWildEncounter() {
@@ -1334,6 +1383,25 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         }
     }
 
+    private void requestInfinitePp(boolean set, boolean enabled) {
+        if (world == null || gameConnection == null || infinitePpResult != null) return;
+        infinitePpWorld = world;
+        infinitePpResult = gameConnection.infinitePpCommand(set
+                ? top.totodile.pokemmo.protocol.InfinitePpPackets.SET
+                : top.totodile.pokemmo.protocol.InfinitePpPackets.QUERY, enabled);
+    }
+
+    private void updateInfinitePp(long now) {
+        if (world != infinitePpWorld) { infinitePpResult = null; return; }
+        if (infinitePpResult == null || !infinitePpResult.isDone()) return;
+        var pending = infinitePpResult; infinitePpResult = null;
+        try {
+            var state = pending.join(); infinitePp = state.enabled();
+            infinitePpEntry.setText(ClientStrings.get(infinitePp ? 252021 : 252020));
+            if (!state.accepted()) showNotification(ClientStrings.get(9513), now);
+        } catch (RuntimeException error) { showNotification(ClientStrings.get(9030), now); }
+    }
+
     private void requestWildEncounter(int action, boolean enabled) {
         if (world == null || gameConnection == null || wildRequest != null) return;
         wildRequestWorld = world;
@@ -1343,6 +1411,8 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     }
 
     private void updateFieldEncounters(long now) {
+        updateInfinitePp(now);
+        updateDiagnostics();
         if (world == null) { wildRequest = null; onlineWildBattle = false; return; }
         if (wildRequest != null && wildRequest.isDone()) {
             try {
@@ -1425,6 +1495,10 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     private void raiseGameWindow(Widget widget) {
         int index = getChildIndex(widget);
         if (index >= 0 && index != getNumChildren() - 1) moveChild(index, getNumChildren() - 1);
+        if (widget == encounterPanel) {
+            int chatIndex = getChildIndex(chatPanel);
+            if (chatIndex >= 0) moveChild(chatIndex, getNumChildren() - 1);
+        }
         for (Widget overlay : new Widget[]{partyPanel.dragOverlay(), pcBox.dragOverlay()}) {
             int overlayIndex = getChildIndex(overlay);
             if (overlayIndex >= 0) moveChild(overlayIndex, getNumChildren() - 1);
@@ -2164,6 +2238,29 @@ public final class LoginScreen extends Widget implements AutoCloseable {
         }
     }
 
+    private void diagnosticVisible(boolean visible) {
+        if (visible && (world == null || world.region() > 1 || gameConnection == null)) return;
+        if (world != null) world.clearKeys();
+        diagnosticWindow.setHardVisible(visible);
+        if (visible) {
+            requestDiagnostics(); raiseGameWindow(diagnosticWindow); diagnosticWindow.requestKeyboardFocus();
+        }
+    }
+
+    private void requestDiagnostics() {
+        if (world == null || gameConnection == null || diagnosticResult != null) return;
+        diagnosticWorld = world; diagnosticWindow.busy(true);
+        diagnosticResult = gameConnection.scriptDiagnostics();
+    }
+
+    private void updateDiagnostics() {
+        if (diagnosticResult == null || !diagnosticResult.isDone()) return;
+        var pending = diagnosticResult; diagnosticResult = null; diagnosticWindow.busy(false);
+        if (diagnosticWorld != world) return;
+        try { diagnosticWindow.show(pending.join()); }
+        catch (Exception error) { diagnosticWindow.message(252064); }
+    }
+
     private void storyMenuVisible(boolean visible) {
         if (visible) outfitVisible(false);
         if (visible && (world == null || worldLogoutResult != null || enterResult != null)) return;
@@ -2188,6 +2285,15 @@ public final class LoginScreen extends Widget implements AutoCloseable {
     private void gmMenuVisible(boolean visible) {
         gmMenu.setHardVisible(false);
         if (world != null) world.clearKeys();
+    }
+
+    private void dispatchUiKey(int key, char character, boolean pressed) {
+        try {
+            gui.handleKey(key, character, pressed);
+        } finally {
+            // 弹窗关闭会切换后续事件的接收层；Esc 分发后补齐释放，停止 TWL 内部连发。
+            if (key == Event.KEY_ESCAPE && pressed) gui.handleKey(key, Event.CHAR_NONE, false);
+        }
     }
 
     public void attachInput(long window) {
@@ -2235,6 +2341,11 @@ public final class LoginScreen extends Widget implements AutoCloseable {
             }
         });
         GLFW.glfwSetKeyCallback(window, (w, key, scan, action, mods) -> {
+            boolean escape = key == GLFW.GLFW_KEY_ESCAPE;
+            if (escape && action != GLFW.GLFW_PRESS) {
+                if (action == GLFW.GLFW_RELEASE) gui.handleKey(Event.KEY_ESCAPE, Event.CHAR_NONE, false);
+                return;
+            }
             if (battleResumeResult != null) return;
             if (encounterPanel.active()) {
                 if (bag.isVisible() && key == GLFW.GLFW_KEY_TAB && action == GLFW.GLFW_PRESS
@@ -2247,7 +2358,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
                     return;
                 }
                 int translated = GlfwKeyMap.translate(key);
-                if (translated != Event.KEY_NONE) gui.handleKey(translated, Event.CHAR_NONE, action != GLFW.GLFW_RELEASE);
+                if (translated != Event.KEY_NONE) dispatchUiKey(translated, Event.CHAR_NONE, action != GLFW.GLFW_RELEASE);
                 return;
             }
             if (world != null && (worldLogoutResult != null || enterResult != null)) return;
@@ -2256,7 +2367,15 @@ public final class LoginScreen extends Widget implements AutoCloseable {
                     outfitWindow.cancelEditing(() -> outfitVisible(false));
                 else {
                     int translated = GlfwKeyMap.translate(key);
-                    if (translated != Event.KEY_NONE) gui.handleKey(translated, Event.CHAR_NONE, action != GLFW.GLFW_RELEASE);
+                    if (translated != Event.KEY_NONE) dispatchUiKey(translated, Event.CHAR_NONE, action != GLFW.GLFW_RELEASE);
+                }
+                return;
+            }
+            if (world != null && diagnosticWindow.isVisible()) {
+                if (key == GLFW.GLFW_KEY_ESCAPE && action == GLFW.GLFW_PRESS) diagnosticVisible(false);
+                else {
+                    int translated = GlfwKeyMap.translate(key);
+                    if (translated != Event.KEY_NONE) dispatchUiKey(translated, Event.CHAR_NONE, action != GLFW.GLFW_RELEASE);
                 }
                 return;
             }
@@ -2264,7 +2383,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
                 if (key == GLFW.GLFW_KEY_ESCAPE && action == GLFW.GLFW_PRESS) storyMenuVisible(false);
                 else {
                     int translated = GlfwKeyMap.translate(key);
-                    if (translated != Event.KEY_NONE) gui.handleKey(translated, Event.CHAR_NONE, action != GLFW.GLFW_RELEASE);
+                    if (translated != Event.KEY_NONE) dispatchUiKey(translated, Event.CHAR_NONE, action != GLFW.GLFW_RELEASE);
                 }
                 return;
             }
@@ -2274,24 +2393,24 @@ public final class LoginScreen extends Widget implements AutoCloseable {
             }
             if(world!=null && (searchWindow.isVisible() || bag.isVisible()) && gui.hasOpenPopups()){
                 int translated=GlfwKeyMap.translate(key);
-                if(translated!=Event.KEY_NONE)gui.handleKey(translated,Event.CHAR_NONE,action!=0);
+                if(translated!=Event.KEY_NONE)dispatchUiKey(translated,Event.CHAR_NONE,action!=0);
                 return;
             }
             if (world != null && (partyPanel.menuOpen() || gameMenu.isOpen() || menuConfirmation != null && menuConfirmation.isOpen() || settings.isVisible())) {
                 if (settings.isVisible() && key == GLFW.GLFW_KEY_ESCAPE && action == GLFW.GLFW_PRESS) closeSettings();
                 else {
                     int translated = GlfwKeyMap.translate(key);
-                    if (translated != Event.KEY_NONE) gui.handleKey(translated, Event.CHAR_NONE, action != 0);
+                    if (translated != Event.KEY_NONE) dispatchUiKey(translated, Event.CHAR_NONE, action != 0);
                 }
                 return;
             }
             if (world instanceof top.totodile.pokemmo.world.KantoWorld kanto && kanto.storyActive()) {
-                if(menuConfirmation!=null&&menuConfirmation.isOpen()){int translated=GlfwKeyMap.translate(key);if(translated!=Event.KEY_NONE)gui.handleKey(translated,Event.CHAR_NONE,action!=GLFW.GLFW_RELEASE);return;}
+                if(menuConfirmation!=null&&menuConfirmation.isOpen()){int translated=GlfwKeyMap.translate(key);if(translated!=Event.KEY_NONE)dispatchUiKey(translated,Event.CHAR_NONE,action!=GLFW.GLFW_RELEASE);return;}
                 if (gmMenu.isVisible()) {
                     if (key == GLFW.GLFW_KEY_ESCAPE && action == GLFW.GLFW_PRESS) gmMenuVisible(false);
                     else {
                         int translated = GlfwKeyMap.translate(key);
-                        if (translated != Event.KEY_NONE) gui.handleKey(translated, Event.CHAR_NONE, action != GLFW.GLFW_RELEASE);
+                        if (translated != Event.KEY_NONE) dispatchUiKey(translated, Event.CHAR_NONE, action != GLFW.GLFW_RELEASE);
                     }
                     return;
                 }
@@ -2350,7 +2469,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
                     if (topGameWindow() == bag) bag.nextPocket(backwards);
                 } else {
                     int translated = GlfwKeyMap.translate(key);
-                    if (translated != Event.KEY_NONE) gui.handleKey(translated, Event.CHAR_NONE, action != 0);
+                    if (translated != Event.KEY_NONE) dispatchUiKey(translated, Event.CHAR_NONE, action != 0);
                 }
                 return;
             }
@@ -2361,7 +2480,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
                 }
                 else {
                     int translated = GlfwKeyMap.translate(key);
-                    if (translated != Event.KEY_NONE) gui.handleKey(translated, Event.CHAR_NONE, action != 0);
+                    if (translated != Event.KEY_NONE) dispatchUiKey(translated, Event.CHAR_NONE, action != 0);
                 }
                 return;
             }
@@ -2376,7 +2495,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
                     || serverSelection.isVisible() || characterSelection.isVisible()
                     || characterCreation.isVisible() || loading.isVisible()) {
                 int translated = GlfwKeyMap.translate(key);
-                if (translated != Event.KEY_NONE) gui.handleKey(translated, Event.CHAR_NONE, action != 0);
+                if (translated != Event.KEY_NONE) dispatchUiKey(translated, Event.CHAR_NONE, action != 0);
                 return;
             }
             if (key == GLFW.GLFW_KEY_TAB) {
@@ -2398,7 +2517,7 @@ public final class LoginScreen extends Widget implements AutoCloseable {
                 return;
             }
             int translated = GlfwKeyMap.translate(key);
-            if (translated != Event.KEY_NONE) gui.handleKey(translated, Event.CHAR_NONE, action != 0);
+            if (translated != Event.KEY_NONE) dispatchUiKey(translated, Event.CHAR_NONE, action != 0);
         });
         GLFW.glfwSetWindowFocusCallback(window, (w, focused) -> {
             music.setFocused(focused);

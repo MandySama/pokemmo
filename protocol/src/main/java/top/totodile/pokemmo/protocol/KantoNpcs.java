@@ -24,6 +24,7 @@ public final class KantoNpcs {
     private final Map<Integer, List<Definition>> catalogue;
     private final FireRedWorldRules rules;
     private final Map<Integer, List<Actor>> maps = new LinkedHashMap<>();
+    private final Map<Integer, Map<Integer, Definition>> overrides = new HashMap<>();
     private int talking = -1, talkingMap = -1;
     private final Map<Integer, Position> lastPlayers = new HashMap<>();
     private static final int[][] SEQUENCES = {
@@ -33,8 +34,17 @@ public final class KantoNpcs {
         {2, 0, 3, 1}, {3, 1, 2, 0}, {1, 3, 0, 2}, {0, 2, 1, 3}, {2, 1, 3, 0}, {3, 0, 2, 1}
     };
 
+    public record Diagnostic(Definition definition, int x, int y, int facing) { }
+    /** 读取已有缓存，不创建物件或推进随机活动。 */
+    public Diagnostic diagnostic(int group, int map, int id) {
+        for (var actor : maps.getOrDefault(group * 256 + map, List.of())) {
+            if (actor.definition.id() == id) return new Diagnostic(actor.definition, actor.x, actor.y, actor.facing);
+        }
+        return null;
+    }
+
     private static final class Actor {
-        final Definition definition;
+        Definition definition;
         int x, y, fromX, fromY, facing, sequence;
         long ends, next;
         final Random random;
@@ -74,7 +84,7 @@ public final class KantoNpcs {
                 k ->
                         catalogue.getOrDefault(k, List.of()).stream()
                                 .filter(d -> d.x() <= 255 && d.y() <= 255)
-                                .map(d -> new Actor(d, k))
+                                .map(d -> new Actor(overrides.getOrDefault(k, Map.of()).getOrDefault(d.id(), d), k))
                                 .toList());
     }
 
@@ -264,14 +274,31 @@ public final class KantoNpcs {
 
     /** 剧情结束后从最终落点恢复日常活动，保留一段停顿供玩家继续交互。 */
     public void resume(int group, int map, NpcPackets.State state, long now) {
+        var current = actors(group * 256 + map).stream().filter(a -> a.definition.id() == state.id()).findFirst();
+        if (current.isEmpty()) return;
+        var definition = current.get().definition;
+        resume(group, map, state, definition.movement(), definition.x(), definition.y(), now);
+    }
+
+    /** 位置、日常活动类型与永久活动原点一起交接；缓存淘汰后仍保留剧情覆盖。 */
+    public void resume(int group, int map, NpcPackets.State state, int movement, int originX, int originY, long now) {
         for (Actor actor : actors(group * 256 + map)) {
             if (actor.definition.id() != state.id()) continue;
+            var d = actor.definition;
+            actor.definition = new Definition(d.id(), originX, originY, d.elevation(), movement, d.rangeX(), d.rangeY());
+            overrides.computeIfAbsent(group * 256 + map, ignored -> new HashMap<>()).put(d.id(), actor.definition);
             actor.x = actor.fromX = state.x();
             actor.y = actor.fromY = state.y();
             actor.facing = state.facing();
             actor.ends = now;
             actor.next = now + 800_000_000L;
+            actor.sequence = 0;
         }
+    }
+
+    public void reset() {
+        maps.clear(); overrides.clear(); lastPlayers.clear();
+        talking = talkingMap = -1;
     }
 
     public NpcPackets.Snapshot snapshot(Position player, long now) {

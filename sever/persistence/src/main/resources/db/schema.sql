@@ -132,6 +132,7 @@ ALTER TABLE character_box_pokemon ADD CONSTRAINT character_box_pokemon_species_c
 ALTER TABLE characters ADD COLUMN IF NOT EXISTS kanto_opening_complete BOOLEAN NOT NULL DEFAULT FALSE;
 
 ALTER TABLE characters ADD COLUMN IF NOT EXISTS wild_encounters_enabled BOOLEAN NOT NULL DEFAULT TRUE;
+ALTER TABLE characters ADD COLUMN IF NOT EXISTS debug_infinite_pp BOOLEAN NOT NULL DEFAULT FALSE;
 ALTER TABLE characters ADD COLUMN IF NOT EXISTS story_completed TEXT[] NOT NULL DEFAULT ARRAY[]::text[];
 ALTER TABLE characters ADD COLUMN IF NOT EXISTS gba_story_state TEXT NOT NULL DEFAULT '';
 ALTER TABLE characters ADD COLUMN IF NOT EXISTS gba_hoenn_state TEXT NOT NULL DEFAULT '';
@@ -160,4 +161,10 @@ CREATE TABLE IF NOT EXISTS character_trainers (
     region SMALLINT NOT NULL DEFAULT 0 CHECK (region=0),
     trainer_id INTEGER NOT NULL CHECK (trainer_id BETWEEN 1 AND 742),
     PRIMARY KEY(character_id,region,trainer_id)
+);
+
+CREATE TABLE IF NOT EXISTS character_battle_rewards (
+    character_id BIGINT NOT NULL REFERENCES characters(id) ON DELETE CASCADE,
+    battle_id BIGINT NOT NULL,
+    PRIMARY KEY (character_id, battle_id)
 );

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link rel="stylesheet" href="explorer.css">
+    <script src="explorer-data.js" defer></script>
+    <script src="explorer-semantics.js" defer></script>
+    <script src="explorer.js" defer></script>
+</head>
+<body>
+<header><div><span class="eyebrow">KANTO / FIELD ATLAS</span><h1 data-text="title"></h1></div>
+    <nav><button id="home" data-text="overview"></button><a href="index.html" data-text="inventory"></a></nav>
+</header>
+<main>
+    <section id="overview">
+        <div class="intro"><div><span class="eyebrow">01 / KANTO</span><h2 data-text="chooseCity"></h2><p data-text="overviewHint"></p></div><span class="stamp">FIRE RED<br>88—98</span></div>
+        <div class="overview-layout"><div id="region"><img src="kanto-overview.png" alt="" id="regionImage"><div id="cities"></div></div><div id="cityList"></div></div>
+    </section>
+    <section id="mapView" hidden>
+        <div class="map-heading"><div><span class="eyebrow" id="mapKey"></span><h2 id="mapName"></h2></div><label><span data-text="changeMap"></span><select id="mapSelect"></select></label></div>
+        <div class="toolbar"><div class="filters" id="filters"></div><label><input type="checkbox" id="gridToggle" checked><span data-text="grid"></span></label><label><span data-text="zoom"></span><select id="zoom"><option value="1">1×</option><option value="2" selected>2×</option><option value="3">3×</option><option value="4">4×</option></select></label></div>
+        <div class="workspace"><div class="map-column"><div id="viewport"><div id="stage"><img id="mapImage" alt=""><svg id="route" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg><div id="grid"></div><div id="markers"></div></div></div><div id="mapCaption"></div><div id="connections"></div><details><summary data-text="eventList"></summary><div id="eventList"></div></details></div>
+            <aside id="inspector" aria-live="polite"><div class="panel-heading"><span data-text="details"></span><button id="clear" aria-label="关闭">×</button></div><div id="detail"></div></aside></div>
+    </section>
+</main>
+<footer data-text="footer"></footer>
+</body>
+</html>

@@ -42,9 +42,15 @@ while True:
     at+=1
 if len(tables)!=1:raise ValueError('Cannot identify standard script table: '+str(tables))
 standards=[ptr(tables[0]+i*4) for i in range(10)]
-roots=initial[:]+standards
+hidden_root=rom.find(bytes.fromhex('69c7033021058000000601'))
+if hidden_root<0 or rom.count(bytes.fromhex('69c7033021058000000601'))!=1:raise ValueError('Cannot identify hidden item script')
+finder_pattern=bytes.fromhex('69c7033004')+rom[hidden_root+16:hidden_root+20]
+finder_root=rom.find(finder_pattern)
+if finder_root<0 or rom.count(finder_pattern)!=1:raise ValueError('Cannot identify underfoot item script')
+roots=initial[:]+standards+[hidden_root,finder_root]
 for line in events:
     f=line.split(',')
+    if f[0]=='hidden':continue
     if f[0]=='bg' and int(f[6])>=5:continue
     p=int(f[-1]);
     if p: roots.append(p)
@@ -79,6 +85,8 @@ while queue:
     if len(nodes)>500000:raise ValueError('Script budget')
 out=root/'protocol/src/main/resources/maps/gba-opening-program.txt.gz'
 lines=['sha256,'+hashlib.sha256(rom).hexdigest(),'init,'+str(initial[0])]+events
+lines.append('hiddenroot,'+str(hidden_root))
+lines.append('finderroot,'+str(finder_root))
 lines += [f'std,{i},{at}' for i,at in enumerate(standards)]
 tm_candidates=[at for at in range(len(rom)-116) if rom.startswith(struct.pack('<3H',264,337,352),at)]
 tm_tables={rom[at:at+116] for at in tm_candidates}

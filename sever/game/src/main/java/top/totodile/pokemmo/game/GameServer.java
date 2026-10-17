@@ -333,7 +333,7 @@ public final class GameServer implements AutoCloseable {
                                 top.totodile.pokemmo.protocol.PcPackets.CREATE_BOX, status));
                     }
                 } else if (command[0] == WorldPackets.MOVE || command[0] == WorldPackets.LOADED
-                        || command[0] == WorldPackets.SETTINGS || command[0] == WorldPackets.TELEPORT || (command[0] & 255) == TrainerPackets.OPCODE || (command[0] & 255) == BattlePackets.OPCODE || (command[0] & 255) == BattleResumePackets.OPCODE || (command[0] & 255) == EncounterPackets.OPCODE || (command[0] & 255) == NpcPackets.OPCODE || (command[0] & 255) == StoryPackets.OPCODE || (command[0] & 255) == StoryProgressPackets.OPCODE) {
+                        || command[0] == WorldPackets.SETTINGS || command[0] == WorldPackets.TELEPORT || (command[0] & 255) == TrainerPackets.OPCODE || (command[0] & 255) == BattlePackets.OPCODE || (command[0] & 255) == ScriptDiagnosticPackets.OPCODE || (command[0] & 255) == InfinitePpPackets.OPCODE || (command[0] & 255) == BattleResumePackets.OPCODE || (command[0] & 255) == EncounterPackets.OPCODE || (command[0] & 255) == NpcPackets.OPCODE || (command[0] & 255) == StoryPackets.OPCODE || (command[0] & 255) == StoryProgressPackets.OPCODE) {
                     if (world == null) throw new IOException("No active world");
                     channel.send(world.handle(command));
                 } else if (command[0] == WorldPackets.SAVE) {

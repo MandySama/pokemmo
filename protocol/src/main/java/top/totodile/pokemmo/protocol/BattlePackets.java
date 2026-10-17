@@ -6,12 +6,21 @@ import java.util.List;
 /** 单打操作携带会话及请求序号，结果仅由游戏服务生成。 */
 public final class BattlePackets {
     public static final int OPCODE = 0x87, START = 0, MOVE = 1, SWITCH = 2, RUN = 3;
-    public record Request(int action, long battle, int revision, int slot) { }
+    public static final int RESTORE_MOVE = 65535;
+    public static final int EXPERIENCE = 6, LEVEL_UP = 7, PRIZE_MONEY = 8;
+    public static final int CURE_STATUS = 9, FAIL = 10, IMMUNE = 11, CANT = 12, BLOCK = 13, NOTHING = 14;
+    public static int statusId(String status) { return List.of("", "brn", "par", "slp", "frz", "psn", "tox").indexOf(status); }
+    public record Request(int action, long battle, int revision, int slot, int replacementMove) {
+        public Request(int action, long battle, int revision, int slot) { this(action, battle, revision, slot, 0); }
+    }
     public record Event(int kind, int side, int value) { }
     public record MoveOption(int slot, int id, int pp, int maxPp) { }
     public record State(boolean accepted, long battle, int revision, int outcome, int active,
                         boolean forceSwitch, int enemyHp, int enemyMaxHp, List<PartyMember> party,
-                        List<Event> events, List<Integer> legalMoves, List<MoveOption> options, int enemyActive) {
+                        List<Event> events, List<Integer> legalMoves, List<MoveOption> options, int enemyActive, int enemyStatus) {
+        public State(boolean accepted,long battle,int revision,int outcome,int active,boolean forceSwitch,int enemyHp,int enemyMaxHp,List<PartyMember> party,List<Event> events,List<Integer> legalMoves,List<MoveOption> options,int enemyActive) {
+            this(accepted,battle,revision,outcome,active,forceSwitch,enemyHp,enemyMaxHp,party,events,legalMoves,options,enemyActive,0);
+        }
         public State(boolean accepted,long battle,int revision,int outcome,int active,boolean forceSwitch,int enemyHp,int enemyMaxHp,List<PartyMember> party,List<Event> events,List<Integer> legalMoves,List<MoveOption> options) {
             this(accepted,battle,revision,outcome,active,forceSwitch,enemyHp,enemyMaxHp,party,events,legalMoves,options,0);
         }
@@ -22,14 +31,18 @@ public final class BattlePackets {
     }
     private BattlePackets() { }
     public static byte[] request(Request r) {
-        return new PacketData(20).putByte(OPCODE).putByte(r.action()).putLong(r.battle())
-                .putInt(r.revision()).putByte(r.slot()).written();
+        var data = new PacketData(20).putByte(OPCODE).putByte(r.action()).putLong(r.battle())
+                .putInt(r.revision()).putByte(r.slot());
+        if (r.replacementMove() != 0) data.putShort(r.replacementMove());
+        return data.written();
     }
     public static Request readRequest(byte[] bytes) throws IOException {
         var d = new PacketData(bytes);
         if (d.byteValue() != OPCODE) throw new IOException("Invalid battle opcode");
-        var r = new Request(d.byteValue(), d.longValue(), d.intValue(), d.byteValue()); d.end();
-        if (r.action() > RUN) throw new IOException("Invalid battle action");
+        int action = d.byteValue(); long battle = d.longValue(); int revision = d.intValue(), slot = d.byteValue();
+        int replacement = bytes.length == 17 ? d.shortValue() : 0;
+        var r = new Request(action, battle, revision, slot, replacement); d.end();
+        if (r.action() > RUN || replacement != 0 && action != MOVE) throw new IOException("Invalid battle action");
         return r;
     }
     public static byte[] response(State s) {
@@ -40,7 +53,7 @@ public final class BattlePackets {
         for(var e:s.events()) d.putByte(e.kind()).putByte(e.side()).putShort(e.value());
         d.putByte(s.legalMoves().size()); for(int slot:s.legalMoves()) d.putByte(slot);
         d.putByte(s.options().size());for(var option:s.options())d.putByte(option.slot()).putShort(option.id()).putByte(option.pp()).putByte(option.maxPp());
-        d.putByte(s.enemyActive());
+        d.putByte(s.enemyActive()).putByte(s.enemyStatus());
         return d.written();
     }
     public static State decode(byte[] bytes) throws IOException {
@@ -53,8 +66,8 @@ public final class BattlePackets {
         n=d.byteValue();if(n>4)throw new IOException("Too many moves");var legal=new java.util.ArrayList<Integer>();for(int i=0;i<n;i++)legal.add(d.byteValue());
         n=d.byteValue();if(n>4)throw new IOException("Too many move options");var options=new java.util.ArrayList<MoveOption>();
         for(int i=0;i<n;i++)options.add(new MoveOption(d.byteValue(),d.shortValue(),d.byteValue(),d.byteValue()));
-        int enemyActive=d.byteValue();
-        d.end();if(enemyActive>5||active>=party.size()||outcome>5||hp>max)throw new IOException("Invalid battle state");
-        return new State(accepted,id,revision,outcome,active,forced,hp,max,party,List.copyOf(events),List.copyOf(legal),List.copyOf(options),enemyActive);
+        int enemyActive=d.byteValue(), enemyStatus=d.byteValue();
+        d.end();if(enemyStatus>6||enemyActive>5||active>=party.size()||outcome>5||hp>max)throw new IOException("Invalid battle state");
+        return new State(accepted,id,revision,outcome,active,forced,hp,max,party,List.copyOf(events),List.copyOf(legal),List.copyOf(options),enemyActive,enemyStatus);
     }
 }

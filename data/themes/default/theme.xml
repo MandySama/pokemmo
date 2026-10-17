@@ -1723,6 +1723,10 @@
             </theme>
         </theme>
     </theme>
+    <theme name="script-diagnostic" ref="story-menu" allowWildcard="true">
+        <param name="panelWidth"><int>880</int></param>
+        <param name="panelHeight"><int>620</int></param>
+    </theme>
     <theme name="story-replay-controls" ref="dialoglayout" allowWildcard="true">
         <param name="background"><image>modal-shade</image></param>
         <param name="border"><border>10</border></param>
@@ -2402,6 +2406,8 @@
         <param name="actionHeight"><int>52</int></param>
         <param name="actionGap"><int>2</int></param>
         <param name="healthWidth"><int>200</int></param>
+        <param name="hpAnimationMinDuration"><int>350</int></param>
+        <param name="hpAnimationMaxDuration"><int>1000</int></param>
         <param name="enemyHealthX"><int>70</int></param>
         <param name="selfHealthX"><int>80</int></param>
         <param name="partyIconSize"><int>36</int></param>
@@ -2433,6 +2439,10 @@
             <param name="background"><image>none</image></param>
             <param name="border"><border>17,17,7,7</border></param>
             <param name="textAlignment"><enum type="alignment">TOPLEFT</enum></param>
+        </theme>
+        <theme name="status" ref="name">
+            <param name="background"><image>modal-shade</image></param>
+            <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
         </theme>
         <theme name="gender" ref="-defaults">
             <param name="maleImage"><image>summary.gender-male</image></param>

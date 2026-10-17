@@ -47,13 +47,59 @@ function create(input) {
         }};
     const battle = new Battle({format, seed: input.seed, p1:{name:'Player',team:team(input.party)},
         p2:{name:'Wild',team:team(input.enemy)}, send() {}});
-    const session = {battle, revision:0, outcome:0, initial:input.party, allowRun:input.allowRun!==false}; battles.set(input.battle,session); return session;
+    const session = {battle, revision:0, outcome:0, initial:input.party, allowRun:input.allowRun!==false,
+        originalSlots:new Map(battle.p1.pokemon.map(p=>[p.name,p.baseMoveSlots.slice()])),
+        infinitePp:false,ppValues:new WeakMap()};
+    battles.set(input.battle,session); return session;
+}
+// Test replacements belong to the battle. Learned moves and their PP retain their own slot objects.
+function replaceMove(session, input) {
+    const id=input.replacementMove||0;
+    if(!id)return {rollback(){}};
+    const b=session.battle,p=b.p1.active[0],index=input.slot-1;
+    if(!Number.isInteger(id)||id<1||id>65535||!Number.isInteger(index)||index<0||index>=p.moveSlots.length
+        ||b.p1.activeRequest?.forceSwitch||!b.p1.activeRequest?.active)return null;
+    const original=session.originalSlots.get(p.name)[index];
+    const restoring=id===65535||id===Dex.moves.get(original.id).num;
+    const move=restoring?Dex.moves.get(original.id):Dex.moves.get(moves.get(id)||'');
+    if(!move.exists||move.num<=0||move.isZ||move.isMax||move.pp<=0)return null;
+    if(p.moveSlots[index].id===move.id) {
+        if(id!==65535&&b.p1.activeRequest.active[0].moves[index]?.id!==move.id)return null;
+        return {rollback(){}};
+    }
+    if(p.transformed||p.getLockedMove()||p.moveSlots.some((m,i)=>i!==index&&m.id===move.id))return null;
+    const oldSlots=p.moveSlots.slice(),oldBase=p.baseMoveSlots.slice(),oldRequest=b.p1.activeRequest.active[0];
+    const replacement=restoring?original:{move:move.name,id:move.id,pp:move.pp,maxpp:move.pp,target:move.target,
+        disabled:false,disabledSource:'',used:false};
+    p.moveSlots[index]=replacement;p.baseMoveSlots[index]=replacement;
+    ppSlots(session);
+    b.runEvent('DisableMove',p);
+    for(const slot of p.moveSlots) {
+        const active=b.dex.getActiveMove(slot.id);
+        b.singleEvent('DisableMove',active,null,p);
+        if(active.flags.cantusetwice&&p.lastMove?.id===slot.id)p.disableMove(slot.id);
+    }
+    b.p1.activeRequest.active[0]=p.getMoveRequestData();
+    const result={rollback(){p.moveSlots=oldSlots;p.baseMoveSlots=oldBase;b.p1.activeRequest.active[0]=oldRequest;b.p1.clearChoice();}};
+    if(b.p1.activeRequest.active[0].moves[index]?.id!==move.id){result.rollback();return null;}
+    return result;
 }
 function legal(session) {
     const side = session.battle.p1;
     if (session.outcome || side.activeRequest?.forceSwitch) return [];
     const list = side.activeRequest?.active?.[0]?.moves || [];
     return list.flatMap((m,i)=>!m.disabled && m.pp !== 0 ? [i+1] : []);
+}
+function ppSlots(session) {
+    for (const p of session.battle.p1.pokemon) for (const slot of new Set([...p.moveSlots, ...p.baseMoveSlots])) {
+        if (session.ppValues.has(slot)) continue;
+        const value = {pp: slot.pp}; session.ppValues.set(slot, value);
+        Object.defineProperty(slot, 'pp', {
+            enumerable:true, configurable:true,
+            get(){return session.infinitePp ? slot.maxpp : value.pp;},
+            set(pp){if(!session.infinitePp)value.pp=pp;},
+        });
+    }
 }
 function ai(battle) {
     const side=battle.p2, request=side.activeRequest;
@@ -67,6 +113,7 @@ function ai(battle) {
     }
 }
 function snapshot(s, accepted, from) {
+    ppSlots(s);
     const b=s.battle, events=[];
     const log=b.log.slice(from);
     for(let index=0;index<log.length;index++) {
@@ -77,6 +124,18 @@ function snapshot(s, accepted, from) {
         else if(f[1]==='switch') events.push([5,side,Number(f[2].split('slot')[1])]);
         else if(f[1]==='faint') events.push([1,side,0]);
         else if(f[1]==='-status') events.push([2,side,['brn','par','slp','frz','psn','tox'].indexOf(f[3])+1]);
+        else if(f[1]==='-curestatus') events.push([9,side,['brn','par','slp','frz','psn','tox'].indexOf(f[3])+1]);
+        else if(f[1]==='-fail') events.push([10,side,Math.max(0,['brn','par','slp','frz','psn','tox'].indexOf(f[3])+1)]);
+        else if(f[1]==='-immune') events.push([11,side,0]);
+        else if(f[1]==='cant') {
+            const reason=(f[3]||'').replace(/^move: /,'').toLowerCase().replace(/[^a-z0-9]/g,'');
+            const reasons=['brn','par','slp','frz','psn','tox','flinch','recharge','taunt','confusion','attract','nopp','disable','truant','gravity','throatchop'];
+            events.push([12,side,Math.max(0,reasons.indexOf(reason)+1)]);
+        }
+        else if(f[1]==='-block'||f[1]==='-activate'&&['move: Protect','move: Detect','move: Spiky Shield','move: Baneful Bunker','move: Obstruct','move: Silk Trap','move: Burning Bulwark','move: Quick Guard','move: Wide Guard','move: Crafty Shield','move: Mat Block'].includes(f[3])) {
+            events.push([13,side,(f[3]||'').startsWith('move: ')?Math.max(0,Dex.moves.get(f[3].slice(6)).num):0]);
+        }
+        else if(f[1]==='-nothing') events.push([14,side,0]);
         else if(f[1]==='-miss') events.push([3,side,0]);
         else if(f[1]==='-damage'||f[1]==='-heal') events.push([4,side,parseInt(f[3],10)]);
     }
@@ -90,15 +149,18 @@ function snapshot(s, accepted, from) {
     u8(b.p1.activeRequest?.forceSwitch?1:0);u16(b.p2.active[0].hp);u16(b.p2.active[0].maxhp);
     u8(party.length);
     for(const p of party) {u16(p.hp);u8(['','brn','par','slp','frz','psn','tox'].indexOf(p.status==='fnt'?'':p.status));u8(Math.max(1,s.initial[Number(p.name.slice(4))].moves.length));const original=s.initial[Number(p.name.slice(4))].moves;
-        if(!original.length)u8(1);else for(const m of original){const base=p.baseMoveSlots.find(slot=>Dex.moves.get(slot.id).num===m[0]);u8(base?Math.min(m[2],base.pp):0);}}
+        if(!original.length)u8(1);else for(let i=0;i<original.length;i++){
+            const base=s.originalSlots.get(p.name)[i];u8(base?Math.min(original[i][2],s.ppValues.get(base)?.pp??base.pp):0);}}
     u16(events.length);for(const e of events){u8(e[0]);u8(e[1]);u16(e[2]);}
     const available=legal(s);u8(available.length);available.forEach(u8);
-    u8(available.length);
-    for(const slot of available) {
-        const move=b.p1.activeRequest.active[0].moves[slot-1];
-        u8(slot);u16(Math.max(0,Dex.moves.get(move.id).num));u8(move.pp??1);u8(move.maxpp??1);
+    const options=b.p1.activeRequest?.active?.[0]?.moves||[];
+    u8(options.length);
+    for(let i=0;i<options.length;i++) {
+        const move=options[i];
+        u8(i+1);u16(Math.max(0,Dex.moves.get(move.id).num));u8(move.pp??1);u8(move.maxpp??1);
     }
     u8(Number(b.p2.active[0].name.slice(4)));
+    u8(Math.max(0,['','brn','par','slp','frz','psn','tox'].indexOf(b.p2.active[0].status)));
     return Buffer.concat(chunks).toString('base64');
 }
 function handle(input) {
@@ -111,17 +173,25 @@ function handle(input) {
     if(!s) throw Error('Unknown battle');
     if(input.revision!==s.revision||s.outcome)return snapshot(s,false,from);
     const b=s.battle;
+    if(input.action==='infinitePp') {
+        if(typeof input.enabled!=='boolean')throw Error('Invalid infinite PP setting');
+        s.infinitePp=input.enabled;ppSlots(s);
+        if(!b.ended)b.makeRequest();
+        s.revision++;return snapshot(s,true,from);
+    }
     if(input.action==='run') {if(!s.allowRun)return snapshot(s,false,from);s.outcome=4;s.revision++;return snapshot(s,true,from);}
-    let choice;
+    let choice,replacement;
     if(input.action==='move') {
-        if(!legal(s).includes(input.slot))return snapshot(s,false,from);
+        replacement=replaceMove(s,input);
+        if(!replacement)return snapshot(s,false,from);
+        if(!legal(s).includes(input.slot)){replacement.rollback();return snapshot(s,false,from);}
         choice=`move ${input.slot}`;
     } else if(input.action==='switch') {
         const index=b.p1.pokemon.findIndex(p=>p.name===`slot${input.slot}`);
         if(index<0||b.p1.pokemon[index].fainted||b.p1.pokemon[index].isActive)return snapshot(s,false,from);
         choice=`switch ${index+1}`;
     } else throw Error('Unknown operation');
-    if(!b.choose('p1',choice))return snapshot(s,false,from);
+    if(!b.choose('p1',choice)){replacement?.rollback();return snapshot(s,false,from);}
     ai(b);
     for(let i=0;i<6&&b.p2.activeRequest?.forceSwitch&&!b.p2.isChoiceDone();i++)ai(b);
     s.revision++;

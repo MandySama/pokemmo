@@ -124,8 +124,8 @@ def build():
     # Keep the original inventory, map images, navigation, and marker controls.
     html = re.sub(r'\n<!-- inspection-extension -->.*?<!-- /inspection-extension -->', '', html, flags=re.S)
     extension = (ROOT / 'tools/fire_red_inspection.js').read_text(encoding='utf-8')
-    editor_ids = json.loads((ROOT / 'tools/story_editor/ids.json').read_text(encoding='utf-8'))
-    extension = 'const managedEditorLabel=' + json.dumps(strings[editor_ids['editorEntry']], ensure_ascii=False) + ';\n' + extension
+    editor_ids = json.loads((ROOT / 'tools/gba_view_ids.json').read_text(encoding='utf-8'))
+    extension = 'const relationViewLabel=' + json.dumps(strings[editor_ids['openView']], ensure_ascii=False) + ';\n' + extension
     html = html.replace('</body>', '') if '</body>' in html else html
     block = '\n<!-- inspection-extension --><script>\nconst scriptDetails=' + payload + ';\n' + extension + '\n</script><!-- /inspection-extension -->\n'
     html = html.replace('</html>', block + '</html>')

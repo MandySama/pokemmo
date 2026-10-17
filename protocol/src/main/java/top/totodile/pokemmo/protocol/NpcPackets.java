@@ -20,7 +20,7 @@ public final class NpcPackets {
     private NpcPackets() {}
 
     public static byte[] request(int action, int id) {
-        if (action < 0 || action > 2 || id < 0 || id > 255)
+        if (action < 0 || action > 3 || id < 0 || id > 255)
             throw new IllegalArgumentException("Invalid NPC request");
         return new byte[] {(byte) OPCODE, (byte) action, (byte) id};
     }
