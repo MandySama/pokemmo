@@ -1,0 +1,19 @@
+// 客户端父模块：共用代码、桌面端和 Android 端分别由子模块管理。
+
+// 统一构建目录，各子模块独立存放，避免中间文件及产物互相覆盖。
+def clientBuildDirectory = layout.buildDirectory
+subprojects {
+    layout.buildDirectory = clientBuildDirectory.dir(name)
+}
+
+tasks.register('build') {
+    group = 'build'
+    description = '打包全部客户端产物：桌面 JAR、EXE、ZIP 和 Android APK。'
+    dependsOn ':client:desktop:build', ':client:android:build'
+}
+
+tasks.register('run') {
+    group = 'application'
+    description = '启动桌面客户端。'
+    dependsOn ':client:desktop:run'
+}

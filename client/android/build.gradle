@@ -1,0 +1,172 @@
+plugins {
+    id 'com.android.application' version '8.10.1'
+}
+
+repositories {
+    google()
+    mavenCentral()
+}
+
+configurations { natives }
+
+android {
+    namespace = 'top.totodile.pokemmo.android'
+    compileSdk = 36
+    defaultConfig {
+        applicationId 'top.totodile.pokemmo'
+        minSdk = 26
+        targetSdk = 35
+        versionCode 1
+        versionName '1.0'
+        ndk { abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86_64' }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    sourceSets.main {
+        res.srcDir layout.buildDirectory.dir('generated/iconRes')
+        assets.srcDirs = ['../data']
+        jniLibs.srcDirs = [layout.buildDirectory.dir('generated/jniLibs')]
+    }
+}
+
+dependencies {
+    implementation project(':client:core')
+    implementation "com.badlogicgames.gdx:gdx-backend-android:${rootProject.gdxVersion}"
+    natives "com.badlogicgames.gdx:gdx-platform:${rootProject.gdxVersion}:natives-armeabi-v7a"
+    natives "com.badlogicgames.gdx:gdx-platform:${rootProject.gdxVersion}:natives-arm64-v8a"
+    natives "com.badlogicgames.gdx:gdx-platform:${rootProject.gdxVersion}:natives-x86_64"
+}
+
+// 从 LibGDX 原生依赖中提取各架构的共享库，交给 Android 插件打包。
+abstract class ExtractAndroidNatives extends DefaultTask {
+    @Classpath
+    abstract ConfigurableFileCollection getNativeJars()
+
+    @OutputDirectory
+    abstract DirectoryProperty getOutputDirectory()
+
+    @javax.inject.Inject
+    abstract org.gradle.api.file.FileSystemOperations getFileSystemOperations()
+
+    @javax.inject.Inject
+    abstract org.gradle.api.file.ArchiveOperations getArchiveOperations()
+
+    @TaskAction
+    void extract() {
+        def jars = nativeJars.files
+        def archives = archiveOperations
+        fileSystemOperations.sync {
+            into outputDirectory.get().asFile
+            jars.each { nativeJar ->
+                def abi = nativeJar.name.replaceFirst(/^.*natives-/, '').replaceFirst(/\.jar$/, '')
+                from(archives.zipTree(nativeJar)) {
+                    include '*.so'
+                    into abi
+                }
+            }
+        }
+    }
+}
+
+tasks.register('extractNatives', ExtractAndroidNatives) {
+    nativeJars.from(configurations.natives)
+    outputDirectory.set(layout.buildDirectory.dir('generated/jniLibs'))
+}
+// 从共用图标生成 Android 资源，避免手动维护另一份 PNG。
+tasks.register('copyLauncherIcon', Sync) {
+    from(project(':client').layout.projectDirectory.file('data/icons/128x128.png')) {
+        into 'drawable-nodpi'
+        rename { 'ic_launcher.png' }
+    }
+    into layout.buildDirectory.dir('generated/iconRes')
+}
+tasks.named('preBuild') {
+    dependsOn tasks.named('extractNatives'), tasks.named('copyLauncherIcon')
+}
+
+tasks.register('copyApk', Copy) {
+    inputs.property('apkFileName', 'PokeMMO.apk')
+    group = 'build'
+    description = '生成可直接安装的 Android 调试 APK。'
+    dependsOn 'assembleDebug'
+    from layout.buildDirectory.file('outputs/apk/debug/android-debug.apk')
+    into layout.buildDirectory.dir('apk')
+    rename { 'PokeMMO.apk' }
+}
+
+tasks.named('build') {
+    dependsOn tasks.named('copyApk')
+}
+
+// 每次执行都重新查询设备；单台安装失败后继续处理其他设备，最后汇总结果。
+abstract class InstallAllDevices extends DefaultTask {
+    @InputFile
+    abstract RegularFileProperty getAdbFile()
+
+    @InputFile
+    abstract RegularFileProperty getApkFile()
+
+    @javax.inject.Inject
+    abstract org.gradle.process.ExecOperations getExecOperations()
+
+    @TaskAction
+    void installAll() {
+        def listing = new ByteArrayOutputStream()
+        execOperations.exec {
+            commandLine adbFile.get().asFile.absolutePath, 'devices'
+            standardOutput = listing
+        }.assertNormalExitValue()
+
+        def devices = []
+        listing.toString('UTF-8').readLines().each { line ->
+            def match = line.trim() =~ /^(\S+)\s+(device|offline|unauthorized|recovery|sideload|bootloader)(?:\s.*)?$/
+            if (match.matches()) {
+                if (match[0][2] == 'device') {
+                    devices.add(match[0][1])
+                } else {
+                    logger.lifecycle("Skipping device ${match[0][1]}: ${match[0][2]}")
+                }
+            }
+        }
+        if (devices.isEmpty()) {
+            throw new GradleException('No online authorized devices. Connect a device and authorize USB debugging, then retry.')
+        }
+
+        def failures = []
+        devices.each { serial ->
+            logger.lifecycle("Installing on ${serial} ...")
+            def output = new ByteArrayOutputStream()
+            try {
+                def result = execOperations.exec {
+                    commandLine adbFile.get().asFile.absolutePath, '-s', serial,
+                            'install', '-r', apkFile.get().asFile.absolutePath
+                    standardOutput = output
+                    errorOutput = output
+                    ignoreExitValue = true
+                }
+                logger.lifecycle(output.toString('UTF-8').trim())
+                if (result.exitValue != 0) {
+                    failures.add(serial)
+                }
+            } catch (Exception exception) {
+                failures.add(serial)
+                logger.error("Installation failed on ${serial}: ${exception.message}")
+            }
+        }
+        logger.lifecycle("Installation complete: ${devices.size() - failures.size()} succeeded, ${failures.size()} failed.")
+        if (!failures.isEmpty()) {
+            throw new GradleException("Installation failed on: ${failures.join(', ')}")
+        }
+    }
+}
+
+tasks.register('install', InstallAllDevices) {
+    group = 'install'
+    description = '构建 APK 并覆盖安装到全部在线且已授权的设备。'
+    dependsOn tasks.named('copyApk')
+    adbFile.set(androidComponents.sdkComponents.adb)
+    apkFile.set(layout.buildDirectory.file('apk/PokeMMO.apk'))
+    timeout = java.time.Duration.ofMinutes(10)
+}

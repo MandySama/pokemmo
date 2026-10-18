@@ -1,0 +1,4 @@
+// 根项目定义项目坐标，客户端构建与运行任务位于 client 子模块。
+group = 'top.totodile'
+version = '1.0-SNAPSHOT'
+ext.gdxVersion = '1.14.2'

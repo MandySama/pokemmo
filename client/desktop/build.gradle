@@ -1,0 +1,171 @@
+plugins {
+    id 'application'
+}
+
+group = rootProject.group
+version = rootProject.version
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+def gdxVersion = rootProject.gdxVersion
+def lwjglVersion = '3.3.6'
+
+dependencies {
+    implementation project(':client:core')
+    // 统一 Java 绑定与传递依赖中的本地库所使用的 LWJGL 版本。
+    implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
+    implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
+    implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
+    runtimeOnly "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+}
+
+application {
+    applicationName = 'pokemmo'
+    mainClass = 'top.totodile.pokemmo.client.DesktopLauncher'
+    if (System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('mac')) {
+        applicationDefaultJvmArgs = ['-XstartOnFirstThread']
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 21
+}
+
+tasks.named('run', JavaExec) {
+    workingDir = project(':client').projectDir
+}
+
+tasks.named('jar', Jar) {
+    archiveFileName = 'pokemon-client.jar'
+    destinationDirectory = layout.buildDirectory.dir('jar')
+    manifest {
+        attributes 'Main-Class': application.mainClass.get(),
+                'Class-Path': configurations.runtimeClasspath.files.collect { "lib/${it.name}" }.sort().join(' ')
+    }
+}
+
+tasks.register('copyJarDependencies', Sync) {
+    from configurations.runtimeClasspath
+    into layout.buildDirectory.dir('jar/lib')
+}
+
+tasks.register('copyJarData', Sync) {
+    from project(':client').layout.projectDirectory.dir('data')
+    into layout.buildDirectory.dir('jar/data')
+}
+
+tasks.register('build-jar') {
+    group = 'build'
+    description = '生成客户端 JAR 包。'
+    dependsOn tasks.named('jar'), tasks.named('copyJarDependencies'), tasks.named('copyJarData')
+}
+
+distributions {
+    main {
+        contents {
+            from(project(':client').layout.projectDirectory.dir('data')) {
+                into 'data'
+            }
+        }
+    }
+}
+
+def packagingJdk = javaToolchains.launcherFor {
+    languageVersion = JavaLanguageVersion.of(21)
+}
+def packagingProject = project
+def packagingVersion = version.toString().replaceFirst(/-.*/, '')
+
+// 将现有 PNG 原样封装为多尺寸 ICO，供 Windows EXE 使用。
+def iconDirectory = project(':client').layout.projectDirectory.dir('data/icons')
+def exeIcon = layout.buildDirectory.file('generated/icons/PokeMMO.ico')
+tasks.register('generateExeIcon') {
+    def sizes = [16, 32, 128]
+    inputs.files(sizes.collect { iconDirectory.file("${it}x${it}.png") })
+    outputs.file(exeIcon)
+    doLast {
+        def images = sizes.collect { iconDirectory.file("${it}x${it}.png").asFile.bytes }
+        int offset = 6 + 16 * sizes.size()
+        def buffer = java.nio.ByteBuffer.allocate(offset + images.sum { it.length } as int)
+                .order(java.nio.ByteOrder.LITTLE_ENDIAN)
+        buffer.putShort((short) 0).putShort((short) 1).putShort((short) sizes.size())
+        sizes.eachWithIndex { size, index ->
+            buffer.put((byte) size).put((byte) size).put((byte) 0).put((byte) 0)
+            buffer.putShort((short) 1).putShort((short) 32)
+            buffer.putInt(images[index].length).putInt(offset)
+            offset += images[index].length
+        }
+        images.each { buffer.put(it) }
+        def output = exeIcon.get().asFile
+        output.parentFile.mkdirs()
+        output.bytes = buffer.array()
+    }
+}
+
+tasks.register('packageExeImage', Exec) {
+    group = 'distribution'
+    description = '生成包含 Java 运行时的 Windows 免安装 EXE 包。'
+    dependsOn tasks.named('installDist'), tasks.named('generateExeIcon')
+
+    doFirst {
+        if (!System.getProperty('os.name').toLowerCase(Locale.ROOT).contains('windows')) {
+            throw new GradleException('build-exe 必须在 Windows 上执行。')
+        }
+        def jpackage = packagingJdk.get().metadata.installationPath.file('bin/jpackage.exe').asFile
+        if (!jpackage.isFile()) {
+            throw new GradleException('The selected JDK 21 does not contain bin/jpackage.exe. Use a full JDK.')
+        }
+
+        def destination = layout.buildDirectory.dir('exe').get().asFile
+        def image = new File(destination, 'PokeMMO')
+        // jpackage 要求目标目录不存在，因此仅清理本任务生成的应用目录。
+        if (!image.canonicalPath.startsWith(layout.buildDirectory.get().asFile.canonicalPath + File.separator)) {
+            throw new GradleException('Packaging output must remain inside the build directory.')
+        }
+        packagingProject.delete(image)
+
+        commandLine jpackage.absolutePath,
+                '--type', 'app-image',
+                '--name', 'PokeMMO',
+                '--app-version', packagingVersion,
+                '--vendor', 'top.totodile',
+                '--icon', exeIcon.get().asFile.absolutePath,
+                '--input', new File(tasks.named('installDist').get().destinationDir, 'lib').absolutePath,
+                '--main-jar', tasks.named('jar').get().archiveFileName.get(),
+                '--main-class', application.mainClass.get(),
+                '--dest', destination.absolutePath
+    }
+    doLast {
+        packagingProject.copy {
+            from packagingProject.parent.layout.projectDirectory.dir('data')
+            into layout.buildDirectory.dir('exe/PokeMMO/data')
+        }
+    }
+}
+
+tasks.register('build-exe', Zip) {
+    group = 'distribution'
+    description = '生成 Windows 免安装 EXE 目录及对应的 ZIP 压缩包。'
+    dependsOn tasks.named('packageExeImage')
+    archiveFileName = 'PokeMMO.zip'
+    destinationDirectory = layout.buildDirectory.dir('exe')
+    from(layout.buildDirectory.dir('exe/PokeMMO')) {
+        into 'PokeMMO'
+    }
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
+}
+
+tasks.named('build') {
+    dependsOn tasks.named('build-jar'), tasks.named('build-exe')
+}
+

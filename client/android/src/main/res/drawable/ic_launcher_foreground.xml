@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 保留安全边距，防止不同桌面图标形状裁切精灵球。 -->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:inset="25%">
+    <bitmap android:src="@drawable/ic_launcher" android:gravity="fill" android:filter="true" />
+</inset>
