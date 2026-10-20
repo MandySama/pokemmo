@@ -330,6 +330,10 @@ public class ThemeManager {
                     throw ex;
                 }
                 xmlp.nextTag();
+            } else if("fontGen".equals(tagName)) {
+                for (Font font : fonts.values()) font.initialize();
+                if (defaultFont != null) defaultFont.initialize();
+                xmlp.nextTag();
             } else {
                 final String name = xmlp.getAttributeNotNull("name");
                 if("theme".equals(tagName)) {
@@ -340,19 +344,16 @@ public class ThemeManager {
                     }
                     inputMaps.put(name, parseInputMap(xmlp, name, null));
                 } else if("fontDef".equals(tagName)) {
-                    if(fonts.containsKey(name)) {
-                        throw xmlp.error("font \"" + name + "\" already defined");
-                    }
                     boolean makeDefault = xmlp.parseBoolFromAttribute("default", false);
-                    Font font = parseFont(xmlp, baseUrl);
+                    String reference = xmlp.getAttributeValue(null, "ref");
+                    Font original = reference == null ? null : fonts.get(reference);
+                    if (reference != null && original == null) throw xmlp.error("Can't find referenced font " + reference);
+                    Font font = parseFont(xmlp, baseUrl, original);
                     fonts.put(name, font);
                     if(firstFont == null) {
                         firstFont = font;
                     }
-                    if(makeDefault) {
-                        if(defaultFont != null) {
-                            throw xmlp.error("default font already set");
-                        }
+                    if(makeDefault || defaultFont == null) {
                         defaultFont = font;
                     }
                 } else if("constantDef".equals(tagName)) {
@@ -400,7 +401,7 @@ public class ThemeManager {
         return im;
     }
     
-    private Font parseFont(XMLParser xmlp, URL baseUrl) throws XmlPullParserException, IOException {
+    private Font parseFont(XMLParser xmlp, URL baseUrl, Font original) throws XmlPullParserException, IOException {
         URL url = baseUrl;
         String fileName = xmlp.getAttributeValue(null, "filename");
         if(fileName != null) {
@@ -450,6 +451,8 @@ public class ThemeManager {
         fontParams.add(baseParams);
         StateSelect stateSelect = new StateSelect(stateExpr);
         FontParameter[] stateParams = fontParams.toArray(new FontParameter[fontParams.size()]);
+
+        if (original != null) return original.derive(stateSelect, stateParams);
         
         if(fontFamilies != null) {
             FontMapper fontMapper = renderer.getFontMapper();
@@ -492,6 +495,14 @@ public class ThemeManager {
                         @SuppressWarnings("unchecked")
                         FontParameter.Parameter<String> strType = (FontParameter.Parameter<String>)type;
                         fp.put(strType, value);
+
+                    } else if(dataClass == Float.class) {
+                        @SuppressWarnings("unchecked")
+                        FontParameter.Parameter<Float> floatType = (FontParameter.Parameter<Float>)type;
+                        fp.put(floatType, Float.parseFloat(value));
+
+                    } else if(dataClass.isEnum()) {
+                        putEnumFontParameter(xmlp, fp, type, value);
                         
                     } else {
                         throw xmlp.error("dataClass not yet implemented: " + dataClass);
@@ -499,6 +510,13 @@ public class ThemeManager {
                 }
             }
         }
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private void putEnumFontParameter(XMLParser xmlp, FontParameter fp, FontParameter.Parameter type, String value)
+            throws XmlPullParserException {
+        try { fp.put(type, Enum.valueOf(type.getDataClass(), value)); }
+        catch (IllegalArgumentException error) { throw xmlp.error("Invalid " + type.getDataClass().getSimpleName() + ": " + value); }
     }
     
     private static StringList parseList(XMLParser xmlp, String name) {
@@ -541,6 +559,11 @@ public class ThemeManager {
     }
     
     private ThemeInfoImpl parseTheme(XMLParser xmlp, String themeName, ThemeInfoImpl parent, URL baseUrl) throws IOException, XmlPullParserException {
+        return parseTheme(xmlp, themeName, parent, baseUrl, parent == null ? themes.get(themeName) : null);
+    }
+
+    private ThemeInfoImpl parseTheme(XMLParser xmlp, String themeName, ThemeInfoImpl parent, URL baseUrl,
+                                     ThemeInfoImpl previous) throws IOException, XmlPullParserException {
         // allow top level theme "*" as fallback theme
         if(!themeName.equals("*") || parent != null) {
             ParserUtil.checkNameNotEmpty(themeName, xmlp);
@@ -549,12 +572,8 @@ public class ThemeManager {
             }
         }
         ThemeInfoImpl ti = new ThemeInfoImpl(this, themeName, parent);
-        // 与参考客户端一致：平台主题默认合并同名控件，overwrite 可显式替换。
         boolean overwrite = xmlp.parseBoolFromAttribute("overwrite", false);
-        ThemeInfoImpl previous = parent == null ? themes.get(themeName) : parent.getTheme(themeName);
-        if(previous != null && !overwrite) {
-            ti.copy(previous);
-        }
+        boolean updating = previous != null && !overwrite;
         ThemeInfoImpl oldEnv = mathInterpreter.setEnv(ti);
         try {
             if(xmlp.parseBoolFromAttribute("merge", false)) {
@@ -568,6 +587,10 @@ public class ThemeManager {
             }
             String ref = xmlp.getAttributeValue(null, "ref");
             if(ref != null) {
+                // 对齐参考 vW：更新已有主题时，ref 表示沿用旧定义；新主题才解析 ref 名称。
+                if (updating) {
+                    ti.copy(previous);
+                } else {
                 ThemeInfoImpl tiRef = null;
                 if(parent != null) {
                     tiRef = parent.getTheme(ref);
@@ -579,6 +602,7 @@ public class ThemeManager {
                     throw xmlp.error("referenced theme info not found: " + ref);
                 }
                 ti.copy(tiRef);
+                }
             }
             ti.maybeUsedFromWildcard = xmlp.parseBoolFromAttribute("allowWildcard", true);
             xmlp.nextTag();
@@ -592,7 +616,7 @@ public class ThemeManager {
                     if(name.length() == 0) {
                         parseThemeWildcardRef(xmlp, ti);
                     } else {
-                        ThemeInfoImpl tiChild = parseTheme(xmlp, name, ti, baseUrl);
+                        ThemeInfoImpl tiChild = parseTheme(xmlp, name, ti, baseUrl, updating ? ti.getTheme(name) : null);
                         ti.putTheme(name, tiChild);
                     }
                 } else {
@@ -699,7 +723,7 @@ public class ThemeManager {
                 return parseInputMap(xmlp, wildcardName, parent);
             }
             if("fontDef".equals(tagName)) {
-                return parseFont(xmlp, baseUrl);
+                return parseFont(xmlp, baseUrl, null);
             }
             if("enum".equals(tagName)) {
                 String enumType = xmlp.getAttributeNotNull("type");

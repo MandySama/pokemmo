@@ -13,6 +13,7 @@
     <color>#FF565D63</color>
   </constantDef>
   <include filename="fonts.xml" />
+  <fontGen />
   <include filename="../default/gfx_ui.xml" />
   <include filename="../default/init.xml" />
   <include filename="../default/main-widgets.xml" />

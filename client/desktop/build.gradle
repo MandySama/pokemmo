@@ -20,6 +20,7 @@ def lwjglVersion = '3.3.6'
 
 dependencies {
     testImplementation 'junit:junit:4.13.2'
+    testImplementation "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
     implementation project(':client:core')
     // 统一 Java 绑定与传递依赖中的本地库所使用的 LWJGL 版本。
     implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
@@ -31,7 +32,7 @@ dependencies {
 
 tasks.named('test') {
     workingDir = project(':client').projectDir
-    inputs.dir(project(':client').file('data/theme'))
+    inputs.dir(project(':client').file('data/themes'))
 }
 
 application {
@@ -47,7 +48,8 @@ tasks.withType(JavaCompile).configureEach {
     options.release = 21
 }
 
-tasks.named('run', JavaExec) {
+// 包括 IDE 临时生成的 DesktopLauncher.main() 任务，统一工作目录。
+tasks.withType(JavaExec).configureEach {
     workingDir = project(':client').projectDir
 }
 

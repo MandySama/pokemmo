@@ -21,6 +21,7 @@ public final class DesktopLauncher {
         configuration.disableAudio(true);
         new Lwjgl3Application(new ClientApplication(
                 path -> com.badlogic.gdx.Gdx.files.absolute(ClientAssets.file(path)),
-                false, System::nanoTime), configuration);
+                false, System::nanoTime,
+                () -> com.badlogic.gdx.Gdx.files.absolute(ClientAssets.configDirectory())), configuration);
     }
 }

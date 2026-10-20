@@ -21,14 +21,13 @@ import java.util.*;
 /** 将 TWL 的左上角坐标、裁剪和主题图片绘制到 LibGDX。 */
 public final class GdxTwlRenderer implements Renderer, AutoCloseable {
     public enum SystemMouseCursor implements MouseCursor { TEXT }
-    public static final FontParameter.Parameter<Integer> SIZE = FontParameter.newParameter("size", 18);
+    public static final FontParameter.Parameter<Integer> SIZE = FontParameter.newParameter("size", 11);
     public static final FontParameter.Parameter<Integer> OFFSET_X = FontParameter.newParameter("offsetX", 0);
     public static final FontParameter.Parameter<Integer> OFFSET_Y = FontParameter.newParameter("offsetY", 0);
-    public static final FontParameter.Parameter<String> HINTING = FontParameter.newParameter("hinting", "AutoMedium");
-    public static final FontParameter.Parameter<Boolean> KERNING = FontParameter.newParameter("kerning", true);
-    public static final FontParameter.Parameter<Integer> SHADOW_X = FontParameter.newParameter("shadowOffsetX", 0);
-    public static final FontParameter.Parameter<Integer> SHADOW_Y = FontParameter.newParameter("shadowOffsetY", 0);
-    public static final FontParameter.Parameter<Color> SHADOW_COLOR = FontParameter.newParameter("shadowColor", Color.BLACK);
+    public static final FontParameter.Parameter<Integer> UNDERLINE_OFFSET = FontParameter.newParameter("underlineOffset", 0);
+    final String typeface;
+    private com.badlogic.gdx.graphics.g2d.PixmapPacker sharedFontPacker;
+    private final List<com.badlogic.gdx.graphics.g2d.PixmapPacker> fontPackers = new ArrayList<>();
     final SpriteBatch batch = new SpriteBatch();
     private final Viewport viewport;
     private final Deque<float[]> tints = new ArrayDeque<>();
@@ -37,10 +36,44 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
     private final List<GdxTwlFont> fonts = new ArrayList<>();
     private CacheContext context;
     private Cursor.SystemCursor currentSystemCursor;
+    private float currentFontScale;
     public GdxTwlRenderer(Viewport viewport) {
+        this(viewport, null);
+    }
+    public GdxTwlRenderer(Viewport viewport, String typeface) {
+        ThemeFontParameters.register();
+        this.typeface = typeface;
         this.viewport = viewport;
+        currentFontScale = fontScale();
         tints.push(new float[]{1,1,1,1});
         context = createNewCacheContext();
+    }
+    float fontScale() {
+        // 参考 TwlGui.Ew / TwlFont.lPt8：每个物理像素对应的逻辑单位。
+        // 将 back buffer 比例计入，兼容桌面的高 DPI 窗口。
+        if (viewport.getScreenWidth() <= 0 || viewport.getWorldWidth() <= 0 || Gdx.graphics.getBackBufferWidth() <= 0)
+            return 1f;
+        return viewport.getWorldWidth() / viewport.getScreenWidth()
+                * Gdx.graphics.getWidth() / Gdx.graphics.getBackBufferWidth();
+    }
+    /** Must run before GUI layout/rendering so cached text can be invalidated by the caller. */
+    public boolean updateFontScale() {
+        float nextScale = fontScale();
+        if (Math.abs(nextScale - currentFontScale) < 0.00001f) return false;
+        fonts.forEach(GdxTwlFont::resetResources);
+        disposeFontPackers();
+        currentFontScale = nextScale;
+        return true;
+    }
+    void trackFont(GdxTwlFont font) { fonts.add(font); }
+    com.badlogic.gdx.graphics.g2d.PixmapPacker fontPacker(boolean unique) {
+        if (!unique && sharedFontPacker != null) return sharedFontPacker;
+        var packer = new com.badlogic.gdx.graphics.g2d.PixmapPacker(unique ? 2048 : 1024, unique ? 2048 : 1024,
+                com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888, 1, false);
+        packer.setTransparentColor(new com.badlogic.gdx.graphics.Color(1, 1, 1, 0));
+        fontPackers.add(packer);
+        if (!unique) sharedFontPacker = packer;
+        return packer;
     }
     public long getTimeMillis() { return System.nanoTime() / 1_000_000L; }
     public Input getInput() { return null; }
@@ -50,6 +83,7 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
         viewport.apply();
         batch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, getWidth(), getHeight()));
         batch.begin();
+        clipEnter(0, 0, getWidth(), getHeight());
         return true;
     }
     public void endRendering() { batch.end(); Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST); clips.clear(); }
@@ -64,7 +98,7 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
     public CacheContext getActiveCacheContext() { return context; }
     public Font loadFont(URL url, StateSelect select, FontParameter... parameters) throws IOException {
         GdxTwlFont font = new GdxTwlFont(this, url, select, parameters);
-        fonts.add(font);
+        trackFont(font);
         return font;
     }
     public de.matthiasmann.twl.renderer.Texture loadTexture(URL url, String format, String filter) throws IOException {
@@ -72,12 +106,14 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
         Atlas atlas = textures.get(key);
         if (atlas == null) {
             // 使用受管理纹理，Android 从后台恢复且 GL 上下文重建时重新读取资源。
-            var texture = new com.badlogic.gdx.graphics.Texture(new FileHandle(url.getPath()) {
+            Object content = url.getContent(new Class<?>[]{FileHandle.class});
+            FileHandle resource = content instanceof FileHandle ? (FileHandle)content : new FileHandle(url.getPath()) {
                 @Override public java.io.InputStream read() {
                     try { return url.openStream(); }
                     catch(IOException e) { throw new IllegalStateException("读取主题图片失败", e); }
                 }
-            });
+            };
+            var texture = new com.badlogic.gdx.graphics.Texture(resource);
             var sampling = "linear".equals(filter) ? com.badlogic.gdx.graphics.Texture.TextureFilter.Linear
                     : com.badlogic.gdx.graphics.Texture.TextureFilter.Nearest;
             texture.setFilter(sampling, sampling);
@@ -136,7 +172,16 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
         setCursor(null);
         fonts.forEach(GdxTwlFont::destroy);
         textures.values().forEach(Atlas::destroy);
+        disposeFontPackers();
         batch.dispose();
+    }
+    private void disposeFontPackers() {
+        for (var packer : fontPackers) {
+            for (var page : packer.getPages()) if (page.getTexture() != null) page.getTexture().dispose();
+            packer.dispose();
+        }
+        fontPackers.clear();
+        sharedFontPacker = null;
     }
     private final class Atlas implements de.matthiasmann.twl.renderer.Texture {
         final com.badlogic.gdx.graphics.Texture texture;

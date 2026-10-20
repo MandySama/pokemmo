@@ -56,6 +56,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
 public class XMLParser implements Closeable {
 
     private static final Class<?>[] XPP_CLASS = {XmlPullParser.class};
+
     private static boolean hasXMP1 = true;
     
     private final XmlPullParser xpp;
@@ -92,14 +93,12 @@ public class XMLParser implements Closeable {
     /**
      * Creates a XMLParser for the given URL.
      *
-     * This method also calls {@code URL.getContent} which allows a custom
-     * URLStreamHandler to return a class implementing {@code XmlPullParser}.
+     * The resource stream is owned by this parser and released by {@link #close()}.
      *
      * @param url the URL to parse
      * @throws XmlPullParserException if the resource is not a valid XML file
      * @throws IOException if the resource could not be read
      * @see URLStreamHandler
-     * @see URL#getContent(java.lang.Class[])
      * @see org.xmlpull.v1.XmlPullParser
      */
     public XMLParser(URL url) throws XmlPullParserException, IOException {
@@ -107,24 +106,29 @@ public class XMLParser implements Closeable {
             throw new NullPointerException("url");
         }
         
-        XmlPullParser xpp_ = null;
-        InputStream is = null;
-
         this.source = url.toString();
-        
-        try {
-            xpp_ = (XmlPullParser)url.getContent(XPP_CLASS);
-        } catch (IOException ex) {
-            // ignore
+        XmlPullParser xpp_ = null;
+        try { xpp_ = (XmlPullParser) url.getContent(XPP_CLASS); }
+        catch (IOException ignored) { }
+        if (xpp_ != null) {
+            this.xpp = xpp_;
+            this.inputStream = null;
+            return;
         }
-
-        if(xpp_ == null) {
-            xpp_ = createParser();
-            is = url.openStream();
-            if(is == null) {
-                throw new FileNotFoundException(source);
-            }
+        xpp_ = createParser();
+        InputStream is = url.openStream();
+        if(is == null) {
+            throw new FileNotFoundException(source);
+        }
+        try {
             xpp_.setInput(is, "UTF8");
+        } catch (XmlPullParserException | RuntimeException error) {
+            try {
+                is.close();
+            } catch (IOException closeError) {
+                error.addSuppressed(closeError);
+            }
+            throw error;
         }
 
         this.xpp = xpp_;

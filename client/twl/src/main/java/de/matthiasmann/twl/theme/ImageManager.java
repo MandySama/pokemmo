@@ -126,6 +126,8 @@ class ImageManager {
         Texture texture = null;
         String fileName = xmlp.getAttributeValue(null, "file");
         if(fileName != null) {
+            String replacement = constants.getParameterValue(fileName, false, String.class, null);
+            if (replacement != null) fileName = replacement;
             String fmt = xmlp.getAttributeValue(null, "format");
             String filter = xmlp.getAttributeValue(null, "filter");
             // ignore the comment so that it does not cause a warning

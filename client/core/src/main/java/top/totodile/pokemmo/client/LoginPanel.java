@@ -14,7 +14,11 @@ import de.matthiasmann.twl.*;
 import de.matthiasmann.twl.theme.ThemeManager;
 import java.io.IOException;
 import java.net.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
+import java.util.function.LongSupplier;
+import de.matthiasmann.twl.utils.TintAnimator;
 import top.totodile.pokemmo.client.twl.GdxTwlRenderer;
 
 /** 由 TWL 控件和 XML 主题构建的登录界面。 */
@@ -28,13 +32,39 @@ final class LoginPanel implements Disposable {
     private final EditField password;
     private final InputAdapter input;
     private final ClientStrings strings;
+    private final boolean mobile;
+    private final SavedAccounts savedAccounts;
+    private final ToggleButton remember = new ToggleButton();
+    private final Label rememberLabel;
+    private final Label userLabel;
+    private final Label passwordLabel;
+    private final Button login;
+    private final Button clearPassword;
+    private final AccountPicker accountPicker;
+    private final DialogLayout form = new DialogLayout();
+    private String selectedAccount;
+    private final List<LoginNotification> notifications = new ArrayList<>();
+    private final LongSupplier notificationClock;
+    private long nextNotificationFadeAt;
     private LoginEditField nativeEditor;
     private boolean disposed;
     private int offsetX, offsetY;
 
     LoginPanel(Viewport viewport, Function<String, FileHandle> assets, boolean mobile) {
-        strings = new ClientStrings(assets.apply("strings/strings_zh.xml"));
-        renderer = new GdxTwlRenderer(viewport);
+        this(viewport, assets, mobile, SavedAccounts.open());
+    }
+
+    LoginPanel(Viewport viewport, Function<String, FileHandle> assets, boolean mobile, SavedAccounts savedAccounts) {
+        this(viewport, assets, mobile, savedAccounts, () -> System.nanoTime() / 1_000_000L);
+    }
+
+    LoginPanel(Viewport viewport, Function<String, FileHandle> assets, boolean mobile,
+               SavedAccounts savedAccounts, LongSupplier notificationClock) {
+        this.savedAccounts = savedAccounts;
+        this.mobile = mobile;
+        this.notificationClock = notificationClock;
+        strings = ClientStrings.load(assets.apply("strings"), null);
+        renderer = new GdxTwlRenderer(viewport, strings.typeface());
         username = new LoginEditField(mobile, true);
         password = new LoginEditField(mobile, false);
         username.setMaxTextLength(64);
@@ -42,25 +72,18 @@ final class LoginPanel implements Disposable {
         password.setPasswordMasking(true);
         username.addCallback(key -> { if (key == Event.KEY_RETURN) submit(); });
         password.addCallback(key -> { if (key == Event.KEY_RETURN) submit(); });
-        Label userLabel = new Label(strings.get(1001));
-        Label passwordLabel = new Label(strings.get(1002));
+        userLabel = new Label(strings.get(1001));
+        passwordLabel = new Label(strings.get(1002));
         userLabel.setLabelFor(username);
         passwordLabel.setLabelFor(password);
-        ToggleButton remember = new ToggleButton();
-        Label rememberLabel = new Label(strings.get(1025));
+        rememberLabel = new Label(strings.get(1025));
         rememberLabel.setLabelFor(remember);
-        Button login = new Button(strings.get(1000));
+        login = new Button(strings.get(1000));
         login.addCallback(this::submit);
-        DialogLayout form = new DialogLayout();
-        form.setHorizontalGroup(form.createParallelGroup()
-            .addGroup(form.createSequentialGroup()
-                .addGroup(form.createParallelGroup(userLabel, passwordLabel))
-                .addGroup(form.createParallelGroup(username, password)))
-            .addGroup(form.createSequentialGroup(remember, rememberLabel).addGap(0, 0, Short.MAX_VALUE).addWidget(login)));
-        form.setVerticalGroup(form.createSequentialGroup()
-            .addGroup(form.createParallelGroup(userLabel, username))
-            .addGroup(form.createParallelGroup(passwordLabel, password))
-            .addGroup(form.createParallelGroup(remember, rememberLabel, login)));
+        clearPassword = new Button(strings.get(1026));
+        clearPassword.addCallback(this::clearSavedPassword);
+        accountPicker = new AccountPicker(strings.get(1028), this::selectAccount);
+        selectAccount(savedAccounts.selected());
         frame.setTheme("login-window");
         frame.setTitle(strings.get(1000));
         frame.setDraggable(false);
@@ -71,22 +94,20 @@ final class LoginPanel implements Disposable {
                 frame.adjustSize();
                 frame.setPosition((getInnerWidth()-frame.getWidth())/2+getInnerX()+offsetX,
                     (getInnerHeight()-frame.getHeight())/2+getInnerY()-offsetY);
+                int bottomOffset = 100;
+                for (LoginNotification notice : notifications) {
+                    notice.adjustSize();
+                    notice.setPosition(getInnerX() + (getInnerWidth() - notice.getWidth()) / 2,
+                            getInnerBottom() - bottomOffset - notice.getHeight());
+                    bottomOffset += notice.getHeight() + 5;
+                }
             }
         };
         root.setTheme("logingui");
         root.add(frame);
         gui = new GUI(root, renderer, null);
         try {
-            URL url = new URL(null, "asset:/theme/"+(mobile?"android":"default")+"/theme.xml", new URLStreamHandler() {
-                @Override protected URLConnection openConnection(URL value) {
-                    return new URLConnection(value) {
-                        public void connect() {}
-                        public java.io.InputStream getInputStream() {
-                            return assets.apply(value.getPath().substring(1)).read();
-                        }
-                    };
-                }
-            });
+            URL url = new URL(null, "asset:/themes/"+(mobile?"android":"default")+"/theme.xml", new AssetUrlStreamHandler(assets));
             theme = ThemeManager.createThemeManager(url, renderer);
             gui.applyTheme(theme);
         } catch (IOException e) { throw new IllegalStateException("加载登录主题失败", e); }
@@ -100,7 +121,11 @@ final class LoginPanel implements Disposable {
             @Override public boolean touchDragged(int x,int y,int pointer){return pointer==0 && pointer(x,y,-1,false);}
             @Override public boolean mouseMoved(int x,int y){return pointer(x,y,-1,false);}
             @Override public boolean keyDown(int key){
-                if(key==Input.Keys.ESCAPE || key==Input.Keys.BACK){hideKeyboard();return true;}
+                if(key==Input.Keys.ESCAPE || key==Input.Keys.BACK){
+                    if(nativeEditor!=null)hideKeyboard();
+                    else if(!gui.handleKey(Event.KEY_ESCAPE,'\0',true))hideKeyboard();
+                    return true;
+                }
                 int code=keyCode(key);
                 return code!=0 && gui.handleKey(code,'\0',true);
             }
@@ -120,6 +145,7 @@ final class LoginPanel implements Disposable {
     }
     private static int keyCode(int key) {
         return switch(key) {
+            case Input.Keys.ESCAPE, Input.Keys.BACK -> Event.KEY_ESCAPE;
             case Input.Keys.ENTER -> Event.KEY_RETURN;
             case Input.Keys.TAB -> Event.KEY_TAB;
             case Input.Keys.DEL -> Event.KEY_BACK;
@@ -142,9 +168,131 @@ final class LoginPanel implements Disposable {
         };
     }
     private void submit() {
-        if(username.getText().isBlank())focusAndEdit(username);
-        else if(password.getText().isEmpty())focusAndEdit(password);
-        else hideKeyboard();
+        if (nativeEditor != null) {
+            // 原生输入栏先回写最新文本，再执行本地校验和保存。
+            Gdx.input.closeTextInputField(false, confirm -> {
+                if (!disposed) submit();
+                return false;
+            });
+            return;
+        }
+        hideKeyboard();
+        if (mobile) {
+            username.giveupKeyboardFocus();
+            password.giveupKeyboardFocus();
+        }
+        if (selectedAccount != null) {
+            savedAccounts.select(selectedAccount);
+            return;
+        }
+        if (username.getText().isBlank() || password.getText().isEmpty()) {
+            showError(strings.get(2001) + " (2)");
+            if (!mobile) focusAndEdit(username.getText().isBlank() ? username : password);
+            return;
+        }
+        // 当前只处理本地保存，不发起登录请求或模拟服务器认证成功。
+        if (remember.isActive()) {
+            savedAccounts.save(username.getText(), password.getText());
+            selectAccount(username.getText());
+        }
+    }
+
+    private void selectAccount(String name) {
+        selectedAccount = name;
+        boolean saved = name != null;
+        accountPicker.setAccounts(savedAccounts.names(), name);
+        userLabel.setLabelFor(saved ? accountPicker : username);
+        password.setReadOnly(saved);
+        password.setEnabled(!saved);
+        password.setPasswordMasking(!saved);
+        password.setText(saved ? strings.get(1027) : "");
+        if (!saved) { username.setText(""); remember.setActive(false); }
+        rebuildForm();
+    }
+
+    private void rebuildForm() {
+        form.setHorizontalGroup(null);
+        form.setVerticalGroup(null);
+        form.removeAllChildren();
+        Widget account = selectedAccount != null ? accountPicker : username;
+        Widget action = selectedAccount != null ? clearPassword : remember;
+        DialogLayout.Group buttons = form.createSequentialGroup().addWidget(action);
+        DialogLayout.Group buttonRow = form.createParallelGroup().addWidget(action);
+        if (selectedAccount == null) { buttons.addWidget(rememberLabel); buttonRow.addWidget(rememberLabel); }
+        buttons.addGap(0, 0, Short.MAX_VALUE).addWidget(login);
+        buttonRow.addWidget(login);
+        form.setHorizontalGroup(form.createParallelGroup()
+                .addGroup(form.createSequentialGroup()
+                        .addGroup(form.createParallelGroup(userLabel, passwordLabel))
+                        .addGroup(form.createParallelGroup(account, password)))
+                .addGroup(buttons));
+        form.setVerticalGroup(form.createSequentialGroup()
+                .addGroup(form.createParallelGroup(userLabel, account))
+                .addGroup(form.createParallelGroup(passwordLabel, password))
+                .addGroup(buttonRow));
+        if (root != null) root.invalidateLayout();
+    }
+
+    private void clearSavedPassword() {
+        if (selectedAccount == null) return;
+        String removed = selectedAccount;
+        savedAccounts.remove(removed);
+        selectAccount(savedAccounts.selected());
+        if (selectedAccount == null) username.setText(removed);
+    }
+
+    private void showError(String message) {
+        LoginNotification notice = new LoginNotification(message);
+        notifications.add(notice);
+        root.add(notice);
+        root.invalidateLayout();
+    }
+
+    private void updateNotifications() {
+        long now = notificationClock.getAsLong();
+        var iterator = notifications.iterator();
+        while (iterator.hasNext()) {
+            LoginNotification notice = iterator.next();
+            if (notice.fading) {
+                if (now >= notice.fadeStartedAt + 300) {
+                    root.removeChild(notice);
+                    iterator.remove();
+                    root.invalidateLayout();
+                }
+            } else if (now >= notice.expiresAt && now >= nextNotificationFadeAt) {
+                // 密集产生的提示逐条退场，避免同一渲染帧批量消失。
+                // 保留参考客户端的 250ms 淡出和 300ms 移除周期。
+                notice.fading = true;
+                notice.fadeStartedAt = now;
+                nextNotificationFadeAt = now + 300;
+                notice.getTintAnimator().fadeToHide(250);
+            }
+        }
+    }
+
+    private final class LoginNotification extends Label {
+        private long expiresAt = notificationClock.getAsLong() + 5000;
+        private long fadeStartedAt;
+        private boolean fading;
+
+        LoginNotification(String message) {
+            super(message.trim());
+            setTheme("/login-notification");
+            setTintAnimator(new TintAnimator(new TintAnimator.TimeSource() {
+                private long startedAt;
+                public void resetTime() { startedAt = notificationClock.getAsLong(); }
+                public int getTime() { return (int) Math.min(Integer.MAX_VALUE, notificationClock.getAsLong() - startedAt); }
+            }));
+        }
+
+        @Override public boolean handleEvent(Event event) {
+            if ((event.getType() == Event.Type.MOUSE_BTNDOWN || event.getType() == Event.Type.MOUSE_CLICKED)
+                    && (event.getMouseButton() == Event.MOUSE_LBUTTON || event.getMouseButton() == Event.MOUSE_RBUTTON)) {
+                expiresAt = notificationClock.getAsLong();
+                return true;
+            }
+            return super.handleEvent(event);
+        }
     }
     private void focusAndEdit(EditField field){
         field.requestKeyboardFocus();
@@ -155,12 +303,20 @@ final class LoginPanel implements Disposable {
         else Gdx.input.setOnscreenKeyboardVisible(false);
     }
     void draw(float width,float height,float x,float y) {
+        if (renderer.updateFontScale()) invalidateFontLayout(gui);
         int nextX=Math.round(x),nextY=Math.round(y);
         if(nextX!=offsetX || nextY!=offsetY){offsetX=nextX;offsetY=nextY;root.invalidateLayout();}
+        updateNotifications();
         gui.update();
+    }
+    private static void invalidateFontLayout(Widget widget) {
+        if (widget instanceof TextWidget text) text.setFont(text.getFont());
+        for (int index = 0; index < widget.getNumChildren(); index++) invalidateFontLayout(widget.getChild(index));
+        widget.invalidateLayout();
     }
     @Override public void dispose() {
         disposed=true;
+        notifications.clear();
         if(nativeEditor!=null)Gdx.input.closeTextInputField(false);
         if(Gdx.input.getInputProcessor()==input)Gdx.input.setInputProcessor(null);
         gui.destroy();theme.destroy();renderer.close();
@@ -188,7 +344,7 @@ final class LoginPanel implements Disposable {
             return handled;
         }
         private void showNativeInput(){
-            if(!mobile || Gdx.app.getType()!=ApplicationType.Android || disposed || nativeEditor==this)return;
+            if(!mobile || isReadOnly() || !isEnabled() || Gdx.app.getType()!=ApplicationType.Android || disposed || nativeEditor==this)return;
             if(nativeEditor!=null){
                 Gdx.input.closeTextInputField(false,confirm->{showNativeInput();return true;});
                 return;

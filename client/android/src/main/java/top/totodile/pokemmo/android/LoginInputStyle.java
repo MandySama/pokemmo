@@ -8,7 +8,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.RelativeLayout;
 import android.widget.ImageView;
 
-/** 登录原生输入栏的外观；比例取自参考客户端横屏界面。 */
+/** 登录原生输入栏的外观。 */
 final class LoginInputStyle {
     private LoginInputStyle() {}
 
@@ -46,13 +46,25 @@ final class LoginInputStyle {
         int[] position = new int[2];
         parent.getLocationInWindow(position);
         int side = Math.round(root.getWidth() * 0.05f);
-        int left = Math.max(0, side - position[0]);
-        int right = Math.max(0, side - (root.getWidth() - position[0] - parent.getWidth()));
+        int safeLeft = 0, safeRight = 0, safeBottom = 0;
+        if (android.os.Build.VERSION.SDK_INT >= 28 && root.getRootWindowInsets() != null) {
+            android.view.DisplayCutout cutout = root.getRootWindowInsets().getDisplayCutout();
+            if (cutout != null) {
+                safeLeft = cutout.getSafeInsetLeft();
+                safeRight = cutout.getSafeInsetRight();
+                safeBottom = cutout.getSafeInsetBottom();
+            }
+        }
+        int left = Math.max(0, Math.max(side, safeLeft) - position[0]);
+        int right = Math.max(0, Math.max(side, safeRight) - (root.getWidth() - position[0] - parent.getWidth()));
         // 密码键盘上方保留 10dp 间距；用户名悬浮键盘沿用已核对的位置。
         boolean password = (editor.getInputType() & android.text.InputType.TYPE_MASK_VARIATION)
                 == android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD;
         int bottom = password ? Math.round(10 * editor.getResources().getDisplayMetrics().density) : 0;
-        int height = Math.round(root.getHeight() * 2f / 15f);
+        bottom = Math.max(bottom, safeBottom - (root.getHeight() - position[1] - parent.getHeight()));
+        // 手机沿用横屏比例；平板限制高度，避免输入栏随大屏幕过度放大。
+        float density = editor.getResources().getDisplayMetrics().density;
+        int height = Math.min(Math.round(root.getHeight() * 2f / 15f), Math.round(56 * density));
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) editor.getLayoutParams();
         if (params.leftMargin != left || params.rightMargin != right || params.bottomMargin != bottom || params.height != height) {
             params.setMargins(left, 0, right, bottom);

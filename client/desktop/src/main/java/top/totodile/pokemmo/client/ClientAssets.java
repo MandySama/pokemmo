@@ -11,9 +11,13 @@ public final class ClientAssets {
     private ClientAssets() {
     }
 
+    public static String configDirectory() {
+        return DATA_DIRECTORY.getParent().resolve("config").toString();
+    }
+
     public static String file(String relativePath) {
         Path path = DATA_DIRECTORY.resolve(relativePath).normalize();
-        if (!path.startsWith(DATA_DIRECTORY) || !Files.isRegularFile(path)) {
+        if (!path.startsWith(DATA_DIRECTORY) || !Files.exists(path)) {
             throw new IllegalStateException("Client asset not found: " + path);
         }
         return path.toString();
@@ -26,7 +30,7 @@ public final class ClientAssets {
             if (Files.isRegularFile(location)) {
                 // 可执行 JAR 包的 data 与 JAR 位于同一目录。
                 Path siblingData = location.getParent().resolve("data");
-                if (Files.isDirectory(siblingData)) {
+                if (isDataDirectory(siblingData)) {
                     return siblingData;
                 }
                 // EXE 包的 JAR 位于 app 目录，Gradle 发行包的 JAR 位于 lib 目录。
@@ -36,13 +40,21 @@ public final class ClientAssets {
             throw new IllegalStateException("Cannot locate client installation", exception);
         }
         // 兼容 Gradle 的 client 工作目录，以及 IDE 的项目根目录和 desktop 目录。
-        Path workingDirectory = Path.of("").toAbsolutePath().normalize();
+        return locateDataDirectory(Path.of("").toAbsolutePath().normalize());
+    }
+
+    static Path locateDataDirectory(Path workingDirectory) {
         for (String relative : new String[]{"data", "client/data", "../data"}) {
             Path data = workingDirectory.resolve(relative).normalize();
-            if (Files.isDirectory(data)) {
+            if (isDataDirectory(data)) {
                 return data;
             }
         }
         throw new IllegalStateException("Cannot locate client data directory from " + workingDirectory);
+    }
+
+    private static boolean isDataDirectory(Path directory) {
+        return Files.isRegularFile(directory.resolve("icons/128x128.png"))
+                && Files.isRegularFile(directory.resolve("themes/default/theme.xml"));
     }
 }

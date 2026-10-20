@@ -38,6 +38,14 @@ import de.matthiasmann.twl.HAlignment;
  */
 public interface Font extends Resource {
 
+    /** Generate the font atlas at the theme's fontGen stage. */
+    default void initialize() {}
+
+    /** A referenced font shares its original atlas and has its own render states. */
+    default Font derive(de.matthiasmann.twl.utils.StateSelect select, FontParameter... parameters) {
+        throw new UnsupportedOperationException("Font references are not supported by this renderer");
+    }
+
     /**
      * Returns true if the font is proportional or false if it's fixed width.
      * @return true if the font is proportional

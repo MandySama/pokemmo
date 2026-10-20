@@ -7,6 +7,11 @@
       <frame ref="none" duration="500" />
     </animation>
     <area name="editfield.selection" tint="sub-color" xywh="0,496,1,1" />
+    <select name="account-scrollbar.thumb">
+      <area xywh="22,1,7,7" splity="T2,T5" tint="#737373" if="pressed" />
+      <area xywh="22,1,7,7" splity="T3,T4" tint="#999999" if="hover" />
+      <area xywh="22,1,7,7" splity="T3,T6" tint="#FFFFFF" />
+    </select>
   </images>
   <images file="res/main-hud.png" filter="nearest">
     <grid name="frame-draggable.background" weightsX="0,1,0" weightsY="0,0,1,0">
@@ -25,6 +30,18 @@
     </grid>
   </images>
   <images file="res/pokemmo_ui.png" filter="nearest">
+    <area name="ui-button-picker.background" xywh="390,125,9,14" center="true" />
+    <area name="ui-popup.background" xywh="317,247,42,42" splitx="L5,R5" splity="T5,B5" />
+    <area name="ui-popup-button.selected" xywh="364,254,35,29" splitx="L4,R4" splity="T4,B4" />
+    <animation name="ui-popup-button.hover" timeSource="hover" count="1">
+      <frame duration="150" ref="ui-popup-button.selected" tint="#00FFFFFF" />
+      <frame duration="1" ref="ui-popup-button.selected" tint="#FFFFFFFF" />
+    </animation>
+    <select name="ui-popup-button.background">
+      <alias ref="ui-popup-button.selected" if="selected | keyboardFocus" />
+      <alias ref="ui-popup-button.hover" if="hover" />
+      <alias ref="none" />
+    </select>
     <grid name="ui-inner-frame-tab.background" weightsX="0,1,0" weightsY="0,0,1,0" inset="-2,0,0,0">
       <area xywh="5,151,10,11" />
       <area xywh="33,151,10,11" tiled="true" />
