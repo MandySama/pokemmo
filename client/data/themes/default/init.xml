@@ -450,4 +450,8 @@
     </param>
     <theme name="" ref="*" />
   </theme>
+  <theme name="fpscounter" ref="-defaults" allowWildcard="true">
+    <param name="font"><font>alphabeta-border</font></param>
+    <param name="textAlignment"><enum type="alignment">RIGHT</enum></param>
+  </theme>
 </themes>

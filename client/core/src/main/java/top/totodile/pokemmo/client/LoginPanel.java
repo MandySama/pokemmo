@@ -31,6 +31,9 @@ final class LoginPanel implements Disposable {
     private final LoginController controller;
     private final ServerSelectionPanel serverFrame;
     private final CharacterSelectionPanel characterPage;
+    private final Label romInfo;
+    private final Label fps = new Label("0.00");
+    private final FrameRateCounter frameRate = new FrameRateCounter(System::nanoTime);
     private final EditField username;
     private final EditField password;
     private final InputAdapter input;
@@ -92,8 +95,16 @@ final class LoginPanel implements Disposable {
         frame.add(form);
         serverFrame = new ServerSelectionPanel(strings, controller);
         characterPage = new CharacterSelectionPanel(strings, controller);
+        // 参考登录页 Nq：当前尚未加载 ROM，两个平台列表均显示 --。
+        romInfo = new Label(strings.get(1170) + "\nNDS: --\nGBA: --");
+        fps.setTheme("/fpscounter");
         root = new Widget() {
             @Override protected void layout() {
+                romInfo.adjustSize();
+                romInfo.setPosition(getInnerX() + 3, getInnerY() + 3);
+                fps.adjustSize();
+                fps.setPosition(mobile ? getInnerX() : getInnerRight() - fps.getWidth(),
+                        mobile ? getInnerBottom() - fps.getHeight() : getInnerY());
                 if (frame.isVisible()) {
                     frame.adjustSize();
                     frame.setPosition((getInnerWidth()-frame.getWidth())/2+getInnerX()+offsetX,
@@ -119,6 +130,8 @@ final class LoginPanel implements Disposable {
         root.add(frame);
         root.add(serverFrame);
         root.add(characterPage);
+        root.add(romInfo);
+        root.add(fps);
         gui = new GUI(root, renderer, null);
         try {
             URL url = new URL(null, "asset:/themes/"+(mobile?"android":"default")+"/theme.xml", new AssetUrlStreamHandler(assets));
@@ -228,10 +241,17 @@ final class LoginPanel implements Disposable {
         boolean enteringCharacters = characters && !characterPage.isVisible();
         serverFrame.setHardVisible(!loginPage && !characters);
         characterPage.setVisible(characters);
+        romInfo.setVisible(!characters);
         form.setEnabled(controller.state() == LoginController.State.LOGIN);
         serverFrame.refresh();
         if (enteringCharacters) characterPage.focusDefault();
-        if (enteringLogin && controller.state() == LoginController.State.LOGIN) focusLoginPage();
+        if (enteringLogin && controller.state() == LoginController.State.LOGIN) {
+            if (selectedAccount == null) {
+                username.setText("");
+                password.setText("");
+            }
+            focusLoginPage();
+        }
         if (controller.failed() && controller.state() == LoginController.State.LOGIN)
             showError(strings.get(2001) + " (2)");
         root.invalidateLayout();
@@ -281,10 +301,9 @@ final class LoginPanel implements Disposable {
 
     private void clearSavedPassword() {
         if (selectedAccount == null) return;
-        String removed = selectedAccount;
-        savedAccounts.remove(removed);
+        savedAccounts.remove(selectedAccount);
         selectAccount(savedAccounts.selected());
-        if (selectedAccount == null) username.setText(removed);
+        if (selectedAccount == null) focusLoginPage();
     }
 
     private void showError(String message) {
@@ -349,6 +368,7 @@ final class LoginPanel implements Disposable {
         else Gdx.input.setOnscreenKeyboardVisible(false);
     }
     void draw(float width,float height,float x,float y) {
+        fps.setText(frameRate.frame());
         if (renderer.updateFontScale()) invalidateFontLayout(gui);
         int nextX=Math.round(x),nextY=Math.round(y);
         if(nextX!=offsetX || nextY!=offsetY){offsetX=nextX;offsetY=nextY;root.invalidateLayout();}

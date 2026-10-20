@@ -12,4 +12,7 @@
   <fontDef name="med-noshadow-18-white" filename="res/fonts/NotoSansCJK-Bold.ttc" faces="sc,tc,jp" font_color="#FFFFFF" size="18" />
   <fontDef name="xlarge" filename="res/fonts/NotoSansCJK-Medium.ttc" faces="sc,tc,jp" font_color="#FFFFFF" size="22" />
   <fontDef name="med-noshadow-22-white" filename="../default/res/fonts/NotoSansCJK-Bold.ttc" faces="sc,tc,jp" font_color="#FFFFFF" size="22" />
+  <fontDef name="alphabeta-border" filename="res/fonts/NotoSansCJK-Medium.ttc" faces="sc,tc,jp" kerning="true" color="white" size="12" size_cjk="14" hinting="AutoSlight" hinting_cjk="Full" border_width="1" border_color="#434343">
+    <fontParam if="pressed" offsetX="1" offsetY="1"/>
+  </fontDef>
 </themes>
