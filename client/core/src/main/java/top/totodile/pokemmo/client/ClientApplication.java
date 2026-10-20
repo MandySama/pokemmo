@@ -17,8 +17,6 @@ public final class ClientApplication extends ApplicationAdapter {
     private static final int LOGO_WIDTH = 484;
     private static final int LOGO_HEIGHT = 143;
     private static final int LOGO_CENTER_OFFSET_Y = 200;
-    private static final long MIN_MOBILE_LOADING_NANOS = 300_000_000L;
-    private static final long MIN_DESKTOP_LOGO_NANOS = 600_000_000L;
     private final Viewport viewport;
     private SpriteBatch batch;
     private Texture logo;
@@ -27,8 +25,8 @@ public final class ClientApplication extends ApplicationAdapter {
     private final Function<String, FileHandle> assets;
     private final LongSupplier clock;
     private final boolean mobile;
-    private boolean loadingFrameShown;
-    private long loadingStartedAt;
+    private boolean blackFrameShown;
+    private boolean logoFrameShown;
 
     public ClientApplication(Function<String, FileHandle> assets, boolean mobile, LongSupplier clock) {
         this.assets = assets;
@@ -36,11 +34,6 @@ public final class ClientApplication extends ApplicationAdapter {
         this.mobile = mobile;
         // 移动端沿用参考客户端的逻辑分辨率，额外屏幕空间扩展视口。
         this.viewport = mobile ? new ExtendViewport(1280, 720) : new ScreenViewport();
-    }
-
-    @Override
-    public void create() {
-        if (!mobile) loadLogo();
     }
 
     private void loadLogo() {
@@ -63,23 +56,15 @@ public final class ClientApplication extends ApplicationAdapter {
     @Override
     public void render() {
         ScreenUtils.clear(0f, 0f, 0f, 1f);
-        if (batch == null) {
-            // 移动端先提交黑色首帧，再加载资源，避免白色底板停留到加载结束。
-            if (!loadingFrameShown) {
-                loadingFrameShown = true;
-                loadingStartedAt = clock.getAsLong();
-                return;
-            }
-            loadLogo();
-            loadScene();
+        // 每个启动阶段单独提交一帧，资源加载期间保留上一帧画面。
+        if (!blackFrameShown) {
+            blackFrameShown = true;
             return;
         }
-        // 以首个黑色渲染帧计时，加载耗时包含在内，不阻塞线程或重复等待。
-        if (mobile && clock.getAsLong() - loadingStartedAt < MIN_MOBILE_LOADING_NANOS) return;
-        if (!mobile && loadingFrameShown && background == null) loadScene();
-        // PC 首帧只绘制 Logo，下一帧开始加载场景；加载时间计入最小显示时长。
-        boolean showScene = mobile || (loadingFrameShown
-                && clock.getAsLong() - loadingStartedAt >= MIN_DESKTOP_LOGO_NANOS);
+        if (batch == null) loadLogo();
+        // Logo 已提交后才加载场景；加载完成即可显示，无需固定延时。
+        if (logoFrameShown && background == null) loadScene();
+        boolean showScene = background != null;
         viewport.apply();
         float width = viewport.getWorldWidth();
         float height = viewport.getWorldHeight();
@@ -100,10 +85,7 @@ public final class ClientApplication extends ApplicationAdapter {
         if (showScene) background.draw(batch, width, height, viewport.getScreenWidth());
         batch.draw(logo, logoX, logoY, (float) LOGO_WIDTH, (float) LOGO_HEIGHT);
         batch.end();
-        if (!mobile && !loadingFrameShown) {
-            loadingFrameShown = true;
-            loadingStartedAt = clock.getAsLong();
-        }
+        logoFrameShown = true;
         if (showScene) loginPanel.draw(width, height, logoX - ((int) width - LOGO_WIDTH) / 2f,
                 logoY - (height - logoTop - LOGO_HEIGHT));
     }

@@ -3,11 +3,13 @@ package top.totodile.pokemmo.client;
 import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import com.badlogic.gdx.graphics.Color;
 
 public final class DesktopLauncher {
     public static void main(String[] args) {
         Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
         configuration.setTitle("PokeMMO");
+        configuration.setInitialBackgroundColor(Color.BLACK);
         configuration.setWindowIcon(FileType.Absolute, ClientAssets.file("icons/128x128.png"));
         configuration.setWindowListener(new WindowsWindowIcons());
         configuration.setWindowedMode(1024, 768);
