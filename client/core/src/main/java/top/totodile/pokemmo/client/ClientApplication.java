@@ -2,6 +2,7 @@ package top.totodile.pokemmo.client;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
 import java.util.function.Function;
 import java.util.function.LongSupplier;
@@ -25,8 +26,7 @@ public final class ClientApplication extends ApplicationAdapter {
     private final Function<String, FileHandle> assets;
     private final LongSupplier clock;
     private final boolean mobile;
-    private boolean blackFrameShown;
-    private boolean logoFrameShown;
+    private AssetManager sceneAssets;
 
     public ClientApplication(Function<String, FileHandle> assets, boolean mobile, LongSupplier clock) {
         this.assets = assets;
@@ -34,6 +34,15 @@ public final class ClientApplication extends ApplicationAdapter {
         this.mobile = mobile;
         // 移动端沿用参考客户端的逻辑分辨率，额外屏幕空间扩展视口。
         this.viewport = mobile ? new ExtendViewport(1280, 720) : new ScreenViewport();
+    }
+
+    @Override
+    public void create() {
+        sceneAssets = new AssetManager(assets::apply);
+        for (int i = 0; i < 3; i++) {
+            sceneAssets.load("sprites/textures/bg_0" + i + ".png", Texture.class);
+        }
+        if (!mobile) loadLogo();
     }
 
     private void loadLogo() {
@@ -44,7 +53,11 @@ public final class ClientApplication extends ApplicationAdapter {
     }
 
     private void loadScene() {
-        background = new ScrollingBackground(assets, clock);
+        Texture[] tiles = new Texture[3];
+        for (int i = 0; i < tiles.length; i++) {
+            tiles[i] = sceneAssets.get("sprites/textures/bg_0" + i + ".png", Texture.class);
+        }
+        background = new ScrollingBackground(tiles, clock);
         loginPanel = new LoginPanel(viewport, assets, mobile);
     }
 
@@ -56,15 +69,15 @@ public final class ClientApplication extends ApplicationAdapter {
     @Override
     public void render() {
         ScreenUtils.clear(0f, 0f, 0f, 1f);
-        // 每个启动阶段单独提交一帧，资源加载期间保留上一帧画面。
-        if (!blackFrameShown) {
-            blackFrameShown = true;
-            return;
+        // 以资源实际加载状态决定画面，不规定 Logo 或背景出现在哪一帧。
+        // AssetManager 在后台解码图片，在渲染线程上传纹理。
+        if (background == null && sceneAssets.update()) {
+            if (batch == null) loadLogo();
+            loadScene();
         }
-        if (batch == null) loadLogo();
-        // Logo 已提交后才加载场景；加载完成即可显示，无需固定延时。
-        if (logoFrameShown && background == null) loadScene();
         boolean showScene = background != null;
+        // 移动端加载期间保持黑色；PC 使用黑底 Logo，准备完成后均进入登录界面。
+        if (mobile && !showScene) return;
         viewport.apply();
         float width = viewport.getWorldWidth();
         float height = viewport.getWorldHeight();
@@ -85,7 +98,6 @@ public final class ClientApplication extends ApplicationAdapter {
         if (showScene) background.draw(batch, width, height, viewport.getScreenWidth());
         batch.draw(logo, logoX, logoY, (float) LOGO_WIDTH, (float) LOGO_HEIGHT);
         batch.end();
-        logoFrameShown = true;
         if (showScene) loginPanel.draw(width, height, logoX - ((int) width - LOGO_WIDTH) / 2f,
                 logoY - (height - logoTop - LOGO_HEIGHT));
     }
@@ -93,7 +105,8 @@ public final class ClientApplication extends ApplicationAdapter {
     @Override
     public void dispose() {
         if (loginPanel != null) loginPanel.dispose();
-        if (background != null) background.dispose();
+        // 背景纹理由 AssetManager 统一释放。
+        if (sceneAssets != null) sceneAssets.dispose();
         if (logo != null) logo.dispose();
         if (batch != null) batch.dispose();
     }

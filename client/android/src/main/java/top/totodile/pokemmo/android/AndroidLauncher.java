@@ -39,9 +39,13 @@ public final class AndroidLauncher extends AndroidApplication {
         // 单调时钟包含后台和设备休眠时间，不受系统时间调整影响。
         initialize(new ClientApplication(path -> Gdx.files.internal(path), true,
                 android.os.SystemClock::elapsedRealtimeNanos), config);
-        // 系统启动窗口为白色，Activity 创建后进入黑色加载阶段。
-        // 只更改窗口底板，最近任务的主题背景色仍保持白色。
+        // Activity 创建后进入黑色加载阶段，系统主题底色仅作为启动窗口的兜底。
         getWindow().setBackgroundDrawableResource(android.R.color.black);
+        // 游戏画面本身不接收 IME，避免隐藏的安全键盘被并入任务快照的安全检查。
+        // 原生输入栏打开时由 LoginAndroidInput 恢复与输入法的关联。
+        getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
+        // 与参考应用一致，停留在前台时保持屏幕亮起；进入后台后由系统管理。
+        getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         // 游戏画面保持原位；LibGDX 根据键盘高度仅移动原生输入栏。
         getWindow().setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
         // LibGDX 原生输入栏默认使用“完成”；用户名与参考应用一致，显示“下一步”。

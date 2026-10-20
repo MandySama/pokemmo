@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="ClientTheme" parent="android:style/Theme.Material.NoActionBar.Fullscreen">
-        <!-- 最近任务无法显示游戏快照时，使用与参考应用一致的白色底板。 -->
+        <!-- 保留系统占位色，正常任务预览应使用游戏画面的真实快照。 -->
         <item name="android:windowBackground">@android:color/white</item>
         <item name="android:colorBackground">@android:color/white</item>
         <item name="android:colorBackgroundFloating">@android:color/white</item>
+        <!-- 与参考应用一致，不叠加 Material 的 Activity 过渡动画。 -->
+        <item name="android:windowAnimationStyle">@android:style/Animation</item>
     </style>
 </resources>

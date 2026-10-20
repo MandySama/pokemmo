@@ -1,27 +1,24 @@
 package top.totodile.pokemmo.client;
 
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.Disposable;
-import java.util.function.Function;
 import java.util.function.LongSupplier;
 
 /** 按屏幕高度缩放背景分片，向左连续循环滚动。 */
-final class ScrollingBackground implements Disposable {
+final class ScrollingBackground {
     // 参考客户端每 22 毫秒移动一个屏幕像素，后台经过的时间也计入滚动。
     private static final float PIXELS_PER_SECOND = 1000f / 22f;
-    private final Texture[] tiles = new Texture[3];
+    private final Texture[] tiles;
     private final LongSupplier clock;
     private final long startedAt;
 
-    ScrollingBackground(Function<String, FileHandle> assets, LongSupplier clock) {
+    /** 纹理由调用方持有和释放。 */
+    ScrollingBackground(Texture[] tiles, LongSupplier clock) {
+        this.tiles = tiles;
         this.clock = clock;
         this.startedAt = clock.getAsLong();
-        for (int i = 0; i < tiles.length; i++) {
-            Texture tile = new Texture(assets.apply("sprites/textures/bg_0" + i + ".png"));
+        for (Texture tile : tiles) {
             tile.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-            tiles[i] = tile;
         }
     }
 
@@ -45,10 +42,4 @@ final class ScrollingBackground implements Disposable {
         }
     }
 
-    @Override
-    public void dispose() {
-        for (Texture tile : tiles) {
-            if (tile != null) tile.dispose();
-        }
-    }
 }
