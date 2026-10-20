@@ -1,0 +1,105 @@
+<?xml version='1.0' encoding='utf-8'?>
+<themes>
+  <theme name="button" ref="-defaults" allowWildcard="true">
+    <param name="font">
+      <font>med-noshadow-18-white</font>
+    </param>
+    <param name="border">
+      <border>10,12</border>
+    </param>
+    <param name="">
+      <image>ui-button.*</image>
+    </param>
+    <param name="textAlignment">
+      <enum type="alignment">CENTER</enum>
+    </param>
+  </theme>
+  <theme name="togglebutton" ref="-defaults" allowWildcard="true">
+    <param name="font">
+      <font>pb-dark</font>
+    </param>
+    <param name="border">
+      <border>24,0</border>
+    </param>
+    <param name="background">
+      <image>ui-checkbox.background</image>
+    </param>
+    <param name="textAlignment">
+      <enum type="alignment">CENTER</enum>
+    </param>
+  </theme>
+  <theme name="editfield" ref="-defaults" allowWildcard="true">
+    <param name="background">
+      <image>ui-inputbox.background</image>
+    </param>
+    <param name="font">
+      <font>pb-dark</font>
+    </param>
+    <param name="border">
+      <border>5,8</border>
+    </param>
+    <param name="passwordChar">
+      <int>35</int>
+    </param>
+    <param name="maxWidth">
+      <int>32767</int>
+    </param>
+    <param name="columns">
+      <int>20</int>
+    </param>
+    <param name="cursor">
+      <image>editfield.cursor</image>
+    </param>
+    <param name="selection">
+      <image>editfield.selection</image>
+    </param>
+    <theme name="renderer" ref="-input">
+      <param name="font">
+        <font>med-noshadow-18-white</font>
+      </param>
+      <param name="border">
+        <border>0</border>
+      </param>
+      <param name="textAlignment">
+        <enum type="alignment">LEFT</enum>
+      </param>
+    </theme>
+    <param name="autocompletion-height">
+      <int>150</int>
+    </param>
+  </theme>
+  <theme name="logingui">
+    <theme name="login-window" allowWildcard="true">
+      <theme name="title" ref="-defaults">
+        <param name="textAlignment">
+          <enum type="alignment">CENTER</enum>
+        </param>
+        <param name="font">
+          <font>xlarge</font>
+        </param>
+      </theme>
+      <param name="border">
+        <border>30,0,0,0</border>
+      </param>
+      <param name="minWidth">
+        <int>300</int>
+      </param>
+      <param name="minHeight">
+        <int>150</int>
+      </param>
+      <theme name="dialoglayout" ref="dialoglayout">
+        <param name="defaultGap">
+          <dimension>8,8</dimension>
+        </param>
+        <param name="border">
+          <border>20,20,20,20</border>
+        </param>
+        <theme name="label" ref="-defaults">
+          <param name="font">
+            <font>med-noshadow-18-white</font>
+          </param>
+        </theme>
+      </theme>
+    </theme>
+  </theme>
+</themes>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<strings lang="zh" lang_full="简体中文" typeface="sc">
+    <!-- 登录界面沿用参考客户端的文本 ID。 -->
+    <string id="1000">登录</string>
+    <string id="1001">用户名:</string>
+    <string id="1002">密 码:</string>
+    <string id="1025">记住我</string>
+    <string id="1026">清除已存密码</string>
+    <string id="1027">&lt;已保存&gt;</string>
+    <string id="1028">&lt;其他用户名&gt;</string>
+</strings>

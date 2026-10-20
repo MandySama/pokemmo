@@ -1,0 +1,230 @@
+<?xml version='1.0' encoding='utf-8'?>
+<themes>
+  <images file="res/user-interface.png" filter="nearest">
+    <area name="-editfield.cursor" xywh="0,496,1,1" tint="sub-color" />
+    <animation name="editfield.cursor" timeSource="keyboardFocus">
+      <frame ref="-editfield.cursor" duration="500" />
+      <frame ref="none" duration="500" />
+    </animation>
+    <area name="editfield.selection" tint="sub-color" xywh="0,496,1,1" />
+  </images>
+  <images file="res/main-hud.png" filter="nearest">
+    <grid name="frame-draggable.background" weightsX="0,1,0" weightsY="0,0,1,0">
+      <area xywh="99,179,7,7" />
+      <area xywh="108,179,8,7" />
+      <area xywh="185,179,8,7" />
+      <area xywh="99,184,7,19" />
+      <area xywh="108,184,8,19" />
+      <area xywh="185,184,8,19" />
+      <area xywh="99,210,7,8" />
+      <area xywh="111,213,8,8" repeatX="true" repeatY="true" />
+      <area xywh="185,208,8,8" />
+      <area xywh="99,223,7,6" />
+      <area xywh="104,223,3,6" />
+      <area xywh="185,223,8,6" />
+    </grid>
+  </images>
+  <images file="res/pokemmo_ui.png" filter="nearest">
+    <grid name="ui-inner-frame-tab.background" weightsX="0,1,0" weightsY="0,0,1,0" inset="-2,0,0,0">
+      <area xywh="5,151,10,11" />
+      <area xywh="33,151,10,11" tiled="true" />
+      <area xywh="67,151,10,11" />
+      <area xywh="5,162,10,28" />
+      <area xywh="33,162,10,28" tiled="true" />
+      <area xywh="67,162,10,28" />
+      <area xywh="5,124,10,4" />
+      <area xywh="33,124,10,4" />
+      <area xywh="67,124,10,4" />
+      <area xywh="5,131,10,5" />
+      <area xywh="33,131,10,5" />
+      <area xywh="67,131,10,5" />
+    </grid>
+    <area name="ui-button.default" xywh="322,116,29,29" splitx="L4,R4" splity="T4,B4" />
+    <area name="ui-button.default.selected" tint="#FF999999" xywh="322,116,29,29" splitx="L4,R4" splity="T4,B4" />
+    <area name="ui-button.pressed.background" xywh="290,116,29,29" splitx="L4,R4" splity="T4,B4" />
+    <area name="ui-button.selected.background" tint="main-color" xywh="353,147,29,29" splitx="L4,R4" splity="T4,B4" />
+    <area name="ui-button.disabled" xywh="322,147,29,29" splitx="L4,R4" splity="T4,B4" />
+    <area name="ui-button.hover.background" xywh="353,116,29,29" splitx="L4,R4" tint="main-color" splity="T4,B4" />
+    <area name="ui-button.tinted.blue" xywh="322,116,29,29" splitx="L4,R4" splity="T4,B4" tint="#ccf3ff" />
+    <area name="ui-button.tinted.green" xywh="322,116,29,29" splitx="L4,R4" splity="T4,B4" tint="#d2efc3" />
+    <area name="ui-button.tinted.red" xywh="322,116,29,29" splitx="L4,R4" splity="T4,B4" tint="#8b0000" />
+    <animation name="ui-button.hover-animation" timeSource="hover" count="1">
+      <frame duration="150" ref="ui-button.hover.background" tint="#00FFFFFF" />
+      <frame duration="1" ref="ui-button.hover.background" tint="#99FFFFFF" />
+    </animation>
+    <composed name="ui-button.pressed">
+      <alias ref="ui-button.pressed.background" />
+      <alias ref="ui-button.hover-animation" />
+    </composed>
+    <composed name="ui-button.hover">
+      <alias ref="ui-button.default" />
+      <alias ref="ui-button.hover-animation" />
+    </composed>
+    <composed name="ui-button.selected">
+      <alias ref="ui-button.default" />
+      <alias ref="ui-button.selected.background" />
+      <alias ref="ui-button.hover-animation" />
+    </composed>
+    <composed name="ui-button.selected.hover">
+      <alias ref="ui-button.default" />
+      <alias ref="ui-button.selected.background" />
+      <alias ref="ui-button.hover-animation" />
+    </composed>
+    <composed name="ui-button.selected.alt">
+      <alias ref="ui-button.default.selected" />
+      <alias ref="ui-button.selected.background" />
+    </composed>
+    <composed name="ui-button.selected.hover.alt">
+      <alias ref="ui-button.default.selected" />
+      <alias ref="ui-button.selected.background" />
+      <alias ref="ui-button.hover-animation" />
+    </composed>
+    <composed name="ui-button.disabled.selected">
+      <alias ref="ui-button.disabled" />
+      <alias ref="ui-button.selected.background" />
+      <alias ref="ui-button.hover-animation" />
+    </composed>
+    <composed name="ui-button.disabled.hover">
+      <alias ref="ui-button.disabled" />
+      <alias ref="ui-button.hover-animation" />
+    </composed>
+    <select name="ui-button.background">
+      <alias ref="ui-button.disabled.hover" if="disabled + hover" />
+      <alias ref="ui-button.disabled.selected" if="disabled + (hover | keyboardFocus | selected)" />
+      <alias ref="ui-button.disabled" if="disabled" />
+      <alias ref="ui-button.pressed" if="pressed" />
+      <alias ref="ui-button.selected.hover" if="hover + (keyboardFocus)" />
+      <alias ref="ui-button.selected" if="keyboardFocus" />
+      <alias ref="ui-button.hover" if="hover" />
+      <alias ref="ui-button.default" />
+    </select>
+    <area name="ui-checkbox.f0" xywh="364,190,1,15" inset="0,-14,0,0" center="true" />
+    <area name="ui-checkbox.f1" xywh="364,190,2,15" inset="0,-15,0,0" center="true" />
+    <area name="ui-checkbox.f2" xywh="364,190,3,15" inset="0,-14,0,0" center="true" />
+    <area name="ui-checkbox.f3" xywh="364,190,4,15" inset="0,-13,0,0" center="true" />
+    <area name="ui-checkbox.f4" xywh="364,190,5,15" inset="0,-12,0,0" center="true" />
+    <area name="ui-checkbox.f5" xywh="364,190,6,15" inset="0,-11,0,0" center="true" />
+    <area name="ui-checkbox.f6" xywh="364,190,7,15" inset="0,-10,0,0" center="true" />
+    <area name="ui-checkbox.f7" xywh="364,190,8,15" inset="0,-9,0,0" center="true" />
+    <area name="ui-checkbox.f8" xywh="364,190,9,15" inset="0,-8,0,0" center="true" />
+    <area name="ui-checkbox.f9" xywh="364,190,10,15" inset="0,-7,0,0" center="true" />
+    <area name="ui-checkbox.f10" xywh="364,190,11,15" inset="0,-6,0,0" center="true" />
+    <area name="ui-checkbox.f11" xywh="364,190,12,15" inset="0,-5,0,0" center="true" />
+    <area name="ui-checkbox.f12" xywh="364,190,13,15" inset="0,-4,0,0" center="true" />
+    <area name="ui-checkbox.f13" xywh="364,190,14,15" inset="0,-3,0,0" center="true" />
+    <area name="ui-checkbox.f14" xywh="364,190,15,15" inset="0,-2,0,0" center="true" />
+    <animation name="ui-checkbox.animation" timeSource="selected" count="1">
+      <frame duration="20" ref="ui-checkbox.f0" />
+      <frame duration="20" ref="ui-checkbox.f1" />
+      <frame duration="20" ref="ui-checkbox.f2" />
+      <frame duration="20" ref="ui-checkbox.f3" />
+      <frame duration="20" ref="ui-checkbox.f4" />
+      <frame duration="20" ref="ui-checkbox.f5" />
+      <frame duration="20" ref="ui-checkbox.f6" />
+      <frame duration="20" ref="ui-checkbox.f7" />
+      <frame duration="20" ref="ui-checkbox.f8" />
+      <frame duration="20" ref="ui-checkbox.f9" />
+      <frame duration="20" ref="ui-checkbox.f10" />
+      <frame duration="20" ref="ui-checkbox.f11" />
+      <frame duration="20" ref="ui-checkbox.f12" />
+      <frame duration="20" ref="ui-checkbox.f13" />
+      <frame duration="20" ref="ui-checkbox.f14" />
+    </animation>
+    <composed name="ui-checkbox.selected">
+      <alias ref="ui-button.default" />
+      <alias ref="ui-checkbox.animation" />
+    </composed>
+    <select name="ui-checkbox.background">
+      <composed if="disabled + selected + hover">
+        <alias ref="ui-button.disabled" />
+        <alias ref="ui-checkbox.animation" />
+        <alias ref="ui-button.hover-animation" />
+      </composed>
+      <composed if="hover + selected + keyboardFocus">
+        <alias ref="ui-checkbox.selected" />
+        <alias ref="ui-button.hover-animation" />
+        <alias ref="ui-button.selected.background" />
+      </composed>
+      <composed if="hover + selected">
+        <alias ref="ui-checkbox.selected" />
+        <alias ref="ui-button.hover-animation" />
+        <alias ref="ui-button.selected.background" />
+      </composed>
+      <composed if="disabled + selected">
+        <alias ref="ui-button.disabled" />
+        <alias ref="ui-checkbox.animation" />
+      </composed>
+      <alias ref="ui-button.disabled" if="disabled" />
+      <composed if="selected + keyboardFocus">
+        <alias ref="ui-checkbox.selected" />
+        <alias ref="ui-button.selected.background" />
+      </composed>
+      <alias ref="ui-checkbox.selected" if="selected" />
+      <composed if="hover">
+        <alias ref="ui-button.default" />
+        <alias ref="ui-button.hover-animation" />
+      </composed>
+      <alias ref="ui-button.selected" if="keyboardFocus" />
+      <alias ref="ui-button.default" />
+    </select>
+    <area name="ui-inputbox.default" xywh="326,8,16,16" splitx="L3,R3" splity="T3,B3" />
+    <area name="ui-inputbox.selected" xywh="326,26,16,16" splitx="L3,R3" splity="T3,B3" tint="sub-color" />
+    <select name="ui-inputbox.background">
+      <composed if="selected | keyboardFocus">
+        <alias ref="ui-inputbox.default" />
+        <alias ref="ui-inputbox.selected" />
+      </composed>
+      <alias ref="ui-inputbox.default" />
+    </select>
+    <area name="ui-inputbox-2px.default" xywh="397,7,19,17" splitx="L4,R4" splity="T4,B4" />
+    <area name="ui-inputbox-2px.selected" xywh="397,25,19,17" splitx="L4,R4" splity="T4,B4" tint="sub-color" />
+    <area name="ui-inputbox-2px.selected.blue" xywh="397,25,19,17" splitx="L4,R4" splity="T4,B4" tint="#5db1ff" />
+    <area name="ui-inputbox-2px.selected.green" xywh="397,25,19,17" splitx="L4,R4" splity="T4,B4" tint="#78C850" />
+    <area name="ui-inputbox-2px.selected.red" xywh="397,25,19,17" splitx="L4,R4" splity="T4,B4" tint="#f94449" />
+    <select name="ui-inputbox-2px.background">
+      <alias ref="ui-inputbox-2px.selected" if="selected | keyboardFocus | hover" />
+      <alias ref="ui-inputbox-2px.default" />
+    </select>
+    <animation name="ui-inputbox.hover-animation" timeSource="hover" count="1">
+      <frame duration="150" ref="ui-inputbox-2px.default" tint="#000000" />
+      <frame duration="1" ref="ui-inputbox-2px.default" tint="#000000" />
+    </animation>
+    <select name="ui-button.background-defaultdex">
+      <composed if="selected | keyboardFocus | hover">
+        <alias ref="ui-inputbox.hover-animation" />
+        <alias ref="ui-inputbox-2px.background" />
+      </composed>
+      <alias ref="ui-inputbox-2px.background" />
+    </select>
+    <select name="ui-button.background-blue">
+      <composed if="selected | keyboardFocus | hover">
+        <alias ref="ui-inputbox.hover-animation" />
+        <alias ref="ui-inputbox-2px.selected.blue" />
+      </composed>
+      <alias ref="ui-inputbox-2px.selected.blue" />
+    </select>
+    <select name="ui-button.background-green">
+      <composed if="selected | keyboardFocus | hover">
+        <alias ref="ui-inputbox.hover-animation" />
+        <alias ref="ui-inputbox-2px.selected.green" />
+      </composed>
+      <alias ref="ui-inputbox-2px.selected.green" />
+    </select>
+    <select name="ui-button.background-red">
+      <composed if="selected | keyboardFocus | hover">
+        <alias ref="ui-inputbox.hover-animation" />
+        <alias ref="ui-inputbox-2px.selected.red" />
+      </composed>
+      <alias ref="ui-inputbox-2px.selected.red" />
+    </select>
+    <select name="ui-button.selected-green">
+      <composed if="selected + hover">
+        <alias ref="ui-inputbox.hover-animation" />
+        <alias ref="ui-inputbox-2px.selected.green" />
+      </composed>
+      <composed if="selected">
+        <alias ref="ui-inputbox-2px.selected.green" />
+      </composed>
+    </select>
+  </images>
+</themes>

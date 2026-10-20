@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="ClientTheme" parent="android:style/Theme.Material.NoActionBar.Fullscreen">
+        <!-- 最近任务无法显示游戏快照时，使用与参考应用一致的白色底板。 -->
+        <item name="android:windowBackground">@android:color/white</item>
+        <item name="android:colorBackground">@android:color/white</item>
+        <item name="android:colorBackgroundFloating">@android:color/white</item>
+    </style>
+</resources>

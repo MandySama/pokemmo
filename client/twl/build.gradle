@@ -1,0 +1,11 @@
+plugins { id 'java-library' }
+repositories { mavenCentral() }
+java { toolchain { languageVersion = JavaLanguageVersion.of(21) } }
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 17
+}
+dependencies {
+    api 'xpp3:xpp3:1.1.4c'
+    implementation "com.badlogicgames.gdx:gdx:${rootProject.gdxVersion}"
+}

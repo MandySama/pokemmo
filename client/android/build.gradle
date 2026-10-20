@@ -37,6 +37,9 @@ dependencies {
     natives "com.badlogicgames.gdx:gdx-platform:${rootProject.gdxVersion}:natives-armeabi-v7a"
     natives "com.badlogicgames.gdx:gdx-platform:${rootProject.gdxVersion}:natives-arm64-v8a"
     natives "com.badlogicgames.gdx:gdx-platform:${rootProject.gdxVersion}:natives-x86_64"
+    natives "com.badlogicgames.gdx:gdx-freetype-platform:${rootProject.gdxVersion}:natives-armeabi-v7a"
+    natives "com.badlogicgames.gdx:gdx-freetype-platform:${rootProject.gdxVersion}:natives-arm64-v8a"
+    natives "com.badlogicgames.gdx:gdx-freetype-platform:${rootProject.gdxVersion}:natives-x86_64"
 }
 
 // 从 LibGDX 原生依赖中提取各架构的共享库，交给 Android 插件打包。

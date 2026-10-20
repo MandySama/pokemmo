@@ -1,0 +1,301 @@
+<?xml version='1.0' encoding='utf-8'?>
+<themes>
+  <inputMapDef name="-defaultInputMap">
+    <action name="selectAll">ctrl A</action>
+    <action name="cut">ctrl X</action>
+    <action name="copy">ctrl C</action>
+    <action name="paste">ctrl V</action>
+    <action name="selectAll">cmd A</action>
+    <action name="cut">cmd X</action>
+    <action name="copy">cmd C</action>
+    <action name="paste">cmd V</action>
+  </inputMapDef>
+  <theme name="-defaults">
+    <param name="background">
+      <image>none</image>
+    </param>
+    <param name="overlay">
+      <image>none</image>
+    </param>
+    <param name="font">
+      <font>pb-dark</font>
+    </param>
+    <param name="textAlignment">
+      <enum type="alignment">left</enum>
+    </param>
+    <param name="font2">
+      <font>pb-dark</font>
+    </param>
+    <param name="textAlignment2">
+      <enum type="alignment">left</enum>
+    </param>
+    <param name="minWidth">
+      <int>0</int>
+    </param>
+    <param name="minHeight">
+      <int>0</int>
+    </param>
+    <param name="maxWidth">
+      <int>0</int>
+    </param>
+    <param name="maxHeight">
+      <int>0</int>
+    </param>
+    <param name="inputMap">
+      <inputMap>-defaultInputMap</inputMap>
+    </param>
+    <theme name="" ref="*" />
+  </theme>
+  <theme name="-input">
+    <param name="background">
+      <image>none</image>
+    </param>
+    <param name="overlay">
+      <image>none</image>
+    </param>
+    <param name="font">
+      <font>alphabeta</font>
+    </param>
+    <param name="textAlignment">
+      <enum type="alignment">topleft</enum>
+    </param>
+    <param name="minWidth">
+      <int>0</int>
+    </param>
+    <param name="minHeight">
+      <int>0</int>
+    </param>
+    <param name="maxWidth">
+      <int>0</int>
+    </param>
+    <param name="maxHeight">
+      <int>0</int>
+    </param>
+    <param name="inputMap">
+      <inputMap>-defaultInputMap</inputMap>
+    </param>
+    <theme name="" ref="*" />
+  </theme>
+  <theme name="label" ref="-defaults" allowWildcard="true" />
+  <theme name="widget" ref="-defaults" allowWildcard="true" />
+  <theme name="resizableframe" ref="-defaults" allowWildcard="true">
+    <param name="background">
+      <image>frame-draggable.background</image>
+    </param>
+    <param name="border">
+      <border>30,0,0,0</border>
+    </param>
+    <param name="titleAreaTop">
+      <int>1</int>
+    </param>
+    <param name="titleAreaLeft">
+      <int>11</int>
+    </param>
+    <param name="titleAreaRight">
+      <int>-1</int>
+    </param>
+    <param name="titleAreaBottom">
+      <int>25</int>
+    </param>
+    <param name="hasCloseButton">
+      <bool>true</bool>
+    </param>
+    <param name="closeButtonX">
+      <int>-24</int>
+    </param>
+    <param name="closeButtonY">
+      <int>6</int>
+    </param>
+    <param name="hasResizeHandle">
+      <bool>false</bool>
+    </param>
+    <param name="resizeHandleX">
+      <int>0</int>
+    </param>
+    <param name="resizeHandleY">
+      <int>0</int>
+    </param>
+    <param name="fadeColorInactive">
+      <color>white</color>
+    </param>
+    <param name="fadeDurationActivate">
+      <int>0</int>
+    </param>
+    <param name="fadeDurationDeactivate">
+      <int>0</int>
+    </param>
+    <param name="fadeDurationShow">
+      <int>200</int>
+    </param>
+    <param name="fadeDurationHide">
+      <int>200</int>
+    </param>
+    <theme name="title" ref="-defaults">
+      <param name="border">
+        <border>0,5,2,0</border>
+      </param>
+      <param name="textAlignment">
+        <enum type="alignment">left</enum>
+      </param>
+      <param name="font">
+        <font>title-font</font>
+      </param>
+    </theme>
+  </theme>
+  <theme name="button" ref="-defaults" allowWildcard="true">
+    <param name="font">
+      <font>pb-dark</font>
+    </param>
+    <param name="border">
+      <border>7,0</border>
+    </param>
+    <param name="">
+      <image>ui-button.*</image>
+    </param>
+    <param name="textAlignment">
+      <enum type="alignment">CENTER</enum>
+    </param>
+  </theme>
+  <theme name="togglebutton" ref="-defaults" allowWildcard="true">
+    <param name="font">
+      <font>pb-dark</font>
+    </param>
+    <param name="border">
+      <border>0,0</border>
+    </param>
+    <param name="background">
+      <image>ui-checkbox.background</image>
+    </param>
+    <param name="textAlignment">
+      <enum type="alignment">CENTER</enum>
+    </param>
+  </theme>
+  <theme name="editfield" ref="-defaults" allowWildcard="true">
+    <param name="background">
+      <image>ui-inputbox.background</image>
+    </param>
+    <param name="font">
+      <font>pb-dark</font>
+    </param>
+    <param name="border">
+      <border>4,5,5,5</border>
+    </param>
+    <param name="passwordChar">
+      <int>35</int>
+    </param>
+    <param name="maxWidth">
+      <int>32767</int>
+    </param>
+    <param name="columns">
+      <int>20</int>
+    </param>
+    <param name="cursor">
+      <image>editfield.cursor</image>
+    </param>
+    <param name="selection">
+      <image>editfield.selection</image>
+    </param>
+    <theme name="renderer" ref="-input">
+      <param name="font">
+        <font>pb-dark</font>
+      </param>
+      <param name="border">
+        <border>0</border>
+      </param>
+      <param name="textAlignment">
+        <enum type="alignment">LEFT</enum>
+      </param>
+    </theme>
+    <param name="autocompletion-height">
+      <int>150</int>
+    </param>
+  </theme>
+  <theme name="dialoglayout" ref="-defaults" allowWildcard="true">
+    <param name="defaultGap">
+      <dimension>5,5</dimension>
+    </param>
+    <param name="smallGap">
+      <dimension>8,8</dimension>
+    </param>
+    <param name="mediumGap">
+      <dimension>10,10</dimension>
+    </param>
+    <param name="largeGap">
+      <dimension>15,15</dimension>
+    </param>
+    <param name="namedGaps">
+      <map>
+        <param name="radiobutton">
+          <gap>0</gap>
+        </param>
+        <param name="adjuster">
+          <gap>0</gap>
+        </param>
+        <param name="vbutton">
+          <gap>0</gap>
+        </param>
+      </map>
+    </param>
+  </theme>
+  <theme name="base-frame" ref="resizableframe" allowWildcard="true">
+    <param name="background">
+      <image>ui-inner-frame-tab.background</image>
+    </param>
+    <param name="titleAreaTop">
+      <int>0</int>
+    </param>
+    <param name="titleAreaLeft">
+      <int>10</int>
+    </param>
+    <param name="titleAreaRight">
+      <int>-1</int>
+    </param>
+    <param name="titleAreaBottom">
+      <int>40</int>
+    </param>
+    <param name="closeButtonX">
+      <int>-24</int>
+    </param>
+    <param name="closeButtonY">
+      <int>10</int>
+    </param>
+    <param name="fadeColorInactive">
+      <color>#FFFFFFFF</color>
+    </param>
+    <param name="fadeDurationActivate">
+      <int>200</int>
+    </param>
+    <param name="fadeDurationDeactivate">
+      <int>200</int>
+    </param>
+    <param name="fadeDurationShow">
+      <int>200</int>
+    </param>
+    <param name="fadeDurationHide">
+      <int>200</int>
+    </param>
+    <param name="border">
+      <border>0,0,0,0</border>
+    </param>
+    <theme name="dialoglayout" ref="-defaults">
+      <param name="border">
+        <border>40,0,0,0</border>
+      </param>
+      <param name="defaultGap">
+        <dimension>5,5</dimension>
+      </param>
+      <param name="smallGap">
+        <dimension>8,8</dimension>
+      </param>
+      <param name="mediumGap">
+        <dimension>10,10</dimension>
+      </param>
+      <param name="largeGap">
+        <dimension>15,15</dimension>
+      </param>
+      <param name="namedGaps">
+        <map />
+      </param>
+    </theme>
+  </theme>
+</themes>

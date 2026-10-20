@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='utf-8'?>
+<themes>
+  <constantDef name="main-theme-color">
+    <color>#6a889b</color>
+  </constantDef>
+  <constantDef name="main-color">
+    <color>#5db1ff</color>
+  </constantDef>
+  <constantDef name="sub-color">
+    <color>#5db1ff</color>
+  </constantDef>
+  <constantDef name="tooltip-tint">
+    <color>#FF565D63</color>
+  </constantDef>
+  <include filename="fonts.xml" />
+  <include filename="gfx_ui.xml" />
+  <include filename="init.xml" />
+  <include filename="main-widgets.xml" />
+  <theme name="tooltipwindow" ref="-defaults">
+    <param name="fadeInTime">
+      <int>0</int>
+    </param>
+  </theme>
+</themes>

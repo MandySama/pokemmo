@@ -9,6 +9,7 @@ public final class DesktopLauncher {
         Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
         configuration.setTitle("PokeMMO");
         configuration.setWindowIcon(FileType.Absolute, ClientAssets.file("icons/128x128.png"));
+        configuration.setWindowListener(new WindowsWindowIcons());
         configuration.setWindowedMode(1024, 768);
         configuration.setWindowSizeLimits(320, 240, -1, -1);
         configuration.setResizable(true);

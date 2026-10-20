@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='utf-8'?>
+<themes>
+  <theme name="logingui" ref="-defaults">
+    <theme name="login-window" ref="base-frame" allowWildcard="true">
+      <param name="minWidth">
+        <int>300</int>
+      </param>
+      <param name="minHeight">
+        <int>150</int>
+      </param>
+      <theme name="dialoglayout" ref="dialoglayout">
+        <param name="defaultGap">
+          <dimension>8,8</dimension>
+        </param>
+        <param name="border">
+          <border>60,20,20,20</border>
+        </param>
+      </theme>
+    </theme>
+  </theme>
+</themes>

@@ -19,12 +19,19 @@ def gdxVersion = rootProject.gdxVersion
 def lwjglVersion = '3.3.6'
 
 dependencies {
+    testImplementation 'junit:junit:4.13.2'
     implementation project(':client:core')
     // 统一 Java 绑定与传递依赖中的本地库所使用的 LWJGL 版本。
     implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
     implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
     implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
     runtimeOnly "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+    runtimeOnly "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
+}
+
+tasks.named('test') {
+    workingDir = project(':client').projectDir
+    inputs.dir(project(':client').file('data/theme'))
 }
 
 application {

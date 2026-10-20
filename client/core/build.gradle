@@ -13,5 +13,7 @@ tasks.withType(JavaCompile).configureEach {
     options.release = 17
 }
 dependencies {
+    api project(':client:twl')
     api "com.badlogicgames.gdx:gdx:${rootProject.gdxVersion}"
+    implementation "com.badlogicgames.gdx:gdx-freetype:${rootProject.gdxVersion}"
 }
