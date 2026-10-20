@@ -11,4 +11,5 @@
   <fontDef name="title-font" filename="res/fonts/NotoSansCJK-Bold.ttc" faces="sc,tc,jp" color="#FFFFFF" size="12" size_cjk="15" hinting="AutoMedium" hinting_cjk="Slight" shadow_color="#55000000" shadow_offset_x="1" shadow_offset_y="1" />
   <fontDef name="med-noshadow-18-white" filename="res/fonts/NotoSansCJK-Bold.ttc" faces="sc,tc,jp" font_color="#FFFFFF" size="18" />
   <fontDef name="xlarge" filename="res/fonts/NotoSansCJK-Medium.ttc" faces="sc,tc,jp" font_color="#FFFFFF" size="22" />
+  <fontDef name="med-noshadow-22-white" filename="../default/res/fonts/NotoSansCJK-Bold.ttc" faces="sc,tc,jp" font_color="#FFFFFF" size="22" />
 </themes>

@@ -32,6 +32,7 @@ android {
 }
 
 dependencies {
+    implementation project(':server:login')
     implementation project(':client:core')
     implementation "com.badlogicgames.gdx:gdx-backend-android:${rootProject.gdxVersion}"
     natives "com.badlogicgames.gdx:gdx-platform:${rootProject.gdxVersion}:natives-armeabi-v7a"

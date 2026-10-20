@@ -21,6 +21,8 @@ public final class ClientApplication extends ApplicationAdapter {
     private static final int LOGO_CENTER_OFFSET_Y = 200;
     private final Viewport viewport;
     private final Viewport uiViewport;
+    private final top.totodile.pokemmo.shared.login.LoginService loginService;
+    private LoginController loginController;
     private SpriteBatch batch;
     private Texture logo;
     private ScrollingBackground background;
@@ -31,12 +33,15 @@ public final class ClientApplication extends ApplicationAdapter {
     private final Supplier<FileHandle> configDirectory;
     private AssetManager sceneAssets;
 
-    public ClientApplication(Function<String, FileHandle> assets, boolean mobile, LongSupplier clock) {
-        this(assets, mobile, clock, () -> Gdx.files.local("config"));
+    public ClientApplication(Function<String, FileHandle> assets, boolean mobile, LongSupplier clock,
+                             top.totodile.pokemmo.shared.login.LoginService loginService) {
+        this(assets, mobile, clock, () -> Gdx.files.local("config"), loginService);
     }
 
     public ClientApplication(Function<String, FileHandle> assets, boolean mobile, LongSupplier clock,
-                             Supplier<FileHandle> configDirectory) {
+                             Supplier<FileHandle> configDirectory,
+                             top.totodile.pokemmo.shared.login.LoginService loginService) {
+        this.loginService = java.util.Objects.requireNonNull(loginService);
         this.assets = assets;
         this.configDirectory = configDirectory;
         this.clock = clock;
@@ -67,7 +72,13 @@ public final class ClientApplication extends ApplicationAdapter {
             tiles[i] = sceneAssets.get("sprites/textures/bg_0" + i + ".png", Texture.class);
         }
         background = new ScrollingBackground(tiles, clock);
-        loginPanel = new LoginPanel(uiViewport, assets, mobile, SavedAccounts.open(configDirectory.get()));
+        loginController = new LoginController(loginService, Gdx.app::postRunnable);
+        loginPanel = new LoginPanel(uiViewport, assets, mobile, SavedAccounts.open(configDirectory.get()), loginController);
+    }
+
+    /** 后续角色/世界入口从此取得选择结果，不需要访问登录界面或密码。 */
+    public top.totodile.pokemmo.shared.login.LoginService.Selection selectedServer() {
+        return loginController == null ? null : loginController.selection();
     }
 
     @Override
@@ -109,7 +120,8 @@ public final class ClientApplication extends ApplicationAdapter {
         }
         batch.setProjectionMatrix(uiViewport.getCamera().combined);
         batch.begin();
-        batch.draw(logo, logoX, logoY, (float) LOGO_WIDTH, (float) LOGO_HEIGHT);
+        if (loginController.state() != LoginController.State.SELECTED)
+            batch.draw(logo, logoX, logoY, (float) LOGO_WIDTH, (float) LOGO_HEIGHT);
         batch.end();
         if (mobile) Gdx.gl.glDisable(com.badlogic.gdx.graphics.GL20.GL_SCISSOR_TEST);
         loginPanel.draw(uiWidth, uiHeight, 0, 0);

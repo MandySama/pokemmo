@@ -243,5 +243,12 @@
         <alias ref="ui-inputbox-2px.selected.green" />
       </composed>
     </select>
+    <select name="ui-inputbox-mixed.background">
+      <composed if="selected | keyboardFocus">
+        <alias ref="ui-inputbox.default" />
+        <alias ref="ui-inputbox-2px.selected" />
+      </composed>
+      <alias ref="ui-inputbox.default" />
+    </select>
   </images>
 </themes>

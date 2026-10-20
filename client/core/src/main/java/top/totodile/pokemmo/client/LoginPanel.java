@@ -28,6 +28,9 @@ final class LoginPanel implements Disposable {
     private final ThemeManager theme;
     private final ResizableFrame frame = new ResizableFrame();
     private final Widget root;
+    private final LoginController controller;
+    private final ServerSelectionPanel serverFrame;
+    private final CharacterSelectionPanel characterPage;
     private final EditField username;
     private final EditField password;
     private final InputAdapter input;
@@ -50,16 +53,14 @@ final class LoginPanel implements Disposable {
     private boolean disposed;
     private int offsetX, offsetY;
 
-    LoginPanel(Viewport viewport, Function<String, FileHandle> assets, boolean mobile) {
-        this(viewport, assets, mobile, SavedAccounts.open());
-    }
-
-    LoginPanel(Viewport viewport, Function<String, FileHandle> assets, boolean mobile, SavedAccounts savedAccounts) {
-        this(viewport, assets, mobile, savedAccounts, () -> System.nanoTime() / 1_000_000L);
+    LoginPanel(Viewport viewport, Function<String, FileHandle> assets, boolean mobile,
+               SavedAccounts savedAccounts, LoginController controller) {
+        this(viewport, assets, mobile, savedAccounts, () -> System.nanoTime() / 1_000_000L, controller);
     }
 
     LoginPanel(Viewport viewport, Function<String, FileHandle> assets, boolean mobile,
-               SavedAccounts savedAccounts, LongSupplier notificationClock) {
+               SavedAccounts savedAccounts, LongSupplier notificationClock, LoginController controller) {
+        this.controller = controller;
         this.savedAccounts = savedAccounts;
         this.mobile = mobile;
         this.notificationClock = notificationClock;
@@ -89,11 +90,22 @@ final class LoginPanel implements Disposable {
         frame.setDraggable(false);
         frame.setResizableAxis(ResizableFrame.ResizableAxis.NONE);
         frame.add(form);
+        serverFrame = new ServerSelectionPanel(strings, controller);
+        characterPage = new CharacterSelectionPanel(strings, controller);
         root = new Widget() {
             @Override protected void layout() {
-                frame.adjustSize();
-                frame.setPosition((getInnerWidth()-frame.getWidth())/2+getInnerX()+offsetX,
-                    (getInnerHeight()-frame.getHeight())/2+getInnerY()-offsetY);
+                if (frame.isVisible()) {
+                    frame.adjustSize();
+                    frame.setPosition((getInnerWidth()-frame.getWidth())/2+getInnerX()+offsetX,
+                        (getInnerHeight()-frame.getHeight())/2+getInnerY()-offsetY);
+                }
+                if (serverFrame.isVisible()) {
+                    serverFrame.adjustSize();
+                    serverFrame.setPosition(getInnerX() + (getInnerWidth()-serverFrame.getWidth())/2,
+                            getInnerY() + (getInnerHeight()-serverFrame.getHeight())/2);
+                }
+                characterPage.setPosition(getInnerX(), getInnerY());
+                characterPage.setSize(getInnerWidth(), getInnerHeight());
                 int bottomOffset = 100;
                 for (LoginNotification notice : notifications) {
                     notice.adjustSize();
@@ -105,6 +117,8 @@ final class LoginPanel implements Disposable {
         };
         root.setTheme("logingui");
         root.add(frame);
+        root.add(serverFrame);
+        root.add(characterPage);
         gui = new GUI(root, renderer, null);
         try {
             URL url = new URL(null, "asset:/themes/"+(mobile?"android":"default")+"/theme.xml", new AssetUrlStreamHandler(assets));
@@ -123,6 +137,7 @@ final class LoginPanel implements Disposable {
             @Override public boolean keyDown(int key){
                 if(key==Input.Keys.ESCAPE || key==Input.Keys.BACK){
                     if(nativeEditor!=null)hideKeyboard();
+                    else if(controller.state()!=LoginController.State.LOGIN)controller.back();
                     else if(!gui.handleKey(Event.KEY_ESCAPE,'\0',true))hideKeyboard();
                     return true;
                 }
@@ -142,6 +157,8 @@ final class LoginPanel implements Disposable {
         };
         Gdx.input.setInputProcessor(input);
         Gdx.input.setCatchKey(Input.Keys.BACK,true);
+        controller.listen(this::refreshLoginState);
+        focusLoginPage();
     }
     private static int keyCode(int key) {
         return switch(key) {
@@ -168,6 +185,7 @@ final class LoginPanel implements Disposable {
         };
     }
     private void submit() {
+        if (controller.state() != LoginController.State.LOGIN) return;
         if (nativeEditor != null) {
             // 原生输入栏先回写最新文本，再执行本地校验和保存。
             Gdx.input.closeTextInputField(false, confirm -> {
@@ -181,20 +199,48 @@ final class LoginPanel implements Disposable {
             username.giveupKeyboardFocus();
             password.giveupKeyboardFocus();
         }
-        if (selectedAccount != null) {
-            savedAccounts.select(selectedAccount);
-            return;
-        }
-        if (username.getText().isBlank() || password.getText().isEmpty()) {
+        String name = selectedAccount != null ? selectedAccount : username.getText();
+        String secret = selectedAccount != null ? savedAccounts.password(selectedAccount) : password.getText();
+        if (name.isBlank() || secret == null || secret.isEmpty()) {
             showError(strings.get(2001) + " (2)");
             if (!mobile) focusAndEdit(username.getText().isBlank() ? username : password);
             return;
         }
-        // 当前只处理本地保存，不发起登录请求或模拟服务器认证成功。
-        if (remember.isActive()) {
-            savedAccounts.save(username.getText(), password.getText());
-            selectAccount(username.getText());
-        }
+        boolean existing = selectedAccount != null;
+        boolean save = remember.isActive();
+        controller.login(name, secret, session -> {
+            if (existing) savedAccounts.select(name);
+            else if (save) {
+                savedAccounts.save(name, secret);
+                selectAccount(name);
+            }
+        });
+    }
+
+    private void refreshLoginState() {
+        if (disposed) return;
+        boolean loginPage = controller.state() == LoginController.State.LOGIN
+                || controller.state() == LoginController.State.LOGGING_IN;
+        boolean enteringLogin = loginPage && !frame.isVisible();
+        // 切换页面立即移除旧页面的命中区域，避免淡出中的窗口继续挡住点击。
+        frame.setHardVisible(loginPage);
+        boolean characters = controller.state() == LoginController.State.SELECTED;
+        boolean enteringCharacters = characters && !characterPage.isVisible();
+        serverFrame.setHardVisible(!loginPage && !characters);
+        characterPage.setVisible(characters);
+        form.setEnabled(controller.state() == LoginController.State.LOGIN);
+        serverFrame.refresh();
+        if (enteringCharacters) characterPage.focusDefault();
+        if (enteringLogin && controller.state() == LoginController.State.LOGIN) focusLoginPage();
+        if (controller.failed() && controller.state() == LoginController.State.LOGIN)
+            showError(strings.get(2001) + " (2)");
+        root.invalidateLayout();
+    }
+
+    private void focusLoginPage() {
+        // 参考登录页显示回调：移动端或已保存账号聚焦登录，PC 手动输入时聚焦用户名。
+        if (mobile || selectedAccount != null) login.requestKeyboardFocus();
+        else username.requestKeyboardFocus();
     }
 
     private void selectAccount(String name) {
@@ -316,6 +362,7 @@ final class LoginPanel implements Disposable {
     }
     @Override public void dispose() {
         disposed=true;
+        controller.close();
         notifications.clear();
         if(nativeEditor!=null)Gdx.input.closeTextInputField(false);
         if(Gdx.input.getInputProcessor()==input)Gdx.input.setInputProcessor(null);

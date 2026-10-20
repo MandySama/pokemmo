@@ -19,6 +19,7 @@ def gdxVersion = rootProject.gdxVersion
 def lwjglVersion = '3.3.6'
 
 dependencies {
+    implementation project(':server:login')
     testImplementation 'junit:junit:4.13.2'
     testImplementation "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
     implementation project(':client:core')

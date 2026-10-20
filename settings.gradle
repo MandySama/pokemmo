@@ -9,3 +9,4 @@ pluginManagement {
 rootProject.name = 'pokemmo'
 include 'client:core', 'client:desktop', 'client:android'
 include 'client:twl'
+include 'shared:login', 'server:login', 'server:chat', 'server:game'

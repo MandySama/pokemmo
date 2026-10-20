@@ -3,4 +3,5 @@
   <include filename="../default/fonts.xml" />
   <fontDef name="med-noshadow-18-white" filename="../default/res/fonts/NotoSansCJK-Bold.ttc" faces="sc,tc,jp" font_color="#FFFFFF" size="18" />
   <fontDef name="xlarge" filename="../default/res/fonts/NotoSansCJK-Medium.ttc" faces="sc,tc,jp" font_color="#FFFFFF" size="22" />
+  <fontDef name="med-noshadow-22-white" filename="../default/res/fonts/NotoSansCJK-Bold.ttc" faces="sc,tc,jp" font_color="#FFFFFF" size="22" />
 </themes>

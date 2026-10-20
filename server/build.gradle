@@ -1,0 +1,13 @@
+// 服务模块当前可嵌入单机进程；以后可由独立进程承载。
+subprojects {
+    apply plugin: 'java-library'
+    group = "${rootProject.group}.server"
+    version = rootProject.version
+    base { archivesName = "server-${project.name}" }
+    repositories { mavenCentral() }
+    java { toolchain { languageVersion = JavaLanguageVersion.of(21) } }
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+        options.release = 17
+    }
+}

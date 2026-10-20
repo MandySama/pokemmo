@@ -68,6 +68,9 @@ final class GdxTwlFont implements Font {
             } catch(IOException error) { throw new IllegalStateException("读取后备字体失败",error); }
         }
         font=generator.generateFont(config, data);
+        // 参考 TwlFont.init：字体缩放时不再按逻辑像素取整字形顶点。
+        // 否则一个逻辑像素对应多个屏幕像素时，字形间距及边缘会产生额外跳动。
+        font.setUseIntegerPositions(Math.abs(scale - 1f) < 0.00001f);
         font.getData().markupEnabled=defaults.get(ThemeFontParameters.MARKUP);
         font.getData().setScale(scale);
         if(fallbackFont!=null) {

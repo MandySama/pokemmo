@@ -22,6 +22,7 @@ public final class DesktopLauncher {
         new Lwjgl3Application(new ClientApplication(
                 path -> com.badlogic.gdx.Gdx.files.absolute(ClientAssets.file(path)),
                 false, System::nanoTime,
-                () -> com.badlogic.gdx.Gdx.files.absolute(ClientAssets.configDirectory())), configuration);
+                () -> com.badlogic.gdx.Gdx.files.absolute(ClientAssets.configDirectory()),
+                new top.totodile.pokemmo.server.login.LocalLoginService()), configuration);
     }
 }
