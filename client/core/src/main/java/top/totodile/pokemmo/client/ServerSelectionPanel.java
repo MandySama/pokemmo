@@ -37,6 +37,10 @@ final class ServerSelectionPanel extends ResizableFrame {
         invalidateLayout();
     }
 
+    void focusDefault() {
+        if (!serverButtons.isEmpty()) serverButtons.get(0).requestKeyboardFocus();
+    }
+
     private void rebuild(Session session) {
         content.setHorizontalGroup(null);
         content.setVerticalGroup(null);

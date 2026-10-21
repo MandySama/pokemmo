@@ -23,4 +23,12 @@
     <fontParam if="hover | keyboardFocus | selected" color="#FFFFFF" />
   </fontDef>
   <fontDef name="title-font-black" filename="res/fonts/NotoSansCJK-Bold.ttc" faces="sc,tc,jp" color="#252525" size="12" size_cjk="15" hinting="AutoMedium" hinting_cjk="Slight" />
+  <fontDef name="main" filename="res/fonts/NotoSansCJK-Medium.ttc" faces="sc,tc,jp" color="#FFFFFF" size="12" size_cjk="14" hinting="Full" hinting_cjk="Slight" default="true" unique_atlas="true">
+    <fontParam if="disabled" color="#A9A9A9" />
+    <fontParam if="pressed" offsetX="1" offsetY="1" />
+  </fontDef>
+  <fontDef name="main-orange-shadow" ref="main" color="#FF9900" />
+  <fontDef name="pb-tab" ref="pb-dark" color="#999">
+    <fontParam if="selected" color="#FFFFFF" />
+  </fontDef>
 </themes>

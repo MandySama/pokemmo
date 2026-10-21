@@ -250,6 +250,69 @@
       </composed>
       <alias ref="ui-inputbox.default" />
     </select>
+    <area name="ui-misc-btn.background" xywh="326,292,23,20" splitx="L5,R5" splity="T5,B5" />
+    <area name="ui-misc-btn.selected" xywh="373,294,17,16" splitx="L5,R5" splity="T5,B5" />
+    <select name="ui-header.background">
+      <composed if="selected">
+        <alias ref="ui-misc-btn.background" />
+        <alias ref="ui-misc-btn.selected" inset="2" />
+      </composed>
+      <alias ref="ui-misc-btn.background" />
+    </select>
+    <area name="ui-inputbox-2px.selected.gold" xywh="397,25,19,17" splitx="L4,R4" splity="T4,B4" tint="#d4af37" />
+    <select name="ui-button.background-gold">
+      <composed if="selected | keyboardFocus | hover">
+        <alias ref="ui-inputbox.hover-animation" />
+        <alias ref="ui-inputbox-2px.selected.gold" />
+      </composed>
+      <alias ref="ui-inputbox-2px.selected.gold" />
+    </select>
+    <area name="ui-inputbox-2px.selected.orange" xywh="397,25,19,17" splitx="L4,R4" splity="T4,B4" tint="#c68a55" />
+    <select name="ui-button.background-orange">
+      <composed if="selected | keyboardFocus | hover">
+        <alias ref="ui-inputbox.hover-animation" />
+        <alias ref="ui-inputbox-2px.selected.orange" />
+      </composed>
+      <alias ref="ui-inputbox-2px.selected.orange" />
+    </select>
+    <area name="ui-button.tinted.gold" xywh="322,116,29,29" splitx="L4,R4" splity="T4,B4" tint="#d4af37" />
+    <area name="ui-button.tinted.orange" xywh="322,116,29,29" splitx="L4,R4" splity="T4,B4" tint="#c68a55" />
+    <grid name="ui-inner-frame-tabbed.background" weightsX="0,1,0" inset="25,0,0,0" weightsY="0,0,1,0">
+      <area xywh="5,82,10,11" />
+      <area xywh="33,82,10,11" tiled="true" />
+      <area xywh="67,82,10,11" />
+      <area xywh="5,94,10,28" />
+      <area xywh="33,93,10,29" tiled="true" />
+      <area xywh="67,93,10,29" />
+      <area xywh="5,126,10,4" />
+      <area xywh="33,126,10,4" />
+      <area xywh="67,126,10,4" />
+      <area xywh="5,133,10,5" />
+      <area xywh="33,133,10,5" />
+      <area xywh="67,133,10,5" />
+    </grid>
+    <area name="ui-tab-vertical.active" xywh="4,281,34,17" splitx="L6,R0" inset="0,-18,0,0" />
+    <area name="ui-tab-vertical.default" xywh="25,281,34,17" splitx="L6,R0" inset="0,0,0,0" />
+    <select name="ui-tab-vertical.background">
+      <alias ref="ui-tab-vertical.active" if="selected" />
+      <alias ref="ui-tab-vertical.default" />
+    </select>
+    <area name="ui-tab.active" xywh="134,216,40,26" splitx="L12,R12" inset="0,0,0,0" />
+    <area name="ui-tab.inactive" xywh="72,216,40,22" splitx="L12,R12" inset="0,0,0,0" />
+    <animation name="ui-tab.hover-animation" timeSource="hover" count="1">
+      <frame duration="100" ref="ui-tab.inactive" tint="#C5C5C5" />
+      <frame duration="100" ref="ui-tab.inactive" tint="#CFCFCF" />
+      <frame duration="100" ref="ui-tab.inactive" tint="#D9D9D9" />
+      <frame duration="100" ref="ui-tab.inactive" tint="#E1E1E1" />
+      <frame duration="100" ref="ui-tab.inactive" tint="#EAEAEA" />
+      <frame duration="100" ref="ui-tab.inactive" tint="#F2F2F2" />
+    </animation>
+    <area name="ui-tab.default" xywh="72,216,40,22" splitx="L12,R12" inset="0,0,0,0" tint="#C5C5C5" />
+    <select name="ui-tab.background">
+      <alias ref="ui-tab.active" if="selected" />
+      <alias ref="ui-tab.hover-animation" if="hover" />
+      <alias ref="ui-tab.default" />
+    </select>
   </images>
   <images file="res/user-interface.png" filter="nearest">
     <area name="input.background" xywh="146,13,45,19" splitx="L5,R5" splity="T5,B5" border="3,0" />

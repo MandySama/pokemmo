@@ -15,5 +15,57 @@
     <area name="mobile.icons.battery-80" xywh="120,964,60,60" />
     <area name="mobile.icons.battery-90" xywh="180,964,60,60" />
     <area name="mobile.icons.battery-100" xywh="240,964,60,60" />
+    <grid name="mobile.frame.background" weightsX="0,1,0" weightsY="0,0,1,0">
+      <area xywh="33,0,14,9" />
+      <area xywh="60,0,14,9" />
+      <area xywh="122,0,14,9" />
+      <area xywh="33,9,14,60" />
+      <area xywh="60,9,14,60" />
+      <area xywh="122,9,14,60" />
+      <area xywh="33,69,14,7" />
+      <area xywh="60,69,14,7" />
+      <area xywh="122,69,14,7" />
+      <area xywh="33,76,14,50" />
+      <area xywh="80,76,14,50" />
+      <area xywh="122,76,14,50" />
+    </grid>
+    <area name="mobile.icons.save" xywh="560,960,60,60" />
+    <area name="mobile.tab.button" xywh="418,223,-201,4" />
+    <select name="mobile.tab.activeonly.background">
+      <alias ref="mobile.tab.button" if="active | selected" />
+    </select>
+    <area name="mobile.box.dark3" xywh="743,28,20,20" />
+    <alias name="mobile.box.dark3.50" ref="mobile.box.dark3" tint="#60FFFFFF" />
+    <select name="mobile.tab.background">
+      <alias ref="mobile.tab.button" if="active | selected" />
+      <alias ref="mobile.box.dark3.50" />
+    </select>
+    <select name="mobile.tab.inset.background">
+      <alias ref="mobile.tab.button" if="active | selected" inset="0,-10,0,0" />
+      <alias ref="mobile.box.dark3.50" inset="0,-10,0,0" />
+    </select>
+    <area name="mobile.tab.selected" xywh="435,328,10,9" sizeOverwriteH="60" sizeOverwriteV="60" />
+    <grid name="mobile.window.onebar.background" weightsX="1" weightsY="0,1">
+      <area xywh="372,9,15,60" sizeOverwriteV="60" />
+      <area xywh="372,69,15,600" sizeOverwriteV="660" tint="#FFFFFFFF" />
+    </grid>
+  </images>
+  <images file="res/ui-bottom-background.png" filter="linear">
+    <grid name="mobile.window.bottom.background" weightsX="1" weightsY="0,1,0">
+      <area xywh="0,0,1024,60" />
+      <area xywh="0,60,1024,600" />
+      <area xywh="0,660,1024,60" />
+    </grid>
+  </images>
+  <images file="res/android_ui.png" filter="nearest">
+    <animation name="mobile.tab.animation" timeSource="selected" count="1">
+      <frame duration="250" ref="mobile.tab.background" tint="#00FFFFFF" />
+      <frame duration="1" ref="mobile.tab.background" tint="#FFFFFFFF" />
+    </animation>
+    <area name="mobile.tab.backgrounddd" xywh="213,60,5,5" splitx="L1,R1" />
+    <animation name="mobile.tab.hover" timeSource="hover" count="1">
+      <frame duration="100" ref="mobile.tab.background" tint="#00FFFFFF" />
+      <frame duration="1" ref="mobile.tab.background" tint="#A0FFFFFF" />
+    </animation>
   </images>
 </themes>

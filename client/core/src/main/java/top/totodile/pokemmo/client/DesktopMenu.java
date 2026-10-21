@@ -5,12 +5,12 @@ import de.matthiasmann.twl.Widget;
 import java.util.ArrayList;
 import java.util.List;
 
-/** 参考 PC 登录页右下角的九个入口，按钮顺序及固定尺寸与参考相同。 */
-final class DesktopLoginMenu extends Widget {
+/** PC 端右下角菜单，按钮顺序及固定尺寸与参考客户端相同。 */
+final class DesktopMenu extends Widget {
     private final List<Button> buttons = new ArrayList<>();
     private static final int[] TEXT_IDS = {1172, 1175, 1190, 1005, 1006, 1007, 1124, 1008, 1009};
 
-    DesktopLoginMenu(ClientStrings strings) {
+    DesktopMenu(ClientStrings strings) {
         // 菜单按钮直接继承 logingui 下的标准 button 主题。
         setTheme("");
         // 点击时把焦点移到无背景的容器，取消原控件焦点；按钮本身不获得焦点。
@@ -22,6 +22,9 @@ final class DesktopLoginMenu extends Widget {
             add(button);
         }
     }
+
+    void onClientManagement(Runnable action) { buttons.get(1).addCallback(action); }
+    void onSettings(Runnable action) { buttons.get(7).addCallback(action); }
 
     @Override public int getPreferredInnerWidth() { return 200; }
     @Override public int getPreferredInnerHeight() { return buttons.size() * 26; }

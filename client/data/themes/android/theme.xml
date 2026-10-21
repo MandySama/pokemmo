@@ -17,6 +17,8 @@
   <include filename="../default/gfx_ui.xml" />
   <include filename="../default/init.xml" />
   <include filename="../default/main-widgets.xml" />
+  <include filename="../default/ui/settings.xml" />
   <include filename="gfx.xml" />
   <include filename="android.xml" />
+  <include filename="ui/android-settings.xml" />
 </themes>

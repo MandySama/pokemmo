@@ -350,7 +350,14 @@
         <image>none</image>
       </param>
       <param name="border">
-        <border>10,0</border>
+        <border>0,10,0,0</border>
+      </param>
+      <param name="namedGaps">
+        <map>
+          <param name="menu-header-right">
+            <gap>35,35,35</gap>
+          </param>
+        </map>
       </param>
       <theme name="scrollpane" ref="scrollpane">
         <theme name="hscrollbar" ref="hscrollbar" />
@@ -380,7 +387,7 @@
           <bool>false</bool>
         </param>
         <param name="border">
-          <border>50,30,10,10</border>
+          <border>50,30,10,0</border>
         </param>
         <theme name="dialoglayout" ref="-defaults">
           <param name="defaultGap">
@@ -520,6 +527,234 @@
   <theme name="mobile-battery-100" ref="mobile-battery" allowWildcard="true">
     <param name="background">
       <image>mobile.icons.battery-100</image>
+    </param>
+  </theme>
+  <theme name="mobile-panel" ref="base-frame">
+    <param name="background">
+      <image>mobile.window.bottom.background</image>
+    </param>
+    <param name="fadeDurationShow">
+      <int>200</int>
+    </param>
+    <param name="fadeDurationHide">
+      <int>1</int>
+    </param>
+    <param name="titleAreaTop">
+      <int>15</int>
+    </param>
+    <param name="titleAreaLeft">
+      <int>15</int>
+    </param>
+    <param name="titleAreaRight">
+      <int>-1</int>
+    </param>
+    <param name="titleAreaBottom">
+      <int>50</int>
+    </param>
+    <param name="closeButtonX">
+      <int>-64</int>
+    </param>
+    <param name="closeButtonY">
+      <int>0</int>
+    </param>
+    <theme name="title" ref="label" allowWildcard="true">
+      <param name="font">
+        <font>xlarge</font>
+      </param>
+    </theme>
+    <theme name="closeButton" ref="-defaults">
+      <param name="background">
+        <image>mobile.icons.close</image>
+      </param>
+      <param name="minWidth">
+        <int>60</int>
+      </param>
+      <param name="minHeight">
+        <int>60</int>
+      </param>
+    </theme>
+  </theme>
+  <theme name="mobile-gear-icon" ref="button" allowWildcard="true">
+    <param name="border">
+      <border>0</border>
+    </param>
+    <param name="background">
+      <image>mobile.icons.gear</image>
+    </param>
+    <param name="minWidth">
+      <int>60</int>
+    </param>
+    <param name="minHeight">
+      <int>60</int>
+    </param>
+  </theme>
+  <theme name="mobile-tabbox" ref="-defaults">
+    <param name="alignment">
+      <enum type="alignment">FILL</enum>
+    </param>
+    <param name="border">
+      <border>0,0,0,0</border>
+    </param>
+    <param name="spacing">
+      <int>0</int>
+    </param>
+    <theme name="tabbutton" ref="button">
+      <param name="minWidth">
+        <int>180</int>
+      </param>
+      <param name="minHeight">
+        <int>50</int>
+      </param>
+      <param name="">
+        <image>mobile.tab.*</image>
+      </param>
+      <param name="textAlignment">
+        <enum type="alignment">CENTER</enum>
+      </param>
+    </theme>
+  </theme>
+  <theme name="mobile-tabbox-inset" ref="mobile-tabbox">
+    <theme name="tabbutton" ref="tabbutton">
+      <param name="">
+        <image>mobile.tab.inset.*</image>
+      </param>
+    </theme>
+  </theme>
+  <theme name="mobile-combobox" ref="combobox" allowWildcard="true">
+    <param name="popupHeight">
+      <int>150</int>
+    </param>
+    <param name="font">
+      <font>med-noshadow-18-white</font>
+    </param>
+    <param name="border">
+      <border>0,8,0,8</border>
+    </param>
+    <param name="">
+      <image>ui-button.*</image>
+    </param>
+    <param name="minWidth">
+      <int>300</int>
+    </param>
+    <param name="minHeight">
+      <int>40</int>
+    </param>
+    <param name="textAlignment">
+      <enum type="alignment">CENTER</enum>
+    </param>
+    <theme name="display" ref="label">
+      <param name="font">
+        <font>med-noshadow-18-white</font>
+      </param>
+      <param name="focus">
+        <image>input.background</image>
+      </param>
+      <param name="border">
+        <border>0</border>
+      </param>
+      <param name="textAlignment">
+        <enum type="alignment">CENTER</enum>
+      </param>
+    </theme>
+    <theme name="button" ref="-defaults">
+      <param name="">
+        <image>ui-button-picker.*</image>
+      </param>
+      <param name="border">
+        <border>0,0,0,5</border>
+      </param>
+    </theme>
+  </theme>
+  <theme name="mobile-combobox-50" ref="mobile-combobox">
+    <param name="minHeight">
+      <int>50</int>
+    </param>
+  </theme>
+  <theme name="mobile-valueadjuster" ref="valueadjuster" allowWildcard="true">
+    <param name="background">
+      <image>none</image>
+    </param>
+    <param name="textAlignment">
+      <enum type="alignment">left</enum>
+    </param>
+    <param name="border">
+      <border>0</border>
+    </param>
+    <param name="minWidth">
+      <int>300</int>
+    </param>
+    <param name="minHeight">
+      <int>40</int>
+    </param>
+    <param name="font">
+      <font>med-noshadow-18-white</font>
+    </param>
+    <theme name="decButton" ref="button">
+      <param name="">
+        <image>ui-button.*</image>
+      </param>
+      <param name="text">
+        <string>-</string>
+      </param>
+      <param name="border">
+        <border>12,6</border>
+      </param>
+      <param name="minWidth">
+        <int>40</int>
+      </param>
+      <param name="font">
+        <font>med-noshadow-18-white</font>
+      </param>
+    </theme>
+    <theme name="incButton" ref="button">
+      <param name="">
+        <image>ui-button.*</image>
+      </param>
+      <param name="text">
+        <string>+</string>
+      </param>
+      <param name="border">
+        <border>12,6</border>
+      </param>
+      <param name="minWidth">
+        <int>40</int>
+      </param>
+      <param name="font">
+        <font>med-noshadow-18-white</font>
+      </param>
+    </theme>
+    <theme name="valueDisplay" ref="button">
+      <param name="">
+        <image>ui-button.*</image>
+      </param>
+      <param name="border">
+        <border>0,6</border>
+      </param>
+      <param name="minWidth">
+        <int>200</int>
+      </param>
+      <param name="font">
+        <font>med-noshadow-18-white</font>
+      </param>
+    </theme>
+  </theme>
+  <theme name="mobile-valueadjuster-50" ref="mobile-valueadjuster">
+    <param name="minHeight">
+      <int>50</int>
+    </param>
+  </theme>
+  <theme name="mobile-save-icon" ref="button" allowWildcard="true">
+    <param name="border">
+      <border>0</border>
+    </param>
+    <param name="background">
+      <image>mobile.icons.save</image>
+    </param>
+    <param name="minWidth">
+      <int>60</int>
+    </param>
+    <param name="minHeight">
+      <int>60</int>
     </param>
   </theme>
 </themes>

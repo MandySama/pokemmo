@@ -692,4 +692,89 @@
     </theme>
     <theme name="resizeHandle" ref="-defaults" />
   </theme>
+  <theme name="base-tabbed-pane" ref="-defaults" allowWildcard="true">
+    <param name="background">
+      <image>ui-inner-frame-tabbed.background</image>
+    </param>
+    <param name="border">
+      <border>0,0,0,0</border>
+    </param>
+    <theme name="tabbox" ref="-defaults">
+      <theme name="tabbutton" ref="-defaults">
+        <param name="background">
+          <image>ui-tab.background</image>
+        </param>
+        <param name="border">
+          <border>0,20,0,20</border>
+        </param>
+        <param name="font">
+          <font>pb-dark</font>
+        </param>
+      </theme>
+      <param name="border">
+        <border>0,10,0,0</border>
+      </param>
+      <param name="spacing">
+        <int>0</int>
+      </param>
+      <param name="alignment">
+        <enum type="alignment">FILL</enum>
+      </param>
+    </theme>
+    <theme name="container" ref="-defaults">
+      <param name="border">
+        <border>0,0,0,0</border>
+      </param>
+    </theme>
+    <param name="inputMap">
+      <inputMapDef>
+        <action name="nextTab">CTRL TAB</action>
+        <action name="prevTab">CTRL SHIFT TAB</action>
+      </inputMapDef>
+    </param>
+  </theme>
+  <theme name="valueadjuster" ref="-defaults" allowWildcard="true">
+    <param name="background">
+      <image>none</image>
+    </param>
+    <theme name="decButton" ref="button">
+      <param name="text">
+        <string>-</string>
+      </param>
+      <param name="border">
+        <border>0</border>
+      </param>
+      <param name="minWidth">
+        <int>16</int>
+      </param>
+    </theme>
+    <theme name="incButton" ref="button">
+      <param name="text">
+        <string>+</string>
+      </param>
+      <param name="border">
+        <border>0</border>
+      </param>
+      <param name="minWidth">
+        <int>16</int>
+      </param>
+    </theme>
+    <theme name="valueDisplay" ref="button">
+      <param name="border">
+        <border>0</border>
+      </param>
+    </theme>
+    <param name="width">
+      <int>100</int>
+    </param>
+    <param name="useMouseWheel">
+      <bool>true</bool>
+    </param>
+    <param name="displayPrefix">
+      <string />
+    </param>
+    <param name="displaySuffix">
+      <string />
+    </param>
+  </theme>
 </themes>

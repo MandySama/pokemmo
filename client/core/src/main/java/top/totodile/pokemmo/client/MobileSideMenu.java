@@ -5,7 +5,7 @@ import java.util.function.LongSupplier;
 
 /** 参考 MF0：登录阶段的单列侧栏，以及右上角入口的串行动画。 */
 final class MobileSideMenu extends Widget {
-    private static final int WIDTH = 600;
+    private static final int MIN_WIDTH = 600;
     private static final long STEP = 150;
     private final MobileStatusIcons status;
     private final LongSupplier clock;
@@ -16,7 +16,7 @@ final class MobileSideMenu extends Widget {
     private final Button close = new Button();
     private long started;
     private boolean opening, animating;
-    private float statusFrom, statusOffset, panelOffset = WIDTH;
+    private float statusFrom, statusOffset, panelOffset = MIN_WIDTH;
 
     MobileSideMenu(ClientStrings strings, MobileStatusIcons status, LongSupplier clock,
                    java.util.function.IntFunction<de.matthiasmann.twl.renderer.Image> icons) {
@@ -30,6 +30,9 @@ final class MobileSideMenu extends Widget {
         settings.setCanAcceptKeyboardFocus(false);
         close.setCanAcceptKeyboardFocus(false);
         close.addCallback(this::close);
+        // 侧栏使用 defaultGap；不让通用布局自动插入 smallGap。
+        content.setAddDefaultGaps(false);
+        entries.setAddDefaultGaps(false);
         var column = entries.createParallelGroup();
         var rows = entries.createSequentialGroup();
         int[] textIds = {1175, 1190, 1005, 1006, 1007, 1124, 1114};
@@ -55,18 +58,21 @@ final class MobileSideMenu extends Widget {
             entry.setMinSize(560, 64);
             entry.setMaxSize(560, 64);
             column.addWidget(entry);
+            if (index > 0) rows.addGap(DialogLayout.DEFAULT_GAP);
             rows.addWidget(entry);
         }
         entries.setHorizontalGroup(column);
         entries.setVerticalGroup(rows);
         scroll = new ScrollPane(entries);
+        scroll.setFixed(ScrollPane.Fixed.HORIZONTAL);
         scroll.setCanAcceptKeyboardFocus(false);
         var drag = scroll.createDragListener();
         for (int index = 0; index < entries.getNumChildren(); index++)
             ((DraggableButton) entries.getChild(index)).setListener(drag);
         content.setHorizontalGroup(content.createParallelGroup()
                 .addGroup(content.createSequentialGroup().addGap(0, 0, Short.MAX_VALUE)
-                        .addWidget(settings).addWidget(close))
+                        .addWidget(settings).addGap(DialogLayout.DEFAULT_GAP).addWidget(close)
+                        .addGap("menu-header-right"))
                 .addWidget(scroll));
         content.setVerticalGroup(content.createSequentialGroup()
                 .addGroup(content.createParallelGroup().addWidget(settings).addWidget(close))
@@ -75,13 +81,21 @@ final class MobileSideMenu extends Widget {
         setVisible(false);
     }
 
+    void onClientManagement(Runnable action) {
+        ((Button) entries.getChild(0)).addCallback(() -> { close(); action.run(); });
+    }
+
+    void onSettings(Runnable action) {
+        settings.addCallback(() -> { close(); action.run(); });
+    }
+
     void open() {
         if (isVisible()) return;
         update();
         opening = true;
         animating = true;
         statusFrom = statusOffset;
-        panelOffset = WIDTH;
+        panelOffset = panelWidth();
         started = clock.getAsLong();
         setVisible(true);
         status.setVisible(true);
@@ -96,7 +110,7 @@ final class MobileSideMenu extends Widget {
         animating = true;
         statusFrom = statusOffset;
         started = clock.getAsLong();
-        panelOffset = WIDTH;
+        panelOffset = panelWidth();
         setVisible(false);
         status.setVisible(true);
         position();
@@ -107,7 +121,7 @@ final class MobileSideMenu extends Widget {
             long elapsed = Math.max(0, clock.getAsLong() - started);
             if (opening) {
                 statusOffset = mix(statusFrom, status.getWidth() + 10, ease(elapsed));
-                panelOffset = mix(WIDTH, 0, ease(elapsed - STEP));
+                panelOffset = mix(panelWidth(), 0, ease(elapsed - STEP));
                 if (elapsed >= STEP * 2) {
                     animating = false;
                     status.setVisible(false);
@@ -123,10 +137,16 @@ final class MobileSideMenu extends Widget {
     void position() {
         Widget host = getParent();
         if (host == null) return;
-        setSize(WIDTH, host.getInnerHeight());
-        setPosition(host.getInnerRight() - WIDTH + Math.round(panelOffset), host.getInnerY());
+        int width = panelWidth();
+        setSize(width, host.getInnerHeight());
+        setPosition(host.getInnerRight() - width + Math.round(panelOffset), host.getInnerY());
         status.setPosition(host.getInnerRight() - status.getWidth() - 5 + Math.round(statusOffset),
                 host.getInnerY() + 5);
+    }
+
+    private int panelWidth() {
+        // 包含菜单项、滚动区域边框和外层留白，不能把固定宽菜单挤出可视区域。
+        return Math.max(MIN_WIDTH, content.getPreferredWidth());
     }
 
     private static float ease(long elapsed) {

@@ -17,4 +17,5 @@
   <include filename="gfx_ui.xml" />
   <include filename="init.xml" />
   <include filename="main-widgets.xml" />
+  <include filename="ui/settings.xml" />
 </themes>

@@ -23,7 +23,7 @@ public final class ClientApplication extends ApplicationAdapter {
     private SpriteBatch batch;
     private ClientResources resources;
     private ScrollingBackground background;
-    private LoginPanel loginPanel;
+    private ClientUi clientUi;
     private final Function<String, FileHandle> assets;
     private final LongSupplier clock;
     private final boolean mobile;
@@ -79,7 +79,7 @@ public final class ClientApplication extends ApplicationAdapter {
         }
         background = new ScrollingBackground(tiles, clock);
         loginController = new LoginController(loginService, Gdx.app::postRunnable);
-        loginPanel = new LoginPanel(uiViewport, resources, mobile, SavedAccounts.open(configDirectory.get()),
+        clientUi = new ClientUi(uiViewport, resources, mobile, SavedAccounts.open(configDirectory.get()),
                 () -> System.nanoTime() / 1_000_000L, loginController, batteryPercent);
     }
 
@@ -115,7 +115,7 @@ public final class ClientApplication extends ApplicationAdapter {
         // 所有前景共用安全区视口，布局、弹出列表和触摸坐标使用同一坐标系。
         uiViewport.apply();
         float uiWidth = uiViewport.getWorldWidth(), uiHeight = uiViewport.getWorldHeight();
-        loginPanel.draw(uiWidth, uiHeight, 0, 0);
+        clientUi.draw(uiWidth, uiHeight, 0, 0);
     }
 
     private void updateUiViewport() {
@@ -138,7 +138,7 @@ public final class ClientApplication extends ApplicationAdapter {
 
     @Override
     public void dispose() {
-        if (loginPanel != null) loginPanel.dispose();
+        if (clientUi != null) clientUi.dispose();
         // 背景纹理由 AssetManager 统一释放。
         if (sceneAssets != null) sceneAssets.dispose();
         if (batch != null) batch.dispose();
