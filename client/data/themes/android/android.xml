@@ -1,5 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
 <themes>
+  <theme name="character-summary-label" ref="label" overwrite="true">
+    <param name="font"><font>med-noshadow-22-white</font></param>
+  </theme>
   <theme name="hud-panel" ref="-defaults" allowWildcard="true">
     <param name="background">
       <image>ui-popup.background</image>
@@ -158,6 +161,9 @@
       <enum type="alignment">RIGHT</enum>
     </param>
     <theme name="login-panel" ref="base-frame" allowWildcard="true">
+      <param name="titleAreaRight">
+        <int>-10</int>
+      </param>
       <param name="border">
         <border>40,7,7,7</border>
       </param>

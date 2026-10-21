@@ -6,7 +6,7 @@ import de.matthiasmann.twl.*;
 import de.matthiasmann.twl.model.SimpleListModel;
 import java.util.List;
 
-/** 登录阶段的设置分类与控件展示；不读取、保存或应用游戏设置。 */
+/** 设置编辑与提交；关闭或取消时丢弃本次未保存的改动。 */
 final class SettingsWindow extends ClientWindow {
     private final boolean mobile;
     private final ClientStrings strings;
@@ -14,6 +14,11 @@ final class SettingsWindow extends ClientWindow {
     private final java.util.function.Consumer<de.matthiasmann.twl.renderer.Image> mobileBackground;
     private final SettingsTabs tabs;
     private final Button save;
+    private final ClientSettings preferences;
+    private record Binding(String initial, java.util.function.Supplier<String> read, java.util.function.Consumer<String> write) {}
+    private final java.util.Map<String,Binding> bindings = new java.util.LinkedHashMap<>();
+    private SettingsButton pendingKey;
+    private final java.util.Map<SettingsButton,String> keyBindings = new java.util.HashMap<>();
     private final ResizableFrame frame = new ResizableFrame() {
         private int headerActionRight;
         @Override protected void applyTheme(ThemeInfo theme) {
@@ -34,13 +39,15 @@ final class SettingsWindow extends ClientWindow {
     };
 
     SettingsWindow(Widget owner, ClientStrings strings, boolean mobile, Runnable onClose,
-                   java.util.function.Consumer<de.matthiasmann.twl.renderer.Image> mobileBackground) {
+                   java.util.function.Consumer<de.matthiasmann.twl.renderer.Image> mobileBackground,
+                   ClientSettings preferences) {
         super(owner);
         this.strings = strings;
         this.mobile = mobile;
         this.tabs = new SettingsTabs(mobile);
         this.onClose = onClose;
         this.mobileBackground = mobileBackground;
+        this.preferences = preferences;
         setTheme("");
         frame.setTheme("/settings-panel");
         frame.setTitle(strings.get(1200));
@@ -48,7 +55,7 @@ final class SettingsWindow extends ClientWindow {
         frame.setResizableAxis(ResizableFrame.ResizableAxis.NONE);
         frame.addCloseCallback(this::closePopup);
         save = new Button(strings.get(54));
-        // 目前保存按钮仅展示，避免让界面表现出已经应用设置。
+        save.addCallback(this::saveSettings);
         var outer = new DialogLayout() {
             @Override protected void layout() {
                 if (!mobile) { super.layout(); return; }
@@ -75,6 +82,50 @@ final class SettingsWindow extends ClientWindow {
         frame.add(outer);
         add(frame);
         buildPages();
+    }
+
+    private void bind(String key, java.util.function.Supplier<String> read, java.util.function.Consumer<String> write) {
+        Binding binding = new Binding(read.get(),read,write);
+        if (bindings.put(key,binding) != null) throw new IllegalArgumentException("Duplicate setting " + key);
+        write.accept(preferences.get(key,binding.initial()));
+    }
+    private void restoreSaved() {
+        pendingKey = null;
+        bindings.forEach((key,binding) -> binding.write().accept(preferences.get(key,binding.initial())));
+    }
+    private void saveSettings() {
+        java.util.Map<String,String> changes = new java.util.LinkedHashMap<>();
+        bindings.forEach((key,binding) -> changes.put(key,binding.read().get()));
+        try { preferences.save(changes); closePopup(); }
+        catch (RuntimeException error) {
+            Gdx.app.error("settings","Cannot save client settings",error);
+            showSaveError();
+        }
+    }
+    private ResizableFrame saveError;
+    private long saveErrorUntil;
+    private void showSaveError() {
+        if (saveError == null) {
+            saveError = new ResizableFrame(); saveError.setTheme("/notification");
+            saveError.setDraggable(false); saveError.setResizableAxis(ResizableFrame.ResizableAxis.NONE);
+            var content = new DialogLayout(); var text = new Label(strings.get(2103));
+            content.setHorizontalGroup(content.createParallelGroup(text));content.setVerticalGroup(content.createSequentialGroup(text));
+            saveError.add(content); add(saveError);
+        }
+        saveErrorUntil = System.nanoTime() / 1_000_000 + 5000;
+        saveError.setHardVisible(true);
+    }
+    @Override protected void paintWidget(GUI gui) {
+        if (saveError != null && saveError.isVisible()) {
+            if (System.nanoTime() / 1_000_000 >= saveErrorUntil) saveError.setHardVisible(false);
+            else { saveError.adjustSize(); saveError.setPosition(getX()+(getWidth()-saveError.getWidth())/2,getBottom()-100-saveError.getHeight()); }
+        }
+    }
+
+    boolean captureKey(int key) {
+        if (pendingKey == null || !isOpen()) return false;
+        if (key != com.badlogic.gdx.Input.Keys.ESCAPE && key != com.badlogic.gdx.Input.Keys.BACK) pendingKey.setText(com.badlogic.gdx.Input.Keys.toString(key));
+        pendingKey = null; return true;
     }
 
     private void buildPages() {
@@ -155,7 +206,7 @@ final class SettingsWindow extends ClientWindow {
         String[] keys = {"Z","X","S","A","Up","Down","Left","Right"};
         for (int i = 0; i < labels.length; i++) page.key(labels[i], keys[i]);
         if (mobile) { page.key(1363, "Page Down"); page.key(1364, "Page Up"); }
-        for (int i = 1; i <= 9; i++) page.row(strings.get(1306) + " " + i + ":", value(new SettingsButton(Integer.toString(i))));
+        for (int i = 1; i <= 9; i++) page.keyRow(strings.get(1306) + " " + i + ":", "hotbar"+i, Integer.toString(i));
         int[] remaining = {1309,1308,1307,1,1310,1312,1313,8000,1314,1311};
         String[] remainingKeys = {"M","B","C","N","D","J","H","Space","F12","F11"};
         for (int i = 0; i < remaining.length; i++) page.key(remaining[i], remainingKeys[i]);
@@ -225,17 +276,90 @@ final class SettingsWindow extends ClientWindow {
             toggle.setModel(new de.matthiasmann.twl.model.ToggleButtonModel());
             toggle.getModel().setSelected(active);
             toggle.getAnimationState().dontAnimate(Button.STATE_SELECTED);
+            bind(ClientSettings.key(label), () -> Boolean.toString(toggle.getModel().isSelected()), value -> {
+                toggle.getModel().setSelected(value.equals("true") ? true : value.equals("false") ? false : active);
+                toggle.getAnimationState().dontAnimate(Button.STATE_SELECTED);
+            });
             row(strings.get(label), value(toggle));
         }
-        void key(int label, String key) { row(strings.get(label), value(new SettingsButton(key))); }
-        void number(int label, String text) { row(strings.get(label), new NumberDisplay(text)); }
+        void key(int label, String key) {
+            String name = switch (label) {
+                case 1300 -> "key_a"; case 1301 -> "key_b"; case 1368 -> "key_x"; case 1369 -> "key_y";
+                case 1302 -> "key_up"; case 1303 -> "key_down"; case 1304 -> "key_left"; case 1305 -> "key_right";
+                case 1309 -> "friendlist"; case 1308 -> "bag"; case 1307 -> "trainer"; case 1 -> "codex";
+                case 1310 -> "gamemenu"; case 1312 -> "faq"; case 1313 -> "team"; case 8000 -> "tradelink";
+                case 1314 -> "screenshot"; case 1311 -> "hidegui"; case 1363 -> "key_forward"; case 1364 -> "key_backward";
+                default -> throw new IllegalArgumentException();
+            };
+            keyRow(strings.get(label),name,key);
+        }
+        void keyRow(String title,String name,String key) {
+            SettingsButton button = new SettingsButton(key);
+            String property = "client.controls.gdx." + name;
+            keyBindings.put(button,property);
+            button.addCallback(() -> pendingKey = button);
+            bind(property, () -> Integer.toString(com.badlogic.gdx.Input.Keys.valueOf(button.getText())), value -> {
+                try { int code=Integer.parseInt(value); String text=com.badlogic.gdx.Input.Keys.toString(code);
+                    button.setText(text == null || code < 0 || code > 255 ? key : text); }
+                catch (NumberFormatException error) { button.setText(key); }
+            });
+            row(title,value(button));
+        }
+        void number(int label, String text) {
+            NumberDisplay number = new NumberDisplay(label,text);
+            bind(ClientSettings.key(label),number::stored,number::restore);
+            row(strings.get(label), number);
+        }
         void choice(int label, int... options) {
             choice(label, java.util.Arrays.stream(options).mapToObj(strings::get).toArray(String[]::new));
         }
-        void choice(int label, String... options) { row(strings.get(label), value(new Choice(options))); }
+        void choice(int label, String... options) {
+            if (label == 1260) options = new String[]{preferences.get(ClientSettings.key(label),mobile?"android":"default")};
+            if (label == 1332) options = strings.languages().stream().map(code -> strings.languageName(code).split(" \\(",2)[0]).toArray(String[]::new);
+            if (label == 1290 || label == 1291) options = new String[]{"0.7x","0.8x","0.9x","1.0x","1.1x","1.2x","1.3x","1.4x","1.5x"};
+            if (label == 1293) options = new String[]{"10%","20%","30%","40%","50%","60%"};
+            if (label == 1247) options = new String[]{"50%","75%","100%","125%","150%","175%","200%"};
+            if (label == 1250) options = new String[]{preferences.get("client.graphics.width",Integer.toString(Gdx.graphics.getWidth())) + " x "
+                    + preferences.get("client.graphics.height",Integer.toString(Gdx.graphics.getHeight()))};
+            Choice choice = new Choice(options);
+            if (label == 1250) {
+                String[] dimensions=options[0].split(" x ");
+                bind("client.graphics.width",()->dimensions[0], value -> {});
+                bind("client.graphics.height",()->dimensions[1], value -> {});
+            } else {
+                String[] values = switch (label) {
+                    case 1253 -> new String[]{"1","0"}; case 7701 -> new String[]{"2","0"};
+                    case 1295 -> new String[]{"1","0","2","3"}; case 1319 -> new String[]{"1","0","2"};
+                    case 1318 -> new String[]{"2","0","1"}; case 1315 -> new String[]{"2","1","0"};
+                    case 1293,1247 -> java.util.Arrays.stream(options).map(value -> Double.toString(Double.parseDouble(value.replace("%",""))/100)).toArray(String[]::new);
+                    case 1290,1291 -> java.util.Arrays.stream(options).map(value -> value.replace("x","")).toArray(String[]::new);
+                    case 1332 -> strings.languages().toArray(String[]::new);
+                    case 1365 -> new String[]{preferences.get(ClientSettings.key(label),"")};
+                    case 1260,1217 -> options.clone();
+                    default -> java.util.stream.IntStream.range(0,options.length).mapToObj(Integer::toString).toArray(String[]::new);
+                };
+                int defaultIndex = switch(label) {
+                    case 1290,1291 -> 3; case 1293 -> 1; case 1247 -> 2;
+                    case 1332 -> Math.max(0,java.util.Arrays.asList(values).indexOf(strings.language()));
+                    default -> 0;
+                };
+                choice.select(defaultIndex);
+                bind(ClientSettings.key(label), () -> values[choice.selected], value -> {
+                    int index=java.util.Arrays.asList(values).indexOf(value);
+                    if (index < 0 && (label==1290 || label==1291 || label==1293 || label==1247)) {
+                        try { double numeric=Double.parseDouble(value);
+                            for(int i=0;i<values.length;i++)if(Double.parseDouble(values[i])==numeric)index=i;
+                        } catch(NumberFormatException ignored) {}
+                    }
+                    choice.select(index < 0 ? defaultIndex : index);
+                });
+            }
+            row(strings.get(label), value(choice));
+        }
         void button(int label, int caption) { row(strings.get(label), value(new SettingsButton(strings.get(caption)))); }
         void button(int caption) {
             Button button = new SettingsButton(strings.get(caption));
+            if (caption == 1388) button.addCallback(() -> keyBindings.forEach((control,key) -> bindings.get(key).write().accept(bindings.get(key).initial())));
             prepareControl(button);
             columns.addWidget(button); rows.addGap(DialogLayout.DEFAULT_GAP).addWidget(button);
             setWidgetAlignment(button, Alignment.TOPLEFT); spanningControls.add(button);
@@ -351,13 +475,60 @@ final class SettingsWindow extends ClientWindow {
         ((SettingsScrollPane)tabs.selectedPage()).cancelFling();
     }
 
-    private static final class NumberDisplay extends Widget {
+    private final class NumberDisplay extends Widget {
         private final Button minus = new SettingsButton("-"), plus = new SettingsButton("+"), display;
-        NumberDisplay(String text) {
+        private final int label, initial;
+        private final int[] values;
+        private int selected;
+        NumberDisplay(int label,String text) {
+            this.label = label;
+            int min=0,max=100,step=1;
+            switch (label) {
+                case 1254 -> { max=1000; step=10; }
+                case 1237,1238 -> { min=1;max=4; }
+                case 1325 -> { min=1;max=6; }
+                default -> {}
+            }
+            values = label == 1264 ? new int[]{0,2,4,8,16} : label == 1221 ? new int[]{-1,2,3,4,5,6,7,8}
+                    : java.util.stream.IntStream.iterate(min,value -> value + stepValue(label)).limit((max-min)/step+1).toArray();
+            int parsed;
+            try { parsed = Integer.parseInt(text.replaceAll("[^0-9]","")); }
+            catch (NumberFormatException error) { parsed = label == 1221 ? -1 : 0; }
+            initial = parsed;
             setTheme("label-settings-vai");
             display = new SettingsButton(text);
             minus.setTheme("decButton"); plus.setTheme("incButton"); display.setTheme("valueDisplay");
             add(minus); add(display); add(plus);
+            minus.addCallback(() -> change(-1)); plus.addCallback(() -> change(1));
+            restore(label == 1283 ? Double.toString(initial/100.0) : Integer.toString(initial));
+        }
+        private int stepValue(int label) { return label == 1254 ? 10 : 1; }
+        private void change(int delta) { selected=Math.max(0,Math.min(values.length-1,selected+delta)); updateText(); }
+        String stored() { return label == 1283 ? Double.toString(values[selected]/100.0) : Integer.toString(values[selected]); }
+        void restore(String text) {
+            int number;
+            try { number = label == 1283 ? (int)Math.round(Double.parseDouble(text)*100) : Integer.parseInt(text); }
+            catch (NumberFormatException error) { number = initial; }
+            selected = -1;
+            for (int i=0;i<values.length;i++) if(values[i]==number)selected=i;
+            if (selected < 0) {
+                selected = 0;
+                for (int i=0;i<values.length;i++) if(values[i]==initial)selected=i;
+            }
+            updateText();
+        }
+        private void updateText() {
+            int number=values[selected];
+            String text = switch (label) {
+                case 1254 -> number==0 ? strings.get(1220) : Integer.toString(number);
+                case 1221 -> number<0 ? strings.get(1220) : number+"x";
+                case 1264 -> number==0 ? strings.get(1265) : number+"x";
+                case 1241 -> number==0 ? strings.get(1240) : Integer.toString(number);
+                case 1237,1238,1325 -> number+"x";
+                case 1274,1283 -> number+"%";
+                default -> Integer.toString(number);
+            };
+            display.setText(text); invalidateLayout();
         }
         @Override public int getPreferredInnerWidth() { return minus.getPreferredWidth() + display.getPreferredWidth() + plus.getPreferredWidth(); }
         @Override public int getPreferredInnerHeight() { return Math.max(display.getPreferredHeight(), Math.max(minus.getPreferredHeight(), plus.getPreferredHeight())); }
@@ -369,7 +540,7 @@ final class SettingsWindow extends ClientWindow {
         }
     }
 
-    /** 下拉仅改变界面展示值，不接配置服务。 */
+    /** 显示文本与保存值分别映射，配置不依赖当前语言。 */
     private static final class Choice extends SettingsButton {
         private final Label display = new Label(getAnimationState()) {
             @Override protected boolean handleEvent(Event event) { return false; }
@@ -379,6 +550,7 @@ final class SettingsWindow extends ClientWindow {
         private final List<String> options;
         private ListBox<String> list;
         private int popupHeight;
+        private int selected;
         Choice(String[] options) {
             super("");
             this.options = List.of(options);
@@ -386,6 +558,7 @@ final class SettingsWindow extends ClientWindow {
             display.setClip(true); add(display); add(arrow); display.setText(options[0]);
             popup.setTheme("/comboboxPopup"); addCallback(this::openChoices);
         }
+        void select(int index) { selected=index; display.setText(options.get(index)); }
         @Override protected void applyTheme(ThemeInfo theme) {
             super.applyTheme(theme); popupHeight = theme.getParameter("popupHeight", 150);
         }
@@ -406,7 +579,7 @@ final class SettingsWindow extends ClientWindow {
             list.setTheme("listbox"); list.setSelected(options.indexOf(display.getText()));
             list.addCallback(reason -> {
                 if (reason.actionRequested() && list.getSelected() >= 0) {
-                    display.setText(options.get(list.getSelected())); popup.closePopup();
+                    select(list.getSelected()); popup.closePopup();
                 }
             });
             popup.removeAllChildren(); popup.add(list);
@@ -427,6 +600,8 @@ final class SettingsWindow extends ClientWindow {
 
     void open() {
         if (isOpen()) { raiseWindow(); return; }
+        restoreSaved();
+        if (saveError != null) saveError.setHardVisible(false);
         tabs.select(0);
         tabs.selectedPage().setScrollPositionY(0);
         if (openPopup()) { positionWindow(); frame.setHardVisible(true); }
@@ -443,6 +618,12 @@ final class SettingsWindow extends ClientWindow {
     }
     @Override public void closePopup() {
         cancelTouch();
+        closeChoices(this);
+        restoreSaved();
         boolean wasOpen = isOpen(); super.closePopup(); if (wasOpen) onClose.run();
+    }
+    private static void closeChoices(Widget widget) {
+        if (widget instanceof Choice choice) choice.popup.closePopup();
+        for (int i=0;i<widget.getNumChildren();i++) closeChoices(widget.getChild(i));
     }
 }

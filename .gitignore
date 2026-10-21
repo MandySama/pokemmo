@@ -43,3 +43,9 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+# 本地单机角色存档
+save/
+
+# Local ROM files
+/client/roms/

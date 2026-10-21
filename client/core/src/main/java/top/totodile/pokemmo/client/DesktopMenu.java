@@ -24,6 +24,8 @@ final class DesktopMenu extends Widget {
     }
 
     void onClientManagement(Runnable action) { buttons.get(1).addCallback(action); }
+    void onMods(Runnable action) { buttons.get(2).addCallback(action); }
+
     void onExit(Runnable action) { buttons.get(8).addCallback(action); }
 
     void onSettings(Runnable action) { buttons.get(7).addCallback(action); }

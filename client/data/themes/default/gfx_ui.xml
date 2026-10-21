@@ -367,4 +367,21 @@
   <images file="res/pokemmo_ui.png" filter="nearest">
     <area name="ui-popup-button.default" xywh="0,0,44,14" tint="#00FFFFFF" />
   </images>
+  <images file="res/user-interface.png" filter="nearest">
+    <area name="color-picker-selected" xywh="5,308,13,11" splitx="L2,R2" splity="T2,B2" inset="0,0" />
+    <area name="color-picker" xywh="90,308,13,11" splitx="L2,R2" splity="T2,B2" inset="0,0" />
+    <area name="color-picker-disabled" xywh="116,308,13,11" splitx="L2,R2" splity="T2,B2" inset="0,0" />
+    <area name="color-picker-disabled-active" xywh="145,308,13,11" splitx="L2,R2" splity="T2,B2" inset="0,0" />
+    <select name="color-picker.background">
+      <alias ref="color-picker-disabled-active" if="disabled + keyboardFocus" />
+      <alias ref="color-picker-disabled" if="disabled" />
+      <alias ref="color-picker-selected" if="keyboardFocus | selected | hover" />
+      <alias ref="color-picker" />
+    </select>
+  </images>
+  <images file="../../sprites/atlas/main.png" filter="nearest">
+    <area name="customization.colorswatch" xywh="462,22,16,16" />
+    <area name="customization.preview-previous" xywh="426,22,16,16" />
+    <area name="customization.preview-next" xywh="564,82,16,16" />
+  </images>
 </themes>

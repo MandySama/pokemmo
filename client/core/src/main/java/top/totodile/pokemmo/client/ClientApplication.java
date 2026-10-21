@@ -30,6 +30,12 @@ public final class ClientApplication extends ApplicationAdapter {
     private final Supplier<FileHandle> configDirectory;
     private final java.util.function.IntSupplier batteryPercent;
     private AssetManager sceneAssets;
+    private top.totodile.pokemmo.server.game.GameService gameService;
+
+    public ClientApplication withGameService(top.totodile.pokemmo.server.game.GameService service) {
+        gameService = java.util.Objects.requireNonNull(service);
+        return this;
+    }
 
     public ClientApplication(Function<String, FileHandle> assets, boolean mobile, LongSupplier clock,
                              top.totodile.pokemmo.server.login.LoginService loginService) {
@@ -80,7 +86,7 @@ public final class ClientApplication extends ApplicationAdapter {
         background = new ScrollingBackground(tiles, clock);
         loginController = new LoginController(loginService, Gdx.app::postRunnable);
         clientUi = new ClientUi(uiViewport, resources, mobile, SavedAccounts.open(configDirectory.get()),
-                () -> System.nanoTime() / 1_000_000L, loginController, batteryPercent);
+                () -> System.nanoTime() / 1_000_000L, loginController, batteryPercent, () -> Gdx.app.exit(), gameService);
     }
 
     /** 后续角色/世界入口从此取得选择结果，不需要访问登录界面或密码。 */
@@ -139,6 +145,7 @@ public final class ClientApplication extends ApplicationAdapter {
     @Override
     public void dispose() {
         if (clientUi != null) clientUi.dispose();
+        if (gameService != null) gameService.close();
         // 背景纹理由 AssetManager 统一释放。
         if (sceneAssets != null) sceneAssets.dispose();
         if (batch != null) batch.dispose();

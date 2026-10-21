@@ -35,7 +35,10 @@ final class ClientUi implements Disposable {
     private final MobileStatusIcons mobileStatus;
     private final MobileSideMenu mobileMenu;
     private final ClientManagementWindow clientManagement;
+    private final ModManagementWindow mods;
     private final SettingsWindow settings;
+    private final CharacterCreationWindow characterCreation;
+    private final CharacterDeleteWindow characterDelete;
     private final ExitConfirmation exitConfirmation;
     private final Label fps = new Label("0.00");
     private final FrameRateCounter frameRate = new FrameRateCounter(System::nanoTime);
@@ -44,6 +47,10 @@ final class ClientUi implements Disposable {
     private final boolean mobile;
     private final LongSupplier notificationClock;
     private int offsetX, offsetY;
+    private final top.totodile.pokemmo.server.game.GameService gameService;
+    private top.totodile.pokemmo.server.login.LoginService.Selection characterSelection;
+    private boolean creatingCharacter;
+    private boolean disposed;
 
     ClientUi(Viewport viewport, Function<String, FileHandle> assets, boolean mobile,
                SavedAccounts savedAccounts, LoginController controller) {
@@ -64,6 +71,14 @@ final class ClientUi implements Disposable {
     ClientUi(Viewport viewport, Function<String, FileHandle> assets, boolean mobile,
              SavedAccounts savedAccounts, LongSupplier notificationClock, LoginController controller,
              java.util.function.IntSupplier batteryPercent, Runnable exit) {
+        this(viewport, assets, mobile, savedAccounts, notificationClock, controller, batteryPercent, exit, null);
+    }
+
+    ClientUi(Viewport viewport, Function<String, FileHandle> assets, boolean mobile,
+             SavedAccounts savedAccounts, LongSupplier notificationClock, LoginController controller,
+             java.util.function.IntSupplier batteryPercent, Runnable exit,
+             top.totodile.pokemmo.server.game.GameService gameService) {
+        this.gameService = gameService;
         this.controller = controller;
         this.mobile = mobile;
         this.notificationClock = notificationClock;
@@ -121,7 +136,7 @@ final class ClientUi implements Disposable {
         };
         loginPanel = new LoginPanel(root, strings, mobile, savedAccounts, notificationClock, controller);
         if (mobileStatus != null) mobileStatus.onMenu(() -> {
-            loginPanel.hideKeyboard();
+            hideEditors();
             mobileMenu.open();
         });
         root.setTheme("logingui");
@@ -140,18 +155,34 @@ final class ClientUi implements Disposable {
         java.util.function.Consumer<de.matthiasmann.twl.renderer.Image> mobileBackground =
                 image -> renderer.drawScreenBackground(image, root.getAnimationState());
         clientManagement = new ClientManagementWindow(root, strings, mobile, restoreFocus, mobileBackground);
-        settings = new SettingsWindow(root, strings, mobile, restoreFocus, mobileBackground);
+        mods = new ModManagementWindow(root, strings, mobile, restoreFocus, mobileBackground);
+        settings = new SettingsWindow(root, strings, mobile, restoreFocus, mobileBackground, resources.preferences());
+        characterCreation = new CharacterCreationWindow(root, strings, mobile, () -> {
+            characterPage.setVisible(controller.state() == LoginController.State.SELECTED);
+            restoreWindowFocus();
+        }, mobileBackground, new CharacterAppearance(resources.apply("sprites/addons.pak"), strings), renderer, notificationClock);
+        characterPage.onNewCharacter(() -> {
+            characterCreation.open();
+            if (characterCreation.isOpen()) characterPage.setVisible(false);
+        });
+        characterCreation.onCreate(this::createCharacter);
+        characterDelete = new CharacterDeleteWindow(root, strings, mobile, restoreFocus, mobileBackground, this::deleteCharacter);
+        characterPage.onDeleteCharacter(() -> characterDelete.open(characterPage.characters()));
         exitConfirmation = mobile ? new ExitConfirmation(root, strings, exit, restoreFocus, mobileBackground) : null;
         Runnable requestExit = () -> {
             loginPanel.hideKeyboard();
+            characterCreation.hideKeyboard();
             if (mobile) exitConfirmation.open(); else exit.run();
         };
         if (desktopMenu != null) desktopMenu.onExit(requestExit);
         if (mobileMenu != null) mobileMenu.onExit(requestExit);
-        Runnable openManagement = () -> { loginPanel.hideKeyboard(); clientManagement.open(); };
+        Runnable openManagement = () -> { loginPanel.hideKeyboard(); characterCreation.hideKeyboard(); clientManagement.open(); };
         if (desktopMenu != null) desktopMenu.onClientManagement(openManagement);
         if (mobileMenu != null) mobileMenu.onClientManagement(openManagement);
-        Runnable openSettings = () -> { loginPanel.hideKeyboard(); settings.open(); };
+        Runnable openMods = () -> { hideEditors(); mods.open(); };
+        if (desktopMenu != null) desktopMenu.onMods(openMods);
+        if (mobileMenu != null) mobileMenu.onMods(openMods);
+        Runnable openSettings = () -> { loginPanel.hideKeyboard(); characterCreation.hideKeyboard(); settings.open(); };
         if (desktopMenu != null) desktopMenu.onSettings(openSettings);
         if (mobileMenu != null) mobileMenu.onSettings(openSettings);
         theme = loadTheme(resources.selectedTheme());
@@ -164,7 +195,8 @@ final class ClientUi implements Disposable {
             @Override public boolean touchDown(int x,int y,int pointer,int button){
                 if (pointer != 0) return false;
                 Vector2 point = viewport.unproject(new Vector2(x,y));
-                if (exitConfirmation == null || !exitConfirmation.isOpen()) settings.touchDown(Math.round(point.x), renderer.getHeight()-Math.round(point.y), x, y, button);
+                if ((exitConfirmation == null || !exitConfirmation.isOpen()) && !characterCreation.isAbove(settings))
+                    settings.touchDown(Math.round(point.x), renderer.getHeight()-Math.round(point.y), x, y, button);
                 return pointer(x,y,button,true);
             }
             @Override public boolean touchUp(int x,int y,int pointer,int button){
@@ -184,13 +216,17 @@ final class ClientUi implements Disposable {
             }
             @Override public boolean mouseMoved(int x,int y){return pointer(x,y,-1,false);}
             @Override public boolean keyDown(int key){
+                if (settings.captureKey(key)) return true;
                 if(key==Input.Keys.ESCAPE || key==Input.Keys.BACK){
                     if(exitConfirmation != null && exitConfirmation.isOpen()) exitConfirmation.closePopup();
-                    else if(settings.isAbove(clientManagement)) {
+                    else if(characterDelete.isOpen()) characterDelete.closePopup();
+                    else if(settings.isAbove(clientManagement) && settings.isAbove(characterCreation) && settings.isAbove(mods)) {
                         settings.back();
                     }
-                    else if(clientManagement.isOpen())clientManagement.closePopup();
+                    else if(mods.isAbove(clientManagement) && mods.isAbove(characterCreation))mods.closePopup();
+                    else if(clientManagement.isAbove(characterCreation))clientManagement.closePopup();
                     else if(mobileMenu!=null && mobileMenu.isVisible())mobileMenu.close();
+                    else if(characterCreation.isOpen())characterCreation.back();
                     else if(loginPanel.hasNativeEditor())loginPanel.hideKeyboard();
                     else if(controller.state()!=LoginController.State.LOGIN)controller.back();
                     else if(!gui.handleKey(Event.KEY_ESCAPE,'\0',true))loginPanel.hideKeyboard();
@@ -215,9 +251,15 @@ final class ClientUi implements Disposable {
         controller.listen(this::refreshLoginState);
         loginPanel.focusDefault();
     }
+    private void hideEditors() {
+        loginPanel.hideKeyboard();
+        characterCreation.hideKeyboard();
+    }
     private void restoreWindowFocus() {
-        if (settings.isAbove(clientManagement)) settings.raiseWindow();
-        else if (clientManagement.isOpen()) clientManagement.raiseWindow();
+        if (settings.isAbove(clientManagement) && settings.isAbove(characterCreation) && settings.isAbove(mods)) settings.raiseWindow();
+        else if (mods.isAbove(clientManagement) && mods.isAbove(characterCreation)) mods.raiseWindow();
+        else if (clientManagement.isAbove(characterCreation)) clientManagement.raiseWindow();
+        else if (characterCreation.isOpen()) characterCreation.raiseWindow();
         else if (controller.state() == LoginController.State.LOGIN) loginPanel.focusDefault();
         else if (controller.state() == LoginController.State.SELECTED) characterPage.focusDefault();
         else if (controller.state() == LoginController.State.SERVERS) serverFrame.focusDefault();
@@ -288,10 +330,17 @@ final class ClientUi implements Disposable {
         boolean loginPage = controller.state() == LoginController.State.LOGIN
                 || controller.state() == LoginController.State.LOGGING_IN;
         boolean characters = controller.state() == LoginController.State.SELECTED;
+        if (!characters && characterDelete.isOpen()) characterDelete.closePopup();
+        if (characterSelection != controller.selection()) {
+            characterSelection = controller.selection();
+            characterPage.clearCards();
+            if (characters) loadCharacters(characterSelection);
+        }
+        if (!characters && characterCreation.isOpen()) characterCreation.closePopup();
         logo.setVisible(!characters);
         boolean enteringCharacters = characters && !characterPage.isVisible();
         serverFrame.setHardVisible(!loginPage && !characters);
-        characterPage.setVisible(characters);
+        characterPage.setVisible(characters && !characterCreation.isOpen());
         romInfo.setVisible(!characters);
         announcements.setHardVisible(!characters);
         if (desktopMenu != null) desktopMenu.setVisible(!characters);
@@ -300,7 +349,61 @@ final class ClientUi implements Disposable {
         root.invalidateLayout();
     }
 
+    private void loadCharacters(top.totodile.pokemmo.server.login.LoginService.Selection selection) {
+        if (gameService == null) return;
+        gameService.characters(selection).whenComplete((characters, error) -> Gdx.app.postRunnable(() -> {
+            if (disposed || selection != controller.selection()) return;
+            if (error != null) { Gdx.app.error("game", "Cannot load local characters", error); return; }
+            characterPage.characters(characters, strings, mobile, renderer, characterCreation::savedAppearance);
+            if (!characterCreation.isOpen()) characterPage.focusDefault();
+        }));
+    }
+    private void createCharacter() {
+        var selection = controller.selection();
+        if (gameService == null || creatingCharacter || selection == null || !characterCreation.isOpen()) return;
+        creatingCharacter = true;
+        long version = characterCreation.version();
+        gameService.create(selection, characterCreation.characterName(), characterCreation.selectedAppearance())
+                .whenComplete((character, error) -> Gdx.app.postRunnable(() -> {
+                    if (disposed) return;
+                    creatingCharacter = false;
+                    if (selection != controller.selection()) return;
+                    if (error == null) {
+                        loadCharacters(selection);
+                        if (version == characterCreation.version()) characterCreation.closePopup();
+                    } else if (version == characterCreation.version()) {
+                        Throwable cause = error;
+                        while (cause instanceof java.util.concurrent.CompletionException && cause.getCause() != null) cause = cause.getCause();
+                        int id = cause instanceof top.totodile.pokemmo.server.game.GameService.Rejected rejected
+                                ? switch (rejected.reason) {
+                                    case INVALID_NAME -> 2101;
+                                    case NAME_TAKEN -> 2102;
+                                    case ACCOUNT_FULL -> 2100;
+                                    default -> 2103;
+                                } : 2103;
+                        characterCreation.creationError(id);
+                        if (id == 2103) Gdx.app.error("game", "Cannot create local character", cause);
+                    }
+                }));
+    }
+
+    private void deleteCharacter(top.totodile.pokemmo.server.game.GameService.Character character) {
+        var selection = controller.selection();
+        if (gameService == null || selection == null) return;
+        long version = characterDelete.version();
+        gameService.delete(selection, character.id()).whenComplete((ignored,error) -> Gdx.app.postRunnable(() -> {
+            if (disposed || selection != controller.selection()) return;
+            if (error == null) {
+                if (version == characterDelete.version()) characterDelete.closePopup();
+                loadCharacters(selection);
+            } else if (version == characterDelete.version()) {
+                characterDelete.failure(2103); Gdx.app.error("game","Cannot delete local character",error);
+            }
+        }));
+    }
+
     void draw(float width,float height,float x,float y) {
+        fps.setVisible(Boolean.parseBoolean(resources.preferences().get("client.graphics.show_fps","true")));
         if (mobileStatus != null) mobileStatus.update(System.nanoTime());
         if (mobileMenu != null) mobileMenu.update();
         fps.setText(frameRate.frame());
@@ -310,7 +413,10 @@ final class ClientUi implements Disposable {
         loginPanel.updateNotifications();
         gui.update();
         clientManagement.positionWindow();
+        mods.positionWindow();
         settings.positionWindow();
+        characterCreation.positionWindow();
+        characterDelete.positionWindow();
         if (exitConfirmation != null) exitConfirmation.positionWindow();
     }
     private static void invalidateFontLayout(Widget widget) {
@@ -319,8 +425,12 @@ final class ClientUi implements Disposable {
         widget.invalidateLayout();
     }
     @Override public void dispose() {
+        disposed = true;
+        characterDelete.closePopup();
+        characterPage.clearCards();
         loginPanel.dispose();
         controller.close();
+        characterCreation.dispose();
         if(Gdx.input.getInputProcessor()==input)Gdx.input.setInputProcessor(null);
         gui.destroy();theme.destroy();renderer.close();
         if (ownsResources) resources.close();

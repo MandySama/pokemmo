@@ -21,4 +21,6 @@
   <include filename="gfx.xml" />
   <include filename="android.xml" />
   <include filename="ui/android-settings.xml" />
+  <include filename="../default/ui/customization.xml" />
+  <include filename="ui/android-customization.xml" />
 </themes>

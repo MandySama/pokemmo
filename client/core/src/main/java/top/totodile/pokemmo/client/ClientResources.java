@@ -24,16 +24,14 @@ final class ClientResources implements Function<String, FileHandle>, AutoCloseab
     private final Map<String, Theme> themes = new LinkedHashMap<>();
     private final Properties settings = new Properties();
     private final boolean mobile;
+    private final ClientSettings preferences;
 
     ClientResources(Function<String, FileHandle> bundled, FileHandle config, boolean mobile) {
         this.bundled = bundled;
         this.writable = config.parent().child("data");
         this.mobile = mobile;
-        FileHandle properties = config.child("main.properties");
-        if (properties.exists()) {
-            try (InputStream input = properties.read()) { settings.load(input); }
-            catch (IOException error) { throw new IllegalStateException("Cannot read client settings", error); }
-        }
+        preferences = new ClientSettings(config);
+        settings.putAll(preferences.snapshot());
         roots.add(path -> writable.child(withoutData(path)));
         roots.add(path -> base(withoutData(path)));
         themes.put("default", new Theme("default", "data/themes/default/", false, this::global));
@@ -239,6 +237,7 @@ final class ClientResources implements Function<String, FileHandle>, AutoCloseab
         } catch (Exception error) { LOG.log(Level.WARNING,"Error loading resource package " + file.path(),error); }
     }
 
+    ClientSettings preferences() { return preferences; }
     ClientStrings strings() {
         return new ClientStrings(settings.getProperty("client.ui.chat.language.current_language"),
                 stringSources.toArray(ClientStrings.Source[]::new));

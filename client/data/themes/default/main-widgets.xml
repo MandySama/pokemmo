@@ -1,5 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
 <themes>
+  <theme name="character-summary-label" ref="label">
+    <param name="font"><font>pb-dark</font></param>
+  </theme>
   <theme name="logingui" ref="-defaults">
     <theme name="logo" ref="-defaults">
       <param name="background">
@@ -41,6 +44,9 @@
       <enum type="alignment">RIGHT</enum>
     </param>
     <theme name="login-panel" ref="base-frame" allowWildcard="true">
+      <param name="titleAreaRight">
+        <int>-10</int>
+      </param>
       <param name="defaultGap">
         <dimension>5,5</dimension>
       </param>

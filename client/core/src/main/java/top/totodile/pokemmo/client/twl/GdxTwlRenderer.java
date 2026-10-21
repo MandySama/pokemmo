@@ -76,6 +76,11 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
         return true;
     }
     void trackFont(GdxTwlFont font) { fonts.add(font); }
+    /** 纹理由调用方管理；沿用主题图像相同的坐标、裁剪和着色流程。 */
+    public Image image(com.badlogic.gdx.graphics.Texture texture) {
+        return new Atlas(texture).getImage(0, 0, texture.getWidth(), texture.getHeight(), Color.WHITE, false,
+                de.matthiasmann.twl.renderer.Texture.Rotation.NONE);
+    }
     com.badlogic.gdx.graphics.g2d.PixmapPacker fontPacker(boolean unique) {
         if (!unique && sharedFontPacker != null) return sharedFontPacker;
         var packer = new com.badlogic.gdx.graphics.g2d.PixmapPacker(unique ? 2048 : 1024, unique ? 2048 : 1024,
@@ -221,9 +226,13 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
         float sx = (float) viewport.getScreenWidth() / getWidth();
         float sy = (float) viewport.getScreenHeight() / getHeight();
         Gdx.gl.glEnable(GL20.GL_SCISSOR_TEST);
-        Gdx.gl.glScissor(viewport.getScreenX() + Math.round(rect.getX()*sx),
-                viewport.getScreenY() + Math.round((getHeight()-rect.getBottom())*sy),
-                Math.max(0, Math.round(rect.getWidth()*sx)), Math.max(0, Math.round(rect.getHeight()*sy)));
+        // 四条边使用同一坐标换算；分别取整起点和宽高会使相邻图块差一个屏幕像素。
+        int left = Math.round(rect.getX() * sx);
+        int right = Math.round(rect.getRight() * sx);
+        int bottom = Math.round((getHeight() - rect.getBottom()) * sy);
+        int top = Math.round((getHeight() - rect.getY()) * sy);
+        Gdx.gl.glScissor(viewport.getScreenX() + left, viewport.getScreenY() + bottom,
+                Math.max(0, right - left), Math.max(0, top - bottom));
     }
     public void setCursor(MouseCursor cursor) {
         if (Gdx.app.getType() != ApplicationType.Desktop) return;

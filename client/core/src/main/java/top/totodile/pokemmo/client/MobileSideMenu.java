@@ -85,6 +85,10 @@ final class MobileSideMenu extends Widget {
         ((Button) entries.getChild(0)).addCallback(() -> { close(); action.run(); });
     }
 
+    void onMods(Runnable action) {
+        ((Button) entries.getChild(1)).addCallback(() -> { close(); action.run(); });
+    }
+
     void onExit(Runnable action) {
         ((Button) entries.getChild(6)).addCallback(() -> { close(); action.run(); });
     }

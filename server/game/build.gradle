@@ -1,1 +1,1 @@
-// 预留游戏世界服务模块；尚未实现角色、地图和战斗功能。
+dependencies { api project(':server:login') }

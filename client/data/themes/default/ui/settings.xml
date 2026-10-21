@@ -307,4 +307,20 @@
       <enum type="alignment">left</enum>
     </param>
   </theme>
+  <theme name="mods-panel" ref="base-frame" allowWildcard="true">
+    <param name="fadeDurationShow"><int>200</int></param>
+    <param name="fadeDurationHide"><int>200</int></param>
+    <param name="minHeight"><int>300</int></param>
+    <theme name="dialoglayout" ref="-dialog">
+      <param name="defaultGap"><dimension>5,5</dimension></param>
+      <param name="border"><border>40,10,5,7</border></param>
+      <theme name="scrollpane" ref="scrollpane">
+        <theme name="settings-label-area" ref="-dialog">
+          <param name="defaultGap"><dimension>5,5</dimension></param>
+
+        </theme>
+      </theme>
+
+    </theme>
+  </theme>
 </themes>

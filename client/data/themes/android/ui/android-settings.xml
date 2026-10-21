@@ -265,4 +265,26 @@
       <enum type="alignment">CENTER</enum>
     </param>
   </theme>
+  <theme name="mods-panel" ref="mobile-panel" overwrite="true">
+    <param name="fadeDurationShow"><int>200</int></param>
+    <param name="fadeDurationHide"><int>200</int></param>
+    <param name="border"><border>0</border></param>
+    <theme name="dialoglayout" ref="-dialog">
+      <param name="defaultGap"><dimension>5,5</dimension></param>
+      <param name="border"><border>60,15,0,15</border></param>
+      <theme name="scrollpane" ref="scrollpane">
+        <theme name="settings-label-area" ref="-dialog">
+          <param name="defaultGap"><dimension>5,5</dimension></param>
+          <theme name="label" ref="label"><param name="font"><font>med-noshadow-22-white</font></param></theme>
+        </theme>
+      </theme>
+      <theme name="label" ref="label"><param name="font"><font>med-noshadow-18-white</font></param></theme>
+      <theme name="button" ref="button">
+        <param name="minWidth"><int>200</int></param><param name="minHeight"><int>60</int></param>
+        <param name="font"><font>med-noshadow-22-white</font></param>
+        <param name="border"><border>0</border></param>
+        <param name="background"><image>mobile.box.light1</image></param>
+      </theme>
+    </theme>
+  </theme>
 </themes>

@@ -34,6 +34,8 @@ public final class DesktopLauncher {
                 path -> com.badlogic.gdx.Gdx.files.absolute(ClientAssets.file(path)),
                 false, System::nanoTime,
                 () -> com.badlogic.gdx.Gdx.files.absolute(ClientAssets.configDirectory()),
-                top.totodile.pokemmo.server.login.LoginServices.create()), configuration);
+                top.totodile.pokemmo.server.login.LoginServices.create()).withGameService(
+                    new top.totodile.pokemmo.server.game.LocalGameService(() -> new DesktopGameDatabase(
+                            java.nio.file.Path.of(ClientAssets.configDirectory()).resolveSibling("save").resolve("game.db").toString()))), configuration);
     }
 }
