@@ -496,6 +496,10 @@ final class LoginPanel implements Disposable {
         LoginEditField(boolean mobile,boolean username){
             this.mobile=mobile;this.username=username;setTheme("editfield");
         }
+        @Override public de.matthiasmann.twl.renderer.MouseCursor getMouseCursor(Event event) {
+            var cursor = super.getMouseCursor(event);
+            return mobile || cursor != null ? cursor : GdxTwlRenderer.SystemMouseCursor.TEXT;
+        }
         @Override public void insertText(String text){
             if(username){
                 // 与参考客户端的 Character.isWhitespace 过滤一致，覆盖中文全角空白。
