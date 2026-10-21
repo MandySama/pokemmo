@@ -1,35 +1,47 @@
 package top.totodile.pokemmo.client;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.input.GestureDetector;
 import de.matthiasmann.twl.*;
 import de.matthiasmann.twl.model.SimpleListModel;
 import java.util.List;
 
 /** 登录阶段的设置分类与控件展示；不读取、保存或应用游戏设置。 */
-final class SettingsWindow extends PopupWindow {
+final class SettingsWindow extends ClientWindow {
     private final boolean mobile;
     private final ClientStrings strings;
     private final Runnable onClose;
-    private final SettingsTabs tabs = new SettingsTabs();
+    private final java.util.function.Consumer<de.matthiasmann.twl.renderer.Image> mobileBackground;
+    private final SettingsTabs tabs;
     private final Button save;
     private final ResizableFrame frame = new ResizableFrame() {
+        private int headerActionRight;
+        @Override protected void applyTheme(ThemeInfo theme) {
+            super.applyTheme(theme);
+            if (mobile) headerActionRight = theme.getParameter("headerActionRight", 68);
+        }
+        @Override protected void paintBackground(GUI gui) {
+            if (mobile) mobileBackground.accept(getBackground()); else super.paintBackground(gui);
+        }
         @Override protected boolean isFrameElement(Widget child) { return mobile && child == save || super.isFrameElement(child); }
         @Override protected void layout() {
             super.layout();
             if (mobile) {
                 save.adjustSize();
-                save.setPosition(getInnerRight() - save.getWidth() - 68, getInnerY());
+                save.setPosition(getInnerRight() - save.getWidth() - headerActionRight, getInnerY());
             }
         }
     };
 
-    SettingsWindow(Widget owner, ClientStrings strings, boolean mobile, Runnable onClose) {
+    SettingsWindow(Widget owner, ClientStrings strings, boolean mobile, Runnable onClose,
+                   java.util.function.Consumer<de.matthiasmann.twl.renderer.Image> mobileBackground) {
         super(owner);
         this.strings = strings;
         this.mobile = mobile;
+        this.tabs = new SettingsTabs(mobile);
         this.onClose = onClose;
+        this.mobileBackground = mobileBackground;
         setTheme("");
-        setCloseOnClickedOutside(false);
         frame.setTheme("/settings-panel");
         frame.setTitle(strings.get(1200));
         frame.setDraggable(false);
@@ -37,10 +49,19 @@ final class SettingsWindow extends PopupWindow {
         frame.addCloseCallback(this::closePopup);
         save = new Button(strings.get(54));
         // 目前保存按钮仅展示，避免让界面表现出已经应用设置。
-        var outer = new DialogLayout();
+        var outer = new DialogLayout() {
+            @Override protected void layout() {
+                if (!mobile) { super.layout(); return; }
+                int width = Math.min(getInnerWidth(), tabs.getPreferredWidth());
+                tabs.setSize(width, getInnerHeight());
+                tabs.setPosition(getInnerX() + (getInnerWidth() - width) / 2, getInnerY());
+            }
+        };
+        outer.setTheme("dialoglayout");
         var horizontal = outer.createParallelGroup(tabs);
         var vertical = outer.createSequentialGroup(tabs);
         if (mobile) {
+            save.setText("");
             save.setTheme("/mobile-save-icon");
             frame.add(save);
         } else {
@@ -74,10 +95,12 @@ final class SettingsWindow extends PopupWindow {
         if (!mobile) { video.toggle(1257, true); video.toggle(1255, true); }
         video.choice(1253, 1289, 1287);
         video.toggle(1252, true);
-        video.number(1237, "1x"); video.number(1238, "1x"); video.toggle(1233, false);
+        if (mobile) video.choice(7701, 1289, 1287);
+        else { video.number(1237, "1x"); video.number(1238, "1x"); }
+        video.toggle(1233, false);
 
         Page sound = page(1202);
-        sound.number(1276, "100%"); sound.number(1277, "100%"); sound.number(1279, "100%");
+        sound.number(1276, "50"); sound.number(1277, "50"); sound.number(1279, "50");
         if (!mobile) sound.choice(1365, 1366);
         sound.toggle(1282, false); sound.number(1283, "100%"); sound.toggle(1343, true);
 
@@ -86,22 +109,26 @@ final class SettingsWindow extends PopupWindow {
         if (!mobile) {
             ui.choice(1247, "100%"); ui.number(1274, "100%"); ui.toggle(1266, false);
         }
-        if (!mobile) ui.toggle(609, true);
+        ui.toggle(609, true);
         ui.toggle(1245, true);
         if (strings.typeface() != null) ui.toggle(1236, true);
         if (!mobile) ui.toggle(1261, false);
         ui.toggle(1258, true); ui.toggle(1248, true);
         if (mobile) {
-            ui.toggle(1299, true); ui.choice(1290, "100%"); ui.choice(1293, "20%");
-            ui.choice(1295, 1287, 1286, 1288, 1289); ui.choice(1291, "100%");
+            ui.toggle(1299, true); ui.choice(1290, "1.0x"); ui.choice(1293, "20%");
+            ui.choice(1295, 1287, 1286, 1288, 1289); ui.choice(1291, "1.0x");
             ui.toggle(1292, false); ui.toggle(1331, false);
         }
         ui.choice(1319, 1321, 1320, 1322); ui.choice(1318, 1322, 1320, 1321);
 
         Page game = page(1204);
-        game.number(1325, "3");
+        game.number(1325, "4x");
         game.toggle(1345, true); game.toggle(1330, true); game.toggle(6160, false); game.toggle(1347, true);
-        game.toggle(1284, false); game.toggle(1213, false); game.toggle(1234, false); game.toggle(1317, true);
+        game.toggle(1284, false);
+        if (mobile) game.toggle(8603, false);
+        game.toggle(1213, false);
+        if (mobile) game.choice(1993, 1994, 1995, 1996);
+        game.toggle(1234, false); game.toggle(1317, true);
         game.choice(6156, 6153, 6154, 6155); game.choice(1315, 1322, 1316, 1320);
 
         Page controls = page(1203);
@@ -109,7 +136,7 @@ final class SettingsWindow extends PopupWindow {
         addKeys(controls);
 
         Page language = page(1206);
-        language.choice(1332, strings.languageName(strings.language()));
+        language.choice(1332, strings.languageName(strings.language()).split(" \\(", 2)[0]);
         language.button(1339, 1390); language.button(1340, 1358); language.link(1324);
 
         Page chat = page(1208);
@@ -117,7 +144,9 @@ final class SettingsWindow extends PopupWindow {
         chat.toggle(1335, true); chat.toggle(1336, true); chat.toggle(1338, true); chat.toggle(1346, true);
 
         Page tools = page(1209);
-        tools.button(1376, 1377); tools.button(1382, 1377); tools.button(1380, 1377); tools.toggle(1219, false);
+        if (!mobile) { tools.button(1376, 1377); tools.button(1382, 1377); tools.button(1380, 1377); }
+        tools.toggle(1219, false);
+        if (mobile) tools.toggle(605, false);
         if (!mobile) page(1211).toggle(1387, false);
     }
 
@@ -125,7 +154,8 @@ final class SettingsWindow extends PopupWindow {
         int[] labels = {1300,1301,1368,1369,1302,1303,1304,1305};
         String[] keys = {"Z","X","S","A","Up","Down","Left","Right"};
         for (int i = 0; i < labels.length; i++) page.key(labels[i], keys[i]);
-        for (int i = 1; i <= 9; i++) page.row(strings.get(1306) + " " + i + ":", value(new Button(Integer.toString(i))));
+        if (mobile) { page.key(1363, "Page Down"); page.key(1364, "Page Up"); }
+        for (int i = 1; i <= 9; i++) page.row(strings.get(1306) + " " + i + ":", value(new SettingsButton(Integer.toString(i))));
         int[] remaining = {1309,1308,1307,1,1310,1312,1313,8000,1314,1311};
         String[] remainingKeys = {"M","B","C","N","D","J","H","Space","F12","F11"};
         for (int i = 0; i < remaining.length; i++) page.key(remaining[i], remainingKeys[i]);
@@ -133,9 +163,10 @@ final class SettingsWindow extends PopupWindow {
 
     private Page page(int title) {
         Page content = new Page();
-        ScrollPane scroll = new ScrollPane(content);
+        SettingsScrollPane scroll = new SettingsScrollPane(content);
         scroll.setTheme("settings-scrollpane");
         scroll.setFixed(ScrollPane.Fixed.HORIZONTAL);
+
         tabs.addTab(strings.get(title), scroll);
         return content;
     }
@@ -152,45 +183,179 @@ final class SettingsWindow extends PopupWindow {
         private final Group columns = createParallelGroup();
         private final Group rows = createSequentialGroup();
         private int rowCount;
+        private final java.util.ArrayList<Widget> rowControls = new java.util.ArrayList<>();
+        private final java.util.ArrayList<Widget> spanningControls = new java.util.ArrayList<>();
         Page() {
-            setTheme("settings-label-area");
+            setTheme(mobile ? "dialoglayout" : "settings-label-area");
             setAddDefaultGaps(false);
             setHorizontalGroup(columns); setVerticalGroup(rows);
         }
         void row(String title, Widget control) {
-            Label label = new Label(title);
+            prepareControl(control);
+            rowControls.add(control);
+            Label label = new Label(title) {
+                @Override protected boolean handleEvent(Event event) {
+                    return mobile ? false : super.handleEvent(event);
+                }
+            };
             label.setTheme("label-settings-title");
             columns.addGroup(createSequentialGroup().addWidget(label).addGap(DialogLayout.DEFAULT_GAP).addWidget(control));
             if (rowCount++ > 0) rows.addGap(DialogLayout.DEFAULT_GAP);
             rows.addGroup(createParallelGroup(label, control));
         }
+        @Override protected void layout() {
+            super.layout();
+            // 独占一行的按钮与上方标签/选项两列对齐，不延伸到滚动区域的空白处。
+            int right = getInnerX();
+            for (Widget control : rowControls) right = Math.max(right, control.getRight());
+            for (Widget control : spanningControls) {
+                int width = Math.min(getInnerWidth(), right - getInnerX());
+                if (control.getMaxWidth() > 0) width = Math.min(width, control.getMaxWidth());
+                control.setSize(width, control.getHeight());
+            }
+        }
+        private void prepareControl(Widget widget) {
+            if (!mobile) return;
+            if (widget instanceof Button) widget.setCanAcceptKeyboardFocus(false);
+            for (int i = 0; i < widget.getNumChildren(); i++) prepareControl(widget.getChild(i));
+        }
         void toggle(int label, boolean active) {
-            ToggleButton toggle = new ToggleButton(); toggle.setActive(active);
+            SettingsButton toggle = new SettingsButton("");
+            toggle.setTheme("togglebutton");
+            toggle.setModel(new de.matthiasmann.twl.model.ToggleButtonModel());
+            toggle.getModel().setSelected(active);
             toggle.getAnimationState().dontAnimate(Button.STATE_SELECTED);
             row(strings.get(label), value(toggle));
         }
-        void key(int label, String key) { row(strings.get(label), value(new Button(key))); }
+        void key(int label, String key) { row(strings.get(label), value(new SettingsButton(key))); }
         void number(int label, String text) { row(strings.get(label), new NumberDisplay(text)); }
         void choice(int label, int... options) {
             choice(label, java.util.Arrays.stream(options).mapToObj(strings::get).toArray(String[]::new));
         }
         void choice(int label, String... options) { row(strings.get(label), value(new Choice(options))); }
-        void button(int label, int caption) { row(strings.get(label), value(new Button(strings.get(caption)))); }
+        void button(int label, int caption) { row(strings.get(label), value(new SettingsButton(strings.get(caption)))); }
         void button(int caption) {
-            Button button = new Button(strings.get(caption));
+            Button button = new SettingsButton(strings.get(caption));
+            prepareControl(button);
             columns.addWidget(button); rows.addGap(DialogLayout.DEFAULT_GAP).addWidget(button);
+            setWidgetAlignment(button, Alignment.TOPLEFT); spanningControls.add(button);
         }
         void link(int caption) {
-            Button link = new Button(strings.get(caption)); link.setTheme("translate-link");
+            Button link = new SettingsButton(strings.get(caption)); link.setTheme("translate-link");
+            prepareControl(link);
             columns.addWidget(link); rows.addGap(DialogLayout.DEFAULT_GAP).addWidget(link);
+            setWidgetAlignment(link, Alignment.TOPLEFT); spanningControls.add(link);
         }
     }
 
+    private static class SettingsButton extends Button {
+        SettingsButton(String text) { setTheme("button"); setText(text); }
+    }
+
+    /** 参考移动端的统一 pan/fling：逐次位移、GestureDetector 速度采样与半秒减速。 */
+    private final class SettingsScrollPane extends ScrollPane {
+        private boolean panning;
+        private long flingTime;
+        private double velocity, remaining, position;
+        private final GestureDetector gesture = new GestureDetector(20, .4f, 1.1f, .15f,
+                new GestureDetector.GestureAdapter() {
+            @Override public boolean pan(float x, float y, float deltaX, float deltaY) {
+                if (!panning) {
+                    panning = true;
+                    // 手势接管后取消控件按压，并释放 TWL 的鼠标捕获，避免抬手误点。
+                    cancelPress(getContent());
+                    getGUI().handleMouse(-1, -1, Event.MOUSE_LBUTTON, false);
+                    cancelPress(getContent());
+                }
+                position = Math.max(0, Math.min(getVerticalScrollbar().getMaxValue(), position - deltaY));
+                setScrollPositionY((int)Math.round(position));
+                return true;
+            }
+            @Override public boolean fling(float velocityX, float velocityY, int button) {
+                if (Math.abs(velocityY) > 150) {
+                    velocity = -velocityY; remaining = .5;
+                    position = getScrollPositionY(); flingTime = System.nanoTime();
+                }
+                return true;
+            }
+        });
+        SettingsScrollPane(Widget content) { super(content); }
+        void beginTouch(int x, int y, int button) {
+            cancelFling(); panning = false; position = getScrollPositionY();
+            gesture.reset(); gesture.touchDown(x, y, 0, button);
+        }
+        void cancelFling() { remaining = 0; velocity = 0; }
+        @Override protected void beforeRemoveFromGUI(GUI gui) {
+            gesture.reset(); panning = false; cancelFling(); super.beforeRemoveFromGUI(gui);
+        }
+        @Override protected void paint(GUI gui) {
+            if (remaining > 0) {
+                long now = System.nanoTime();
+                double elapsed = Math.min(remaining, (now - flingTime) / 1_000_000_000.0);
+                position += velocity * (remaining * elapsed - elapsed * elapsed / 2) / .5;
+                remaining -= elapsed; flingTime = now;
+                int max = getVerticalScrollbar().getMaxValue();
+                setScrollPositionY((int)Math.round(Math.max(0, Math.min(max, position))));
+                if (position <= 0 || position >= max) cancelFling();
+            }
+            super.paint(gui);
+        }
+    }
+
+    private SettingsScrollPane touchScroll;
+    private static void cancelPress(Widget widget) {
+        if (widget instanceof Button button) {
+            var model = button.getModel();
+            model.setArmed(false); model.setPressed(false); model.setHover(false);
+        }
+        for (int i = 0; i < widget.getNumChildren(); i++) cancelPress(widget.getChild(i));
+    }
+    void touchDown(int x, int y, int screenX, int screenY, int button) {
+        clearTouchFocus(); touchScroll = null;
+        if (!mobile || !isOpen() || hasOpenChoice(this)) return;
+        var scroll = (SettingsScrollPane)tabs.selectedPage();
+        // 滚动条维持 TWL 自己的拖拽；手势只接管内容区域。
+        if (x >= scroll.getInnerX() && x < scroll.getInnerX() + scroll.getContentAreaWidth()
+                && y >= scroll.getInnerY() && y < scroll.getInnerY() + scroll.getContentAreaHeight()) {
+            // 参考 pan/fling 使用屏幕位移，不能再乘 UI 缩放；x/y 仅用于安全区命中。
+            touchScroll = scroll; scroll.beginTouch(screenX, screenY, button);
+        }
+    }
+    boolean touchDragged(int x, int y) {
+        if (touchScroll == null) return false;
+        touchScroll.gesture.touchDragged(x, y, 0);
+        return touchScroll.panning;
+    }
+    boolean touchUp(int x, int y, int button) {
+        if (touchScroll == null) return false;
+        var scroll = touchScroll; touchScroll = null;
+        boolean handled = scroll.panning;
+        scroll.gesture.touchUp(x, y, 0, button);
+        scroll.panning = false;
+        return handled;
+    }
+    void cancelTouch() {
+        if (touchScroll != null) {
+            touchScroll.gesture.reset(); touchScroll.cancelFling(); touchScroll = null;
+        }
+        cancelPress(this);
+    }
+    private static boolean hasOpenChoice(Widget widget) {
+        if (widget instanceof Choice choice && choice.popup.isOpen()) return true;
+        for (int i = 0; i < widget.getNumChildren(); i++) if (hasOpenChoice(widget.getChild(i))) return true;
+        return false;
+    }
+    void clearTouchFocus() {
+        if (!mobile || !isOpen()) return;
+        requestKeyboardFocus(null);
+        ((SettingsScrollPane)tabs.selectedPage()).cancelFling();
+    }
+
     private static final class NumberDisplay extends Widget {
-        private final Button minus = new Button("-"), plus = new Button("+"), display;
+        private final Button minus = new SettingsButton("-"), plus = new SettingsButton("+"), display;
         NumberDisplay(String text) {
             setTheme("label-settings-vai");
-            display = new Button(text);
+            display = new SettingsButton(text);
             minus.setTheme("decButton"); plus.setTheme("incButton"); display.setTheme("valueDisplay");
             add(minus); add(display); add(plus);
         }
@@ -205,7 +370,7 @@ final class SettingsWindow extends PopupWindow {
     }
 
     /** 下拉仅改变界面展示值，不接配置服务。 */
-    private static final class Choice extends Button {
+    private static final class Choice extends SettingsButton {
         private final Label display = new Label(getAnimationState()) {
             @Override protected boolean handleEvent(Event event) { return false; }
         };
@@ -215,6 +380,7 @@ final class SettingsWindow extends PopupWindow {
         private ListBox<String> list;
         private int popupHeight;
         Choice(String[] options) {
+            super("");
             this.options = List.of(options);
             setTheme("combobox"); display.setTheme("display"); arrow.setTheme("button");
             display.setClip(true); add(display); add(arrow); display.setText(options[0]);
@@ -254,8 +420,15 @@ final class SettingsWindow extends PopupWindow {
         }
     }
 
+    void back() {
+        if (hasOpenChoice(this)) getGUI().handleKey(Event.KEY_ESCAPE, '\0', true);
+        else closePopup();
+    }
+
     void open() {
-        if (isOpen()) return;
+        if (isOpen()) { raiseWindow(); return; }
+        tabs.select(0);
+        tabs.selectedPage().setScrollPositionY(0);
         if (openPopup()) { positionWindow(); frame.setHardVisible(true); }
     }
     void positionWindow() {
@@ -269,6 +442,7 @@ final class SettingsWindow extends PopupWindow {
         }
     }
     @Override public void closePopup() {
+        cancelTouch();
         boolean wasOpen = isOpen(); super.closePopup(); if (wasOpen) onClose.run();
     }
 }

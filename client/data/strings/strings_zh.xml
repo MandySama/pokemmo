@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<strings lang="zh" lang_full="简体中文" typeface="sc" is_primary="1">
+<strings lang="zh" lang_full="简体中文 (Simplified Chinese)" typeface="sc" is_primary="1">
     <!-- 登录界面沿用参考客户端的文本 ID。 -->
     <string id="1000">登录</string>
     <string id="1001">用户名:</string>
@@ -169,4 +169,16 @@
     <string id="53">取消</string>
     <string id="609">高清画面缩放</string>
     <string id="1236">大号中文字体:</string>
+    <string id="7701">对战贴图</string>
+    <string id="8603">自动补给PP道具</string>
+    <string id="1993">对战镜头动画:</string>
+    <string id="1994">全面</string>
+    <string id="1995">最小</string>
+    <string id="1996">无</string>
+    <string id="605">安卓前台服务:</string>
+    <string id="1363">前进键:</string>
+    <string id="1364">后退键:</string>
+    <string id="1115">确定要退出PokeMMO?</string>
+    <string id="50">是</string>
+    <string id="51">否</string>
 </strings>

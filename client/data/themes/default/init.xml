@@ -777,4 +777,22 @@
       <string />
     </param>
   </theme>
+<theme name="confirm-widget" ref="-defaults">
+		<param name="background"><image>label1.background</image></param>
+		</theme>
+<theme name="confirm-panel" ref="-defaults" allowWildcard="true">
+    <theme name="container" ref="-defaults" />
+		<param name="background"><image>ui-popup.background</image></param>
+		<param name="border"><border>20</border></param>
+		<param name="defaultGap"><dimension>5,5</dimension></param>
+		<param name="smallGap"><dimension>8,8</dimension></param>
+		<param name="mediumGap"><dimension>10,10</dimension></param>
+		<param name="largeGap"><dimension>15,15</dimension></param>
+
+		<param name="namedGaps"><map/></param>
+    <theme name="label" ref="-defaults">
+      <param name="font"><font>pb-dark</font></param>
+      <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+    </theme>
+    </theme>
 </themes>

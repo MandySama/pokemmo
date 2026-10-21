@@ -552,7 +552,7 @@
       <int>50</int>
     </param>
     <param name="closeButtonX">
-      <int>-64</int>
+      <int>-104</int>
     </param>
     <param name="closeButtonY">
       <int>0</int>
@@ -573,6 +573,9 @@
         <int>60</int>
       </param>
     </theme>
+    <param name="headerActionRight">
+      <int>116</int>
+    </param>
   </theme>
   <theme name="mobile-gear-icon" ref="button" allowWildcard="true">
     <param name="border">
@@ -757,4 +760,17 @@
       <int>60</int>
     </param>
   </theme>
+<theme name="confirm-panel" ref="confirm-panel" allowWildcard="true">
+    <theme name="label" ref="label" allowWildcard="true">
+      <param name="font"><font>med-noshadow-18-white</font></param>
+      <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+    </theme>
+    <theme name="button" ref="button" allowWildcard="true">
+			<param name="font"><font>med-noshadow-18-white</font></param>
+			<param name="border"><border>7,0</border></param>
+			<param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+			<param name="border"><border>10,10,10,10</border></param>
+			<param name="minWidth"><int>120</int></param>
+		</theme>
+    </theme>
 </themes>

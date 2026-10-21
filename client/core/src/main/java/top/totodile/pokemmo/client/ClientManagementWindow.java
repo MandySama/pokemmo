@@ -3,10 +3,18 @@ package top.totodile.pokemmo.client;
 import de.matthiasmann.twl.*;
 
 /** 客户端管理的展示与窗口导航；ROM、语言导入尚未接入。 */
-final class ClientManagementWindow extends PopupWindow {
+final class ClientManagementWindow extends ClientWindow {
     private final boolean mobile;
     private final Button gear = new Button();
     private final ResizableFrame frame = new ResizableFrame() {
+        private int headerActionRight;
+        @Override protected void applyTheme(ThemeInfo theme) {
+            super.applyTheme(theme);
+            if (mobile) headerActionRight = theme.getParameter("headerActionRight", 68);
+        }
+        @Override protected void paintBackground(GUI gui) {
+            if (mobile) mobileBackground.accept(getBackground()); else super.paintBackground(gui);
+        }
         @Override protected boolean isFrameElement(Widget widget) {
             return widget == gear || super.isFrameElement(widget);
         }
@@ -14,19 +22,21 @@ final class ClientManagementWindow extends PopupWindow {
             super.layout();
             if (mobile) {
                 gear.adjustSize();
-                gear.setPosition(getInnerRight() - gear.getWidth() - 68, getInnerY());
+                gear.setPosition(getInnerRight() - gear.getWidth() - headerActionRight, getInnerY());
             }
         }
     };
     private final Runnable onClose;
+    private final java.util.function.Consumer<de.matthiasmann.twl.renderer.Image> mobileBackground;
     private final DialogLayout content = new DialogLayout();
 
-    ClientManagementWindow(Widget owner, ClientStrings strings, boolean mobile, Runnable onClose) {
+    ClientManagementWindow(Widget owner, ClientStrings strings, boolean mobile, Runnable onClose,
+                           java.util.function.Consumer<de.matthiasmann.twl.renderer.Image> mobileBackground) {
         super(owner);
         this.mobile = mobile;
         this.onClose = onClose;
+        this.mobileBackground = mobileBackground;
         setTheme("");
-        setCloseOnClickedOutside(false);
         frame.setTheme("/rom-panel");
         frame.setTitle(strings.get(1175));
         frame.setDraggable(false);
@@ -74,7 +84,7 @@ final class ClientManagementWindow extends PopupWindow {
     }
 
     void open() {
-        if (isOpen()) return;
+        if (isOpen()) { raiseWindow(); return; }
         if (openPopup()) {
             positionWindow();
             frame.setHardVisible(true);

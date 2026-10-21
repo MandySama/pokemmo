@@ -36,6 +36,7 @@ final class ClientUi implements Disposable {
     private final MobileSideMenu mobileMenu;
     private final ClientManagementWindow clientManagement;
     private final SettingsWindow settings;
+    private final ExitConfirmation exitConfirmation;
     private final Label fps = new Label("0.00");
     private final FrameRateCounter frameRate = new FrameRateCounter(System::nanoTime);
     private final InputAdapter input;
@@ -57,6 +58,12 @@ final class ClientUi implements Disposable {
     ClientUi(Viewport viewport, Function<String, FileHandle> assets, boolean mobile,
                SavedAccounts savedAccounts, LongSupplier notificationClock, LoginController controller,
                java.util.function.IntSupplier batteryPercent) {
+        this(viewport, assets, mobile, savedAccounts, notificationClock, controller, batteryPercent, () -> Gdx.app.exit());
+    }
+
+    ClientUi(Viewport viewport, Function<String, FileHandle> assets, boolean mobile,
+             SavedAccounts savedAccounts, LongSupplier notificationClock, LoginController controller,
+             java.util.function.IntSupplier batteryPercent, Runnable exit) {
         this.controller = controller;
         this.mobile = mobile;
         this.notificationClock = notificationClock;
@@ -129,13 +136,18 @@ final class ClientUi implements Disposable {
         if (mobileStatus != null) root.add(mobileStatus);
         if (mobileMenu != null) root.add(mobileMenu);
         gui = new GUI(root, renderer, null);
-        Runnable restoreFocus = () -> {
-            if (controller.state() == LoginController.State.LOGIN) loginPanel.focusDefault();
-            else if (controller.state() == LoginController.State.SELECTED) characterPage.focusDefault();
-            else if (controller.state() == LoginController.State.SERVERS) serverFrame.focusDefault();
+        Runnable restoreFocus = this::restoreWindowFocus;
+        java.util.function.Consumer<de.matthiasmann.twl.renderer.Image> mobileBackground =
+                image -> renderer.drawScreenBackground(image, root.getAnimationState());
+        clientManagement = new ClientManagementWindow(root, strings, mobile, restoreFocus, mobileBackground);
+        settings = new SettingsWindow(root, strings, mobile, restoreFocus, mobileBackground);
+        exitConfirmation = mobile ? new ExitConfirmation(root, strings, exit, restoreFocus, mobileBackground) : null;
+        Runnable requestExit = () -> {
+            loginPanel.hideKeyboard();
+            if (mobile) exitConfirmation.open(); else exit.run();
         };
-        clientManagement = new ClientManagementWindow(root, strings, mobile, restoreFocus);
-        settings = new SettingsWindow(root, strings, mobile, restoreFocus);
+        if (desktopMenu != null) desktopMenu.onExit(requestExit);
+        if (mobileMenu != null) mobileMenu.onExit(requestExit);
         Runnable openManagement = () -> { loginPanel.hideKeyboard(); clientManagement.open(); };
         if (desktopMenu != null) desktopMenu.onClientManagement(openManagement);
         if (mobileMenu != null) mobileMenu.onClientManagement(openManagement);
@@ -149,15 +161,33 @@ final class ClientUi implements Disposable {
                 Vector2 point=viewport.unproject(new Vector2(x,y));
                 return gui.handleMouse(Math.round(point.x), renderer.getHeight()-Math.round(point.y),button,pressed);
             }
-            @Override public boolean touchDown(int x,int y,int pointer,int button){return pointer==0 && pointer(x,y,button,true);}
-            @Override public boolean touchUp(int x,int y,int pointer,int button){return pointer==0 && pointer(x,y,button,false);}
-            @Override public boolean touchDragged(int x,int y,int pointer){return pointer==0 && pointer(x,y,-1,false);}
+            @Override public boolean touchDown(int x,int y,int pointer,int button){
+                if (pointer != 0) return false;
+                Vector2 point = viewport.unproject(new Vector2(x,y));
+                if (exitConfirmation == null || !exitConfirmation.isOpen()) settings.touchDown(Math.round(point.x), renderer.getHeight()-Math.round(point.y), x, y, button);
+                return pointer(x,y,button,true);
+            }
+            @Override public boolean touchUp(int x,int y,int pointer,int button){
+                if (pointer != 0) return false;
+                if (settings.touchUp(x,y,button)) return true;
+                return pointer(x,y,button,false);
+            }
+            @Override public boolean touchDragged(int x,int y,int pointer){
+                if (pointer != 0) return false;
+                if (settings.touchDragged(x,y)) return true;
+                return pointer(x,y,-1,false);
+            }
+            @Override public boolean touchCancelled(int x,int y,int pointer,int button){
+                if (pointer != 0 || !settings.isOpen()) return false;
+                settings.cancelTouch();
+                return gui.handleMouse(-1,-1,button,false);
+            }
             @Override public boolean mouseMoved(int x,int y){return pointer(x,y,-1,false);}
             @Override public boolean keyDown(int key){
                 if(key==Input.Keys.ESCAPE || key==Input.Keys.BACK){
-                    if(settings.isOpen()) {
-                        // 下拉菜单先处理返回，下一次返回再关闭设置窗口。
-                        gui.handleKey(Event.KEY_ESCAPE,'\0',true);
+                    if(exitConfirmation != null && exitConfirmation.isOpen()) exitConfirmation.closePopup();
+                    else if(settings.isAbove(clientManagement)) {
+                        settings.back();
                     }
                     else if(clientManagement.isOpen())clientManagement.closePopup();
                     else if(mobileMenu!=null && mobileMenu.isVisible())mobileMenu.close();
@@ -185,6 +215,14 @@ final class ClientUi implements Disposable {
         controller.listen(this::refreshLoginState);
         loginPanel.focusDefault();
     }
+    private void restoreWindowFocus() {
+        if (settings.isAbove(clientManagement)) settings.raiseWindow();
+        else if (clientManagement.isOpen()) clientManagement.raiseWindow();
+        else if (controller.state() == LoginController.State.LOGIN) loginPanel.focusDefault();
+        else if (controller.state() == LoginController.State.SELECTED) characterPage.focusDefault();
+        else if (controller.state() == LoginController.State.SERVERS) serverFrame.focusDefault();
+    }
+
     private ThemeManager loadTheme(ClientResources.Theme selected) {
         try {
             return ThemeManager.createThemeManager(resources.themeUrl(selected), renderer, renderer.createNewCacheContext(),
@@ -273,6 +311,7 @@ final class ClientUi implements Disposable {
         gui.update();
         clientManagement.positionWindow();
         settings.positionWindow();
+        if (exitConfirmation != null) exitConfirmation.positionWindow();
     }
     private static void invalidateFontLayout(Widget widget) {
         if (widget instanceof TextWidget text) text.setFont(text.getFont());

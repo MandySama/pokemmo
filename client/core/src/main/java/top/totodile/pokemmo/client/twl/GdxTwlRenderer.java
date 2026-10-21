@@ -96,6 +96,31 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
         clipEnter(0, 0, getWidth(), getHeight());
         return true;
     }
+    /** 移动端全屏窗口的背景铺满画布，前景仍由安全区视口布局、命中和裁剪。 */
+    public void drawScreenBackground(Image image, AnimationState state) {
+        if (image == null || viewport.getScreenWidth() <= 0 || viewport.getScreenHeight() <= 0) return;
+        batch.end();
+        var savedClips = new java.util.ArrayList<>(clips);
+        clips.clear();
+        Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
+        float scaleX = viewport.getWorldWidth() / viewport.getScreenWidth();
+        float scaleY = viewport.getWorldHeight() / viewport.getScreenHeight();
+        int left = Math.round(viewport.getScreenX() * scaleX);
+        int bottom = Math.round(viewport.getScreenY() * scaleY);
+        int top = Math.round((Gdx.graphics.getHeight() - viewport.getScreenY() - viewport.getScreenHeight()) * scaleY);
+        int width = Math.round(Gdx.graphics.getWidth() * scaleX);
+        int height = Math.round(Gdx.graphics.getHeight() * scaleY);
+        Gdx.gl.glViewport(0, 0, Gdx.graphics.getBackBufferWidth(), Gdx.graphics.getBackBufferHeight());
+        batch.setProjectionMatrix(new Matrix4().setToOrtho2D(-left, -bottom, width, height));
+        batch.begin();
+        image.draw(state, -left, -top, width, height);
+        batch.end();
+        viewport.apply();
+        batch.setProjectionMatrix(new Matrix4().setToOrtho2D(0, 0, getWidth(), getHeight()));
+        batch.begin();
+        clips.addAll(savedClips);
+        applyClip();
+    }
     public void endRendering() {
         if(themeCursor!=null && Gdx.app.getType()==ApplicationType.Desktop){
             var point=viewport.unproject(new com.badlogic.gdx.math.Vector2(Gdx.input.getX(),Gdx.input.getY()));

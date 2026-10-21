@@ -14,8 +14,10 @@ public final class SettingsTabs extends Widget {
     private final List<Widget> pages = new ArrayList<>();
     private TabPosition position = TabPosition.LEFT;
     private int selected;
+    private final boolean resetScrollOnSelect;
 
-    SettingsTabs() {
+    SettingsTabs(boolean resetScrollOnSelect) {
+        this.resetScrollOnSelect = resetScrollOnSelect;
         setTheme("tabbedpane");
         tabbox.setTheme("tabbox");
         container.setTheme("container");
@@ -30,7 +32,17 @@ public final class SettingsTabs extends Widget {
 
     void addTab(String title, Widget page) {
         int index = pages.size();
-        var button = new ToggleButton(title);
+        var button = new ToggleButton(title) {
+            private int themeMinWidth;
+            @Override protected void applyTheme(ThemeInfo theme) {
+                super.applyTheme(theme);
+                themeMinWidth = theme.getParameter("minWidth", 0);
+            }
+            @Override public int getPreferredWidth() {
+                // 参考分类按钮按文字和 minWidth 布局，不让背景图集的原始宽度撑大标签。
+                return Math.max(themeMinWidth, getBorderHorizontal() + getPreferredInnerWidth());
+            }
+        };
         button.setTheme("tabbutton");
         button.addCallback(() -> select(index));
         buttons.add(button);
@@ -48,6 +60,7 @@ public final class SettingsTabs extends Widget {
         for (int i = 0; i < buttons.size(); i++) buttons.get(i).setActive(i == index);
         container.removeAllChildren();
         container.add(pages.get(index));
+        if (resetScrollOnSelect) selectedPage().setScrollPositionY(0);
         invalidateLayout();
     }
 
