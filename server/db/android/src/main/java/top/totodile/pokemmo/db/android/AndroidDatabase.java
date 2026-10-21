@@ -1,13 +1,13 @@
-package top.totodile.pokemmo.android;
+package top.totodile.pokemmo.db.android;
 
 import android.database.sqlite.SQLiteDatabase;
 import java.io.File;
 import java.util.*;
-import top.totodile.pokemmo.server.game.GameDatabase;
+import top.totodile.pokemmo.db.Database;
 
-final class AndroidGameDatabase implements GameDatabase {
+public final class AndroidDatabase implements Database {
     private final SQLiteDatabase database;
-    AndroidGameDatabase(File file) {
+    public AndroidDatabase(File file) {
         File parent = file.getParentFile();
         if (!parent.isDirectory() && !parent.mkdirs()) throw new IllegalStateException("Cannot create game directory");
         database = SQLiteDatabase.openOrCreateDatabase(file, null);

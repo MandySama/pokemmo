@@ -3,49 +3,6 @@
   <theme name="character-summary-label" ref="label" overwrite="true">
     <param name="font"><font>med-noshadow-22-white</font></param>
   </theme>
-  <theme name="hud-panel" ref="-defaults" allowWildcard="true">
-    <param name="background">
-      <image>ui-popup.background</image>
-    </param>
-    <param name="border">
-      <border>7</border>
-    </param>
-    <param name="defaultGap">
-      <dimension>5,5</dimension>
-    </param>
-    <param name="smallGap">
-      <dimension>8,8</dimension>
-    </param>
-    <param name="mediumGap">
-      <dimension>10,10</dimension>
-    </param>
-    <param name="largeGap">
-      <dimension>15,15</dimension>
-    </param>
-    <param name="namedGaps">
-      <map />
-    </param>
-    <theme name="dialoglayout" ref="-defaults">
-      <param name="border">
-        <border>0</border>
-      </param>
-      <param name="defaultGap">
-        <dimension>5,5</dimension>
-      </param>
-      <param name="smallGap">
-        <dimension>8,8</dimension>
-      </param>
-      <param name="mediumGap">
-        <dimension>10,10</dimension>
-      </param>
-      <param name="largeGap">
-        <dimension>15,15</dimension>
-      </param>
-      <param name="namedGaps">
-        <map />
-      </param>
-    </theme>
-  </theme>
   <theme name="button" ref="-defaults" allowWildcard="true">
     <param name="font">
       <font>med-noshadow-18-white</font>
@@ -351,7 +308,15 @@
     <param name="defaultGap">
       <dimension>5,5</dimension>
     </param>
+    <param name="smallGap"><dimension>8,8</dimension></param>
+    <param name="mediumGap"><dimension>10,10</dimension></param>
+    <param name="largeGap"><dimension>15,15</dimension></param>
+    <param name="namedGaps"><map /></param>
     <theme name="dialoglayout" ref="-defaults">
+      <param name="defaultGap"><dimension>5,5</dimension></param>
+      <param name="smallGap"><dimension>8,8</dimension></param>
+      <param name="mediumGap"><dimension>10,10</dimension></param>
+      <param name="largeGap"><dimension>15,15</dimension></param>
       <param name="background">
         <image>none</image>
       </param>
@@ -773,7 +738,6 @@
     </theme>
     <theme name="button" ref="button" allowWildcard="true">
 			<param name="font"><font>med-noshadow-18-white</font></param>
-			<param name="border"><border>7,0</border></param>
 			<param name="textAlignment"><enum type="alignment">CENTER</enum></param>
 			<param name="border"><border>10,10,10,10</border></param>
 			<param name="minWidth"><int>120</int></param>

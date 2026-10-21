@@ -1,5 +1,7 @@
 package top.totodile.pokemmo.android;
 
+import top.totodile.pokemmo.db.android.AndroidDatabase;
+
 import android.os.Bundle;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.android.AndroidApplication;
@@ -42,7 +44,7 @@ public final class AndroidLauncher extends AndroidApplication {
                 android.os.SystemClock::elapsedRealtimeNanos,
                 top.totodile.pokemmo.server.login.LoginServices.create(),
                 () -> battery == null ? -1 : battery.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY)).withGameService(
-                    new top.totodile.pokemmo.server.game.LocalGameService(() -> new AndroidGameDatabase(new java.io.File(getFilesDir(), "save/game.db")))), config);
+                    new top.totodile.pokemmo.server.game.LocalGameService(() -> new AndroidDatabase(new java.io.File(getFilesDir(), "save/game.db")))), config);
         // Activity 创建后进入黑色加载阶段，系统主题底色仅作为启动窗口的兜底。
         getWindow().setBackgroundDrawableResource(android.R.color.black);
         // 游戏画面本身不接收 IME，避免隐藏的安全键盘被并入任务快照的安全检查。

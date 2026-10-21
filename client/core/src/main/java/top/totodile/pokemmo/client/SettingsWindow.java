@@ -263,6 +263,8 @@ final class SettingsWindow extends ClientWindow {
                 int width = Math.min(getInnerWidth(), right - getInnerX());
                 if (control.getMaxWidth() > 0) width = Math.min(width, control.getMaxWidth());
                 control.setSize(width, control.getHeight());
+                // 受主题 maxWidth 限制时仍与选项列右端对齐。
+                control.setPosition(right - width, control.getY());
             }
         }
         private void prepareControl(Widget widget) {

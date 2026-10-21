@@ -1,7 +1,9 @@
 ## 模块与单机入口
 
 - `server:login`：登录接口、会话、服务器目录和单机登录实现。非空账号密码可进入本地会话，提供一个名为“Live”的本地服务器入口，不访问网络、不注册账号、不保留密码，也不依赖客户端。
-- `server:chat`、`server:game`：预留聊天与游戏服务模块，目前没有聊天、角色、地图或战斗实现。
+- `server:game`：单机角色查询、创建、删除、校验和事务，数据保存在 `save/game.db`，不依赖客户端。
+- `server:db`：公共数据库执行接口；`server:db:desktop` 提供 JDBC SQLite 适配，`server:db:android` 提供 Android 原生 SQLite 适配。客户端入口仅传入存档路径并组装服务，SQL 和角色业务保留在 `server:game`。JDBC 驱动只随 PC 打包。
+- `server:chat`：预留聊天服务模块，目前没有聊天实现。
 - `client:core`：界面与登录状态管理，调用 `server:login` 提供的服务。
 - `client:desktop`、`client:android`：组装入口，通过 `server:login` 的 `LoginServices.create()` 获取服务，当前统一指向单机分支 `SINGLE_PLAYER`，使用 `LocalLoginService`。
 

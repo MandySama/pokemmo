@@ -27,7 +27,7 @@
     <fontParam if="disabled" color="#A9A9A9" />
     <fontParam if="pressed" offsetX="1" offsetY="1" />
   </fontDef>
-  <fontDef name="main-orange-shadow" ref="main" color="#FF9900" />
+  <fontDef name="alphabeta-orange-shadow" ref="alphabeta" color="#FF9900" />
   <fontDef name="pb-tab" ref="pb-dark" color="#999">
     <fontParam if="selected" color="#FFFFFF" />
   </fontDef>

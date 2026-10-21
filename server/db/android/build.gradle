@@ -1,0 +1,16 @@
+plugins { id 'com.android.library' version '8.10.1' }
+
+group = "${rootProject.group}.db"
+version = rootProject.version
+repositories { google(); mavenCentral() }
+
+android {
+    namespace = 'top.totodile.pokemmo.db.android'
+    compileSdk = 36
+    defaultConfig { minSdk = 26 }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+dependencies { api project(':server:db') }

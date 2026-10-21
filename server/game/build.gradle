@@ -1,1 +1,1 @@
-dependencies { api project(':server:login') }
+dependencies { api project(':server:login'); api project(':server:db') }

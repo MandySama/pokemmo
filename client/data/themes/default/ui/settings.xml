@@ -5,13 +5,13 @@
       <image>ui-header.background</image>
     </param>
     <param name="minWidth">
-      <int>200</int>
+      <int>220</int>
     </param>
     <param name="minHeight">
       <int>28</int>
     </param>
     <param name="border">
-      <border>2,9,4,0</border>
+      <border>2,6,3,0</border>
     </param>
   </theme>
   <theme name="rom-panel" ref="base-frame" allowWildcard="true">
@@ -292,7 +292,7 @@
   </theme>
   <theme name="translate-link" ref="button">
     <param name="font">
-      <font>main-orange-shadow</font>
+      <font>alphabeta-orange-shadow</font>
     </param>
     <param name="minWidth">
       <int>455</int>

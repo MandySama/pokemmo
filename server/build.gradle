@@ -1,5 +1,5 @@
 // 服务模块当前可嵌入单机进程；以后可由独立进程承载。
-subprojects {
+configure([project(':server:login'), project(':server:chat'), project(':server:game')]) {
     apply plugin: 'java-library'
     group = "${rootProject.group}.server"
     version = rootProject.version

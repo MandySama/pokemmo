@@ -139,9 +139,6 @@
             <border>0,0,0,0</border>
           </param>
           <theme name="settings-scrollpane" ref="scrollpane">
-            <param name="border">
-              <border>0,0,0,0</border>
-            </param>
             <theme name="vscrollbar" ref="vscrollbar" />
             <theme name="hscrollbar" ref="hscrollbar" />
             <param name="background">

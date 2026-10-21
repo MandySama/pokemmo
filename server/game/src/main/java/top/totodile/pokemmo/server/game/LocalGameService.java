@@ -1,20 +1,21 @@
 package top.totodile.pokemmo.server.game;
 
 import java.util.*;
+import top.totodile.pokemmo.db.Database;
 import java.util.concurrent.*;
 import java.util.function.Supplier;
 import top.totodile.pokemmo.server.login.LoginService.Selection;
 
 /** 单机角色服务；所有数据库操作在同一后台线程执行。 */
 public final class LocalGameService implements GameService {
-    private final Supplier<GameDatabase> factory;
+    private final Supplier<Database> factory;
     private final ExecutorService worker = Executors.newSingleThreadExecutor(r -> {
         Thread t = new Thread(r, "local-game"); t.setDaemon(true); return t;
     });
-    private GameDatabase database;
+    private Database database;
     private final java.util.concurrent.atomic.AtomicBoolean closed = new java.util.concurrent.atomic.AtomicBoolean();
-    public LocalGameService(Supplier<GameDatabase> factory) { this.factory = factory; }
-    private GameDatabase db() {
+    public LocalGameService(Supplier<Database> factory) { this.factory = factory; }
+    private Database db() {
         if (database == null) {
             database = factory.get();
             database.execute("PRAGMA foreign_keys=ON");

@@ -1,12 +1,12 @@
-package top.totodile.pokemmo.client;
+package top.totodile.pokemmo.db.desktop;
 
 import java.sql.*;
 import java.util.*;
-import top.totodile.pokemmo.server.game.GameDatabase;
+import top.totodile.pokemmo.db.Database;
 
-final class DesktopGameDatabase implements GameDatabase {
+public final class JdbcDatabase implements Database {
     private final Connection connection;
-    DesktopGameDatabase(String file) {
+    public JdbcDatabase(String file) {
         try {
             java.nio.file.Files.createDirectories(java.nio.file.Path.of(file).toAbsolutePath().getParent());
             connection = DriverManager.getConnection("jdbc:sqlite:" + file);

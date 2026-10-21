@@ -1,5 +1,7 @@
 package top.totodile.pokemmo.client;
 
+import top.totodile.pokemmo.db.desktop.JdbcDatabase;
+
 import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
@@ -35,7 +37,7 @@ public final class DesktopLauncher {
                 false, System::nanoTime,
                 () -> com.badlogic.gdx.Gdx.files.absolute(ClientAssets.configDirectory()),
                 top.totodile.pokemmo.server.login.LoginServices.create()).withGameService(
-                    new top.totodile.pokemmo.server.game.LocalGameService(() -> new DesktopGameDatabase(
+                    new top.totodile.pokemmo.server.game.LocalGameService(() -> new JdbcDatabase(
                             java.nio.file.Path.of(ClientAssets.configDirectory()).resolveSibling("save").resolve("game.db").toString()))), configuration);
     }
 }
