@@ -72,6 +72,36 @@
     </param>
   </theme>
   <theme name="logingui" ref="logingui">
+    <theme name="login-panel" ref="base-frame" allowWildcard="true">
+      <param name="border">
+        <border>50</border>
+      </param>
+      <param name="defaultGap">
+        <dimension>5,5</dimension>
+      </param>
+      <param name="smallGap">
+        <dimension>8,8</dimension>
+      </param>
+      <param name="mediumGap">
+        <dimension>10,10</dimension>
+      </param>
+      <param name="largeGap">
+        <dimension>15,15</dimension>
+      </param>
+      <param name="namedGaps">
+        <map />
+      </param>
+      <theme name="label" ref="label">
+        <param name="textAlignment">
+          <enum type="alignment">CENTER</enum>
+        </param>
+        <param name="font">
+          <font>med-shadow-22-white</font>
+        </param>
+      </theme>
+    </theme>
+
+
     <theme name="login-window" ref="login-window" allowWildcard="true">
       <theme name="title" ref="-defaults">
         <param name="textAlignment">

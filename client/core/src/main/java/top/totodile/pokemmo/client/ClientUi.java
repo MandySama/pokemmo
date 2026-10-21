@@ -50,6 +50,7 @@ final class ClientUi implements Disposable {
     private final top.totodile.pokemmo.server.game.GameService gameService;
     private top.totodile.pokemmo.server.login.LoginService.Selection characterSelection;
     private boolean creatingCharacter;
+    private long characterLoadVersion;
     private boolean disposed;
 
     ClientUi(Viewport viewport, Function<String, FileHandle> assets, boolean mobile,
@@ -351,11 +352,19 @@ final class ClientUi implements Disposable {
 
     private void loadCharacters(top.totodile.pokemmo.server.login.LoginService.Selection selection) {
         if (gameService == null) return;
+        long request = ++characterLoadVersion;
+        characterPage.beginLoading();
         gameService.characters(selection).whenComplete((characters, error) -> Gdx.app.postRunnable(() -> {
-            if (disposed || selection != controller.selection()) return;
-            if (error != null) { Gdx.app.error("game", "Cannot load local characters", error); return; }
-            characterPage.characters(characters, strings, mobile, renderer, characterCreation::savedAppearance);
-            if (!characterCreation.isOpen()) characterPage.focusDefault();
+            if (disposed || selection != controller.selection() || request != characterLoadVersion) return;
+            if (error != null) {
+                characterPage.loadFailed();
+                Gdx.app.error("game", "Cannot load local characters", error);
+            } else characterPage.characters(characters, strings, mobile, renderer, characterCreation::savedAppearance);
+            if (!characterCreation.isOpen()) {
+                // 不把上一个页面遗留的鼠标/触点位置解释为新按钮的悬停。
+                gui.handleMouse(-1, -1, -1, false);
+                restoreWindowFocus();
+            }
         }));
     }
     private void createCharacter() {

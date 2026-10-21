@@ -54,7 +54,7 @@ public final class ClientApplication extends ApplicationAdapter {
         this(assets, mobile, clock, () -> Gdx.files.local("config"), loginService, batteryPercent);
     }
 
-    private ClientApplication(Function<String, FileHandle> assets, boolean mobile, LongSupplier clock,
+    public ClientApplication(Function<String, FileHandle> assets, boolean mobile, LongSupplier clock,
                              Supplier<FileHandle> configDirectory,
                              top.totodile.pokemmo.server.login.LoginService loginService,
                              java.util.function.IntSupplier batteryPercent) {

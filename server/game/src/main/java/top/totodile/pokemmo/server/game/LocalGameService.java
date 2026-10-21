@@ -17,10 +17,17 @@ public final class LocalGameService implements GameService {
     public LocalGameService(Supplier<Database> factory) { this.factory = factory; }
     private Database db() {
         if (database == null) {
-            database = factory.get();
-            database.execute("PRAGMA foreign_keys=ON");
-            database.execute("CREATE TABLE IF NOT EXISTS characters (id TEXT PRIMARY KEY, account TEXT NOT NULL, server TEXT NOT NULL, name TEXT NOT NULL, name_key TEXT NOT NULL, gender INTEGER NOT NULL, skin INTEGER NOT NULL, region INTEGER NOT NULL, created_at INTEGER NOT NULL, UNIQUE(server,name_key))");
-            database.execute("CREATE TABLE IF NOT EXISTS character_parts (character_id TEXT NOT NULL REFERENCES characters(id) ON DELETE CASCADE, slot INTEGER NOT NULL, style INTEGER NOT NULL, color INTEGER NOT NULL, PRIMARY KEY(character_id,slot))");
+            Database opened = Objects.requireNonNull(factory.get());
+            try {
+                opened.execute("PRAGMA foreign_keys=ON");
+                opened.execute("CREATE TABLE IF NOT EXISTS characters (id TEXT PRIMARY KEY, account TEXT NOT NULL, server TEXT NOT NULL, name TEXT NOT NULL, name_key TEXT NOT NULL, gender INTEGER NOT NULL, skin INTEGER NOT NULL, region INTEGER NOT NULL, created_at INTEGER NOT NULL, UNIQUE(server,name_key))");
+                opened.execute("CREATE TABLE IF NOT EXISTS character_parts (character_id TEXT NOT NULL REFERENCES characters(id) ON DELETE CASCADE, slot INTEGER NOT NULL, style INTEGER NOT NULL, color INTEGER NOT NULL, PRIMARY KEY(character_id,slot))");
+                database = opened;
+            } catch (RuntimeException | Error error) {
+                try { opened.close(); }
+                catch (RuntimeException | Error closeError) { error.addSuppressed(closeError); }
+                throw error;
+            }
         }
         return database;
     }

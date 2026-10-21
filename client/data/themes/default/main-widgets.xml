@@ -4,6 +4,39 @@
     <param name="font"><font>pb-dark</font></param>
   </theme>
   <theme name="logingui" ref="-defaults">
+    <theme name="login-panel" ref="base-frame" allowWildcard="true">
+      <param name="background">
+        <image>label1.background</image>
+      </param>
+      <param name="border">
+        <border>20</border>
+      </param>
+      <param name="defaultGap">
+        <dimension>5,5</dimension>
+      </param>
+      <param name="smallGap">
+        <dimension>8,8</dimension>
+      </param>
+      <param name="mediumGap">
+        <dimension>10,10</dimension>
+      </param>
+      <param name="largeGap">
+        <dimension>15,15</dimension>
+      </param>
+      <param name="namedGaps">
+        <map />
+      </param>
+      <theme name="label" ref="label">
+        <param name="font">
+          <font>alphabeta-border</font>
+        </param>
+        <param name="textAlignment">
+          <enum type="alignment">CENTER</enum>
+        </param>
+      </theme>
+    </theme>
+
+
     <theme name="logo" ref="-defaults">
       <param name="background">
         <image>background-image</image>

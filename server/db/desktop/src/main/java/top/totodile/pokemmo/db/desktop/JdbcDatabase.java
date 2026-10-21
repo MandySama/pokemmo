@@ -35,9 +35,29 @@ public final class JdbcDatabase implements Database {
     @Override public void transaction(Runnable operation) {
         try {
             connection.setAutoCommit(false);
+            Throwable failure = null;
+            boolean restoreAutoCommit = true;
             try { operation.run(); connection.commit(); }
-            catch (RuntimeException error) { connection.rollback(); throw error; }
-            finally { connection.setAutoCommit(true); }
+            catch (SQLException | RuntimeException | Error error) {
+                failure = error;
+                try { connection.rollback(); }
+                catch (SQLException rollbackError) {
+                    error.addSuppressed(rollbackError);
+                    // 回滚失败时关闭连接，不能恢复自动提交而提交未完成的写入。
+                    restoreAutoCommit = false;
+                    try { connection.close(); }
+                    catch (SQLException closeError) { error.addSuppressed(closeError); }
+                }
+                throw error;
+            } finally {
+                if (restoreAutoCommit) {
+                    try { connection.setAutoCommit(true); }
+                    catch (SQLException resetError) {
+                        if (failure != null) failure.addSuppressed(resetError);
+                        else throw resetError;
+                    }
+                }
+            }
         } catch (SQLException error) { throw new IllegalStateException(error); }
     }
     @Override public void close() {

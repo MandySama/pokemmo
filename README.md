@@ -17,7 +17,7 @@
 
 ## 主题、语言与 MOD 资源
 
-PC 的 `config/` 与 `data/` 同级，主题目录为 `data/themes/`；Android 使用应用内部 `files/config/`、`files/data/`，安装包中的 `data/` 作为基础资源。两端使用同一套资源解析和 XML 加载代码。
+PC 的 `config/` 与 `data/` 同级，主题目录为 `data/themes/`；Android 使用外部应用目录 `Android/data/top.totodile.pokemmo/config/`、`Android/data/top.totodile.pokemmo/data/`，安装包中的 `data/` 作为基础资源。两端使用同一套资源解析和 XML 加载代码。
 
 `data/themes/default/`、`data/themes/android/` 只包含当前登录、服务器选择、角色入口、公告和菜单使用的主题及其依赖，不提前导入地图、战斗等页面。Android 入口保留对 `../default/` 的相对引用。Logo 使用 `logingui.logo`，菜单行使用 `hud-item-button`，不另设按图标编号命名的主题。XML 引用、覆盖、字体和资源解析机制保留，后续 MOD 可以替换当前界面的样式和资源。
 
@@ -85,3 +85,5 @@ adb devices -l
 adb pair "<IP>:<配对端口>"
 adb connect "<IP>:<连接端口>"
 ```
+
+Android 配置和存档分别位于 `/storage/emulated/0/Android/data/top.totodile.pokemmo/config/` 和 `save/game.db`，与 `files` 同级；实际存储卷以系统返回的外部应用目录为准。使用应用自己的外部目录，无需所有文件访问权限。文件管理器是否能打开 `Android/data` 仍取决于其系统授权。

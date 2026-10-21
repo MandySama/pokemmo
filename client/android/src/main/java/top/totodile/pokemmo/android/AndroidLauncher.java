@@ -38,13 +38,23 @@ public final class AndroidLauncher extends AndroidApplication {
         config.disableAudio = true;
         config.useAccelerometer = false;
         config.useCompass = false;
+        java.io.File externalFiles = getExternalFilesDir(null);
+        if (externalFiles == null) throw new IllegalStateException("External application storage is unavailable");
+        // config、save 与 Android/data/<package>/files 同级，不写入其他应用目录。
+        java.io.File storageRoot = externalFiles.getParentFile();
+        for (String name : new String[]{"config", "save"}) {
+            java.io.File directory = new java.io.File(storageRoot, name);
+            if (!directory.isDirectory() && !directory.mkdirs())
+                throw new IllegalStateException("Cannot create application storage directory: " + name);
+        }
         android.os.BatteryManager battery = (android.os.BatteryManager) getSystemService(BATTERY_SERVICE);
         // 单调时钟包含后台和设备休眠时间，不受系统时间调整影响。
         initialize(new ClientApplication(path -> Gdx.files.internal(path), true,
                 android.os.SystemClock::elapsedRealtimeNanos,
+                () -> new com.badlogic.gdx.files.FileHandle(new java.io.File(storageRoot, "config")),
                 top.totodile.pokemmo.server.login.LoginServices.create(),
                 () -> battery == null ? -1 : battery.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY)).withGameService(
-                    new top.totodile.pokemmo.server.game.LocalGameService(() -> new AndroidDatabase(new java.io.File(getFilesDir(), "save/game.db")))), config);
+                    new top.totodile.pokemmo.server.game.LocalGameService(() -> new AndroidDatabase(new java.io.File(storageRoot, "save/game.db")))), config);
         // Activity 创建后进入黑色加载阶段，系统主题底色仅作为启动窗口的兜底。
         getWindow().setBackgroundDrawableResource(android.R.color.black);
         // 游戏画面本身不接收 IME，避免隐藏的安全键盘被并入任务快照的安全检查。
