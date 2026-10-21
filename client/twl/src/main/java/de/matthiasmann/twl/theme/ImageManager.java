@@ -174,9 +174,6 @@ class ImageManager {
     
     private void checkImageName(String name, XMLParser xmlp) throws XmlPullParserException, XmlPullParserException {
         ParserUtil.checkNameNotEmpty(name, xmlp);
-        if(images.containsKey(name)) {
-            throw xmlp.error("image \"" + name + "\" already defined");
-        }
     }
 
     private static Border getBorder(Image image, Border border) {

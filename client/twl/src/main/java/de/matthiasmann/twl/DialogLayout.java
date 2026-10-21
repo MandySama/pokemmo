@@ -1249,7 +1249,7 @@ public class DialogLayout extends Widget {
                     if(includeInvisibleWidgets || s.isVisible()) {
                         boolean isGap = (s instanceof GapSpring) || (s instanceof NamedGapSpring);
                         if(!isGap && !wasGap) {
-                            springs.add(i++, new GapSpring(DEFAULT_GAP, DEFAULT_GAP, DEFAULT_GAP, true));
+                            springs.add(i++, new GapSpring(SMALL_GAP, SMALL_GAP, SMALL_GAP, true));
                         }
                         wasGap = isGap;
                     }

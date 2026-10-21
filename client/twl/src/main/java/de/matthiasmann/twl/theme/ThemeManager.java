@@ -76,6 +76,7 @@ public class ThemeManager {
     static {
         registerEnumType("alignment", Alignment.class);
         registerEnumType("direction", PositionAnimatedPanel.Direction.class);
+        registerEnumType("tabposition", de.matthiasmann.twl.TabPosition.class);
     }
 
     static final Object NULL = new Object();
@@ -574,6 +575,9 @@ public class ThemeManager {
         ThemeInfoImpl ti = new ThemeInfoImpl(this, themeName, parent);
         boolean overwrite = xmlp.parseBoolFromAttribute("overwrite", false);
         boolean updating = previous != null && !overwrite;
+        // android.xml 的同名节点省略 ref，只修改已有主题的部分参数和子节点。
+        // 明确 overwrite 才丢弃旧定义，保证整套参考 XML 的逐层覆盖。
+        if (updating) ti.copy(previous);
         ThemeInfoImpl oldEnv = mathInterpreter.setEnv(ti);
         try {
             if(xmlp.parseBoolFromAttribute("merge", false)) {

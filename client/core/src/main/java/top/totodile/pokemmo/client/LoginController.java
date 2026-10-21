@@ -3,8 +3,8 @@ package top.totodile.pokemmo.client;
 import java.util.Objects;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Consumer;
-import top.totodile.pokemmo.shared.login.LoginService;
-import top.totodile.pokemmo.shared.login.LoginService.*;
+import top.totodile.pokemmo.server.login.LoginService;
+import top.totodile.pokemmo.server.login.LoginService.*;
 
 /** 登录流程状态，不依赖 TWL、LibGDX 或具体服务实现。 */
 final class LoginController implements AutoCloseable {

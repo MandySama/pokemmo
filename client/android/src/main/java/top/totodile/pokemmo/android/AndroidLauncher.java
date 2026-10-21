@@ -36,10 +36,12 @@ public final class AndroidLauncher extends AndroidApplication {
         config.disableAudio = true;
         config.useAccelerometer = false;
         config.useCompass = false;
+        android.os.BatteryManager battery = (android.os.BatteryManager) getSystemService(BATTERY_SERVICE);
         // 单调时钟包含后台和设备休眠时间，不受系统时间调整影响。
         initialize(new ClientApplication(path -> Gdx.files.internal(path), true,
                 android.os.SystemClock::elapsedRealtimeNanos,
-                new top.totodile.pokemmo.server.login.LocalLoginService()), config);
+                top.totodile.pokemmo.server.login.LoginServices.create(),
+                () -> battery == null ? -1 : battery.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY)), config);
         // Activity 创建后进入黑色加载阶段，系统主题底色仅作为启动窗口的兜底。
         getWindow().setBackgroundDrawableResource(android.R.color.black);
         // 游戏画面本身不接收 IME，避免隐藏的安全键盘被并入任务快照的安全检查。

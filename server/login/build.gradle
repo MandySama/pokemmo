@@ -1,1 +1,1 @@
-dependencies { api project(':shared:login') }
+// 单机登录服务，接口与实现均在本模块内，不依赖客户端。

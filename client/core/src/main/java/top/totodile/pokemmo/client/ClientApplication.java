@@ -16,32 +16,44 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 /** 显示滚动背景和游戏 Logo 的客户端窗口。 */
 public final class ClientApplication extends ApplicationAdapter {
-    private static final int LOGO_WIDTH = 484;
-    private static final int LOGO_HEIGHT = 143;
-    private static final int LOGO_CENTER_OFFSET_Y = 200;
     private final Viewport viewport;
     private final Viewport uiViewport;
-    private final top.totodile.pokemmo.shared.login.LoginService loginService;
+    private final top.totodile.pokemmo.server.login.LoginService loginService;
     private LoginController loginController;
     private SpriteBatch batch;
-    private Texture logo;
+    private ClientResources resources;
     private ScrollingBackground background;
     private LoginPanel loginPanel;
     private final Function<String, FileHandle> assets;
     private final LongSupplier clock;
     private final boolean mobile;
     private final Supplier<FileHandle> configDirectory;
+    private final java.util.function.IntSupplier batteryPercent;
     private AssetManager sceneAssets;
 
     public ClientApplication(Function<String, FileHandle> assets, boolean mobile, LongSupplier clock,
-                             top.totodile.pokemmo.shared.login.LoginService loginService) {
+                             top.totodile.pokemmo.server.login.LoginService loginService) {
         this(assets, mobile, clock, () -> Gdx.files.local("config"), loginService);
     }
 
     public ClientApplication(Function<String, FileHandle> assets, boolean mobile, LongSupplier clock,
                              Supplier<FileHandle> configDirectory,
-                             top.totodile.pokemmo.shared.login.LoginService loginService) {
+                             top.totodile.pokemmo.server.login.LoginService loginService) {
+        this(assets, mobile, clock, configDirectory, loginService, () -> -1);
+    }
+
+    public ClientApplication(Function<String, FileHandle> assets, boolean mobile, LongSupplier clock,
+                             top.totodile.pokemmo.server.login.LoginService loginService,
+                             java.util.function.IntSupplier batteryPercent) {
+        this(assets, mobile, clock, () -> Gdx.files.local("config"), loginService, batteryPercent);
+    }
+
+    private ClientApplication(Function<String, FileHandle> assets, boolean mobile, LongSupplier clock,
+                             Supplier<FileHandle> configDirectory,
+                             top.totodile.pokemmo.server.login.LoginService loginService,
+                             java.util.function.IntSupplier batteryPercent) {
         this.loginService = java.util.Objects.requireNonNull(loginService);
+        this.batteryPercent = java.util.Objects.requireNonNull(batteryPercent);
         this.assets = assets;
         this.configDirectory = configDirectory;
         this.clock = clock;
@@ -53,17 +65,11 @@ public final class ClientApplication extends ApplicationAdapter {
 
     @Override
     public void create() {
-        sceneAssets = new AssetManager(assets::apply);
+        resources = new ClientResources(assets, configDirectory.get(), mobile);
+        sceneAssets = new AssetManager(resources::apply);
         for (int i = 0; i < 3; i++) {
             sceneAssets.load("sprites/textures/bg_0" + i + ".png", Texture.class);
         }
-    }
-
-    private void loadLogo() {
-        batch = new SpriteBatch();
-        logo = new Texture(assets.apply("themes/default/res/bg.png"));
-        Texture.TextureFilter filter = mobile ? Texture.TextureFilter.Nearest : Texture.TextureFilter.Linear;
-        logo.setFilter(filter, filter);
     }
 
     private void loadScene() {
@@ -73,11 +79,12 @@ public final class ClientApplication extends ApplicationAdapter {
         }
         background = new ScrollingBackground(tiles, clock);
         loginController = new LoginController(loginService, Gdx.app::postRunnable);
-        loginPanel = new LoginPanel(uiViewport, assets, mobile, SavedAccounts.open(configDirectory.get()), loginController);
+        loginPanel = new LoginPanel(uiViewport, resources, mobile, SavedAccounts.open(configDirectory.get()),
+                () -> System.nanoTime() / 1_000_000L, loginController, batteryPercent);
     }
 
     /** 后续角色/世界入口从此取得选择结果，不需要访问登录界面或密码。 */
-    public top.totodile.pokemmo.shared.login.LoginService.Selection selectedServer() {
+    public top.totodile.pokemmo.server.login.LoginService.Selection selectedServer() {
         return loginController == null ? null : loginController.selection();
     }
 
@@ -93,7 +100,7 @@ public final class ClientApplication extends ApplicationAdapter {
         // 以资源实际加载状态决定画面，不规定 Logo 或背景出现在哪一帧。
         // AssetManager 在后台解码图片，在渲染线程上传纹理。
         if (background == null && sceneAssets.update()) {
-            if (batch == null) loadLogo();
+            if (batch == null) batch = new SpriteBatch();
             loadScene();
         }
         // 两端加载期间均保持黑色，资源和登录界面准备完成后一起显示。
@@ -101,8 +108,6 @@ public final class ClientApplication extends ApplicationAdapter {
         viewport.apply();
         float width = viewport.getWorldWidth();
         float height = viewport.getWorldHeight();
-        // 与参考客户端登录布局一致：Logo 固定为 484×143，居中后向上偏移 200 个逻辑单位。
-        // 将左上角为原点的界面坐标转换为 SpriteBatch 使用的左下角原点坐标。
         batch.setProjectionMatrix(viewport.getCamera().combined);
         batch.begin();
         background.draw(batch, width, height, viewport.getScreenWidth());
@@ -110,20 +115,6 @@ public final class ClientApplication extends ApplicationAdapter {
         // 所有前景共用安全区视口，布局、弹出列表和触摸坐标使用同一坐标系。
         uiViewport.apply();
         float uiWidth = uiViewport.getWorldWidth(), uiHeight = uiViewport.getWorldHeight();
-        float logoX = ((int) uiWidth - LOGO_WIDTH) / 2f;
-        float logoTop = ((int) uiHeight - LOGO_HEIGHT) / 2f - LOGO_CENTER_OFFSET_Y;
-        float logoY = uiHeight - logoTop - LOGO_HEIGHT;
-        if (mobile) {
-            Gdx.gl.glEnable(com.badlogic.gdx.graphics.GL20.GL_SCISSOR_TEST);
-            com.badlogic.gdx.graphics.glutils.HdpiUtils.glScissor(uiViewport.getScreenX(), uiViewport.getScreenY(),
-                    uiViewport.getScreenWidth(), uiViewport.getScreenHeight());
-        }
-        batch.setProjectionMatrix(uiViewport.getCamera().combined);
-        batch.begin();
-        if (loginController.state() != LoginController.State.SELECTED)
-            batch.draw(logo, logoX, logoY, (float) LOGO_WIDTH, (float) LOGO_HEIGHT);
-        batch.end();
-        if (mobile) Gdx.gl.glDisable(com.badlogic.gdx.graphics.GL20.GL_SCISSOR_TEST);
         loginPanel.draw(uiWidth, uiHeight, 0, 0);
     }
 
@@ -150,7 +141,7 @@ public final class ClientApplication extends ApplicationAdapter {
         if (loginPanel != null) loginPanel.dispose();
         // 背景纹理由 AssetManager 统一释放。
         if (sceneAssets != null) sceneAssets.dispose();
-        if (logo != null) logo.dispose();
         if (batch != null) batch.dispose();
+        if (resources != null) resources.close();
     }
 }

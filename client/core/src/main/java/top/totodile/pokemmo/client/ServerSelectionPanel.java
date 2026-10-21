@@ -3,7 +3,7 @@ package top.totodile.pokemmo.client;
 import de.matthiasmann.twl.*;
 import java.util.ArrayList;
 import java.util.List;
-import top.totodile.pokemmo.shared.login.LoginService.*;
+import top.totodile.pokemmo.server.login.LoginService.*;
 
 /** 参考客户端的三列表格：服务器名称、服务器状态、逐行登录按钮。 */
 final class ServerSelectionPanel extends ResizableFrame {

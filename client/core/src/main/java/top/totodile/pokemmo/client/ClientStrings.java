@@ -45,6 +45,8 @@ final class ClientStrings {
         Source(FileHandle file, boolean bundled) { this.file = file; this.bundled = bundled; }
     }
 
+    static void validate(Source source) { new Container(source.file, source.bundled); }
+
     ClientStrings(String requestedLanguage, Source... sources) {
         for (Source source : sources) {
             try { containers.add(new Container(source.file, source.bundled)); }
@@ -146,6 +148,12 @@ final class ClientStrings {
         if (value == null) return "STRING_" + id;
         for (int index = 0; index < arguments.length; index++)
             value = value.replace("{" + String.format(Locale.ROOT, "%02X", index) + "}", arguments[index]);
+        Matcher remainder = Pattern.compile("\\{([A-F0-9]{2,4})\\+\\}").matcher(value);
+        if (arguments.length > 0 && remainder.find()) {
+            int first = Integer.parseInt(remainder.group(1),16)&255;
+            String joined = first >= arguments.length ? "" : String.join("/",Arrays.copyOfRange(arguments,first,arguments.length));
+            value = value.replace(remainder.group(), joined);
+        }
         return substituteVariables(value);
     }
 

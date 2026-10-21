@@ -37,6 +37,16 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
     private CacheContext context;
     private Cursor.SystemCursor currentSystemCursor;
     private float currentFontScale;
+    private ThemeCursor themeCursor;
+    private Cursor hiddenCursor;
+    private com.badlogic.gdx.graphics.Texture white;
+    private com.badlogic.gdx.graphics.Pixmap whitePixels;
+    private final List<com.badlogic.gdx.graphics.Pixmap> derivedPixels = new ArrayList<>();
+    private final AnimationState cursorState = new AnimationState() {
+        public int getAnimationTime(StateKey key){return (int)(getTimeMillis()&Integer.MAX_VALUE);}
+        public boolean getAnimationState(StateKey key){return false;}
+        public boolean getShouldAnimateState(StateKey key){return true;}
+    };
     public GdxTwlRenderer(Viewport viewport) {
         this(viewport, null);
     }
@@ -86,7 +96,14 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
         clipEnter(0, 0, getWidth(), getHeight());
         return true;
     }
-    public void endRendering() { batch.end(); Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST); clips.clear(); }
+    public void endRendering() {
+        if(themeCursor!=null && Gdx.app.getType()==ApplicationType.Desktop){
+            var point=viewport.unproject(new com.badlogic.gdx.math.Vector2(Gdx.input.getX(),Gdx.input.getY()));
+            themeCursor.image.draw(cursorState,Math.round(point.x)-themeCursor.hotX,
+                    getHeight()-Math.round(point.y)-themeCursor.hotY);
+        }
+        batch.end(); Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST); clips.clear();
+    }
     public CacheContext createNewCacheContext() {
         return new CacheContext() {
             boolean valid = true;
@@ -102,7 +119,7 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
         return font;
     }
     public de.matthiasmann.twl.renderer.Texture loadTexture(URL url, String format, String filter) throws IOException {
-        String key = url.toString();
+        String key = url + "#" + format + ":" + filter;
         Atlas atlas = textures.get(key);
         if (atlas == null) {
             // 使用受管理纹理，Android 从后台恢复且 GL 上下文重建时重新读取资源。
@@ -122,11 +139,48 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
         }
         return atlas;
     }
+    public Image grayscale(URL url) throws IOException {
+        String key=url+"#gray";
+        Atlas atlas=textures.get(key);
+        if(atlas==null){
+            var file=(FileHandle)url.getContent(new Class<?>[]{FileHandle.class});
+            byte[] bytes=file.readBytes();
+            var original=new com.badlogic.gdx.graphics.Pixmap(bytes,0,bytes.length);
+            var gray=new com.badlogic.gdx.graphics.Pixmap(original.getWidth(),original.getHeight(),com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888);
+            gray.setBlending(com.badlogic.gdx.graphics.Pixmap.Blending.None);
+            for(int y=0;y<gray.getHeight();y++)for(int x=0;x<gray.getWidth();x++){
+                int rgba=original.getPixel(x,y), average=((rgba>>>24)+((rgba>>>16)&255)+((rgba>>>8)&255))/3;
+                gray.drawPixel(x,y,(average<<24)|(average<<16)|(average<<8)|(rgba&255));
+            }
+            original.dispose();derivedPixels.add(gray);
+            atlas=new Atlas(new com.badlogic.gdx.graphics.Texture(new com.badlogic.gdx.graphics.glutils.PixmapTextureData(gray,null,false,false,true)));
+            textures.put(key,atlas);
+        }
+        return atlas.getImage(0,0,atlas.getWidth(),atlas.getHeight(),Color.WHITE,false,de.matthiasmann.twl.renderer.Texture.Rotation.NONE);
+    }
     public LineRenderer getLineRenderer() { return null; }
     public OffscreenRenderer getOffscreenRenderer() { return null; }
     public FontMapper getFontMapper() { return null; }
     public DynamicImage createDynamicImage(int width, int height) { return null; }
-    public Image createGradient(Gradient gradient) { throw new UnsupportedOperationException("登录主题不使用渐变资源"); }
+    public Image createGradient(Gradient gradient) { return new GdxGradientImage(this,gradient); }
+    void gradientQuad(boolean horizontal,int x,int y,int width,int height,float from,float to,Color a,Color b){
+        if(white==null){
+            whitePixels=new com.badlogic.gdx.graphics.Pixmap(1,1,com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888);
+            whitePixels.setColor(1,1,1,1);whitePixels.fill();
+            white=new com.badlogic.gdx.graphics.Texture(new com.badlogic.gdx.graphics.glutils.PixmapTextureData(whitePixels,null,false,false,true));
+        }
+        float left=horizontal?x+from:x,right=horizontal?x+to:x+width;
+        float top=getHeight()-(horizontal?y:y+from),bottom=getHeight()-(horizontal?y+height:y+to);
+        float ca=packed(a),cb=packed(b);
+        float[] vertices={left,bottom,horizontal?ca:cb,0,1,left,top,ca,0,0,
+                right,top,horizontal?cb:ca,1,0,right,bottom,cb,1,1};
+        batch.draw(white,vertices,0,vertices.length);
+    }
+    private float packed(Color color){
+        float[] t=tints.peek();
+        return com.badlogic.gdx.graphics.Color.toFloatBits(color.getRedFloat()*t[0],color.getGreenFloat()*t[1],
+                color.getBlueFloat()*t[2],color.getAlphaFloat()*t[3]);
+    }
     public void clipEnter(int x, int y, int width, int height) {
         Rect rect = new Rect(x, y, width, height);
         if (!clips.isEmpty()) rect.intersect(clips.peek());
@@ -148,6 +202,14 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
     }
     public void setCursor(MouseCursor cursor) {
         if (Gdx.app.getType() != ApplicationType.Desktop) return;
+        themeCursor=cursor instanceof ThemeCursor?(ThemeCursor)cursor:null;
+        if(themeCursor!=null){
+            if(hiddenCursor==null){
+                var pixels=new com.badlogic.gdx.graphics.Pixmap(16,16,com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888);
+                hiddenCursor=Gdx.graphics.newCursor(pixels,0,0);pixels.dispose();
+            }
+            Gdx.graphics.setCursor(hiddenCursor);currentSystemCursor=null;return;
+        }
         Cursor.SystemCursor next = cursor == SystemMouseCursor.TEXT
                 ? Cursor.SystemCursor.Ibeam : Cursor.SystemCursor.Arrow;
         if (next != currentSystemCursor) {
@@ -170,8 +232,12 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
     }
     public void close() {
         setCursor(null);
+        if(hiddenCursor!=null)hiddenCursor.dispose();
+        if(white!=null)white.dispose();
+        if(whitePixels!=null)whitePixels.dispose();
         fonts.forEach(GdxTwlFont::destroy);
         textures.values().forEach(Atlas::destroy);
+        derivedPixels.forEach(com.badlogic.gdx.graphics.Pixmap::dispose);
         disposeFontPackers();
         batch.dispose();
     }
@@ -191,29 +257,38 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
         public Image getImage(int x,int y,int w,int h,Color tint,boolean tiled,Rotation rotation) {
             TextureRegion region = new TextureRegion(texture,x,y,Math.abs(w),Math.abs(h));
             region.flip(w<0,h<0);
-            if(rotation!=Rotation.NONE) throw new UnsupportedOperationException("登录主题不使用旋转图片");
-            return new AtlasImage(region,tint==null?Color.WHITE:tint,tiled);
+            return new AtlasImage(region,tint==null?Color.WHITE:tint,tiled,rotation);
         }
-        public MouseCursor createCursor(int x,int y,int w,int h,int hx,int hy,Image image){return null;}
+        public MouseCursor createCursor(int x,int y,int w,int h,int hx,int hy,Image image){
+            return new ThemeCursor(image==null?getImage(x,y,w,h,Color.WHITE,false,Rotation.NONE):image,hx,hy);
+        }
         public void themeLoadingDone(){}
         public void destroy(){texture.dispose();}
     }
     private final class AtlasImage implements Image {
         final TextureRegion region; final Color color; final boolean tiled;
-        AtlasImage(TextureRegion region,Color color,boolean tiled){this.region=region;this.color=color;this.tiled=tiled;}
-        public int getWidth(){return region.getRegionWidth();}
-        public int getHeight(){return region.getRegionHeight();}
+        final de.matthiasmann.twl.renderer.Texture.Rotation rotation;
+        final com.badlogic.gdx.graphics.g2d.Sprite sprite;
+        AtlasImage(TextureRegion region,Color color,boolean tiled,de.matthiasmann.twl.renderer.Texture.Rotation rotation){
+            this.region=region;this.color=color;this.tiled=tiled;this.rotation=rotation;
+            sprite=new com.badlogic.gdx.graphics.g2d.Sprite(region);
+            for(int index=0;index<rotation.ordinal();index++)sprite.rotate90(true);
+        }
+        public int getWidth(){return rotation.ordinal()%2==0?region.getRegionWidth():region.getRegionHeight();}
+        public int getHeight(){return rotation.ordinal()%2==0?region.getRegionHeight():region.getRegionWidth();}
         public void draw(AnimationState state,int x,int y){draw(state,x,y,getWidth(),getHeight());}
         public void draw(AnimationState state,int x,int y,int width,int height) {
             if(width<=0 || height<=0 || getWidth()==0 || getHeight()==0)return;
             tint(color);
-            if(!tiled){batch.draw(region,x,GdxTwlRenderer.this.getHeight()-y-height,width,height);return;}
+            sprite.setColor(batch.getColor());
+            if(!tiled){sprite.setBounds(x,GdxTwlRenderer.this.getHeight()-y-height,width,height);sprite.draw(batch);return;}
+            clipEnter(x,y,width,height);
             for(int dy=0;dy<height;dy+=getHeight()) for(int dx=0;dx<width;dx+=getWidth()) {
-                int w=Math.min(getWidth(),width-dx),h=Math.min(getHeight(),height-dy);
-                TextureRegion part=new TextureRegion(region,0,0,w,h);
-                batch.draw(part,x+dx,GdxTwlRenderer.this.getHeight()-y-dy-h,w,h);
+                sprite.setBounds(x+dx,GdxTwlRenderer.this.getHeight()-y-dy-getHeight(),getWidth(),getHeight());sprite.draw(batch);
             }
+            clipLeave();
         }
-        public Image createTintedVersion(Color tint){return new AtlasImage(region,color.multiply(tint),tiled);}
+        public Image createTintedVersion(Color tint){return new AtlasImage(region,color.multiply(tint),tiled,rotation);}
     }
+    private record ThemeCursor(Image image,int hotX,int hotY) implements MouseCursor {}
 }

@@ -10,7 +10,7 @@ final class AccountPicker extends Button {
     private final Label display = new Label(getAnimationState()) {
         @Override protected boolean handleEvent(Event event) { return false; }
     };
-    private final Widget arrow = new Widget();
+    private final Widget arrow = new Widget(getAnimationState());
     private final PopupWindow popup = new PopupWindow(this);
     private List<String> names = List.of();
     private ListBox<String> list;
@@ -20,13 +20,13 @@ final class AccountPicker extends Button {
     AccountPicker(String other, Consumer<String> onSelected) {
         this.other = other;
         this.onSelected = onSelected;
-        setTheme("account-picker");
+        setTheme("combobox");
         display.setTheme("display");
         display.setClip(true);
         add(display);
-        arrow.setTheme("arrow");
+        arrow.setTheme("button");
         add(arrow);
-        popup.setTheme("/account-popup");
+        popup.setTheme("/comboboxPopup");
         addCallback(this::openAccounts);
     }
 
@@ -36,17 +36,18 @@ final class AccountPicker extends Button {
         display.setText(getText());
     }
 
-    @Override public int getPreferredInnerWidth() { return display.getPreferredWidth() + 14; }
-    @Override public int getPreferredInnerHeight() { return display.getPreferredHeight(); }
+    @Override public int getPreferredInnerWidth() { return display.getPreferredWidth() + arrow.getPreferredWidth(); }
+    @Override public int getPreferredInnerHeight() { return Math.max(display.getPreferredHeight(), arrow.getPreferredHeight()); }
 
     // 背景由 Button 绘制，文字使用独立区域，为右侧箭头留出空间。
     @Override protected void paintWidget(GUI gui) { }
 
     @Override protected void layout() {
-        arrow.setPosition(getInnerRight() - 14, getInnerY());
-        arrow.setSize(14, getInnerHeight());
+        int arrowWidth = arrow.getPreferredWidth();
+        arrow.setPosition(getInnerRight() - arrowWidth, getInnerY());
+        arrow.setSize(arrowWidth, getInnerHeight());
         display.setPosition(getInnerX(), getInnerY());
-        display.setSize(Math.max(0, getInnerWidth() - 14), getInnerHeight());
+        display.setSize(Math.max(0, getInnerWidth() - arrowWidth), getInnerHeight());
         if (popup.isOpen()) positionPopup();
     }
 

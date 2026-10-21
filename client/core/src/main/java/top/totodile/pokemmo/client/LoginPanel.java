@@ -26,12 +26,20 @@ final class LoginPanel implements Disposable {
     private final GdxTwlRenderer renderer;
     private final GUI gui;
     private final ThemeManager theme;
+    private final ClientResources resources;
+    private final boolean ownsResources;
+    private final Widget logo = new Widget();
+    private final java.util.Map<Integer,de.matthiasmann.twl.renderer.Image> itemIcons = new java.util.HashMap<>();
     private final ResizableFrame frame = new ResizableFrame();
     private final Widget root;
     private final LoginController controller;
     private final ServerSelectionPanel serverFrame;
     private final CharacterSelectionPanel characterPage;
     private final Label romInfo;
+    private final AnnouncementsPanel announcements;
+    private final DesktopLoginMenu desktopMenu;
+    private final MobileStatusIcons mobileStatus;
+    private final MobileSideMenu mobileMenu;
     private final Label fps = new Label("0.00");
     private final FrameRateCounter frameRate = new FrameRateCounter(System::nanoTime);
     private final EditField username;
@@ -63,11 +71,20 @@ final class LoginPanel implements Disposable {
 
     LoginPanel(Viewport viewport, Function<String, FileHandle> assets, boolean mobile,
                SavedAccounts savedAccounts, LongSupplier notificationClock, LoginController controller) {
+        this(viewport, assets, mobile, savedAccounts, notificationClock, controller, () -> -1);
+    }
+
+    LoginPanel(Viewport viewport, Function<String, FileHandle> assets, boolean mobile,
+               SavedAccounts savedAccounts, LongSupplier notificationClock, LoginController controller,
+               java.util.function.IntSupplier batteryPercent) {
         this.controller = controller;
         this.savedAccounts = savedAccounts;
         this.mobile = mobile;
         this.notificationClock = notificationClock;
-        strings = ClientStrings.load(assets.apply("strings"), null);
+        ownsResources = !(assets instanceof ClientResources);
+        resources = assets instanceof ClientResources ? (ClientResources) assets
+                : new ClientResources(assets, savedAccounts.directory(), mobile);
+        strings = resources.strings();
         renderer = new GdxTwlRenderer(viewport, strings.typeface());
         username = new LoginEditField(mobile, true);
         password = new LoginEditField(mobile, false);
@@ -97,14 +114,38 @@ final class LoginPanel implements Disposable {
         characterPage = new CharacterSelectionPanel(strings, controller);
         // 参考登录页 Nq：当前尚未加载 ROM，两个平台列表均显示 --。
         romInfo = new Label(strings.get(1170) + "\nNDS: --\nGBA: --");
+        announcements = new AnnouncementsPanel(strings, mobile);
+        desktopMenu = mobile ? null : new DesktopLoginMenu(strings);
+        mobileStatus = mobile ? new MobileStatusIcons(batteryPercent) : null;
+        mobileMenu = mobile ? new MobileSideMenu(strings, mobileStatus, notificationClock, this::itemIcon) : null;
+        if (mobileStatus != null) mobileStatus.onMenu(() -> {
+            hideKeyboard();
+            mobileMenu.open();
+        });
         fps.setTheme("/fpscounter");
+        logo.setTheme("logo");
         root = new Widget() {
             @Override protected void layout() {
+                logo.setSize(484,143);
+                logo.setPosition(getInnerX()+(getInnerWidth()-484)/2,getInnerY()+(getInnerHeight()-143)/2-200);
                 romInfo.adjustSize();
                 romInfo.setPosition(getInnerX() + 3, getInnerY() + 3);
                 fps.adjustSize();
                 fps.setPosition(mobile ? getInnerX() : getInnerRight() - fps.getWidth(),
                         mobile ? getInnerBottom() - fps.getHeight() : getInnerY());
+                announcements.adjustSize();
+                announcements.setPosition(getInnerX(), getInnerBottom() - announcements.getHeight()
+                        - (mobile ? fps.getHeight() : 0));
+                if (desktopMenu != null) {
+                    desktopMenu.adjustSize();
+                    desktopMenu.setPosition(getInnerRight() - desktopMenu.getWidth() - 4,
+                            getInnerBottom() - desktopMenu.getHeight() - 4);
+                }
+                if (mobileStatus != null) {
+                    mobileStatus.adjustSize();
+                    mobileStatus.setPosition(getInnerRight() - mobileStatus.getWidth() - 5, getInnerY() + 5);
+                }
+                if (mobileMenu != null) mobileMenu.position();
                 if (frame.isVisible()) {
                     frame.adjustSize();
                     frame.setPosition((getInnerWidth()-frame.getWidth())/2+getInnerX()+offsetX,
@@ -127,17 +168,19 @@ final class LoginPanel implements Disposable {
             }
         };
         root.setTheme("logingui");
+        root.add(logo);
         root.add(frame);
         root.add(serverFrame);
         root.add(characterPage);
         root.add(romInfo);
+        root.add(announcements);
+        if (desktopMenu != null) root.add(desktopMenu);
         root.add(fps);
+        if (mobileStatus != null) root.add(mobileStatus);
+        if (mobileMenu != null) root.add(mobileMenu);
         gui = new GUI(root, renderer, null);
-        try {
-            URL url = new URL(null, "asset:/themes/"+(mobile?"android":"default")+"/theme.xml", new AssetUrlStreamHandler(assets));
-            theme = ThemeManager.createThemeManager(url, renderer);
-            gui.applyTheme(theme);
-        } catch (IOException e) { throw new IllegalStateException("加载登录主题失败", e); }
+        theme = loadTheme(resources.selectedTheme());
+        gui.applyTheme(theme);
         input = new InputAdapter() {
             private boolean pointer(int x,int y,int button,boolean pressed) {
                 Vector2 point=viewport.unproject(new Vector2(x,y));
@@ -149,7 +192,8 @@ final class LoginPanel implements Disposable {
             @Override public boolean mouseMoved(int x,int y){return pointer(x,y,-1,false);}
             @Override public boolean keyDown(int key){
                 if(key==Input.Keys.ESCAPE || key==Input.Keys.BACK){
-                    if(nativeEditor!=null)hideKeyboard();
+                    if(mobileMenu!=null && mobileMenu.isVisible())mobileMenu.close();
+                    else if(nativeEditor!=null)hideKeyboard();
                     else if(controller.state()!=LoginController.State.LOGIN)controller.back();
                     else if(!gui.handleKey(Event.KEY_ESCAPE,'\0',true))hideKeyboard();
                     return true;
@@ -172,6 +216,42 @@ final class LoginPanel implements Disposable {
         Gdx.input.setCatchKey(Input.Keys.BACK,true);
         controller.listen(this::refreshLoginState);
         focusLoginPage();
+    }
+    private ThemeManager loadTheme(ClientResources.Theme selected) {
+        try {
+            return ThemeManager.createThemeManager(resources.themeUrl(selected), renderer, renderer.createNewCacheContext(),
+                    new java.util.HashMap<String,Object>(resources.imageConstants(selected,strings.language())));
+        } catch (IOException | RuntimeException error) {
+            if (!selected.name().equals("default") && !selected.name().equals("android")) {
+                java.util.logging.Logger.getLogger(LoginPanel.class.getName()).log(java.util.logging.Level.WARNING,
+                        "Unable to load theme " + selected.name() + "; using default theme", error);
+                return loadTheme(resources.defaultTheme());
+            }
+            throw new IllegalStateException("加载登录主题失败",error);
+        }
+    }
+    private de.matthiasmann.twl.renderer.Image itemIcon(int id) {
+        return itemIcons.computeIfAbsent(id, key -> {
+            try {
+                URL url=new URL(null,"asset:/data/sprites/itemicons/"+key+".png",
+                        new AssetUrlStreamHandler(path->resources.apply(path.startsWith("data/")?path.substring(5):path)));
+                var normal=renderer.loadTexture(url,null,"nearest");
+                var color=normal.getImage(0,0,normal.getWidth(),normal.getHeight(),Color.WHITE,false,
+                        de.matthiasmann.twl.renderer.Texture.Rotation.NONE);
+                var gray=renderer.grayscale(url);
+                return new de.matthiasmann.twl.renderer.Image() {
+                    public int getWidth(){return color.getWidth();}
+                    public int getHeight(){return color.getHeight();}
+                    public void draw(de.matthiasmann.twl.renderer.AnimationState state,int x,int y){draw(state,x,y,getWidth(),getHeight());}
+                    public void draw(de.matthiasmann.twl.renderer.AnimationState state,int x,int y,int w,int h){
+                        (state.getAnimationState(Button.STATE_HOVER)||state.getAnimationState(Widget.STATE_KEYBOARD_FOCUS)?color:gray).draw(state,x,y,w,h);
+                    }
+                    public de.matthiasmann.twl.renderer.Image createTintedVersion(Color tint){
+                        return color.createTintedVersion(tint);
+                    }
+                };
+            } catch(IOException error){throw new IllegalStateException("Cannot load menu icon",error);}
+        });
     }
     private static int keyCode(int key) {
         return switch(key) {
@@ -200,7 +280,7 @@ final class LoginPanel implements Disposable {
     private void submit() {
         if (controller.state() != LoginController.State.LOGIN) return;
         if (nativeEditor != null) {
-            // 原生输入栏先回写最新文本，再执行本地校验和保存。
+            // 原生输入栏先回写最新文本，再提交登录服务。
             Gdx.input.closeTextInputField(false, confirm -> {
                 if (!disposed) submit();
                 return false;
@@ -214,11 +294,6 @@ final class LoginPanel implements Disposable {
         }
         String name = selectedAccount != null ? selectedAccount : username.getText();
         String secret = selectedAccount != null ? savedAccounts.password(selectedAccount) : password.getText();
-        if (name.isBlank() || secret == null || secret.isEmpty()) {
-            showError(strings.get(2001) + " (2)");
-            if (!mobile) focusAndEdit(username.getText().isBlank() ? username : password);
-            return;
-        }
         boolean existing = selectedAccount != null;
         boolean save = remember.isActive();
         controller.login(name, secret, session -> {
@@ -238,10 +313,13 @@ final class LoginPanel implements Disposable {
         // 切换页面立即移除旧页面的命中区域，避免淡出中的窗口继续挡住点击。
         frame.setHardVisible(loginPage);
         boolean characters = controller.state() == LoginController.State.SELECTED;
+        logo.setVisible(!characters);
         boolean enteringCharacters = characters && !characterPage.isVisible();
         serverFrame.setHardVisible(!loginPage && !characters);
         characterPage.setVisible(characters);
         romInfo.setVisible(!characters);
+        announcements.setHardVisible(!characters);
+        if (desktopMenu != null) desktopMenu.setVisible(!characters);
         form.setEnabled(controller.state() == LoginController.State.LOGIN);
         serverFrame.refresh();
         if (enteringCharacters) characterPage.focusDefault();
@@ -252,8 +330,14 @@ final class LoginPanel implements Disposable {
             }
             focusLoginPage();
         }
-        if (controller.failed() && controller.state() == LoginController.State.LOGIN)
+        if (controller.failed() && controller.state() == LoginController.State.LOGIN) {
             showError(strings.get(2001) + " (2)");
+            if (!mobile) {
+                if (selectedAccount == null)
+                    focusAndEdit(username.getText().isBlank() ? username : password);
+                else login.requestKeyboardFocus();
+            }
+        }
         root.invalidateLayout();
     }
 
@@ -335,14 +419,28 @@ final class LoginPanel implements Disposable {
         }
     }
 
-    private final class LoginNotification extends Label {
+    private final class LoginNotification extends ResizableFrame {
+        private final Button message;
         private long expiresAt = notificationClock.getAsLong() + 5000;
         private long fadeStartedAt;
         private boolean fading;
 
-        LoginNotification(String message) {
-            super(message.trim());
-            setTheme("/login-notification");
+        LoginNotification(String text) {
+            setTheme("/notification");
+            setDraggable(false);
+            setResizableAxis(ResizableAxis.NONE);
+            DialogLayout content = new DialogLayout();
+            message = new Button(text.trim()) {
+                @Override public boolean handleEvent(Event event) {
+                    expireOnClick(event);
+                    return super.handleEvent(event);
+                }
+            };
+            message.setTheme("label");
+            message.setCanAcceptKeyboardFocus(false);
+            content.setHorizontalGroup(content.createParallelGroup(message));
+            content.setVerticalGroup(content.createSequentialGroup(message));
+            add(content);
             setTintAnimator(new TintAnimator(new TintAnimator.TimeSource() {
                 private long startedAt;
                 public void resetTime() { startedAt = notificationClock.getAsLong(); }
@@ -350,12 +448,14 @@ final class LoginPanel implements Disposable {
             }));
         }
 
-        @Override public boolean handleEvent(Event event) {
-            if ((event.getType() == Event.Type.MOUSE_BTNDOWN || event.getType() == Event.Type.MOUSE_CLICKED)
-                    && (event.getMouseButton() == Event.MOUSE_LBUTTON || event.getMouseButton() == Event.MOUSE_RBUTTON)) {
+        private void expireOnClick(Event event) {
+            if (event.getType() == Event.Type.MOUSE_BTNDOWN
+                    && (event.getMouseButton() == Event.MOUSE_LBUTTON || event.getMouseButton() == Event.MOUSE_RBUTTON))
                 expiresAt = notificationClock.getAsLong();
-                return true;
-            }
+        }
+
+        @Override public boolean handleEvent(Event event) {
+            expireOnClick(event);
             return super.handleEvent(event);
         }
     }
@@ -368,6 +468,8 @@ final class LoginPanel implements Disposable {
         else Gdx.input.setOnscreenKeyboardVisible(false);
     }
     void draw(float width,float height,float x,float y) {
+        if (mobileStatus != null) mobileStatus.update(System.nanoTime());
+        if (mobileMenu != null) mobileMenu.update();
         fps.setText(frameRate.frame());
         if (renderer.updateFontScale()) invalidateFontLayout(gui);
         int nextX=Math.round(x),nextY=Math.round(y);
@@ -387,6 +489,7 @@ final class LoginPanel implements Disposable {
         if(nativeEditor!=null)Gdx.input.closeTextInputField(false);
         if(Gdx.input.getInputProcessor()==input)Gdx.input.setInputProcessor(null);
         gui.destroy();theme.destroy();renderer.close();
+        if (ownsResources) resources.close();
     }
     private final class LoginEditField extends EditField {
         private final boolean mobile, username;
@@ -401,9 +504,6 @@ final class LoginPanel implements Disposable {
                 text=filtered.toString();
             }
             super.insertText(text);
-        }
-        @Override public de.matthiasmann.twl.renderer.MouseCursor getMouseCursor(Event event){
-            return mobile ? super.getMouseCursor(event) : GdxTwlRenderer.SystemMouseCursor.TEXT;
         }
         @Override public boolean handleEvent(Event event){
             boolean handled=super.handleEvent(event);

@@ -5,7 +5,6 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentHashMap;
-import top.totodile.pokemmo.shared.login.LoginService;
 
 /** 单机入口：非空账号作为本地身份，不执行联网认证，也不保留密码。 */
 public final class LocalLoginService implements LoginService {

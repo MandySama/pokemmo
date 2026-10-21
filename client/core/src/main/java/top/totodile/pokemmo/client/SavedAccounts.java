@@ -43,6 +43,7 @@ final class SavedAccounts {
     static SavedAccounts open(FileHandle directory) {
         return new SavedAccounts(directory.child("savedcredentials.properties"));
     }
+    FileHandle directory() { return file.parent(); }
 
     SavedAccounts(FileHandle file) {
         this(file, FileOutputStream::new);
