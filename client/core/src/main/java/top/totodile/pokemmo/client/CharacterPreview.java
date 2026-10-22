@@ -60,7 +60,8 @@ final class CharacterPreview extends Widget implements AutoCloseable {
     void turn(int delta) { mode = Math.floorMod(mode + delta, 5); }
     void color(CharacterAppearance.Slot slot, int color) { colorSlot = slot; pendingColor = color; }
     boolean coloring() { return colorSlot != null; }
-    void centerBetween(int left, int right) { centerX = (left + right) / 2; }
+    // 保存相对坐标，父窗口移动时预览中心随控件一起移动。
+    void centerBetween(int left, int right) { centerX = (left + right) / 2 - getX(); }
     void portrait() { portrait = true; }
 
     @Override protected boolean handleEvent(Event event) { return false; }
@@ -79,7 +80,7 @@ final class CharacterPreview extends Widget implements AutoCloseable {
                     : mode == 3 ? gender.getAsInt() : BACK_FRAMES[(int)(time / 150 % BACK_FRAMES.length)];
             Cached body = load(new Key(-1, skin.getAsInt(), view, frame, 0));
             if (body == null) continue;
-            int x = centerX - getX() - body.image.getWidth() * scale / 2;
+            int x = centerX - body.image.getWidth() * scale / 2;
             int y;
             if (mobile) {
                 x += (direction - 1) * (coloring() ? 220 : 200);
