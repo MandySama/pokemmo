@@ -3,12 +3,12 @@ target/
 local.properties
 **/config/savedcredentials.properties
 **/config/savedcredentials.properties.*.tmp
-/client/desktop/src/test/
+**/src/test/
+**/src/androidTest/
 /tools/
 client/android/build-emulator*.log
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
-!**/src/test/**/target/
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
@@ -36,7 +36,6 @@ client/android/build-emulator*.log
 /.nb-gradle/
 build/
 !**/src/main/**/build/
-!**/src/test/**/build/
 
 ### VS Code ###
 .vscode/

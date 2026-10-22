@@ -13,6 +13,13 @@
             <option value="$PROJECT_DIR$/client/core" />
             <option value="$PROJECT_DIR$/client/desktop" />
             <option value="$PROJECT_DIR$/client/twl" />
+            <option value="$PROJECT_DIR$/server" />
+            <option value="$PROJECT_DIR$/server/chat" />
+            <option value="$PROJECT_DIR$/server/db" />
+            <option value="$PROJECT_DIR$/server/db/android" />
+            <option value="$PROJECT_DIR$/server/db/desktop" />
+            <option value="$PROJECT_DIR$/server/game" />
+            <option value="$PROJECT_DIR$/server/login" />
           </set>
         </option>
       </GradleProjectSettings>

@@ -17,7 +17,7 @@
 
 ## 主题、语言与 MOD 资源
 
-PC 的 `config/` 与 `data/` 同级，主题目录为 `data/themes/`；Android 使用外部应用目录 `Android/data/top.totodile.pokemmo/config/`、`Android/data/top.totodile.pokemmo/data/`，安装包中的 `data/` 作为基础资源。两端使用同一套资源解析和 XML 加载代码。
+PC 的 `config/` 与 `data/` 同级，主题目录为 `data/themes/`；Android 使用外部应用目录 `Android/data/top.totodile.pokemmo/files/config/`、`Android/data/top.totodile.pokemmo/files/data/`，构建时将 `data/` 打成 APK assets 中的 `resources.zip` 和 `manifest.json`。首次启动显示进度并解压到 `files/data/`，之后从该目录读取基础资源；资源版本与文件大小检查通过时跳过解压，缺失或版本变化时重装。两端使用同一套资源解析和 XML 加载代码。
 
 `data/themes/default/`、`data/themes/android/` 只包含当前登录、服务器选择、角色入口、公告和菜单使用的主题及其依赖，不提前导入地图、战斗等页面。Android 入口保留对 `../default/` 的相对引用。Logo 使用 `logingui.logo`，菜单行使用 `hud-item-button`，不另设按图标编号命名的主题。XML 引用、覆盖、字体和资源解析机制保留，后续 MOD 可以替换当前界面的样式和资源。
 
@@ -49,6 +49,14 @@ MOD 根目录放置 `info.xml`，主题和语言按参考元数据注册：
 布局使用 XML 的边框、对齐、具名间隔以及控件主题路径；自动间隔使用 `smallGap`。同名节点增量覆盖已有定义，显式 `overwrite="true"` 才重置。输入框内部文字区域使用零边距、垂直居中，保证文字、选区和插入光标坐标一致；PC 默认使用系统箭头和输入区域的系统 I 形指针，MOD 显式指定光标时才使用主题光标。
 
 当前已验证范围是现有登录界面的主题、语言、背景纹理和 `sprites/itemicons/` 图标覆盖。地图、战斗、音频及主题 `sprite_atlas` 的游戏渲染消费端尚未实现，不能据此视为所有官方 MOD 都已兼容。菜单仍只负责展开/收起，尚无图形化 MOD 导入或启用功能。
+
+## ROM 读取与管理
+
+ROM 放在与 `config/`、`data/` 同级的 `roms/` 目录，开发环境为 `client/roms/`；Android 为应用外部目录 `Android/data/top.totodile.pokemmo/roms/`。启动及打开客户端管理时自动扫描 `.gba`、`.nds`，也可以点击“重新扫描 ROM”。按文件头游戏代码识别火红、绿宝石、黑/白、白金、心金/魂银，不依赖文件名；文件头校验失败、文件被截断或 NDS 文件表损坏时显示错误，并继续加载其他有效文件。
+
+左上角按 NDS/GBA 显示已加载游戏与代码。客户端管理每行显示实际加载状态，点击状态查看标题、修订版本及大小，悬停可查看路径与 NDS 资源数量。“选择文件”使用桌面文件选择器或 Android 系统文档选择器，后台校验并复制到 `roms/`，成功后立即更新界面并保存 `client.roms.<类型编号>` 配置。类型编号为火红 0、绿宝石 1、黑/白 2、白金 3、心金/魂银 4；配置指定文件优先于目录自动扫描。导入失败保留原有选择，取消选择不修改配置。桌面端“打开ROM文件夹”打开实际扫描目录。ROM 不随发行包分发。
+
+`ClientApplication.romResources()` 提供统一读取入口；`RomResources.Rom.readFile(path)` 读取 NDS FNT/FAT 中的原始文件，`files()` 列出路径及范围；GBA 使用 `readGba(address, length)` 读取偏移或 `0x08000000` 起始的卡带地址。读取有边界检查，每次读取关闭文件句柄，不把整个卡带常驻内存。此入口提供原始资源，地图、战斗、音频等格式解码和渲染消费端仍需后续接入。
 
 ## 运行与打包
 
@@ -86,4 +94,4 @@ adb pair "<IP>:<配对端口>"
 adb connect "<IP>:<连接端口>"
 ```
 
-Android 配置和存档分别位于 `/storage/emulated/0/Android/data/top.totodile.pokemmo/config/` 和 `save/game.db`，与 `files` 同级；实际存储卷以系统返回的外部应用目录为准。使用应用自己的外部目录，无需所有文件访问权限。文件管理器是否能打开 `Android/data` 仍取决于其系统授权。
+Android 配置和存档分别位于 `/storage/emulated/0/Android/data/top.totodile.pokemmo/files/config/` 和同一 `files/` 下的 `save/game.db`；实际存储卷以系统返回的外部应用目录为准。使用应用自己的外部目录，无需所有文件访问权限。文件管理器是否能打开 `Android/data` 仍取决于其系统授权。

@@ -26,12 +26,14 @@ android {
     }
     sourceSets.main {
         res.srcDir layout.buildDirectory.dir('generated/iconRes')
-        assets.srcDirs = ['../data']
+        assets.srcDirs = [layout.buildDirectory.dir('generated/bundledAssets')]
         jniLibs.srcDirs = [layout.buildDirectory.dir('generated/jniLibs')]
     }
 }
 
 dependencies {
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.json:json:20240303'
     implementation project(':server:db:android')
     implementation project(':server:login')
     implementation project(':client:core')
@@ -42,6 +44,53 @@ dependencies {
     natives "com.badlogicgames.gdx:gdx-freetype-platform:${rootProject.gdxVersion}:natives-armeabi-v7a"
     natives "com.badlogicgames.gdx:gdx-freetype-platform:${rootProject.gdxVersion}:natives-arm64-v8a"
     natives "com.badlogicgames.gdx:gdx-freetype-platform:${rootProject.gdxVersion}:natives-x86_64"
+}
+
+// 安装包仅保存压缩资源和清单，运行时读取解压到 files/data 的资源。
+abstract class BundleAndroidResources extends DefaultTask {
+    @InputDirectory @PathSensitive(PathSensitivity.RELATIVE)
+    abstract DirectoryProperty getDataDirectory()
+    @OutputDirectory
+    abstract DirectoryProperty getOutputDirectory()
+
+    @TaskAction
+    void bundle() {
+        def root = dataDirectory.get().asFile.toPath()
+        def output = outputDirectory.get().asFile
+        output.mkdirs()
+        def files
+        try (def paths = java.nio.file.Files.walk(root)) {
+            files = paths.filter { java.nio.file.Files.isRegularFile(it) }.sorted().toList()
+        }
+        def entries = []
+        new java.util.zip.ZipOutputStream(new FileOutputStream(new File(output, 'resources.zip'))).withCloseable { zip ->
+            files.each { path ->
+                def name = 'data/' + root.relativize(path).toString().replace('\\', '/')
+                def entry = new java.util.zip.ZipEntry(name)
+                entry.setTime(0)
+                zip.putNextEntry(entry)
+                def digest = java.security.MessageDigest.getInstance('SHA-256')
+                java.nio.file.Files.newInputStream(path).withCloseable { input ->
+                    byte[] buffer = new byte[131072]
+                    int count
+                    while ((count = input.read(buffer)) != -1) {
+                        digest.update(buffer, 0, count)
+                        zip.write(buffer, 0, count)
+                    }
+                }
+                zip.closeEntry()
+                entries.add([path: name, size: java.nio.file.Files.size(path), sha256: digest.digest().encodeHex().toString()])
+            }
+        }
+        def content = groovy.json.JsonOutput.toJson(entries)
+        def revision = java.security.MessageDigest.getInstance('SHA-256').digest(content.getBytes('UTF-8')).encodeHex().toString()
+        new File(output, 'manifest.json').setText(groovy.json.JsonOutput.toJson([revision: revision, files: entries]), 'UTF-8')
+    }
+}
+
+tasks.register('bundleResources', BundleAndroidResources) {
+    dataDirectory.set(project(':client').layout.projectDirectory.dir('data'))
+    outputDirectory.set(layout.buildDirectory.dir('generated/bundledAssets'))
 }
 
 // 从 LibGDX 原生依赖中提取各架构的共享库，交给 Android 插件打包。
@@ -88,7 +137,7 @@ tasks.register('copyLauncherIcon', Sync) {
     into layout.buildDirectory.dir('generated/iconRes')
 }
 tasks.named('preBuild') {
-    dependsOn tasks.named('extractNatives'), tasks.named('copyLauncherIcon')
+    dependsOn tasks.named('extractNatives'), tasks.named('copyLauncherIcon'), tasks.named('bundleResources')
 }
 
 tasks.register('copyApk', Copy) {

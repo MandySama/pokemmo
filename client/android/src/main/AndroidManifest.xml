@@ -5,8 +5,11 @@
                  android:appCategory="game" android:isGame="true"
                  android:roundIcon="@mipmap/ic_launcher"
                  android:allowBackup="false" android:theme="@style/ClientTheme">
-        <activity android:name=".AndroidLauncher" android:exported="true"
+        <activity android:name=".AndroidLauncher" android:exported="false"
                   android:windowSoftInputMode="adjustNothing"
+                  android:screenOrientation="sensorLandscape"
+                  android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|screenLayout|uiMode" />
+        <activity android:name=".ResourceInstallActivity" android:exported="true"
                   android:screenOrientation="sensorLandscape"
                   android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|screenLayout|uiMode">
             <intent-filter>

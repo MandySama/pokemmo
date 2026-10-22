@@ -25,12 +25,15 @@ final class ClientResources implements Function<String, FileHandle>, AutoCloseab
     private final Properties settings = new Properties();
     private final boolean mobile;
     private final ClientSettings preferences;
+    private final RomResources roms;
+    private RomFilePicker romFilePicker;
 
     ClientResources(Function<String, FileHandle> bundled, FileHandle config, boolean mobile) {
         this.bundled = bundled;
         this.writable = config.parent().child("data");
         this.mobile = mobile;
         preferences = new ClientSettings(config);
+        roms = new RomResources(config.parent().child("roms").file().toPath(), preferences);
         settings.putAll(preferences.snapshot());
         roots.add(path -> writable.child(withoutData(path)));
         roots.add(path -> base(withoutData(path)));
@@ -61,6 +64,10 @@ final class ClientResources implements Function<String, FileHandle>, AutoCloseab
         try { return bundled.apply(path); }
         catch (IllegalStateException missing) { return writable.child(path); }
     }
+
+    RomResources roms() { return roms; }
+    RomFilePicker romFilePicker() { return romFilePicker; }
+    void setRomFilePicker(RomFilePicker picker) { romFilePicker=picker; }
 
     private static String normalize(String path) {
         String normalized = Paths.get(path.replace('\\', '/')).normalize().toString().replace('\\', '/');

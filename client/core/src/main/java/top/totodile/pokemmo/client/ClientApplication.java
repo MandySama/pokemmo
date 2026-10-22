@@ -31,6 +31,10 @@ public final class ClientApplication extends ApplicationAdapter {
     private final java.util.function.IntSupplier batteryPercent;
     private AssetManager sceneAssets;
     private top.totodile.pokemmo.server.game.GameService gameService;
+    private RomFilePicker romFilePicker;
+
+    public ClientApplication withRomFilePicker(RomFilePicker picker) { romFilePicker=picker; return this; }
+    public RomResources romResources() { return resources == null ? null : resources.roms(); }
 
     public ClientApplication withGameService(top.totodile.pokemmo.server.game.GameService service) {
         gameService = java.util.Objects.requireNonNull(service);
@@ -72,6 +76,7 @@ public final class ClientApplication extends ApplicationAdapter {
     @Override
     public void create() {
         resources = new ClientResources(assets, configDirectory.get(), mobile);
+        resources.setRomFilePicker(romFilePicker);
         sceneAssets = new AssetManager(resources::apply);
         for (int i = 0; i < 3; i++) {
             sceneAssets.load("sprites/textures/bg_0" + i + ".png", Texture.class);

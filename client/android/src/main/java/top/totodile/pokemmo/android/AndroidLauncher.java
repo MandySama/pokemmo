@@ -8,8 +8,42 @@ import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import top.totodile.pokemmo.client.ClientApplication;
 
-/** Android 入口，资源从 APK 的 assets 目录读取。 */
+/** Android 入口，资源从首次启动解压后的 files/data 目录读取。 */
 public final class AndroidLauncher extends AndroidApplication {
+    private static final int PICK_ROM=814;
+    private java.util.function.Consumer<top.totodile.pokemmo.client.RomFilePicker.Source> romSelected;
+
+    @Override protected void onActivityResult(int request, int result, android.content.Intent data) {
+        super.onActivityResult(request,result,data);
+        if (request!=PICK_ROM || romSelected==null) return;
+        var selected=romSelected;
+        romSelected=null;
+        if (result!=RESULT_OK || data==null || data.getData()==null) { selected.accept(null); return; }
+        android.net.Uri uri=data.getData();
+        selected.accept(() -> {
+            java.io.InputStream stream=getContentResolver().openInputStream(uri);
+            if (stream==null) throw new java.io.IOException("无法读取选择的 ROM");
+            return stream;
+        });
+    }
+
+    private final top.totodile.pokemmo.client.RomFilePicker romPicker=new top.totodile.pokemmo.client.RomFilePicker() {
+        @Override public void choose(String extension, java.util.function.Consumer<Source> selected,
+                                     java.util.function.Consumer<String> failed) {
+            runOnUiThread(() -> {
+                if (romSelected!=null) { failed.accept("文件选择器已打开"); return; }
+                romSelected=selected;
+                try {
+                    android.content.Intent intent=new android.content.Intent(android.content.Intent.ACTION_OPEN_DOCUMENT);
+                    intent.addCategory(android.content.Intent.CATEGORY_OPENABLE);
+                    intent.setType("*/*");
+                    startActivityForResult(intent,PICK_ROM);
+                } catch (RuntimeException error) {
+                    romSelected=null; failed.accept("无法选择 ROM: "+error.getMessage());
+                }
+            });
+        }
+    };
     @Override
     protected void onUserLeaveHint() {
         // 离开应用前先收起原生输入层，让最近任务捕获游戏画面。
@@ -40,8 +74,8 @@ public final class AndroidLauncher extends AndroidApplication {
         config.useCompass = false;
         java.io.File externalFiles = getExternalFilesDir(null);
         if (externalFiles == null) throw new IllegalStateException("External application storage is unavailable");
-        // config、save 与 Android/data/<package>/files 同级，不写入其他应用目录。
-        java.io.File storageRoot = externalFiles.getParentFile();
+        // 配置、存档和解压后的资源共用应用外部 files 目录。
+        java.io.File storageRoot = externalFiles;
         for (String name : new String[]{"config", "save"}) {
             java.io.File directory = new java.io.File(storageRoot, name);
             if (!directory.isDirectory() && !directory.mkdirs())
@@ -49,11 +83,11 @@ public final class AndroidLauncher extends AndroidApplication {
         }
         android.os.BatteryManager battery = (android.os.BatteryManager) getSystemService(BATTERY_SERVICE);
         // 单调时钟包含后台和设备休眠时间，不受系统时间调整影响。
-        initialize(new ClientApplication(path -> Gdx.files.internal(path), true,
+        initialize(new ClientApplication(path -> new com.badlogic.gdx.files.FileHandle(new java.io.File(storageRoot, "data/" + path)), true,
                 android.os.SystemClock::elapsedRealtimeNanos,
                 () -> new com.badlogic.gdx.files.FileHandle(new java.io.File(storageRoot, "config")),
                 top.totodile.pokemmo.server.login.LoginServices.create(),
-                () -> battery == null ? -1 : battery.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY)).withGameService(
+                () -> battery == null ? -1 : battery.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY)).withRomFilePicker(romPicker).withGameService(
                     new top.totodile.pokemmo.server.game.LocalGameService(() -> new AndroidDatabase(new java.io.File(storageRoot, "save/game.db")))), config);
         // Activity 创建后进入黑色加载阶段，系统主题底色仅作为启动窗口的兜底。
         getWindow().setBackgroundDrawableResource(android.R.color.black);

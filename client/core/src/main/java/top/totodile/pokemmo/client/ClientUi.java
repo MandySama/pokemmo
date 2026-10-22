@@ -90,8 +90,7 @@ final class ClientUi implements Disposable {
         renderer = new GdxTwlRenderer(viewport, strings.typeface());
         serverFrame = new ServerSelectionPanel(strings, controller);
         characterPage = new CharacterSelectionPanel(strings, controller);
-        // 参考登录页 Nq：当前尚未加载 ROM，两个平台列表均显示 --。
-        romInfo = new Label(strings.get(1170) + "\nNDS: --\nGBA: --");
+        romInfo = new Label(romSummary());
         announcements = new AnnouncementsPanel(strings, mobile);
         desktopMenu = mobile ? null : new DesktopMenu(strings);
         mobileStatus = mobile ? new MobileStatusIcons(batteryPercent) : null;
@@ -155,7 +154,8 @@ final class ClientUi implements Disposable {
         Runnable restoreFocus = this::restoreWindowFocus;
         java.util.function.Consumer<de.matthiasmann.twl.renderer.Image> mobileBackground =
                 image -> renderer.drawScreenBackground(image, root.getAnimationState());
-        clientManagement = new ClientManagementWindow(root, strings, mobile, restoreFocus, mobileBackground);
+        clientManagement = new ClientManagementWindow(root, strings, mobile, restoreFocus, mobileBackground,
+                resources.roms(), resources.romFilePicker(), () -> romInfo.setText(romSummary()));
         mods = new ModManagementWindow(root, strings, mobile, restoreFocus, mobileBackground);
         settings = new SettingsWindow(root, strings, mobile, restoreFocus, mobileBackground, resources.preferences());
         characterCreation = new CharacterCreationWindow(root, strings, mobile, () -> {
@@ -251,6 +251,17 @@ final class ClientUi implements Disposable {
         Gdx.input.setCatchKey(Input.Keys.BACK,true);
         controller.listen(this::refreshLoginState);
         loginPanel.focusDefault();
+    }
+
+    private String romSummary() {
+        String nds=resources.roms().loaded().stream().filter(rom -> rom.type().extension.equals("nds"))
+                .map(this::romName).collect(java.util.stream.Collectors.joining(", "));
+        String gba=resources.roms().loaded().stream().filter(rom -> rom.type().extension.equals("gba"))
+                .map(this::romName).collect(java.util.stream.Collectors.joining(", "));
+        return strings.get(1170)+"\nNDS: "+(nds.isEmpty()?"--":nds)+"\nGBA: "+(gba.isEmpty()?"--":gba);
+    }
+    private String romName(RomResources.Rom rom) {
+        return strings.get(90+rom.type().id).replace("ROM", "").trim()+" ("+rom.code()+")";
     }
     private void hideEditors() {
         loginPanel.hideKeyboard();
@@ -434,6 +445,7 @@ final class ClientUi implements Disposable {
         widget.invalidateLayout();
     }
     @Override public void dispose() {
+        clientManagement.dispose();
         disposed = true;
         characterDelete.closePopup();
         characterPage.clearCards();
