@@ -18,6 +18,7 @@ import top.totodile.pokemmo.client.resources.AssetUrlStreamHandler;
 import top.totodile.pokemmo.client.resources.ClientResources;
 import top.totodile.pokemmo.client.resources.ClientStrings;
 import top.totodile.pokemmo.client.rom.RomInfo;
+import top.totodile.pokemmo.client.rom.RomType;
 import top.totodile.pokemmo.client.twl.GdxTwlRenderer;
 import top.totodile.pokemmo.client.ui.character.CharacterAppearance;
 import top.totodile.pokemmo.client.ui.character.CharacterCreationWindow;
@@ -73,6 +74,24 @@ public final class ClientUi implements Disposable {
     private boolean creatingCharacter;
     private long characterLoadVersion;
     private boolean disposed;
+    private boolean enteringWorld;
+    private top.totodile.pokemmo.client.ui.world.WorldConsole worldConsole;
+
+    public com.badlogic.gdx.InputProcessor showWorld(top.totodile.pokemmo.client.world.WorldScene world) {
+        worldConsole=new top.totodile.pokemmo.client.ui.world.WorldConsole(world);
+        for(int i=0;i<root.getNumChildren();i++) root.getChild(i).setVisible(false);
+        root.add(worldConsole); fps.setVisible(true);
+        root.invalidateLayout();
+        return new com.badlogic.gdx.InputMultiplexer(input,world);
+    }
+    private java.util.function.Function<top.totodile.pokemmo.server.game.GameService.Entry,java.util.concurrent.CompletionStage<Void>> worldEntry;
+    private final top.totodile.pokemmo.client.ui.common.MessageDialog entryError;
+
+    public void onRomRestart(Runnable restart) { clientManagement.onRestart(restart); mods.onRestart(restart); }
+
+    public void onEnterWorld(java.util.function.Function<top.totodile.pokemmo.server.game.GameService.Entry,java.util.concurrent.CompletionStage<Void>> action) {
+        worldEntry=java.util.Objects.requireNonNull(action);
+    }
 
     ClientUi(Viewport viewport, Function<String, FileHandle> assets, boolean mobile,
                SavedAccounts savedAccounts, LoginController controller) {
@@ -120,6 +139,11 @@ public final class ClientUi implements Disposable {
         logo.setTheme("logo");
         root = new Widget() {
             @Override protected void layout() {
+                if(worldConsole!=null) {
+                    worldConsole.position(getInnerX(),getInnerY(),getInnerWidth(),getInnerHeight());
+                    fps.adjustSize(); fps.setPosition(getInnerRight()-fps.getWidth(),getInnerY());
+                    return;
+                }
                 logo.setSize(484,143);
                 logo.setPosition(getInnerX()+(getInnerWidth()-484)/2,getInnerY()+(getInnerHeight()-143)/2-200);
                 romInfo.adjustSize();
@@ -156,6 +180,7 @@ public final class ClientUi implements Disposable {
             }
         };
         loginPanel = new LoginPanel(root, strings, mobile, savedAccounts, notificationClock, controller);
+        if (mobileMenu != null) loginPanel.onInputRequested(mobileMenu::close);
         if (mobileStatus != null) mobileStatus.onMenu(() -> {
             hideEditors();
             mobileMenu.open();
@@ -175,9 +200,12 @@ public final class ClientUi implements Disposable {
         Runnable restoreFocus = this::restoreWindowFocus;
         java.util.function.Consumer<de.matthiasmann.twl.renderer.Image> mobileBackground =
                 image -> renderer.drawScreenBackground(image, root.getAnimationState());
+        entryError=new top.totodile.pokemmo.client.ui.common.MessageDialog(root,strings,mobile,mobileBackground,this::restoreWindowFocus);
+        characterPage.onEnter(this::enterWorld);
         clientManagement = new ClientManagementWindow(root, strings, mobile, restoreFocus, mobileBackground,
                 resources.roms(), resources.romFilePicker(), () -> romInfo.setText(romSummary()));
-        mods = new ModManagementWindow(root, strings, mobile, restoreFocus, mobileBackground);
+        mods = new ModManagementWindow(root, strings, mobile, restoreFocus, mobileBackground,
+                resources.modImporter(),resources.romFilePicker(),renderer,resources.preferences());
         settings = new SettingsWindow(root, strings, mobile, restoreFocus, mobileBackground, resources.preferences());
         characterCreation = new CharacterCreationWindow(root, strings, mobile, () -> {
             characterPage.setVisible(controller.state() == LoginController.State.SELECTED);
@@ -211,11 +239,14 @@ public final class ClientUi implements Disposable {
         gui.applyTheme(theme);
         input = new InputAdapter() {
             private boolean pointer(int x,int y,int button,boolean pressed) {
+                if(worldConsole!=null && !worldConsole.isVisible()) return false;
+                if(enteringWorld) return true;
                 Vector2 point=viewport.unproject(new Vector2(x,y));
                 return gui.handleMouse(Math.round(point.x), renderer.getHeight()-Math.round(point.y),button,pressed);
             }
             @Override public boolean touchDown(int x,int y,int pointer,int button){
                 if (pointer != 0) return false;
+                if(worldConsole!=null) return pointer(x,y,button,true);
                 Vector2 point = viewport.unproject(new Vector2(x,y));
                 if ((exitConfirmation == null || !exitConfirmation.isOpen()) && !characterCreation.isAbove(settings))
                     settings.touchDown(Math.round(point.x), renderer.getHeight()-Math.round(point.y), x, y, button);
@@ -223,11 +254,13 @@ public final class ClientUi implements Disposable {
             }
             @Override public boolean touchUp(int x,int y,int pointer,int button){
                 if (pointer != 0) return false;
+                if(worldConsole!=null) return pointer(x,y,button,false);
                 if (settings.touchUp(x,y,button)) return true;
                 return pointer(x,y,button,false);
             }
             @Override public boolean touchDragged(int x,int y,int pointer){
                 if (pointer != 0) return false;
+                if(worldConsole!=null) return pointer(x,y,-1,false);
                 if (settings.touchDragged(x,y)) return true;
                 return pointer(x,y,-1,false);
             }
@@ -238,8 +271,23 @@ public final class ClientUi implements Disposable {
             }
             @Override public boolean mouseMoved(int x,int y){return pointer(x,y,-1,false);}
             @Override public boolean keyDown(int key){
+                if(worldConsole!=null) {
+                    if(key==Input.Keys.GRAVE) { worldConsole.toggle(); return true; }
+                    if(!worldConsole.isVisible()) return false;
+                    if(key==Input.Keys.ESCAPE || key==Input.Keys.BACK) { worldConsole.show(false); return true; }
+                    int code=keyCode(key); if(code!=0) gui.handleKey(code,'\0',true);
+                    return true;
+                }
+                if(enteringWorld) return true;
+                if(entryError.isOpen()) {
+                    if(key==Input.Keys.ESCAPE || key==Input.Keys.BACK || key==Input.Keys.ENTER) entryError.closePopup();
+                    return true;
+                }
+                if (mods.isImporting() || clientManagement.isImporting()) return true;
                 if (settings.captureKey(key)) return true;
                 if(key==Input.Keys.ESCAPE || key==Input.Keys.BACK){
+                    if(clientManagement.closeMessage()) return true;
+                    if(mods.closeMessage()) return true;
                     if(exitConfirmation != null && exitConfirmation.isOpen()) exitConfirmation.closePopup();
                     else if(characterDelete.isOpen()) characterDelete.closePopup();
                     else if(settings.isAbove(clientManagement) && settings.isAbove(characterCreation) && settings.isAbove(mods)) {
@@ -257,8 +305,12 @@ public final class ClientUi implements Disposable {
                 int code=keyCode(key);
                 return code!=0 && gui.handleKey(code,'\0',true);
             }
-            @Override public boolean keyUp(int key){int code=keyCode(key);return code!=0 && gui.handleKey(code,'\0',false);}
+            @Override public boolean keyUp(int key){
+                if(worldConsole!=null && !worldConsole.isVisible())return false;
+                int code=keyCode(key);return code!=0 && gui.handleKey(code,'\0',false);
+            }
             @Override public boolean keyTyped(char value){
+                if(worldConsole!=null && (!worldConsole.isVisible() || value=='`' || value=='~'))return false;
                 if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT))return false;
                 if(value<32 || value==127)return false;
                 boolean handled=gui.handleKey(Event.KEY_NONE,value,true);
@@ -266,7 +318,10 @@ public final class ClientUi implements Disposable {
                 gui.handleKey(Event.KEY_NONE,value,false);
                 return handled;
             }
-            @Override public boolean scrolled(float x,float y){return gui.handleMouseWheel(-(int)y);}
+            @Override public boolean scrolled(float x,float y){
+                if(worldConsole!=null && !worldConsole.isVisible())return false;
+                return gui.handleMouseWheel(-(int)y);
+            }
         };
         Gdx.input.setInputProcessor(input);
         Gdx.input.setCatchKey(Input.Keys.BACK,true);
@@ -275,14 +330,21 @@ public final class ClientUi implements Disposable {
     }
 
     private String romSummary() {
-        String nds=resources.roms().loaded().stream().filter(rom -> rom.type().extension.equals("nds"))
-                .map(this::romName).collect(java.util.stream.Collectors.joining(", "));
-        String gba=resources.roms().loaded().stream().filter(rom -> rom.type().extension.equals("gba"))
-                .map(this::romName).collect(java.util.stream.Collectors.joining(", "));
-        return strings.get(1170)+"\nNDS: "+(nds.isEmpty()?"--":nds)+"\nGBA: "+(gba.isEmpty()?"--":gba);
-    }
-    private String romName(RomInfo rom) {
-        return strings.get(90+rom.type().id).replace("ROM", "").trim()+" ("+rom.code()+")";
+        // 参考 ChatHistoryViewportComponent.Nq：主卡带缺失时保留 --，其余按固定顺序追加。
+        var roms=resources.roms();
+        RomInfo blackWhite=roms.get(RomType.BLACK_WHITE);
+        StringBuilder text=new StringBuilder(strings.get(1170)).append("\nNDS: ")
+                .append(blackWhite==null ? "--" : blackWhite.title());
+        for (var type:java.util.List.of(RomType.PLATINUM,
+                RomType.HEART_GOLD_SOUL_SILVER)) {
+            RomInfo rom=roms.get(type);
+            if (rom!=null) text.append(", ").append(rom.title().replaceAll("\\P{Print}", ""));
+        }
+        RomInfo fireRed=roms.get(RomType.FIRE_RED);
+        text.append("\nGBA: ").append(fireRed==null ? "--" : fireRed.code()+" v1."+fireRed.revision());
+        RomInfo emerald=roms.get(RomType.EMERALD);
+        if (emerald!=null) text.append(", ").append(emerald.code()).append(" v1.").append(emerald.revision());
+        return text.toString();
     }
     private void hideEditors() {
         loginPanel.hideKeyboard();
@@ -399,6 +461,32 @@ public final class ClientUi implements Disposable {
             }
         }));
     }
+    private void enterWorld(top.totodile.pokemmo.server.game.GameService.Character character) {
+        var selection=controller.selection();
+        if(disposed || enteringWorld || worldEntry==null || gameService==null || selection==null) return;
+        enteringWorld=true;
+        characterPage.beginLoading();
+        java.util.concurrent.CompletionStage<top.totodile.pokemmo.server.game.GameService.Entry> operation;
+        try { operation=gameService.enter(selection,character.id()); }
+        catch(RuntimeException failure) { worldEntryFailed(selection,failure); return; }
+        operation.whenComplete((entry,error) -> Gdx.app.postRunnable(() -> {
+            if(disposed || selection!=controller.selection()) { enteringWorld=false; return; }
+            if(error!=null) { worldEntryFailed(selection,error); return; }
+            try {
+                worldEntry.apply(entry).whenComplete((ignored,failure) -> Gdx.app.postRunnable(() -> {
+                    if(disposed) return;
+                    enteringWorld=false;
+                    if(failure!=null && selection==controller.selection()) worldEntryFailed(selection,failure);
+                }));
+            } catch(RuntimeException failure) { worldEntryFailed(selection,failure); }
+        }));
+    }
+    private void worldEntryFailed(top.totodile.pokemmo.server.login.LoginService.Selection selection,Throwable failure) {
+        enteringWorld=false;
+        Gdx.app.error("world","Cannot enter local character",failure);
+        loadCharacters(selection);
+        entryError.show(strings.get(2103));
+    }
     private void createCharacter() {
         var selection = controller.selection();
         if (gameService == null || creatingCharacter || selection == null || !characterCreation.isOpen()) return;
@@ -444,6 +532,12 @@ public final class ClientUi implements Disposable {
     }
 
     public void draw(float width,float height,float x,float y) {
+        if(worldConsole!=null) {
+            fps.setVisible(Boolean.parseBoolean(resources.preferences().get("client.graphics.show_fps","true")));
+            fps.setText(frameRate.frame());
+            if(renderer.updateFontScale()) invalidateFontLayout(gui);
+            gui.update(); return;
+        }
         fps.setVisible(Boolean.parseBoolean(resources.preferences().get("client.graphics.show_fps","true")));
         if (mobileStatus != null) mobileStatus.update(System.nanoTime());
         if (mobileMenu != null) mobileMenu.update();
@@ -458,6 +552,7 @@ public final class ClientUi implements Disposable {
         settings.positionWindow();
         characterCreation.positionWindow();
         characterDelete.positionWindow();
+        entryError.positionWindow();
         if (exitConfirmation != null) exitConfirmation.positionWindow();
     }
     private static void invalidateFontLayout(Widget widget) {
@@ -467,6 +562,7 @@ public final class ClientUi implements Disposable {
     }
     @Override public void dispose() {
         clientManagement.dispose();
+        mods.dispose();
         disposed = true;
         characterDelete.closePopup();
         characterPage.clearCards();

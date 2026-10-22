@@ -17,12 +17,19 @@ import top.totodile.pokemmo.client.config.SavedAccounts;
 import top.totodile.pokemmo.client.resources.ClientResources;
 import top.totodile.pokemmo.client.rom.RomFilePicker;
 import top.totodile.pokemmo.client.rom.RomManager;
+import top.totodile.pokemmo.client.rom.RomType;
+import top.totodile.pokemmo.client.rom.gba.FireRedMaps;
+import top.totodile.pokemmo.client.ui.character.CharacterAppearance;
+import top.totodile.pokemmo.client.ui.character.OverworldCharacter;
+import top.totodile.pokemmo.client.world.MapMovement;
+import top.totodile.pokemmo.client.world.MobileMapControls;
+import top.totodile.pokemmo.client.world.WorldScene;
 import top.totodile.pokemmo.client.ui.ClientUi;
 import top.totodile.pokemmo.client.ui.login.LoginController;
 import top.totodile.pokemmo.client.ui.startup.ScrollingBackground;
 import top.totodile.pokemmo.client.ui.startup.StartupBackground;
 
-/** 显示滚动背景和游戏 Logo 的客户端窗口。 */
+/** 组装平台登录场景、回退背景及客户端界面。 */
 public final class ClientApplication extends ApplicationAdapter {
     private final Viewport viewport;
     private final Viewport uiViewport;
@@ -41,8 +48,28 @@ public final class ClientApplication extends ApplicationAdapter {
     private StartupBackground startupBackground;
     private top.totodile.pokemmo.server.game.GameService gameService;
     private RomFilePicker romFilePicker;
+    private Runnable restart=() -> Gdx.app.exit();
+    private Function<ClientResources, top.totodile.pokemmo.client.ui.startup.LoginScene> loginSceneFactory;
+    private top.totodile.pokemmo.client.ui.startup.LoginScene loginScene;
+    private boolean focused=true;
+    private WorldScene world;
+    private record LoadedWorld(FireRedMaps maps,MapMovement movement) {}
+    private boolean disposed;
+    private final java.util.concurrent.ExecutorService worldLoader=java.util.concurrent.Executors.newSingleThreadExecutor(r -> {
+        Thread thread=new Thread(r,"gba-maps"); thread.setDaemon(true); return thread;
+    });
+
+    public ClientApplication withLoginScene(Function<ClientResources, top.totodile.pokemmo.client.ui.startup.LoginScene> factory) {
+        loginSceneFactory=java.util.Objects.requireNonNull(factory); return this;
+    }
+    public void setFocused(boolean focused) {
+        this.focused=focused;
+        if (loginScene!=null) loginScene.setFocused(focused);
+        if(world!=null) world.setFocused(focused);
+    }
 
     public ClientApplication withRomFilePicker(RomFilePicker picker) { romFilePicker=picker; return this; }
+    public ClientApplication withRestart(Runnable action) { restart=java.util.Objects.requireNonNull(action); return this; }
     public ClientApplication withStartupBackground(StartupBackground background) {
         startupBackground = java.util.Objects.requireNonNull(background);
         return this;
@@ -90,6 +117,7 @@ public final class ClientApplication extends ApplicationAdapter {
     public void create() {
         resources = new ClientResources(assets, configDirectory.get(), mobile);
         resources.setRomFilePicker(romFilePicker);
+        if (loginSceneFactory!=null) { loginScene=loginSceneFactory.apply(resources); loginScene.setFocused(focused); }
         if (startupBackground == null) {
             sceneAssets = new AssetManager(resources::apply);
             for (int i = 0; i < 3; i++) {
@@ -109,6 +137,47 @@ public final class ClientApplication extends ApplicationAdapter {
         loginController = new LoginController(loginService, Gdx.app::postRunnable);
         clientUi = new ClientUi(uiViewport, resources, mobile, SavedAccounts.open(configDirectory.get()),
                 () -> System.nanoTime() / 1_000_000L, loginController, batteryPercent, () -> Gdx.app.exit(), gameService);
+        clientUi.onEnterWorld(this::enterWorld);
+        clientUi.onRomRestart(restart);
+    }
+
+    private java.util.concurrent.CompletionStage<Void> enterWorld(top.totodile.pokemmo.server.game.GameService.Entry entry) {
+        var selection=selectedServer();
+        var rom=resources.roms().get(RomType.FIRE_RED);
+        if(rom==null) return java.util.concurrent.CompletableFuture.failedFuture(new IllegalStateException("FireRed ROM is not loaded"));
+        var ready=new java.util.concurrent.CompletableFuture<Void>();
+        java.util.concurrent.CompletableFuture.supplyAsync(() -> {
+            try {
+                var maps=new FireRedMaps(rom);
+                var movement=new MapMovement(maps,entry.position());
+                maps.tiles(movement.map());
+                return new LoadedWorld(maps,movement);
+            } catch(java.io.IOException error) { throw new java.util.concurrent.CompletionException(error); }
+        },worldLoader).whenComplete((loaded,error) -> Gdx.app.postRunnable(() -> {
+            if(disposed || selection!=selectedServer()) { ready.completeExceptionally(new java.util.concurrent.CancellationException()); return; }
+            if(error!=null) { ready.completeExceptionally(error); return; }
+            OverworldCharacter sprite=null;
+            WorldScene scene=null;
+            try {
+                var catalog=new CharacterAppearance(resources.apply("sprites/addons.pak"),resources.strings());
+                try { sprite=new OverworldCharacter(catalog,entry.character().appearance()); }
+                finally { catalog.dispose(); }
+                scene=new WorldScene(loaded.maps(),loaded.movement(),sprite,resources.preferences(),mobile,
+                        position -> gameService.savePosition(selection,entry.character().id(),position)
+                            .exceptionally(failure -> { Gdx.app.error("world","Cannot save character position",failure); return null; }));
+                if(mobile) scene.setControls(new MobileMapControls(resources.apply("buttons/controller.png"),resources.preferences()));
+                scene.setFocused(focused);
+                if(loginScene!=null) { loginScene.close(); loginScene=null; }
+                var worldInput=clientUi.showWorld(scene);
+                world=scene;
+                Gdx.input.setInputProcessor(worldInput);
+                ready.complete(null);
+            } catch(RuntimeException failure) {
+                if(scene!=null) scene.close(); else if(sprite!=null) sprite.close();
+                ready.completeExceptionally(failure);
+            }
+        }));
+        return ready;
     }
 
     /** 后续角色/世界入口从此取得选择结果，不需要访问登录界面或密码。 */
@@ -133,15 +202,26 @@ public final class ClientApplication extends ApplicationAdapter {
         }
         // 普通启动等待资源就绪；移动端已加载的启动背景由外层保留并交接。
         if (clientUi == null) return;
+        if(world!=null) {
+            world.draw(Math.min(.1f,Gdx.graphics.getDeltaTime()),Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+            uiViewport.apply();
+            clientUi.draw(uiViewport.getWorldWidth(),uiViewport.getWorldHeight(),0,0);
+            return;
+        }
         viewport.apply();
         float width = viewport.getWorldWidth();
         float height = viewport.getWorldHeight();
-        if (startupBackground != null) startupBackground.draw();
-        else {
-            batch.setProjectionMatrix(viewport.getCamera().combined);
-            batch.begin();
-            background.draw(batch, width, height, viewport.getScreenWidth());
-            batch.end();
+        if (loginScene!=null && loginScene.draw(Gdx.graphics.getDeltaTime(),viewport.getScreenWidth(),viewport.getScreenHeight())) {
+            // PC ROM 场景已绘制，前景继续使用现有 UI 视口。
+        } else if (mobile || loginScene == null || resources.roms().get(RomType.BLACK_WHITE) == null) {
+            // PC 仅在未加载黑白 ROM 时使用滚动背景；3D 准备期间保留清屏底色。
+            if (startupBackground != null) startupBackground.draw();
+            else {
+                batch.setProjectionMatrix(viewport.getCamera().combined);
+                batch.begin();
+                background.draw(batch, width, height, viewport.getScreenWidth());
+                batch.end();
+            }
         }
         // 所有前景共用安全区视口，布局、弹出列表和触摸坐标使用同一坐标系。
         uiViewport.apply();
@@ -168,7 +248,20 @@ public final class ClientApplication extends ApplicationAdapter {
     }
 
     @Override
+    public void pause() { setFocused(false); }
+
+    @Override
+    public void resume() { setFocused(true); }
+
+    @Override
     public void dispose() {
+        disposed=true;
+        worldLoader.shutdownNow();
+        if(world!=null) {
+            Gdx.input.setInputProcessor(null);
+            world.close();
+        }
+        if (loginScene!=null) loginScene.close();
         if (clientUi != null) clientUi.dispose();
         if (gameService != null) gameService.close();
         // 背景纹理由 AssetManager 统一释放。

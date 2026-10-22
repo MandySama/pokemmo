@@ -20,10 +20,19 @@ public final class AndroidLauncher extends AndroidApplication {
         romSelected=null;
         if (result!=RESULT_OK || data==null || data.getData()==null) { selected.accept(null); return; }
         android.net.Uri uri=data.getData();
-        selected.accept(() -> {
-            java.io.InputStream stream=getContentResolver().openInputStream(uri);
-            if (stream==null) throw new java.io.IOException("无法读取选择的 ROM");
-            return stream;
+        String displayName=null;
+        try (android.database.Cursor cursor=getContentResolver().query(uri,
+                new String[]{android.provider.OpenableColumns.DISPLAY_NAME},null,null,null)) {
+            if (cursor!=null && cursor.moveToFirst()) displayName=cursor.getString(0);
+        } catch (RuntimeException ignored) {}
+        final String filename=displayName;
+        selected.accept(new top.totodile.pokemmo.client.rom.RomFilePicker.Source() {
+            @Override public java.io.InputStream open() throws java.io.IOException {
+                java.io.InputStream stream=getContentResolver().openInputStream(uri);
+                if (stream==null) throw new java.io.IOException("无法读取选择的文件");
+                return stream;
+            }
+            @Override public String name() { return filename; }
         });
     }
 
@@ -69,7 +78,7 @@ public final class AndroidLauncher extends AndroidApplication {
         super.onCreate(savedInstanceState);
         AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
         config.useImmersiveMode = true;
-        config.disableAudio = true;
+        config.disableAudio = false;
         config.useAccelerometer = false;
         config.useCompass = false;
         java.io.File externalFiles = getExternalFilesDir(null);
@@ -90,7 +99,9 @@ public final class AndroidLauncher extends AndroidApplication {
                 android.os.SystemClock::elapsedRealtimeNanos,
                 () -> new com.badlogic.gdx.files.FileHandle(new java.io.File(storageRoot, "config")),
                 top.totodile.pokemmo.server.login.LoginServices.create(),
-                () -> battery == null ? -1 : battery.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY)).withRomFilePicker(romPicker).withGameService(
+                () -> battery == null ? -1 : battery.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY))
+                .withLoginScene(top.totodile.pokemmo.android.audio.AndroidLoginAudio::new)
+                .withRomFilePicker(romPicker).withGameService(
                     new top.totodile.pokemmo.server.game.LocalGameService(() -> new AndroidDatabase(new java.io.File(storageRoot, "save/game.db"))));
         initialize(new ResourceLoadingApplication(client, getAssets()::open, storageRoot, getString(R.string.decompressing)), config);
         // Activity 创建后进入黑色加载阶段，系统主题底色仅作为启动窗口的兜底。

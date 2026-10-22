@@ -9,6 +9,9 @@ import java.util.*;
 
 /** ROM 文件头校验、NDS 文件表解析与按需读取；每次读取后关闭文件句柄。 */
 public final class RomReader {
+    public static final class UnsupportedGame extends IOException {
+        UnsupportedGame(String code) { super("不支持的 ROM 游戏代码或版本: "+code); }
+    }
     private RomReader() {}
 
     public static byte[] read(RomInfo rom, long offset, int length) throws IOException {
@@ -33,9 +36,14 @@ public final class RomReader {
             byte[] header=bytes(input,0,0x200);
             boolean gba=(header[0xb2]&255)==0x96;
             String code=ascii(header,gba?0xac:0x0c,4);
-            RomType type=Arrays.stream(RomType.values()).filter(t -> t.matches(gba?"gba":"nds", code)).findFirst().orElseThrow(() -> new IOException("不支持的 ROM 游戏代码: "+code));
+            RomType type=Arrays.stream(RomType.values()).filter(t -> t.matches(gba?"gba":"nds", code)).findFirst().orElseThrow(() -> new UnsupportedGame(code));
             Map<String,RomEntry> files=new LinkedHashMap<>();
             if (gba) {
+                // 对齐参考 GbaRomRegistry：欧美五种语言 v1.0，另支持美版火红 v1.1。
+                int revision=header[0xbc]&255;
+                if(code.length()!=4 || "EFDSI".indexOf(code.charAt(3))<0 ||
+                        (revision!=0 && !(code.equals("BPRE") && revision==1)))
+                    throw new UnsupportedGame(code+" v1."+revision);
                 int checksum=0;
                 for (int i=0xa0;i<=0xbc;i++) checksum-=header[i]&255;
                 if (((checksum-0x19)&255)!=(header[0xbd]&255)) throw new IOException("GBA 文件头校验失败");

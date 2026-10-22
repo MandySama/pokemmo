@@ -22,6 +22,7 @@ public final class CharacterSelectionPanel extends Widget {
     private String status;
     private final DialogLayout content = new DialogLayout();
     private final java.util.List<Card> cards = new ArrayList<>();
+    private java.util.function.Consumer<GameService.Character> enter = character -> {};
 
     public CharacterSelectionPanel(ClientStrings strings, LoginController controller) {
         this.strings = strings;
@@ -67,6 +68,7 @@ public final class CharacterSelectionPanel extends Widget {
     }
     public void onNewCharacter(Runnable action) { newCharacter.addCallback(action); }
     public void onDeleteCharacter(Runnable action) { deleteCharacter.addCallback(action); }
+    public void onEnter(java.util.function.Consumer<GameService.Character> action) { enter=Objects.requireNonNull(action); }
     public java.util.List<GameService.Character> characters() { return cards.stream().map(card -> card.character).toList(); }
 
     public void characters(java.util.List<GameService.Character> values, ClientStrings strings, boolean mobile,
@@ -74,7 +76,10 @@ public final class CharacterSelectionPanel extends Widget {
         releaseCards();
         loading = false;
         status = null;
-        for (var value : values) cards.add(new Card(value, strings, mobile, renderer, appearances.apply(value.appearance())));
+        for (var value : values) {
+            Card card=new Card(value, strings, mobile, renderer, appearances.apply(value.appearance()));
+            card.addCallback(() -> enter.accept(value)); cards.add(card);
+        }
         rebuild();
     }
     public void clearCards() {

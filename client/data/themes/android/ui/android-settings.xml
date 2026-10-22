@@ -272,6 +272,27 @@
       <theme name="scrollpane" ref="scrollpane">
         <theme name="settings-label-area" ref="-dialog">
           <param name="defaultGap"><dimension>5,5</dimension></param>
+          <theme name="dialoglayout" ref="-dialog">
+            <param name="defaultGap"><dimension>5,2</dimension></param>
+            <theme name="label-settings-title" ref="label-settings-title">
+              <param name="background"><image>label1.background</image></param>
+            </theme>
+            <theme name="label-settings-value-modbuttons" ref="-dialog">
+              <param name="defaultGap"><dimension>1,1</dimension></param>
+              <param name="background"><image>none</image></param>
+              <param name="textAlignment"><enum type="alignment">left</enum></param>
+              <param name="border"><border>3,0,0,0</border></param>
+              <param name="font"><font>alphabeta</font></param>
+              <param name="maxWidth"><int>250</int></param>
+              <param name="minWidth"><int>100</int></param>
+              <theme name="togglebutton" ref="togglebutton">
+                <param name="minHeight"><int>48</int></param>
+              </theme>
+              <theme name="button-symbol" ref="button-symbol">
+                <param name="minHeight"><int>48</int></param>
+              </theme>
+            </theme>
+          </theme>
           <theme name="label" ref="label"><param name="font"><font>med-noshadow-22-white</font></param></theme>
         </theme>
       </theme>

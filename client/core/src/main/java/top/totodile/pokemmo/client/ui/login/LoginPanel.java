@@ -37,6 +37,7 @@ public final class LoginPanel extends ResizableFrame implements Disposable {
     private final LongSupplier notificationClock;
     private long nextNotificationFadeAt;
     private LoginEditField nativeEditor;
+    private Runnable inputRequested = () -> {};
     private boolean disposed;
 
     public LoginPanel(Widget notificationHost, ClientStrings strings, boolean mobile,
@@ -261,6 +262,7 @@ public final class LoginPanel extends ResizableFrame implements Disposable {
         }
     }
 
+    public void onInputRequested(Runnable action) { inputRequested=java.util.Objects.requireNonNull(action); }
     public boolean hasNativeEditor() { return nativeEditor != null; }
 
     @Override public void dispose() {
@@ -293,7 +295,9 @@ public final class LoginPanel extends ResizableFrame implements Disposable {
             return handled;
         }
         private void showNativeInput(){
-            if(!mobile || isReadOnly() || !isEnabled() || Gdx.app.getType()!=ApplicationType.Android || disposed || nativeEditor==this)return;
+            if(!mobile || disposed)return;
+            inputRequested.run();
+            if(isReadOnly() || !isEnabled() || Gdx.app.getType()!=ApplicationType.Android || nativeEditor==this)return;
             if(nativeEditor!=null){
                 Gdx.input.closeTextInputField(false,confirm->{showNativeInput();return true;});
                 return;

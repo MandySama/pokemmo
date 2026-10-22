@@ -48,5 +48,7 @@ build/
 # 本地单机角色存档
 save/
 
-# Local ROM files
-/client/roms/
+# 本地 MOD 与 ROM 资源
+mods/
+roms/
+/client/cache/

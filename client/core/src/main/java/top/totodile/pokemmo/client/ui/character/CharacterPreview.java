@@ -32,6 +32,10 @@ final class CharacterPreview extends Widget implements AutoCloseable {
     private int mode;
     private int centerX;
     private boolean portrait;
+    private com.badlogic.gdx.graphics.g2d.SpriteBatch worldBatch;
+    private boolean worldFlip;
+    private int worldHeight;
+    private int worldGroundPadding=-1;
     private CharacterAppearance.Slot colorSlot;
     private int pendingColor;
     private record Key(int slot, int id, int view, int frame, int layer) {}
@@ -64,6 +68,23 @@ final class CharacterPreview extends Widget implements AutoCloseable {
     // 保存相对坐标，父窗口移动时预览中心随控件一起移动。
     void centerBetween(int left, int right) { centerX = (left + right) / 2 - getX(); }
     void portrait() { portrait = true; }
+    void drawWorld(com.badlogic.gdx.graphics.g2d.SpriteBatch batch,int x,int y,int frame,boolean flip) {
+        Cached body=load(new Key(-1,skin.getAsInt(),0,frame,0));
+        if(body==null) return;
+        if(worldGroundPadding<0) {
+            Cached standing=load(new Key(-1,skin.getAsInt(),0,0,0));
+            worldGroundPadding=0;
+            if(standing!=null) {
+                int bottom=-1;
+                for(int py=0;py<standing.pixels.getHeight();py++) for(int px=0;px<standing.pixels.getWidth();px++)
+                    if((standing.pixels.getPixel(px,py)&255)!=0) bottom=py;
+                worldGroundPadding=bottom<0?0:standing.pixels.getHeight()-bottom-1;
+            }
+        }
+        worldBatch=batch; worldFlip=flip; worldHeight=body.pixels.getHeight();
+        try { drawCharacter(0,frame,x-body.pixels.getWidth()/2,y-worldGroundPadding,1); }
+        finally { worldBatch=null; batch.setColor(com.badlogic.gdx.graphics.Color.WHITE); }
+    }
 
     @Override protected boolean handleEvent(Event event) { return false; }
     @Override protected boolean isMouseInside(Event event) { return false; }
@@ -128,6 +149,16 @@ final class CharacterPreview extends Widget implements AutoCloseable {
     private void draw(Key key, int x, int y, int scale, Integer tint) {
         Cached sprite = load(key);
         if (sprite == null) return;
+        if(worldBatch!=null) {
+            int width=sprite.pixels.getWidth(), height=sprite.pixels.getHeight();
+            worldBatch.setColor(com.badlogic.gdx.graphics.Color.WHITE);
+            worldBatch.draw(sprite.texture,worldFlip?x+width:x,y+worldHeight-height,worldFlip?-width:width,height);
+            if(key.slot>=0 && key.layer%3!=2) {
+                if(tint!=null) worldBatch.setColor(((tint>>>16)&255)/255f,((tint>>>8)&255)/255f,(tint&255)/255f,(tint>>>24)/255f);
+                worldBatch.draw(sprite.texture,worldFlip?x+width:x,y+worldHeight-height,worldFlip?-width:width,height);
+            }
+            return;
+        }
         int width = sprite.image.getWidth() * scale, height = sprite.image.getHeight() * scale;
         sprite.image.draw(getAnimationState(), x, y, width, height);
         if (key.slot >= 0 && key.layer % 3 != 2) {
@@ -162,7 +193,7 @@ final class CharacterPreview extends Widget implements AutoCloseable {
             }
             Texture texture = new Texture(pixels);
             texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-            Cached sprite = new Cached(pixels, texture, renderer.image(texture));
+            Cached sprite = new Cached(pixels, texture, renderer==null?null:renderer.image(texture));
             cache.put(key, sprite);
             return sprite;
         } catch (RuntimeException error) {

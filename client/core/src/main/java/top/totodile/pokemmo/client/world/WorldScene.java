@@ -1,0 +1,195 @@
+package top.totodile.pokemmo.client.world;
+
+import com.badlogic.gdx.*;
+import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.g2d.*;
+import java.util.*;
+import java.util.function.Consumer;
+import top.totodile.pokemmo.client.config.ClientSettings;
+import top.totodile.pokemmo.client.rom.gba.FireRedMaps;
+import top.totodile.pokemmo.client.rom.gba.FireRedMaps.*;
+import top.totodile.pokemmo.client.ui.character.OverworldCharacter;
+import top.totodile.pokemmo.server.game.GameService.Position;
+
+/** Shared GBA overworld: visible metatiles, sprite occlusion and a following camera. */
+public final class WorldScene extends InputAdapter implements AutoCloseable {
+    private final FireRedMaps maps;
+    private final MapMovement movement;
+    private final OverworldCharacter character;
+    private final ClientSettings settings;
+    private final boolean mobile;
+    private final PlayerMotion motion;
+    private final WorldCommands commands;
+    private final SpriteBatch batch=new SpriteBatch();
+    private final OrthographicCamera camera=new OrthographicCamera();
+    private final LinkedHashMap<Tiles,Texture[]> atlases=new LinkedHashMap<>(8,.75f,true);
+    private boolean focused=true;
+    private boolean inputBlocked;
+    private final Set<Integer> actionKeys=new HashSet<>();
+    private final DirectionKeys directionKeys=new DirectionKeys();
+    private MobileMapControls controls;
+    private record Neighbor(MapData map,int x,int y) {}
+    private final List<Neighbor> neighbors=new ArrayList<>();
+    public WorldScene(FireRedMaps maps,MapMovement movement,OverworldCharacter character,ClientSettings settings,Consumer<Position> save) {
+        this(maps,movement,character,settings,false,save);
+    }
+    public WorldScene(FireRedMaps maps,MapMovement movement,OverworldCharacter character,ClientSettings settings,boolean mobile,Consumer<Position> save) {
+        this.maps=maps; this.movement=movement; this.character=character; this.settings=settings;
+        this.mobile=mobile;
+        motion=new PlayerMotion(movement,Boolean.parseBoolean(settings.get("client.gameplay.autosprint.enabled","true")),save);
+        commands=new WorldCommands(motion);
+        try { atlas(maps.tiles(movement.map())); }
+        catch(RuntimeException error) { batch.dispose(); throw error; }
+    }
+    public MapMovement movement() { return movement; }
+    public PlayerMotion motion() { return motion; }
+    public WorldCommands commands() { return commands; }
+    public void setInputBlocked(boolean blocked) {
+        inputBlocked=blocked;
+        if(blocked) { actionKeys.clear(); directionKeys.clear(); if(controls!=null)controls.release(); }
+    }
+    public void setControls(MobileMapControls controls) { this.controls=controls; }
+    public void setFocused(boolean value) {
+        focused=value;
+        if(!value) { actionKeys.clear(); directionKeys.clear(); if(controls!=null)controls.release(); }
+    }
+    private int key(String name,int fallback) {
+        try { int value=Integer.parseInt(settings.get("client.controls.gdx.key_"+name,Integer.toString(fallback))); return value>=0 && value<=255?value:fallback; }
+        catch(NumberFormatException error) { return fallback; }
+    }
+    public void draw(float delta,int width,int height) {
+        int dx=0,dy=0;
+        if(focused && !inputBlocked) {
+            dx=controls==null?0:controls.dx(); dy=controls==null?0:controls.dy();
+            switch(directionKeys.direction()) {
+                case 0 -> { dx=0; dy=1; }
+                case 1 -> { dx=0; dy=-1; }
+                case 2 -> { dx=-1; dy=0; }
+                case 3 -> { dx=1; dy=0; }
+            }
+        }
+        try { motion.update(focused?delta:0,dx,dy); }
+        catch(RuntimeException error) { Gdx.app.error("world","Cannot move to ROM map",error); }
+        Position position=movement.position();
+        float px=motion.x()*16+8;
+        float py=motion.y()*16+16;
+        int zoom;
+        try { zoom=Integer.parseInt(settings.get("client.graphics.gba.zoom_level","-1")); }
+        catch(NumberFormatException error) { zoom=-1; }
+        zoom=WorldScale.zoom(zoom,width,mobile);
+        camera.setToOrtho(false,(float)width/zoom,(float)height/zoom);
+        camera.position.set(Math.round(px),Math.round(-py+8),0); camera.update();
+        Gdx.gl.glViewport(0,0,width,height);
+        Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
+        Gdx.gl.glDisable(GL20.GL_CULL_FACE);
+        prepareNeighbors();
+        batch.setProjectionMatrix(camera.combined); batch.begin();
+        drawMap(0,px,py);
+        // GdxTileLayerRenderer.jL：低高程对象 -> 普通上层 -> 高高程对象 -> 高层遮挡。
+        if(movement.elevation()<=3) drawCharacter(px,py,position.direction());
+        drawMap(1,px,py);
+        if(movement.elevation()>3) drawCharacter(px,py,position.direction());
+        drawMap(2,px,py);
+        batch.end();
+        if(controls!=null) controls.draw(batch,width,height);
+    }
+    private int directionForKey(int value) {
+        if(value==Input.Keys.W || value==Input.Keys.UP || value==key("up",Input.Keys.W))return 1;
+        if(value==Input.Keys.S || value==Input.Keys.DOWN || value==key("down",Input.Keys.S))return 0;
+        if(value==Input.Keys.A || value==Input.Keys.LEFT || value==key("left",Input.Keys.A))return 2;
+        if(value==Input.Keys.D || value==Input.Keys.RIGHT || value==key("right",Input.Keys.D))return 3;
+        return -1;
+    }
+    private void drawCharacter(float px,float py,int direction) {
+        character.draw(batch,px,-py+4,direction,motion.animationTime(),motion.moving(),motion.mode().animation);
+    }
+    private void prepareNeighbors() {
+        MapData current=movement.map(); neighbors.clear();
+        atlas(maps.tiles(current));
+        for(Connection connection:current.connections()) {
+            if(connection.direction()<1 || connection.direction()>4)continue;
+            MapData other=maps.map(connection.target());
+            int x=connection.direction()<=2?connection.offset():connection.direction()==3?-other.width():current.width();
+            int y=connection.direction()>=3?connection.offset():connection.direction()==2?-other.height():current.height();
+            neighbors.add(new Neighbor(other,x,y)); atlas(maps.tiles(other));
+        }
+    }
+    public boolean move(int dx,int dy) {
+        try {
+            return motion.move(dx,dy);
+        } catch(RuntimeException error) { Gdx.app.error("world","Cannot move to ROM map",error); return false; }
+    }
+    private void drawMap(int pass,float px,float py) {
+        MapData map=movement.map();
+        int left=(int)Math.floor((px-camera.viewportWidth/2)/16)-1;
+        int right=(int)Math.ceil((px+camera.viewportWidth/2)/16)+1;
+        int top=(int)Math.floor((py-camera.viewportHeight/2)/16)-1;
+        int bottom=(int)Math.ceil((py+camera.viewportHeight/2)/16)+1;
+        for(int y=top;y<=bottom;y++) for(int x=left;x<=right;x++) {
+            MapData source=map; int sx=x,sy=y;
+            if(!map.contains(x,y)) for(Neighbor neighbor:neighbors) {
+                if(neighbor.map.contains(x-neighbor.x,y-neighbor.y)) {
+                    source=neighbor.map; sx=x-neighbor.x; sy=y-neighbor.y; break;
+                }
+            }
+            Tiles tiles=maps.tiles(source); Texture[] textures=atlases.get(tiles);
+            int block=source.block(sx,sy), id=block&1023;
+            if(id>=tiles.count()) continue;
+            // 火红 C4=32：属性最高字节的 0x20 位，含 layer=1 和 layer=3。
+            boolean covered=(tiles.attributes()[id]&0x20000000)!=0;
+            if(pass==0) {
+                drawTile(textures[0],id,x,y);
+                if(covered) drawTile(textures[1],id,x,y);
+            } else if(!covered && (pass==1?block>>>12<=3:block>>>12>3)) drawTile(textures[1],id,x,y);
+        }
+    }
+    @Override public boolean keyDown(int key) {
+        if(!focused || inputBlocked)return false;
+        int direction=directionForKey(key);
+        if(direction>=0) { directionKeys.press(key,direction); return true; }
+        if(key==Input.Keys.K) {
+            if(!actionKeys.add(key))return true;
+            motion.toggleRunning();
+            settings.save(Map.of("client.gameplay.autosprint.enabled",Boolean.toString(motion.running())));
+            return true;
+        }
+        if(key==Input.Keys.NUM_2 || key==Input.Keys.NUMPAD_2) {
+            if(actionKeys.add(key))motion.toggleBicycle(); return true;
+        }
+        return false;
+    }
+    @Override public boolean keyUp(int key) { return directionKeys.release(key) | actionKeys.remove(key); }
+    private void drawTile(Texture texture,int id,int x,int y) {
+        batch.draw(texture,x*16,-y*16-16,16,16,(id%16)*16,(id/16)*16,16,16,false,false);
+    }
+    private Texture[] atlas(Tiles tiles) {
+        Texture[] existing=atlases.get(tiles); if(existing!=null) return existing;
+        Texture[] result=new Texture[2];
+        try {
+            for(int layer=0;layer<2;layer++) {
+                Pixmap image=new Pixmap(256,((tiles.count()+15)/16)*16,Pixmap.Format.RGBA8888);
+                try {
+                    image.setBlending(Pixmap.Blending.None);
+                    for(int id=0;id<tiles.count();id++) for(int y=0;y<16;y++) for(int x=0;x<16;x++)
+                        image.drawPixel(id%16*16+x,id/16*16+y,tiles.pixels()[layer][id*256+y*16+x]);
+                    result[layer]=new Texture(image);
+                    result[layer].setFilter(Texture.TextureFilter.Nearest,Texture.TextureFilter.Nearest);
+                } finally { image.dispose(); }
+            }
+        } catch(RuntimeException error) { for(Texture texture:result) if(texture!=null) texture.dispose(); throw error; }
+        atlases.put(tiles,result);
+        if(atlases.size()>6) {
+            var oldest=atlases.entrySet().iterator(); var entry=oldest.next();
+            for(Texture texture:entry.getValue()) texture.dispose(); oldest.remove();
+        }
+        return result;
+    }
+    @Override public void close() {
+        for(Texture[] textures:atlases.values()) for(Texture texture:textures) texture.dispose();
+        atlases.clear(); character.close(); if(controls!=null)controls.close(); batch.dispose();
+    }
+    @Override public boolean touchDown(int x,int y,int pointer,int button) { return controls!=null && controls.touchDown(x,y,pointer); }
+    @Override public boolean touchDragged(int x,int y,int pointer) { return controls!=null && controls.touchDragged(x,y,pointer); }
+    @Override public boolean touchUp(int x,int y,int pointer,int button) { return controls!=null && controls.touchUp(pointer); }
+    @Override public boolean touchCancelled(int x,int y,int pointer,int button) { return controls!=null && controls.touchUp(pointer); }
+}

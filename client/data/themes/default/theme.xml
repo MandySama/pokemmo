@@ -19,4 +19,5 @@
   <include filename="main-widgets.xml" />
   <include filename="ui/settings.xml" />
   <include filename="ui/customization.xml" />
+  <include filename="ui/world.xml" />
 </themes>

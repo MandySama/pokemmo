@@ -7,6 +7,9 @@ import top.totodile.pokemmo.client.rom.RomInfo;
 import top.totodile.pokemmo.client.rom.RomManager;
 import top.totodile.pokemmo.client.rom.RomType;
 import top.totodile.pokemmo.client.ui.common.ClientWindow;
+import top.totodile.pokemmo.client.ui.common.MessageDialog;
+import top.totodile.pokemmo.client.ui.common.ImportProgressDialog;
+import top.totodile.pokemmo.client.rom.RomImportFailure;
 
 /** 客户端 ROM 状态、导入与窗口导航。 */
 public final class ClientManagementWindow extends ClientWindow {
@@ -22,15 +25,13 @@ public final class ClientManagementWindow extends ClientWindow {
             if (mobile) mobileBackground.accept(getBackground()); else super.paintBackground(gui);
         }
         @Override protected boolean isFrameElement(Widget widget) {
-            return widget == gear || (mobile && widget == message) || super.isFrameElement(widget);
+            return widget == gear || super.isFrameElement(widget);
         }
         @Override protected void layout() {
             super.layout();
             if (mobile) {
                 gear.adjustSize();
                 gear.setPosition(getInnerRight() - gear.getWidth() - headerActionRight, getInnerY());
-                message.adjustSize();
-                message.setPosition(getInnerX()+30, getInnerBottom()-50);
             }
         }
     };
@@ -39,12 +40,19 @@ public final class ClientManagementWindow extends ClientWindow {
     private final DialogLayout content = new DialogLayout();
     private final java.util.Map<Integer, Button> states = new java.util.LinkedHashMap<>();
     private final java.util.List<Button> chooseButtons = new java.util.ArrayList<>();
-    private final Label message = new Label("");
+    private final MessageDialog messageDialog;
+    private final ImportProgressDialog progressDialog;
     private final RomManager roms;
     private final RomFilePicker picker;
     private final Runnable changed;
     private final ClientStrings strings;
     private boolean busy, disposed;
+    private boolean restartRequired;
+    private Runnable restart=() -> com.badlogic.gdx.Gdx.app.exit();
+    private volatile double progressValue;
+
+    public void onRestart(Runnable restart) { this.restart=java.util.Objects.requireNonNull(restart); }
+    public boolean isImporting() { return busy; }
 
     public ClientManagementWindow(Widget owner, ClientStrings strings, boolean mobile, Runnable onClose,
                            java.util.function.Consumer<de.matthiasmann.twl.renderer.Image> mobileBackground,
@@ -57,6 +65,10 @@ public final class ClientManagementWindow extends ClientWindow {
         this.mobile = mobile;
         this.onClose = onClose;
         this.mobileBackground = mobileBackground;
+        progressDialog=new ImportProgressDialog(owner,mobile,mobileBackground);
+        messageDialog = new MessageDialog(owner, strings, mobile, mobileBackground, () -> {
+            if (isOpen()) raiseWindow(); else onClose.run();
+        });
         setTheme("");
         frame.setTheme("/rom-panel");
         frame.setTitle(strings.get(1175));
@@ -80,10 +92,7 @@ public final class ClientManagementWindow extends ClientWindow {
             states.put(type, state);
             chooseButtons.add(choose);
             choose.addCallback(() -> chooseRom(type));
-            state.addCallback(() -> {
-                RomInfo rom=roms.get(RomType.of(type));
-                if (rom != null) showMessage(rom.title()+" / "+rom.code()+" / v"+rom.revision()+" / "+(rom.size()/1024/1024)+" MiB");
-            });
+            state.addCallback(() -> showRomInfo(RomType.of(type)));
             columns.addGroup(content.createSequentialGroup().addWidget(label).addGap(5)
                     .addWidget(choose).addGap(5).addWidget(state).addGap(5));
             rows.addGap(5).addGroup(content.createParallelGroup(label, choose, state));
@@ -91,23 +100,18 @@ public final class ClientManagementWindow extends ClientWindow {
         Button first = new Button(strings.get(mobile ? 1162 : 1174));
         Button last = new Button(strings.get(mobile ? 1163 : 65));
         if (!mobile) last.addCallback(this::closePopup);
+        if (!mobile) first.setTooltipContent(strings.get(1173));
         if (!mobile) first.addCallback(() -> {
             if (picker == null) { showMessage("当前环境不支持打开文件夹"); return; }
             try { java.nio.file.Files.createDirectories(roms.directory());
                 picker.openDirectory(roms.directory().toString(), text -> com.badlogic.gdx.Gdx.app.postRunnable(() -> showMessage(text)));
             } catch (java.io.IOException error) { showMessage(error.getMessage()); }
         });
-        Button refresh = new Button("重新扫描 ROM");
-        refresh.addCallback(() -> { if (!busy) refreshRoms(); });
-        if (!mobile) {
-            columns.addWidget(message);
-            rows.addGap(5).addWidget(message);
-        }
         var actions = content.createSequentialGroup();
-        if (mobile) actions.addWidget(refresh).addGap(0, 0, Short.MAX_VALUE).addWidget(first).addGap(5).addWidget(last);
-        else actions.addWidget(first).addGap(5).addWidget(refresh).addGap(0, 0, Short.MAX_VALUE).addWidget(last);
+        if (mobile) actions.addGap(0, 0, Short.MAX_VALUE).addWidget(first).addGap(5).addWidget(last);
+        else actions.addWidget(first).addGap(0, 0, Short.MAX_VALUE).addWidget(last);
         columns.addGroup(actions.addGap(5));
-        rows.addGap(5).addGroup(content.createParallelGroup(first, last, refresh)).addGap(5);
+        rows.addGap(5).addGroup(content.createParallelGroup(first, last)).addGap(5);
         content.setHorizontalGroup(columns);
         content.setVerticalGroup(rows);
         outer.setHorizontalGroup(outer.createSequentialGroup().addGap(0, 0, Short.MAX_VALUE)
@@ -120,43 +124,57 @@ public final class ClientManagementWindow extends ClientWindow {
             gear.setTheme("/mobile-gear-icon");
             gear.setCanAcceptKeyboardFocus(false);
             frame.add(gear);
-            message.setTheme("/label");
-            frame.add(message);
         }
     }
 
     public void open() {
         if (isOpen()) { raiseWindow(); return; }
-        if (!busy) refreshRoms();
+        updateStates();
         if (openPopup()) {
             positionWindow();
             frame.setHardVisible(true);
         }
     }
 
-    private void refreshRoms() {
-        roms.refresh();
-        updateStates();
-        changed.run();
-        showMessage(String.join("\n", roms.errors()));
-    }
-
     private void updateStates() {
         states.forEach((type, button) -> {
             RomInfo rom=roms.get(RomType.of(type));
-            button.setText(rom==null ? strings.get(type==2?1168:1169) : "已加载 " + rom.code());
-            button.setTooltipContent(rom==null ? strings.get(type==2?1168:1169)
-                    : rom.path()+"\n"+rom.title()+" / v"+rom.revision()+"\n"+rom.size()+" bytes / "+rom.files().size()+" files");
+            button.setText(rom==null ? strings.get(type==2?1168:1169) : strings.get(1177));
         });
     }
 
+    private void showRomInfo(RomType type) {
+        RomInfo rom=roms.get(type);
+        String name=strings.get(90+type.id);
+        if (rom==null) { showMessage(strings.format(1186,name)); return; }
+        // 参考 ClientSettingsWindow.Xz0/gz；GBA 显示注册版本名，NDS 显示 ROM 类型名。
+        if (type.extension.equals("gba")) {
+            String base=type==RomType.FIRE_RED ? "Fire Red" : "Emerald";
+            String region=switch (rom.code()) {
+                case "BPRE", "BPEE" -> "USA";
+                case "BPRF", "BPEF" -> "FR";
+                case "BPRD", "BPED" -> "DE";
+                case "BPRS", "BPES" -> "ES";
+                case "BPRI", "BPEI" -> "IT";
+                default -> "";
+            };
+            name=region.isEmpty() ? base : base+" v1."+rom.revision()+" "+region;
+        }
+        java.nio.file.Path path=rom.path();
+        String displayPath=path.startsWith(roms.directory())
+                ? roms.directory().getFileName().resolve(roms.directory().relativize(path)).toString()
+                : "..."+java.io.File.separator+path.getFileName();
+        showMessage(strings.format(1185,name,displayPath));
+    }
+
     private void showMessage(String text) {
-        if (disposed) return;
-        if (text==null) text="ROM 读取失败";
-        String preview=text.replace('\n', ' ').replace('\r', ' ');
-        message.setText(preview.length()>44 ? preview.substring(0,44)+"…" : preview);
-        message.setTooltipContent(text);
-        content.invalidateLayout();
+        if (!disposed) messageDialog.show(text==null ? strings.get(2103) : text);
+    }
+
+    public boolean closeMessage() {
+        if (!messageDialog.isOpen()) return false;
+        messageDialog.closePopup();
+        return true;
     }
 
     private void chooseRom(int type) {
@@ -166,31 +184,52 @@ public final class ClientManagementWindow extends ClientWindow {
         chooseButtons.forEach(button -> button.setEnabled(false));
         var selected=RomType.of(type);
         try {
-            picker.choose(selected.extension, source -> {
-                if (source==null) { com.badlogic.gdx.Gdx.app.postRunnable(() -> finish(null)); return; }
-                com.badlogic.gdx.Gdx.app.postRunnable(() -> showMessage("正在读取 ROM…"));
+            picker.choose(selected.extension, source -> com.badlogic.gdx.Gdx.app.postRunnable(() -> {
+                if(disposed)return;
+                if (source==null) { finish(strings.get(1085)); return; }
+                progressValue=0;
+                progressDialog.show(strings.get(1095));
                 java.util.concurrent.CompletableFuture.runAsync(() -> {
                     String result;
-                    try { roms.importRom(selected, source); result="ROM 导入成功"; }
-                    catch (Exception error) { result=error.getMessage(); }
+                    boolean imported=false;
+                    String kind=strings.get(90+selected.id);
+                    try {
+                        var outcome=roms.importRom(selected,source,value -> progressValue=value);
+                        imported=outcome==RomManager.ImportResult.IMPORTED;
+                        result=strings.format(imported?1184:1180,kind);
+                    } catch (RomImportFailure error) {
+                        String game=kind.endsWith("ROM")?kind.substring(0,kind.length()-3):kind;
+                        result=error.stringId==1181?strings.format(1181,error.detail)
+                                : strings.format(error.stringId,source.name()==null?kind:source.name(),game);
+                    } catch (Exception error) {
+                        result=strings.format(1094,source.name()==null?kind:source.name());
+                    }
                     String text=result;
-                    com.badlogic.gdx.Gdx.app.postRunnable(() -> finish(text));
+                    boolean changed=imported;
+                    com.badlogic.gdx.Gdx.app.postRunnable(() -> {
+                        if(changed)restartRequired=true;
+                        finish(text);
+                    });
                 });
-            }, text -> com.badlogic.gdx.Gdx.app.postRunnable(() -> finish(text)));
+            }), text -> com.badlogic.gdx.Gdx.app.postRunnable(() -> finish(text)));
         } catch (RuntimeException error) { finish(error.getMessage()); }
     }
 
     private void finish(String text) {
         if (disposed) return;
+        progressDialog.closePopup();
         busy=false;
         chooseButtons.forEach(button -> button.setEnabled(true));
-        updateStates(); changed.run(); showMessage(text==null?"":text);
+        updateStates(); changed.run();
+        if (text!=null) showMessage(text);
         positionWindow();
     }
 
-    public void dispose() { disposed=true; }
+    public void dispose() { disposed=true; progressDialog.closePopup(); messageDialog.closePopup(); }
 
     public void positionWindow() {
+        messageDialog.positionWindow();
+        if(progressDialog.isOpen())progressDialog.update(strings.get(1095),progressValue);
         if (!isOpen()) return;
         Widget owner = getOwner();
         if (mobile) {
@@ -204,6 +243,19 @@ public final class ClientManagementWindow extends ClientWindow {
     }
 
     @Override public void closePopup() {
+        if(busy)return;
+        if(!disposed && roms.get(RomType.BLACK_WHITE)==null) {
+            showMessage(strings.format(1178,strings.get(92)));
+            return;
+        }
+        if(restartRequired && !disposed) {
+            messageDialog.show(strings.get(1179),() -> {
+                if(disposed)return;
+                try { restart.run(); }
+                catch(RuntimeException error) { showMessage(strings.get(2103)); }
+            });
+            return;
+        }
         boolean wasOpen = isOpen();
         super.closePopup();
         if (wasOpen) onClose.run();

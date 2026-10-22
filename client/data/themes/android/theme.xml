@@ -23,4 +23,5 @@
   <include filename="ui/android-settings.xml" />
   <include filename="../default/ui/customization.xml" />
   <include filename="ui/android-customization.xml" />
+  <include filename="../default/ui/world.xml" />
 </themes>

@@ -1,6 +1,11 @@
 <?xml version='1.0' encoding='utf-8'?>
 <themes>
   <images file="res/user-interface.png" filter="nearest">
+    <area name="console.background" xywh="43,100,1,1" tint="#B0000000"/>
+    <grid name="progressbar.background" weightsX="0,1,0" weightsY="1">
+      <area xywh="206,100,2,8"/><area xywh="212,100,1,8"/><area xywh="215,100,2,8"/>
+    </grid>
+    <area name="progressbar.progressImage" xywh="211,100,1,8" inset="0,2,0,0"/>
     <area name="-editfield.cursor" xywh="0,496,1,1" tint="sub-color" />
     <animation name="editfield.cursor" timeSource="keyboardFocus">
       <frame ref="-editfield.cursor" duration="500" />

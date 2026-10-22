@@ -7,6 +7,7 @@ version = rootProject.version
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 java {
@@ -19,6 +20,7 @@ def gdxVersion = rootProject.gdxVersion
 def lwjglVersion = '3.3.6'
 
 dependencies {
+    implementation 'com.github.mgsx-dev.gdx-gltf:gltf:2.2.1'
     implementation project(':server:db:desktop')
     implementation project(':server:login')
     testImplementation 'junit:junit:4.13.2'
@@ -28,6 +30,13 @@ dependencies {
     implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
     implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
     implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
+    // 对齐参考客户端 NetworkReconnectionHandler.mJ 的系统原生文件选择器。
+    implementation 'org.lwjgl:lwjgl-tinyfd'
+    runtimeOnly 'org.lwjgl:lwjgl-tinyfd::natives-windows'
+    runtimeOnly 'org.lwjgl:lwjgl-tinyfd::natives-linux'
+    runtimeOnly 'org.lwjgl:lwjgl-tinyfd::natives-macos'
+    runtimeOnly 'org.lwjgl:lwjgl-tinyfd::natives-linux-arm64'
+    runtimeOnly 'org.lwjgl:lwjgl-tinyfd::natives-macos-arm64'
     runtimeOnly "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
     runtimeOnly "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
 }

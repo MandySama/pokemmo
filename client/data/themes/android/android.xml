@@ -1,5 +1,32 @@
 <?xml version='1.0' encoding='utf-8'?>
 <themes>
+  <images file="res/ui-mobile-atlas.png" filter="nearest">
+<grid name="mobile.progress.overlay" weightsX="0,1,0" weightsY="0,1,0">
+      <area xywh="431,522,15,12" />
+      <area xywh="446,522,1,12" />
+      <area xywh="451,522,15,12" />
+      <area xywh="431,534,15,4" />
+      <area xywh="446,534,1,4" />
+      <area xywh="451,534,15,4" />
+      <area xywh="431,538,15,12" />
+      <area xywh="446,538,1,12" />
+      <area xywh="451,538,15,12" />
+    </grid>
+    <grid name="mobile.progress.background" weightsX="0,1,0" weightsY="0,1,0">
+      <area xywh="431,553,15,12" />
+      <area xywh="446,553,1,12" />
+      <area xywh="451,553,15,12" />
+      <area xywh="431,565,15,4" />
+      <area xywh="446,565,1,4" />
+      <area xywh="451,565,15,4" />
+      <area xywh="431,569,15,12" />
+      <area xywh="446,569,1,12" />
+      <area xywh="451,569,15,12" />
+    </grid>
+    <grid name="-mobile.progress.progressImage" weightsX="1" inset="8,0" weightsY="1"><area xywh="475,522,1,28" splity="T12,B12" /></grid>
+    <alias name="mobile.progress.green.progressImage" ref="-mobile.progress.progressImage" tint="#2ECC71" />
+
+  </images>
   <theme name="character-summary-label" ref="label" overwrite="true">
     <param name="font"><font>med-noshadow-22-white</font></param>
   </theme>
@@ -762,6 +789,33 @@
     </param>
   </theme>
 <theme name="confirm-panel" ref="confirm-panel" allowWildcard="true">
+<theme name="progressbar" ref="-defaults" allowWildcard="true">
+      <param name="progressImage">
+        <image>mobile.progress.green.progressImage</image>
+      </param>
+      <param name="background">
+        <image>mobile.progress.background</image>
+      </param>
+      <param name="overlay">
+        <image>mobile.progress.overlay</image>
+      </param>
+      <param name="border">
+        <border>0,0</border>
+      </param>
+      <param name="minWidth">
+        <int>350</int>
+      </param>
+      <param name="minHeight">
+        <int>80</int>
+      </param>
+      <param name="textAlignment">
+        <enum type="alignment">CENTER</enum>
+      </param>
+      <param name="font">
+        <font>22pt-gray</font>
+      </param>
+    </theme>
+
     <theme name="label" ref="label" allowWildcard="true">
       <param name="font"><font>med-noshadow-18-white</font></param>
       <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
@@ -773,4 +827,5 @@
 			<param name="minWidth"><int>120</int></param>
 		</theme>
     </theme>
+
 </themes>

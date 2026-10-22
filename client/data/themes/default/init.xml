@@ -218,6 +218,9 @@
       <enum type="alignment">CENTER</enum>
     </param>
   </theme>
+  <theme name="button-symbol" ref="button" allowWildcard="true">
+    <param name="font"><font>symbols-white</font></param>
+  </theme>
   <theme name="togglebutton" ref="-defaults" allowWildcard="true">
     <param name="font">
       <font>pb-dark</font>
@@ -781,6 +784,11 @@
 		<param name="background"><image>label1.background</image></param>
 		</theme>
 <theme name="confirm-panel" ref="-defaults" allowWildcard="true">
+    <theme name="progressbar" ref="-defaults" allowWildcard="true">
+      <param name=""><image>progressbar.*</image></param>
+      <param name="minWidth"><int>100</int></param>
+      <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+    </theme>
     <theme name="container" ref="-defaults" />
 		<param name="background"><image>ui-popup.background</image></param>
 		<param name="border"><border>20</border></param>

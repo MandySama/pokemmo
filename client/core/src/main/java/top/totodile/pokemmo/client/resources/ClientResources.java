@@ -23,13 +23,15 @@ public final class ClientResources implements Function<String, FileHandle>, Auto
     private final Function<String, FileHandle> bundled;
     private final FileHandle writable;
     private final List<Function<String, FileHandle>> roots = new ArrayList<>();
-    private final List<ZipFile> archives = new ArrayList<>();
+    private final Map<java.nio.file.Path,ZipFile> archives = new LinkedHashMap<>();
+    private final Map<java.nio.file.Path,Runnable> packageCleanup = new HashMap<>();
     private final List<ClientStrings.Source> stringSources = new ArrayList<>();
     private final Map<String, Theme> themes = new LinkedHashMap<>();
     private final Properties settings = new Properties();
     private final boolean mobile;
     private final ClientSettings preferences;
     private final RomManager roms;
+    private final ModImporter modImporter;
     private RomFilePicker romFilePicker;
 
     public ClientResources(Function<String, FileHandle> bundled, FileHandle config, boolean mobile) {
@@ -37,6 +39,7 @@ public final class ClientResources implements Function<String, FileHandle>, Auto
         this.writable = config.parent().child("data");
         this.mobile = mobile;
         preferences = new ClientSettings(config);
+        modImporter=new ModImporter(writable.child("mods").file().toPath(),this::releaseMod);
         roms = new RomManager(config.parent().child("roms").file().toPath(), new RomManager.Configuration() {
             @Override public String selectedFile(RomType type) {
                 return preferences.get("client.roms." + type.id, "");
@@ -77,6 +80,7 @@ public final class ClientResources implements Function<String, FileHandle>, Auto
     }
 
     public RomManager roms() { return roms; }
+    public ModImporter modImporter() { return modImporter; }
     public RomFilePicker romFilePicker() { return romFilePicker; }
     public void setRomFilePicker(RomFilePicker picker) { romFilePicker=picker; }
 
@@ -140,7 +144,7 @@ public final class ClientResources implements Function<String, FileHandle>, Auto
             source = cached.file();
         }
         ZipFile zip = new ZipFile(source);
-        archives.add(zip);
+        archives.put(source.toPath().toAbsolutePath().normalize(),zip);
         var entries=zip.entries();
         while(entries.hasMoreElements()){
             var entry=entries.nextElement();
@@ -184,7 +188,9 @@ public final class ClientResources implements Function<String, FileHandle>, Auto
 
     private void loadPackage(FileHandle file, boolean builtIn) {
         try {
-            var files = packageFiles(file);
+            var archiveFiles=packageFiles(file);
+            boolean[] available={true};
+            Function<String,FileHandle> files=path -> available[0]?archiveFiles.apply(path):missingFile(path);
             var factory = DocumentBuilderFactory.newInstance();
             factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
             factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
@@ -243,19 +249,40 @@ public final class ClientResources implements Function<String, FileHandle>, Auto
                 }
             }
             // 参考 pd：道具图标位于包内 sprites/itemicons/，与 data/ 下的主题覆盖分别解析。
-            roots.add(0,path -> {
+            Function<String,FileHandle> root=path -> {
                 if(path.startsWith("data/sprites/itemicons/")) {
                     FileHandle icon=files.apply(withoutData(path));
                     if(icon.exists())return icon;
                 }
                 return files.apply(path);
-            });
+            };
+            roots.add(0,root);
             for (Theme theme:declaredThemes) themes.put(theme.name(),theme);
             stringSources.addAll(declaredStrings);
+            if(!builtIn)packageCleanup.put(file.file().toPath().toAbsolutePath().normalize(),() -> {
+                // 其他主题的继承链也可能引用此来源；删除后应继续查找基础资源，不能访问已关闭 ZIP。
+                available[0]=false;
+                roots.remove(root); stringSources.removeAll(declaredStrings);
+                for(Theme theme:declaredThemes)themes.remove(theme.name(),theme);
+            });
         } catch (Exception error) { LOG.log(Level.WARNING,"Error loading resource package " + file.path(),error); }
     }
 
     public ClientSettings preferences() { return preferences; }
+    private static FileHandle missingFile(String path) {
+        return new FileHandle(path) {
+            @Override public boolean exists() { return false; }
+            @Override public boolean isDirectory() { return false; }
+            @Override public FileHandle[] list() { return new FileHandle[0]; }
+            @Override public InputStream read() { throw new IllegalStateException("Removed MOD resource: "+path); }
+        };
+    }
+    private void releaseMod(java.nio.file.Path path) throws IOException {
+        ZipFile zip=archives.get(path);
+        if(zip!=null) { zip.close(); archives.remove(path); }
+        Runnable cleanup=packageCleanup.remove(path);
+        if(cleanup!=null)cleanup.run();
+    }
     public ClientStrings strings() {
         return new ClientStrings(settings.getProperty("client.ui.chat.language.current_language"),
                 stringSources.toArray(ClientStrings.Source[]::new));
@@ -281,7 +308,8 @@ public final class ClientResources implements Function<String, FileHandle>, Auto
         return constants;
     }
     @Override public void close() {
-        for (ZipFile zip:archives) try { zip.close(); }
+        for (ZipFile zip:archives.values()) try { zip.close(); }
         catch (IOException error) { LOG.log(Level.WARNING,"Cannot close resource package",error); }
+        archives.clear(); packageCleanup.clear();
     }
 }

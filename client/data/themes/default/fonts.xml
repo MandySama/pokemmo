@@ -31,4 +31,5 @@
   <fontDef name="pb-tab" ref="pb-dark" color="#999">
     <fontParam if="selected" color="#FFFFFF" />
   </fontDef>
+  <fontDef name="symbols-white" filename="res/fonts/DejaVuLGCSans.ttf" color="#FFFFFF" size="14" hinting="AutoFull" incremental="false" characters="┌├└─←→↑↓▸◂↖↗↙↘☒➤↻⇲"/>
 </themes>

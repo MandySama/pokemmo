@@ -156,7 +156,7 @@ public final class SettingsWindow extends ClientWindow {
         Page sound = page(1202);
         sound.number(1276, "50"); sound.number(1277, "50"); sound.number(1279, "50");
         if (!mobile) sound.choice(1365, 1366);
-        sound.toggle(1282, false); sound.number(1283, "100%"); sound.toggle(1343, true);
+        sound.toggle(1282, true); sound.number(1283, "100%"); sound.toggle(1343, true);
 
         Page ui = page(1210);
         ui.choice(1260, mobile ? "android" : "default");
@@ -206,7 +206,7 @@ public final class SettingsWindow extends ClientWindow {
 
     private void addKeys(Page page) {
         int[] labels = {1300,1301,1368,1369,1302,1303,1304,1305};
-        String[] keys = {"Z","X","S","A","Up","Down","Left","Right"};
+        String[] keys = {"Z","X","S","A","W","S","A","D"};
         for (int i = 0; i < labels.length; i++) page.key(labels[i], keys[i]);
         if (mobile) { page.key(1363, "Page Down"); page.key(1364, "Page Up"); }
         for (int i = 1; i <= 9; i++) page.keyRow(strings.get(1306) + " " + i + ":", "hotbar"+i, Integer.toString(i));
@@ -494,7 +494,7 @@ public final class SettingsWindow extends ClientWindow {
                 case 1325 -> { min=1;max=6; }
                 default -> {}
             }
-            values = label == 1264 ? new int[]{0,2,4,8,16} : label == 1221 ? new int[]{-1,2,3,4,5,6,7,8}
+            values = label == 1264 ? new int[]{0,2,4,8,16} : label == 1221 ? (mobile?new int[]{-1,3,4,5,6,7,8}:new int[]{-1,4,5,6,7,8})
                     : java.util.stream.IntStream.iterate(min,value -> value + stepValue(label)).limit((max-min)/step+1).toArray();
             int parsed;
             try { parsed = Integer.parseInt(text.replaceAll("[^0-9]","")); }

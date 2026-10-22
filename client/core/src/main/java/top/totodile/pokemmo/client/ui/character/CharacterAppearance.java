@@ -47,7 +47,7 @@ public final class CharacterAppearance {
     }
     byte[] archive() { return archive; }
 
-    void dispose() {
+    public void dispose() {
         frames = Map.of();
         archive = null;
     }
@@ -69,7 +69,7 @@ public final class CharacterAppearance {
         return new top.totodile.pokemmo.server.game.GameService.Appearance(gender, skin, region, parts);
     }
 
-    CharacterAppearance restore(top.totodile.pokemmo.server.game.GameService.Appearance saved) {
+    public CharacterAppearance restore(top.totodile.pokemmo.server.game.GameService.Appearance saved) {
         var result = new CharacterAppearance(this);
         result.reset(saved.gender());
         for (Slot slot : Slot.values()) {
