@@ -5,8 +5,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.ScreenUtils;
 import java.io.File;
 import top.totodile.pokemmo.client.ClientApplication;
-import top.totodile.pokemmo.client.ResourceProgressScreen;
-import top.totodile.pokemmo.client.StartupBackground;
+import top.totodile.pokemmo.client.ui.startup.ResourceProgressScreen;
+import top.totodile.pokemmo.client.ui.startup.StartupBackground;
 
 /** 同一个 GL 窗口先绘制解压弹窗，安装完成后再进入正常客户端。 */
 final class ResourceLoadingApplication extends ApplicationAdapter {

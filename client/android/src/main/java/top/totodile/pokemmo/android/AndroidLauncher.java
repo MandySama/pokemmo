@@ -11,7 +11,7 @@ import top.totodile.pokemmo.client.ClientApplication;
 /** Android 入口，资源从首次启动解压后的 files/data 目录读取。 */
 public final class AndroidLauncher extends AndroidApplication {
     private static final int PICK_ROM=814;
-    private java.util.function.Consumer<top.totodile.pokemmo.client.RomFilePicker.Source> romSelected;
+    private java.util.function.Consumer<top.totodile.pokemmo.client.rom.RomFilePicker.Source> romSelected;
 
     @Override protected void onActivityResult(int request, int result, android.content.Intent data) {
         super.onActivityResult(request,result,data);
@@ -27,7 +27,7 @@ public final class AndroidLauncher extends AndroidApplication {
         });
     }
 
-    private final top.totodile.pokemmo.client.RomFilePicker romPicker=new top.totodile.pokemmo.client.RomFilePicker() {
+    private final top.totodile.pokemmo.client.rom.RomFilePicker romPicker=new top.totodile.pokemmo.client.rom.RomFilePicker() {
         @Override public void choose(String extension, java.util.function.Consumer<Source> selected,
                                      java.util.function.Consumer<String> failed) {
             runOnUiThread(() -> {

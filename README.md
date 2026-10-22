@@ -7,6 +7,18 @@
 - `client:core`：界面与登录状态管理，调用 `server:login` 提供的服务。
 - `client:desktop`、`client:android`：组装入口，通过 `server:login` 的 `LoginServices.create()` 获取服务，当前统一指向单机分支 `SINGLE_PLAYER`，使用 `LocalLoginService`。
 
+`client:core` 在 `top.totodile.pokemmo.client` 下按职责分包，根包的 `ClientApplication` 负责应用生命周期和组装：
+
+- `ui`：根包只保留 `ClientUi`，负责界面组装、页面导航和输入生命周期。
+- `resources`：`ClientResources` 管理资源搜索、主题和 MOD；`ClientStrings` 处理语言；`AssetUrlStreamHandler` 提供主题资源 URL 访问。
+- `config`：`ClientSettings` 读写客户端设置，`SavedAccounts` 管理已保存账号及加密凭据。
+- `rom`：ROM 信息模型、扫描导入、校验和资源读取。
+- `twl`：LibGDX 与 TWL 的渲染、字体适配。
+
+界面通过资源和配置的公开入口访问数据；资源、配置和 ROM 包不依赖窗口控件。平台文件选择、资源安装和启动组装仍放在桌面/Android 模块。
+
+UI 再按功能分一层：`ui.login` 包含登录、账号选择、服务器选择、登录状态及公告；`ui.character` 包含角色列表、创建、删除、外观及预览；`ui.settings` 包含设置窗口与页签；`ui.management` 包含客户端及 MOD 管理；`ui.menu` 包含桌面菜单、移动端侧栏和电量/菜单入口；`ui.startup` 包含资源安装进度、滚动背景及启动背景；`ui.common` 放置公共窗口基类、退出确认和帧率计数器。功能窗口公开组装、输入和生命周期所需的入口；账号下拉框、角色预览、外观调色板和设置页签等内部实现保持包内可见。公共窗口基类向子类提供受保护的宿主访问和打开方法。
+
 登录流程：客户端提交输入 → `server:login` 校验非空账号密码 → 成功后按“记住我”保存 → 显示服务器名称/状态/登录按钮 → 请求选择服务器 → 显示空角色选择窗口。失败时由客户端显示错误提示并处理焦点。
 服务器选择页仅显示参考客户端的服务器名称、状态和逐行登录按钮，不额外添加提示文案或返回按钮。
 选择结果由 `ClientApplication.selectedServer()` 提供给后续角色/世界入口；目前尚不进入地图。
@@ -56,7 +68,9 @@ ROM 放在与 `config/`、`data/` 同级的 `roms/` 目录，开发环境为 `cl
 
 左上角按 NDS/GBA 显示已加载游戏与代码。客户端管理每行显示实际加载状态，点击状态查看标题、修订版本及大小，悬停可查看路径与 NDS 资源数量。“选择文件”使用桌面文件选择器或 Android 系统文档选择器，后台校验并复制到 `roms/`，成功后立即更新界面并保存 `client.roms.<类型编号>` 配置。类型编号为火红 0、绿宝石 1、黑/白 2、白金 3、心金/魂银 4；配置指定文件优先于目录自动扫描。导入失败保留原有选择，取消选择不修改配置。桌面端“打开ROM文件夹”打开实际扫描目录。ROM 不随发行包分发。
 
-`ClientApplication.romResources()` 提供统一读取入口；`RomResources.Rom.readFile(path)` 读取 NDS FNT/FAT 中的原始文件，`files()` 列出路径及范围；GBA 使用 `readGba(address, length)` 读取偏移或 `0x08000000` 起始的卡带地址。读取有边界检查，每次读取关闭文件句柄，不把整个卡带常驻内存。此入口提供原始资源，地图、战斗、音频等格式解码和渲染消费端仍需后续接入。
+ROM 代码位于 `client:core` 的 `top.totodile.pokemmo.client.rom` 包：`RomManager` 负责扫描、加载状态和导入，通过 `Configuration` 接口保存选择；`RomReader` 负责识别、校验、文件表解析及按需读取；`RomInfo`、`RomType`、`RomEntry` 保存元信息与资源索引；`RomFilePicker` 定义平台文件选择接口，具体选择器留在桌面和 Android 模块。
+
+`ClientApplication.romResources()` 返回 `RomManager`，通过 `get(RomType)` 获取 `RomInfo`。`RomReader.readFile(rom, path)` 读取 NDS FNT/FAT 中的原始文件，`rom.files()` 列出路径及范围；GBA 使用 `RomReader.readGba(rom, address, length)` 读取偏移或 `0x08000000` 起始的卡带地址。读取有边界检查，每次读取关闭文件句柄，不把整个卡带常驻内存。此入口提供原始资源，地图、战斗、音频等格式解码和渲染消费端仍需后续接入。
 
 ## 运行与打包
 

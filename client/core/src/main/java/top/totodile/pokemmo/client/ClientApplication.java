@@ -4,15 +4,23 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.files.FileHandle;
-import java.util.function.Function;
-import java.util.function.LongSupplier;
-import java.util.function.Supplier;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import java.util.function.Function;
+import java.util.function.LongSupplier;
+import java.util.function.Supplier;
+import top.totodile.pokemmo.client.config.SavedAccounts;
+import top.totodile.pokemmo.client.resources.ClientResources;
+import top.totodile.pokemmo.client.rom.RomFilePicker;
+import top.totodile.pokemmo.client.rom.RomManager;
+import top.totodile.pokemmo.client.ui.ClientUi;
+import top.totodile.pokemmo.client.ui.login.LoginController;
+import top.totodile.pokemmo.client.ui.startup.ScrollingBackground;
+import top.totodile.pokemmo.client.ui.startup.StartupBackground;
 
 /** 显示滚动背景和游戏 Logo 的客户端窗口。 */
 public final class ClientApplication extends ApplicationAdapter {
@@ -39,7 +47,7 @@ public final class ClientApplication extends ApplicationAdapter {
         startupBackground = java.util.Objects.requireNonNull(background);
         return this;
     }
-    public RomResources romResources() { return resources == null ? null : resources.roms(); }
+    public RomManager romResources() { return resources == null ? null : resources.roms(); }
 
     public ClientApplication withGameService(top.totodile.pokemmo.server.game.GameService service) {
         gameService = java.util.Objects.requireNonNull(service);

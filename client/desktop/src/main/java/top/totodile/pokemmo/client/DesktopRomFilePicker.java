@@ -1,5 +1,8 @@
 package top.totodile.pokemmo.client;
 
+import top.totodile.pokemmo.client.rom.RomFilePicker;
+
+
 import java.awt.Desktop;
 import java.nio.file.*;
 import java.util.function.Consumer;
