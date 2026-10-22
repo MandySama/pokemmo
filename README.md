@@ -95,3 +95,11 @@ adb connect "<IP>:<连接端口>"
 ```
 
 Android 配置和存档分别位于 `/storage/emulated/0/Android/data/top.totodile.pokemmo/files/config/` 和同一 `files/` 下的 `save/game.db`；实际存储卷以系统返回的外部应用目录为准。使用应用自己的外部目录，无需所有文件访问权限。文件管理器是否能打开 `Android/data` 仍取决于其系统授权。
+
+## Android 签名
+
+Debug 和 Release 统一使用 `client/android/signing/pokemmo.keystore`，密码及别名从 `client/android/signing.properties` 读取（格式见同目录的 `signing.properties.example`）。当前密钥沿用原电脑的调试证书，以保持现有安装的覆盖更新能力。
+
+签名密钥和凭据随工程提交到 Git，其他电脑拉取后即可使用同一签名构建。缺少签名文件或凭据时构建失败，不使用各电脑自动生成的默认密钥。
+
+当前证书 SHA-256：`754db2b31e653e7b85365ef69d49221474e0c5d3ec3f40843122869814d291d4`。可通过 Android SDK 的 `apksigner verify --print-certs <APK路径>` 核对，构建内容变化不会改变这个证书指纹。

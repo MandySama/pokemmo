@@ -1,6 +1,8 @@
 target/
 .gradle/
 local.properties
+/client/android/signing/*
+!/client/android/signing/pokemmo.keystore
 **/config/savedcredentials.properties
 **/config/savedcredentials.properties.*.tmp
 **/src/test/

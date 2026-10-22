@@ -9,6 +9,12 @@ repositories {
 
 configurations { natives }
 
+def signingProperties = new Properties()
+def signingPropertiesFile = file('signing.properties')
+if (signingPropertiesFile.isFile()) {
+    signingPropertiesFile.withInputStream { signingProperties.load(it) }
+}
+
 android {
     namespace = 'top.totodile.pokemmo.android'
     compileSdk = 36
@@ -23,6 +29,18 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
+    }
+    signingConfigs {
+        projectKey {
+            storeFile file('signing/pokemmo.keystore')
+            storePassword signingProperties.getProperty('storePassword')
+            keyAlias signingProperties.getProperty('keyAlias')
+            keyPassword signingProperties.getProperty('keyPassword')
+        }
+    }
+    buildTypes {
+        debug { signingConfig signingConfigs.projectKey }
+        release { signingConfig signingConfigs.projectKey }
     }
     sourceSets.main {
         res.srcDir layout.buildDirectory.dir('generated/iconRes')
@@ -91,6 +109,21 @@ abstract class BundleAndroidResources extends DefaultTask {
 tasks.register('bundleResources', BundleAndroidResources) {
     dataDirectory.set(project(':client').layout.projectDirectory.dir('data'))
     outputDirectory.set(layout.buildDirectory.dir('generated/bundledAssets'))
+}
+
+// 不允许因凭据缺失而生成未签名 APK，或回退到其他电脑的默认调试密钥。
+def projectKeyFile = file('signing/pokemmo.keystore')
+def checkProjectSigning = tasks.register('checkProjectSigning') {
+    doLast {
+        if (!projectKeyFile.isFile() || ['storePassword', 'keyAlias', 'keyPassword'].any {
+            !signingProperties.getProperty(it)?.trim()
+        }) {
+            throw new GradleException('Missing project signing key or credentials. Copy client/android/signing/pokemmo.keystore and client/android/signing.properties from the signing-key backup.')
+        }
+    }
+}
+tasks.matching { it.name == 'packageDebug' || it.name == 'packageRelease' }.configureEach {
+    dependsOn checkProjectSigning
 }
 
 // 从 LibGDX 原生依赖中提取各架构的共享库，交给 Android 插件打包。

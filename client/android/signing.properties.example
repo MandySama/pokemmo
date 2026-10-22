@@ -1,0 +1,4 @@
+# Copy to signing.properties and fill in credentials for signing/pokemmo.keystore.
+storePassword=
+keyAlias=
+keyPassword=
