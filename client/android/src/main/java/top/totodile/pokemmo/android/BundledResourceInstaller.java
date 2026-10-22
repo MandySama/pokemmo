@@ -26,17 +26,7 @@ public final class BundledResourceInstaller {
 
     // Multiple Activity instances may overlap during rotation; never extract concurrently.
     public static synchronized void install(Source source, File root, Progress progress) throws Exception {
-        JSONObject manifest;
-        try (InputStream in = source.open("manifest.json")) {
-            java.io.ByteArrayOutputStream bytes = new java.io.ByteArrayOutputStream();
-            byte[] buffer = new byte[8192];
-            int read;
-            while ((read = in.read(buffer)) != -1) {
-                if (bytes.size() + read > 1024 * 1024) throw new IOException("资源清单过大");
-                bytes.write(buffer, 0, read);
-            }
-            manifest = new JSONObject(bytes.toString("UTF-8"));
-        }
+        JSONObject manifest = readManifest(source);
         if (!root.isDirectory() && !root.mkdirs()) throw new IOException("无法创建资源目录");
         JSONArray entries = manifest.getJSONArray("files");
         Map<String, JSONObject> expected = new HashMap<>();
@@ -117,6 +107,36 @@ public final class BundledResourceInstaller {
                 java.nio.file.StandardCopyOption.REPLACE_EXISTING,
                 java.nio.file.StandardCopyOption.ATOMIC_MOVE);
         progress.update(100);
+    }
+
+    private static JSONObject readManifest(Source source) throws Exception {
+        try (InputStream in = source.open("manifest.json")) {
+            java.io.ByteArrayOutputStream bytes = new java.io.ByteArrayOutputStream();
+            byte[] buffer = new byte[8192];
+            int read;
+            while ((read = in.read(buffer)) != -1) {
+                if (bytes.size() + read > 1024 * 1024) throw new IOException("资源清单过大");
+                bytes.write(buffer, 0, read);
+            }
+            return new JSONObject(bytes.toString("UTF-8"));
+        }
+    }
+
+    static boolean isInstalled(Source source, File root) throws Exception {
+        JSONObject manifest = readManifest(source);
+        JSONArray entries = manifest.getJSONArray("files");
+        if (entries.length() == 0) return false;
+        boolean existing = true;
+        Set<String> paths = new HashSet<>();
+        for (int i = 0; i < entries.length(); i++) {
+            JSONObject entry = entries.getJSONObject(i);
+            String path = entry.getString("path");
+            File target = checkedTarget(root, path);
+            long size = entry.getLong("size");
+            if (size < 0 || !paths.add(path)) throw new IOException("Invalid resource manifest");
+            existing &= target.isFile() && target.length() == size;
+        }
+        return existing && manifest.getString("revision").equals(readMarker(new File(root, MARKER)));
     }
 
     private static File checkedTarget(File root, String path) throws IOException {

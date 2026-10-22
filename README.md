@@ -17,7 +17,7 @@
 
 ## 主题、语言与 MOD 资源
 
-PC 的 `config/` 与 `data/` 同级，主题目录为 `data/themes/`；Android 使用外部应用目录 `Android/data/top.totodile.pokemmo/files/config/`、`Android/data/top.totodile.pokemmo/files/data/`，构建时将 `data/` 打成 APK assets 中的 `resources.zip` 和 `manifest.json`。首次启动显示进度并解压到 `files/data/`，之后从该目录读取基础资源；资源版本与文件大小检查通过时跳过解压，缺失或版本变化时重装。两端使用同一套资源解析和 XML 加载代码。
+PC 的 `config/` 与 `data/` 同级，主题目录为 `data/themes/`；Android 使用外部应用目录 `Android/data/top.totodile.pokemmo/files/config/`、`Android/data/top.totodile.pokemmo/files/data/`，构建时将背景和解压弹窗必需的 XML、字体、图集放入 APK assets 的独立 `startup/` 目录，其余 `data/` 打成 `resources.zip` 和 `manifest.json`，不重复存放资源。首次启动先显示滚动背景，再使用参考 ROM 解压弹窗的 TWL/XML 主题显示绿色进度条，并解压到 `files/data/`，之后从该目录读取基础资源；资源版本与文件大小检查通过时跳过解压，缺失或版本变化时重装。两端使用同一套资源解析和 XML 加载代码。
 
 `data/themes/default/`、`data/themes/android/` 只包含当前登录、服务器选择、角色入口、公告和菜单使用的主题及其依赖，不提前导入地图、战斗等页面。Android 入口保留对 `../default/` 的相对引用。Logo 使用 `logingui.logo`，菜单行使用 `hud-item-button`，不另设按图标编号命名的主题。XML 引用、覆盖、字体和资源解析机制保留，后续 MOD 可以替换当前界面的样式和资源。
 

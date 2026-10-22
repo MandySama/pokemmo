@@ -83,12 +83,16 @@ public final class AndroidLauncher extends AndroidApplication {
         }
         android.os.BatteryManager battery = (android.os.BatteryManager) getSystemService(BATTERY_SERVICE);
         // 单调时钟包含后台和设备休眠时间，不受系统时间调整影响。
-        initialize(new ClientApplication(path -> new com.badlogic.gdx.files.FileHandle(new java.io.File(storageRoot, "data/" + path)), true,
+        ClientApplication client = new ClientApplication(path -> {
+            var file = new com.badlogic.gdx.files.FileHandle(new java.io.File(storageRoot, "data/" + path));
+            return file.exists() ? file : Gdx.files.internal("startup/" + path);
+        }, true,
                 android.os.SystemClock::elapsedRealtimeNanos,
                 () -> new com.badlogic.gdx.files.FileHandle(new java.io.File(storageRoot, "config")),
                 top.totodile.pokemmo.server.login.LoginServices.create(),
                 () -> battery == null ? -1 : battery.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY)).withRomFilePicker(romPicker).withGameService(
-                    new top.totodile.pokemmo.server.game.LocalGameService(() -> new AndroidDatabase(new java.io.File(storageRoot, "save/game.db")))), config);
+                    new top.totodile.pokemmo.server.game.LocalGameService(() -> new AndroidDatabase(new java.io.File(storageRoot, "save/game.db"))));
+        initialize(new ResourceLoadingApplication(client, getAssets()::open, storageRoot, getString(R.string.decompressing)), config);
         // Activity 创建后进入黑色加载阶段，系统主题底色仅作为启动窗口的兜底。
         getWindow().setBackgroundDrawableResource(android.R.color.black);
         // 游戏画面本身不接收 IME，避免隐藏的安全键盘被并入任务快照的安全检查。

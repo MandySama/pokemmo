@@ -30,10 +30,15 @@ public final class ClientApplication extends ApplicationAdapter {
     private final Supplier<FileHandle> configDirectory;
     private final java.util.function.IntSupplier batteryPercent;
     private AssetManager sceneAssets;
+    private StartupBackground startupBackground;
     private top.totodile.pokemmo.server.game.GameService gameService;
     private RomFilePicker romFilePicker;
 
     public ClientApplication withRomFilePicker(RomFilePicker picker) { romFilePicker=picker; return this; }
+    public ClientApplication withStartupBackground(StartupBackground background) {
+        startupBackground = java.util.Objects.requireNonNull(background);
+        return this;
+    }
     public RomResources romResources() { return resources == null ? null : resources.roms(); }
 
     public ClientApplication withGameService(top.totodile.pokemmo.server.game.GameService service) {
@@ -77,18 +82,22 @@ public final class ClientApplication extends ApplicationAdapter {
     public void create() {
         resources = new ClientResources(assets, configDirectory.get(), mobile);
         resources.setRomFilePicker(romFilePicker);
-        sceneAssets = new AssetManager(resources::apply);
-        for (int i = 0; i < 3; i++) {
-            sceneAssets.load("sprites/textures/bg_0" + i + ".png", Texture.class);
+        if (startupBackground == null) {
+            sceneAssets = new AssetManager(resources::apply);
+            for (int i = 0; i < 3; i++) {
+                sceneAssets.load("sprites/textures/bg_0" + i + ".png", Texture.class);
+            }
         }
     }
 
     private void loadScene() {
-        Texture[] tiles = new Texture[3];
-        for (int i = 0; i < tiles.length; i++) {
-            tiles[i] = sceneAssets.get("sprites/textures/bg_0" + i + ".png", Texture.class);
+        if (startupBackground == null) {
+            Texture[] tiles = new Texture[3];
+            for (int i = 0; i < tiles.length; i++) {
+                tiles[i] = sceneAssets.get("sprites/textures/bg_0" + i + ".png", Texture.class);
+            }
+            background = new ScrollingBackground(tiles, clock);
         }
-        background = new ScrollingBackground(tiles, clock);
         loginController = new LoginController(loginService, Gdx.app::postRunnable);
         clientUi = new ClientUi(uiViewport, resources, mobile, SavedAccounts.open(configDirectory.get()),
                 () -> System.nanoTime() / 1_000_000L, loginController, batteryPercent, () -> Gdx.app.exit(), gameService);
@@ -110,19 +119,22 @@ public final class ClientApplication extends ApplicationAdapter {
         ScreenUtils.clear(0f, 0f, 0f, 1f);
         // 以资源实际加载状态决定画面，不规定 Logo 或背景出现在哪一帧。
         // AssetManager 在后台解码图片，在渲染线程上传纹理。
-        if (background == null && sceneAssets.update()) {
-            if (batch == null) batch = new SpriteBatch();
+        if (clientUi == null && (startupBackground != null ? startupBackground.update() : sceneAssets.update())) {
+            if (startupBackground == null && batch == null) batch = new SpriteBatch();
             loadScene();
         }
-        // 两端加载期间均保持黑色，资源和登录界面准备完成后一起显示。
-        if (background == null) return;
+        // 普通启动等待资源就绪；移动端已加载的启动背景由外层保留并交接。
+        if (clientUi == null) return;
         viewport.apply();
         float width = viewport.getWorldWidth();
         float height = viewport.getWorldHeight();
-        batch.setProjectionMatrix(viewport.getCamera().combined);
-        batch.begin();
-        background.draw(batch, width, height, viewport.getScreenWidth());
-        batch.end();
+        if (startupBackground != null) startupBackground.draw();
+        else {
+            batch.setProjectionMatrix(viewport.getCamera().combined);
+            batch.begin();
+            background.draw(batch, width, height, viewport.getScreenWidth());
+            batch.end();
+        }
         // 所有前景共用安全区视口，布局、弹出列表和触摸坐标使用同一坐标系。
         uiViewport.apply();
         float uiWidth = uiViewport.getWorldWidth(), uiHeight = uiViewport.getWorldHeight();
@@ -153,6 +165,7 @@ public final class ClientApplication extends ApplicationAdapter {
         if (gameService != null) gameService.close();
         // 背景纹理由 AssetManager 统一释放。
         if (sceneAssets != null) sceneAssets.dispose();
+        if (startupBackground != null) startupBackground.close();
         if (batch != null) batch.dispose();
         if (resources != null) resources.close();
     }

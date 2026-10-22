@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="preparing_resources">正在准备游戏资源，首次启动需要解压，请稍候…</string>
-    <string name="preparing_resources_progress">正在准备游戏资源 %1$d%% · 请稍候…</string>
+    <string name="decompressing">解压中...</string>
 </resources>
