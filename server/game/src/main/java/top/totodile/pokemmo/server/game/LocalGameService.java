@@ -57,7 +57,7 @@ public final class LocalGameService implements GameService {
             if (name == null || name.codePointCount(0, name.length()) < 2 || name.codePointCount(0, name.length()) > 16
                     || !name.codePoints().allMatch(java.lang.Character::isLetter)) throw new Rejected(Failure.INVALID_NAME);
             if (appearance.gender() < 0 || appearance.gender() > 1 || appearance.skin() < 0 || appearance.skin() > 4
-                    || appearance.region() != 0 || !appearance.parts().keySet().equals(Set.of(1,2,3,4,5,6,7,8,9,11)))
+                    || appearance.region() < 0 || appearance.region() > 4 || !appearance.parts().keySet().equals(Set.of(1,2,3,4,5,6,7,8,9,11)))
                 throw new IllegalArgumentException("Invalid character appearance");
             String key = name.toLowerCase(Locale.ROOT), server = selection.server().id();
             Character character = new Character(UUID.randomUUID().toString(), name, appearance, System.currentTimeMillis());
@@ -89,7 +89,7 @@ public final class LocalGameService implements GameService {
             Character character=values.stream().filter(c -> c.id().equals(characterId)).findFirst()
                     .orElseThrow(() -> new Rejected(Failure.NOT_FOUND));
             var rows=db().query("SELECT bank,map,x,y,direction FROM character_positions WHERE character_id=?",characterId);
-            Position position=Position.kantoStart();
+            Position position=Position.start(character.appearance().region());
             if(!rows.isEmpty()) {
                 String[] row=rows.get(0);
                 position=new Position(Integer.parseInt(row[0]),Integer.parseInt(row[1]),Integer.parseInt(row[2]),

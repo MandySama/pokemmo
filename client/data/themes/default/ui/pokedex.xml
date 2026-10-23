@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<themes>
+  <!-- PokedexWindow / default/ui/monster-dex.xml, adapted to the shared TWL widget subset. -->
+  <theme name="monsterdex-frame" ref="base-frame" allowWildcard="true" />
+  <theme name="pokedex-content" ref="-defaults" />
+  <theme name="monsterdex-button" ref="button" allowWildcard="true">
+    <param name="background"><image>ui-button.background-defaultdex</image></param>
+    <param name="border"><border>1,3</border></param>
+    <param name="textAlignment"><enum type="alignment">BOTTOM</enum></param>
+  </theme>
+  <theme name="pokedex-tab" ref="button" allowWildcard="true"><param name="border"><border>3,0</border></param></theme>
+  <theme name="pokedex-filter" ref="label" allowWildcard="true">
+    <param name="background"><image>ui-inputbox.background</image></param>
+    <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+    <param name="border"><border>3,5</border></param>
+  </theme>
+  <theme name="pokedex-search" ref="editfield" allowWildcard="true" />
+  <theme name="pokedex-scroll" ref="scrollpane" allowWildcard="true">
+    <param name="background"><image>none</image></param>
+    <param name="border"><border>0</border></param>
+  </theme>
+  <theme name="pokedex-value" ref="label" allowWildcard="true">
+    <param name="background"><image>ui-inputbox.background</image></param>
+    <param name="border"><border>5</border></param>
+    <param name="font"><font>pb-dark</font></param>
+    <param name="textAlignment"><enum type="alignment">LEFT</enum></param>
+  </theme>
+  <theme name="pokedex-title" ref="pokedex-value" allowWildcard="true">
+    <param name="background"><image>ui-header.background</image></param>
+    <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+  </theme>
+  <theme name="pokedex-description" ref="label" allowWildcard="true">
+    <param name="textAlignment"><enum type="alignment">TOPLEFT</enum></param>
+  </theme>
+  <theme name="pokedex-counter" ref="label" />
+  <theme name="pokedex-evolution-name" ref="label" allowWildcard="true">
+    <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+  </theme>
+  <theme name="pokedex-evolution-condition" ref="pokedex-value" allowWildcard="true">
+    <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+  </theme>
+  <theme name="pokedex-evolution-arrow" ref="label" allowWildcard="true">
+    <param name="font"><font>symbols-white</font></param>
+    <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+  </theme>
+  <theme name="pokedex-statbar" ref="-defaults" allowWildcard="true">
+    <param name="background"><image>progressbar.background</image></param>
+    <param name="progressImage"><image>progressbar.progressImage</image></param>
+  </theme>
+</themes>

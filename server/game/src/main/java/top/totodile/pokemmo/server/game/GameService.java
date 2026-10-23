@@ -12,6 +12,17 @@ public interface GameService extends AutoCloseable {
     record Character(String id, String name, Appearance appearance, long createdAt) {}
     record Position(int bank, int map, int x, int y, int direction) {
         public static Position kantoStart() { return new Position(4,1,6,6,0); }
+        /** Starting map IDs use ROM headers; existing saved positions always take precedence. */
+        public static Position start(int region) {
+            return switch(region) {
+                case 0 -> kantoStart();
+                case 1 -> new Position(0,9,5,9,0);
+                case 2 -> new Position(1,133,14,14,0);
+                case 3 -> new Position(1,155,9,12,0);
+                case 4 -> new Position(0,60,12,10,0);
+                default -> throw new IllegalArgumentException("Invalid starting region");
+            };
+        }
         public Position {
             if(bank<0 || bank>255 || map<0 || map>255 || x<0 || x>1023 || y<0 || y>1023 || direction<0 || direction>3)
                 throw new IllegalArgumentException("Invalid character position");

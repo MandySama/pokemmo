@@ -1,0 +1,1951 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ds_strings_archive archive_type="0" lang="zh" region_id="2">
+  <string block_id="0" entry_id="630" table_id="260">骨鹰宝可梦</string>
+  <string block_id="0" entry_id="622" table_id="260">魔像宝可梦</string>
+  <string block_id="0" entry_id="564" table_id="260">古代龟宝可梦</string>
+  <string block_id="0" entry_id="513" table_id="260">高温宝可梦</string>
+  <string block_id="0" entry_id="648" table_id="260">旋律宝可梦</string>
+  <string block_id="0" entry_id="642" table_id="260">雷击宝可梦</string>
+  <string block_id="0" entry_id="514" table_id="260">火花宝可梦</string>
+  <string block_id="0" entry_id="587" table_id="260">飞鼠宝可梦</string>
+  <string block_id="0" entry_id="533" table_id="260">筋骨宝可梦</string>
+  <string block_id="0" entry_id="494" table_id="260">胜利宝可梦</string>
+  <string block_id="0" entry_id="538" table_id="260">柔道宝可梦</string>
+  <string block_id="0" entry_id="627" table_id="260">雏鹰宝可梦</string>
+  <string block_id="0" entry_id="526" table_id="260">高压宝可梦</string>
+  <string block_id="0" entry_id="585" table_id="260">季节宝可梦</string>
+  <string block_id="0" entry_id="628" table_id="260">勇猛宝可梦</string>
+  <string block_id="0" entry_id="529" table_id="260">鼹鼠宝可梦</string>
+  <string block_id="0" entry_id="495" table_id="260">草蛇宝可梦</string>
+  <string block_id="0" entry_id="607" table_id="260">蜡烛宝可梦</string>
+  <string block_id="0" entry_id="584" table_id="260">暴风雪宝可梦</string>
+  <string block_id="0" entry_id="523" table_id="260">雷电宝可梦</string>
+  <string block_id="0" entry_id="629" table_id="260">尿布宝可梦</string>
+  <string block_id="0" entry_id="631" table_id="260">食蚁兽宝可梦</string>
+  <string block_id="0" entry_id="579" table_id="260">增幅宝可梦</string>
+  <string block_id="0" entry_id="620" table_id="260">武术宝可梦</string>
+  <string block_id="0" entry_id="591" table_id="260">蘑菇宝可梦</string>
+  <string block_id="0" entry_id="613" table_id="260">结冰宝可梦</string>
+  <string block_id="0" entry_id="511" table_id="260">草猴宝可梦</string>
+  <string block_id="0" entry_id="543" table_id="260">蜈蚣宝可梦</string>
+  <string block_id="0" entry_id="539" table_id="260">空手道宝可梦</string>
+  <string block_id="0" entry_id="522" table_id="260">带电宝可梦</string>
+  <string block_id="0" entry_id="610" table_id="260">牙宝可梦</string>
+  <string block_id="0" entry_id="632" table_id="260">铁蚁宝可梦</string>
+  <string block_id="0" entry_id="506" table_id="260">小狗宝可梦</string>
+  <string block_id="0" entry_id="499" table_id="260">火猪宝可梦</string>
+  <string block_id="0" entry_id="507" table_id="260">忠犬宝可梦</string>
+  <string block_id="0" entry_id="636" table_id="260">火炬宝可梦</string>
+  <string block_id="0" entry_id="560" table_id="260">恶党宝可梦</string>
+  <string block_id="0" entry_id="645" table_id="260">丰饶宝可梦</string>
+  <string block_id="0" entry_id="588" table_id="260">啃咬宝可梦</string>
+  <string block_id="0" entry_id="640" table_id="260">草原宝可梦</string>
+  <string block_id="0" entry_id="567" table_id="260">远古鸟宝可梦</string>
+  <string block_id="0" entry_id="518" table_id="260">半梦半醒宝可梦</string>
+  <string block_id="0" entry_id="519" table_id="260">小鸽宝可梦</string>
+  <string block_id="0" entry_id="593" table_id="260">漂浮宝可梦</string>
+  <string block_id="0" entry_id="602" table_id="260">电鱼宝可梦</string>
+  <string block_id="0" entry_id="626" table_id="260">头锤牛宝可梦</string>
+  <string block_id="0" entry_id="635" table_id="260">凶暴宝可梦</string>
+  <string block_id="0" entry_id="611" table_id="260">颚斧宝可梦</string>
+  <string block_id="0" entry_id="597" table_id="260">刺果宝可梦</string>
+  <string block_id="0" entry_id="497" table_id="260">皇家宝可梦</string>
+  <string block_id="0" entry_id="505" table_id="260">警戒宝可梦</string>
+  <string block_id="0" entry_id="571" table_id="260">妖狐宝可梦</string>
+  <string block_id="0" entry_id="542" table_id="260">育儿宝可梦</string>
+  <string block_id="0" entry_id="604" table_id="260">电鱼宝可梦</string>
+  <string block_id="0" entry_id="546" table_id="260">棉球宝可梦</string>
+  <string block_id="0" entry_id="550" table_id="260">粗暴宝可梦</string>
+  <string block_id="0" entry_id="515" table_id="260">泼水宝可梦</string>
+  <string block_id="0" entry_id="614" table_id="260">冻结宝可梦</string>
+  <string block_id="0" entry_id="572" table_id="260">栗鼠宝可梦</string>
+  <string block_id="0" entry_id="638" table_id="260">铁心宝可梦</string>
+  <string block_id="0" entry_id="545" table_id="260">巨蜈蚣宝可梦</string>
+  <string block_id="0" entry_id="615" table_id="260">结晶宝可梦</string>
+  <string block_id="0" entry_id="551" table_id="260">沙漠鳄鱼宝可梦</string>
+  <string block_id="0" entry_id="534" table_id="260">筋骨宝可梦</string>
+  <string block_id="0" entry_id="541" table_id="260">足不出叶宝可梦</string>
+  <string block_id="0" entry_id="563" table_id="260">棺木宝可梦</string>
+  <string block_id="0" entry_id="633" table_id="260">粗鲁宝可梦</string>
+  <string block_id="0" entry_id="603" table_id="260">电鱼宝可梦</string>
+  <string block_id="0" entry_id="649" table_id="260">古生代宝可梦</string>
+  <string block_id="0" entry_id="516" table_id="260">放水宝可梦</string>
+  <string block_id="0" entry_id="625" table_id="260">刀刃宝可梦</string>
+  <string block_id="0" entry_id="618" table_id="260">陷阱宝可梦</string>
+  <string block_id="0" entry_id="525" table_id="260">矿石宝可梦</string>
+  <string block_id="0" entry_id="500" table_id="260">大火猪宝可梦</string>
+  <string block_id="0" entry_id="520" table_id="260">野鸽宝可梦</string>
+  <string block_id="0" entry_id="623" table_id="260">魔像宝可梦</string>
+  <string block_id="0" entry_id="559" table_id="260">蜕皮宝可梦</string>
+  <string block_id="0" entry_id="586" table_id="260">季节宝可梦</string>
+  <string block_id="0" entry_id="596" table_id="260">电蜘蛛宝可梦</string>
+  <string block_id="0" entry_id="581" table_id="260">白鸟宝可梦</string>
+  <string block_id="0" entry_id="608" table_id="260">油灯宝可梦</string>
+  <string block_id="0" entry_id="590" table_id="260">蘑菇宝可梦</string>
+  <string block_id="0" entry_id="592" table_id="260">漂浮宝可梦</string>
+  <string block_id="0" entry_id="624" table_id="260">利器宝可梦</string>
+  <string block_id="0" entry_id="502" table_id="260">修行宝可梦</string>
+  <string block_id="0" entry_id="594" table_id="260">看护宝可梦</string>
+  <string block_id="0" entry_id="606" table_id="260">脑宝可梦</string>
+  <string block_id="0" entry_id="568" table_id="260">垃圾袋宝可梦</string>
+  <string block_id="0" entry_id="536" table_id="260">震动宝可梦</string>
+  <string block_id="0" entry_id="616" table_id="260">蜗牛宝可梦</string>
+  <string block_id="0" entry_id="508" table_id="260">宽大宝可梦</string>
+  <string block_id="0" entry_id="578" table_id="260">分割宝可梦</string>
+  <string block_id="0" entry_id="598" table_id="260">刺球宝可梦</string>
+  <string block_id="0" entry_id="535" table_id="260">蝌蚪宝可梦</string>
+  <string block_id="0" entry_id="576" table_id="260">天体宝可梦</string>
+  <string block_id="0" entry_id="504" table_id="260">放哨宝可梦</string>
+  <string block_id="0" entry_id="634" table_id="260">粗暴宝可梦</string>
+  <string block_id="0" entry_id="575" table_id="260">操纵宝可梦</string>
+  <string block_id="0" entry_id="553" table_id="260">威吓宝可梦</string>
+  <string block_id="0" entry_id="510" table_id="260">冷酷宝可梦</string>
+  <string block_id="0" entry_id="609" table_id="260">引诱宝可梦</string>
+  <string block_id="0" entry_id="566" table_id="260">远古鸟宝可梦</string>
+  <string block_id="0" entry_id="531" table_id="260">听力宝可梦</string>
+  <string block_id="0" entry_id="524" table_id="260">地幔宝可梦</string>
+  <string block_id="0" entry_id="646" table_id="260">境界宝可梦</string>
+  <string block_id="0" entry_id="583" table_id="260">冰雪宝可梦</string>
+  <string block_id="0" entry_id="580" table_id="260">水鸟宝可梦</string>
+  <string block_id="0" entry_id="521" table_id="260">自尊心宝可梦</string>
+  <string block_id="0" entry_id="496" table_id="260">草蛇宝可梦</string>
+  <string block_id="0" entry_id="601" table_id="260">齿轮宝可梦</string>
+  <string block_id="0" entry_id="582" table_id="260">新雪宝可梦</string>
+  <string block_id="0" entry_id="561" table_id="260">似鸟宝可梦</string>
+  <string block_id="0" entry_id="530" table_id="260">地底宝可梦</string>
+  <string block_id="0" entry_id="517" table_id="260">食梦宝可梦</string>
+  <string block_id="0" entry_id="549" table_id="260">花饰宝可梦</string>
+  <string block_id="0" entry_id="498" table_id="260">火猪宝可梦</string>
+  <string block_id="0" entry_id="552" table_id="260">沙漠鳄鱼宝可梦</string>
+  <string block_id="0" entry_id="621" table_id="260">洞穴宝可梦</string>
+  <string block_id="0" entry_id="547" table_id="260">风隐宝可梦</string>
+  <string block_id="0" entry_id="595" table_id="260">吸附宝可梦</string>
+  <string block_id="0" entry_id="574" table_id="260">凝视宝可梦</string>
+  <string block_id="0" entry_id="509" table_id="260">坏心眼宝可梦</string>
+  <string block_id="0" entry_id="605" table_id="260">脑宝可梦</string>
+  <string block_id="0" entry_id="556" table_id="260">仙人掌宝可梦</string>
+  <string block_id="0" entry_id="537" table_id="260">震动宝可梦</string>
+  <string block_id="0" entry_id="544" table_id="260">茧蜈蚣宝可梦</string>
+  <string block_id="0" entry_id="570" table_id="260">恶狐宝可梦</string>
+  <string block_id="0" entry_id="528" table_id="260">求爱宝可梦</string>
+  <string block_id="0" entry_id="619" table_id="260">武术宝可梦</string>
+  <string block_id="0" entry_id="512" table_id="260">刺猴宝可梦</string>
+  <string block_id="0" entry_id="569" table_id="260">垃圾场宝可梦</string>
+  <string block_id="0" entry_id="501" table_id="260">海獭宝可梦</string>
+  <string block_id="0" entry_id="644" table_id="260">黑阴宝可梦</string>
+  <string block_id="0" entry_id="573" table_id="260">围巾宝可梦</string>
+  <string block_id="0" entry_id="532" table_id="260">筋骨宝可梦</string>
+  <string block_id="0" entry_id="639" table_id="260">岩窟宝可梦</string>
+  <string block_id="0" entry_id="641" table_id="260">旋风宝可梦</string>
+  <string block_id="0" entry_id="599" table_id="260">齿轮宝可梦</string>
+  <string block_id="0" entry_id="503" table_id="260">威严宝可梦</string>
+  <string block_id="0" entry_id="637" table_id="260">太阳宝可梦</string>
+  <string block_id="0" entry_id="565" table_id="260">古代龟宝可梦</string>
+  <string block_id="0" entry_id="555" table_id="260">爆燃宝可梦</string>
+  <string block_id="0" entry_id="617" table_id="260">脱壳宝可梦</string>
+  <string block_id="0" entry_id="600" table_id="260">齿轮宝可梦</string>
+  <string block_id="0" entry_id="577" table_id="260">细胞宝可梦</string>
+  <string block_id="0" entry_id="557" table_id="260">石居宝可梦</string>
+  <string block_id="0" entry_id="612" table_id="260">颚斧宝可梦</string>
+  <string block_id="0" entry_id="548" table_id="260">根茎宝可梦</string>
+  <string block_id="0" entry_id="554" table_id="260">不倒翁宝可梦</string>
+  <string block_id="0" entry_id="643" table_id="260">白阳宝可梦</string>
+  <string block_id="0" entry_id="589" table_id="260">骑兵宝可梦</string>
+  <string block_id="0" entry_id="540" table_id="260">裁缝宝可梦</string>
+  <string block_id="0" entry_id="562" table_id="260">魂宝可梦</string>
+  <string block_id="0" entry_id="558" table_id="260">岩居宝可梦</string>
+  <string block_id="0" entry_id="527" table_id="260">蝙蝠宝可梦</string>
+  <string block_id="0" entry_id="647" table_id="260">幼马宝可梦</string>
+  <string block_id="0" entry_id="0" table_id="260">?????宝可梦</string>
+  <string block_id="0" entry_id="1" table_id="260">种子宝可梦</string>
+  <string block_id="0" entry_id="2" table_id="260">种子宝可梦</string>
+  <string block_id="0" entry_id="3" table_id="260">种子宝可梦</string>
+  <string block_id="0" entry_id="4" table_id="260">蜥蜴宝可梦</string>
+  <string block_id="0" entry_id="5" table_id="260">火焰宝可梦</string>
+  <string block_id="0" entry_id="6" table_id="260">火焰宝可梦</string>
+  <string block_id="0" entry_id="7" table_id="260">小龟宝可梦</string>
+  <string block_id="0" entry_id="8" table_id="260">龟宝可梦</string>
+  <string block_id="0" entry_id="9" table_id="260">甲壳宝可梦</string>
+  <string block_id="0" entry_id="10" table_id="260">虫宝宝宝可梦</string>
+  <string block_id="0" entry_id="11" table_id="260">蛹宝可梦</string>
+  <string block_id="0" entry_id="12" table_id="260">蝴蝶宝可梦</string>
+  <string block_id="0" entry_id="13" table_id="260">毛毛虫宝可梦</string>
+  <string block_id="0" entry_id="14" table_id="260">蛹宝可梦</string>
+  <string block_id="0" entry_id="15" table_id="260">毒蜂宝可梦</string>
+  <string block_id="0" entry_id="16" table_id="260">小鸟宝可梦</string>
+  <string block_id="0" entry_id="17" table_id="260">鸟宝可梦</string>
+  <string block_id="0" entry_id="18" table_id="260">鸟宝可梦</string>
+  <string block_id="0" entry_id="19" table_id="260">鼠宝可梦</string>
+  <string block_id="0" entry_id="20" table_id="260">鼠宝可梦</string>
+  <string block_id="0" entry_id="21" table_id="260">小鸟宝可梦</string>
+  <string block_id="0" entry_id="22" table_id="260">鸟嘴宝可梦</string>
+  <string block_id="0" entry_id="23" table_id="260">蛇宝可梦</string>
+  <string block_id="0" entry_id="24" table_id="260">眼镜蛇宝可梦</string>
+  <string block_id="0" entry_id="25" table_id="260">鼠宝可梦</string>
+  <string block_id="0" entry_id="26" table_id="260">鼠宝可梦</string>
+  <string block_id="0" entry_id="27" table_id="260">鼠宝可梦</string>
+  <string block_id="0" entry_id="28" table_id="260">鼠宝可梦</string>
+  <string block_id="0" entry_id="29" table_id="260">毒针宝可梦</string>
+  <string block_id="0" entry_id="30" table_id="260">毒针宝可梦</string>
+  <string block_id="0" entry_id="31" table_id="260">钻锥宝可梦</string>
+  <string block_id="0" entry_id="32" table_id="260">毒针宝可梦</string>
+  <string block_id="0" entry_id="33" table_id="260">毒针宝可梦</string>
+  <string block_id="0" entry_id="34" table_id="260">钻锥宝可梦</string>
+  <string block_id="0" entry_id="35" table_id="260">妖精宝可梦</string>
+  <string block_id="0" entry_id="36" table_id="260">妖精宝可梦</string>
+  <string block_id="0" entry_id="37" table_id="260">狐狸宝可梦</string>
+  <string block_id="0" entry_id="38" table_id="260">狐狸宝可梦</string>
+  <string block_id="0" entry_id="39" table_id="260">气球宝可梦</string>
+  <string block_id="0" entry_id="40" table_id="260">气球宝可梦</string>
+  <string block_id="0" entry_id="41" table_id="260">蝙蝠宝可梦</string>
+  <string block_id="0" entry_id="42" table_id="260">蝙蝠宝可梦</string>
+  <string block_id="0" entry_id="43" table_id="260">杂草宝可梦</string>
+  <string block_id="0" entry_id="44" table_id="260">杂草宝可梦</string>
+  <string block_id="0" entry_id="45" table_id="260">花宝可梦</string>
+  <string block_id="0" entry_id="46" table_id="260">蘑菇宝可梦</string>
+  <string block_id="0" entry_id="47" table_id="260">蘑菇宝可梦</string>
+  <string block_id="0" entry_id="48" table_id="260">昆虫宝可梦</string>
+  <string block_id="0" entry_id="49" table_id="260">毒蛾宝可梦</string>
+  <string block_id="0" entry_id="50" table_id="260">鼹鼠宝可梦</string>
+  <string block_id="0" entry_id="51" table_id="260">鼹鼠宝可梦</string>
+  <string block_id="0" entry_id="52" table_id="260">妖怪猫宝可梦</string>
+  <string block_id="0" entry_id="53" table_id="260">暹罗猫宝可梦</string>
+  <string block_id="0" entry_id="54" table_id="260">鸭宝可梦</string>
+  <string block_id="0" entry_id="55" table_id="260">鸭宝可梦</string>
+  <string block_id="0" entry_id="56" table_id="260">猪猴宝可梦</string>
+  <string block_id="0" entry_id="57" table_id="260">猪猴宝可梦</string>
+  <string block_id="0" entry_id="58" table_id="260">小狗宝可梦</string>
+  <string block_id="0" entry_id="59" table_id="260">传说宝可梦</string>
+  <string block_id="0" entry_id="60" table_id="260">蝌蚪宝可梦</string>
+  <string block_id="0" entry_id="61" table_id="260">蝌蚪宝可梦</string>
+  <string block_id="0" entry_id="62" table_id="260">蝌蚪宝可梦</string>
+  <string block_id="0" entry_id="63" table_id="260">念力宝可梦</string>
+  <string block_id="0" entry_id="64" table_id="260">念力宝可梦</string>
+  <string block_id="0" entry_id="65" table_id="260">念力宝可梦</string>
+  <string block_id="0" entry_id="66" table_id="260">怪力宝可梦</string>
+  <string block_id="0" entry_id="67" table_id="260">怪力宝可梦</string>
+  <string block_id="0" entry_id="68" table_id="260">怪力宝可梦</string>
+  <string block_id="0" entry_id="69" table_id="260">花宝可梦</string>
+  <string block_id="0" entry_id="70" table_id="260">捕蝇宝可梦</string>
+  <string block_id="0" entry_id="71" table_id="260">捕蝇宝可梦</string>
+  <string block_id="0" entry_id="72" table_id="260">水母宝可梦</string>
+  <string block_id="0" entry_id="73" table_id="260">水母宝可梦</string>
+  <string block_id="0" entry_id="74" table_id="260">岩石宝可梦</string>
+  <string block_id="0" entry_id="75" table_id="260">岩石宝可梦</string>
+  <string block_id="0" entry_id="76" table_id="260">重量级宝可梦</string>
+  <string block_id="0" entry_id="77" table_id="260">火马宝可梦</string>
+  <string block_id="0" entry_id="78" table_id="260">火马宝可梦</string>
+  <string block_id="0" entry_id="79" table_id="260">憨憨宝可梦</string>
+  <string block_id="0" entry_id="80" table_id="260">寄居蟹宝可梦</string>
+  <string block_id="0" entry_id="81" table_id="260">磁铁宝可梦</string>
+  <string block_id="0" entry_id="82" table_id="260">磁铁宝可梦</string>
+  <string block_id="0" entry_id="83" table_id="260">黄嘴鸭宝可梦</string>
+  <string block_id="0" entry_id="84" table_id="260">两头鸟宝可梦</string>
+  <string block_id="0" entry_id="85" table_id="260">三头鸟宝可梦</string>
+  <string block_id="0" entry_id="86" table_id="260">海狮宝可梦</string>
+  <string block_id="0" entry_id="87" table_id="260">海狮宝可梦</string>
+  <string block_id="0" entry_id="88" table_id="260">污泥宝可梦</string>
+  <string block_id="0" entry_id="89" table_id="260">污泥宝可梦</string>
+  <string block_id="0" entry_id="90" table_id="260">双壳贝宝可梦</string>
+  <string block_id="0" entry_id="91" table_id="260">双壳贝宝可梦</string>
+  <string block_id="0" entry_id="92" table_id="260">气体状宝可梦</string>
+  <string block_id="0" entry_id="93" table_id="260">气体状宝可梦</string>
+  <string block_id="0" entry_id="94" table_id="260">影子宝可梦</string>
+  <string block_id="0" entry_id="95" table_id="260">岩蛇宝可梦</string>
+  <string block_id="0" entry_id="96" table_id="260">催眠宝可梦</string>
+  <string block_id="0" entry_id="97" table_id="260">催眠宝可梦</string>
+  <string block_id="0" entry_id="98" table_id="260">清水蟹宝可梦</string>
+  <string block_id="0" entry_id="99" table_id="260">钳子宝可梦</string>
+  <string block_id="0" entry_id="100" table_id="260">球宝可梦</string>
+  <string block_id="0" entry_id="101" table_id="260">球宝可梦</string>
+  <string block_id="0" entry_id="102" table_id="260">蛋宝可梦</string>
+  <string block_id="0" entry_id="103" table_id="260">椰子宝可梦</string>
+  <string block_id="0" entry_id="104" table_id="260">孤独宝可梦</string>
+  <string block_id="0" entry_id="105" table_id="260">爱骨宝可梦</string>
+  <string block_id="0" entry_id="106" table_id="260">踢腿宝可梦</string>
+  <string block_id="0" entry_id="107" table_id="260">拳击宝可梦</string>
+  <string block_id="0" entry_id="108" table_id="260">舔舔宝可梦</string>
+  <string block_id="0" entry_id="109" table_id="260">毒气宝可梦</string>
+  <string block_id="0" entry_id="110" table_id="260">毒气宝可梦</string>
+  <string block_id="0" entry_id="111" table_id="260">尖尖宝可梦</string>
+  <string block_id="0" entry_id="112" table_id="260">钻锥宝可梦</string>
+  <string block_id="0" entry_id="113" table_id="260">蛋宝可梦</string>
+  <string block_id="0" entry_id="114" table_id="260">藤蔓状宝可梦</string>
+  <string block_id="0" entry_id="115" table_id="260">亲子宝可梦</string>
+  <string block_id="0" entry_id="116" table_id="260">龙宝可梦</string>
+  <string block_id="0" entry_id="117" table_id="260">龙宝可梦</string>
+  <string block_id="0" entry_id="118" table_id="260">金鱼宝可梦</string>
+  <string block_id="0" entry_id="119" table_id="260">金鱼宝可梦</string>
+  <string block_id="0" entry_id="120" table_id="260">星形宝可梦</string>
+  <string block_id="0" entry_id="121" table_id="260">谜宝可梦</string>
+  <string block_id="0" entry_id="122" table_id="260">屏障宝可梦</string>
+  <string block_id="0" entry_id="123" table_id="260">螳螂宝可梦</string>
+  <string block_id="0" entry_id="124" table_id="260">人形宝可梦</string>
+  <string block_id="0" entry_id="125" table_id="260">电气宝可梦</string>
+  <string block_id="0" entry_id="126" table_id="260">吐火宝可梦</string>
+  <string block_id="0" entry_id="127" table_id="260">锹形虫宝可梦</string>
+  <string block_id="0" entry_id="128" table_id="260">暴牛宝可梦</string>
+  <string block_id="0" entry_id="129" table_id="260">鱼宝可梦</string>
+  <string block_id="0" entry_id="130" table_id="260">凶恶宝可梦</string>
+  <string block_id="0" entry_id="131" table_id="260">乘载宝可梦</string>
+  <string block_id="0" entry_id="132" table_id="260">变身宝可梦</string>
+  <string block_id="0" entry_id="133" table_id="260">进化宝可梦</string>
+  <string block_id="0" entry_id="134" table_id="260">吐泡宝可梦</string>
+  <string block_id="0" entry_id="135" table_id="260">闪电宝可梦</string>
+  <string block_id="0" entry_id="136" table_id="260">火焰宝可梦</string>
+  <string block_id="0" entry_id="137" table_id="260">虚拟宝可梦</string>
+  <string block_id="0" entry_id="138" table_id="260">漩涡宝可梦</string>
+  <string block_id="0" entry_id="139" table_id="260">漩涡宝可梦</string>
+  <string block_id="0" entry_id="140" table_id="260">甲壳宝可梦</string>
+  <string block_id="0" entry_id="141" table_id="260">甲壳宝可梦</string>
+  <string block_id="0" entry_id="142" table_id="260">化石宝可梦</string>
+  <string block_id="0" entry_id="143" table_id="260">瞌睡宝可梦</string>
+  <string block_id="0" entry_id="144" table_id="260">冰冻宝可梦</string>
+  <string block_id="0" entry_id="145" table_id="260">电气宝可梦</string>
+  <string block_id="0" entry_id="146" table_id="260">火焰宝可梦</string>
+  <string block_id="0" entry_id="147" table_id="260">龙宝可梦</string>
+  <string block_id="0" entry_id="148" table_id="260">龙宝可梦</string>
+  <string block_id="0" entry_id="149" table_id="260">龙宝可梦</string>
+  <string block_id="0" entry_id="150" table_id="260">基因宝可梦</string>
+  <string block_id="0" entry_id="151" table_id="260">新种宝可梦</string>
+  <string block_id="0" entry_id="152" table_id="260">叶子宝可梦</string>
+  <string block_id="0" entry_id="153" table_id="260">叶子宝可梦</string>
+  <string block_id="0" entry_id="154" table_id="260">芳草宝可梦</string>
+  <string block_id="0" entry_id="155" table_id="260">火鼠宝可梦</string>
+  <string block_id="0" entry_id="156" table_id="260">火山宝可梦</string>
+  <string block_id="0" entry_id="157" table_id="260">火山宝可梦</string>
+  <string block_id="0" entry_id="158" table_id="260">大颚宝可梦</string>
+  <string block_id="0" entry_id="159" table_id="260">大颚宝可梦</string>
+  <string block_id="0" entry_id="160" table_id="260">大颚宝可梦</string>
+  <string block_id="0" entry_id="161" table_id="260">放哨宝可梦</string>
+  <string block_id="0" entry_id="162" table_id="260">长躯干宝可梦</string>
+  <string block_id="0" entry_id="163" table_id="260">猫头鹰宝可梦</string>
+  <string block_id="0" entry_id="164" table_id="260">猫头鹰宝可梦</string>
+  <string block_id="0" entry_id="165" table_id="260">五星宝可梦</string>
+  <string block_id="0" entry_id="166" table_id="260">五星宝可梦</string>
+  <string block_id="0" entry_id="167" table_id="260">吐丝宝可梦</string>
+  <string block_id="0" entry_id="168" table_id="260">长腿宝可梦</string>
+  <string block_id="0" entry_id="169" table_id="260">蝙蝠宝可梦</string>
+  <string block_id="0" entry_id="170" table_id="260">琵琶鱼宝可梦</string>
+  <string block_id="0" entry_id="171" table_id="260">灯宝可梦</string>
+  <string block_id="0" entry_id="172" table_id="260">小鼠宝可梦</string>
+  <string block_id="0" entry_id="173" table_id="260">星形宝可梦</string>
+  <string block_id="0" entry_id="174" table_id="260">气球宝可梦</string>
+  <string block_id="0" entry_id="175" table_id="260">针球宝可梦</string>
+  <string block_id="0" entry_id="176" table_id="260">幸福宝可梦</string>
+  <string block_id="0" entry_id="177" table_id="260">小鸟宝可梦</string>
+  <string block_id="0" entry_id="178" table_id="260">神秘宝可梦</string>
+  <string block_id="0" entry_id="179" table_id="260">绵毛宝可梦</string>
+  <string block_id="0" entry_id="180" table_id="260">绵毛宝可梦</string>
+  <string block_id="0" entry_id="181" table_id="260">灯宝可梦</string>
+  <string block_id="0" entry_id="182" table_id="260">花宝可梦</string>
+  <string block_id="0" entry_id="183" table_id="260">水鼠宝可梦</string>
+  <string block_id="0" entry_id="184" table_id="260">水兔宝可梦</string>
+  <string block_id="0" entry_id="185" table_id="260">模仿宝可梦</string>
+  <string block_id="0" entry_id="186" table_id="260">蛙宝可梦</string>
+  <string block_id="0" entry_id="187" table_id="260">棉草宝可梦</string>
+  <string block_id="0" entry_id="188" table_id="260">棉草宝可梦</string>
+  <string block_id="0" entry_id="189" table_id="260">棉草宝可梦</string>
+  <string block_id="0" entry_id="190" table_id="260">长尾宝可梦</string>
+  <string block_id="0" entry_id="191" table_id="260">种子宝可梦</string>
+  <string block_id="0" entry_id="192" table_id="260">太阳宝可梦</string>
+  <string block_id="0" entry_id="193" table_id="260">薄翼宝可梦</string>
+  <string block_id="0" entry_id="194" table_id="260">水鱼宝可梦</string>
+  <string block_id="0" entry_id="195" table_id="260">水鱼宝可梦</string>
+  <string block_id="0" entry_id="196" table_id="260">太阳宝可梦</string>
+  <string block_id="0" entry_id="197" table_id="260">月光宝可梦</string>
+  <string block_id="0" entry_id="198" table_id="260">黑暗宝可梦</string>
+  <string block_id="0" entry_id="199" table_id="260">王者宝可梦</string>
+  <string block_id="0" entry_id="200" table_id="260">夜啼宝可梦</string>
+  <string block_id="0" entry_id="201" table_id="260">象征宝可梦</string>
+  <string block_id="0" entry_id="202" table_id="260">忍耐宝可梦</string>
+  <string block_id="0" entry_id="203" table_id="260">长颈宝可梦</string>
+  <string block_id="0" entry_id="204" table_id="260">蓑衣虫宝可梦</string>
+  <string block_id="0" entry_id="205" table_id="260">蓑衣虫宝可梦</string>
+  <string block_id="0" entry_id="206" table_id="260">地蛇宝可梦</string>
+  <string block_id="0" entry_id="207" table_id="260">飞蝎宝可梦</string>
+  <string block_id="0" entry_id="208" table_id="260">铁蛇宝可梦</string>
+  <string block_id="0" entry_id="209" table_id="260">妖精宝可梦</string>
+  <string block_id="0" entry_id="210" table_id="260">妖精宝可梦</string>
+  <string block_id="0" entry_id="211" table_id="260">气球宝可梦</string>
+  <string block_id="0" entry_id="212" table_id="260">钳子宝可梦</string>
+  <string block_id="0" entry_id="213" table_id="260">发酵宝可梦</string>
+  <string block_id="0" entry_id="214" table_id="260">独角宝可梦</string>
+  <string block_id="0" entry_id="215" table_id="260">钩爪宝可梦</string>
+  <string block_id="0" entry_id="216" table_id="260">小熊宝可梦</string>
+  <string block_id="0" entry_id="217" table_id="260">冬眠宝可梦</string>
+  <string block_id="0" entry_id="218" table_id="260">熔岩宝可梦</string>
+  <string block_id="0" entry_id="219" table_id="260">熔岩宝可梦</string>
+  <string block_id="0" entry_id="220" table_id="260">小猪宝可梦</string>
+  <string block_id="0" entry_id="221" table_id="260">野猪宝可梦</string>
+  <string block_id="0" entry_id="222" table_id="260">珊瑚宝可梦</string>
+  <string block_id="0" entry_id="223" table_id="260">喷射宝可梦</string>
+  <string block_id="0" entry_id="224" table_id="260">喷射宝可梦</string>
+  <string block_id="0" entry_id="225" table_id="260">搬运宝可梦</string>
+  <string block_id="0" entry_id="226" table_id="260">风筝宝可梦</string>
+  <string block_id="0" entry_id="227" table_id="260">钢甲鸟宝可梦</string>
+  <string block_id="0" entry_id="228" table_id="260">阴暗宝可梦</string>
+  <string block_id="0" entry_id="229" table_id="260">阴暗宝可梦</string>
+  <string block_id="0" entry_id="230" table_id="260">龙宝可梦</string>
+  <string block_id="0" entry_id="231" table_id="260">长鼻宝可梦</string>
+  <string block_id="0" entry_id="232" table_id="260">铠甲宝可梦</string>
+  <string block_id="0" entry_id="233" table_id="260">虚拟宝可梦</string>
+  <string block_id="0" entry_id="234" table_id="260">大角宝可梦</string>
+  <string block_id="0" entry_id="235" table_id="260">画画宝可梦</string>
+  <string block_id="0" entry_id="236" table_id="260">打斗宝可梦</string>
+  <string block_id="0" entry_id="237" table_id="260">倒立宝可梦</string>
+  <string block_id="0" entry_id="238" table_id="260">亲吻宝可梦</string>
+  <string block_id="0" entry_id="239" table_id="260">电气宝可梦</string>
+  <string block_id="0" entry_id="240" table_id="260">火种宝可梦</string>
+  <string block_id="0" entry_id="241" table_id="260">奶牛宝可梦</string>
+  <string block_id="0" entry_id="242" table_id="260">幸福宝可梦</string>
+  <string block_id="0" entry_id="243" table_id="260">天雷宝可梦</string>
+  <string block_id="0" entry_id="244" table_id="260">火山宝可梦</string>
+  <string block_id="0" entry_id="245" table_id="260">极光宝可梦</string>
+  <string block_id="0" entry_id="246" table_id="260">岩石肤宝可梦</string>
+  <string block_id="0" entry_id="247" table_id="260">子弹宝可梦</string>
+  <string block_id="0" entry_id="248" table_id="260">铠甲宝可梦</string>
+  <string block_id="0" entry_id="249" table_id="260">潜水宝可梦</string>
+  <string block_id="0" entry_id="250" table_id="260">虹色宝可梦</string>
+  <string block_id="0" entry_id="251" table_id="260">时空穿越宝可梦</string>
+  <string block_id="0" entry_id="252" table_id="260">林蜥宝可梦</string>
+  <string block_id="0" entry_id="253" table_id="260">林蜥宝可梦</string>
+  <string block_id="0" entry_id="254" table_id="260">密林宝可梦</string>
+  <string block_id="0" entry_id="255" table_id="260">雏鸡宝可梦</string>
+  <string block_id="0" entry_id="256" table_id="260">幼鸡宝可梦</string>
+  <string block_id="0" entry_id="257" table_id="260">猛火宝可梦</string>
+  <string block_id="0" entry_id="258" table_id="260">沼鱼宝可梦</string>
+  <string block_id="0" entry_id="259" table_id="260">沼鱼宝可梦</string>
+  <string block_id="0" entry_id="260" table_id="260">沼鱼宝可梦</string>
+  <string block_id="0" entry_id="261" table_id="260">紧咬宝可梦</string>
+  <string block_id="0" entry_id="262" table_id="260">紧咬宝可梦</string>
+  <string block_id="0" entry_id="263" table_id="260">豆狸宝可梦</string>
+  <string block_id="0" entry_id="264" table_id="260">猛冲宝可梦</string>
+  <string block_id="0" entry_id="265" table_id="260">虫宝宝宝可梦</string>
+  <string block_id="0" entry_id="266" table_id="260">蛹宝可梦</string>
+  <string block_id="0" entry_id="267" table_id="260">蝴蝶宝可梦</string>
+  <string block_id="0" entry_id="268" table_id="260">蛹宝可梦</string>
+  <string block_id="0" entry_id="269" table_id="260">毒蛾宝可梦</string>
+  <string block_id="0" entry_id="270" table_id="260">浮萍宝可梦</string>
+  <string block_id="0" entry_id="271" table_id="260">爽朗宝可梦</string>
+  <string block_id="0" entry_id="272" table_id="260">乐天宝可梦</string>
+  <string block_id="0" entry_id="273" table_id="260">橡实宝可梦</string>
+  <string block_id="0" entry_id="274" table_id="260">捉弄宝可梦</string>
+  <string block_id="0" entry_id="275" table_id="260">邪恶宝可梦</string>
+  <string block_id="0" entry_id="276" table_id="260">幼燕宝可梦</string>
+  <string block_id="0" entry_id="277" table_id="260">燕子宝可梦</string>
+  <string block_id="0" entry_id="278" table_id="260">海鸥宝可梦</string>
+  <string block_id="0" entry_id="279" table_id="260">水鸟宝可梦</string>
+  <string block_id="0" entry_id="280" table_id="260">心情宝可梦</string>
+  <string block_id="0" entry_id="281" table_id="260">感情宝可梦</string>
+  <string block_id="0" entry_id="282" table_id="260">包容宝可梦</string>
+  <string block_id="0" entry_id="283" table_id="260">水黾宝可梦</string>
+  <string block_id="0" entry_id="284" table_id="260">眼珠宝可梦</string>
+  <string block_id="0" entry_id="285" table_id="260">蘑菇宝可梦</string>
+  <string block_id="0" entry_id="286" table_id="260">蘑菇宝可梦</string>
+  <string block_id="0" entry_id="287" table_id="260">懒人宝可梦</string>
+  <string block_id="0" entry_id="288" table_id="260">暴猿宝可梦</string>
+  <string block_id="0" entry_id="289" table_id="260">怕麻烦宝可梦</string>
+  <string block_id="0" entry_id="290" table_id="260">入门宝可梦</string>
+  <string block_id="0" entry_id="291" table_id="260">忍者宝可梦</string>
+  <string block_id="0" entry_id="292" table_id="260">空壳宝可梦</string>
+  <string block_id="0" entry_id="293" table_id="260">细语宝可梦</string>
+  <string block_id="0" entry_id="294" table_id="260">大声宝可梦</string>
+  <string block_id="0" entry_id="295" table_id="260">噪音宝可梦</string>
+  <string block_id="0" entry_id="296" table_id="260">毅力宝可梦</string>
+  <string block_id="0" entry_id="297" table_id="260">猛推宝可梦</string>
+  <string block_id="0" entry_id="298" table_id="260">水珠宝可梦</string>
+  <string block_id="0" entry_id="299" table_id="260">罗盘宝可梦</string>
+  <string block_id="0" entry_id="300" table_id="260">小猫宝可梦</string>
+  <string block_id="0" entry_id="301" table_id="260">清高宝可梦</string>
+  <string block_id="0" entry_id="302" table_id="260">黑暗宝可梦</string>
+  <string block_id="0" entry_id="303" table_id="260">欺骗宝可梦</string>
+  <string block_id="0" entry_id="304" table_id="260">铁铠宝可梦</string>
+  <string block_id="0" entry_id="305" table_id="260">铁铠宝可梦</string>
+  <string block_id="0" entry_id="306" table_id="260">铁铠宝可梦</string>
+  <string block_id="0" entry_id="307" table_id="260">冥想宝可梦</string>
+  <string block_id="0" entry_id="308" table_id="260">冥想宝可梦</string>
+  <string block_id="0" entry_id="309" table_id="260">闪电宝可梦</string>
+  <string block_id="0" entry_id="310" table_id="260">放电宝可梦</string>
+  <string block_id="0" entry_id="311" table_id="260">加油宝可梦</string>
+  <string block_id="0" entry_id="312" table_id="260">加油宝可梦</string>
+  <string block_id="0" entry_id="313" table_id="260">萤火虫宝可梦</string>
+  <string block_id="0" entry_id="314" table_id="260">萤火虫宝可梦</string>
+  <string block_id="0" entry_id="315" table_id="260">荆棘宝可梦</string>
+  <string block_id="0" entry_id="316" table_id="260">胃袋宝可梦</string>
+  <string block_id="0" entry_id="317" table_id="260">毒袋宝可梦</string>
+  <string block_id="0" entry_id="318" table_id="260">凶猛宝可梦</string>
+  <string block_id="0" entry_id="319" table_id="260">凶暴宝可梦</string>
+  <string block_id="0" entry_id="320" table_id="260">球鲸宝可梦</string>
+  <string block_id="0" entry_id="321" table_id="260">浮鲸宝可梦</string>
+  <string block_id="0" entry_id="322" table_id="260">迟钝宝可梦</string>
+  <string block_id="0" entry_id="323" table_id="260">喷火宝可梦</string>
+  <string block_id="0" entry_id="324" table_id="260">煤炭宝可梦</string>
+  <string block_id="0" entry_id="325" table_id="260">弹跳宝可梦</string>
+  <string block_id="0" entry_id="326" table_id="260">操纵宝可梦</string>
+  <string block_id="0" entry_id="327" table_id="260">斑点熊猫宝可梦</string>
+  <string block_id="0" entry_id="328" table_id="260">蚁狮宝可梦</string>
+  <string block_id="0" entry_id="329" table_id="260">震动宝可梦</string>
+  <string block_id="0" entry_id="330" table_id="260">神秘宝可梦</string>
+  <string block_id="0" entry_id="331" table_id="260">仙人掌宝可梦</string>
+  <string block_id="0" entry_id="332" table_id="260">稻草人宝可梦</string>
+  <string block_id="0" entry_id="333" table_id="260">绵鸟宝可梦</string>
+  <string block_id="0" entry_id="334" table_id="260">哼唱宝可梦</string>
+  <string block_id="0" entry_id="335" table_id="260">猫鼬宝可梦</string>
+  <string block_id="0" entry_id="336" table_id="260">牙蛇宝可梦</string>
+  <string block_id="0" entry_id="337" table_id="260">陨石宝可梦</string>
+  <string block_id="0" entry_id="338" table_id="260">陨石宝可梦</string>
+  <string block_id="0" entry_id="339" table_id="260">须鱼宝可梦</string>
+  <string block_id="0" entry_id="340" table_id="260">须鱼宝可梦</string>
+  <string block_id="0" entry_id="341" table_id="260">无赖宝可梦</string>
+  <string block_id="0" entry_id="342" table_id="260">流氓宝可梦</string>
+  <string block_id="0" entry_id="343" table_id="260">泥偶宝可梦</string>
+  <string block_id="0" entry_id="344" table_id="260">泥偶宝可梦</string>
+  <string block_id="0" entry_id="345" table_id="260">海百合宝可梦</string>
+  <string block_id="0" entry_id="346" table_id="260">藤壶宝可梦</string>
+  <string block_id="0" entry_id="347" table_id="260">古虾宝可梦</string>
+  <string block_id="0" entry_id="348" table_id="260">甲胄宝可梦</string>
+  <string block_id="0" entry_id="349" table_id="260">鱼宝可梦</string>
+  <string block_id="0" entry_id="350" table_id="260">慈爱宝可梦</string>
+  <string block_id="0" entry_id="351" table_id="260">天气宝可梦</string>
+  <string block_id="0" entry_id="352" table_id="260">变色宝可梦</string>
+  <string block_id="0" entry_id="353" table_id="260">人偶宝可梦</string>
+  <string block_id="0" entry_id="354" table_id="260">布偶宝可梦</string>
+  <string block_id="0" entry_id="355" table_id="260">渡魂宝可梦</string>
+  <string block_id="0" entry_id="356" table_id="260">招手宝可梦</string>
+  <string block_id="0" entry_id="357" table_id="260">水果宝可梦</string>
+  <string block_id="0" entry_id="358" table_id="260">风铃宝可梦</string>
+  <string block_id="0" entry_id="359" table_id="260">灾祸宝可梦</string>
+  <string block_id="0" entry_id="360" table_id="260">开朗宝可梦</string>
+  <string block_id="0" entry_id="361" table_id="260">雪笠宝可梦</string>
+  <string block_id="0" entry_id="362" table_id="260">脸面宝可梦</string>
+  <string block_id="0" entry_id="363" table_id="260">拍手宝可梦</string>
+  <string block_id="0" entry_id="364" table_id="260">滚球宝可梦</string>
+  <string block_id="0" entry_id="365" table_id="260">破冰宝可梦</string>
+  <string block_id="0" entry_id="366" table_id="260">双壳贝宝可梦</string>
+  <string block_id="0" entry_id="367" table_id="260">深海宝可梦</string>
+  <string block_id="0" entry_id="368" table_id="260">南海宝可梦</string>
+  <string block_id="0" entry_id="369" table_id="260">长寿宝可梦</string>
+  <string block_id="0" entry_id="370" table_id="260">相随宝可梦</string>
+  <string block_id="0" entry_id="371" table_id="260">坚硬脑袋宝可梦</string>
+  <string block_id="0" entry_id="372" table_id="260">耐力宝可梦</string>
+  <string block_id="0" entry_id="373" table_id="260">龙宝可梦</string>
+  <string block_id="0" entry_id="374" table_id="260">铁球宝可梦</string>
+  <string block_id="0" entry_id="375" table_id="260">铁爪宝可梦</string>
+  <string block_id="0" entry_id="376" table_id="260">铁足宝可梦</string>
+  <string block_id="0" entry_id="377" table_id="260">岩山宝可梦</string>
+  <string block_id="0" entry_id="378" table_id="260">冰山宝可梦</string>
+  <string block_id="0" entry_id="379" table_id="260">黑金宝可梦</string>
+  <string block_id="0" entry_id="380" table_id="260">无限宝可梦</string>
+  <string block_id="0" entry_id="381" table_id="260">无限宝可梦</string>
+  <string block_id="0" entry_id="382" table_id="260">海底宝可梦</string>
+  <string block_id="0" entry_id="383" table_id="260">大陆宝可梦</string>
+  <string block_id="0" entry_id="384" table_id="260">天空宝可梦</string>
+  <string block_id="0" entry_id="385" table_id="260">祈愿宝可梦</string>
+  <string block_id="0" entry_id="386" table_id="260">DNA宝可梦</string>
+  <string block_id="0" entry_id="387" table_id="260">嫩叶宝可梦</string>
+  <string block_id="0" entry_id="388" table_id="260">树丛宝可梦</string>
+  <string block_id="0" entry_id="389" table_id="260">大陆宝可梦</string>
+  <string block_id="0" entry_id="390" table_id="260">小猴宝可梦</string>
+  <string block_id="0" entry_id="391" table_id="260">顽皮宝可梦</string>
+  <string block_id="0" entry_id="392" table_id="260">火焰宝可梦</string>
+  <string block_id="0" entry_id="393" table_id="260">企鹅宝可梦</string>
+  <string block_id="0" entry_id="394" table_id="260">企鹅宝可梦</string>
+  <string block_id="0" entry_id="395" table_id="260">皇帝宝可梦</string>
+  <string block_id="0" entry_id="396" table_id="260">椋鸟宝可梦</string>
+  <string block_id="0" entry_id="397" table_id="260">椋鸟宝可梦</string>
+  <string block_id="0" entry_id="398" table_id="260">猛禽宝可梦</string>
+  <string block_id="0" entry_id="399" table_id="260">圆鼠宝可梦</string>
+  <string block_id="0" entry_id="400" table_id="260">河狸宝可梦</string>
+  <string block_id="0" entry_id="401" table_id="260">蟋蟀宝可梦</string>
+  <string block_id="0" entry_id="402" table_id="260">蟋蟀宝可梦</string>
+  <string block_id="0" entry_id="403" table_id="260">闪光宝可梦</string>
+  <string block_id="0" entry_id="404" table_id="260">电光宝可梦</string>
+  <string block_id="0" entry_id="405" table_id="260">目光宝可梦</string>
+  <string block_id="0" entry_id="406" table_id="260">花苞宝可梦</string>
+  <string block_id="0" entry_id="407" table_id="260">花束宝可梦</string>
+  <string block_id="0" entry_id="408" table_id="260">头锤宝可梦</string>
+  <string block_id="0" entry_id="409" table_id="260">头锤宝可梦</string>
+  <string block_id="0" entry_id="410" table_id="260">护盾宝可梦</string>
+  <string block_id="0" entry_id="411" table_id="260">护盾宝可梦</string>
+  <string block_id="0" entry_id="412" table_id="260">蓑衣虫宝可梦</string>
+  <string block_id="0" entry_id="413" table_id="260">蓑衣虫宝可梦</string>
+  <string block_id="0" entry_id="414" table_id="260">蓑衣蛾宝可梦</string>
+  <string block_id="0" entry_id="415" table_id="260">幼蜂宝可梦</string>
+  <string block_id="0" entry_id="416" table_id="260">蜂巢宝可梦</string>
+  <string block_id="0" entry_id="417" table_id="260">电松鼠宝可梦</string>
+  <string block_id="0" entry_id="418" table_id="260">海鼬宝可梦</string>
+  <string block_id="0" entry_id="419" table_id="260">海鼬宝可梦</string>
+  <string block_id="0" entry_id="420" table_id="260">樱桃宝可梦</string>
+  <string block_id="0" entry_id="421" table_id="260">樱花宝可梦</string>
+  <string block_id="0" entry_id="422" table_id="260">海兔宝可梦</string>
+  <string block_id="0" entry_id="423" table_id="260">海兔宝可梦</string>
+  <string block_id="0" entry_id="424" table_id="260">长尾宝可梦</string>
+  <string block_id="0" entry_id="425" table_id="260">气球宝可梦</string>
+  <string block_id="0" entry_id="426" table_id="260">热气球宝可梦</string>
+  <string block_id="0" entry_id="427" table_id="260">兔子宝可梦</string>
+  <string block_id="0" entry_id="428" table_id="260">兔子宝可梦</string>
+  <string block_id="0" entry_id="429" table_id="260">魔法宝可梦</string>
+  <string block_id="0" entry_id="430" table_id="260">大头目宝可梦</string>
+  <string block_id="0" entry_id="431" table_id="260">装乖宝可梦</string>
+  <string block_id="0" entry_id="432" table_id="260">虎斑猫宝可梦</string>
+  <string block_id="0" entry_id="433" table_id="260">铃铛宝可梦</string>
+  <string block_id="0" entry_id="434" table_id="260">臭鼬宝可梦</string>
+  <string block_id="0" entry_id="435" table_id="260">臭鼬宝可梦</string>
+  <string block_id="0" entry_id="436" table_id="260">青铜宝可梦</string>
+  <string block_id="0" entry_id="437" table_id="260">铜钟宝可梦</string>
+  <string block_id="0" entry_id="438" table_id="260">盆栽宝可梦</string>
+  <string block_id="0" entry_id="439" table_id="260">默剧宝可梦</string>
+  <string block_id="0" entry_id="440" table_id="260">家家酒宝可梦</string>
+  <string block_id="0" entry_id="441" table_id="260">音符宝可梦</string>
+  <string block_id="0" entry_id="442" table_id="260">封印宝可梦</string>
+  <string block_id="0" entry_id="443" table_id="260">陆鲨宝可梦</string>
+  <string block_id="0" entry_id="444" table_id="260">洞穴宝可梦</string>
+  <string block_id="0" entry_id="445" table_id="260">音速宝可梦</string>
+  <string block_id="0" entry_id="446" table_id="260">大胃王宝可梦</string>
+  <string block_id="0" entry_id="447" table_id="260">波纹宝可梦</string>
+  <string block_id="0" entry_id="448" table_id="260">波导宝可梦</string>
+  <string block_id="0" entry_id="449" table_id="260">河马宝可梦</string>
+  <string block_id="0" entry_id="450" table_id="260">重量宝可梦</string>
+  <string block_id="0" entry_id="451" table_id="260">蝎子宝可梦</string>
+  <string block_id="0" entry_id="452" table_id="260">蝎怪宝可梦</string>
+  <string block_id="0" entry_id="453" table_id="260">毒击宝可梦</string>
+  <string block_id="0" entry_id="454" table_id="260">毒击宝可梦</string>
+  <string block_id="0" entry_id="455" table_id="260">捕虫宝可梦</string>
+  <string block_id="0" entry_id="456" table_id="260">飞翅鱼宝可梦</string>
+  <string block_id="0" entry_id="457" table_id="260">霓虹宝可梦</string>
+  <string block_id="0" entry_id="458" table_id="260">风筝宝可梦</string>
+  <string block_id="0" entry_id="459" table_id="260">树冰宝可梦</string>
+  <string block_id="0" entry_id="460" table_id="260">树冰宝可梦</string>
+  <string block_id="0" entry_id="461" table_id="260">钩爪宝可梦</string>
+  <string block_id="0" entry_id="462" table_id="260">磁场宝可梦</string>
+  <string block_id="0" entry_id="463" table_id="260">舔舔宝可梦</string>
+  <string block_id="0" entry_id="464" table_id="260">钻锥宝可梦</string>
+  <string block_id="0" entry_id="465" table_id="260">藤蔓状宝可梦</string>
+  <string block_id="0" entry_id="466" table_id="260">雷电宝可梦</string>
+  <string block_id="0" entry_id="467" table_id="260">爆炎宝可梦</string>
+  <string block_id="0" entry_id="468" table_id="260">祝福宝可梦</string>
+  <string block_id="0" entry_id="469" table_id="260">勾蜓宝可梦</string>
+  <string block_id="0" entry_id="470" table_id="260">新绿宝可梦</string>
+  <string block_id="0" entry_id="471" table_id="260">新雪宝可梦</string>
+  <string block_id="0" entry_id="472" table_id="260">牙蝎宝可梦</string>
+  <string block_id="0" entry_id="473" table_id="260">双牙宝可梦</string>
+  <string block_id="0" entry_id="474" table_id="260">虚拟宝可梦</string>
+  <string block_id="0" entry_id="475" table_id="260">利刃宝可梦</string>
+  <string block_id="0" entry_id="476" table_id="260">罗盘宝可梦</string>
+  <string block_id="0" entry_id="477" table_id="260">抓握宝可梦</string>
+  <string block_id="0" entry_id="478" table_id="260">雪国宝可梦</string>
+  <string block_id="0" entry_id="479" table_id="260">等离子宝可梦</string>
+  <string block_id="0" entry_id="480" table_id="260">知识宝可梦</string>
+  <string block_id="0" entry_id="481" table_id="260">感情宝可梦</string>
+  <string block_id="0" entry_id="482" table_id="260">意志宝可梦</string>
+  <string block_id="0" entry_id="483" table_id="260">时间宝可梦</string>
+  <string block_id="0" entry_id="484" table_id="260">空间宝可梦</string>
+  <string block_id="0" entry_id="485" table_id="260">火山口宝可梦</string>
+  <string block_id="0" entry_id="486" table_id="260">巨大宝可梦</string>
+  <string block_id="0" entry_id="487" table_id="260">反抗宝可梦</string>
+  <string block_id="0" entry_id="488" table_id="260">新月宝可梦</string>
+  <string block_id="0" entry_id="489" table_id="260">海洋宝可梦</string>
+  <string block_id="0" entry_id="490" table_id="260">回游宝可梦</string>
+  <string block_id="0" entry_id="491" table_id="260">暗黑宝可梦</string>
+  <string block_id="0" entry_id="492" table_id="260">感谢宝可梦</string>
+  <string block_id="0" entry_id="493" table_id="260">创造宝可梦</string>
+  <string block_id="0" entry_id="1" table_id="235">在出生后的一段时间里, 它会从背上的种子里汲\n取营养茁壮成长.</string>
+  <string block_id="0" entry_id="2" table_id="235">当它背上的花苞开始鼓起时, 就会飘出一股甜美\n的香气. 这是大花即将盛开的前兆.</string>
+  <string block_id="0" entry_id="3" table_id="235">雨后第二天, 它背上花朵的香味会愈加浓郁. 宝\n可梦会被香味引诱而聚拢过来.</string>
+  <string block_id="0" entry_id="4" table_id="235">尾巴上的火焰是它的生命之灯, 精力充沛时火焰\n也燃烧得更加旺盛.</string>
+  <string block_id="0" entry_id="5" table_id="235">晚上仰望它们居住的山岩时, 它们尾巴上的火焰\n看起来就像星星一样.</string>
+  <string block_id="0" entry_id="6" table_id="235">据说在经历了艰苦的战斗之后它的火焰的温度会\n升高.</string>
+  <string block_id="0" entry_id="7" table_id="235">它会躲进甲壳里保护自己. 会抓住对手的破绽,\n用喷水来反击.</string>
+  <string block_id="0" entry_id="8" table_id="235">据说它有着1万年的寿命. 蓬松的尾巴是长寿的\n象征, 深受人们的喜爱.</string>
+  <string block_id="0" entry_id="9" table_id="235">甲壳上的火箭炮里发射出的水流有着能将厚重的\n铁板贯穿的破坏力.</string>
+  <string block_id="0" entry_id="10" table_id="235">从红色的触角里释放出臭味驱逐敌人. 通过反复\n蜕皮逐渐长大.</string>
+  <string block_id="0" entry_id="11" table_id="235">会用钢铁般坚硬的外壳保护里面柔软的身体. 在\n进化之前会一直默默地忍受.</string>
+  <string block_id="0" entry_id="12" table_id="235">最喜欢吃花蜜. 只靠一点花粉就能找出花圃的位\n置.</string>
+  <string block_id="0" entry_id="13" table_id="235">每天都要吃下和自身重量相当的叶子. 用头上的\n刺击退入侵的敌人.</string>
+  <string block_id="0" entry_id="14" table_id="235">为了不被天敌发现, 会躲在叶子的背后或树枝的\n间隙中, 等待进化时刻的到来.</string>
+  <string block_id="0" entry_id="15" table_id="235">一边高速飞行, 一边用毒针攻击之后马上飞走,\n是它最擅长的战术.</string>
+  <string block_id="0" entry_id="16" table_id="235">虽然它性格温和不喜战斗, 但要是随意对它出手\n的话, 就会受到它强烈的反击.</string>
+  <string block_id="0" entry_id="17" table_id="235">一边在广阔的领地上空盘旋, 一边搜寻猎物. 用\n发达的爪子捕杀猎物.</string>
+  <string block_id="0" entry_id="18" table_id="235">大比鳥用尽力气扑打翅膀时, 卷起的强风连大树\n都能折断.</string>
+  <string block_id="0" entry_id="19" table_id="235">有着可以在任何地方都能生存下去的生命力, 警\n戒心非常强.</string>
+  <string block_id="0" entry_id="20" table_id="235">为了磨平不断生长的门牙, 它有着啃咬硬物的习\n性. 连水泥围墙也能咬坏.</string>
+  <string block_id="0" entry_id="21" table_id="235">匆忙地扑打小小的翅膀来飞行. 用喙来寻找栖息\n在草丛中的猎物.</string>
+  <string block_id="0" entry_id="22" table_id="235">有着可以用大大的翅膀来回飞上一整天的体力.\n会用锋利的鸟嘴战斗.</string>
+  <string block_id="0" entry_id="23" table_id="235">完全寂静无声地生活在草地中, 从背后对放松警\n惕的猎物发起袭击.</string>
+  <string block_id="0" entry_id="24" table_id="235">用腹部的花纹来威吓敌人, 在对方被吓得无法动\n弹时用身体缠住对方.</string>
+  <string block_id="0" entry_id="25" table_id="235">有时会对虚弱的同伴施以电流和电击, 把自己的\n精力分给同伴.</string>
+  <string block_id="0" entry_id="26" table_id="235">尾巴可以把电气释放到地面上, 使自己不被击到.</string>
+  <string block_id="0" entry_id="27" table_id="235">生活在几乎不下雨的干燥地方, 将身体团成球来\n保护自己.</string>
+  <string block_id="0" entry_id="28" table_id="235">将身体缩成一团用背撞击敌人, 锐利的尖刺可以\n给对方造成很大的伤害.</string>
+  <string block_id="0" entry_id="29" table_id="235">它有着不喜欢战斗的性格, 从毒牙里分泌出的毒\n液一滴就能致命.</string>
+  <string block_id="0" entry_id="30" table_id="235">感觉到危险时会将全身的刺竖起来, 和尼多力诺\n相比刺的生长比较缓慢.</string>
+  <string block_id="0" entry_id="31" table_id="235">全身包裹着如盔甲一般的甲壳, 会拼上性命保护\n巢穴中的孩子.</string>
+  <string block_id="0" entry_id="32" table_id="235">会躲在草丛里只露出耳朵来探察周围的情况. 能\n用有剧毒的角来保护自己.</string>
+  <string block_id="0" entry_id="33" table_id="235">脾气粗暴的宝可梦. 在刺入对手的撞击中, 从角\n尖渗出剧毒.</string>
+  <string block_id="0" entry_id="34" table_id="235">尾巴能一击将电线杆像折火柴棍一样折成两段.</string>
+  <string block_id="0" entry_id="35" table_id="235">据说在满月的夜晚, 如果能看到皮皮们聚在一起\n跳舞, 就能得到幸福.</string>
+  <string block_id="0" entry_id="36" table_id="235">非常机警, 很少会被人看到. 耳朵能听到一公里\n外掉了一根针的声音.</string>
+  <string block_id="0" entry_id="37" table_id="235">可以操纵火球, 成长之后六只尾巴会从顶部裂开\n来数量变得更多.</string>
+  <string block_id="0" entry_id="38" table_id="235">据说九只尾巴里蕴藏着神秘的力量, 可以活上千\n年.</string>
+  <string block_id="0" entry_id="39" table_id="235">转悠着可爱的眼睛, 并且开始唱摇篮曲的时候,\n无论谁都会陷入睡眠中.</string>
+  <string block_id="0" entry_id="40" table_id="235">皮肤上附着一层细毛手感极好, 吸入空气后身体\n会膨胀起来.</string>
+  <string block_id="0" entry_id="41" table_id="235">使用嘴里发出的超音波的反射来探测周围并定位.</string>
+  <string block_id="0" entry_id="42" table_id="235">尖锐的牙不论是多硬的皮肤都能贯穿, 只要有小\n小的洞, 就能从中拼命地吸血.</string>
+  <string block_id="0" entry_id="43" table_id="235">大多数在白天会把作为根的脚埋在地下, 不怎么\n活动. 晚上到处走散播种子.</string>
+  <string block_id="0" entry_id="44" table_id="235">从嘴里流出来的蜜有着就算在2公里外也能把鼻\n子熏歪的强烈臭味.</string>
+  <string block_id="0" entry_id="45" table_id="235">花瓣的大小是世界第一. 一边散播会引起严重过\n敏反应的毒花粉一边走.</string>
+  <string block_id="0" entry_id="46" table_id="235">让被称作冬虫夏草的蘑菇在背上生长. 它和派拉\n斯一起长大.</string>
+  <string block_id="0" entry_id="47" table_id="235">操纵派拉斯特的是比身体还大的蘑菇. 会播撒有\n毒的孢子.</string>
+  <string block_id="0" entry_id="48" table_id="235">大大的眼睛是由许多小眼睛汇聚在一起形成的.\n到了晚上会聚集在亮光下.</string>
+  <string block_id="0" entry_id="49" table_id="235">扇动翅膀散布磷粉. 磷粉沾到身体上之后, 有毒\n成分会渗入皮肤里.</string>
+  <string block_id="0" entry_id="50" table_id="235">生活在地里的宝可梦. 由于长期居住在阴暗的地\n下, 对明亮的阳光很反感.</string>
+  <string block_id="0" entry_id="51" table_id="235">3个脑袋交替运动, 就算在再硬的地层里也能掘\n进到地下100公里.</string>
+  <string block_id="0" entry_id="52" table_id="235">有着半夜活动的习性. 找到闪闪发亮的东西时,\n眼睛也会毫不逊色地闪闪发光.</string>
+  <string block_id="0" entry_id="53" table_id="235">非常高贵而傲慢的宝可梦. 额头上宝石的大小是\n它的粉丝谈论的热门话题.</string>
+  <string block_id="0" entry_id="54" table_id="235">无法控制不可思议的能力, 总被头疼困扰. 偶尔\n能使出不可思议的力量.</string>
+  <string block_id="0" entry_id="55" table_id="235">经常可以看到它使用手掌上发达的蹼有活力且优\n美地游泳的姿态.</string>
+  <string block_id="0" entry_id="56" table_id="235">在树上生活. 如果群体中有1只发起火来, 整个\n群体都会无缘无故地暴怒起来.</string>
+  <string block_id="0" entry_id="57" table_id="235">只是目光交汇就会生气, 逃走的话也会生气, 打\n倒它的话更会生气.</string>
+  <string block_id="0" entry_id="58" table_id="235">性格忠诚的宝可梦, 在得到训练家的命令之前一\n步也不会移动.</string>
+  <string block_id="0" entry_id="59" table_id="235">威风凛凛的样子, 从很早以前就得到了人类的倾\n心.</string>
+  <string block_id="0" entry_id="60" table_id="235">皮肤薄得可以透出内脏. 刚长出来的脚不擅长走\n路.</string>
+  <string block_id="0" entry_id="61" table_id="235">因为腹部的漩涡有着微妙的弯曲, 一直盯着它看\n的话, 渐渐地就睡着了.</string>
+  <string block_id="0" entry_id="62" table_id="235">拥有强韧的肌肉. 可以中途无休地游泳穿越太平\n洋.</string>
+  <string block_id="0" entry_id="63" table_id="235">使用超能力之后大脑会过度疲劳, 因此1天要睡\n18个小时.</string>
+  <string block_id="0" entry_id="64" table_id="235">凝视着银色汤匙来集中注意力, 发出的阿尔法波\n会增强.</string>
+  <string block_id="0" entry_id="65" table_id="235">据说胡地双手握着的汤匙是用它的超能力创造出\n来的物体.</string>
+  <string block_id="0" entry_id="66" table_id="235">虽然身体矮小, 却很有力气. 能毫不费力地同时\n举起并抛出好几只[[小拳石]].</string>
+  <string block_id="0" entry_id="67" table_id="235">为了锻炼身体, 会开心地搬运沉重的货物, 因此\n经常代替人类干体力活.</string>
+  <string block_id="0" entry_id="68" table_id="235">用4只强有力的手臂以令人目不暇接的速度出拳\n、劈 空手劈.</string>
+  <string block_id="0" entry_id="69" table_id="235">喜欢高温多湿的土地. 伸出藤蔓捕捉猎物的时候,\n动作非常迅速.</string>
+  <string block_id="0" entry_id="70" table_id="235">长得和植物一模一样的宝可梦. 对于贸然靠近的\n猎物, 用毒粉浸没它们, 然后捕食.</string>
+  <string block_id="0" entry_id="71" table_id="235">嘴里贮藏着散发花蜜般香气的液体, 那实际上却\n是可以溶解一切物体的溶解液.</string>
+  <string block_id="0" entry_id="72" table_id="235">由于身体几乎都是水, 被海浪冲到沙滩上之后就\n会被晒干.</string>
+  <string block_id="0" entry_id="73" table_id="235">伸长80只触手做出毒之包围网. 被抓住的话很\n难逃脱.</string>
+  <string block_id="0" entry_id="74" table_id="235">一动不动的时候就像小石块一样, 然而因为没注\n意到而踩上去的话, 小拳石就会挥舞着拳头發怒.</string>
+  <string block_id="0" entry_id="75" table_id="235">在山路上滚着移动. 带着气势无论什么寶可夢都\n很难停下它.</string>
+  <string block_id="0" entry_id="76" table_id="235">它的身体像岩石一样坚硬, 即使是炸药也无法伤\n其分毫. 1年只蜕皮1次.</string>
+  <string block_id="0" entry_id="77" table_id="235">刚出生时连站起来都十分不易. 但跑得越多, 腰\n腿就会被锻炼得越多, 速度也会随之增加.</string>
+  <string block_id="0" entry_id="78" table_id="235">全力奔跑时, 燃烧着的鬃毛会闪闪发光, 看起来\n更加漂亮.</string>
+  <string block_id="0" entry_id="79" table_id="235">虽然动作迟缓, 却很擅长用尾巴来垂钓. 由于感\n觉迟钝, 就算尾巴被咬也不感到痛.</string>
+  <string block_id="0" entry_id="80" table_id="235">发着呆的呆殼獸如果被大舌贝很强行地咬住的时\n候, 似乎会突发奇想.</string>
+  <string block_id="0" entry_id="81" table_id="235">让左右的部件越高速旋转, 能放出的磁力就越强.</string>
+  <string block_id="0" entry_id="82" table_id="235">太阳黑子增多的话不知为何三合一磁怪会变大,\n使电视机无法清楚地播放.</string>
+  <string block_id="0" entry_id="83" table_id="235">没有茎就活不下去, 所以如果有谁盯上茎的话就\n会拼命去战斗.</string>
+  <string block_id="0" entry_id="84" table_id="235">2个脑袋好像能用类似心灵感应的力量来互通想\n法.</string>
+  <string block_id="0" entry_id="85" table_id="235">进化的时候嘟嘟的某一个头分裂出的珍稀物种,\n用时速60千米奔跑.</string>
+  <string block_id="0" entry_id="86" table_id="235">生活在冰山上的宝可梦. 会用头上尖锐的突起部\n分破开冰层在海里游泳.</string>
+  <string block_id="0" entry_id="87" table_id="235">由于全身覆盖着雪白的体毛, 在雪地中活动并不\n会被天敌发现.</string>
+  <string block_id="0" entry_id="88" table_id="235">被污染的河里里的淤泥沐浴月亮照射来的X射线\n而出. 出现在肮脏的地方.</string>
+  <string block_id="0" entry_id="89" table_id="235">从身体里会渗出有剧毒的体液. 草木一沾上那液\n体就会瞬间枯萎.</string>
+  <string block_id="0" entry_id="90" table_id="235">用两枚贝壳开合的方式向后游, 任何时候都把舌\n头伸在外面.</string>
+  <string block_id="0" entry_id="91" table_id="235">将敌人击退的战法是强行闭合贝壳, 保护身体的\n同时将刺刺出.</string>
+  <string block_id="0" entry_id="92" table_id="235">从气体中诞生的生命体. 如果被含毒的气体状身\n体裹住的话, 不管是谁都会昏迷过去.</string>
+  <string block_id="0" entry_id="93" table_id="235">如果被它气体状的舌头舔到, 灵魂就会被抓走.\n会躲在暗处寻找猎物.</string>
+  <string block_id="0" entry_id="94" table_id="235">在黑暗里浮现出的笑脸的真面目是因为在诅咒人\n而开心的耿鬼.</string>
+  <string block_id="0" entry_id="95" table_id="235">一边狼吞虎咽地吃掉巨大的岩石一边在地下挖掘\n前进, 时速80千米.</string>
+  <string block_id="0" entry_id="96" table_id="235">据说只要抽动用伸长的鼻子, 就能知道梦境. 最\n喜欢开心的梦.</string>
+  <string block_id="0" entry_id="97" table_id="235">如果被它拿着钟摆在眼前晃悠, 就算是刚睡醒的\n人, 也会在3秒后睡着.</string>
+  <string block_id="0" entry_id="98" table_id="235">在沙滩上挖洞生活. 钳子就算在对战中弄断了,\n也能再长出来恢复原样.</string>
+  <string block_id="0" entry_id="99" table_id="235">大的那个钳子有一万马力的力量. 但是因为太重\n所以不容易瞄准目标.</string>
+  <string block_id="0" entry_id="100" table_id="235">外表酷似精灵球. 要是搞错了而碰到它的话, 触\n电的同时还会爆炸, 非常危险.</string>
+  <string block_id="0" entry_id="101" table_id="235">储存了过多电能而快要撑爆的頑皮雷彈有时会被\n风吹跑.</string>
+  <string block_id="0" entry_id="102" table_id="235">由于会通过心灵感应进行对话, 因此就算把这6\n只蛋蛋分开, 它们也会马上重新聚在一起.</string>
+  <string block_id="0" entry_id="103" table_id="235">被称为会走路的热带雨林. 其中一个头长大后掉\n落到地面就会变成蛋蛋.</string>
+  <string block_id="0" entry_id="104" table_id="235">当想起已经去世的母亲而哭泣的时候, 头上戴着\n的头骨就会发出“卡拉卡拉”的声音.</string>
+  <string block_id="0" entry_id="105" table_id="235">可以熟练自如地运用自出生的时候就握着的骨头\n棒. 性情凶暴.</string>
+  <string block_id="0" entry_id="106" table_id="235">腿可以伸展到平时的两倍长. 初次与它交战的对\n手会对它广阔的打击范围吓到.</string>
+  <string block_id="0" entry_id="107" table_id="235">会扭转着手臂出拳, 就连混凝土也能打碎. 每战\n斗3分钟就要休息一下.</string>
+  <string block_id="0" entry_id="108" table_id="235">伸长2米的舌头尾巴就会摆动, 所以这两个部位\n有连在一起的可能性.</string>
+  <string block_id="0" entry_id="109" table_id="235">会通过往体内储存比空气还轻的瓦斯浮在空中.\n瓦斯不但很臭还会爆炸.</string>
+  <string block_id="0" entry_id="110" table_id="235">吃从垃圾中产生的瓦斯变大. 极少数情况下还能\n见到三个的双弹瓦斯.</string>
+  <string block_id="0" entry_id="111" table_id="235">拥有可以用{{m</string>
+  <string block_id="0" entry_id="112" table_id="235">仅仅靠后腿就能站立, 前腿就变得自由了. 智力\n发达了, 但还总是忘事.</string>
+  <string block_id="0" entry_id="113" table_id="235">生出营养满分的蛋分给受伤的宝可梦或人类, 温\n柔的宝可梦.</string>
+  <string block_id="0" entry_id="114" table_id="235">覆盖全身的蓝色藤蔓上还长着更加纤细的毛. 摸\n上去会感觉很痒.</string>
+  <string block_id="0" entry_id="115" table_id="235">会在腹袋中抚育孩子. 只有在安全的时候, 才会\n让孩子从袋中出来玩.</string>
+  <string block_id="0" entry_id="116" table_id="235">会在珊瑚的阴影处安家. 如果感到危险, 就会从\n嘴里吐出漆黑的墨汁逃跑.</string>
+  <string block_id="0" entry_id="117" table_id="235">遇到敌人时用刺来保护身体. 鳍和骨头都是中药\n的材料, 而被珍视.</string>
+  <string block_id="0" entry_id="118" table_id="235">虽然飘曳着美丽的鳍的泳姿非常华丽, 但也可以\n用角使出强有力的刺击.</string>
+  <string block_id="0" entry_id="119" table_id="235">到了秋天, 为了求偶会让体内充满脂肪. 颜色也\n会变得非常漂亮.</string>
+  <string block_id="0" entry_id="120" table_id="235">只要红色核心存在, 身体被切碎也可以马上再生.\n深夜里核会忽明忽灭的闪烁.</string>
+  <string block_id="0" entry_id="121" table_id="235">它会从位于身体中间的红色核心那里向夜空发射\n神秘的电波.</string>
+  <string block_id="0" entry_id="122" table_id="235">微微挥动指尖让空气中的分子停止运动, 做出看\n不见的墙壁.</string>
+  <string block_id="0" entry_id="123" table_id="235">两臂锋利的镰刀越是切开坚硬的东西, 就会变得\n越锋利.</string>
+  <string block_id="0" entry_id="124" table_id="235">叫声听起来和人类的语言完全一样, 却完全无法\n理解其中的意思.</string>
+  <string block_id="0" entry_id="125" table_id="235">哪怕为了提高一点点能力也会在出拳之前抡胳膊,\n但会被人趁那个空隙逃走.</string>
+  <string block_id="0" entry_id="126" table_id="235">鸭嘴火兽深呼吸时, 身体周围会产生热浪, 使身\n影变得模糊难以看清.</string>
+  <string block_id="0" entry_id="127" table_id="235">会用2只角夹住猎物, 在撕碎猎物前不会松开.\n无法撕碎时就会把猎物扔到天边去.</string>
+  <string block_id="0" entry_id="128" table_id="235">一旦决定了要瞄准的猎物, 就会笔直地猛撞过去.\n因粗野的性格而出名.</string>
+  <string block_id="0" entry_id="129" table_id="235">活了很久的鲤鱼王可以一跳就翻过大山, 但招式\n的威力却还是那么弱.</string>
+  <string block_id="0" entry_id="130" table_id="235">一旦发狂的暴鲤龙出现, 就算狂风暴雨也会把任\n何东西烧毁殆尽.</string>
+  <string block_id="0" entry_id="131" table_id="235">喜欢让人或神奇宝贝乘在背上渡海. 能够理解人\n的语言.</string>
+  <string block_id="0" entry_id="132" table_id="235">有着可以重组全身的细胞, 变身成与看到的东西\n一模一样的能力.</string>
+  <string block_id="0" entry_id="133" table_id="235">由于基因不规则, 在不同条件下会迅速改变身体\n型态.</string>
+  <string block_id="0" entry_id="134" table_id="235">身体细胞的结构和水分子的相似, 所以能够溶解\n在水中.</string>
+  <string block_id="0" entry_id="135" table_id="235">心情兴奋的时候, 会射出许多带有电气而变得笔\n直的体毛.</string>
+  <string block_id="0" entry_id="136" table_id="235">吸入的空气会在体内的火炎袋中加热到1700\n度, 变成火焰.</string>
+  <string block_id="0" entry_id="137" table_id="235">用最先进的科学技术创造出的人工宝可梦. 可以\n在电子空间里移动.</string>
+  <string block_id="0" entry_id="138" table_id="235">利用现代的先进科技从化石中复活的宝可梦. 在\n古代的海洋里游动.</string>
+  <string block_id="0" entry_id="139" table_id="235">灭绝的原因一般认为是螺旋状的壳长得过于巨大.</string>
+  <string block_id="0" entry_id="140" table_id="235">人们认为它生活在3亿年前的沙滩上. 会用坚硬\n的壳来保护自己.</string>
+  <string block_id="0" entry_id="141" table_id="235">一般认为是因为猎物开始在陆地上生活了, 所以\n镰刀盔也来到陆地上.</string>
+  <string block_id="0" entry_id="142" table_id="235">在恐龙时代的天空中飞行的宝可梦. 拥有锯齿一\n般的牙齿.</string>
+  <string block_id="0" entry_id="143" table_id="235">饱餐之后, 就算是动动手指都很困难, 所以爬上\n它的肚子都没关系.</string>
+  <string block_id="0" entry_id="144" table_id="235">传说的鸟宝可梦. 能冻结空气中的水分, 制造出\n暴风雪.</string>
+  <string block_id="0" entry_id="145" table_id="235">据说是在雷云中的传说的宝可梦. 能够随心所欲\n地操纵雷电.</string>
+  <string block_id="0" entry_id="146" table_id="235">传说的鸟宝可梦中的1只. 据说只要火焰鸟现身,\n春天就会到来.</string>
+  <string block_id="0" entry_id="147" table_id="235">因为目击者非常少, 所以过去它被称为幻之宝可\n梦. 现在还找到过它蜕下的皮.</string>
+  <string block_id="0" entry_id="148" table_id="235">全身被气场包住的时候周围的天气会完全改变,\n据说住在湖泊和海洋里.</string>
+  <string block_id="0" entry_id="149" table_id="235">据说它的住处就在这广阔大海的某处. 会将遇难\n的船只引导到陆地边上.</string>
+  <string block_id="0" entry_id="150" table_id="235">因重组了梦幻的遗传基因而诞生. 据说有着所有\n宝可梦中最残暴的心.</string>
+  <string block_id="0" entry_id="151" table_id="235">因为能使用所有的招式, 所以有很多学者认为它\n是宝可梦的祖先.</string>
+  <string block_id="0" entry_id="152" table_id="235">会用头上的叶子来感知周围的温度和湿度. 非常\n喜欢沐浴阳光.</string>
+  <string block_id="0" entry_id="153" table_id="235">从脖子周围的花蕾中散发出香料的气息, 能让闻\n到的人精力充沛.</string>
+  <string block_id="0" entry_id="154" table_id="235">大竺葵呼出的气息中蕴藏着能让枯萎的花草复苏\n的不可思议的力量.</string>
+  <string block_id="0" entry_id="155" table_id="235">性格胆小怯懦. 受到惊吓时, 背上的火焰就会燃\n烧得更加强烈.</string>
+  <string block_id="0" entry_id="156" table_id="235">用火焰的灼热威吓对手. 进入战斗状态时, 火势\n变强.</string>
+  <string block_id="0" entry_id="157" table_id="235">用火焰爆发的气浪来攻击. 用灼热的火焰产生的\n蜃景来隐藏自己的身影.</string>
+  <string block_id="0" entry_id="158" table_id="235">有着发达的下颚, 以及什么都咬的习性, 就算是\n训练家也要小心.</string>
+  <string block_id="0" entry_id="159" table_id="235">一旦咬住, 除非牙齿脱落, 否则绝不会松口. 脱\n落的牙齿马上就能再长出来.</string>
+  <string block_id="0" entry_id="160" table_id="235">虽然平时动作慢慢悠悠, 但在扑咬猎物的时候,\n速度却快得无法看清.</string>
+  <string block_id="0" entry_id="161" table_id="235">非常神经质的性格. 为了能眺望到远处, 用尾巴\n把身体支起来.</string>
+  <string block_id="0" entry_id="162" table_id="235">母亲会用细长的身体裹住孩子使其入睡. 能用快\n速的动作追赶敌人.</string>
+  <string block_id="0" entry_id="163" table_id="235">能准确地报时. 有些国家的人认为它是知晓世间\n一切事理的智慧之神.</string>
+  <string block_id="0" entry_id="164" table_id="235">双眼有着特殊的构造, 只要有一点点光芒, 就算\n是黑暗中也能像白天一样看清.</string>
+  <string block_id="0" entry_id="165" table_id="235">胆小到若不是成群行动就会害怕得无法动弹. 用\n气味来传达感情.</string>
+  <string block_id="0" entry_id="166" table_id="235">将星光转化成能量. 夜空中星星的数量增多时,\n背上的斑点也会变大.</string>
+  <string block_id="0" entry_id="167" table_id="235">用细而结实的蛛网编织成网作为陷阱. 一动不动\n地等待猎物上门.</string>
+  <string block_id="0" entry_id="168" table_id="235">会将丝缠在猎物身上, 然后故意放走. 只要沿着\n丝就能把猎物和它的伙伴一网打尽.</string>
+  <string block_id="0" entry_id="169" table_id="235">双脚也变成了翅膀, 可以更加灵巧地飞翔, 但是\n走路却变得很笨拙.</string>
+  <string block_id="0" entry_id="170" table_id="235">能够从触手的尖端放出正负电, 令敌人触电.</string>
+  <string block_id="0" entry_id="171" table_id="235">在深海游动的电灯怪所发出的亮光能射到水面上.\n因此人们称它为深海之星.</string>
+  <string block_id="0" entry_id="172" table_id="235">脸颊上的电气囊还很小, 如果储存的电量稍有溢\n出, 自己就会被麻痹.</string>
+  <string block_id="0" entry_id="173" table_id="235">在流星很多的夜里, 能发现更多的皮宝宝, 因此\n有人说它是乘着星星而来的.</string>
+  <string block_id="0" entry_id="174" table_id="235">柔软的身体有很大弹性, 只要跳一下就完全无法\n停下来了.</string>
+  <string block_id="0" entry_id="175" table_id="235">把大家感受到的温情和喜悦都转化为幸福. 壳里\n只剩幸福了.</string>
+  <string block_id="0" entry_id="176" table_id="235">为了分发幸福, 在全世界飞来飞去寻觅心地善良\n的人.</string>
+  <string block_id="0" entry_id="177" table_id="235">灵巧地避开仙人掌的刺和花蕾进行啄食, 蹦跳着\n移动.</string>
+  <string block_id="0" entry_id="178" table_id="235">能够看穿过去和未来. 每天都注视着太阳的活动\n的不可思议的宝可梦.</string>
+  <string block_id="0" entry_id="179" table_id="235">储存了静电后, 蓬松的体毛就会膨胀到原来的2\n倍. 一旦触摸就会触电.</string>
+  <string block_id="0" entry_id="180" table_id="235">体毛中蓄满电力后, 尾巴就会发光. 会射出碰到\n就会被电麻的体毛.</string>
+  <string block_id="0" entry_id="181" table_id="235">尾巴的尖端闪耀着光芒. 以前的人们利用这灯光\n传递信号.</string>
+  <string block_id="0" entry_id="182" table_id="235">大雨的季节结束后, 受到温暖阳光吸引的美丽花\n就会开始跳舞.</string>
+  <string block_id="0" entry_id="183" table_id="235">充满尾巴末端的脂肪会浮在水面上, 因此就算在\n再湍急的河流中也不会溺水.</string>
+  <string block_id="0" entry_id="184" table_id="235">能一天整天都在水中度过是因为一次吸入并储存\n了足够大量的空气.</string>
+  <string block_id="0" entry_id="185" table_id="235">为了避免受到攻击, 总是模仿树的样子. 很怕水,\n一旦下雨就会四处逃窜.</string>
+  <string block_id="0" entry_id="186" table_id="235">以蚊香蛙皇为领袖形成群体. 蚊香蛙皇的叫声能\n够让蚊香蝌蚪们都听话.</string>
+  <string block_id="0" entry_id="187" table_id="235">会随风飘荡. 据说如果毽子草集中出现在山野上,\n就说明春天快要到了.</string>
+  <string block_id="0" entry_id="188" table_id="235">当气温升高时就会开花. 飘浮在空中, 尽情享受\n阳光的沐浴.</string>
+  <string block_id="0" entry_id="189" table_id="235">会随季风环绕世界1周. 途中会播撒棉孢子.</string>
+  <string block_id="0" entry_id="190" table_id="235">能灵巧地使用比手更加自由自在地活动的尾巴.\n生活在高高的树木上.</string>
+  <string block_id="0" entry_id="191" table_id="235">会在某日清晨突然跳出来. 在冷夏的次年会数量\n暴增.</string>
+  <string block_id="0" entry_id="192" table_id="235">温暖的阳光就是它的能量. 以追着太阳移动的习\n性闻名.</string>
+  <string block_id="0" entry_id="193" table_id="235">高速振动翅膀悬停在空中, 监视着自己的领地.</string>
+  <string block_id="0" entry_id="194" table_id="235">为了在地面上行走的时候不让皮肤干燥, 用有毒\n的粘膜覆盖身体.</string>
+  <string block_id="0" entry_id="195" table_id="235">就算脑袋撞上船底或者河里的岩石, 也完全不在\n意地自在游泳的悠闲的宝可梦.</string>
+  <string block_id="0" entry_id="196" table_id="235">全身的体毛都很敏感, 能够觉察出空气里微小的\n变化并预知天气.</string>
+  <string block_id="0" entry_id="197" table_id="235">沐浴了月亮的波动, 身体上的环状花纹微微发光,\n是因为不可思议的力量觉醒了.</string>
+  <string block_id="0" entry_id="198" table_id="235">看到黑暗鸦后不经意间跟随它的话, 会被丢在山\n道上而迷路.</string>
+  <string block_id="0" entry_id="199" table_id="235">被大舌贝咬到脑袋之后得到了能和获诺贝尔奖的\n科学家相提并论的智慧.</string>
+  <string block_id="0" entry_id="200" table_id="235">在深夜里惊吓人类, 收集恐惧之心作为自己的能\n量的宝可梦.</string>
+  <string block_id="0" entry_id="201" table_id="235">只有一只的话什么都不会发生, 然而据说两只以\n上出现的时候, 就会产生出某种力量.</string>
+  <string block_id="0" entry_id="202" table_id="235">拼命地隐藏自己的黑色尾巴, 这被推测是尾巴上\n隐藏着什么秘密的证据.</string>
+  <string block_id="0" entry_id="203" table_id="235">尾巴上的脑袋里也有小小的脑子, 就算背对着敌\n人也可以通过本能战斗.</string>
+  <string block_id="0" entry_id="204" table_id="235">外形酷似树果. 虽然会被鸟宝可梦误啄, 但身体\n有着坚硬外壳的保护.</string>
+  <string block_id="0" entry_id="205" table_id="235">被钢铁外壳保护着. 虽然眼睛会从缝隙里向外窥\n视, 但里面的正身是什么仍是个谜.</string>
+  <string block_id="0" entry_id="206" table_id="235">会用尾巴挖掘地面, 做出像迷宫一样的巢穴. 能\n用翅膀稍微飞上一段距离.</string>
+  <string block_id="0" entry_id="207" table_id="235">在空中滑翔般飞翔, 贴到脸上吓唬到对方之后,\n用毒针进行攻击.</string>
+  <string block_id="0" entry_id="208" table_id="235">一般认为是和泥土一起吞下的钢铁积存起来, 身\n体才会发生变化.</string>
+  <string block_id="0" entry_id="209" table_id="235">它是受女性欢迎的宝可梦. 因为女性反倒会认为\n它那会吓跑小型宝可梦的鬼面很可爱.</string>
+  <string block_id="0" entry_id="210" table_id="235">面相虽凶, 内心却很胆小. 然而一旦开始发怒,\n就会用大牙齿来反击.</string>
+  <string block_id="0" entry_id="211" table_id="235">遍布全身的毒针能向四面八方发射. 圆滚滚的身\n体不擅长游泳.</string>
+  <string block_id="0" entry_id="212" table_id="235">举起有着眼球状花纹的大钳子不仅可以威吓敌人,\n只是普通地挥下也很危险.</string>
+  <string block_id="0" entry_id="213" table_id="235">在甲壳内储藏树果, 树果在里面发酵后变成美味\n的果汁.</string>
+  <string block_id="0" entry_id="214" table_id="235">很喜欢甜甜的蜜. 为了把蜂蜜据为己有, 用引以\n为豪的大角扔飞敌人.</string>
+  <string block_id="0" entry_id="215" table_id="235">非常狡诈, 有着一只骗走双亲, 另一只偷走蛋这\n样的团队合作.</string>
+  <string block_id="0" entry_id="216" table_id="235">让甜甜的蜜汁渗入手掌, 一直舔着手掌. 不同的\n熊宝宝的口味也不一样.</string>
+  <string block_id="0" entry_id="217" table_id="235">用爪子在自己的领地中能结出美味树果和水果的\n树上划出伤痕作为标记.</string>
+  <string block_id="0" entry_id="218" table_id="235">有着由熔岩构成的身体. 如果不持续运动, 身体\n就会因变冷而凝固.</string>
+  <string block_id="0" entry_id="219" table_id="235">体温约有一万度. 从岩浆硬化而成的外壳的缝隙\n中喷出火焰.</string>
+  <string block_id="0" entry_id="220" table_id="235">嗅觉非常灵敏. 不仅是冰层下埋藏的蘑菇和树果,\n就连地下温泉都能找出来.</string>
+  <string block_id="0" entry_id="221" table_id="235">全身覆盖长长的体毛抵御严寒, 在下雪时冰冻牙\n会变得更厚.</string>
+  <string block_id="0" entry_id="222" table_id="235">在南国的美丽大海里有着许多太阳珊瑚, 在被污\n染的海中无法生存.</string>
+  <string block_id="0" entry_id="223" table_id="235">从嘴里喷射出强劲的水柱. 就算是从很深的水下\n瞄准, 也能一定能击中猎物.</string>
+  <string block_id="0" entry_id="224" table_id="235">喜欢潜伏在岩洞中. 有时就这样伸出嘴, 喷出墨\n汁.</string>
+  <string block_id="0" entry_id="225" table_id="235">把食物包裹在尾巴里搬运. 有着把食物分给在山\n中遇险的人的习性.</string>
+  <string block_id="0" entry_id="226" table_id="235">虽然在大海里悠闲游动时, 觊觎食物残渣的铁炮\n鱼会吸附在它的鳍上, 但它并不会在意.</string>
+  <string block_id="0" entry_id="227" table_id="235">全身覆盖着铁一般坚硬的铠甲. 会以时速300\n公里的速度在空中飞来飞去.</string>
+  <string block_id="0" entry_id="228" table_id="235">有着使用各种不同的叫声和同伴交流而捕猎的智\n慧.</string>
+  <string block_id="0" entry_id="229" table_id="235">愤怒时从嘴里喷出的火焰中还混合着毒素, 被灼\n伤的话, 就会疼痛不止.</string>
+  <string block_id="0" entry_id="230" table_id="235">住在海底的洞窟中. 刺龙王移动身体的时候会引\n起巨大的漩涡.</string>
+  <string block_id="0" entry_id="231" table_id="235">身体虽小却充满了力量. 能轻轻松松地将成年人\n驮在背上行走.</string>
+  <string block_id="0" entry_id="232" table_id="235">把身体蜷成一团, 滚动着突进攻击. 一击就可以\n把民房撞得粉碎.</string>
+  <string block_id="0" entry_id="233" table_id="235">为了能让它开发行星而进行了升级, 但是似乎还\n远远无法胜任.</string>
+  <string block_id="0" entry_id="234" table_id="235">如果盯着它的角看, 就会产生一种似乎要被吸入\n圆心的神奇感觉.</string>
+  <string block_id="0" entry_id="235" table_id="235">会把尾巴当做笔来使用, 在领地上画上标记. 标\n记的种类有5000种以上.</string>
+  <string block_id="0" entry_id="236" table_id="235">以爱打架而出名. 会去挑衅比自己高大的对手,\n因此总是伤痕累累.</string>
+  <string block_id="0" entry_id="237" table_id="235">会像陀螺一样旋转着战斗. 由于离心力的作用,\n破坏力可达到原来的10倍.</string>
+  <string block_id="0" entry_id="238" table_id="235">不管是什么都会试着用嘴唇去触碰确认. 能用嘴\n唇记住自己喜欢和讨厌的东西.</string>
+  <string block_id="0" entry_id="239" table_id="235">两角之间有微弱的电流, 如果不小心把手伸过去,\n就会被电麻.</string>
+  <string block_id="0" entry_id="240" table_id="235">由于体内流淌着熔岩一样的血液, 因此体温可达\n600度.</string>
+  <string block_id="0" entry_id="241" table_id="235">据说喝大奶罐的牛奶的孩子会茁壮成长为健壮的\n大人.</string>
+  <string block_id="0" entry_id="242" table_id="235">幸福蛋生的蛋里饱含幸福, 只要吃上一口, 不管\n是谁都会笑逐颜开.</string>
+  <string block_id="0" entry_id="243" table_id="235">据说它伴随着雷电落下. 背上的雨云中可以释放\n出落雷.</string>
+  <string block_id="0" entry_id="244" table_id="235">据说如果炎帝吼叫的话, 世界上的某处火山就会\n喷发.</string>
+  <string block_id="0" entry_id="245" table_id="235">在全世界四处奔跑, 让污水重回清澈. 会随北风\n奔跑着离去.</string>
+  <string block_id="0" entry_id="246" table_id="235">吃土的宝可梦, 吃光一座大山之后, 为了成长而\n开始沉睡.</string>
+  <string block_id="0" entry_id="247" table_id="235">身体如岩盘一样坚硬. 会喷射压缩气体, 如同火\n箭一样飞出去.</string>
+  <string block_id="0" entry_id="248" table_id="235">由于班基拉斯发狂会导致山崩地裂, 河流填平,\n所以到时需要重新绘制地图.</string>
+  <string block_id="0" entry_id="249" table_id="235">沉睡在很深的海沟底部. 据说洛奇亚挥动翅膀的\n话, 就会引起长达40天的暴风雨.</string>
+  <string block_id="0" entry_id="250" table_id="235">拥有七色的翅膀. 传说看到凤王的人会获得永远\n的幸福.</string>
+  <string block_id="0" entry_id="251" table_id="235">能够使用穿越时光的力量. 据说只会在和平时代\n出现.</string>
+  <string block_id="0" entry_id="252" table_id="235">脚底有很多小刺, 所以可以在墙壁或天花板上行\n走.</string>
+  <string block_id="0" entry_id="253" table_id="235">栖息在密林里. 会在枝头间跳跃移动着接近猎物.</string>
+  <string block_id="0" entry_id="254" table_id="235">手臂上长出的叶子锋利得连大树都能“唰”地一\n刀砍倒. 在密林中战斗无人能敌.</string>
+  <string block_id="0" entry_id="255" table_id="235">因为体内燃烧着火焰, 所以抱在怀里非常温暖.\n可以喷出1000度的火球.</string>
+  <string block_id="0" entry_id="256" table_id="235">有着1秒内连踢10次的腿技. 会用尖锐的叫声\n威吓对手.</string>
+  <string block_id="0" entry_id="257" table_id="235">从手腕喷出的火焰包裹住双拳, 打出的拳击能够\n把对手烧得焦黑.</string>
+  <string block_id="0" entry_id="258" table_id="235">会用头上的鳍感知水流, 从而了解周围的情况.\n有着能举起岩石的力量.</string>
+  <string block_id="0" entry_id="259" table_id="235">腰腿十分结实, 在泥泞的地方也能稳步前进. 把\n身体埋在泥里睡觉.</string>
+  <string block_id="0" entry_id="260" table_id="235">拥有能拖着大型船只游动的力量. 只要挥一挥粗\n壮的手臂就能打倒对手.</string>
+  <string block_id="0" entry_id="261" table_id="235">性格执着的宝可梦. 一旦盯上某个猎物, 就会追\n到对方精疲力尽.</string>
+  <string block_id="0" entry_id="262" table_id="235">成群结队地追赶猎物. 绝对不会违抗优秀训练家\n的命令.</string>
+  <string block_id="0" entry_id="263" table_id="235">此宝可梦很擅长通过之字形走路来发现埋藏在草\n丛或地里的宝物.</string>
+  <string block_id="0" entry_id="264" table_id="235">能以100公里的时速扑向猎物, 但因为只能沿\n直线奔跑, 所以扑空次数比较多.</string>
+  <string block_id="0" entry_id="265" table_id="235">经常被鸟宝可梦盯上, 会从尾部的尖刺里释放毒\n素拼死抵抗.</string>
+  <string block_id="0" entry_id="266" table_id="235">会将丝线缠在树枝上. 一边喝着丝线上挂着的雨\n水, 一边等待着进化的那一刻.</string>
+  <string block_id="0" entry_id="267" table_id="235">有着与外表不符的攻击性. 如果打扰它采集花粉,\n会被细长的口器刺到.</string>
+  <string block_id="0" entry_id="268" table_id="235">就算进化了也不会忘记待在茧中时受到的攻击.\n一定会想方设法进行报复.</string>
+  <string block_id="0" entry_id="269" table_id="235">扑打翅膀时, 毒粉随之飞舞. 也会在夜间把行道\n树的叶子啃得七零八落.</string>
+  <string block_id="0" entry_id="270" table_id="235">酷似水草的宝可梦. 会把不会游泳的宝可梦放在\n叶子上送至对岸.</string>
+  <string block_id="0" entry_id="271" table_id="235">它是一个如果遇到垂钓者, 就会从水中扯线捣乱\n并引以为乐的捣蛋鬼.</string>
+  <string block_id="0" entry_id="272" table_id="235">如果听到欢快的音乐, 体内就会充满力量, 会情\n不自禁地跳起舞来.</string>
+  <string block_id="0" entry_id="273" table_id="235">悬挂在树枝上时, 看起来就和树果一模一样. 会\n以吓唬想要啄食它的宝可梦为乐.</string>
+  <string block_id="0" entry_id="274" table_id="235">长鼻叶吹奏出的草笛声会让人感到不安. 它居住\n在森林的深处.</string>
+  <string block_id="0" entry_id="275" table_id="235">如果扇起叶子团扇, 就会掀起风速30米的瞬时\n强风, 吹跑民房.</string>
+  <string block_id="0" entry_id="276" table_id="235">有着不管是怎样强大的对手都敢于前去迎战的毅\n力. 会向着温暖的土地飞行.</string>
+  <string block_id="0" entry_id="277" table_id="235">在高空盘旋搜寻猎物, 会头朝下地急速俯冲捕获\n猎物.</string>
+  <string block_id="0" entry_id="278" table_id="235">能在空中飞得很高, 可以像滑翔机一样利用气流.\n飞行时嘴里塞着食物.</string>
+  <string block_id="0" entry_id="279" table_id="235">把小型宝可梦和蛋放进嘴里, 并运送到安全地方\n的空中运送员.</string>
+  <string block_id="0" entry_id="280" table_id="235">用红色的角捕捉到人和宝可梦的温情后, 全身也\n会稍稍变暖起来.</string>
+  <string block_id="0" entry_id="281" table_id="235">当训练家高兴的时候, 奇鲁莉安也会充满能量,\n开心地转着圈跳舞.</string>
+  <string block_id="0" entry_id="282" table_id="235">如果是为了保护训练家, 它就会用尽自己的精神\n力量制造出小型黑洞.</string>
+  <string block_id="0" entry_id="283" table_id="235">能在水面上像滑行一样行走. 会从头顶释放出甜\n甜的气味引诱猎物.</string>
+  <string block_id="0" entry_id="284" table_id="235">有着长有眼珠花纹的触角. 能用4根翅膀浮在空\n中, 并向前后左右移动.</string>
+  <string block_id="0" entry_id="285" table_id="235">从头顶喷出毒孢子. 吸入了毒孢子的话, 浑身上\n下每个关节都会疼痛.</string>
+  <string block_id="0" entry_id="286" table_id="235">短短的手臂在出拳时会猛地一下伸长. 有着能令\n职业拳击手汗颜的技术.</string>
+  <string block_id="0" entry_id="287" table_id="235">一天中绝大部分时间都是趴在地上度过的. 只要\n看到它, 睡意就会袭来.</string>
+  <string block_id="0" entry_id="288" table_id="235">由于心脏以10倍于正常的速率跳动, 它一刻也\n不能安静下来.</string>
+  <string block_id="0" entry_id="289" table_id="235">世界上最懒散的宝可梦. 看上去只是趴着的时候,\n其实是在积蓄反击的力量.</string>
+  <string block_id="0" entry_id="290" table_id="235">在地底下成长. 眼睛基本上什么都看不到, 而是\n靠触角来探测周围的情况.</string>
+  <string block_id="0" entry_id="291" table_id="235">由于移动的速度过快, 有时很难看到它的身影.\n会聚集在树汁周围.</string>
+  <string block_id="0" entry_id="292" table_id="235">蜕下的壳有了灵魂. 从它背上的缝隙向里面窥视\n的话, 灵魂好像就会被吸走.</string>
+  <string block_id="0" entry_id="293" table_id="235">平常的叫声如同窃窃私语, 但一旦受到惊吓, 就\n会持续以喷气式飞机的音量尖叫.</string>
+  <string block_id="0" entry_id="294" table_id="235">大叫所产生的冲击波会掀翻卡车. 会通过跺脚来\n提高威力.</string>
+  <string block_id="0" entry_id="295" table_id="235">爆音怪的长嚎能传至10公里之外. 会从身上的\n多个洞里发出各种声音.</string>
+  <string block_id="0" entry_id="296" table_id="235">靠击打粗壮的大树来锻炼身体, 居住地附近可以\n发现很多被打断的树木.</string>
+  <string block_id="0" entry_id="297" table_id="235">很喜欢和体型巨大的宝可梦比试力量. 一巴掌就\n能把卡车打飞.</string>
+  <string block_id="0" entry_id="298" table_id="235">像橡胶球一般蹦蹦跳跳. 摇摆着尾巴来对抗比自\n己体型更大的宝可梦.</string>
+  <string block_id="0" entry_id="299" table_id="235">在危急的时刻磁力会加强, 有时能把周围的铁块\n吸到身上来保护自己.</string>
+  <string block_id="0" entry_id="300" table_id="235">不由自主地就会去追动的东西. 会追着自己的尾\n巴, 一圈圈地原地打转.</string>
+  <string block_id="0" entry_id="301" table_id="235">有着美丽的毛发, 非常受女性训练家的欢迎. 没\n有固定的住所.</string>
+  <string block_id="0" entry_id="302" table_id="235">潜伏于洞窟的阴暗处. 在吃宝石的过程中, 眼睛\n变成了宝石.</string>
+  <string block_id="0" entry_id="303" table_id="235">头上长着由角变化而来的大颚. 连工字钢都可以\n咬断.</string>
+  <string block_id="0" entry_id="304" table_id="235">虽然平时住在深山里, 但肚子饿了就会出现在山\n脚下, 吃铁轨或者车辆.</string>
+  <string block_id="0" entry_id="305" table_id="235">以挖掘出的铁矿石为食, 有用钢铁的身体互相撞\n击来抢夺地盘的习性.</string>
+  <string block_id="0" entry_id="306" table_id="235">会一边用钢角撞毁坚硬的岩盘, 一边挖隧道寻找\n铁矿来作为自己的食物.</string>
+  <string block_id="0" entry_id="307" table_id="235">总是在深山里修行. 通过冥想提高精神力后, 身\n体就会飘浮起来.</string>
+  <string block_id="0" entry_id="308" table_id="235">不吃任何食物, 只要专心一志, 集中精神, 就能\n看见对手的灵气. &lt;! --青文--&gt;</string>
+  <string block_id="0" entry_id="309" table_id="235">会使用体毛中积蓄的电来刺激肌肉, 并以此来提\n高自己的瞬间爆发力.</string>
+  <string block_id="0" entry_id="310" table_id="235">一直在从鬃毛中放电. 会在自己头上制造雷云,\n然后劈下闪电进行攻击.</string>
+  <string block_id="0" entry_id="311" table_id="235">会制造火花拉拉球来给伙伴加油. 能从电线杆上\n吸取电力.</string>
+  <string block_id="0" entry_id="312" table_id="235">有给伙伴加油的习性. 如果伙伴快要输掉的话,\n体内迸发出的火花数量就会不断增多.</string>
+  <string block_id="0" entry_id="313" table_id="235">到了晚上会亮起臀部与伙伴交流. 非常喜欢甜甜\n萤放出的甜甜香气.</string>
+  <string block_id="0" entry_id="314" table_id="235">会利用甜甜的香气诱导电萤虫在夜空中描绘发光\n的记号.</string>
+  <string block_id="0" entry_id="315" table_id="235">精力旺盛的毒蔷薇从花里散发出香气, 让闻到香\n气的人心情放松.</string>
+  <string block_id="0" entry_id="316" table_id="235">身体基本上就是一个胃袋, 强力的胃液可以将吃\n进去的东西瞬间消化掉.</string>
+  <string block_id="0" entry_id="317" table_id="235">不管是什么都会整个吞掉. 会将毛孔中分泌出的\n剧毒体液撒向敌人.</string>
+  <string block_id="0" entry_id="318" table_id="235">联合起来攻击入侵领地的敌人. 尖锐的牙齿能把\n小船的底部咬穿.</string>
+  <string block_id="0" entry_id="319" table_id="235">有着连铁板都能咬碎的牙齿, 游动时, 时速可达\n120公里. 它的别名是大海恶霸.</string>
+  <string block_id="0" entry_id="320" table_id="235">在晴朗的日子爬上沙滩, 像皮球一样弹跳嬉闹.\n能从鼻孔里喷出水花.</string>
+  <string block_id="0" entry_id="321" table_id="235">体型最大的宝可梦. 能够一口气潜到3000米\n深的水下.</string>
+  <string block_id="0" entry_id="322" table_id="235">会把灼热的熔岩储存在背上的驼峰里. 一旦淋了\n雨, 熔岩就会冷却, 动作也会变得迟缓.</string>
+  <string block_id="0" entry_id="323" table_id="235">背上驮着火山的宝可梦. 体内的熔岩积攒到一定\n程度, 就会在一阵震动之后剧烈喷发.</string>
+  <string block_id="0" entry_id="324" table_id="235">会在甲壳中燃烧煤炭产生能量. 危急关头会喷出\n黑色的煤烟.</string>
+  <string block_id="0" entry_id="325" table_id="235">会用尾巴代替弹簧, 一直在跳来跳去. 靠跳跃时\n的震动来使心脏跳动.</string>
+  <string block_id="0" entry_id="326" table_id="235">能用黑珍珠增强自己的精神力量. 会用神奇的舞\n步操纵对手的心.</string>
+  <string block_id="0" entry_id="327" table_id="235">世上没有斑点花纹相同的晃晃斑. 会用晃晃悠悠\n的步伐来避开对手的瞄准.</string>
+  <string block_id="0" entry_id="328" table_id="235">在沙漠中挖出漏斗型的洞穴, 在洞穴底部等待着\n不小心掉到洞里的猎物.</string>
+  <string block_id="0" entry_id="329" table_id="235">剧烈振动翅膀产生超声波, 其威力足以使人类头\n痛.</string>
+  <string block_id="0" entry_id="330" table_id="235">猛烈地扑打翅膀扬起沙尘暴. 被称为“沙漠神奇\n宝贝”.</string>
+  <string block_id="0" entry_id="331" table_id="235">生长在沙漠中. 靠着体内贮存的水分, 可以不喝\n水存活30天.</string>
+  <string block_id="0" entry_id="332" table_id="235">到了夜间会开始活动. 会找出并捉住那些因受不\n了沙漠炎热而精疲力竭的猎物.</string>
+  <string block_id="0" entry_id="333" table_id="235">不论是自身还是周围环境, 只要有一点不洁就无\n法平静. 一旦看到污渍, 就用羽毛抹去.</string>
+  <string block_id="0" entry_id="334" table_id="235">有了与之心意相通的人时候, 会用柔软美丽的翅\n膀包裹对方轻轻哼唱.</string>
+  <string block_id="0" entry_id="335" table_id="235">好几个世代以来一直在与饭匙蛇战斗. 锋利的爪\n子是它最强的武器.</string>
+  <string block_id="0" entry_id="336" table_id="235">祖祖辈辈都在与猫鼬斩抗争. 在岩石上把尾部的\n利刃磨快, 为战斗做好准备.</string>
+  <string block_id="0" entry_id="337" table_id="235">满月之夜会变得特别活跃, 因此它的这一习性据\n说和月亮的圆缺有关.</string>
+  <string block_id="0" entry_id="338" table_id="235">传言是太阳的分身的新发现的宝可梦品种. 旋转\n着身体放出光芒.</string>
+  <string block_id="0" entry_id="339" table_id="235">粘糊糊的身体很难抓住. 某些地区传言说它诞生\n于固结的泥土之中.</string>
+  <string block_id="0" entry_id="340" table_id="235">保护领地的意识非常强烈. 一旦有外敌靠近, 就\n剧烈震动地面来攻击.</string>
+  <string block_id="0" entry_id="341" table_id="235">可以适应任何环境, 有着强大生命力的宝可梦.\n不会放开夹到的猎物.</string>
+  <string block_id="0" entry_id="342" table_id="235">它是个粗暴的家伙. 会用钳子把住在池塘里的其\n他宝可梦夹起来扔到外面去.</string>
+  <string block_id="0" entry_id="343" table_id="235">会用单脚旋转着移动. 是在古代遗迹中发现的珍\n奇宝可梦.</string>
+  <string block_id="0" entry_id="344" table_id="235">因为受到怪异光线的照射, 所以古代的泥偶附有\n了生命, 变成了宝可梦.</string>
+  <string block_id="0" entry_id="345" table_id="235">生活在约1亿年前海底的古代宝可梦. 被科学的\n力量复活了.</string>
+  <string block_id="0" entry_id="346" table_id="235">会待在温暖的海洋浅滩上. 退潮后就会去把那些\n藏在沙滩里的猎物挖出来吃掉.</string>
+  <string block_id="0" entry_id="347" table_id="235">从化石中复活的, 宝可梦的某个先祖. 在海中生\n活, 会用爪子捕捉猎物.</string>
+  <string block_id="0" entry_id="348" table_id="235">进化之后, 开始迁徙到陆地上生活. 浑身覆盖着\n坚固的盔甲.</string>
+  <string block_id="0" entry_id="349" table_id="235">虽然外表丑陋寒碜, 生命力却十分顽强, 只要一\n小洼水就能生存.</string>
+  <string block_id="0" entry_id="350" table_id="235">美丽的鳞片有着彩虹般的色彩, 随着观看角度的\n不同, 会变幻各种各样的颜色.</string>
+  <string block_id="0" entry_id="351" table_id="235">随天气情况改变形态. 最近的研究成果表明, 它\n的身体和水分子十分相似.</string>
+  <string block_id="0" entry_id="352" table_id="235">拥有能自由改变身体颜色的能力. 只有位于腹部\n的锯齿状花纹不会发生改变.</string>
+  <string block_id="0" entry_id="353" table_id="235">非常喜欢怨恨的感情. 会成排地悬挂在心怀怨恨\n的人的屋檐下.</string>
+  <string block_id="0" entry_id="354" table_id="235">怨念附在被丢弃的玩偶身上, 变成了宝可梦. 会\n一直寻找丢弃自己的孩子.</string>
+  <string block_id="0" entry_id="355" table_id="235">非常喜欢小孩子的哭声. 能够穿过厚厚的墙壁,\n把屋里的坏孩子吓哭.</string>
+  <string block_id="0" entry_id="356" table_id="235">看到游走的魂魄就将其吸进空空的身体内. 被吸\n进去会怎样是个谜.</string>
+  <string block_id="0" entry_id="357" table_id="235">因为一直在吃很多好吃的水果, 脖子上也结出了\n美味的果子.</string>
+  <string block_id="0" entry_id="358" table_id="235">叫声在体内的空腔中回响, 形成美妙的音色, 能\n把敌人吓跑.</string>
+  <string block_id="0" entry_id="359" table_id="235">传说会用角感受到灾难的发生, 并逃至深山中.</string>
+  <string block_id="0" entry_id="360" table_id="235">通过与伙伴们进行互推游戏, 练就了很强的忍耐\n力. 非常喜欢吃甘甜的水果.</string>
+  <string block_id="0" entry_id="361" table_id="235">据说, 好几只雪童子会聚集在大大的叶片底下,\n融洽地生活在一起.</string>
+  <string block_id="0" entry_id="362" table_id="235">能用一眨眼的工夫将空气中的水分冻结, 让猎物\n无法逃跑.</string>
+  <string block_id="0" entry_id="363" table_id="235">在浮冰上的海岸边骨碌骨碌地滚动着生活, 体型\n不太便于游泳.</string>
+  <string block_id="0" entry_id="364" table_id="235">有着什么东西都要放在鼻子上转动的癖好. 一边\n转一边记下其气味和触感.</string>
+  <string block_id="0" entry_id="365" table_id="235">能用獠牙咬碎巨大的冰块. 厚厚的脂肪不仅能抵\n御严寒, 还能反弹敌人的攻击.</string>
+  <string block_id="0" entry_id="366" table_id="235">一生只能产出一颗珍珠. 据说有着增强精神力量\n的作用.</string>
+  <string block_id="0" entry_id="367" table_id="235">栖息在深海中的宝可梦. 用形如小鱼的尾巴引诱\n猎物靠近并捕捉.</string>
+  <string block_id="0" entry_id="368" table_id="235">生活在海底, 但不知为何, 到了春天身上的粉红\n色会变得鲜艳.</string>
+  <string block_id="0" entry_id="369" table_id="235">在深海调查中被发现的珍奇宝可梦. 1亿年间样\n子都没变化过.</string>
+  <string block_id="0" entry_id="370" table_id="235">在温暖的海里栖息. 据说发现爱心鱼的情侣会永\n远相爱.</string>
+  <string block_id="0" entry_id="371" table_id="235">梦想着在天空翱翔, 每天为了练习飞行而从悬崖\n上跳下来.</string>
+  <string block_id="0" entry_id="372" table_id="235">在坚硬的壳中, 细胞开始发生变化. 壳会在进化\n的瞬间脱落.</string>
+  <string block_id="0" entry_id="373" table_id="235">由于一直梦想能在空中翱翔, 体内的细胞发生了\n变化, 如愿以偿长出了翅膀.</string>
+  <string block_id="0" entry_id="374" table_id="235">通过磁力的波动和伙伴对话. 成群的铁哑铃会有\n条不紊地进行行动.</string>
+  <string block_id="0" entry_id="375" table_id="235">由2只铁哑铃组合而成. 钢铁的身躯即使和喷气\n式飞机相撞也不会受伤.</string>
+  <string block_id="0" entry_id="376" table_id="235">由金属怪组合生成. 拥有4个大脑的巨金怪有着\n堪比超级计算机的智商.</string>
+  <string block_id="0" entry_id="377" table_id="235">全身由岩石构成. 即使在战斗中身体受损也能通\n过贴上岩石来治愈.</string>
+  <string block_id="0" entry_id="378" table_id="235">身体是用冰河时期形成的冰制作而成. 能操控零\n下200度的冷气.</string>
+  <string block_id="0" entry_id="379" table_id="235">经过长达几万年地下压力的锤炼, 金属的身躯变\n得刀枪不入.</string>
+  <string block_id="0" entry_id="380" table_id="235">全身包裹着能够使光线弯曲的羽毛, 具有隐藏自\n身的能力.</string>
+  <string block_id="0" entry_id="381" table_id="235">拥有很高智商的宝可梦. 收起前肢飞行的话, 速\n度能超越喷气式飞机.</string>
+  <string block_id="0" entry_id="382" table_id="235">据说能用下大雨的能力扩张海洋. 一直沉睡在海\n沟的底部.</string>
+  <string block_id="0" entry_id="383" table_id="235">远古时期曾与蓋歐卡发生过殊死搏斗, 此后就沉\n眠于地下的岩浆中.</string>
+  <string block_id="0" entry_id="384" table_id="235">因为栖息在高高的云层之上的臭氧层, 所以从地\n面无法看见它的样子.</string>
+  <string block_id="0" entry_id="385" table_id="235">据说它在1000年之中醒来的时间只有7天,\n醒来后可使用能实现任何愿望的力量.</string>
+  <string block_id="0" entry_id="386" table_id="235">附着在陨石上的宇宙病毒的DNA变异后生成的\n宝可梦.</string>
+  <string block_id="0" entry_id="387" table_id="235">背上的甲壳由泥土组成, 摸上去如果感到湿润,\n说明那只草苗龟很有精神.</string>
+  <string block_id="0" entry_id="388" table_id="235">知道哪里会涌出清澈的水, 会让伙伴宝可梦骑在\n它背上, 将其运到那个地方.</string>
+  <string block_id="0" entry_id="389" table_id="235">有一些宝可梦是在土台龟的背上出生的, 并在它\n的背上度过终生.</string>
+  <string block_id="0" entry_id="390" table_id="235">非常灵巧的宝可梦. 在睡觉时为了不点燃周围的\n东西, 会将尾巴上的火苗熄灭.</string>
+  <string block_id="0" entry_id="391" table_id="235">能熟练控制尾部火焰的大小, 以自己擅长的距离\n进行战斗.</string>
+  <string block_id="0" entry_id="392" table_id="235">手脚上都缠绕着火焰, 能使出独特的格斗技, 不\n论什么样的对手都能应付.</string>
+  <string block_id="0" entry_id="393" table_id="235">走路时总会跌倒, 然而强烈的自尊心让它在任何\n情况下都能挺起胸膛.</string>
+  <string block_id="0" entry_id="394" table_id="235">每一只波皇子都认为自己是最了不起的, 因此不\n可能形成群体.</string>
+  <string block_id="0" entry_id="395" table_id="235">如果谁敢伤它的自尊的话, 它会用能劈开浮冰的\n翅膀来反击.</string>
+  <string block_id="0" entry_id="396" table_id="235">为了弥补个体的弱小, 它们会结成群体. 然而群\n体过大的话它们会争执不休.</string>
+  <string block_id="0" entry_id="397" table_id="235">很清楚自己的弱小, 所以总是群居. 独处的时候\n会大吵大闹.</string>
+  <string block_id="0" entry_id="398" table_id="235">就算会伤到自己的身体也不会停止攻击. 很在意\n羽冠的形状.</string>
+  <string block_id="0" entry_id="399" table_id="235">经过比较, 人们发现大牙狸和小拉达的门牙生长\n速度不相上下.</string>
+  <string block_id="0" entry_id="400" table_id="235">只要有大尾狸筑坝的河流, 绝对不会发生洪灾,\n因此附近的居民非常感激.</string>
+  <string block_id="0" entry_id="401" table_id="235">腿很短, 每当要摔倒的时候就摩擦坚硬的触角,\n发出木琴一般的声音.</string>
+  <string block_id="0" entry_id="402" table_id="235">有一个村庄的人们以比试它变幻自如的鸣叫声为\n乐.</string>
+  <string block_id="0" entry_id="403" table_id="235">每当活动身体时, 肌肉就会伸缩产生电. 危机时\n刻, 身体会发光.</string>
+  <string block_id="0" entry_id="404" table_id="235">在锐利的爪子尖端有强烈的电流流过, 只要稍稍\n碰擦到, 就能让对手晕厥.</string>
+  <string block_id="0" entry_id="405" table_id="235">能使用透视墙面的能力, 追踪逃脱的猎物或是寻\n找迷路的孩子.</string>
+  <string block_id="0" entry_id="406" table_id="235">对温度的变化十分敏感, 据说当它感受到温暖的\n阳光时, 花蕾必定会绽放.</string>
+  <string block_id="0" entry_id="407" table_id="235">两只手上的毒素成分不同, 但不管被哪一边刺中,\n都离死亡不远了.</string>
+  <string block_id="0" entry_id="408" table_id="235">大约1亿年前的宝可梦. 在丛林中出生长大, 会\n用头锤把阻挡它的树木撞断.</string>
+  <string block_id="0" entry_id="409" table_id="235">就算是用头激烈地冲撞, 厚度达30厘米的头盖\n骨会保护它们不至于昏迷.</string>
+  <string block_id="0" entry_id="410" table_id="235">有着绝佳的防御力, 因此吃草和树果的时候不需\n要特别争斗.</string>
+  <string block_id="0" entry_id="411" table_id="235">如果横着排成一排, 无论什么宝可梦都无法突破.\n就这样保护着自己的孩子.</string>
+  <string block_id="0" entry_id="412" table_id="235">就算是生长在找不到包裹身体的材料的地方, 也\n会不知不觉地缠上蓑衣.</string>
+  <string block_id="0" entry_id="413" table_id="235">在进化的时候, 就用周围的材料裹住身体, 因此\n有很多种变种.</string>
+  <string block_id="0" entry_id="414" table_id="235">很喜欢花蜜, 但是从不自己采集, 而老是想着从\n三蜜蜂那里夺取.</string>
+  <string block_id="0" entry_id="415" table_id="235">从出生时起就是3只一起. 为了取悦蜂女王, 一\n直都在采集着花蜜.</string>
+  <string block_id="0" entry_id="416" table_id="235">能释放各种信息素, 自由自在地操纵体内的幼虫\n与敌人作战.</string>
+  <string block_id="0" entry_id="417" table_id="235">有时候也会发现为了将储存的电分给同伴而互相\n摩擦颊囊的帕奇利兹.</string>
+  <string block_id="0" entry_id="418" table_id="235">尾巴像螺旋桨一般转动, 不仅能用来在水中游动,\n还能把缠住自己的水草切断.</string>
+  <string block_id="0" entry_id="419" table_id="235">经常在渔村里出现, 救助溺水的村民, 或帮他们\n搬运打来的鱼.</string>
+  <string block_id="0" entry_id="420" table_id="235">身上的小球不仅营养而且美味, 姆克儿总喜欢啄\n食.</string>
+  <string block_id="0" entry_id="421" table_id="235">如果感受到强烈的阳光, 就会绽开合着的花瓣,\n全身沐浴在阳光下.</string>
+  <string block_id="0" entry_id="422" table_id="235">如果用力按住柔软的身体, 就会有神秘的紫色液\n体渗出, 因此请注意.</string>
+  <string block_id="0" entry_id="423" table_id="235">在很早以前, 整个背部都被坚硬的甲壳覆盖. 现\n在细胞上还留有痕迹.</string>
+  <string block_id="0" entry_id="424" table_id="235">分成两支的尾巴非常灵巧, 可以用来做各种各样\n的事情, 所以它的手几乎派不上用场.</string>
+  <string block_id="0" entry_id="425" table_id="235">由于总是漫无目的地飘来飘去, 传说称它是“灵\n魂的路标”.</string>
+  <string block_id="0" entry_id="426" table_id="235">傍晚的时候会在天空成群随风聚集在一起, 一旦\n被注意到的时候就会突然消失.</string>
+  <string block_id="0" entry_id="427" table_id="235">总是蜷成小球的耳朵一旦强行伸展开来, 连大石\n头都能轻松击碎.</string>
+  <string block_id="0" entry_id="428" table_id="235">耳朵似乎非常敏感, 触摸时要温柔小心, 否则会\n被它用柔软的脚狠踹.</string>
+  <string block_id="0" entry_id="429" table_id="235">叫声就像诅咒一样, 但是据说也隐藏着偶尔给予\n对方幸福的效果.</string>
+  <string block_id="0" entry_id="430" table_id="235">乌鸦头头低声鸣叫的话, 黑暗鸦就会立即聚集起\n来, 因此也被称为黑夜召唤者.</string>
+  <string block_id="0" entry_id="431" table_id="235">如果训练家不给它食物, 它就会用爪子抓训练家\n的鼻孔. 如此残暴的一面平时深藏不露.</string>
+  <string block_id="0" entry_id="432" table_id="235">用尾巴裹住身体, 让自己看起来更加庞大. 一旦\n和它目光相聚, 它会一刻不停地瞪着对方.</string>
+  <string block_id="0" entry_id="433" table_id="235">如果跳起来, 嘴里的珠子就会弹来弹去, 发出铃\n铛一般的音色.</string>
+  <string block_id="0" entry_id="434" table_id="235">从屁屁喷出的臭液的气味会扩散到半径2公里的\n范围, 周围的宝可梦都会逃得无影无踪.</string>
+  <string block_id="0" entry_id="435" table_id="235">从尾巴尖端喷出恶臭的液体来攻击. 如果从上面\n偷袭它就能让它混乱.</string>
+  <string block_id="0" entry_id="436" table_id="235">有研究者认为这种寶可夢在过去会像镜子一样反\n射.</string>
+  <string block_id="0" entry_id="437" table_id="235">通过打开另一个世界的入口带来降雨, 被敬为丰\n收之神.</string>
+  <string block_id="0" entry_id="438" table_id="235">喜欢干燥的环境, 在调整身体湿度时会流出像眼\n泪一样的液体.</string>
+  <string block_id="0" entry_id="439" table_id="235">能模仿它所看到的对手的表情和动作, 并试图理\n解对方的一切感情.</string>
+  <string block_id="0" entry_id="440" table_id="235">喜欢抱着小小的石块. 在对手的脚下不停绕着圈,\n有时不知不觉就让对手摔倒.</string>
+  <string block_id="0" entry_id="441" table_id="235">舌头和人类的很像, 因此可以非常灵巧地模仿人\n类的语言.</string>
+  <string block_id="0" entry_id="442" table_id="235">由于总是做坏事, 真身被一种神秘的法术给封印\n了在楔石中.</string>
+  <string block_id="0" entry_id="443" table_id="235">用巨大的嘴发动攻击威力十足, 但是还不能很灵\n活地战斗, 也会伤到自己.</string>
+  <string block_id="0" entry_id="444" table_id="235">最喜欢闪闪发光的东西, 所以会把在洞窟里找到\n的宝贝都积存到自己的巢穴中.</string>
+  <string block_id="0" entry_id="445" table_id="235">高速奔跑时, 会从翅膀上产生空气刃, 把周围的\n树木切断.</string>
+  <string block_id="0" entry_id="446" table_id="235">不顾一切地拼命吃东西时, 会忘记自己体毛下藏\n着的食物.</string>
+  <string block_id="0" entry_id="447" table_id="235">具有从波动中看清喜悦和愤怒表情的特殊能力.</string>
+  <string block_id="0" entry_id="448" table_id="235">训练有素的路卡利欧能通过波导识别并感受一公\n里以外的生物.</string>
+  <string block_id="0" entry_id="449" table_id="235">在沙地里穿行的时候会把鼻孔关上, 以十只左右\n聚居在一起.</string>
+  <string block_id="0" entry_id="450" table_id="235">很容易生气起来, 总是把嘴张开以显示自己的力\n量.</string>
+  <string block_id="0" entry_id="451" table_id="235">当尾巴上的钳子闭合后, 会从针尖渗出毒素. 可\n以不吃东西存活1年.</string>
+  <string block_id="0" entry_id="452" table_id="235">体质非常强健, 就算不用剧毒, 也能凭借自己引\n以为豪的力量让对手涣散.</string>
+  <string block_id="0" entry_id="453" table_id="235">虽然极少光明正大地战斗, 但也是为了生存下去.\n是个很受欢迎的吉祥物.</string>
+  <string block_id="0" entry_id="454" table_id="235">喉咙里带有毒囊. 如果从喉咙发出声响, 储存的\n毒素会被炼制得更强劲.</string>
+  <string block_id="0" entry_id="455" table_id="235">缠绕在潮湿地带生长的树木上, 用甜香的唾液不\n断引诱猎物, 再一口吃掉.</string>
+  <string block_id="0" entry_id="456" table_id="235">身体侧面的线条会储存太阳光. 到了夜里就会鲜\n亮闪烁.</string>
+  <string block_id="0" entry_id="457" table_id="235">用长长的鳍当作脚贴着海底爬行. 和电灯怪争抢\n食物.</string>
+  <string block_id="0" entry_id="458" table_id="235">人们组成观光团去观赏它们一边在水面上跳跃,\n一边与铁炮鱼嬉闹的景象.</string>
+  <string block_id="0" entry_id="459" table_id="235">似乎是对人类感兴趣, 只要在雪山上发现了脚印,\n就会马上聚集过来.</string>
+  <string block_id="0" entry_id="460" table_id="235">当雪花盛开时就会出现, 花瓣落下的时候就又不\n知到了哪里.</string>
+  <string block_id="0" entry_id="461" table_id="235">进化后变得更狡猾了, 通过石头上的爪印交流.</string>
+  <string block_id="0" entry_id="462" table_id="235">有集团曾经试图用科学的力量让自爆磁怪进化,\n但是以失败告终.</string>
+  <string block_id="0" entry_id="463" table_id="235">长长的舌头总是淌着唾液. 唾液中含有溶解物体\n的成份, 一旦接触到就会发麻.</string>
+  <string block_id="0" entry_id="464" table_id="235">强行收缩肌肉, 然后在一瞬间伸展开, 可以将手\n中的石头-{}-发射出去.</string>
+  <string block_id="0" entry_id="465" table_id="235">由植物长成的手臂如果放着不管, 就会缠到一起.\n就算割断也会马上再长出来.</string>
+  <string block_id="0" entry_id="466" table_id="235">全然不顾对手的攻击接近对手, 把两根尾巴摁在\n对手身上, 释放出高压电击.</string>
+  <string block_id="0" entry_id="467" table_id="235">喷射出高达2000摄氏度的火球时, 身体由于\n发热, 会微微呈现出白色.</string>
+  <string block_id="0" entry_id="468" table_id="235">会给那些彼此认同对方且不做无端争斗的人们带\n去各种各样的恩惠.</string>
+  <string block_id="0" entry_id="469" table_id="235">下颚的力量非常强大, 擅长一边高速飞行擦过对\n手, 一边将对手咬成碎片.</string>
+  <string block_id="0" entry_id="470" table_id="235">它不喜歡爭鬥, 由於有一些像植物的細胞它會進\n行光合作用.</string>
+  <string block_id="0" entry_id="471" table_id="235">通过控制体温, 让周围的空气冻结, 落下冰晶.</string>
+  <string block_id="0" entry_id="472" table_id="235">只要成功地搭上一丝微风, 就能够不拍打1下翅\n膀围绕地球1周.</string>
+  <string block_id="0" entry_id="473" table_id="235">在1万年前的泥土中發現的冰冻的象牙猪突然清\n醒过来, 引发了不小的骚动.</string>
+  <string block_id="0" entry_id="474" table_id="235">为了使它能在异次元中也能大展身手而修改了程\n序, 然而预期的目标并没有实现.</string>
+  <string block_id="0" entry_id="475" table_id="235">当它想要保护别人时, 就会伸出刀刃一般的手臂,\n和敌人进行激烈的搏斗.</string>
+  <string block_id="0" entry_id="476" table_id="235">能用磁力自由地操纵被称为小朝北鼻的3个小部\n件.</string>
+  <string block_id="0" entry_id="477" table_id="235">据说, 会把无处可去的魂魄吸入它那具有弹力的\n身体中, 并带往另一个世界.</string>
+  <string block_id="0" entry_id="478" table_id="235">它会呼出零下50度的气体把猎物冻住并隐藏起\n来.</string>
+  <string block_id="0" entry_id="479" table_id="235">它的身体就像电一样, 能进入某些机器的内部.\n同时利用机器化的身体恶作剧.</string>
+  <string block_id="0" entry_id="480" table_id="235">传说由克希四处飞行时, 人们获得了赖以解决问\n题的叫做“智慧”的能力.</string>
+  <string block_id="0" entry_id="481" table_id="235">当艾姆利多飞过的时候, 人们学会了体尝生活的\n快乐与痛苦, 它是情感的起源.</string>
+  <string block_id="0" entry_id="482" table_id="235">亞克諾姆四处飞行时, 人们获得了使他们下定决\n心做好事情的“意志力”.</string>
+  <string block_id="0" entry_id="483" table_id="235">当帝牙卢卡的心脏跳动时, 时间就会流逝. 神奥\n地方的传说的宝可梦.</string>
+  <string block_id="0" entry_id="484" table_id="235">随着帕路奇亚的每一次呼吸, 空间变得更加安定.\n神奥地方的传说的宝可梦.</string>
+  <string block_id="0" entry_id="485" table_id="235">虽说有着坚硬的钢铁身躯, 也因为自己发出的高\n温而一点一点地熔化.</string>
+  <string block_id="0" entry_id="486" table_id="235">据说用特殊的冰山、岩石和熔岩制作出了形似自\n己的宝可梦.</string>
+  <string block_id="0" entry_id="487" table_id="235">因为性格粗暴而被驱逐, 一直待在毁坏的世界里,\n静静地看着原来的世界.</string>
+  <string block_id="0" entry_id="488" table_id="235">越是临近新月的日子, 尾巴处延伸出的极光就越\n长、越美丽.</string>
+  <string block_id="0" entry_id="489" table_id="235">漂浮在温暖的海上. 无论漂得多远, 都一定会回\n到出生的地方.</string>
+  <string block_id="0" entry_id="490" table_id="235">如果使用与生俱来的神奇力量, 就可以和任何宝\n可梦心意相通.</string>
+  <string block_id="0" entry_id="491" table_id="235">为了保护自己, 会让周围的人或神奇宝贝做噩梦.\n但是它本身并没有恶意.</string>
+  <string block_id="0" entry_id="492" table_id="235">当它被人类温柔地抱在怀中, 感受到感恩之心时,\n全身的鲜花就会绽放.</string>
+  <string block_id="0" entry_id="493" table_id="235">从虚无之地的蛋中诞生, 之后创造了世界.</string>
+  <string block_id="0" entry_id="494" table_id="235">体内制造出无限的能量. 能将能量分给碰触到的\n事物.</string>
+  <string block_id="0" entry_id="495" table_id="235">用尾巴沐浴着阳光进行光合作用. 如果没有精神,\n尾巴就会垂下来.</string>
+  <string block_id="0" entry_id="496" table_id="235">躲进茂密草木的阴暗处躲避攻击. 使用灵活的藤\n鞭技反击.</string>
+  <string block_id="0" entry_id="497" table_id="235">抬高头颅威吓对方. 只有在与强敌交手时才会动\n真格.</string>
+  <string block_id="0" entry_id="498" table_id="235">鼻孔中喷出火焰. 如果感冒了喷出的将不是火焰\n而是乌黑的烟雾.</string>
+  <string block_id="0" entry_id="499" table_id="235">将吃下肚的食物作为燃料在胃里燃烧. 愤怒时火\n力上升.</string>
+  <string block_id="0" entry_id="500" table_id="235">一直蓄着火焰的胡须. 身怀兼具力量与速度的格\n斗招式.</string>
+  <string block_id="0" entry_id="501" table_id="235">腹部的扇貝貝成分和爪子相同. 可以拿下来当小\n刀使用.</string>
+  <string block_id="0" entry_id="502" table_id="235">每只双刃丸的扇貝技都有所不同. 很注重扇貝貝\n的保养.</string>
+  <string block_id="0" entry_id="503" table_id="235">前脚盔甲的一部分化成了巨大的剑. 咆哮一声便\n能威吓住敌人.</string>
+  <string block_id="0" entry_id="504" table_id="235">警戒心很强, 会轮流巡视窝的四周. 不巡视便会\n不安.</string>
+  <string block_id="0" entry_id="505" table_id="235">步哨鼠會讓身上的紋路發光, 借以威嚇敵人. 擁\n有在黑暗中也能看得很清楚的眼睛.</string>
+  <string block_id="0" entry_id="506" table_id="235">覆盖着脸部的长毛是高性能雷达. 能敏锐地侦查\n周围的状况.</string>
+  <string block_id="0" entry_id="507" table_id="235">对训练家的指示十分忠实. 很久以前便开始给予\n养育宝可梦的训练家帮助.</string>
+  <string block_id="0" entry_id="508" table_id="235">擅长救援海上和山中的遇难者. 非常聪明的宝可\n梦.</string>
+  <string block_id="0" entry_id="509" table_id="235">用可爱的动作让对手疏忽, 抓住那个空当抢夺持\n有物. 一旦生气, 就会竖起爪子反击.</string>
+  <string block_id="0" entry_id="510" table_id="235">隐藏气息悄悄接近. 在对手发觉前, 从背后偷偷\n靠近并了结它.</string>
+  <string block_id="0" entry_id="511" table_id="235">会把头上的叶子分给没有精神的宝可梦. 具有缓\n解疲劳的效果.</string>
+  <string block_id="0" entry_id="512" table_id="235">用带有很多尖刺的尾巴摔打对手进行攻击. 是性\n格很粗暴的宝可梦.</string>
+  <string block_id="0" entry_id="513" table_id="235">生活在火山洞中. 头顶的穗子不断燃烧有300\n度之高.</string>
+  <string block_id="0" entry_id="514" table_id="235">燃烧体内的火焰从头部和尾部喷洒火星烧焦对手.</string>
+  <string block_id="0" entry_id="515" table_id="235">对干燥的环境苦手. 头部穗子里储存的水从尾部\n喷洒出来湿润四周.</string>
+  <string block_id="0" entry_id="516" table_id="235">如果从尾巴发射出高压水, 那威力甚至能破坏混\n凝土墙壁.</string>
+  <string block_id="0" entry_id="517" table_id="235">会吃掉人和宝可梦做的梦. 如果吃了快乐的梦,\n就会吐出粉红色的烟雾来.</string>
+  <string block_id="0" entry_id="518" table_id="235">可以将吃到的梦实体化. 额头冒出的烟可以幻化\n成梦中出现的物体.</string>
+  <string block_id="0" entry_id="519" table_id="235">生活在街道上的宝可梦. 因为不怎么怕人, 所以\n会大量聚集在公园或广场.</string>
+  <string block_id="0" entry_id="520" table_id="235">人们相信, 咕咕鸽所居住的森林深处有着没有战\n争的和平国度.</string>
+  <string block_id="0" entry_id="521" table_id="235">雄性的头上有冠羽. 绝对不会亲近训练家以外的\n人.</string>
+  <string block_id="0" entry_id="522" table_id="235">天空雷雨云密布时就会出现. 用鬃毛捕捉雷电,\n储存电力.</string>
+  <string block_id="0" entry_id="523" table_id="235">性子很急. 发怒时电击会从鬃毛中射向四面八方,\n相当危险.</string>
+  <string block_id="0" entry_id="524" table_id="235">100年前的大地震时, 从地裂中被发现. 体内\n拥有能量核心.</string>
+  <string block_id="0" entry_id="525" table_id="235">体内容纳不了而漏出的能量凝结成了橙色的结晶.</string>
+  <string block_id="0" entry_id="526" table_id="235">用生长在身上的橙色结晶吸取太阳能并在体内增\n幅, 最后从嘴中击出.</string>
+  <string block_id="0" entry_id="527" table_id="235">以鼻孔吸附在洞穴岩壁上睡觉. 吸附过的地方会\n留下心形的痕迹.</string>
+  <string block_id="0" entry_id="528" table_id="235">如果被雄性向雌性求爱时发出的超音波照到, 心\n情就会变得非常快乐.</string>
+  <string block_id="0" entry_id="529" table_id="235">将双掌上的爪子并拢, 并让身体高速旋转的话,\n就会以迅猛的速度在地里前进.</string>
+  <string block_id="0" entry_id="530" table_id="235">在地下100米制造迷宫般的巢穴. 有时会在地\n下铁的隧道开几个洞.</string>
+  <string block_id="0" entry_id="531" table_id="235">听觉能力超乎想象. 细微的声响都能像雷达般捕\n获.</string>
+  <string block_id="0" entry_id="532" table_id="235">总是抱着方材. 是会出现在建筑工地帮忙干活的\n宝可梦.</string>
+  <string block_id="0" entry_id="533" table_id="235">扛着铁材锻炼身体. 亮出千锤百炼的筋肉和同伴\n互相炫耀.</string>
+  <string block_id="0" entry_id="534" table_id="235">用来当拐杖的混凝土柱可以不依靠蛮力自由自在\n地挥舞.</string>
+  <string block_id="0" entry_id="535" table_id="235">振动脸颊发出人类无法听见的音波. 通过音波的\n节奏对话.</string>
+  <string block_id="0" entry_id="536" table_id="235">生活在水中与陆地上. 用又粘又长的舌头缠绕捕\n获猎物.</string>
+  <string block_id="0" entry_id="537" table_id="235">如果让拳头上的瘤振动, 拳击的威力就会倍增.\n能一拳把巨大岩石击得粉碎.</string>
+  <string block_id="0" entry_id="538" table_id="235">喜欢把比自己体积大的对手投掷出去. 群落必定\n5只一组.</string>
+  <string block_id="0" entry_id="539" table_id="235">系紧带子后会很振奋, 拳击的破坏力得到提升.\n如果打扰它修行就会发怒.</string>
+  <string block_id="0" entry_id="540" table_id="235">會咬斷樹葉, 從口中吐出有黏性的絲綘合, 自己\n製作衣服的宝可梦.</string>
+  <string block_id="0" entry_id="541" table_id="235">用叶子包裹着身体抵御寒冷. 一边吃着手边的落\n叶, 一边在森林里移动.</string>
+  <string block_id="0" entry_id="542" table_id="235">利用落叶发酵的热量温暖蛋. 用叶子给虫宝包制\n作襁褓.</string>
+  <string block_id="0" entry_id="543" table_id="235">用头和尾巴上的触角探查周围的情形. 性格非常\n粗暴.</string>
+  <string block_id="0" entry_id="544" table_id="235">平时一动不动, 可一旦受袭就会高速旋转奔跑,\n并用撞击来反击.</string>
+  <string block_id="0" entry_id="545" table_id="235">颈部的爪子嵌入对方体内释放毒素. 性格具有攻\n击性.</string>
+  <string block_id="0" entry_id="546" table_id="235">乘着风随性飘动. 雨天身体变重, 在大树根部躲\n雨.</string>
+  <string block_id="0" entry_id="547" table_id="235">乘着旋风而来. 从缝隙中钻进民宅爱捣乱的宝可\n梦.</string>
+  <string block_id="0" entry_id="548" table_id="235">因为非常喜欢水分和营养充足的土壤, 所以百合\n根娃娃居住的土地, 作物生长旺盛.</string>
+  <string block_id="0" entry_id="549" table_id="235">头部花饰的芳香有放松身心的效果. 不精心护理\n便会枯萎.</string>
+  <string block_id="0" entry_id="550" table_id="235">红和蓝两种野蠻鱸魚关系很差, 不知道为什么一\n群中总会混近几只颜色不同的.</string>
+  <string block_id="0" entry_id="551" table_id="235">潜伏在沙子里, 露出眼睛和鼻子移动. 黑色的膜\n保护着眼睛.</string>
+  <string block_id="0" entry_id="552" table_id="235">覆盖着眼球的特殊膜可以感知物体的热度, 因此\n即便在黑暗中也能看见周围.</string>
+  <string block_id="0" entry_id="553" table_id="235">眼睛可以像望远镜一般放大远处的事物.</string>
+  <string block_id="0" entry_id="554" table_id="235">火红不倒翁的粪便是热的, 因此过去的人们会放\n入怀中取暖.</string>
+  <string block_id="0" entry_id="555" table_id="235">战斗到疲惫时会变得像石头一般一动不动. 抛开\n杂念用精神力战斗.</string>
+  <string block_id="0" entry_id="556" table_id="235">生活在干燥的土地上. 身体有节奏地活动时可以\n发出沙铃般的响声.</string>
+  <string block_id="0" entry_id="557" table_id="235">在合适的石头上开洞作为住所. 如果被破坏, 在\n找到替代的石头之前会一直心里不踏实.</string>
+  <string block_id="0" entry_id="558" table_id="235">脚力非常的好, 身上背负着很重的岩石, 还能在\n干燥的土地上移动多日.</string>
+  <string block_id="0" entry_id="559" table_id="235">会突然用头撞向视线相合的对手. 头盖骨坚硬无\n比.</string>
+  <string block_id="0" entry_id="560" table_id="235">按头上冠的大小来决定团队领袖. 用脚踢攻击破\n坏混凝土块.</string>
+  <string block_id="0" entry_id="561" table_id="235">曾是古代都市的守护神. 用精神力量攻击入侵领\n地的敌人.</string>
+  <string block_id="0" entry_id="562" table_id="235">从古代墓穴中埋葬的人的灵魂中诞生. 持有过去\n的记忆.</string>
+  <string block_id="0" entry_id="563" table_id="235">假装成漂亮的棺材惩罚盗墓贼. 身上覆盖的是纯\n金.</string>
+  <string block_id="0" entry_id="564" table_id="235">在大约1亿年前的海里游动. 有时候会爬上陆地\n袭击猎物.</string>
+  <string block_id="0" entry_id="565" table_id="235">下颚的力量难以估计. 将钢材和岩石连同猎物一\n起咬得粉碎.</string>
+  <string block_id="0" entry_id="566" table_id="235">由化石复活而来的宝可梦. 被认为是所有鸟宝可\n梦的祖先.</string>
+  <string block_id="0" entry_id="567" table_id="235">比起飞行, 跑步更在行. 以不输给汽车的速度四\n处奔走捕捉猎物.</string>
+  <string block_id="0" entry_id="568" table_id="235">垃圾袋通过与工业垃圾发生化学变化, 转而诞生\n了宝可梦.</string>
+  <string block_id="0" entry_id="569" table_id="235">吸取垃圾当作身体的一部分. 右手的指尖喷射毒\n液.</string>
+  <string block_id="0" entry_id="570" table_id="235">会幻化成人类或其他宝可梦. 通过隐藏自己的本\n来面貌来保护自己不受危险侵害.</string>
+  <string block_id="0" entry_id="571" table_id="235">拥有一下子迷惑许多人的力量. 展现出虚幻的景\n色来保护自己的住所.</string>
+  <string block_id="0" entry_id="572" table_id="235">是喜爱干净的宝可梦. 总是把尾巴当做扫帚, 来\n清扫住所的灰尘.</string>
+  <string block_id="0" entry_id="573" table_id="235">白色的体毛触感超群. 完全不会吸附到灰尘和静\n电.</string>
+  <string block_id="0" entry_id="574" table_id="235">目不转睛地观察宝可梦和训练家. 好像正盯着某\n样只有哥德宝宝才能看见的东西.</string>
+  <string block_id="0" entry_id="575" table_id="235">星光是其力量的来源. 到了夜里就会用精神力量\n让石头浮起, 按星星的分布排列.</string>
+  <string block_id="0" entry_id="576" table_id="235">拥有根据星星的分布和动向来预知未来的能力.\n训练家的寿命也能看见.</string>
+  <string block_id="0" entry_id="577" table_id="235">身体被特殊液体包裹. 任何环境皆可生存.</string>
+  <string block_id="0" entry_id="578" table_id="235">一分为二的大脑考虑同一件事时才能发挥出最大\n力量.</string>
+  <string block_id="0" entry_id="579" table_id="235">操纵可以捏碎岩石的手臂战斗. 拥有极高的智能.</string>
+  <string block_id="0" entry_id="580" table_id="235">如果被敌人袭击, 就会从全身的羽毛里喷出水花.\n混在一片水雾中逃之夭夭.</string>
+  <string block_id="0" entry_id="581" table_id="235">用喙展开强烈攻击. 修长的颈部优雅伸展施展连\n续啄击.</string>
+  <string block_id="0" entry_id="582" table_id="235">冰柱沐浴了朝阳的能量之后, 变成了宝可梦. 会\n把身体埋在雪里睡觉.</string>
+  <string block_id="0" entry_id="583" table_id="235">制造许多小冰砾在敌人面前隐藏自己.</string>
+  <string block_id="0" entry_id="584" table_id="235">如果2个头同时发怒, 就会从角上喷出猛烈的暴\n风雪. 会用大雪掩埋四周.</string>
+  <string block_id="0" entry_id="585" table_id="235">到了换季的时候, 体毛和气味会发生变化. 是告\n知季节的宝可梦.</string>
+  <string block_id="0" entry_id="586" table_id="235">角上生长的花草随季节而变化. 角最漂亮的那位\n率领群落.</string>
+  <string block_id="0" entry_id="587" table_id="235">生活在森林的树上. 一边让斗篷般的膜的内侧放\n电, 一边滑翔.</string>
+  <string block_id="0" entry_id="588" table_id="235">感受到危险时从嘴里喷出酸液击退敌人. 以小嘴\n蜗为目标的宝可梦.</string>
+  <string block_id="0" entry_id="589" table_id="235">通过穿上小嘴蜗的壳进化而成的宝可梦. 钢铁的\n铠甲保护着它的全身.</string>
+  <string block_id="0" entry_id="590" table_id="235">不知为什么长得很像精灵球. 对想捉住它的敌人\n喷出毒胞子击退.</string>
+  <string block_id="0" entry_id="591" table_id="235">显摆着精灵球状的菌伞引诱猎物靠近, 但是被骗\n到的宝可梦很少.</string>
+  <string block_id="0" entry_id="592" table_id="235">用毒将猎物麻痹后, 将其带到据说在海下\n8000米深的住所.</string>
+  <string block_id="0" entry_id="593" table_id="235">有技巧地吐出吸入体内的海水来前行. 非常喜欢\n生命能量.</string>
+  <string block_id="0" entry_id="594" table_id="235">漂浮在汪洋大海上生活. 如果发现受伤的宝可梦,\n就会抱住并运送到岸边.</string>
+  <string block_id="0" entry_id="595" table_id="235">会附在体型大的宝可梦身上吸取静电, 然后把电\n储存在蓄电袋里.</string>
+  <string block_id="0" entry_id="596" table_id="235">用带电丝线制作陷阱. 慢慢品尝触电后动弹不得\n的猎物.</string>
+  <string block_id="0" entry_id="597" table_id="235">尖刺插入洞穴的墙壁内吸取岩石中的矿物.</string>
+  <string block_id="0" entry_id="598" table_id="235">吊在洞穴顶端向下方通过的猎物射出铁刺.</string>
+  <string block_id="0" entry_id="599" table_id="235">通过2个身体的咬合旋转, 制造出用以生存的能\n量.</string>
+  <string block_id="0" entry_id="600" table_id="235">小齿轮高速旋转着弹出去攻击. 小齿轮若是回不\n来会很危险.</string>
+  <string block_id="0" entry_id="601" table_id="235">让带有红色核心的齿轮高速旋转, 便能快速填充\n能量.</string>
+  <string block_id="0" entry_id="602" table_id="235">群体活动的宝可梦. 拥有制造电气的器官, 危急\n时刻放出电力.</string>
+  <string block_id="0" entry_id="603" table_id="235">是食欲旺盛的宝可梦. 一旦发现猎物就会发动袭\n击, 将对方用电麻痹后再吃掉.</string>
+  <string block_id="0" entry_id="604" table_id="235">用吸盘一样的嘴巴吸住猎物, 并从刺入的牙齿中\n释放电流, 使对方触电.</string>
+  <string block_id="0" entry_id="605" table_id="235">50年前从沙漠的远方突然而至. 这之前谁也没\n见过它们.</string>
+  <string block_id="0" entry_id="606" table_id="235">用精神力干涉对方大脑, 将大脑中的影像替换成\n别的东西.</string>
+  <string block_id="0" entry_id="607" table_id="235">假装点亮烛光, 指引道路, 实际上是在吸取对方\n的生命力.</string>
+  <string block_id="0" entry_id="608" table_id="235">临终时出现, 一等灵魂脱离肉体后马上将该灵魂\n吸取.</string>
+  <string block_id="0" entry_id="609" table_id="235">如果被水晶灯火灵的火焰包围, 魂魄就会被吸取\n燃烧. 只剩下行尸走肉.</string>
+  <string block_id="0" entry_id="610" table_id="235">用牙齿在树木上留下伤痕, 作为领地的标记. 牙\n齿即使折断也会马上长出来.</string>
+  <string block_id="0" entry_id="611" table_id="235">拥有能粉碎巨大岩石的牙齿. 争夺领地的斧牙龙\n们会进行非常激烈的争斗.</string>
+  <string block_id="0" entry_id="612" table_id="235">有着即使切斩工字钢也不会伤刃的坚固牙齿. 全\n身被坚硬的铠甲覆盖着.</string>
+  <string block_id="0" entry_id="613" table_id="235">总是流着鼻涕. 吸着鼻涕使出招式. 鼻涕是招式\n的本源.</string>
+  <string block_id="0" entry_id="614" table_id="235">让吐出的气息冻结, 制造冰牙和冰爪进行战斗.\n生活在北方的寒冷土地上.</string>
+  <string block_id="0" entry_id="615" table_id="235">在雪云之中诞生. 用冰的结晶所形成的锁捕捉猎\n物.</string>
+  <string block_id="0" entry_id="616" table_id="235">如果与盖盖虫一起沐浴在电能下, 就会进化. 其\n原因尚且不明.</string>
+  <string block_id="0" entry_id="617" table_id="235">因为脱掉了沉重的壳, 而变得轻巧. 会用简直是\n忍者般的身手战斗.</string>
+  <string block_id="0" entry_id="618" table_id="235">会埋进海边的泥里等待猎物. 猎物一旦碰到, 就\n会放出电来使其麻痹.</string>
+  <string block_id="0" entry_id="619" table_id="235">使用华丽连续技的能手. 身心统一时, 招式的准\n度和速度都会猛增.</string>
+  <string block_id="0" entry_id="620" table_id="235">甩动手臂上修长的体毛战斗. 像鞭子一样鞭打敌\n人.</string>
+  <string block_id="0" entry_id="621" table_id="235">在狭小的洞穴里来回奔走, 用锋利的爪子捕获猎\n物. 脸上的皮肤比岩石还硬.</string>
+  <string block_id="0" entry_id="622" table_id="235">被认为是幻之古代文明的科技制造出来的宝可梦.</string>
+  <string block_id="0" entry_id="623" table_id="235">据说, 制作泥偶巨人的古人命令它要保护人和宝\n可梦.</string>
+  <string block_id="0" entry_id="624" table_id="235">听从劈斩司令的命令战斗. 紧紧抓住猎物将刀刃\n插入体内慢慢折磨.</string>
+  <string block_id="0" entry_id="625" table_id="235">率领一大群驹刀小兵, 成群地穷追猎物. 劈斩司\n令会给予致命一击.</string>
+  <string block_id="0" entry_id="626" table_id="235">一往无前地猛冲, 使出头锤. 拥有让奔跑的列车\n脱轨的破坏力.</string>
+  <string block_id="0" entry_id="627" table_id="235">面对强劲的对手也会不由分说地挑起战斗. 通过\n反复战斗变得更强.</string>
+  <string block_id="0" entry_id="628" table_id="235">勇猛果敢的空中战士. 身上伤越多, 越受到同伴\n尊敬.</string>
+  <string block_id="0" entry_id="629" table_id="235">寻找合适的骷髅防御屁股. 欺负弱小的宝可梦.</string>
+  <string block_id="0" entry_id="630" table_id="235">从空中观察地面情况, 袭击弱小的猎物. 有用骨\n头做装饰的习性.</string>
+  <string block_id="0" entry_id="631" table_id="235">用高温燃烧的火焰舌头熔化铁蚁的钢铁身体, 并\n吃掉其内部.</string>
+  <string block_id="0" entry_id="632" table_id="235">挖山造巢穴. 复杂的隧道是鐵蟻制造的迷宫.</string>
+  <string block_id="0" entry_id="633" table_id="235">因为眼睛看不见, 所以会又撞又咬地来探索周围.\n浑身新伤不断.</string>
+  <string block_id="0" entry_id="634" table_id="235">两颗脑袋关系很差, 摄食时经常争夺食物结果一\n直吃撑.</string>
+  <string block_id="0" entry_id="635" table_id="235">双手的头颅没有大脑. 三个脑袋吃光一切, 破坏\n一切.</string>
+  <string block_id="0" entry_id="636" table_id="235">栖息在火山脚. 从5根角射出火焰击退敌人.</string>
+  <string block_id="0" entry_id="637" table_id="235">战斗时, 从6根翅膀到处飞撒火花鳞粉, 把周围\n变成一片火海.</string>
+  <string block_id="0" entry_id="638" table_id="235">拥有钢铁的身体和心灵. 只要瞪一眼, 连粗暴的\n宝可梦也会俯首称臣.</string>
+  <string block_id="0" entry_id="639" table_id="235">拥有一击冲破巨大城墙的猛撞力. 是传说中所描\n述的宝可梦.</string>
+  <string block_id="0" entry_id="640" table_id="235">头上的角是锋利的刀刃. 用旋风般的动作戏弄敌\n人, 迅速切斩.</string>
+  <string block_id="0" entry_id="641" table_id="235">从龙卷云的尾部喷出的能量会引起猛烈的暴风雨.\n有着吹飞民宅的力量.</string>
+  <string block_id="0" entry_id="642" table_id="235">从尾部的尖刺射出电击. 飞翔于合众地区上空打\n下电光.</string>
+  <string block_id="0" entry_id="643" table_id="235">莱希拉姆的尾部燃烧的话, 就会产生热能令大气\n运动, 让世界的天气发生变化.</string>
+  <string block_id="0" entry_id="644" table_id="235">神话中登场的宝可梦. 尾巴里有制造电力的巨大\n发电器.</string>
+  <string block_id="0" entry_id="645" table_id="235">尾部流出的能量补充了土壤的养分令农作物茁壮\n成长.</string>
+  <string block_id="0" entry_id="646" table_id="235">拥有制造极低温冷气的力量, 却将自己冻住了.</string>
+  <string block_id="0" entry_id="647" table_id="235">在江河湖海的水面奔跑, 驰骋全世界. 会出现在\n美丽的水边.</string>
+  <string block_id="0" entry_id="648" table_id="235">许多名曲的灵感都来自于美洛耶塔演奏的旋律.</string>
+  <string block_id="0" entry_id="649" table_id="235">被等离子队改造过的古代的虫宝可梦. 背上的大\n炮力量得到了提升.</string>
+  <string block_id="0" entry_id="1" table_id="236">在出生后的一段时间里, 它会从背上的种子里汲\n取营养茁壮成长.</string>
+  <string block_id="0" entry_id="2" table_id="236">当它背上的花苞开始鼓起时, 就会飘出一股甜美\n的香气. 这是大花即将盛开的前兆.</string>
+  <string block_id="0" entry_id="3" table_id="236">雨后第二天, 它背上花朵的香味会愈加浓郁. 宝\n可梦会被香味引诱而聚拢过来.</string>
+  <string block_id="0" entry_id="4" table_id="236">尾巴上的火焰是它的生命之灯, 精力充沛时火焰\n也燃烧得更加旺盛.</string>
+  <string block_id="0" entry_id="5" table_id="236">晚上仰望它们居住的山岩时, 它们尾巴上的火焰\n看起来就像星星一样.</string>
+  <string block_id="0" entry_id="6" table_id="236">据说在经历了艰苦的战斗之后它的火焰的温度会\n升高.</string>
+  <string block_id="0" entry_id="7" table_id="236">它会躲进甲壳里保护自己. 会抓住对手的破绽,\n用喷水来反击.</string>
+  <string block_id="0" entry_id="8" table_id="236">据说它有着1万年的寿命. 蓬松的尾巴是长寿的\n象征, 深受人们的喜爱.</string>
+  <string block_id="0" entry_id="9" table_id="236">甲壳上的火箭炮里发射出的水流有着能将厚重的\n铁板贯穿的破坏力.</string>
+  <string block_id="0" entry_id="10" table_id="236">从红色的触角里释放出臭味驱逐敌人. 通过反复\n蜕皮逐渐长大.</string>
+  <string block_id="0" entry_id="11" table_id="236">会用钢铁般坚硬的外壳保护里面柔软的身体. 在\n进化之前会一直默默地忍受.</string>
+  <string block_id="0" entry_id="12" table_id="236">最喜欢吃花蜜. 只靠一点花粉就能找出花圃的位\n置.</string>
+  <string block_id="0" entry_id="13" table_id="236">每天都要吃下和自身重量相当的叶子. 用头上的\n刺击退入侵的敌人.</string>
+  <string block_id="0" entry_id="14" table_id="236">为了不被天敌发现, 会躲在叶子的背后或树枝的\n间隙中, 等待进化时刻的到来.</string>
+  <string block_id="0" entry_id="15" table_id="236">一边高速飞行, 一边用毒针攻击之后马上飞走,\n是它最擅长的战术.</string>
+  <string block_id="0" entry_id="16" table_id="236">虽然它性格温和不喜战斗, 但要是随意对它出手\n的话, 就会受到它强烈的反击.</string>
+  <string block_id="0" entry_id="17" table_id="236">一边在广阔的领地上空盘旋, 一边搜寻猎物. 用\n发达的爪子捕杀猎物.</string>
+  <string block_id="0" entry_id="18" table_id="236">大比鳥用尽力气扑打翅膀时, 卷起的强风连大树\n都能折断.</string>
+  <string block_id="0" entry_id="19" table_id="236">有着可以在任何地方都能生存下去的生命力, 警\n戒心非常强.</string>
+  <string block_id="0" entry_id="20" table_id="236">为了磨平不断生长的门牙, 它有着啃咬硬物的习\n性. 连水泥围墙也能咬坏.</string>
+  <string block_id="0" entry_id="21" table_id="236">匆忙地扑打小小的翅膀来飞行. 用喙来寻找栖息\n在草丛中的猎物.</string>
+  <string block_id="0" entry_id="22" table_id="236">有着可以用大大的翅膀来回飞上一整天的体力.\n会用锋利的鸟嘴战斗.</string>
+  <string block_id="0" entry_id="23" table_id="236">完全寂静无声地生活在草地中, 从背后对放松警\n惕的猎物发起袭击.</string>
+  <string block_id="0" entry_id="24" table_id="236">用腹部的花纹来威吓敌人, 在对方被吓得无法动\n弹时用身体缠住对方.</string>
+  <string block_id="0" entry_id="25" table_id="236">有时会对虚弱的同伴施以电流和电击, 把自己的\n精力分给同伴.</string>
+  <string block_id="0" entry_id="26" table_id="236">尾巴可以把电气释放到地面上, 使自己不被击到.</string>
+  <string block_id="0" entry_id="27" table_id="236">生活在几乎不下雨的干燥地方, 将身体团成球来\n保护自己.</string>
+  <string block_id="0" entry_id="28" table_id="236">将身体缩成一团用背撞击敌人, 锐利的尖刺可以\n给对方造成很大的伤害.</string>
+  <string block_id="0" entry_id="29" table_id="236">它有着不喜欢战斗的性格, 从毒牙里分泌出的毒\n液一滴就能致命.</string>
+  <string block_id="0" entry_id="30" table_id="236">感觉到危险时会将全身的刺竖起来, 和尼多力诺\n相比刺的生长比较缓慢.</string>
+  <string block_id="0" entry_id="31" table_id="236">全身包裹着如盔甲一般的甲壳, 会拼上性命保护\n巢穴中的孩子.</string>
+  <string block_id="0" entry_id="32" table_id="236">会躲在草丛里只露出耳朵来探察周围的情况. 能\n用有剧毒的角来保护自己.</string>
+  <string block_id="0" entry_id="33" table_id="236">脾气粗暴的宝可梦. 在刺入对手的撞击中, 从角\n尖渗出剧毒.</string>
+  <string block_id="0" entry_id="34" table_id="236">尾巴能一击将电线杆像折火柴棍一样折成两段.</string>
+  <string block_id="0" entry_id="35" table_id="236">据说在满月的夜晚, 如果能看到皮皮们聚在一起\n跳舞, 就能得到幸福.</string>
+  <string block_id="0" entry_id="36" table_id="236">非常机警, 很少会被人看到. 耳朵能听到一公里\n外掉了一根针的声音.</string>
+  <string block_id="0" entry_id="37" table_id="236">可以操纵火球, 成长之后六只尾巴会从顶部裂开\n来数量变得更多.</string>
+  <string block_id="0" entry_id="38" table_id="236">据说九只尾巴里蕴藏着神秘的力量, 可以活上千\n年.</string>
+  <string block_id="0" entry_id="39" table_id="236">转悠着可爱的眼睛, 并且开始唱摇篮曲的时候,\n无论谁都会陷入睡眠中.</string>
+  <string block_id="0" entry_id="40" table_id="236">皮肤上附着一层细毛手感极好, 吸入空气后身体\n会膨胀起来.</string>
+  <string block_id="0" entry_id="41" table_id="236">使用嘴里发出的超音波的反射来探测周围并定位.</string>
+  <string block_id="0" entry_id="42" table_id="236">尖锐的牙不论是多硬的皮肤都能贯穿, 只要有小\n小的洞, 就能从中拼命地吸血.</string>
+  <string block_id="0" entry_id="43" table_id="236">大多数在白天会把作为根的脚埋在地下, 不怎么\n活动. 晚上到处走散播种子.</string>
+  <string block_id="0" entry_id="44" table_id="236">从嘴里流出来的蜜有着就算在2公里外也能把鼻\n子熏歪的强烈臭味.</string>
+  <string block_id="0" entry_id="45" table_id="236">花瓣的大小是世界第一. 一边散播会引起严重过\n敏反应的毒花粉一边走.</string>
+  <string block_id="0" entry_id="46" table_id="236">让被称作冬虫夏草的蘑菇在背上生长. 它和派拉\n斯一起长大.</string>
+  <string block_id="0" entry_id="47" table_id="236">操纵派拉斯特的是比身体还大的蘑菇. 会播撒有\n毒的孢子.</string>
+  <string block_id="0" entry_id="48" table_id="236">大大的眼睛是由许多小眼睛汇聚在一起形成的.\n到了晚上会聚集在亮光下.</string>
+  <string block_id="0" entry_id="49" table_id="236">扇动翅膀散布磷粉. 磷粉沾到身体上之后, 有毒\n成分会渗入皮肤里.</string>
+  <string block_id="0" entry_id="50" table_id="236">生活在地里的宝可梦. 由于长期居住在阴暗的地\n下, 对明亮的阳光很反感.</string>
+  <string block_id="0" entry_id="51" table_id="236">3个脑袋交替运动, 就算在再硬的地层里也能掘\n进到地下100公里.</string>
+  <string block_id="0" entry_id="52" table_id="236">有着半夜活动的习性. 找到闪闪发亮的东西时,\n眼睛也会毫不逊色地闪闪发光.</string>
+  <string block_id="0" entry_id="53" table_id="236">非常高贵而傲慢的宝可梦. 额头上宝石的大小是\n它的粉丝谈论的热门话题.</string>
+  <string block_id="0" entry_id="54" table_id="236">无法控制不可思议的能力, 总被头疼困扰. 偶尔\n能使出不可思议的力量.</string>
+  <string block_id="0" entry_id="55" table_id="236">经常可以看到它使用手掌上发达的蹼有活力且优\n美地游泳的姿态.</string>
+  <string block_id="0" entry_id="56" table_id="236">在树上生活. 如果群体中有1只发起火来, 整个\n群体都会无缘无故地暴怒起来.</string>
+  <string block_id="0" entry_id="57" table_id="236">只是目光交汇就会生气, 逃走的话也会生气, 打\n倒它的话更会生气.</string>
+  <string block_id="0" entry_id="58" table_id="236">性格忠诚的宝可梦, 在得到训练家的命令之前一\n步也不会移动.</string>
+  <string block_id="0" entry_id="59" table_id="236">威风凛凛的样子, 从很早以前就得到了人类的倾\n心.</string>
+  <string block_id="0" entry_id="60" table_id="236">皮肤薄得可以透出内脏. 刚长出来的脚不擅长走\n路.</string>
+  <string block_id="0" entry_id="61" table_id="236">因为腹部的漩涡有着微妙的弯曲, 一直盯着它看\n的话, 渐渐地就睡着了.</string>
+  <string block_id="0" entry_id="62" table_id="236">拥有强韧的肌肉. 可以中途无休地游泳穿越太平\n洋.</string>
+  <string block_id="0" entry_id="63" table_id="236">使用超能力之后大脑会过度疲劳, 因此1天要睡\n18个小时.</string>
+  <string block_id="0" entry_id="64" table_id="236">凝视着银色汤匙来集中注意力, 发出的阿尔法波\n会增强.</string>
+  <string block_id="0" entry_id="65" table_id="236">据说胡地双手握着的汤匙是用它的超能力创造出\n来的物体.</string>
+  <string block_id="0" entry_id="66" table_id="236">虽然身体矮小, 却很有力气. 能毫不费力地同时\n举起并抛出好几只[[小拳石]].</string>
+  <string block_id="0" entry_id="67" table_id="236">为了锻炼身体, 会开心地搬运沉重的货物, 因此\n经常代替人类干体力活.</string>
+  <string block_id="0" entry_id="68" table_id="236">用4只强有力的手臂以令人目不暇接的速度出拳\n、劈 空手劈.</string>
+  <string block_id="0" entry_id="69" table_id="236">喜欢高温多湿的土地. 伸出藤蔓捕捉猎物的时候,\n动作非常迅速.</string>
+  <string block_id="0" entry_id="70" table_id="236">长得和植物一模一样的宝可梦. 对于贸然靠近的\n猎物, 用毒粉浸没它们, 然后捕食.</string>
+  <string block_id="0" entry_id="71" table_id="236">嘴里贮藏着散发花蜜般香气的液体, 那实际上却\n是可以溶解一切物体的溶解液.</string>
+  <string block_id="0" entry_id="72" table_id="236">由于身体几乎都是水, 被海浪冲到沙滩上之后就\n会被晒干.</string>
+  <string block_id="0" entry_id="73" table_id="236">伸长80只触手做出毒之包围网. 被抓住的话很\n难逃脱.</string>
+  <string block_id="0" entry_id="74" table_id="236">一动不动的时候就像小石块一样, 然而因为没注\n意到而踩上去的话, 小拳石就会挥舞着拳头發怒.</string>
+  <string block_id="0" entry_id="75" table_id="236">在山路上滚着移动. 带着气势无论什么寶可夢都\n很难停下它.</string>
+  <string block_id="0" entry_id="76" table_id="236">它的身体像岩石一样坚硬, 即使是炸药也无法伤\n其分毫. 1年只蜕皮1次.</string>
+  <string block_id="0" entry_id="77" table_id="236">刚出生时连站起来都十分不易. 但跑得越多, 腰\n腿就会被锻炼得越多, 速度也会随之增加.</string>
+  <string block_id="0" entry_id="78" table_id="236">全力奔跑时, 燃烧着的鬃毛会闪闪发光, 看起来\n更加漂亮.</string>
+  <string block_id="0" entry_id="79" table_id="236">虽然动作迟缓, 却很擅长用尾巴来垂钓. 由于感\n觉迟钝, 就算尾巴被咬也不感到痛.</string>
+  <string block_id="0" entry_id="80" table_id="236">发着呆的呆殼獸如果被大舌贝很强行地咬住的时\n候, 似乎会突发奇想.</string>
+  <string block_id="0" entry_id="81" table_id="236">让左右的部件越高速旋转, 能放出的磁力就越强.</string>
+  <string block_id="0" entry_id="82" table_id="236">太阳黑子增多的话不知为何三合一磁怪会变大,\n使电视机无法清楚地播放.</string>
+  <string block_id="0" entry_id="83" table_id="236">没有茎就活不下去, 所以如果有谁盯上茎的话就\n会拼命去战斗.</string>
+  <string block_id="0" entry_id="84" table_id="236">2个脑袋好像能用类似心灵感应的力量来互通想\n法.</string>
+  <string block_id="0" entry_id="85" table_id="236">进化的时候嘟嘟的某一个头分裂出的珍稀物种,\n用时速60千米奔跑.</string>
+  <string block_id="0" entry_id="86" table_id="236">生活在冰山上的宝可梦. 会用头上尖锐的突起部\n分破开冰层在海里游泳.</string>
+  <string block_id="0" entry_id="87" table_id="236">由于全身覆盖着雪白的体毛, 在雪地中活动并不\n会被天敌发现.</string>
+  <string block_id="0" entry_id="88" table_id="236">被污染的河里里的淤泥沐浴月亮照射来的X射线\n而出. 出现在肮脏的地方.</string>
+  <string block_id="0" entry_id="89" table_id="236">从身体里会渗出有剧毒的体液. 草木一沾上那液\n体就会瞬间枯萎.</string>
+  <string block_id="0" entry_id="90" table_id="236">用两枚贝壳开合的方式向后游, 任何时候都把舌\n头伸在外面.</string>
+  <string block_id="0" entry_id="91" table_id="236">将敌人击退的战法是强行闭合贝壳, 保护身体的\n同时将刺刺出.</string>
+  <string block_id="0" entry_id="92" table_id="236">从气体中诞生的生命体. 如果被含毒的气体状身\n体裹住的话, 不管是谁都会昏迷过去.</string>
+  <string block_id="0" entry_id="93" table_id="236">如果被它气体状的舌头舔到, 灵魂就会被抓走.\n会躲在暗处寻找猎物.</string>
+  <string block_id="0" entry_id="94" table_id="236">在黑暗里浮现出的笑脸的真面目是因为在诅咒人\n而开心的耿鬼.</string>
+  <string block_id="0" entry_id="95" table_id="236">一边狼吞虎咽地吃掉巨大的岩石一边在地下挖掘\n前进, 时速80千米.</string>
+  <string block_id="0" entry_id="96" table_id="236">据说只要抽动用伸长的鼻子, 就能知道梦境. 最\n喜欢开心的梦.</string>
+  <string block_id="0" entry_id="97" table_id="236">如果被它拿着钟摆在眼前晃悠, 就算是刚睡醒的\n人, 也会在3秒后睡着.</string>
+  <string block_id="0" entry_id="98" table_id="236">在沙滩上挖洞生活. 钳子就算在对战中弄断了,\n也能再长出来恢复原样.</string>
+  <string block_id="0" entry_id="99" table_id="236">大的那个钳子有一万马力的力量. 但是因为太重\n所以不容易瞄准目标.</string>
+  <string block_id="0" entry_id="100" table_id="236">外表酷似精灵球. 要是搞错了而碰到它的话, 触\n电的同时还会爆炸, 非常危险.</string>
+  <string block_id="0" entry_id="101" table_id="236">储存了过多电能而快要撑爆的頑皮雷彈有时会被\n风吹跑.</string>
+  <string block_id="0" entry_id="102" table_id="236">由于会通过心灵感应进行对话, 因此就算把这6\n只蛋蛋分开, 它们也会马上重新聚在一起.</string>
+  <string block_id="0" entry_id="103" table_id="236">被称为会走路的热带雨林. 其中一个头长大后掉\n落到地面就会变成蛋蛋.</string>
+  <string block_id="0" entry_id="104" table_id="236">当想起已经去世的母亲而哭泣的时候, 头上戴着\n的头骨就会发出“卡拉卡拉”的声音.</string>
+  <string block_id="0" entry_id="105" table_id="236">可以熟练自如地运用自出生的时候就握着的骨头\n棒. 性情凶暴.</string>
+  <string block_id="0" entry_id="106" table_id="236">腿可以伸展到平时的两倍长. 初次与它交战的对\n手会对它广阔的打击范围吓到.</string>
+  <string block_id="0" entry_id="107" table_id="236">会扭转着手臂出拳, 就连混凝土也能打碎. 每战\n斗3分钟就要休息一下.</string>
+  <string block_id="0" entry_id="108" table_id="236">伸长2米的舌头尾巴就会摆动, 所以这两个部位\n有连在一起的可能性.</string>
+  <string block_id="0" entry_id="109" table_id="236">会通过往体内储存比空气还轻的瓦斯浮在空中.\n瓦斯不但很臭还会爆炸.</string>
+  <string block_id="0" entry_id="110" table_id="236">吃从垃圾中产生的瓦斯变大. 极少数情况下还能\n见到三个的双弹瓦斯.</string>
+  <string block_id="0" entry_id="111" table_id="236">拥有可以用{{m</string>
+  <string block_id="0" entry_id="112" table_id="236">仅仅靠后腿就能站立, 前腿就变得自由了. 智力\n发达了, 但还总是忘事.</string>
+  <string block_id="0" entry_id="113" table_id="236">生出营养满分的蛋分给受伤的宝可梦或人类, 温\n柔的宝可梦.</string>
+  <string block_id="0" entry_id="114" table_id="236">覆盖全身的蓝色藤蔓上还长着更加纤细的毛. 摸\n上去会感觉很痒.</string>
+  <string block_id="0" entry_id="115" table_id="236">会在腹袋中抚育孩子. 只有在安全的时候, 才会\n让孩子从袋中出来玩.</string>
+  <string block_id="0" entry_id="116" table_id="236">会在珊瑚的阴影处安家. 如果感到危险, 就会从\n嘴里吐出漆黑的墨汁逃跑.</string>
+  <string block_id="0" entry_id="117" table_id="236">遇到敌人时用刺来保护身体. 鳍和骨头都是中药\n的材料, 而被珍视.</string>
+  <string block_id="0" entry_id="118" table_id="236">虽然飘曳着美丽的鳍的泳姿非常华丽, 但也可以\n用角使出强有力的刺击.</string>
+  <string block_id="0" entry_id="119" table_id="236">到了秋天, 为了求偶会让体内充满脂肪. 颜色也\n会变得非常漂亮.</string>
+  <string block_id="0" entry_id="120" table_id="236">只要红色核心存在, 身体被切碎也可以马上再生.\n深夜里核会忽明忽灭的闪烁.</string>
+  <string block_id="0" entry_id="121" table_id="236">它会从位于身体中间的红色核心那里向夜空发射\n神秘的电波.</string>
+  <string block_id="0" entry_id="122" table_id="236">微微挥动指尖让空气中的分子停止运动, 做出看\n不见的墙壁.</string>
+  <string block_id="0" entry_id="123" table_id="236">两臂锋利的镰刀越是切开坚硬的东西, 就会变得\n越锋利.</string>
+  <string block_id="0" entry_id="124" table_id="236">叫声听起来和人类的语言完全一样, 却完全无法\n理解其中的意思.</string>
+  <string block_id="0" entry_id="125" table_id="236">哪怕为了提高一点点能力也会在出拳之前抡胳膊,\n但会被人趁那个空隙逃走.</string>
+  <string block_id="0" entry_id="126" table_id="236">鸭嘴火兽深呼吸时, 身体周围会产生热浪, 使身\n影变得模糊难以看清.</string>
+  <string block_id="0" entry_id="127" table_id="236">会用2只角夹住猎物, 在撕碎猎物前不会松开.\n无法撕碎时就会把猎物扔到天边去.</string>
+  <string block_id="0" entry_id="128" table_id="236">一旦决定了要瞄准的猎物, 就会笔直地猛撞过去.\n因粗野的性格而出名.</string>
+  <string block_id="0" entry_id="129" table_id="236">活了很久的鲤鱼王可以一跳就翻过大山, 但招式\n的威力却还是那么弱.</string>
+  <string block_id="0" entry_id="130" table_id="236">一旦发狂的暴鲤龙出现, 就算狂风暴雨也会把任\n何东西烧毁殆尽.</string>
+  <string block_id="0" entry_id="131" table_id="236">喜欢让人或神奇宝贝乘在背上渡海. 能够理解人\n的语言.</string>
+  <string block_id="0" entry_id="132" table_id="236">有着可以重组全身的细胞, 变身成与看到的东西\n一模一样的能力.</string>
+  <string block_id="0" entry_id="133" table_id="236">由于基因不规则, 在不同条件下会迅速改变身体\n型态.</string>
+  <string block_id="0" entry_id="134" table_id="236">身体细胞的结构和水分子的相似, 所以能够溶解\n在水中.</string>
+  <string block_id="0" entry_id="135" table_id="236">心情兴奋的时候, 会射出许多带有电气而变得笔\n直的体毛.</string>
+  <string block_id="0" entry_id="136" table_id="236">吸入的空气会在体内的火炎袋中加热到1700\n度, 变成火焰.</string>
+  <string block_id="0" entry_id="137" table_id="236">用最先进的科学技术创造出的人工宝可梦. 可以\n在电子空间里移动.</string>
+  <string block_id="0" entry_id="138" table_id="236">利用现代的先进科技从化石中复活的宝可梦. 在\n古代的海洋里游动.</string>
+  <string block_id="0" entry_id="139" table_id="236">灭绝的原因一般认为是螺旋状的壳长得过于巨大.</string>
+  <string block_id="0" entry_id="140" table_id="236">人们认为它生活在3亿年前的沙滩上. 会用坚硬\n的壳来保护自己.</string>
+  <string block_id="0" entry_id="141" table_id="236">一般认为是因为猎物开始在陆地上生活了, 所以\n镰刀盔也来到陆地上.</string>
+  <string block_id="0" entry_id="142" table_id="236">在恐龙时代的天空中飞行的宝可梦. 拥有锯齿一\n般的牙齿.</string>
+  <string block_id="0" entry_id="143" table_id="236">饱餐之后, 就算是动动手指都很困难, 所以爬上\n它的肚子都没关系.</string>
+  <string block_id="0" entry_id="144" table_id="236">传说的鸟宝可梦. 能冻结空气中的水分, 制造出\n暴风雪.</string>
+  <string block_id="0" entry_id="145" table_id="236">据说是在雷云中的传说的宝可梦. 能够随心所欲\n地操纵雷电.</string>
+  <string block_id="0" entry_id="146" table_id="236">传说的鸟宝可梦中的1只. 据说只要火焰鸟现身,\n春天就会到来.</string>
+  <string block_id="0" entry_id="147" table_id="236">因为目击者非常少, 所以过去它被称为幻之宝可\n梦. 现在还找到过它蜕下的皮.</string>
+  <string block_id="0" entry_id="148" table_id="236">全身被气场包住的时候周围的天气会完全改变,\n据说住在湖泊和海洋里.</string>
+  <string block_id="0" entry_id="149" table_id="236">据说它的住处就在这广阔大海的某处. 会将遇难\n的船只引导到陆地边上.</string>
+  <string block_id="0" entry_id="150" table_id="236">因重组了梦幻的遗传基因而诞生. 据说有着所有\n宝可梦中最残暴的心.</string>
+  <string block_id="0" entry_id="151" table_id="236">因为能使用所有的招式, 所以有很多学者认为它\n是宝可梦的祖先.</string>
+  <string block_id="0" entry_id="152" table_id="236">会用头上的叶子来感知周围的温度和湿度. 非常\n喜欢沐浴阳光.</string>
+  <string block_id="0" entry_id="153" table_id="236">从脖子周围的花蕾中散发出香料的气息, 能让闻\n到的人精力充沛.</string>
+  <string block_id="0" entry_id="154" table_id="236">大竺葵呼出的气息中蕴藏着能让枯萎的花草复苏\n的不可思议的力量.</string>
+  <string block_id="0" entry_id="155" table_id="236">性格胆小怯懦. 受到惊吓时, 背上的火焰就会燃\n烧得更加强烈.</string>
+  <string block_id="0" entry_id="156" table_id="236">用火焰的灼热威吓对手. 进入战斗状态时, 火势\n变强.</string>
+  <string block_id="0" entry_id="157" table_id="236">用火焰爆发的气浪来攻击. 用灼热的火焰产生的\n蜃景来隐藏自己的身影.</string>
+  <string block_id="0" entry_id="158" table_id="236">有着发达的下颚, 以及什么都咬的习性, 就算是\n训练家也要小心.</string>
+  <string block_id="0" entry_id="159" table_id="236">一旦咬住, 除非牙齿脱落, 否则绝不会松口. 脱\n落的牙齿马上就能再长出来.</string>
+  <string block_id="0" entry_id="160" table_id="236">虽然平时动作慢慢悠悠, 但在扑咬猎物的时候,\n速度却快得无法看清.</string>
+  <string block_id="0" entry_id="161" table_id="236">非常神经质的性格. 为了能眺望到远处, 用尾巴\n把身体支起来.</string>
+  <string block_id="0" entry_id="162" table_id="236">母亲会用细长的身体裹住孩子使其入睡. 能用快\n速的动作追赶敌人.</string>
+  <string block_id="0" entry_id="163" table_id="236">能准确地报时. 有些国家的人认为它是知晓世间\n一切事理的智慧之神.</string>
+  <string block_id="0" entry_id="164" table_id="236">双眼有着特殊的构造, 只要有一点点光芒, 就算\n是黑暗中也能像白天一样看清.</string>
+  <string block_id="0" entry_id="165" table_id="236">胆小到若不是成群行动就会害怕得无法动弹. 用\n气味来传达感情.</string>
+  <string block_id="0" entry_id="166" table_id="236">将星光转化成能量. 夜空中星星的数量增多时,\n背上的斑点也会变大.</string>
+  <string block_id="0" entry_id="167" table_id="236">用细而结实的蛛网编织成网作为陷阱. 一动不动\n地等待猎物上门.</string>
+  <string block_id="0" entry_id="168" table_id="236">会将丝缠在猎物身上, 然后故意放走. 只要沿着\n丝就能把猎物和它的伙伴一网打尽.</string>
+  <string block_id="0" entry_id="169" table_id="236">双脚也变成了翅膀, 可以更加灵巧地飞翔, 但是\n走路却变得很笨拙.</string>
+  <string block_id="0" entry_id="170" table_id="236">能够从触手的尖端放出正负电, 令敌人触电.</string>
+  <string block_id="0" entry_id="171" table_id="236">在深海游动的电灯怪所发出的亮光能射到水面上.\n因此人们称它为深海之星.</string>
+  <string block_id="0" entry_id="172" table_id="236">脸颊上的电气囊还很小, 如果储存的电量稍有溢\n出, 自己就会被麻痹.</string>
+  <string block_id="0" entry_id="173" table_id="236">在流星很多的夜里, 能发现更多的皮宝宝, 因此\n有人说它是乘着星星而来的.</string>
+  <string block_id="0" entry_id="174" table_id="236">柔软的身体有很大弹性, 只要跳一下就完全无法\n停下来了.</string>
+  <string block_id="0" entry_id="175" table_id="236">把大家感受到的温情和喜悦都转化为幸福. 壳里\n只剩幸福了.</string>
+  <string block_id="0" entry_id="176" table_id="236">为了分发幸福, 在全世界飞来飞去寻觅心地善良\n的人.</string>
+  <string block_id="0" entry_id="177" table_id="236">灵巧地避开仙人掌的刺和花蕾进行啄食, 蹦跳着\n移动.</string>
+  <string block_id="0" entry_id="178" table_id="236">能够看穿过去和未来. 每天都注视着太阳的活动\n的不可思议的宝可梦.</string>
+  <string block_id="0" entry_id="179" table_id="236">储存了静电后, 蓬松的体毛就会膨胀到原来的2\n倍. 一旦触摸就会触电.</string>
+  <string block_id="0" entry_id="180" table_id="236">体毛中蓄满电力后, 尾巴就会发光. 会射出碰到\n就会被电麻的体毛.</string>
+  <string block_id="0" entry_id="181" table_id="236">尾巴的尖端闪耀着光芒. 以前的人们利用这灯光\n传递信号.</string>
+  <string block_id="0" entry_id="182" table_id="236">大雨的季节结束后, 受到温暖阳光吸引的美丽花\n就会开始跳舞.</string>
+  <string block_id="0" entry_id="183" table_id="236">充满尾巴末端的脂肪会浮在水面上, 因此就算在\n再湍急的河流中也不会溺水.</string>
+  <string block_id="0" entry_id="184" table_id="236">能一天整天都在水中度过是因为一次吸入并储存\n了足够大量的空气.</string>
+  <string block_id="0" entry_id="185" table_id="236">为了避免受到攻击, 总是模仿树的样子. 很怕水,\n一旦下雨就会四处逃窜.</string>
+  <string block_id="0" entry_id="186" table_id="236">以蚊香蛙皇为领袖形成群体. 蚊香蛙皇的叫声能\n够让蚊香蝌蚪们都听话.</string>
+  <string block_id="0" entry_id="187" table_id="236">会随风飘荡. 据说如果毽子草集中出现在山野上,\n就说明春天快要到了.</string>
+  <string block_id="0" entry_id="188" table_id="236">当气温升高时就会开花. 飘浮在空中, 尽情享受\n阳光的沐浴.</string>
+  <string block_id="0" entry_id="189" table_id="236">会随季风环绕世界1周. 途中会播撒棉孢子.</string>
+  <string block_id="0" entry_id="190" table_id="236">能灵巧地使用比手更加自由自在地活动的尾巴.\n生活在高高的树木上.</string>
+  <string block_id="0" entry_id="191" table_id="236">会在某日清晨突然跳出来. 在冷夏的次年会数量\n暴增.</string>
+  <string block_id="0" entry_id="192" table_id="236">温暖的阳光就是它的能量. 以追着太阳移动的习\n性闻名.</string>
+  <string block_id="0" entry_id="193" table_id="236">高速振动翅膀悬停在空中, 监视着自己的领地.</string>
+  <string block_id="0" entry_id="194" table_id="236">为了在地面上行走的时候不让皮肤干燥, 用有毒\n的粘膜覆盖身体.</string>
+  <string block_id="0" entry_id="195" table_id="236">就算脑袋撞上船底或者河里的岩石, 也完全不在\n意地自在游泳的悠闲的宝可梦.</string>
+  <string block_id="0" entry_id="196" table_id="236">全身的体毛都很敏感, 能够觉察出空气里微小的\n变化并预知天气.</string>
+  <string block_id="0" entry_id="197" table_id="236">沐浴了月亮的波动, 身体上的环状花纹微微发光,\n是因为不可思议的力量觉醒了.</string>
+  <string block_id="0" entry_id="198" table_id="236">看到黑暗鸦后不经意间跟随它的话, 会被丢在山\n道上而迷路.</string>
+  <string block_id="0" entry_id="199" table_id="236">被大舌贝咬到脑袋之后得到了能和获诺贝尔奖的\n科学家相提并论的智慧.</string>
+  <string block_id="0" entry_id="200" table_id="236">在深夜里惊吓人类, 收集恐惧之心作为自己的能\n量的宝可梦.</string>
+  <string block_id="0" entry_id="201" table_id="236">只有一只的话什么都不会发生, 然而据说两只以\n上出现的时候, 就会产生出某种力量.</string>
+  <string block_id="0" entry_id="202" table_id="236">拼命地隐藏自己的黑色尾巴, 这被推测是尾巴上\n隐藏着什么秘密的证据.</string>
+  <string block_id="0" entry_id="203" table_id="236">尾巴上的脑袋里也有小小的脑子, 就算背对着敌\n人也可以通过本能战斗.</string>
+  <string block_id="0" entry_id="204" table_id="236">外形酷似树果. 虽然会被鸟宝可梦误啄, 但身体\n有着坚硬外壳的保护.</string>
+  <string block_id="0" entry_id="205" table_id="236">被钢铁外壳保护着. 虽然眼睛会从缝隙里向外窥\n视, 但里面的正身是什么仍是个谜.</string>
+  <string block_id="0" entry_id="206" table_id="236">会用尾巴挖掘地面, 做出像迷宫一样的巢穴. 能\n用翅膀稍微飞上一段距离.</string>
+  <string block_id="0" entry_id="207" table_id="236">在空中滑翔般飞翔, 贴到脸上吓唬到对方之后,\n用毒针进行攻击.</string>
+  <string block_id="0" entry_id="208" table_id="236">一般认为是和泥土一起吞下的钢铁积存起来, 身\n体才会发生变化.</string>
+  <string block_id="0" entry_id="209" table_id="236">它是受女性欢迎的宝可梦. 因为女性反倒会认为\n它那会吓跑小型宝可梦的鬼面很可爱.</string>
+  <string block_id="0" entry_id="210" table_id="236">面相虽凶, 内心却很胆小. 然而一旦开始发怒,\n就会用大牙齿来反击.</string>
+  <string block_id="0" entry_id="211" table_id="236">遍布全身的毒针能向四面八方发射. 圆滚滚的身\n体不擅长游泳.</string>
+  <string block_id="0" entry_id="212" table_id="236">举起有着眼球状花纹的大钳子不仅可以威吓敌人,\n只是普通地挥下也很危险.</string>
+  <string block_id="0" entry_id="213" table_id="236">在甲壳内储藏树果, 树果在里面发酵后变成美味\n的果汁.</string>
+  <string block_id="0" entry_id="214" table_id="236">很喜欢甜甜的蜜. 为了把蜂蜜据为己有, 用引以\n为豪的大角扔飞敌人.</string>
+  <string block_id="0" entry_id="215" table_id="236">非常狡诈, 有着一只骗走双亲, 另一只偷走蛋这\n样的团队合作.</string>
+  <string block_id="0" entry_id="216" table_id="236">让甜甜的蜜汁渗入手掌, 一直舔着手掌. 不同的\n熊宝宝的口味也不一样.</string>
+  <string block_id="0" entry_id="217" table_id="236">用爪子在自己的领地中能结出美味树果和水果的\n树上划出伤痕作为标记.</string>
+  <string block_id="0" entry_id="218" table_id="236">有着由熔岩构成的身体. 如果不持续运动, 身体\n就会因变冷而凝固.</string>
+  <string block_id="0" entry_id="219" table_id="236">体温约有一万度. 从岩浆硬化而成的外壳的缝隙\n中喷出火焰.</string>
+  <string block_id="0" entry_id="220" table_id="236">嗅觉非常灵敏. 不仅是冰层下埋藏的蘑菇和树果,\n就连地下温泉都能找出来.</string>
+  <string block_id="0" entry_id="221" table_id="236">全身覆盖长长的体毛抵御严寒, 在下雪时冰冻牙\n会变得更厚.</string>
+  <string block_id="0" entry_id="222" table_id="236">在南国的美丽大海里有着许多太阳珊瑚, 在被污\n染的海中无法生存.</string>
+  <string block_id="0" entry_id="223" table_id="236">从嘴里喷射出强劲的水柱. 就算是从很深的水下\n瞄准, 也能一定能击中猎物.</string>
+  <string block_id="0" entry_id="224" table_id="236">喜欢潜伏在岩洞中. 有时就这样伸出嘴, 喷出墨\n汁.</string>
+  <string block_id="0" entry_id="225" table_id="236">把食物包裹在尾巴里搬运. 有着把食物分给在山\n中遇险的人的习性.</string>
+  <string block_id="0" entry_id="226" table_id="236">虽然在大海里悠闲游动时, 觊觎食物残渣的铁炮\n鱼会吸附在它的鳍上, 但它并不会在意.</string>
+  <string block_id="0" entry_id="227" table_id="236">全身覆盖着铁一般坚硬的铠甲. 会以时速300\n公里的速度在空中飞来飞去.</string>
+  <string block_id="0" entry_id="228" table_id="236">有着使用各种不同的叫声和同伴交流而捕猎的智\n慧.</string>
+  <string block_id="0" entry_id="229" table_id="236">愤怒时从嘴里喷出的火焰中还混合着毒素, 被灼\n伤的话, 就会疼痛不止.</string>
+  <string block_id="0" entry_id="230" table_id="236">住在海底的洞窟中. 刺龙王移动身体的时候会引\n起巨大的漩涡.</string>
+  <string block_id="0" entry_id="231" table_id="236">身体虽小却充满了力量. 能轻轻松松地将成年人\n驮在背上行走.</string>
+  <string block_id="0" entry_id="232" table_id="236">把身体蜷成一团, 滚动着突进攻击. 一击就可以\n把民房撞得粉碎.</string>
+  <string block_id="0" entry_id="233" table_id="236">为了能让它开发行星而进行了升级, 但是似乎还\n远远无法胜任.</string>
+  <string block_id="0" entry_id="234" table_id="236">如果盯着它的角看, 就会产生一种似乎要被吸入\n圆心的神奇感觉.</string>
+  <string block_id="0" entry_id="235" table_id="236">会把尾巴当做笔来使用, 在领地上画上标记. 标\n记的种类有5000种以上.</string>
+  <string block_id="0" entry_id="236" table_id="236">以爱打架而出名. 会去挑衅比自己高大的对手,\n因此总是伤痕累累.</string>
+  <string block_id="0" entry_id="237" table_id="236">会像陀螺一样旋转着战斗. 由于离心力的作用,\n破坏力可达到原来的10倍.</string>
+  <string block_id="0" entry_id="238" table_id="236">不管是什么都会试着用嘴唇去触碰确认. 能用嘴\n唇记住自己喜欢和讨厌的东西.</string>
+  <string block_id="0" entry_id="239" table_id="236">两角之间有微弱的电流, 如果不小心把手伸过去,\n就会被电麻.</string>
+  <string block_id="0" entry_id="240" table_id="236">由于体内流淌着熔岩一样的血液, 因此体温可达\n600度.</string>
+  <string block_id="0" entry_id="241" table_id="236">据说喝大奶罐的牛奶的孩子会茁壮成长为健壮的\n大人.</string>
+  <string block_id="0" entry_id="242" table_id="236">幸福蛋生的蛋里饱含幸福, 只要吃上一口, 不管\n是谁都会笑逐颜开.</string>
+  <string block_id="0" entry_id="243" table_id="236">据说它伴随着雷电落下. 背上的雨云中可以释放\n出落雷.</string>
+  <string block_id="0" entry_id="244" table_id="236">据说如果炎帝吼叫的话, 世界上的某处火山就会\n喷发.</string>
+  <string block_id="0" entry_id="245" table_id="236">在全世界四处奔跑, 让污水重回清澈. 会随北风\n奔跑着离去.</string>
+  <string block_id="0" entry_id="246" table_id="236">吃土的宝可梦, 吃光一座大山之后, 为了成长而\n开始沉睡.</string>
+  <string block_id="0" entry_id="247" table_id="236">身体如岩盘一样坚硬. 会喷射压缩气体, 如同火\n箭一样飞出去.</string>
+  <string block_id="0" entry_id="248" table_id="236">由于班基拉斯发狂会导致山崩地裂, 河流填平,\n所以到时需要重新绘制地图.</string>
+  <string block_id="0" entry_id="249" table_id="236">沉睡在很深的海沟底部. 据说洛奇亚挥动翅膀的\n话, 就会引起长达40天的暴风雨.</string>
+  <string block_id="0" entry_id="250" table_id="236">拥有七色的翅膀. 传说看到凤王的人会获得永远\n的幸福.</string>
+  <string block_id="0" entry_id="251" table_id="236">能够使用穿越时光的力量. 据说只会在和平时代\n出现.</string>
+  <string block_id="0" entry_id="252" table_id="236">脚底有很多小刺, 所以可以在墙壁或天花板上行\n走.</string>
+  <string block_id="0" entry_id="253" table_id="236">栖息在密林里. 会在枝头间跳跃移动着接近猎物.</string>
+  <string block_id="0" entry_id="254" table_id="236">手臂上长出的叶子锋利得连大树都能“唰”地一\n刀砍倒. 在密林中战斗无人能敌.</string>
+  <string block_id="0" entry_id="255" table_id="236">因为体内燃烧着火焰, 所以抱在怀里非常温暖.\n可以喷出1000度的火球.</string>
+  <string block_id="0" entry_id="256" table_id="236">有着1秒内连踢10次的腿技. 会用尖锐的叫声\n威吓对手.</string>
+  <string block_id="0" entry_id="257" table_id="236">从手腕喷出的火焰包裹住双拳, 打出的拳击能够\n把对手烧得焦黑.</string>
+  <string block_id="0" entry_id="258" table_id="236">会用头上的鳍感知水流, 从而了解周围的情况.\n有着能举起岩石的力量.</string>
+  <string block_id="0" entry_id="259" table_id="236">腰腿十分结实, 在泥泞的地方也能稳步前进. 把\n身体埋在泥里睡觉.</string>
+  <string block_id="0" entry_id="260" table_id="236">拥有能拖着大型船只游动的力量. 只要挥一挥粗\n壮的手臂就能打倒对手.</string>
+  <string block_id="0" entry_id="261" table_id="236">性格执着的宝可梦. 一旦盯上某个猎物, 就会追\n到对方精疲力尽.</string>
+  <string block_id="0" entry_id="262" table_id="236">成群结队地追赶猎物. 绝对不会违抗优秀训练家\n的命令.</string>
+  <string block_id="0" entry_id="263" table_id="236">此宝可梦很擅长通过之字形走路来发现埋藏在草\n丛或地里的宝物.</string>
+  <string block_id="0" entry_id="264" table_id="236">能以100公里的时速扑向猎物, 但因为只能沿\n直线奔跑, 所以扑空次数比较多.</string>
+  <string block_id="0" entry_id="265" table_id="236">经常被鸟宝可梦盯上, 会从尾部的尖刺里释放毒\n素拼死抵抗.</string>
+  <string block_id="0" entry_id="266" table_id="236">会将丝线缠在树枝上. 一边喝着丝线上挂着的雨\n水, 一边等待着进化的那一刻.</string>
+  <string block_id="0" entry_id="267" table_id="236">有着与外表不符的攻击性. 如果打扰它采集花粉,\n会被细长的口器刺到.</string>
+  <string block_id="0" entry_id="268" table_id="236">就算进化了也不会忘记待在茧中时受到的攻击.\n一定会想方设法进行报复.</string>
+  <string block_id="0" entry_id="269" table_id="236">扑打翅膀时, 毒粉随之飞舞. 也会在夜间把行道\n树的叶子啃得七零八落.</string>
+  <string block_id="0" entry_id="270" table_id="236">酷似水草的宝可梦. 会把不会游泳的宝可梦放在\n叶子上送至对岸.</string>
+  <string block_id="0" entry_id="271" table_id="236">它是一个如果遇到垂钓者, 就会从水中扯线捣乱\n并引以为乐的捣蛋鬼.</string>
+  <string block_id="0" entry_id="272" table_id="236">如果听到欢快的音乐, 体内就会充满力量, 会情\n不自禁地跳起舞来.</string>
+  <string block_id="0" entry_id="273" table_id="236">悬挂在树枝上时, 看起来就和树果一模一样. 会\n以吓唬想要啄食它的宝可梦为乐.</string>
+  <string block_id="0" entry_id="274" table_id="236">长鼻叶吹奏出的草笛声会让人感到不安. 它居住\n在森林的深处.</string>
+  <string block_id="0" entry_id="275" table_id="236">如果扇起叶子团扇, 就会掀起风速30米的瞬时\n强风, 吹跑民房.</string>
+  <string block_id="0" entry_id="276" table_id="236">有着不管是怎样强大的对手都敢于前去迎战的毅\n力. 会向着温暖的土地飞行.</string>
+  <string block_id="0" entry_id="277" table_id="236">在高空盘旋搜寻猎物, 会头朝下地急速俯冲捕获\n猎物.</string>
+  <string block_id="0" entry_id="278" table_id="236">能在空中飞得很高, 可以像滑翔机一样利用气流.\n飞行时嘴里塞着食物.</string>
+  <string block_id="0" entry_id="279" table_id="236">把小型宝可梦和蛋放进嘴里, 并运送到安全地方\n的空中运送员.</string>
+  <string block_id="0" entry_id="280" table_id="236">用红色的角捕捉到人和宝可梦的温情后, 全身也\n会稍稍变暖起来.</string>
+  <string block_id="0" entry_id="281" table_id="236">当训练家高兴的时候, 奇鲁莉安也会充满能量,\n开心地转着圈跳舞.</string>
+  <string block_id="0" entry_id="282" table_id="236">如果是为了保护训练家, 它就会用尽自己的精神\n力量制造出小型黑洞.</string>
+  <string block_id="0" entry_id="283" table_id="236">能在水面上像滑行一样行走. 会从头顶释放出甜\n甜的气味引诱猎物.</string>
+  <string block_id="0" entry_id="284" table_id="236">有着长有眼珠花纹的触角. 能用4根翅膀浮在空\n中, 并向前后左右移动.</string>
+  <string block_id="0" entry_id="285" table_id="236">从头顶喷出毒孢子. 吸入了毒孢子的话, 浑身上\n下每个关节都会疼痛.</string>
+  <string block_id="0" entry_id="286" table_id="236">短短的手臂在出拳时会猛地一下伸长. 有着能令\n职业拳击手汗颜的技术.</string>
+  <string block_id="0" entry_id="287" table_id="236">一天中绝大部分时间都是趴在地上度过的. 只要\n看到它, 睡意就会袭来.</string>
+  <string block_id="0" entry_id="288" table_id="236">由于心脏以10倍于正常的速率跳动, 它一刻也\n不能安静下来.</string>
+  <string block_id="0" entry_id="289" table_id="236">世界上最懒散的宝可梦. 看上去只是趴着的时候,\n其实是在积蓄反击的力量.</string>
+  <string block_id="0" entry_id="290" table_id="236">在地底下成长. 眼睛基本上什么都看不到, 而是\n靠触角来探测周围的情况.</string>
+  <string block_id="0" entry_id="291" table_id="236">由于移动的速度过快, 有时很难看到它的身影.\n会聚集在树汁周围.</string>
+  <string block_id="0" entry_id="292" table_id="236">蜕下的壳有了灵魂. 从它背上的缝隙向里面窥视\n的话, 灵魂好像就会被吸走.</string>
+  <string block_id="0" entry_id="293" table_id="236">平常的叫声如同窃窃私语, 但一旦受到惊吓, 就\n会持续以喷气式飞机的音量尖叫.</string>
+  <string block_id="0" entry_id="294" table_id="236">大叫所产生的冲击波会掀翻卡车. 会通过跺脚来\n提高威力.</string>
+  <string block_id="0" entry_id="295" table_id="236">爆音怪的长嚎能传至10公里之外. 会从身上的\n多个洞里发出各种声音.</string>
+  <string block_id="0" entry_id="296" table_id="236">靠击打粗壮的大树来锻炼身体, 居住地附近可以\n发现很多被打断的树木.</string>
+  <string block_id="0" entry_id="297" table_id="236">很喜欢和体型巨大的宝可梦比试力量. 一巴掌就\n能把卡车打飞.</string>
+  <string block_id="0" entry_id="298" table_id="236">像橡胶球一般蹦蹦跳跳. 摇摆着尾巴来对抗比自\n己体型更大的宝可梦.</string>
+  <string block_id="0" entry_id="299" table_id="236">在危急的时刻磁力会加强, 有时能把周围的铁块\n吸到身上来保护自己.</string>
+  <string block_id="0" entry_id="300" table_id="236">不由自主地就会去追动的东西. 会追着自己的尾\n巴, 一圈圈地原地打转.</string>
+  <string block_id="0" entry_id="301" table_id="236">有着美丽的毛发, 非常受女性训练家的欢迎. 没\n有固定的住所.</string>
+  <string block_id="0" entry_id="302" table_id="236">潜伏于洞窟的阴暗处. 在吃宝石的过程中, 眼睛\n变成了宝石.</string>
+  <string block_id="0" entry_id="303" table_id="236">头上长着由角变化而来的大颚. 连工字钢都可以\n咬断.</string>
+  <string block_id="0" entry_id="304" table_id="236">虽然平时住在深山里, 但肚子饿了就会出现在山\n脚下, 吃铁轨或者车辆.</string>
+  <string block_id="0" entry_id="305" table_id="236">以挖掘出的铁矿石为食, 有用钢铁的身体互相撞\n击来抢夺地盘的习性.</string>
+  <string block_id="0" entry_id="306" table_id="236">会一边用钢角撞毁坚硬的岩盘, 一边挖隧道寻找\n铁矿来作为自己的食物.</string>
+  <string block_id="0" entry_id="307" table_id="236">总是在深山里修行. 通过冥想提高精神力后, 身\n体就会飘浮起来.</string>
+  <string block_id="0" entry_id="308" table_id="236">不吃任何食物, 只要专心一志, 集中精神, 就能\n看见对手的灵气. &lt;! --青文--&gt;</string>
+  <string block_id="0" entry_id="309" table_id="236">会使用体毛中积蓄的电来刺激肌肉, 并以此来提\n高自己的瞬间爆发力.</string>
+  <string block_id="0" entry_id="310" table_id="236">一直在从鬃毛中放电. 会在自己头上制造雷云,\n然后劈下闪电进行攻击.</string>
+  <string block_id="0" entry_id="311" table_id="236">会制造火花拉拉球来给伙伴加油. 能从电线杆上\n吸取电力.</string>
+  <string block_id="0" entry_id="312" table_id="236">有给伙伴加油的习性. 如果伙伴快要输掉的话,\n体内迸发出的火花数量就会不断增多.</string>
+  <string block_id="0" entry_id="313" table_id="236">到了晚上会亮起臀部与伙伴交流. 非常喜欢甜甜\n萤放出的甜甜香气.</string>
+  <string block_id="0" entry_id="314" table_id="236">会利用甜甜的香气诱导电萤虫在夜空中描绘发光\n的记号.</string>
+  <string block_id="0" entry_id="315" table_id="236">精力旺盛的毒蔷薇从花里散发出香气, 让闻到香\n气的人心情放松.</string>
+  <string block_id="0" entry_id="316" table_id="236">身体基本上就是一个胃袋, 强力的胃液可以将吃\n进去的东西瞬间消化掉.</string>
+  <string block_id="0" entry_id="317" table_id="236">不管是什么都会整个吞掉. 会将毛孔中分泌出的\n剧毒体液撒向敌人.</string>
+  <string block_id="0" entry_id="318" table_id="236">联合起来攻击入侵领地的敌人. 尖锐的牙齿能把\n小船的底部咬穿.</string>
+  <string block_id="0" entry_id="319" table_id="236">有着连铁板都能咬碎的牙齿, 游动时, 时速可达\n120公里. 它的别名是大海恶霸.</string>
+  <string block_id="0" entry_id="320" table_id="236">在晴朗的日子爬上沙滩, 像皮球一样弹跳嬉闹.\n能从鼻孔里喷出水花.</string>
+  <string block_id="0" entry_id="321" table_id="236">体型最大的宝可梦. 能够一口气潜到3000米\n深的水下.</string>
+  <string block_id="0" entry_id="322" table_id="236">会把灼热的熔岩储存在背上的驼峰里. 一旦淋了\n雨, 熔岩就会冷却, 动作也会变得迟缓.</string>
+  <string block_id="0" entry_id="323" table_id="236">背上驮着火山的宝可梦. 体内的熔岩积攒到一定\n程度, 就会在一阵震动之后剧烈喷发.</string>
+  <string block_id="0" entry_id="324" table_id="236">会在甲壳中燃烧煤炭产生能量. 危急关头会喷出\n黑色的煤烟.</string>
+  <string block_id="0" entry_id="325" table_id="236">会用尾巴代替弹簧, 一直在跳来跳去. 靠跳跃时\n的震动来使心脏跳动.</string>
+  <string block_id="0" entry_id="326" table_id="236">能用黑珍珠增强自己的精神力量. 会用神奇的舞\n步操纵对手的心.</string>
+  <string block_id="0" entry_id="327" table_id="236">世上没有斑点花纹相同的晃晃斑. 会用晃晃悠悠\n的步伐来避开对手的瞄准.</string>
+  <string block_id="0" entry_id="328" table_id="236">在沙漠中挖出漏斗型的洞穴, 在洞穴底部等待着\n不小心掉到洞里的猎物.</string>
+  <string block_id="0" entry_id="329" table_id="236">剧烈振动翅膀产生超声波, 其威力足以使人类头\n痛.</string>
+  <string block_id="0" entry_id="330" table_id="236">猛烈地扑打翅膀扬起沙尘暴. 被称为“沙漠神奇\n宝贝”.</string>
+  <string block_id="0" entry_id="331" table_id="236">生长在沙漠中. 靠着体内贮存的水分, 可以不喝\n水存活30天.</string>
+  <string block_id="0" entry_id="332" table_id="236">到了夜间会开始活动. 会找出并捉住那些因受不\n了沙漠炎热而精疲力竭的猎物.</string>
+  <string block_id="0" entry_id="333" table_id="236">不论是自身还是周围环境, 只要有一点不洁就无\n法平静. 一旦看到污渍, 就用羽毛抹去.</string>
+  <string block_id="0" entry_id="334" table_id="236">有了与之心意相通的人时候, 会用柔软美丽的翅\n膀包裹对方轻轻哼唱.</string>
+  <string block_id="0" entry_id="335" table_id="236">好几个世代以来一直在与饭匙蛇战斗. 锋利的爪\n子是它最强的武器.</string>
+  <string block_id="0" entry_id="336" table_id="236">祖祖辈辈都在与猫鼬斩抗争. 在岩石上把尾部的\n利刃磨快, 为战斗做好准备.</string>
+  <string block_id="0" entry_id="337" table_id="236">满月之夜会变得特别活跃, 因此它的这一习性据\n说和月亮的圆缺有关.</string>
+  <string block_id="0" entry_id="338" table_id="236">传言是太阳的分身的新发现的宝可梦品种. 旋转\n着身体放出光芒.</string>
+  <string block_id="0" entry_id="339" table_id="236">粘糊糊的身体很难抓住. 某些地区传言说它诞生\n于固结的泥土之中.</string>
+  <string block_id="0" entry_id="340" table_id="236">保护领地的意识非常强烈. 一旦有外敌靠近, 就\n剧烈震动地面来攻击.</string>
+  <string block_id="0" entry_id="341" table_id="236">可以适应任何环境, 有着强大生命力的宝可梦.\n不会放开夹到的猎物.</string>
+  <string block_id="0" entry_id="342" table_id="236">它是个粗暴的家伙. 会用钳子把住在池塘里的其\n他宝可梦夹起来扔到外面去.</string>
+  <string block_id="0" entry_id="343" table_id="236">会用单脚旋转着移动. 是在古代遗迹中发现的珍\n奇宝可梦.</string>
+  <string block_id="0" entry_id="344" table_id="236">因为受到怪异光线的照射, 所以古代的泥偶附有\n了生命, 变成了宝可梦.</string>
+  <string block_id="0" entry_id="345" table_id="236">生活在约1亿年前海底的古代宝可梦. 被科学的\n力量复活了.</string>
+  <string block_id="0" entry_id="346" table_id="236">会待在温暖的海洋浅滩上. 退潮后就会去把那些\n藏在沙滩里的猎物挖出来吃掉.</string>
+  <string block_id="0" entry_id="347" table_id="236">从化石中复活的, 宝可梦的某个先祖. 在海中生\n活, 会用爪子捕捉猎物.</string>
+  <string block_id="0" entry_id="348" table_id="236">进化之后, 开始迁徙到陆地上生活. 浑身覆盖着\n坚固的盔甲.</string>
+  <string block_id="0" entry_id="349" table_id="236">虽然外表丑陋寒碜, 生命力却十分顽强, 只要一\n小洼水就能生存.</string>
+  <string block_id="0" entry_id="350" table_id="236">美丽的鳞片有着彩虹般的色彩, 随着观看角度的\n不同, 会变幻各种各样的颜色.</string>
+  <string block_id="0" entry_id="351" table_id="236">随天气情况改变形态. 最近的研究成果表明, 它\n的身体和水分子十分相似.</string>
+  <string block_id="0" entry_id="352" table_id="236">拥有能自由改变身体颜色的能力. 只有位于腹部\n的锯齿状花纹不会发生改变.</string>
+  <string block_id="0" entry_id="353" table_id="236">非常喜欢怨恨的感情. 会成排地悬挂在心怀怨恨\n的人的屋檐下.</string>
+  <string block_id="0" entry_id="354" table_id="236">怨念附在被丢弃的玩偶身上, 变成了宝可梦. 会\n一直寻找丢弃自己的孩子.</string>
+  <string block_id="0" entry_id="355" table_id="236">非常喜欢小孩子的哭声. 能够穿过厚厚的墙壁,\n把屋里的坏孩子吓哭.</string>
+  <string block_id="0" entry_id="356" table_id="236">看到游走的魂魄就将其吸进空空的身体内. 被吸\n进去会怎样是个谜.</string>
+  <string block_id="0" entry_id="357" table_id="236">因为一直在吃很多好吃的水果, 脖子上也结出了\n美味的果子.</string>
+  <string block_id="0" entry_id="358" table_id="236">叫声在体内的空腔中回响, 形成美妙的音色, 能\n把敌人吓跑.</string>
+  <string block_id="0" entry_id="359" table_id="236">传说会用角感受到灾难的发生, 并逃至深山中.</string>
+  <string block_id="0" entry_id="360" table_id="236">通过与伙伴们进行互推游戏, 练就了很强的忍耐\n力. 非常喜欢吃甘甜的水果.</string>
+  <string block_id="0" entry_id="361" table_id="236">据说, 好几只雪童子会聚集在大大的叶片底下,\n融洽地生活在一起.</string>
+  <string block_id="0" entry_id="362" table_id="236">能用一眨眼的工夫将空气中的水分冻结, 让猎物\n无法逃跑.</string>
+  <string block_id="0" entry_id="363" table_id="236">在浮冰上的海岸边骨碌骨碌地滚动着生活, 体型\n不太便于游泳.</string>
+  <string block_id="0" entry_id="364" table_id="236">有着什么东西都要放在鼻子上转动的癖好. 一边\n转一边记下其气味和触感.</string>
+  <string block_id="0" entry_id="365" table_id="236">能用獠牙咬碎巨大的冰块. 厚厚的脂肪不仅能抵\n御严寒, 还能反弹敌人的攻击.</string>
+  <string block_id="0" entry_id="366" table_id="236">一生只能产出一颗珍珠. 据说有着增强精神力量\n的作用.</string>
+  <string block_id="0" entry_id="367" table_id="236">栖息在深海中的宝可梦. 用形如小鱼的尾巴引诱\n猎物靠近并捕捉.</string>
+  <string block_id="0" entry_id="368" table_id="236">生活在海底, 但不知为何, 到了春天身上的粉红\n色会变得鲜艳.</string>
+  <string block_id="0" entry_id="369" table_id="236">在深海调查中被发现的珍奇宝可梦. 1亿年间样\n子都没变化过.</string>
+  <string block_id="0" entry_id="370" table_id="236">在温暖的海里栖息. 据说发现爱心鱼的情侣会永\n远相爱.</string>
+  <string block_id="0" entry_id="371" table_id="236">梦想着在天空翱翔, 每天为了练习飞行而从悬崖\n上跳下来.</string>
+  <string block_id="0" entry_id="372" table_id="236">在坚硬的壳中, 细胞开始发生变化. 壳会在进化\n的瞬间脱落.</string>
+  <string block_id="0" entry_id="373" table_id="236">由于一直梦想能在空中翱翔, 体内的细胞发生了\n变化, 如愿以偿长出了翅膀.</string>
+  <string block_id="0" entry_id="374" table_id="236">通过磁力的波动和伙伴对话. 成群的铁哑铃会有\n条不紊地进行行动.</string>
+  <string block_id="0" entry_id="375" table_id="236">由2只铁哑铃组合而成. 钢铁的身躯即使和喷气\n式飞机相撞也不会受伤.</string>
+  <string block_id="0" entry_id="376" table_id="236">由金属怪组合生成. 拥有4个大脑的巨金怪有着\n堪比超级计算机的智商.</string>
+  <string block_id="0" entry_id="377" table_id="236">全身由岩石构成. 即使在战斗中身体受损也能通\n过贴上岩石来治愈.</string>
+  <string block_id="0" entry_id="378" table_id="236">身体是用冰河时期形成的冰制作而成. 能操控零\n下200度的冷气.</string>
+  <string block_id="0" entry_id="379" table_id="236">经过长达几万年地下压力的锤炼, 金属的身躯变\n得刀枪不入.</string>
+  <string block_id="0" entry_id="380" table_id="236">全身包裹着能够使光线弯曲的羽毛, 具有隐藏自\n身的能力.</string>
+  <string block_id="0" entry_id="381" table_id="236">拥有很高智商的宝可梦. 收起前肢飞行的话, 速\n度能超越喷气式飞机.</string>
+  <string block_id="0" entry_id="382" table_id="236">据说能用下大雨的能力扩张海洋. 一直沉睡在海\n沟的底部.</string>
+  <string block_id="0" entry_id="383" table_id="236">远古时期曾与蓋歐卡发生过殊死搏斗, 此后就沉\n眠于地下的岩浆中.</string>
+  <string block_id="0" entry_id="384" table_id="236">因为栖息在高高的云层之上的臭氧层, 所以从地\n面无法看见它的样子.</string>
+  <string block_id="0" entry_id="385" table_id="236">据说它在1000年之中醒来的时间只有7天,\n醒来后可使用能实现任何愿望的力量.</string>
+  <string block_id="0" entry_id="386" table_id="236">附着在陨石上的宇宙病毒的DNA变异后生成的\n宝可梦.</string>
+  <string block_id="0" entry_id="387" table_id="236">背上的甲壳由泥土组成, 摸上去如果感到湿润,\n说明那只草苗龟很有精神.</string>
+  <string block_id="0" entry_id="388" table_id="236">知道哪里会涌出清澈的水, 会让伙伴宝可梦骑在\n它背上, 将其运到那个地方.</string>
+  <string block_id="0" entry_id="389" table_id="236">有一些宝可梦是在土台龟的背上出生的, 并在它\n的背上度过终生.</string>
+  <string block_id="0" entry_id="390" table_id="236">非常灵巧的宝可梦. 在睡觉时为了不点燃周围的\n东西, 会将尾巴上的火苗熄灭.</string>
+  <string block_id="0" entry_id="391" table_id="236">能熟练控制尾部火焰的大小, 以自己擅长的距离\n进行战斗.</string>
+  <string block_id="0" entry_id="392" table_id="236">手脚上都缠绕着火焰, 能使出独特的格斗技, 不\n论什么样的对手都能应付.</string>
+  <string block_id="0" entry_id="393" table_id="236">走路时总会跌倒, 然而强烈的自尊心让它在任何\n情况下都能挺起胸膛.</string>
+  <string block_id="0" entry_id="394" table_id="236">每一只波皇子都认为自己是最了不起的, 因此不\n可能形成群体.</string>
+  <string block_id="0" entry_id="395" table_id="236">如果谁敢伤它的自尊的话, 它会用能劈开浮冰的\n翅膀来反击.</string>
+  <string block_id="0" entry_id="396" table_id="236">为了弥补个体的弱小, 它们会结成群体. 然而群\n体过大的话它们会争执不休.</string>
+  <string block_id="0" entry_id="397" table_id="236">很清楚自己的弱小, 所以总是群居. 独处的时候\n会大吵大闹.</string>
+  <string block_id="0" entry_id="398" table_id="236">就算会伤到自己的身体也不会停止攻击. 很在意\n羽冠的形状.</string>
+  <string block_id="0" entry_id="399" table_id="236">经过比较, 人们发现大牙狸和小拉达的门牙生长\n速度不相上下.</string>
+  <string block_id="0" entry_id="400" table_id="236">只要有大尾狸筑坝的河流, 绝对不会发生洪灾,\n因此附近的居民非常感激.</string>
+  <string block_id="0" entry_id="401" table_id="236">腿很短, 每当要摔倒的时候就摩擦坚硬的触角,\n发出木琴一般的声音.</string>
+  <string block_id="0" entry_id="402" table_id="236">有一个村庄的人们以比试它变幻自如的鸣叫声为\n乐.</string>
+  <string block_id="0" entry_id="403" table_id="236">每当活动身体时, 肌肉就会伸缩产生电. 危机时\n刻, 身体会发光.</string>
+  <string block_id="0" entry_id="404" table_id="236">在锐利的爪子尖端有强烈的电流流过, 只要稍稍\n碰擦到, 就能让对手晕厥.</string>
+  <string block_id="0" entry_id="405" table_id="236">能使用透视墙面的能力, 追踪逃脱的猎物或是寻\n找迷路的孩子.</string>
+  <string block_id="0" entry_id="406" table_id="236">对温度的变化十分敏感, 据说当它感受到温暖的\n阳光时, 花蕾必定会绽放.</string>
+  <string block_id="0" entry_id="407" table_id="236">两只手上的毒素成分不同, 但不管被哪一边刺中,\n都离死亡不远了.</string>
+  <string block_id="0" entry_id="408" table_id="236">大约1亿年前的宝可梦. 在丛林中出生长大, 会\n用头锤把阻挡它的树木撞断.</string>
+  <string block_id="0" entry_id="409" table_id="236">就算是用头激烈地冲撞, 厚度达30厘米的头盖\n骨会保护它们不至于昏迷.</string>
+  <string block_id="0" entry_id="410" table_id="236">有着绝佳的防御力, 因此吃草和树果的时候不需\n要特别争斗.</string>
+  <string block_id="0" entry_id="411" table_id="236">如果横着排成一排, 无论什么宝可梦都无法突破.\n就这样保护着自己的孩子.</string>
+  <string block_id="0" entry_id="412" table_id="236">就算是生长在找不到包裹身体的材料的地方, 也\n会不知不觉地缠上蓑衣.</string>
+  <string block_id="0" entry_id="413" table_id="236">在进化的时候, 就用周围的材料裹住身体, 因此\n有很多种变种.</string>
+  <string block_id="0" entry_id="414" table_id="236">很喜欢花蜜, 但是从不自己采集, 而老是想着从\n三蜜蜂那里夺取.</string>
+  <string block_id="0" entry_id="415" table_id="236">从出生时起就是3只一起. 为了取悦蜂女王, 一\n直都在采集着花蜜.</string>
+  <string block_id="0" entry_id="416" table_id="236">能释放各种信息素, 自由自在地操纵体内的幼虫\n与敌人作战.</string>
+  <string block_id="0" entry_id="417" table_id="236">有时候也会发现为了将储存的电分给同伴而互相\n摩擦颊囊的帕奇利兹.</string>
+  <string block_id="0" entry_id="418" table_id="236">尾巴像螺旋桨一般转动, 不仅能用来在水中游动,\n还能把缠住自己的水草切断.</string>
+  <string block_id="0" entry_id="419" table_id="236">经常在渔村里出现, 救助溺水的村民, 或帮他们\n搬运打来的鱼.</string>
+  <string block_id="0" entry_id="420" table_id="236">身上的小球不仅营养而且美味, 姆克儿总喜欢啄\n食.</string>
+  <string block_id="0" entry_id="421" table_id="236">如果感受到强烈的阳光, 就会绽开合着的花瓣,\n全身沐浴在阳光下.</string>
+  <string block_id="0" entry_id="422" table_id="236">如果用力按住柔软的身体, 就会有神秘的紫色液\n体渗出, 因此请注意.</string>
+  <string block_id="0" entry_id="423" table_id="236">在很早以前, 整个背部都被坚硬的甲壳覆盖. 现\n在细胞上还留有痕迹.</string>
+  <string block_id="0" entry_id="424" table_id="236">分成两支的尾巴非常灵巧, 可以用来做各种各样\n的事情, 所以它的手几乎派不上用场.</string>
+  <string block_id="0" entry_id="425" table_id="236">由于总是漫无目的地飘来飘去, 传说称它是“灵\n魂的路标”.</string>
+  <string block_id="0" entry_id="426" table_id="236">傍晚的时候会在天空成群随风聚集在一起, 一旦\n被注意到的时候就会突然消失.</string>
+  <string block_id="0" entry_id="427" table_id="236">总是蜷成小球的耳朵一旦强行伸展开来, 连大石\n头都能轻松击碎.</string>
+  <string block_id="0" entry_id="428" table_id="236">耳朵似乎非常敏感, 触摸时要温柔小心, 否则会\n被它用柔软的脚狠踹.</string>
+  <string block_id="0" entry_id="429" table_id="236">叫声就像诅咒一样, 但是据说也隐藏着偶尔给予\n对方幸福的效果.</string>
+  <string block_id="0" entry_id="430" table_id="236">乌鸦头头低声鸣叫的话, 黑暗鸦就会立即聚集起\n来, 因此也被称为黑夜召唤者.</string>
+  <string block_id="0" entry_id="431" table_id="236">如果训练家不给它食物, 它就会用爪子抓训练家\n的鼻孔. 如此残暴的一面平时深藏不露.</string>
+  <string block_id="0" entry_id="432" table_id="236">用尾巴裹住身体, 让自己看起来更加庞大. 一旦\n和它目光相聚, 它会一刻不停地瞪着对方.</string>
+  <string block_id="0" entry_id="433" table_id="236">如果跳起来, 嘴里的珠子就会弹来弹去, 发出铃\n铛一般的音色.</string>
+  <string block_id="0" entry_id="434" table_id="236">从屁屁喷出的臭液的气味会扩散到半径2公里的\n范围, 周围的宝可梦都会逃得无影无踪.</string>
+  <string block_id="0" entry_id="435" table_id="236">从尾巴尖端喷出恶臭的液体来攻击. 如果从上面\n偷袭它就能让它混乱.</string>
+  <string block_id="0" entry_id="436" table_id="236">有研究者认为这种寶可夢在过去会像镜子一样反\n射.</string>
+  <string block_id="0" entry_id="437" table_id="236">通过打开另一个世界的入口带来降雨, 被敬为丰\n收之神.</string>
+  <string block_id="0" entry_id="438" table_id="236">喜欢干燥的环境, 在调整身体湿度时会流出像眼\n泪一样的液体.</string>
+  <string block_id="0" entry_id="439" table_id="236">能模仿它所看到的对手的表情和动作, 并试图理\n解对方的一切感情.</string>
+  <string block_id="0" entry_id="440" table_id="236">喜欢抱着小小的石块. 在对手的脚下不停绕着圈,\n有时不知不觉就让对手摔倒.</string>
+  <string block_id="0" entry_id="441" table_id="236">舌头和人类的很像, 因此可以非常灵巧地模仿人\n类的语言.</string>
+  <string block_id="0" entry_id="442" table_id="236">由于总是做坏事, 真身被一种神秘的法术给封印\n了在楔石中.</string>
+  <string block_id="0" entry_id="443" table_id="236">用巨大的嘴发动攻击威力十足, 但是还不能很灵\n活地战斗, 也会伤到自己.</string>
+  <string block_id="0" entry_id="444" table_id="236">最喜欢闪闪发光的东西, 所以会把在洞窟里找到\n的宝贝都积存到自己的巢穴中.</string>
+  <string block_id="0" entry_id="445" table_id="236">高速奔跑时, 会从翅膀上产生空气刃, 把周围的\n树木切断.</string>
+  <string block_id="0" entry_id="446" table_id="236">不顾一切地拼命吃东西时, 会忘记自己体毛下藏\n着的食物.</string>
+  <string block_id="0" entry_id="447" table_id="236">具有从波动中看清喜悦和愤怒表情的特殊能力.</string>
+  <string block_id="0" entry_id="448" table_id="236">训练有素的路卡利欧能通过波导识别并感受一公\n里以外的生物.</string>
+  <string block_id="0" entry_id="449" table_id="236">在沙地里穿行的时候会把鼻孔关上, 以十只左右\n聚居在一起.</string>
+  <string block_id="0" entry_id="450" table_id="236">很容易生气起来, 总是把嘴张开以显示自己的力\n量.</string>
+  <string block_id="0" entry_id="451" table_id="236">当尾巴上的钳子闭合后, 会从针尖渗出毒素. 可\n以不吃东西存活1年.</string>
+  <string block_id="0" entry_id="452" table_id="236">体质非常强健, 就算不用剧毒, 也能凭借自己引\n以为豪的力量让对手涣散.</string>
+  <string block_id="0" entry_id="453" table_id="236">虽然极少光明正大地战斗, 但也是为了生存下去.\n是个很受欢迎的吉祥物.</string>
+  <string block_id="0" entry_id="454" table_id="236">喉咙里带有毒囊. 如果从喉咙发出声响, 储存的\n毒素会被炼制得更强劲.</string>
+  <string block_id="0" entry_id="455" table_id="236">缠绕在潮湿地带生长的树木上, 用甜香的唾液不\n断引诱猎物, 再一口吃掉.</string>
+  <string block_id="0" entry_id="456" table_id="236">身体侧面的线条会储存太阳光. 到了夜里就会鲜\n亮闪烁.</string>
+  <string block_id="0" entry_id="457" table_id="236">用长长的鳍当作脚贴着海底爬行. 和电灯怪争抢\n食物.</string>
+  <string block_id="0" entry_id="458" table_id="236">人们组成观光团去观赏它们一边在水面上跳跃,\n一边与铁炮鱼嬉闹的景象.</string>
+  <string block_id="0" entry_id="459" table_id="236">似乎是对人类感兴趣, 只要在雪山上发现了脚印,\n就会马上聚集过来.</string>
+  <string block_id="0" entry_id="460" table_id="236">当雪花盛开时就会出现, 花瓣落下的时候就又不\n知到了哪里.</string>
+  <string block_id="0" entry_id="461" table_id="236">进化后变得更狡猾了, 通过石头上的爪印交流.</string>
+  <string block_id="0" entry_id="462" table_id="236">有集团曾经试图用科学的力量让自爆磁怪进化,\n但是以失败告终.</string>
+  <string block_id="0" entry_id="463" table_id="236">长长的舌头总是淌着唾液. 唾液中含有溶解物体\n的成份, 一旦接触到就会发麻.</string>
+  <string block_id="0" entry_id="464" table_id="236">强行收缩肌肉, 然后在一瞬间伸展开, 可以将手\n中的石头-{}-发射出去.</string>
+  <string block_id="0" entry_id="465" table_id="236">由植物长成的手臂如果放着不管, 就会缠到一起.\n就算割断也会马上再长出来.</string>
+  <string block_id="0" entry_id="466" table_id="236">全然不顾对手的攻击接近对手, 把两根尾巴摁在\n对手身上, 释放出高压电击.</string>
+  <string block_id="0" entry_id="467" table_id="236">喷射出高达2000摄氏度的火球时, 身体由于\n发热, 会微微呈现出白色.</string>
+  <string block_id="0" entry_id="468" table_id="236">会给那些彼此认同对方且不做无端争斗的人们带\n去各种各样的恩惠.</string>
+  <string block_id="0" entry_id="469" table_id="236">下颚的力量非常强大, 擅长一边高速飞行擦过对\n手, 一边将对手咬成碎片.</string>
+  <string block_id="0" entry_id="470" table_id="236">它不喜歡爭鬥, 由於有一些像植物的細胞它會進\n行光合作用.</string>
+  <string block_id="0" entry_id="471" table_id="236">通过控制体温, 让周围的空气冻结, 落下冰晶.</string>
+  <string block_id="0" entry_id="472" table_id="236">只要成功地搭上一丝微风, 就能够不拍打1下翅\n膀围绕地球1周.</string>
+  <string block_id="0" entry_id="473" table_id="236">在1万年前的泥土中發現的冰冻的象牙猪突然清\n醒过来, 引发了不小的骚动.</string>
+  <string block_id="0" entry_id="474" table_id="236">为了使它能在异次元中也能大展身手而修改了程\n序, 然而预期的目标并没有实现.</string>
+  <string block_id="0" entry_id="475" table_id="236">当它想要保护别人时, 就会伸出刀刃一般的手臂,\n和敌人进行激烈的搏斗.</string>
+  <string block_id="0" entry_id="476" table_id="236">能用磁力自由地操纵被称为小朝北鼻的3个小部\n件.</string>
+  <string block_id="0" entry_id="477" table_id="236">据说, 会把无处可去的魂魄吸入它那具有弹力的\n身体中, 并带往另一个世界.</string>
+  <string block_id="0" entry_id="478" table_id="236">它会呼出零下50度的气体把猎物冻住并隐藏起\n来.</string>
+  <string block_id="0" entry_id="479" table_id="236">它的身体就像电一样, 能进入某些机器的内部.\n同时利用机器化的身体恶作剧.</string>
+  <string block_id="0" entry_id="480" table_id="236">传说由克希四处飞行时, 人们获得了赖以解决问\n题的叫做“智慧”的能力.</string>
+  <string block_id="0" entry_id="481" table_id="236">当艾姆利多飞过的时候, 人们学会了体尝生活的\n快乐与痛苦, 它是情感的起源.</string>
+  <string block_id="0" entry_id="482" table_id="236">亞克諾姆四处飞行时, 人们获得了使他们下定决\n心做好事情的“意志力”.</string>
+  <string block_id="0" entry_id="483" table_id="236">当帝牙卢卡的心脏跳动时, 时间就会流逝. 神奥\n地方的传说的宝可梦.</string>
+  <string block_id="0" entry_id="484" table_id="236">随着帕路奇亚的每一次呼吸, 空间变得更加安定.\n神奥地方的传说的宝可梦.</string>
+  <string block_id="0" entry_id="485" table_id="236">虽说有着坚硬的钢铁身躯, 也因为自己发出的高\n温而一点一点地熔化.</string>
+  <string block_id="0" entry_id="486" table_id="236">据说用特殊的冰山、岩石和熔岩制作出了形似自\n己的宝可梦.</string>
+  <string block_id="0" entry_id="487" table_id="236">因为性格粗暴而被驱逐, 一直待在毁坏的世界里,\n静静地看着原来的世界.</string>
+  <string block_id="0" entry_id="488" table_id="236">越是临近新月的日子, 尾巴处延伸出的极光就越\n长、越美丽.</string>
+  <string block_id="0" entry_id="489" table_id="236">漂浮在温暖的海上. 无论漂得多远, 都一定会回\n到出生的地方.</string>
+  <string block_id="0" entry_id="490" table_id="236">如果使用与生俱来的神奇力量, 就可以和任何宝\n可梦心意相通.</string>
+  <string block_id="0" entry_id="491" table_id="236">为了保护自己, 会让周围的人或神奇宝贝做噩梦.\n但是它本身并没有恶意.</string>
+  <string block_id="0" entry_id="492" table_id="236">当它被人类温柔地抱在怀中, 感受到感恩之心时,\n全身的鲜花就会绽放.</string>
+  <string block_id="0" entry_id="493" table_id="236">从虚无之地的蛋中诞生, 之后创造了世界.</string>
+  <string block_id="0" entry_id="494" table_id="236">体内制造出无限的能量. 能将能量分给碰触到的\n事物.</string>
+  <string block_id="0" entry_id="495" table_id="236">用尾巴沐浴着阳光进行光合作用. 如果没有精神,\n尾巴就会垂下来.</string>
+  <string block_id="0" entry_id="496" table_id="236">躲进茂密草木的阴暗处躲避攻击. 使用灵活的藤\n鞭技反击.</string>
+  <string block_id="0" entry_id="497" table_id="236">抬高头颅威吓对方. 只有在与强敌交手时才会动\n真格.</string>
+  <string block_id="0" entry_id="498" table_id="236">鼻孔中喷出火焰. 如果感冒了喷出的将不是火焰\n而是乌黑的烟雾.</string>
+  <string block_id="0" entry_id="499" table_id="236">将吃下肚的食物作为燃料在胃里燃烧. 愤怒时火\n力上升.</string>
+  <string block_id="0" entry_id="500" table_id="236">一直蓄着火焰的胡须. 身怀兼具力量与速度的格\n斗招式.</string>
+  <string block_id="0" entry_id="501" table_id="236">腹部的扇貝貝成分和爪子相同. 可以拿下来当小\n刀使用.</string>
+  <string block_id="0" entry_id="502" table_id="236">每只双刃丸的扇貝技都有所不同. 很注重扇貝貝\n的保养.</string>
+  <string block_id="0" entry_id="503" table_id="236">前脚盔甲的一部分化成了巨大的剑. 咆哮一声便\n能威吓住敌人.</string>
+  <string block_id="0" entry_id="504" table_id="236">警戒心很强, 会轮流巡视窝的四周. 不巡视便会\n不安.</string>
+  <string block_id="0" entry_id="505" table_id="236">步哨鼠會讓身上的紋路發光, 借以威嚇敵人. 擁\n有在黑暗中也能看得很清楚的眼睛.</string>
+  <string block_id="0" entry_id="506" table_id="236">覆盖着脸部的长毛是高性能雷达. 能敏锐地侦查\n周围的状况.</string>
+  <string block_id="0" entry_id="507" table_id="236">对训练家的指示十分忠实. 很久以前便开始给予\n养育宝可梦的训练家帮助.</string>
+  <string block_id="0" entry_id="508" table_id="236">擅长救援海上和山中的遇难者. 非常聪明的宝可\n梦.</string>
+  <string block_id="0" entry_id="509" table_id="236">用可爱的动作让对手疏忽, 抓住那个空当抢夺持\n有物. 一旦生气, 就会竖起爪子反击.</string>
+  <string block_id="0" entry_id="510" table_id="236">隐藏气息悄悄接近. 在对手发觉前, 从背后偷偷\n靠近并了结它.</string>
+  <string block_id="0" entry_id="511" table_id="236">会把头上的叶子分给没有精神的宝可梦. 具有缓\n解疲劳的效果.</string>
+  <string block_id="0" entry_id="512" table_id="236">用带有很多尖刺的尾巴摔打对手进行攻击. 是性\n格很粗暴的宝可梦.</string>
+  <string block_id="0" entry_id="513" table_id="236">生活在火山洞中. 头顶的穗子不断燃烧有300\n度之高.</string>
+  <string block_id="0" entry_id="514" table_id="236">燃烧体内的火焰从头部和尾部喷洒火星烧焦对手.</string>
+  <string block_id="0" entry_id="515" table_id="236">对干燥的环境苦手. 头部穗子里储存的水从尾部\n喷洒出来湿润四周.</string>
+  <string block_id="0" entry_id="516" table_id="236">如果从尾巴发射出高压水, 那威力甚至能破坏混\n凝土墙壁.</string>
+  <string block_id="0" entry_id="517" table_id="236">会吃掉人和宝可梦做的梦. 如果吃了快乐的梦,\n就会吐出粉红色的烟雾来.</string>
+  <string block_id="0" entry_id="518" table_id="236">可以将吃到的梦实体化. 额头冒出的烟可以幻化\n成梦中出现的物体.</string>
+  <string block_id="0" entry_id="519" table_id="236">生活在街道上的宝可梦. 因为不怎么怕人, 所以\n会大量聚集在公园或广场.</string>
+  <string block_id="0" entry_id="520" table_id="236">人们相信, 咕咕鸽所居住的森林深处有着没有战\n争的和平国度.</string>
+  <string block_id="0" entry_id="521" table_id="236">雄性的头上有冠羽. 绝对不会亲近训练家以外的\n人.</string>
+  <string block_id="0" entry_id="522" table_id="236">天空雷雨云密布时就会出现. 用鬃毛捕捉雷电,\n储存电力.</string>
+  <string block_id="0" entry_id="523" table_id="236">性子很急. 发怒时电击会从鬃毛中射向四面八方,\n相当危险.</string>
+  <string block_id="0" entry_id="524" table_id="236">100年前的大地震时, 从地裂中被发现. 体内\n拥有能量核心.</string>
+  <string block_id="0" entry_id="525" table_id="236">体内容纳不了而漏出的能量凝结成了橙色的结晶.</string>
+  <string block_id="0" entry_id="526" table_id="236">用生长在身上的橙色结晶吸取太阳能并在体内增\n幅, 最后从嘴中击出.</string>
+  <string block_id="0" entry_id="527" table_id="236">以鼻孔吸附在洞穴岩壁上睡觉. 吸附过的地方会\n留下心形的痕迹.</string>
+  <string block_id="0" entry_id="528" table_id="236">如果被雄性向雌性求爱时发出的超音波照到, 心\n情就会变得非常快乐.</string>
+  <string block_id="0" entry_id="529" table_id="236">将双掌上的爪子并拢, 并让身体高速旋转的话,\n就会以迅猛的速度在地里前进.</string>
+  <string block_id="0" entry_id="530" table_id="236">在地下100米制造迷宫般的巢穴. 有时会在地\n下铁的隧道开几个洞.</string>
+  <string block_id="0" entry_id="531" table_id="236">听觉能力超乎想象. 细微的声响都能像雷达般捕\n获.</string>
+  <string block_id="0" entry_id="532" table_id="236">总是抱着方材. 是会出现在建筑工地帮忙干活的\n宝可梦.</string>
+  <string block_id="0" entry_id="533" table_id="236">扛着铁材锻炼身体. 亮出千锤百炼的筋肉和同伴\n互相炫耀.</string>
+  <string block_id="0" entry_id="534" table_id="236">用来当拐杖的混凝土柱可以不依靠蛮力自由自在\n地挥舞.</string>
+  <string block_id="0" entry_id="535" table_id="236">振动脸颊发出人类无法听见的音波. 通过音波的\n节奏对话.</string>
+  <string block_id="0" entry_id="536" table_id="236">生活在水中与陆地上. 用又粘又长的舌头缠绕捕\n获猎物.</string>
+  <string block_id="0" entry_id="537" table_id="236">如果让拳头上的瘤振动, 拳击的威力就会倍增.\n能一拳把巨大岩石击得粉碎.</string>
+  <string block_id="0" entry_id="538" table_id="236">喜欢把比自己体积大的对手投掷出去. 群落必定\n5只一组.</string>
+  <string block_id="0" entry_id="539" table_id="236">系紧带子后会很振奋, 拳击的破坏力得到提升.\n如果打扰它修行就会发怒.</string>
+  <string block_id="0" entry_id="540" table_id="236">會咬斷樹葉, 從口中吐出有黏性的絲綘合, 自己\n製作衣服的宝可梦.</string>
+  <string block_id="0" entry_id="541" table_id="236">用叶子包裹着身体抵御寒冷. 一边吃着手边的落\n叶, 一边在森林里移动.</string>
+  <string block_id="0" entry_id="542" table_id="236">利用落叶发酵的热量温暖蛋. 用叶子给虫宝包制\n作襁褓.</string>
+  <string block_id="0" entry_id="543" table_id="236">用头和尾巴上的触角探查周围的情形. 性格非常\n粗暴.</string>
+  <string block_id="0" entry_id="544" table_id="236">平时一动不动, 可一旦受袭就会高速旋转奔跑,\n并用撞击来反击.</string>
+  <string block_id="0" entry_id="545" table_id="236">颈部的爪子嵌入对方体内释放毒素. 性格具有攻\n击性.</string>
+  <string block_id="0" entry_id="546" table_id="236">乘着风随性飘动. 雨天身体变重, 在大树根部躲\n雨.</string>
+  <string block_id="0" entry_id="547" table_id="236">乘着旋风而来. 从缝隙中钻进民宅爱捣乱的宝可\n梦.</string>
+  <string block_id="0" entry_id="548" table_id="236">因为非常喜欢水分和营养充足的土壤, 所以百合\n根娃娃居住的土地, 作物生长旺盛.</string>
+  <string block_id="0" entry_id="549" table_id="236">头部花饰的芳香有放松身心的效果. 不精心护理\n便会枯萎.</string>
+  <string block_id="0" entry_id="550" table_id="236">红和蓝两种野蠻鱸魚关系很差, 不知道为什么一\n群中总会混近几只颜色不同的.</string>
+  <string block_id="0" entry_id="551" table_id="236">潜伏在沙子里, 露出眼睛和鼻子移动. 黑色的膜\n保护着眼睛.</string>
+  <string block_id="0" entry_id="552" table_id="236">覆盖着眼球的特殊膜可以感知物体的热度, 因此\n即便在黑暗中也能看见周围.</string>
+  <string block_id="0" entry_id="553" table_id="236">眼睛可以像望远镜一般放大远处的事物.</string>
+  <string block_id="0" entry_id="554" table_id="236">火红不倒翁的粪便是热的, 因此过去的人们会放\n入怀中取暖.</string>
+  <string block_id="0" entry_id="555" table_id="236">战斗到疲惫时会变得像石头一般一动不动. 抛开\n杂念用精神力战斗.</string>
+  <string block_id="0" entry_id="556" table_id="236">生活在干燥的土地上. 身体有节奏地活动时可以\n发出沙铃般的响声.</string>
+  <string block_id="0" entry_id="557" table_id="236">在合适的石头上开洞作为住所. 如果被破坏, 在\n找到替代的石头之前会一直心里不踏实.</string>
+  <string block_id="0" entry_id="558" table_id="236">脚力非常的好, 身上背负着很重的岩石, 还能在\n干燥的土地上移动多日.</string>
+  <string block_id="0" entry_id="559" table_id="236">会突然用头撞向视线相合的对手. 头盖骨坚硬无\n比.</string>
+  <string block_id="0" entry_id="560" table_id="236">按头上冠的大小来决定团队领袖. 用脚踢攻击破\n坏混凝土块.</string>
+  <string block_id="0" entry_id="561" table_id="236">曾是古代都市的守护神. 用精神力量攻击入侵领\n地的敌人.</string>
+  <string block_id="0" entry_id="562" table_id="236">从古代墓穴中埋葬的人的灵魂中诞生. 持有过去\n的记忆.</string>
+  <string block_id="0" entry_id="563" table_id="236">假装成漂亮的棺材惩罚盗墓贼. 身上覆盖的是纯\n金.</string>
+  <string block_id="0" entry_id="564" table_id="236">在大约1亿年前的海里游动. 有时候会爬上陆地\n袭击猎物.</string>
+  <string block_id="0" entry_id="565" table_id="236">下颚的力量难以估计. 将钢材和岩石连同猎物一\n起咬得粉碎.</string>
+  <string block_id="0" entry_id="566" table_id="236">由化石复活而来的宝可梦. 被认为是所有鸟宝可\n梦的祖先.</string>
+  <string block_id="0" entry_id="567" table_id="236">比起飞行, 跑步更在行. 以不输给汽车的速度四\n处奔走捕捉猎物.</string>
+  <string block_id="0" entry_id="568" table_id="236">垃圾袋通过与工业垃圾发生化学变化, 转而诞生\n了宝可梦.</string>
+  <string block_id="0" entry_id="569" table_id="236">吸取垃圾当作身体的一部分. 右手的指尖喷射毒\n液.</string>
+  <string block_id="0" entry_id="570" table_id="236">会幻化成人类或其他宝可梦. 通过隐藏自己的本\n来面貌来保护自己不受危险侵害.</string>
+  <string block_id="0" entry_id="571" table_id="236">拥有一下子迷惑许多人的力量. 展现出虚幻的景\n色来保护自己的住所.</string>
+  <string block_id="0" entry_id="572" table_id="236">是喜爱干净的宝可梦. 总是把尾巴当做扫帚, 来\n清扫住所的灰尘.</string>
+  <string block_id="0" entry_id="573" table_id="236">白色的体毛触感超群. 完全不会吸附到灰尘和静\n电.</string>
+  <string block_id="0" entry_id="574" table_id="236">目不转睛地观察宝可梦和训练家. 好像正盯着某\n样只有哥德宝宝才能看见的东西.</string>
+  <string block_id="0" entry_id="575" table_id="236">星光是其力量的来源. 到了夜里就会用精神力量\n让石头浮起, 按星星的分布排列.</string>
+  <string block_id="0" entry_id="576" table_id="236">拥有根据星星的分布和动向来预知未来的能力.\n训练家的寿命也能看见.</string>
+  <string block_id="0" entry_id="577" table_id="236">身体被特殊液体包裹. 任何环境皆可生存.</string>
+  <string block_id="0" entry_id="578" table_id="236">一分为二的大脑考虑同一件事时才能发挥出最大\n力量.</string>
+  <string block_id="0" entry_id="579" table_id="236">操纵可以捏碎岩石的手臂战斗. 拥有极高的智能.</string>
+  <string block_id="0" entry_id="580" table_id="236">如果被敌人袭击, 就会从全身的羽毛里喷出水花.\n混在一片水雾中逃之夭夭.</string>
+  <string block_id="0" entry_id="581" table_id="236">用喙展开强烈攻击. 修长的颈部优雅伸展施展连\n续啄击.</string>
+  <string block_id="0" entry_id="582" table_id="236">冰柱沐浴了朝阳的能量之后, 变成了宝可梦. 会\n把身体埋在雪里睡觉.</string>
+  <string block_id="0" entry_id="583" table_id="236">制造许多小冰砾在敌人面前隐藏自己.</string>
+  <string block_id="0" entry_id="584" table_id="236">如果2个头同时发怒, 就会从角上喷出猛烈的暴\n风雪. 会用大雪掩埋四周.</string>
+  <string block_id="0" entry_id="585" table_id="236">到了换季的时候, 体毛和气味会发生变化. 是告\n知季节的宝可梦.</string>
+  <string block_id="0" entry_id="586" table_id="236">角上生长的花草随季节而变化. 角最漂亮的那位\n率领群落.</string>
+  <string block_id="0" entry_id="587" table_id="236">生活在森林的树上. 一边让斗篷般的膜的内侧放\n电, 一边滑翔.</string>
+  <string block_id="0" entry_id="588" table_id="236">感受到危险时从嘴里喷出酸液击退敌人. 以小嘴\n蜗为目标的宝可梦.</string>
+  <string block_id="0" entry_id="589" table_id="236">通过穿上小嘴蜗的壳进化而成的宝可梦. 钢铁的\n铠甲保护着它的全身.</string>
+  <string block_id="0" entry_id="590" table_id="236">不知为什么长得很像精灵球. 对想捉住它的敌人\n喷出毒胞子击退.</string>
+  <string block_id="0" entry_id="591" table_id="236">显摆着精灵球状的菌伞引诱猎物靠近, 但是被骗\n到的宝可梦很少.</string>
+  <string block_id="0" entry_id="592" table_id="236">用毒将猎物麻痹后, 将其带到据说在海下\n8000米深的住所.</string>
+  <string block_id="0" entry_id="593" table_id="236">有技巧地吐出吸入体内的海水来前行. 非常喜欢\n生命能量.</string>
+  <string block_id="0" entry_id="594" table_id="236">漂浮在汪洋大海上生活. 如果发现受伤的宝可梦,\n就会抱住并运送到岸边.</string>
+  <string block_id="0" entry_id="595" table_id="236">会附在体型大的宝可梦身上吸取静电, 然后把电\n储存在蓄电袋里.</string>
+  <string block_id="0" entry_id="596" table_id="236">用带电丝线制作陷阱. 慢慢品尝触电后动弹不得\n的猎物.</string>
+  <string block_id="0" entry_id="597" table_id="236">尖刺插入洞穴的墙壁内吸取岩石中的矿物.</string>
+  <string block_id="0" entry_id="598" table_id="236">吊在洞穴顶端向下方通过的猎物射出铁刺.</string>
+  <string block_id="0" entry_id="599" table_id="236">通过2个身体的咬合旋转, 制造出用以生存的能\n量.</string>
+  <string block_id="0" entry_id="600" table_id="236">小齿轮高速旋转着弹出去攻击. 小齿轮若是回不\n来会很危险.</string>
+  <string block_id="0" entry_id="601" table_id="236">让带有红色核心的齿轮高速旋转, 便能快速填充\n能量.</string>
+  <string block_id="0" entry_id="602" table_id="236">群体活动的宝可梦. 拥有制造电气的器官, 危急\n时刻放出电力.</string>
+  <string block_id="0" entry_id="603" table_id="236">是食欲旺盛的宝可梦. 一旦发现猎物就会发动袭\n击, 将对方用电麻痹后再吃掉.</string>
+  <string block_id="0" entry_id="604" table_id="236">用吸盘一样的嘴巴吸住猎物, 并从刺入的牙齿中\n释放电流, 使对方触电.</string>
+  <string block_id="0" entry_id="605" table_id="236">50年前从沙漠的远方突然而至. 这之前谁也没\n见过它们.</string>
+  <string block_id="0" entry_id="606" table_id="236">用精神力干涉对方大脑, 将大脑中的影像替换成\n别的东西.</string>
+  <string block_id="0" entry_id="607" table_id="236">假装点亮烛光, 指引道路, 实际上是在吸取对方\n的生命力.</string>
+  <string block_id="0" entry_id="608" table_id="236">临终时出现, 一等灵魂脱离肉体后马上将该灵魂\n吸取.</string>
+  <string block_id="0" entry_id="609" table_id="236">如果被水晶灯火灵的火焰包围, 魂魄就会被吸取\n燃烧. 只剩下行尸走肉.</string>
+  <string block_id="0" entry_id="610" table_id="236">用牙齿在树木上留下伤痕, 作为领地的标记. 牙\n齿即使折断也会马上长出来.</string>
+  <string block_id="0" entry_id="611" table_id="236">拥有能粉碎巨大岩石的牙齿. 争夺领地的斧牙龙\n们会进行非常激烈的争斗.</string>
+  <string block_id="0" entry_id="612" table_id="236">有着即使切斩工字钢也不会伤刃的坚固牙齿. 全\n身被坚硬的铠甲覆盖着.</string>
+  <string block_id="0" entry_id="613" table_id="236">总是流着鼻涕. 吸着鼻涕使出招式. 鼻涕是招式\n的本源.</string>
+  <string block_id="0" entry_id="614" table_id="236">让吐出的气息冻结, 制造冰牙和冰爪进行战斗.\n生活在北方的寒冷土地上.</string>
+  <string block_id="0" entry_id="615" table_id="236">在雪云之中诞生. 用冰的结晶所形成的锁捕捉猎\n物.</string>
+  <string block_id="0" entry_id="616" table_id="236">如果与盖盖虫一起沐浴在电能下, 就会进化. 其\n原因尚且不明.</string>
+  <string block_id="0" entry_id="617" table_id="236">因为脱掉了沉重的壳, 而变得轻巧. 会用简直是\n忍者般的身手战斗.</string>
+  <string block_id="0" entry_id="618" table_id="236">会埋进海边的泥里等待猎物. 猎物一旦碰到, 就\n会放出电来使其麻痹.</string>
+  <string block_id="0" entry_id="619" table_id="236">使用华丽连续技的能手. 身心统一时, 招式的准\n度和速度都会猛增.</string>
+  <string block_id="0" entry_id="620" table_id="236">甩动手臂上修长的体毛战斗. 像鞭子一样鞭打敌\n人.</string>
+  <string block_id="0" entry_id="621" table_id="236">在狭小的洞穴里来回奔走, 用锋利的爪子捕获猎\n物. 脸上的皮肤比岩石还硬.</string>
+  <string block_id="0" entry_id="622" table_id="236">被认为是幻之古代文明的科技制造出来的宝可梦.</string>
+  <string block_id="0" entry_id="623" table_id="236">据说, 制作泥偶巨人的古人命令它要保护人和宝\n可梦.</string>
+  <string block_id="0" entry_id="624" table_id="236">听从劈斩司令的命令战斗. 紧紧抓住猎物将刀刃\n插入体内慢慢折磨.</string>
+  <string block_id="0" entry_id="625" table_id="236">率领一大群驹刀小兵, 成群地穷追猎物. 劈斩司\n令会给予致命一击.</string>
+  <string block_id="0" entry_id="626" table_id="236">一往无前地猛冲, 使出头锤. 拥有让奔跑的列车\n脱轨的破坏力.</string>
+  <string block_id="0" entry_id="627" table_id="236">面对强劲的对手也会不由分说地挑起战斗. 通过\n反复战斗变得更强.</string>
+  <string block_id="0" entry_id="628" table_id="236">勇猛果敢的空中战士. 身上伤越多, 越受到同伴\n尊敬.</string>
+  <string block_id="0" entry_id="629" table_id="236">寻找合适的骷髅防御屁股. 欺负弱小的宝可梦.</string>
+  <string block_id="0" entry_id="630" table_id="236">从空中观察地面情况, 袭击弱小的猎物. 有用骨\n头做装饰的习性.</string>
+  <string block_id="0" entry_id="631" table_id="236">用高温燃烧的火焰舌头熔化铁蚁的钢铁身体, 并\n吃掉其内部.</string>
+  <string block_id="0" entry_id="632" table_id="236">挖山造巢穴. 复杂的隧道是鐵蟻制造的迷宫.</string>
+  <string block_id="0" entry_id="633" table_id="236">因为眼睛看不见, 所以会又撞又咬地来探索周围.\n浑身新伤不断.</string>
+  <string block_id="0" entry_id="634" table_id="236">两颗脑袋关系很差, 摄食时经常争夺食物结果一\n直吃撑.</string>
+  <string block_id="0" entry_id="635" table_id="236">双手的头颅没有大脑. 三个脑袋吃光一切, 破坏\n一切.</string>
+  <string block_id="0" entry_id="636" table_id="236">栖息在火山脚. 从5根角射出火焰击退敌人.</string>
+  <string block_id="0" entry_id="637" table_id="236">战斗时, 从6根翅膀到处飞撒火花鳞粉, 把周围\n变成一片火海.</string>
+  <string block_id="0" entry_id="638" table_id="236">拥有钢铁的身体和心灵. 只要瞪一眼, 连粗暴的\n宝可梦也会俯首称臣.</string>
+  <string block_id="0" entry_id="639" table_id="236">拥有一击冲破巨大城墙的猛撞力. 是传说中所描\n述的宝可梦.</string>
+  <string block_id="0" entry_id="640" table_id="236">头上的角是锋利的刀刃. 用旋风般的动作戏弄敌\n人, 迅速切斩.</string>
+  <string block_id="0" entry_id="641" table_id="236">从龙卷云的尾部喷出的能量会引起猛烈的暴风雨.\n有着吹飞民宅的力量.</string>
+  <string block_id="0" entry_id="642" table_id="236">从尾部的尖刺射出电击. 飞翔于合众地区上空打\n下电光.</string>
+  <string block_id="0" entry_id="643" table_id="236">莱希拉姆的尾部燃烧的话, 就会产生热能令大气\n运动, 让世界的天气发生变化.</string>
+  <string block_id="0" entry_id="644" table_id="236">神话中登场的宝可梦. 尾巴里有制造电力的巨大\n发电器.</string>
+  <string block_id="0" entry_id="645" table_id="236">尾部流出的能量补充了土壤的养分令农作物茁壮\n成长.</string>
+  <string block_id="0" entry_id="646" table_id="236">拥有制造极低温冷气的力量, 却将自己冻住了.</string>
+  <string block_id="0" entry_id="647" table_id="236">在江河湖海的水面奔跑, 驰骋全世界. 会出现在\n美丽的水边.</string>
+  <string block_id="0" entry_id="648" table_id="236">许多名曲的灵感都来自于美洛耶塔演奏的旋律.</string>
+  <string block_id="0" entry_id="649" table_id="236">被等离子队改造过的古代的虫宝可梦. 背上的大\n炮力量得到了提升.</string>
+</ds_strings_archive>

@@ -5,12 +5,14 @@ import java.nio.file.Files;
 import java.util.*;
 import top.totodile.pokemmo.client.rom.RomInfo;
 import top.totodile.pokemmo.client.rom.RomType;
+import top.totodile.pokemmo.client.world.WorldMaps;
+import top.totodile.pokemmo.server.game.GameService.Position;
 
-/** FireRed map banks/layouts, LZ10 tiles, BGR555 palettes and 4bpp metatiles.
+/** FireRed/Emerald map banks/layouts, LZ10 tiles, BGR555 palettes and 4bpp metatiles.
  * Table signature follows the reference client's GbaRomRegistry (gz).
  * No extracted ROM assets are written to the installation directory.
  */
-public final class FireRedMaps {
+public final class FireRedMaps implements WorldMaps {
     public record Id(int bank, int map) {}
     public record Warp(int x, int y, int elevation, int targetWarp, Id target) {}
     public record Connection(int direction, int offset, Id target) {}
@@ -32,16 +34,20 @@ public final class FireRedMaps {
         public int layer(int id) { return attributes[id] >>> 29 & 3; }
     }
     private final byte[] rom;
+    private final boolean emerald;
     private final FireRedTileAnimations animations;
     private final Map<Id,Integer> headers = new LinkedHashMap<>();
+    private final Map<Integer,String> locationNames = new HashMap<>();
     private final Map<Id,MapData> maps = new HashMap<>();
     private final Map<Long,Tiles> tiles = new LinkedHashMap<>(16, .75f, true) {
         @Override protected boolean removeEldestEntry(Map.Entry<Long,Tiles> e) { return size()>8; }
     };
     public FireRedMaps(RomInfo info) throws IOException {
-        if (info.type()!=RomType.FIRE_RED) throw new IllegalArgumentException("FireRed ROM required");
+        if (info.type()!=RomType.FIRE_RED && info.type()!=RomType.EMERALD)
+            throw new IllegalArgumentException("FireRed or Emerald ROM required");
+        emerald=info.type()==RomType.EMERALD;
         rom=Files.readAllBytes(info.path());
-        animations=new FireRedTileAnimations(rom);
+        animations=new FireRedTileAnimations(rom,emerald);
         byte[] signature={(byte)0x80,0x18,0,0x68,(byte)0x89,0x0b,9,0x18,8,0x68,0x70,0x47};
         int table=-1;
         search: for(int p=0;p<=rom.length-signature.length-4;p+=2) {
@@ -58,14 +64,46 @@ public final class FireRedMaps {
             if(end<begin || (end-begin)%4!=0 || count>256) throw invalid("Invalid map bank size");
             for(int map=0;map<count;map++) headers.put(new Id(bank,map),pointer(begin+map*4));
         }
+        readLocationNames();
     }
     public Set<Id> ids() { return Collections.unmodifiableSet(headers.keySet()); }
+    /** Emerald's Littleroot west house exit, one tile south of the ROM door warp. */
+    public Position start() { return emerald?new Position(0,9,5,9,0):Position.kantoStart(); }
+    @Override public boolean isWater(int behavior) {
+        // Emerald 0x1b is the Abandoned Ship's directional stair warp (reference az0_0), not Surf water.
+        return WorldMaps.super.isWater(behavior) && (!emerald || behavior!=0x1b);
+    }
+    @Override public boolean blocked(int behavior,int dx,int dy) {
+        // TileElevationCollisionCalculator: Emerald's cracked floor barrier and bike rail restrictions.
+        if(emerald && (behavior==0xb9 || behavior==0xc1 && dx!=0))return true;
+        return WorldMaps.super.blocked(behavior,dx,dy);
+    }
     public MapData map(Id id) { return maps.computeIfAbsent(id,this::readMap); }
-    /** GbaMapHeader.Nw0: FireRed section IDs start at 88. */
+    /** GbaMapHeader.Nw0: FireRed section IDs start at 88; Emerald has its own region namespace. */
     public int locationStringId(Id id) {
         Integer header=headers.get(id);
         if(header==null)throw invalid("Unknown map "+id);
-        return 139912+u8(header+20);
+        return (emerald?141000:139912)+u8(header+20);
+    }
+    @Override public String locationName(Id id) { return locationNames.get(locationStringId(id)); }
+    private void readLocationNames() {
+        // GbaRomRegistry.UU and LocalizationMessageFormatter.NM/rc: Emerald has 8-byte
+        // region-map entries (coordinates, pointer), FireRed has a plain pointer table.
+        byte[] signature=emerald?new byte[]{(byte)0xc0,0x78,0x28,(byte)0x80,0x30,(byte)0xbc,1,(byte)0xbc,0,0x47,0,0}
+                :new byte[]{(byte)0xac,0x47,0,0,(byte)0xae,0x47,0,0,(byte)0xb0,0x47,0,0};
+        int table=-1;
+        search: for(int p=0;p<=rom.length-signature.length-4;p+=2) {
+            for(int j=0;j<signature.length;j++)if(rom[p+j]!=signature[j])continue search;
+            table=pointer(p+signature.length);break;
+        }
+        if(table<0)throw invalid("Location name table not found");
+        for(int header:headers.values()) {
+            int section=u8(header+20), index=emerald?section:section-88;
+            int stringId=(emerald?141000:139912)+section;
+            if(index<0 || locationNames.containsKey(stringId))continue;
+            int entry=table+index*(emerald?8:4)+(emerald?4:0);
+            if(validPointer(entry))locationNames.put(stringId,GbaText.decode(rom,pointer(entry)));
+        }
     }
     private MapData readMap(Id id) {
         Integer h=headers.get(id);
@@ -73,7 +111,7 @@ public final class FireRedMaps {
         int layout=pointer(h), width=u32(layout), height=u32(layout+4);
         if(width<1 || height<1 || width>1024 || height>1024 || (long)width*height>262144)
             throw invalid("Invalid map dimensions");
-        int bw=u8(layout+24), bh=u8(layout+25);
+        int bw=emerald?2:u8(layout+24), bh=emerald?2:u8(layout+25);
         if(bw<1 || bh<1 || bw>16 || bh>16) throw invalid("Invalid map border");
         var warps=new ArrayList<Warp>();
         if(validPointer(h+4)) {
@@ -102,7 +140,7 @@ public final class FireRedMaps {
     }
     private Tiles decodeTiles(int primary,int secondary) {
         int first=count(primary), second=count(secondary), count=first+second;
-        if(first!=640 || count>1024) throw invalid("Unsupported FireRed tileset size");
+        if(first!=(emerald?512:640) || count>1024) throw invalid("Unsupported GBA tileset size");
         byte[] a=graphics(primary,first*32), b=graphics(secondary,(1024-first)*32);
         int[][] palettes=new int[2][256];
         for(int part=0;part<2;part++)for(int i=0;i<256;i++) {
@@ -116,7 +154,11 @@ public final class FireRedMaps {
         var animatedBlocks=new ArrayList<TileAnimation>();
         for(int id=0;id<count;id++) {
             int source=id<first?primary:secondary, local=id<first?id:id-first;
-            attributes[id]=u32(pointer(source+20)+local*4);
+            if(emerald) {
+                // GbaMapTileset.lD stores Emerald's behavior byte and layer byte separately.
+                int attribute=u16(pointer(source+16)+local*2);
+                attributes[id]=(attribute&255)|((attribute>>>12&3)<<29);
+            } else attributes[id]=u32(pointer(source+20)+local*4);
             int metatile=pointer(source+12)+local*16;
             for(int layer=0;layer<2;layer++) for(int q=0;q<4;q++) {
                 int entry=u16(metatile+layer*8+q*2), tile=entry&1023, pal=entry>>>12;
@@ -166,7 +208,9 @@ public final class FireRedMaps {
         return palettes[(primaryBlock?primaryTile:palette<6)?0:1];
     }
     private int count(int tileset) {
-        int bytes=pointer(tileset+20)-pointer(tileset+12);
+        // Emerald's indoor primary tilesets may only define a few blocks, but reserve 512 slots.
+        if(emerald && u8(tileset+1)==0)return 512;
+        int bytes=pointer(tileset+(emerald?16:20))-pointer(tileset+12);
         if(bytes<=0 || bytes%16!=0 || bytes/16>640) throw invalid("Invalid metatile table");
         return bytes/16;
     }

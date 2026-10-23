@@ -34,6 +34,7 @@ public final class NitroTextureDictionary {
         } catch(RuntimeException error) { throw new IOException("Invalid Nitro texture dictionary",error); }
     }
     public TextureInfo info(String name) { return textures.get(name); }
+    public boolean has(String texture,String palette) {return textures.containsKey(texture)&&palettes.containsKey(palette);}
     public Set<String> names() { return Collections.unmodifiableSet(textures.keySet()); }
     public Pixmap pixels(String texture,String palette,boolean mirrorS,boolean mirrorT) throws IOException {
         TextureInfo info=textures.get(texture);

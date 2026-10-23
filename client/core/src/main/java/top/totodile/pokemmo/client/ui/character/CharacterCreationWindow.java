@@ -17,7 +17,7 @@ import top.totodile.pokemmo.client.resources.ClientStrings;
 import top.totodile.pokemmo.client.twl.GdxTwlRenderer;
 import top.totodile.pokemmo.client.ui.common.ClientWindow;
 
-/** 创建角色表单、外观染色与动态预览；提交另行接入。 */
+/** 创建角色表单、起始地区、外观染色与动态预览。 */
 public final class CharacterCreationWindow extends ClientWindow {
     private final boolean mobile;
     private final ClientStrings strings;
@@ -25,6 +25,7 @@ public final class CharacterCreationWindow extends ClientWindow {
     private final Consumer<de.matthiasmann.twl.renderer.Image> mobileBackground;
     private final NameField name = new NameField();
     private final Choice gender, skin, region;
+    private List<Integer> regionIds=List.of(0);
     private final CharacterAppearance appearanceState;
     private final CharacterPreview preview;
     private final Button previousPreview = new Button(""), nextPreview = new Button("");
@@ -354,8 +355,20 @@ public final class CharacterCreationWindow extends ClientWindow {
     public void onCreate(Runnable submit) { this.submit = submit; }
     public long version() { return version; }
     public String characterName() { return name.getText(); }
+    public void availableRegions(List<Integer> regions) {
+        int previous=regionIds.isEmpty()?-1:regionIds.get(region.selected);
+        if(regions.stream().anyMatch(id->id<0 || id>4) || regions.stream().distinct().count()!=regions.size())
+            throw new IllegalArgumentException("Invalid starting regions");
+        regionIds=List.copyOf(regions);
+        region.setOptions(regionIds.isEmpty()?new String[]{""}:regionIds.stream().map(id->strings.get(250000+id)).toArray(String[]::new));
+        int selected=regionIds.indexOf(previous);
+        if(selected>=0)region.select(selected);
+        region.setEnabled(regionIds.size()>1);
+        create.setEnabled(!regionIds.isEmpty());
+    }
     public top.totodile.pokemmo.server.game.GameService.Appearance selectedAppearance() {
-        return appearanceState.snapshot(gender.selected, skin.selected, region.selected);
+        if(regionIds.isEmpty())throw new IllegalStateException("No starting region ROM is loaded");
+        return appearanceState.snapshot(gender.selected, skin.selected, regionIds.get(region.selected));
     }
     public CharacterAppearance savedAppearance(top.totodile.pokemmo.server.game.GameService.Appearance value) {
         return appearanceState.restore(value);

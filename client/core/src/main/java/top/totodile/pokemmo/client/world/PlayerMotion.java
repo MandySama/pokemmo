@@ -46,11 +46,10 @@ public final class PlayerMotion {
             return false;
         }
         Position after=movement.position();
-        fromX=before.x(); fromY=before.y(); time=0;
+        fromX=movement.stepFromX(); fromY=movement.stepFromY(); time=0;
         stepMode=bicycle?Mode.BICYCLE:running?Mode.RUN:Mode.WALK;
         duration=stepMode.seconds;
-        moving=before.bank()==after.bank() && before.map()==after.map()
-                && Math.abs(before.x()-after.x())+Math.abs(before.y()-after.y())==1;
+        moving=movement.continuousStep();
         // 穿墙期间只保存正常地面，避免下次登录落在墙里而无法进入地图。
         if(movement.canStand()) save.accept(after);
         return true;
@@ -77,7 +76,7 @@ public final class PlayerMotion {
             if(!moving) {
                 if(remaining<=0 || !input || !move(dx,dy)) break;
                 idleTime=0;
-                if(!moving) break; // 门和地图连接切换后从目标位置继续下一帧。
+                if(!moving) break; // 真正的传送门切换后从目标位置继续下一帧。
             }
             idleTime=0;
             float advance=Math.min(remaining,duration-time);

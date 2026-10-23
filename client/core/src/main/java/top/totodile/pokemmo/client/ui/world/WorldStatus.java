@@ -23,7 +23,8 @@ final class WorldStatus extends Widget {
         update();
     }
     void update() {
-        location.setText(strings.getOrDefault(world.locationStringId(),"--"));
+        String romName=world.locationName();
+        location.setText(strings.getOrDefault(world.locationStringId(),romName==null?"--":romName));
         // WorldTimeManager.ki0 uses four virtual seconds per real second. Local play has no server offset.
         long seconds=Math.floorDiv(clock.getAsLong(),1000)*4;
         int minute=(int)Math.floorMod(Math.floorDiv(seconds,60),1440);

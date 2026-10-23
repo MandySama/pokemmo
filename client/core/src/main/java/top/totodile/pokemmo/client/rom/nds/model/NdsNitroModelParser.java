@@ -50,20 +50,33 @@ public final class NdsNitroModelParser {
     private int meshIndex;
 
     public static Parsed read(byte[] bytes) throws IOException {
+        return read(bytes,bytes,0);
+    }
+    /** Field BMD files use a separate area BTX; buildings can contain several models. */
+    public static List<Parsed> readAll(byte[] bytes,byte[] textures) throws IOException {
+        ByteBuffer data=ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
+        int section=data.getInt(16);
+        var dictionary=new NitroDictionary(data,section+8,4);
+        List<Parsed> result=new ArrayList<>();
+        for(int i=0;i<dictionary.count;i++)result.add(read(bytes,textures,i));
+        return List.copyOf(result);
+    }
+    private static Parsed read(byte[] bytes,byte[] textures,int index) throws IOException {
         try {
-            NdsNitroModelParser parser=new NdsNitroModelParser(bytes);
+            NdsNitroModelParser parser=new NdsNitroModelParser(bytes,index);
             parser.decode();
-            return new Parsed(parser.model,List.copyOf(parser.materials),new NitroTextureDictionary(bytes),parser.joints.length,parser.positionScale);
+            boolean textured=parser.materials.stream().anyMatch(m -> m.texture!=null);
+            return new Parsed(parser.model,List.copyOf(parser.materials),textured?new NitroTextureDictionary(textures==null?bytes:textures):null,parser.joints.length,parser.positionScale);
         } catch(IOException error) { throw error; }
         catch(RuntimeException error) { throw new IOException("Invalid Nitro model",error); }
     }
-    private NdsNitroModelParser(byte[] bytes) throws IOException {
+    private NdsNitroModelParser(byte[] bytes,int index) throws IOException {
         data=ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
         int section=data.getInt(16);
         if(data.getInt(section)!=0x304c444d)throw new IOException("Missing MDL0");
         var models=new NitroDictionary(data,section+8,4);
-        if(models.count!=1)throw new IOException("Expected a single Nitro login model");
-        base=section+data.getInt(models.record(0)); model.id=models.name(0);
+        if(index<0 || index>=models.count)throw new IOException("Missing Nitro model "+index);
+        base=section+data.getInt(models.record(index)); model.id=models.name(index);
         materialBase=base+data.getInt(base+8); shapeBase=base+data.getInt(base+12); envelope=base+data.getInt(base+16);
         positionScale=data.getInt(base+28)/4096f; inverseScale=data.getInt(base+32)/4096f;
         if(positionScale<=0)throw new IOException("Invalid Nitro position scale");

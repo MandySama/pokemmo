@@ -24,4 +24,6 @@
   <include filename="../default/ui/customization.xml" />
   <include filename="ui/android-customization.xml" />
   <include filename="../default/ui/world.xml" />
+  <include filename="../default/ui/pokedex.xml" />
+  <include filename="ui/android-pokedex.xml" />
 </themes>

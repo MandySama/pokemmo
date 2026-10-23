@@ -55,6 +55,7 @@ public final class WorldHud extends Widget {
         add(bar);add(chatToggle);add(chat);add(menu);menu.setVisible(false);chat.setVisible(false);
     }
     private void closeMenu(){menu.setVisible(false);invalidateLayout();}
+    public void onPokedex(Runnable open){shortcuts[4].addCallback(()->{closeMenu();open.run();});}
     public boolean dismissMenuOutside(int x,int y) {
         if(menu.isVisible()&&!menu.isInside(x,y)&&!shortcuts[8].isInside(x,y)) {
             closeMenu();return true;

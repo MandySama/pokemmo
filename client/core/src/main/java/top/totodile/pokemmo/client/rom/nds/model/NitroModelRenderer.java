@@ -15,10 +15,14 @@ public final class NitroModelRenderer implements AutoCloseable {
     private final Map<String,Texture> textures=new HashMap<>();
     private final Map<String,NdsNitroModelParser.Material> materials=new HashMap<>();
     public NitroModelRenderer(NdsNitroModelParser.Parsed parsed) throws IOException {
+        this(parsed,1f/64);
+    }
+    /** units converts original model units to the scene's world units. */
+    public NitroModelRenderer(NdsNitroModelParser.Parsed parsed,float units) throws IOException {
         dictionary=parsed.textures();
         model=new Model(parsed.model()); instance=new ModelInstance(model);
         // 参考 GdxAnimatedModelInstance 的 Fg0 是乘法：在 1/positionScale 上再乘 positionScale/64。
-        instance.nodes.first().scale.scl(parsed.positionScale()/64);
+        instance.nodes.first().scale.scl(parsed.positionScale()*units);
         instance.calculateTransforms();
         try {
             for(var source:parsed.materials()) {
@@ -31,10 +35,10 @@ public final class NitroModelRenderer implements AutoCloseable {
                 if(source.ambient!=null)target.set(ColorAttribute.createAmbientLight(source.ambient));
                 target.set(new DepthTestAttribute((polygon&(1<<4))!=0?GL20.GL_EQUAL:GL20.GL_LESS,true));
                 float alpha=(polygon>>>16&31)/31f;
-                if(source.texture!=null && source.palette!=null) {
+                if(source.texture!=null) {
                     target.set(TextureAttribute.createDiffuse(texture(source,source.texture,source.palette)));
                     var info=dictionary.info(source.texture);
-                    if(info.format()==1 || info.format()==6 || info.transparent() || alpha<1) {
+                    if(info!=null&&(info.format()==1 || info.format()==6 || info.transparent()) || alpha<1) {
                         target.set(new BlendingAttribute(GL20.GL_SRC_ALPHA,GL20.GL_ONE_MINUS_SRC_ALPHA,alpha));
                         // 登录场景使用 data/shaders/default.fragment.glsl，其实际裁剪阈值为 0.1。
                         target.set(FloatAttribute.createAlphaTest(.1f));
@@ -47,7 +51,10 @@ public final class NitroModelRenderer implements AutoCloseable {
         String key=name+"/"+palette+"/"+source.textureParams;
         Texture texture=textures.get(key);
         if(texture==null) {
-            var pixels=dictionary.pixels(name,palette,source.mirrorS(),source.mirrorT());
+            // GdxTextureStreamDecoderWrapper.De0: missing field materials use its solid-black fallback.
+            Pixmap pixels;
+            if(dictionary.has(name,palette))pixels=dictionary.pixels(name,palette,source.mirrorS(),source.mirrorT());
+            else {pixels=new Pixmap(1,1,Pixmap.Format.RGBA8888);pixels.setColor(Color.BLACK);pixels.fill();}
             try { texture=new Texture(pixels); }
             finally { pixels.dispose(); }
             // 参考 NdsNitroModelParser：eb0_1.Y30 对应 Nearest，避免棋盘与模型纹理被平滑。

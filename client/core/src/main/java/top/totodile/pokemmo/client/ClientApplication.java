@@ -18,12 +18,13 @@ import top.totodile.pokemmo.client.resources.ClientResources;
 import top.totodile.pokemmo.client.rom.RomFilePicker;
 import top.totodile.pokemmo.client.rom.RomManager;
 import top.totodile.pokemmo.client.rom.RomType;
-import top.totodile.pokemmo.client.rom.gba.FireRedMaps;
 import top.totodile.pokemmo.client.ui.character.CharacterAppearance;
 import top.totodile.pokemmo.client.ui.character.OverworldCharacter;
 import top.totodile.pokemmo.client.world.MapMovement;
 import top.totodile.pokemmo.client.world.MobileMapControls;
 import top.totodile.pokemmo.client.world.WorldScene;
+import top.totodile.pokemmo.client.world.WorldMaps;
+import top.totodile.pokemmo.client.world.WorldMapLoader;
 import top.totodile.pokemmo.client.ui.ClientUi;
 import top.totodile.pokemmo.client.ui.login.LoginController;
 import top.totodile.pokemmo.client.ui.startup.ScrollingBackground;
@@ -53,10 +54,12 @@ public final class ClientApplication extends ApplicationAdapter {
     private top.totodile.pokemmo.client.ui.startup.LoginScene loginScene;
     private boolean focused=true;
     private WorldScene world;
-    private record LoadedWorld(FireRedMaps maps,MapMovement movement) {}
-    private boolean disposed;
+    private record LoadedWorld(WorldMaps maps,MapMovement movement) {}
+    private volatile boolean disposed;
+    private final java.util.Set<java.util.concurrent.CompletableFuture<Void>> pendingWorldEntries=
+            java.util.concurrent.ConcurrentHashMap.newKeySet();
     private final java.util.concurrent.ExecutorService worldLoader=java.util.concurrent.Executors.newSingleThreadExecutor(r -> {
-        Thread thread=new Thread(r,"gba-maps"); thread.setDaemon(true); return thread;
+        Thread thread=new Thread(r,"world-maps"); thread.setDaemon(true); return thread;
     });
 
     public ClientApplication withLoginScene(Function<ClientResources, top.totodile.pokemmo.client.ui.startup.LoginScene> factory) {
@@ -154,43 +157,60 @@ public final class ClientApplication extends ApplicationAdapter {
     }
 
     private java.util.concurrent.CompletionStage<Void> enterWorld(top.totodile.pokemmo.server.game.GameService.Entry entry) {
+        if(disposed)return java.util.concurrent.CompletableFuture.failedFuture(new java.util.concurrent.CancellationException());
         var selection=selectedServer();
-        var rom=resources.roms().get(RomType.FIRE_RED);
-        if(rom==null) return java.util.concurrent.CompletableFuture.failedFuture(new IllegalStateException("FireRed ROM is not loaded"));
+        var type=RomType.of(entry.character().appearance().region());
+        var rom=resources.roms().get(type);
+        if(rom==null) return java.util.concurrent.CompletableFuture.failedFuture(new IllegalStateException(type+" ROM is not loaded"));
         var ready=new java.util.concurrent.CompletableFuture<Void>();
-        java.util.concurrent.CompletableFuture.supplyAsync(() -> {
-            try {
-                var maps=new FireRedMaps(rom);
-                var movement=new MapMovement(maps,entry.position());
-                maps.tiles(movement.map());
-                return new LoadedWorld(maps,movement);
-            } catch(java.io.IOException error) { throw new java.util.concurrent.CompletionException(error); }
-        },worldLoader).whenComplete((loaded,error) -> Gdx.app.postRunnable(() -> {
-            if(disposed || selection!=selectedServer()) { ready.completeExceptionally(new java.util.concurrent.CancellationException()); return; }
-            if(error!=null) { ready.completeExceptionally(error); return; }
-            OverworldCharacter sprite=null;
-            WorldScene scene=null;
-            try {
-                var catalog=new CharacterAppearance(resources.apply("sprites/addons.pak"),resources.strings());
-                try { sprite=new OverworldCharacter(catalog,entry.character().appearance(),resources.apply("sprites/game.pak")); }
-                finally { catalog.dispose(); }
-                scene=new WorldScene(loaded.maps(),loaded.movement(),sprite,resources.preferences(),mobile,
-                        position -> gameService.savePosition(selection,entry.character().id(),position)
-                            .exceptionally(failure -> { Gdx.app.error("world","Cannot save character position",failure); return null; }),
-                        entry.travelState(),state -> gameService.saveTravelState(selection,entry.character().id(),state)
-                            .exceptionally(failure -> { Gdx.app.error("world","Cannot save character travel state",failure); return null; }));
-                if(mobile) scene.setControls(new MobileMapControls(resources.apply("buttons/controller.png"),resources.preferences()));
-                scene.setFocused(focused);
-                if(loginScene!=null) { loginScene.close(); loginScene=null; }
-                var worldInput=clientUi.showWorld(scene);
-                world=scene;
-                Gdx.input.setInputProcessor(worldInput);
-                ready.complete(null);
-            } catch(RuntimeException failure) {
-                if(scene!=null) scene.close(); else if(sprite!=null) sprite.close();
-                ready.completeExceptionally(failure);
-            }
-        }));
+        pendingWorldEntries.add(ready);
+        ready.whenComplete((ignored,failure)->pendingWorldEntries.remove(ready));
+        if(disposed) {ready.cancel(false);return ready;}
+        try {
+            java.util.concurrent.CompletableFuture.supplyAsync(() -> {
+                if(disposed || ready.isDone())throw new java.util.concurrent.CancellationException();
+                try {
+                    var maps=WorldMapLoader.load(rom);
+                    var movement=new MapMovement(maps,entry.position());
+                    maps.tiles(movement.map());
+                    if(maps.is3d())maps.geometry(movement.map().id());
+                    return new LoadedWorld(maps,movement);
+                } catch(java.io.IOException error) { throw new java.util.concurrent.CompletionException(error); }
+            },worldLoader).whenComplete((loaded,error) -> {
+                // The render queue may stop permanently during dispose; finish cancellation on this worker instead.
+                if(disposed || ready.isDone()) {ready.cancel(false);return;}
+                try {
+                    Gdx.app.postRunnable(() -> {
+                        if(disposed || ready.isDone() || selection!=selectedServer()) { ready.cancel(false); return; }
+                        if(error!=null) { ready.completeExceptionally(error); return; }
+                        OverworldCharacter sprite=null;
+                        WorldScene scene=null;
+                        try {
+                            var catalog=new CharacterAppearance(resources.apply("sprites/addons.pak"),resources.strings());
+                            try { sprite=new OverworldCharacter(catalog,entry.character().appearance(),resources.apply("sprites/game.pak")); }
+                            finally { catalog.dispose(); }
+                            scene=new WorldScene(loaded.maps(),loaded.movement(),sprite,resources.preferences(),mobile,
+                                    position -> gameService.savePosition(selection,entry.character().id(),position)
+                                        .exceptionally(failure -> { Gdx.app.error("world","Cannot save character position",failure); return null; }),
+                                    entry.travelState(),state -> gameService.saveTravelState(selection,entry.character().id(),state)
+                                        .exceptionally(failure -> { Gdx.app.error("world","Cannot save character travel state",failure); return null; }));
+                            if(mobile) scene.setControls(new MobileMapControls(resources.apply("buttons/controller.png"),resources.preferences()));
+                            scene.setFocused(focused);
+                            if(loginScene!=null) { loginScene.close(); loginScene=null; }
+                            var worldInput=clientUi.showWorld(scene);
+                            world=scene;
+                            Gdx.input.setInputProcessor(worldInput);
+                            ready.complete(null);
+                        } catch(RuntimeException failure) {
+                            if(scene!=null) scene.close(); else if(sprite!=null) sprite.close();
+                            ready.completeExceptionally(failure);
+                        }
+                    });
+                } catch(RuntimeException failure) {ready.completeExceptionally(failure);}
+            });
+        } catch(java.util.concurrent.RejectedExecutionException failure) {
+            if(disposed)ready.cancel(false);else ready.completeExceptionally(failure);
+        }
         return ready;
     }
 
@@ -269,7 +289,10 @@ public final class ClientApplication extends ApplicationAdapter {
 
     @Override
     public void dispose() {
+        if(disposed)return;
         disposed=true;
+        // shutdownNow also removes queued loader jobs, so their dependent futures must be completed here.
+        for(var pending:pendingWorldEntries)pending.cancel(false);
         worldLoader.shutdownNow();
         if(world!=null) {
             Gdx.input.setInputProcessor(null);

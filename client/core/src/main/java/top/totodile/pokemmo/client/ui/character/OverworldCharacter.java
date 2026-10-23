@@ -52,6 +52,10 @@ public final class OverworldCharacter implements AutoCloseable {
         draw(batch,x,feetY,direction,walkTime,moving,0);
     }
     public void draw(SpriteBatch batch,float x,float feetY,int direction,float walkTime,boolean moving,int mode) {
+        drawShadow(batch,x,feetY);
+        drawBody(batch,x,feetY,direction,walkTime,moving,mode);
+    }
+    public void drawBody(SpriteBatch batch,float x,float feetY,int direction,float walkTime,boolean moving,int mode) {
         int base=direction==3?2:direction;
         int first=mode==2?18+base:mode==1&&moving?9+base*3:base;
         int left=mode==2?21+base*2:mode==1?first+1:3+base*2;
@@ -63,8 +67,11 @@ public final class OverworldCharacter implements AutoCloseable {
         // 将参考的向下 Y 坐标换算到当前脚点，保留贴图自身的半透明像素。
         float centerX=Math.round(x),groundY=Math.round(feetY);
         batch.setColor(Color.WHITE);
-        batch.draw(shadow,centerX-9.5f,groundY-4,18,18);
         sprites.drawWorld(batch,(int)centerX,(int)groundY,frame,direction==3);
+    }
+    public void drawShadow(SpriteBatch batch,float x,float feetY) {
+        batch.setColor(Color.WHITE);
+        batch.draw(shadow,Math.round(x)-9.5f,Math.round(feetY)-4,18,18);
     }
     @Override public void close() { shadow.dispose();sprites.close(); appearance.dispose(); }
 }

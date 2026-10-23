@@ -20,4 +20,5 @@
   <include filename="ui/settings.xml" />
   <include filename="ui/customization.xml" />
   <include filename="ui/world.xml" />
+  <include filename="ui/pokedex.xml" />
 </themes>

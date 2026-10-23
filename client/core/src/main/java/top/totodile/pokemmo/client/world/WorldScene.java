@@ -6,14 +6,14 @@ import com.badlogic.gdx.graphics.g2d.*;
 import java.util.*;
 import java.util.function.Consumer;
 import top.totodile.pokemmo.client.config.ClientSettings;
-import top.totodile.pokemmo.client.rom.gba.FireRedMaps;
 import top.totodile.pokemmo.client.rom.gba.FireRedMaps.*;
 import top.totodile.pokemmo.client.ui.character.OverworldCharacter;
 import top.totodile.pokemmo.server.game.GameService.Position;
 
-/** Shared GBA overworld: visible metatiles, sprite occlusion and a following camera. */
+/** Shared world input and motion, with GBA metatiles or the ROM's NDS field geometry. */
 public final class WorldScene extends InputAdapter implements AutoCloseable {
-    private final FireRedMaps maps;
+    private final WorldMaps maps;
+    private final NdsWorldRenderer nds;
     private final MapMovement movement;
     private final OverworldCharacter character;
     private final ClientSettings settings;
@@ -32,14 +32,14 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
     private MobileMapControls controls;
     private record Neighbor(MapData map,int x,int y) {}
     private final List<Neighbor> neighbors=new ArrayList<>();
-    public WorldScene(FireRedMaps maps,MapMovement movement,OverworldCharacter character,ClientSettings settings,Consumer<Position> save) {
+    public WorldScene(WorldMaps maps,MapMovement movement,OverworldCharacter character,ClientSettings settings,Consumer<Position> save) {
         this(maps,movement,character,settings,false,save);
     }
-    public WorldScene(FireRedMaps maps,MapMovement movement,OverworldCharacter character,ClientSettings settings,boolean mobile,Consumer<Position> save) {
+    public WorldScene(WorldMaps maps,MapMovement movement,OverworldCharacter character,ClientSettings settings,boolean mobile,Consumer<Position> save) {
         this(maps,movement,character,settings,mobile,save,
                 top.totodile.pokemmo.server.game.GameService.TravelState.defaults(),state -> {});
     }
-    public WorldScene(FireRedMaps maps,MapMovement movement,OverworldCharacter character,ClientSettings settings,boolean mobile,Consumer<Position> save,
+    public WorldScene(WorldMaps maps,MapMovement movement,OverworldCharacter character,ClientSettings settings,boolean mobile,Consumer<Position> save,
                       top.totodile.pokemmo.server.game.GameService.TravelState state,
                       Consumer<top.totodile.pokemmo.server.game.GameService.TravelState> saveState) {
         this.maps=maps; this.movement=movement; this.character=character; this.settings=settings;
@@ -47,13 +47,18 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
         motion=new PlayerMotion(movement,Boolean.parseBoolean(settings.get("client.gameplay.autosprint.enabled","true")),save);
         WorldState.bind(settings,motion,state,saveState);
         commands=new WorldCommands(motion);
-        try { atlas(maps.tiles(movement.map())); }
+        try {
+            nds=maps.is3d()?new NdsWorldRenderer(maps,movement.map().id()):null;
+            if(nds==null)atlas(maps.tiles(movement.map()));
+            else movement.beforeTransition(nds::prepare);
+        }
         catch(RuntimeException error) { batch.dispose(); throw error; }
     }
     public MapMovement movement() { return movement; }
     public PlayerMotion motion() { return motion; }
     public WorldCommands commands() { return commands; }
     public int locationStringId() { return maps.locationStringId(movement.map().id()); }
+    public String locationName() { return maps.locationName(movement.map().id()); }
     public void setInputBlocked(boolean blocked) {
         inputBlocked=blocked;
         if(blocked) { actionKeys.clear(); directionKeys.clear(); if(controls!=null)controls.release(); }
@@ -81,6 +86,11 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
         }
         try { motion.update(focused?delta:0,dx,dy); }
         catch(RuntimeException error) { Gdx.app.error("world","Cannot move to ROM map",error); }
+        if(nds!=null) {
+            nds.draw(movement,motion,character,batch,width,height,mobile);
+            if(controls!=null)controls.draw(batch,width,height);
+            return;
+        }
         Position position=movement.position();
         float px=motion.x()*16+8;
         float py=motion.y()*16+16;
@@ -217,6 +227,7 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
         } finally {if(image!=null)image.dispose();}
     }
     @Override public void close() {
+        if(nds!=null)nds.close();
         for(Texture[] textures:atlases.values()) for(Texture texture:textures) texture.dispose();
         atlases.clear();animationFrames.clear(); character.close(); if(controls!=null)controls.close(); batch.dispose();
     }

@@ -32,8 +32,13 @@ public final class NdsArchive {
         } catch (IndexOutOfBoundsException error) { throw new IOException("Truncated NARC archive",error); }
     }
     public byte[] read(int index) throws IOException {
+        return decompress(readRaw(index));
+    }
+    public int size() { return starts.length; }
+    /** Structured map entries are not LZ streams even when their first byte is 0x10/0x11. */
+    public byte[] readRaw(int index) throws IOException {
         if (index<0 || index>=starts.length) throw new IOException("Missing NARC entry "+index);
-        return decompress(Arrays.copyOfRange(data,content+starts[index],content+ends[index]));
+        return Arrays.copyOfRange(data,content+starts[index],content+ends[index]);
     }
     public static byte[] decompress(byte[] input) throws IOException {
         if (input.length==0 || (input[0]!=0x10 && input[0]!=0x11)) return input;
