@@ -1,3 +1,13 @@
+## blackwhite2 实验分支
+
+本分支在独立 worktree 中开发。PC 登录背景优先读取 `client/roms/blackwhite2.nds`（游戏代码 IRE/IRD），随机播放暗黑酋雷姆或焰白酋雷姆；未加载黑白 2 时沿用原黑白双龙。客户端管理界面保持原有五项，Android 保留原滚动背景。黑白 2 仅用于标题资源，不能据此视为已支持黑白 2 地图或其它玩法。
+
+沿用 `E:/PokeMMO` 的 `Abstract3DCutsceneScene` 17/18 及现有 Nitro 渲染流程，从黑白 2 的 `a/1/5/8` 读取模型 447/449/451、骨骼动画 446/448/450、SRT0 452 与镜头 453；焰白版本各加 8。模型、动画、纹理和镜头直接从本机 ROM 读取。补充四帧骨骼采样和标题 SRT0 的 UV 变换；音乐仍从原 `blackwhite.nds` 读取已验证的曲目，不对黑白 2 套用原曲目编号。ROM 已放入本 worktree 的 `client/roms/`，被 Git 忽略且不打入发行包。
+
+本机已通过 `:client:desktop:test --tests '*BlackWhite2TitleTest'`，使用真实 OpenGL 检查两种合体形态和原版两种形态、多个镜头时间点、循环、画幅变化及失焦恢复；截图位于本机 `client/build/title-check/`。测试及 ROM 依项目忽略规则仅保留本地。已人工查看渲染截图，尚未与官方应用的合体背景逐帧对照；该部分是用户指定的实验性替换。
+
+启动：在本 worktree 根目录执行 `./gradlew.bat :client:desktop:run`。原工作目录继续保留 `master`，其未提交改动不参与本分支。
+
 ## 模块与单机入口
 
 - `server:login`：登录接口、会话、服务器目录和单机登录实现。非空账号密码可进入本地会话，提供一个名为“Live”的本地服务器入口，不访问网络、不注册账号、不保留密码，也不依赖客户端。

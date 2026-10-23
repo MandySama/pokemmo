@@ -65,19 +65,21 @@ final class RomModelAnimation {
     private static int u16(ByteBuffer b,int offset) { return Short.toUnsignedInt(b.getShort(offset)); }
 
     private record Sampling(int flags,int offset) {
+        // 黑白 2 标题还使用四帧采样；末尾不足一个步长的关键帧逐帧存放。
         Sampling {
-            // 黑白标题动画使用逐帧或隔帧采样；其它格式在有参考验证前明确拒绝。
-            if((flags>>>30)>1) throw new IllegalArgumentException("Unsupported login animation sampling rate");
+            if((flags>>>30)==3) throw new IllegalArgumentException("Unsupported login animation sampling rate");
         }
         int first(int frame) {
-            if((flags&0x40000000)==0) return frame;
-            int boundary=(flags>>>16)&0x1fff;
-            return (frame&1)!=0 && frame>boundary ? (boundary>>1)+1 : frame>>1;
+            int step=1<<(flags>>>30), boundary=(flags>>>16)&0x1fff;
+            return frame>boundary ? boundary/step+frame-boundary : frame/step;
         }
-        boolean interpolate(int frame) {
-            return (flags&0x40000000)!=0 && (frame&1)!=0 && frame<=((flags>>>16)&0x1fff);
+        float fraction(int frame) {
+            int step=1<<(flags>>>30), boundary=(flags>>>16)&0x1fff;
+            return frame<=boundary ? (frame%step)/(float)step : 0;
         }
+        boolean interpolate(int frame) { return fraction(frame)>0; }
     }
+
     private static Array<NodeKeyframe<Vector3>> vectors(ByteBuffer b,int base,int frames,int flags,int shift,boolean scale) {
         float[][] values=new float[3][frames];
         for(int axis=0;axis<3;axis++) {
@@ -90,7 +92,7 @@ final class RomModelAnimation {
                 for(int frame=0;frame<frames;frame++) {
                     int first=sampling.first(frame);
                     float value=scalar(b,sampling,first,scale);
-                    if(sampling.interpolate(frame)) value=(value+scalar(b,sampling,first+1,scale))*.5f;
+                    if(sampling.interpolate(frame)) value+=(scalar(b,sampling,first+1,scale)-value)*sampling.fraction(frame);
                     values[axis][frame]=value;
                 }
             }
@@ -121,14 +123,16 @@ final class RomModelAnimation {
                     // 参考 RJ.Dw0：矩阵列相加并归一化后，再转四元数。
                     for(int column=0;column<3;column++) {
                         int p=column*4;
-                        Vector3 v=new Vector3(matrix.val[p]+next.val[p],matrix.val[p+1]+next.val[p+1],matrix.val[p+2]+next.val[p+2]).nor();
+                        float mix=sampling.fraction(frame);
+                        Vector3 v=new Vector3(matrix.val[p],matrix.val[p+1],matrix.val[p+2])
+                                .scl(1-mix).mulAdd(new Vector3(next.val[p],next.val[p+1],next.val[p+2]),mix).nor();
                         opposite|=v.isZero();
                         matrix.val[p]=v.x; matrix.val[p+1]=v.y; matrix.val[p+2]=v.z;
                     }
                     // 光束存在相邻采样相差 180° 的转向。列平均会产生零轴，
                     // 不能再归一化为四元数；仅在此奇点取同一对端点的球面中点。
                     if(opposite) {
-                        keys.add(new NodeKeyframe<>(frame/30f,start.slerp(end,.5f).nor()));
+                        keys.add(new NodeKeyframe<>(frame/30f,start.slerp(end,sampling.fraction(frame)).nor()));
                         continue;
                     }
                 }

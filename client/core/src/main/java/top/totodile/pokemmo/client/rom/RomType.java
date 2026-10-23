@@ -7,7 +7,9 @@ import java.util.List;
 public enum RomType {
     FIRE_RED(0, "gba", "BPR"), EMERALD(1, "gba", "BPE"),
     BLACK_WHITE(2, "nds", "IRB", "IRA"), PLATINUM(3, "nds", "CPU"),
-    HEART_GOLD_SOUL_SILVER(4, "nds", "IPK", "IPG");
+    HEART_GOLD_SOUL_SILVER(4, "nds", "IPK", "IPG"),
+    // 实验分支仅供 PC 标题场景使用，不新增客户端管理界面项目。
+    BLACK_WHITE_2(5, "nds", "IRE", "IRD");
     public final int id;
     public final String extension;
     private final List<String> codes;

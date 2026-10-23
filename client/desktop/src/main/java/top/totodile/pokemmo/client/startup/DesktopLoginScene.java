@@ -17,7 +17,7 @@ import top.totodile.pokemmo.client.resources.ClientResources;
 import top.totodile.pokemmo.client.rom.*;
 import top.totodile.pokemmo.client.ui.startup.LoginScene;
 
-/** 参考 RenderTargetResource.mT 与 Abstract3DCutsceneScene 17/18：随机播放黑白标题场景。 */
+/** 参考 RenderTargetResource.mT 与 Abstract3DCutsceneScene 17/18：随机播放黑白 / 黑白 2 标题场景。 */
 public final class DesktopLoginScene implements LoginScene {
     private final ClientResources resources;
     private final Path cache;
@@ -33,6 +33,7 @@ public final class DesktopLoginScene implements LoginScene {
     private final Environment environment=new Environment();
     private RomLoginMusic music;
     private RomTexturePattern pattern;
+    private RomTextureTransform uv;
     private float time;
     private boolean focused=true, closed;
 
@@ -46,7 +47,8 @@ public final class DesktopLoginScene implements LoginScene {
     }
     @Override public boolean draw(float delta,int width,int height) {
         if (closed) return false;
-        RomInfo selected=resources.roms().get(RomType.BLACK_WHITE);
+        RomInfo selected=resources.roms().get(RomType.BLACK_WHITE_2);
+        if (selected==null) selected=resources.roms().get(RomType.BLACK_WHITE);
         if (selected!=rom) {
             release(); rom=selected;
             if (rom!=null) {
@@ -55,7 +57,9 @@ public final class DesktopLoginScene implements LoginScene {
                     try { return RomLoginAssets.prepare(source,variant); }
                     catch (Exception error) { throw new CompletionException(error); }
                 });
-                music=new RomLoginMusic(rom,cache,resources.preferences()); music.setFocused(focused);
+                // 合体标题仍沿用已验证的黑白登录音乐，不能以黑白的 SSEQ 编号读取黑白 2。
+                RomInfo musicRom=resources.roms().get(RomType.BLACK_WHITE);
+                if (musicRom!=null) { music=new RomLoginMusic(musicRom,cache,resources.preferences()); music.setFocused(focused); }
             }
         }
         if (loading!=null && loading.isDone()) {
@@ -80,6 +84,7 @@ public final class DesktopLoginScene implements LoginScene {
         for(var animation:animations)animation.update(step);
         if(pattern!=null)try { pattern.update(time); }
         catch(java.io.IOException error) { pattern.close(); pattern=null; Gdx.app.error("Login scene","Unable to update ROM texture animation",error); }
+        if(uv!=null) uv.update(time);
         renderer.begin(camera);
         for(var scene:scenes)renderer.render(scene.instance,environment);
         renderer.end();
@@ -94,8 +99,9 @@ public final class DesktopLoginScene implements LoginScene {
             animations.add(new AnimationController(scene.instance));
         }
         var config=new DefaultShader.Config(); config.numBones=Math.max(1,scenes.stream().mapToInt(NitroModelRenderer::maxBones).max().orElse(0));
-        renderer=new ModelBatch(new DefaultShaderProvider(config));
-        pattern=new RomTexturePattern(prepared.pattern(),scenes.get(0));
+        renderer=new ModelBatch(prepared.uv()==null?new DefaultShaderProvider(config):new RomTitleShaderProvider(config));
+        if(prepared.pattern()!=null) pattern=new RomTexturePattern(prepared.pattern(),scenes.get(0));
+        if(prepared.uv()!=null) uv=new RomTextureTransform(prepared.uv(),scenes.get(2));
         resetAnimation(); time=0;
     }
     private void resetAnimation() {
@@ -107,6 +113,7 @@ public final class DesktopLoginScene implements LoginScene {
         if (music!=null) music.setFocused(focused);
     }
     private void releaseModels() {
+        uv=null;
         if(pattern!=null) { pattern.close(); pattern=null; }
         if (renderer!=null) { renderer.dispose(); renderer=null; }
         scenes.forEach(NitroModelRenderer::close);
