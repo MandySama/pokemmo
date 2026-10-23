@@ -101,6 +101,7 @@ public final class ClientUi implements Disposable {
     }
 
     public com.badlogic.gdx.InputProcessor showWorld(top.totodile.pokemmo.client.world.WorldScene world) {
+        pokedex.setUnlocked(world.commands().pokedexUnlocked());
         worldActions=new top.totodile.pokemmo.client.ui.world.WorldActions(world);
         worldScene=world;
         worldHud=new top.totodile.pokemmo.client.ui.world.WorldHud(world,strings,mobile,this::itemIcon,
@@ -242,6 +243,7 @@ public final class ClientUi implements Disposable {
         pokedex = new PokedexWindow(root,resources,renderer,mobile,mobileBackground,()->{
             if(worldScene!=null)worldScene.setInputBlocked(worldHud.editingChat()||settings.isOpen()||worldLogout.isOpen());
         });
+        if(gameService!=null)pokedex.setTierData(gameService.pokedexTiers());
         characterCreation = new CharacterCreationWindow(root, strings, mobile, () -> {
             characterPage.setVisible(controller.state() == LoginController.State.SELECTED);
             restoreWindowFocus();
@@ -616,6 +618,8 @@ public final class ClientUi implements Disposable {
 
     public void draw(float width,float height,float x,float y) {
         if(worldActions!=null) {
+            pokedex.setUnlocked(worldScene.commands().pokedexUnlocked());
+            worldActions.update();
             worldHud.update();
             worldScene.setInputBlocked(worldHud.editingChat()||pokedex.isOpen()||pokedex.showingMessage()||settings.isOpen()||worldLogout.isOpen()||(exitConfirmation!=null&&exitConfirmation.isOpen()));
             fps.setVisible(Boolean.parseBoolean(resources.preferences().get("client.graphics.show_fps","true")));

@@ -193,7 +193,10 @@ public final class ClientApplication extends ApplicationAdapter {
                                     position -> gameService.savePosition(selection,entry.character().id(),position)
                                         .exceptionally(failure -> { Gdx.app.error("world","Cannot save character position",failure); return null; }),
                                     entry.travelState(),state -> gameService.saveTravelState(selection,entry.character().id(),state)
-                                        .exceptionally(failure -> { Gdx.app.error("world","Cannot save character travel state",failure); return null; }));
+                                        .exceptionally(failure -> { Gdx.app.error("world","Cannot save character travel state",failure); return null; }),
+                                    entry.pokedexState(),state -> gameService.savePokedexState(selection,entry.character().id(),state)
+                                        .exceptionally(failure -> { Gdx.app.error("world","Cannot save character Pokédex",failure); return null; }));
+                            scene.setWorldInfo(entry.worldInfo());
                             if(mobile) scene.setControls(new MobileMapControls(resources.apply("buttons/controller.png"),resources.preferences()));
                             scene.setFocused(focused);
                             if(loginScene!=null) { loginScene.close(); loginScene=null; }

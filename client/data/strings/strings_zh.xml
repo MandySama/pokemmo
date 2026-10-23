@@ -310,7 +310,11 @@
     <string id="2807">角色定制</string>
     <string id="7900">副本信息</string>
     <string id="1153">游戏时间</string>
+    <string id="1148">清晨</string>
+    <string id="1149">黄昏</string>
     <string id="1155">{00}, {01}</string>
+    <string id="1157">白天</string>
+    <string id="1158">夜晚</string>
     <string id="140000">真新镇(Pallet Town)</string>
     <string id="140001">常磐市(Viridian City)</string>
     <string id="140002">尼比市(Pewter City)</string>

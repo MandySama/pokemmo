@@ -32,7 +32,7 @@ public final class ResourceProgressScreen implements AutoCloseable {
         updateViewport();
         renderer = new GdxTwlRenderer(viewport, "sc");
         try {
-            URL url = new URL(null, "asset:/data/themes/android/resource-progress.xml", new AssetUrlStreamHandler(files));
+            URL url = new URL(null, "asset:/data/themes/android/theme.xml", new AssetUrlStreamHandler(files));
             theme = ThemeManager.createThemeManager(url, renderer);
         } catch (java.io.IOException | RuntimeException error) {
             renderer.close();

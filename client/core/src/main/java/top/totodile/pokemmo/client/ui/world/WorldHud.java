@@ -75,7 +75,7 @@ public final class WorldHud extends Widget {
     }
     public void position(int x,int y,int width,int height){setPosition(x,y);setSize(width,height);}
     @Override protected void layout() {
-        status.position(getInnerX()+5,getInnerY()+5);
+        status.position(getInnerX()+(mobile?15:0),getInnerY()+(mobile?5:0));
         int iconSize=mobile?40:24,gap=mobile?6:3;
         int barWidth=shortcuts.length*(iconSize+gap)-gap;
         bar.setSize(barWidth,iconSize+5);bar.setPosition(getInnerRight()-barWidth-5,getInnerBottom()-bar.getHeight());
@@ -84,7 +84,7 @@ public final class WorldHud extends Widget {
         }
         chatToggle.setSize(mobile?40:24,mobile?40:24);
         chatToggle.setPosition(getInnerX(),getInnerBottom()-chatToggle.getHeight());
-        chat.setSize(Math.min(500,getInnerWidth()-10),Math.min(220,getInnerHeight()/2));
+        chat.setSize(Math.max(0,Math.min(500,getInnerWidth()-10)),Math.min(220,getInnerHeight()/2));
         chat.setPosition(getInnerX()+5,chatToggle.getY()-chat.getHeight());
         chatInput.setSize(chat.getInnerWidth(),chatInput.getPreferredHeight());
         chatInput.setPosition(chat.getInnerX(),chat.getInnerBottom()-chatInput.getHeight());

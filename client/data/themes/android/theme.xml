@@ -14,6 +14,7 @@
   </constantDef>
   <include filename="fonts.xml" />
   <fontGen />
+  <include filename="../default/gfx.xml" />
   <include filename="../default/gfx_ui.xml" />
   <include filename="../default/init.xml" />
   <include filename="../default/main-widgets.xml" />
@@ -23,7 +24,10 @@
   <include filename="ui/android-settings.xml" />
   <include filename="../default/ui/customization.xml" />
   <include filename="ui/android-customization.xml" />
-  <include filename="../default/ui/world.xml" />
-  <include filename="../default/ui/pokedex.xml" />
-  <include filename="ui/android-pokedex.xml" />
+  <include filename="../default/ui/main.xml" />
+  <include filename="ui/android-main.xml" />
+  <include filename="../default/ui/chat.xml" />
+  <include filename="../default/ui/staff.xml" />
+  <include filename="../default/ui/monster-dex.xml" />
+  <include filename="ui/android-monster-dex.xml" />
 </themes>

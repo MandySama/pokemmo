@@ -14,11 +14,14 @@
   </constantDef>
   <include filename="fonts.xml" />
   <fontGen />
+  <include filename="gfx.xml" />
   <include filename="gfx_ui.xml" />
   <include filename="init.xml" />
   <include filename="main-widgets.xml" />
   <include filename="ui/settings.xml" />
   <include filename="ui/customization.xml" />
-  <include filename="ui/world.xml" />
-  <include filename="ui/pokedex.xml" />
+  <include filename="ui/main.xml" />
+  <include filename="ui/chat.xml" />
+  <include filename="ui/staff.xml" />
+  <include filename="ui/monster-dex.xml" />
 </themes>

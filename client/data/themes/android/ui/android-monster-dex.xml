@@ -1,0 +1,172 @@
+<?xml version='1.0' encoding='utf-8'?>
+<themes>
+  <theme name="monsterdex-frame" ref="mobile-panel" overwrite="true" />
+  <theme name="pokedex-list-frame" ref="mobile-panel" overwrite="true" />
+  <theme name="monsterdex-button" ref="monsterdex-button" overwrite="true">
+    <param name="font">
+      <font>med-noshadow-18-white</font>
+    </param>
+  </theme>
+  <theme name="pokedex-value" ref="pokedex-value" overwrite="true">
+    <param name="font">
+      <font>med-noshadow-18-white</font>
+    </param>
+    <param name="border">
+      <border>8</border>
+    </param>
+  </theme>
+  <theme name="pokedex-information-title" ref="pokedex-information-title" overwrite="true">
+    <param name="font">
+      <font>med-noshadow-18-white</font>
+    </param>
+    <param name="border">
+      <border>8</border>
+    </param>
+    <param name="minWidth">
+      <int>110</int>
+    </param>
+    <param name="maxWidth">
+      <int>110</int>
+    </param>
+  </theme>
+  <theme name="pokedex-information-value" ref="pokedex-information-value" overwrite="true">
+    <param name="font">
+      <font>med-noshadow-18-white</font>
+    </param>
+    <param name="border">
+      <border>8</border>
+    </param>
+  </theme>
+  <theme name="pokedex-location-value-small" ref="pokedex-location-value-small" overwrite="true">
+    <param name="font">
+      <font>med-noshadow-18-white</font>
+    </param>
+    <param name="border">
+      <border>8</border>
+    </param>
+    <param name="minWidth">
+      <int>128</int>
+    </param>
+    <param name="minHeight">
+      <int>44</int>
+    </param>
+  </theme>
+  <theme name="pokedex-location-value-smallest" ref="pokedex-location-value-small" overwrite="true" />
+  <theme name="pokedex-location-value-medium" ref="pokedex-location-value-small" overwrite="true">
+    <param name="minWidth">
+      <int>200</int>
+    </param>
+  </theme>
+  <theme name="pokedex-location-value-name" ref="pokedex-location-value-small" overwrite="true">
+    <param name="minWidth">
+      <int>300</int>
+    </param>
+  </theme>
+  <theme name="pokedex-location-title-small" ref="pokedex-location-value-small" overwrite="true">
+    <param name="background">
+      <image>ui-header.background</image>
+    </param>
+  </theme>
+  <theme name="pokedex-location-title-smallest" ref="pokedex-location-title-small" overwrite="true" />
+  <theme name="pokedex-location-title-medium" ref="pokedex-location-value-medium" overwrite="true">
+    <param name="background">
+      <image>ui-header.background</image>
+    </param>
+  </theme>
+  <theme name="pokedex-location-title-name" ref="pokedex-location-value-name" overwrite="true">
+    <param name="background">
+      <image>ui-header.background</image>
+    </param>
+  </theme>
+  <theme name="pokedex-season-tab" ref="pokedex-season-tab" overwrite="true">
+    <param name="font">
+      <font>med-noshadow-18-white</font>
+    </param>
+    <param name="minHeight">
+      <int>40</int>
+    </param>
+  </theme>
+  <theme name="pokedex-title" ref="pokedex-title" overwrite="true">
+    <param name="font">
+      <font>med-noshadow-18-white</font>
+    </param>
+    <param name="border">
+      <border>8</border>
+    </param>
+  </theme>
+  <theme name="pokedex-plain" ref="pokedex-plain" overwrite="true">
+    <param name="font">
+      <font>med-noshadow-18-white</font>
+    </param>
+  </theme>
+  <theme name="pokedex-counter" ref="pokedex-counter" overwrite="true">
+    <param name="font">
+      <font>med-noshadow-18-white</font>
+    </param>
+  </theme>
+  <theme name="pokedex-table-value" ref="pokedex-table-value" overwrite="true">
+    <param name="font">
+      <font>med-noshadow-18-white</font>
+    </param>
+  </theme>
+  <theme name="pokedex-column-header" ref="pokedex-column-header" overwrite="true">
+    <param name="font">
+      <font>med-noshadow-18-white</font>
+    </param>
+  </theme>
+  <theme name="pokedex-move-header" ref="pokedex-move-header" overwrite="true">
+    <param name="font">
+      <font>med-noshadow-18-white</font>
+    </param>
+    <param name="border">
+      <border>15</border>
+    </param>
+  </theme>
+  <theme name="pokedex-move-value" ref="pokedex-move-value" overwrite="true">
+    <param name="font">
+      <font>med-noshadow-18-white</font>
+    </param>
+    <param name="border">
+      <border>10</border>
+    </param>
+    <param name="background">
+      <image>mobile.box.dark3.50.table</image>
+    </param>
+  </theme>
+  <theme name="pokedex-move-name" ref="pokedex-move-name" overwrite="true">
+    <param name="font">
+      <font>med-noshadow-18-white</font>
+    </param>
+    <param name="background">
+      <image>mobile.box.dark3.50.table</image>
+    </param>
+    <param name="border">
+      <border>0,10,0,0</border>
+    </param>
+  </theme>
+  <theme name="pokedex-move-type" ref="pokedex-move-type" overwrite="true">
+    <param name="background">
+      <image>mobile.box.dark3.50.table</image>
+    </param>
+  </theme>
+  <theme name="pokedex-table-center" ref="pokedex-table-center" overwrite="true">
+    <param name="font">
+      <font>med-noshadow-18-white</font>
+    </param>
+  </theme>
+  <theme name="pokedex-value-centered" ref="pokedex-value-centered" overwrite="true">
+    <param name="font">
+      <font>med-noshadow-18-white</font>
+    </param>
+  </theme>
+  <theme name="pokedex-tab" ref="button" overwrite="true">
+    <param name="font">
+      <font>med-noshadow-22-white</font>
+    </param>
+  </theme>
+  <theme name="pokedex-evolution-name" ref="pokedex-evolution-name" overwrite="true">
+    <param name="font">
+      <font>med-noshadow-18-white</font>
+    </param>
+  </theme>
+</themes>

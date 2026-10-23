@@ -37,6 +37,7 @@
     <area name="mobile.box.light1" xywh="778,27,20,20" />
     <area name="mobile.box.dark3" xywh="743,28,20,20" />
     <alias name="mobile.box.dark3.50" ref="mobile.box.dark3" tint="#60FFFFFF" />
+    <alias name="mobile.box.dark3.50.table" ref="mobile.box.dark3" inset="1" tint="#80FFFFFF" />
     <select name="mobile.tab.background">
       <alias ref="mobile.tab.button" if="active | selected" />
       <alias ref="mobile.box.dark3.50" />

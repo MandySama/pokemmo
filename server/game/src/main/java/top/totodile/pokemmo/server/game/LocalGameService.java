@@ -15,15 +15,20 @@ public final class LocalGameService implements GameService {
     private Database database;
     private final java.util.concurrent.atomic.AtomicBoolean closed = new java.util.concurrent.atomic.AtomicBoolean();
     public LocalGameService(Supplier<Database> factory) { this.factory = factory; }
+    @Override public byte[] pokedexTiers(){return PokedexTierData.payload();}
     private Database db() {
         if (database == null) {
             Database opened = Objects.requireNonNull(factory.get());
             try {
                 opened.execute("PRAGMA foreign_keys=ON");
                 opened.execute("CREATE TABLE IF NOT EXISTS characters (id TEXT PRIMARY KEY, account TEXT NOT NULL, server TEXT NOT NULL, name TEXT NOT NULL, name_key TEXT NOT NULL, gender INTEGER NOT NULL, skin INTEGER NOT NULL, region INTEGER NOT NULL, created_at INTEGER NOT NULL, UNIQUE(server,name_key))");
+                // Reference character.money defaults to zero; migrate existing local characters in place.
+                if(opened.query("PRAGMA table_info(characters)").stream().noneMatch(row -> "money".equals(row[1])))
+                    opened.execute("ALTER TABLE characters ADD COLUMN money INTEGER NOT NULL DEFAULT 0");
                 opened.execute("CREATE TABLE IF NOT EXISTS character_parts (character_id TEXT NOT NULL REFERENCES characters(id) ON DELETE CASCADE, slot INTEGER NOT NULL, style INTEGER NOT NULL, color INTEGER NOT NULL, PRIMARY KEY(character_id,slot))");
                 opened.execute("CREATE TABLE IF NOT EXISTS character_positions (character_id TEXT PRIMARY KEY REFERENCES characters(id) ON DELETE CASCADE, bank INTEGER NOT NULL, map INTEGER NOT NULL, x INTEGER NOT NULL, y INTEGER NOT NULL, direction INTEGER NOT NULL)");
                 opened.execute("CREATE TABLE IF NOT EXISTS character_travel_state (character_id TEXT PRIMARY KEY REFERENCES characters(id) ON DELETE CASCADE, no_clip INTEGER NOT NULL, speed REAL NOT NULL, bicycle INTEGER NOT NULL)");
+                opened.execute("CREATE TABLE IF NOT EXISTS character_pokedex_state (character_id TEXT PRIMARY KEY REFERENCES characters(id) ON DELETE CASCADE, unlocked INTEGER NOT NULL)");
                 database = opened;
             } catch (RuntimeException | Error error) {
                 try { opened.close(); }
@@ -66,7 +71,7 @@ public final class LocalGameService implements GameService {
                     throw new Rejected(Failure.ACCOUNT_FULL);
                 if (!db().query("SELECT id FROM characters WHERE server=? AND name_key=?", server, key).isEmpty())
                     throw new Rejected(Failure.NAME_TAKEN);
-                db().execute("INSERT INTO characters VALUES (?,?,?,?,?,?,?,?,?)", character.id(), selection.session().username(), server, name, key,
+                db().execute("INSERT INTO characters (id,account,server,name,name_key,gender,skin,region,created_at) VALUES (?,?,?,?,?,?,?,?,?)", character.id(), selection.session().username(), server, name, key,
                         appearance.gender(), appearance.skin(), appearance.region(), character.createdAt());
                 appearance.parts().forEach((slot, part) -> db().execute("INSERT INTO character_parts VALUES (?,?,?,?)", character.id(), slot, part.style(), part.color()));
             });
@@ -101,7 +106,11 @@ public final class LocalGameService implements GameService {
                 String[] row=states.get(0);
                 state=new TravelState(Integer.parseInt(row[0])!=0,Float.parseFloat(row[1]),Integer.parseInt(row[2])!=0);
             }
-            return new Entry(character,position,state);
+            var pokedex=db().query("SELECT unlocked FROM character_pokedex_state WHERE character_id=?",characterId);
+            int money=Integer.parseInt(db().query("SELECT money FROM characters WHERE id=?",characterId).get(0)[0]);
+            WorldInfo defaults=WorldInfo.defaults();
+            return new Entry(character,position,state,pokedex.isEmpty()?PokedexState.defaults():new PokedexState(Integer.parseInt(pokedex.get(0)[0])!=0),
+                    new WorldInfo(money,defaults.channel(),defaults.timeOrigin()));
         },worker);
     }
     @Override public CompletionStage<Void> savePosition(Selection selection,String characterId,Position position) {
@@ -125,6 +134,17 @@ public final class LocalGameService implements GameService {
                         selection.session().username(),selection.server().id()).isEmpty())throw new Rejected(Failure.NOT_FOUND);
                 db().execute("INSERT OR REPLACE INTO character_travel_state VALUES (?,?,?,?)",characterId,
                         state.noClip()?1:0,state.speed(),state.bicycle()?1:0);
+            });
+        },worker);
+    }
+    @Override public CompletionStage<Void> savePokedexState(Selection selection,String characterId,PokedexState state) {
+        Objects.requireNonNull(state);
+        return CompletableFuture.runAsync(() -> {
+            identity(selection);
+            db().transaction(() -> {
+                if(db().query("SELECT id FROM characters WHERE id=? AND account=? AND server=?",characterId,
+                        selection.session().username(),selection.server().id()).isEmpty())throw new Rejected(Failure.NOT_FOUND);
+                db().execute("INSERT OR REPLACE INTO character_pokedex_state VALUES (?,?)",characterId,state.unlocked()?1:0);
             });
         },worker);
     }

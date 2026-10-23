@@ -81,6 +81,15 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
         return new Atlas(texture).getImage(0, 0, texture.getWidth(), texture.getHeight(), Color.WHITE, false,
                 de.matthiasmann.twl.renderer.Texture.Rotation.NONE);
     }
+    /** Let the reference sprite renderer use its FBO, then restore the TWL viewport and clip stack. */
+    public void renderOffscreen(Runnable render) {
+        boolean drawing=batch.isDrawing();if(drawing)batch.end();
+        Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
+        try{render.run();}finally{viewport.apply();if(drawing)batch.begin();applyClip();}
+    }
+    public Image image(TextureRegion region) {
+        return new AtlasImage(new TextureRegion(region),Color.WHITE,false,de.matthiasmann.twl.renderer.Texture.Rotation.NONE);
+    }
     com.badlogic.gdx.graphics.g2d.PixmapPacker fontPacker(boolean unique) {
         if (!unique && sharedFontPacker != null) return sharedFontPacker;
         var packer = new com.badlogic.gdx.graphics.g2d.PixmapPacker(unique ? 2048 : 1024, unique ? 2048 : 1024,

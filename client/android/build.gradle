@@ -72,7 +72,7 @@ dependencies {
     natives "com.badlogicgames.gdx:gdx-freetype-platform:${rootProject.gdxVersion}:natives-x86_64"
 }
 
-// 背景和解压弹窗资源独立放入 startup/，其余资源解压到 files/data 后使用。
+// 首次安装也加载原名的完整主题；APK 内保留 data 下的资源相对路径。
 abstract class BundleAndroidResources extends DefaultTask {
     @Internal
     abstract DirectoryProperty getDataDirectory()
@@ -85,25 +85,22 @@ abstract class BundleAndroidResources extends DefaultTask {
     void bundle() {
         def root = dataDirectory.get().asFile.toPath()
         def output = outputDirectory.get().asFile
+        def expectedOutput = project.layout.buildDirectory.dir('generated/bundledAssets').get().asFile.canonicalFile
+        if (output.canonicalFile != expectedOutput) {
+            throw new GradleException('Bundled assets must remain in the generated output directory.')
+        }
+        project.delete(output)
         output.mkdirs()
         def files = resourceFiles.files.collect { it.toPath() }.sort()
         def entries = []
-        def startupFiles = [
-                'themes/android/resource-progress.xml',
-                'themes/android/res/ui-mobile-atlas.png',
-                'themes/default/res/pokemmo_ui.png',
-                'themes/default/res/main-hud.png',
-                'themes/default/res/fonts/NotoSansCJK-Bold.ttc',
-                'themes/default/res/fonts/NotoSans-Bold.ttf'
-        ]
         new java.util.zip.ZipOutputStream(new FileOutputStream(new File(output, 'resources.zip'))).withCloseable { zip ->
             files.each { path ->
                 def relative = root.relativize(path).toString().replace('\\', '/')
-                if (relative in startupFiles || relative ==~ /sprites\/textures\/bg_0[0-2]\.png/) {
+                if (relative.startsWith('themes/') || relative.startsWith('sprites/atlas/')
+                        || relative ==~ /sprites\/textures\/bg_0[0-2]\.png/) {
                     def startup = new File(output, 'startup/' + relative).toPath()
                     java.nio.file.Files.createDirectories(startup.getParent())
                     java.nio.file.Files.copy(path, startup, java.nio.file.StandardCopyOption.REPLACE_EXISTING)
-                    return
                 }
                 def name = 'data/' + relative
                 def entry = new java.util.zip.ZipEntry(name)

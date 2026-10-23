@@ -5,12 +5,12 @@ import java.util.*;
 import java.util.function.IntConsumer;
 import top.totodile.pokemmo.client.rom.nds.bw.BwPokedex;
 
-/** Reference EvolutionTreeWidget: leaf rows, parents centred on children, condition badges between stages. */
+/** Official EvolutionTreeWidget / BattleStatModTagLabel: compact sprites and item-condition squares. */
 final class PokedexEvolutionTree extends Widget {
     private final BwPokedex dex;
     private final boolean mobile;
-    private final Map<Integer,Widget> cards=new LinkedHashMap<>();
-    private final Map<Integer,PokedexDetails.WrappedLabel> conditions=new LinkedHashMap<>();
+    private final Map<Integer,Widget> cards=new LinkedHashMap<>(),conditions=new LinkedHashMap<>();
+    private final Map<Integer,Widget[]> arrows=new LinkedHashMap<>();
     private final Map<Integer,Integer> depths=new LinkedHashMap<>(),rows=new HashMap<>();
     private int leaves,maxDepth;
 
@@ -20,27 +20,33 @@ final class PokedexEvolutionTree extends Widget {
         while(dex.parent(root)>0&&visited.add(root))root=dex.parent(root);
         collect(root,0,new HashSet<>());
         for(int id:depths.keySet()) {
-            var card=new Widget(){
-                final Button icon=new Button(){@Override protected void paintWidget(GUI gui){int size=mobile?72:36;images.icon(id).draw(getAnimationState(),getX()+(getWidth()-size)/2,getY()+(getHeight()-size)/2,size,size);}};
-                final Label name=new Label(dex.name(id));
-                {setTheme("");icon.setTheme("/monsterdex-button");icon.setCanAcceptKeyboardFocus(false);icon.setTooltipContent(dex.name(id));icon.addCallback(()->select.accept(id));
-                    name.setTheme("/pokedex-evolution-name");add(icon);add(name);}
-                @Override protected void layout(){int size=mobile?92:46;icon.setSize(size,size);icon.setPosition(getX()+(getWidth()-size)/2,getY());
-                    name.setSize(getWidth(),mobile?28:22);name.setPosition(getX(),icon.getBottom()+2);}
+            Button card=new Button(){
+                @Override protected void paintWidget(GUI gui){super.paintWidget(gui);int size=mobile?72:36;
+                    images.icon(id).draw(getAnimationState(),getX()+(mobile?10:5),getY()+(mobile?4:2),size,size);}
             };
+            card.setTheme("/monsterdex-button-caught-ot");card.setCanAcceptKeyboardFocus(false);
+            card.setTooltipContent(String.format(Locale.ROOT,"%03d %s",id,dex.name(id)));card.addCallback(()->select.accept(id));
             cards.put(id,card);add(card);
             int parent=dex.parent(id);
-            if(depths.containsKey(parent)) {
-                var evolution=dex.get(parent).evolutions().stream().filter(e->e.target()==id).findFirst().orElseThrow();
-                String condition=dex.evolution(evolution);
-                var badge=new PokedexDetails.WrappedLabel("─ "+condition+" ─") {
-                    final Label arrow=new Label("➤");
-                    {arrow.setTheme("/pokedex-evolution-arrow");add(arrow);}
-                    @Override public int getPreferredInnerHeight(){return (getFont()==null?14:getFont().getLineHeight())*getText().split("\n",-1).length;}
-                    @Override protected void layout(){arrow.setSize(16,getInnerHeight());arrow.setPosition(getInnerRight()-16,getInnerY());}
-                };badge.setTheme("/pokedex-evolution-condition");badge.setTooltipContent(condition);
-                conditions.put(id,badge);add(badge);
-            }
+            if(!depths.containsKey(parent))continue;
+            var evolution=dex.get(parent).evolutions().stream().filter(e->e.target()==id).findFirst().orElseThrow();
+            int item=switch(evolution.method()){
+                case 1,2,3->5218;case 4,14,21,22,23,24->5050;case 5,7->5437;
+                case 6,8,17,18,19,20->evolution.parameter()+5000;
+                case 9->5057;case 10->5056;case 11->5058;case 15->5004;
+                case 16->5261;case 25,26,27->5442;default->0;
+            };
+            boolean level=Set.of(4,14,23,24).contains(evolution.method());
+            var badge=new Button(){
+                final Label label=new Label(level?"Lv. "+evolution.parameter():"");
+                {setTheme("/monsterdex-button");setCanAcceptKeyboardFocus(false);label.setTheme("/pokedex-evolution-name");label.setEnabled(false);add(label);setTooltipContent(dex.evolution(evolution));}
+                @Override protected void layout(){label.setSize(getInnerWidth(),label.computeTextHeight());label.setPosition(getInnerX(),getInnerBottom()-label.getHeight());}
+                @Override protected void paintWidget(GUI gui){super.paintWidget(gui);int scale=mobile?2:1,size=24*scale;
+                    if(item>0)images.item(item).draw(getAnimationState(),getX()+10*scale,getY()+(level?4*scale:10*scale),size,size);}
+            };
+            conditions.put(id,badge);add(badge);
+            Widget[] pair={new Label("─➤"),new Label("─➤")};
+            for(Widget arrow:pair){arrow.setTheme("/pokedex-evolution-arrow");add(arrow);}arrows.put(id,pair);
         }
     }
     private int collect(int id,int depth,Set<Integer> visited) {
@@ -52,22 +58,23 @@ final class PokedexEvolutionTree extends Widget {
         else {int first=collect(children.get(0),depth+1,visited),last=first;for(int i=1;i<children.size();i++)last=collect(children.get(i),depth+1,visited);row=(first+last)/2;}
         rows.put(id,row);return row;
     }
-    private int rowHeight(){return mobile?142:90;}
+    private int rowHeight(){return mobile?120:64;}
     @Override public int getPreferredInnerHeight(){return Math.max(mobile?360:323,leaves*rowHeight()+32);}
     @Override protected void layout() {
-        int cardW=mobile?120:80,cardH=mobile?122:70;
-        int step=maxDepth==0?0:Math.max(cardW+70,(getInnerWidth()-cardW-36)/maxDepth);
-        int left=getInnerX()+(getInnerWidth()-(maxDepth*step+cardW))/2;
-        int top=getInnerY()+Math.max(16,(getInnerHeight()-leaves*rowHeight())/2);
-        for(var entry:cards.entrySet()) {
-            int id=entry.getKey();Widget card=entry.getValue();
-            card.setSize(cardW,cardH);card.setPosition(left+depths.get(id)*step,top+rows.get(id)*rowHeight()/2);
+        int size=mobile?92:46,step=size*4;
+        int left=getInnerX()+(getInnerWidth()-(maxDepth*step+size))/2;
+        // The reference centres each card itself, rather than the taller spacing slot around it.
+        int top=getInnerY()+Math.max(16,(getInnerHeight()-leaves*rowHeight())/2)+(rowHeight()-size)/2;
+        for(var entry:cards.entrySet()){
+            int id=entry.getKey();Widget card=entry.getValue();card.setSize(size,size);
+            card.setPosition(left+depths.get(id)*step,top+rows.get(id)*rowHeight()/2);
         }
-        for(var entry:conditions.entrySet()) {
-            Widget from=cards.get(dex.parent(entry.getKey())),to=cards.get(entry.getKey());
-            var badge=entry.getValue();int width=Math.max(20,to.getX()-from.getRight()-8);
-            badge.wrap(width-26);badge.setSize(width,badge.getPreferredHeight());
-            badge.setPosition(from.getRight()+4,to.getY()+((mobile?92:46)-badge.getHeight())/2);
+        for(var entry:conditions.entrySet()){
+            int id=entry.getKey();Widget from=cards.get(dex.parent(id)),to=cards.get(id),badge=entry.getValue();
+            badge.setSize(size,size);badge.setPosition((from.getRight()+to.getX()-size)/2,to.getY());
+            Widget[] pair=arrows.get(id);int width=size;
+            pair[0].setSize(width,size);pair[0].setPosition((from.getRight()+badge.getX()-width)/2,badge.getY());
+            pair[1].setSize(width,size);pair[1].setPosition((badge.getRight()+to.getX()-width)/2,badge.getY());
         }
     }
 }

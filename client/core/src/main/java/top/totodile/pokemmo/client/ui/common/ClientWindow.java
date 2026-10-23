@@ -48,6 +48,15 @@ public abstract class ClientWindow extends Container {
         return Math.min(owner.getInnerHeight(), super.getPreferredHeight());
     }
 
+    @Override protected boolean isMouseInside(Event event) {
+        // 参考客户端按各个窗口的边界命中；承载多个窗口的全屏容器不能挡住外部控件。
+        for (int i = 0; i < getNumChildren(); i++) {
+            Widget child = getChild(i);
+            if (child.isVisible() && child.isInside(event.getMouseX(), event.getMouseY())) return true;
+        }
+        return false;
+    }
+
     @Override protected boolean handleEvent(Event event) {
         if (super.handleEvent(event)) return true;
         if (event.isKeyPressedEvent() && event.getKeyCode() == Event.KEY_ESCAPE) {

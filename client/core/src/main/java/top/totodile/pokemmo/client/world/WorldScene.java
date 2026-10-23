@@ -9,6 +9,7 @@ import top.totodile.pokemmo.client.config.ClientSettings;
 import top.totodile.pokemmo.client.rom.gba.FireRedMaps.*;
 import top.totodile.pokemmo.client.ui.character.OverworldCharacter;
 import top.totodile.pokemmo.server.game.GameService.Position;
+import top.totodile.pokemmo.server.game.GameService.WorldInfo;
 
 /** Shared world input and motion, with GBA metatiles or the ROM's NDS field geometry. */
 public final class WorldScene extends InputAdapter implements AutoCloseable {
@@ -20,6 +21,7 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
     private final boolean mobile;
     private final PlayerMotion motion;
     private final WorldCommands commands;
+    private WorldInfo worldInfo=WorldInfo.defaults();
     private final SpriteBatch batch=new SpriteBatch();
     private final OrthographicCamera camera=new OrthographicCamera();
     private final LinkedHashMap<Tiles,Texture[]> atlases=new LinkedHashMap<>(8,.75f,true);
@@ -42,11 +44,19 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
     public WorldScene(WorldMaps maps,MapMovement movement,OverworldCharacter character,ClientSettings settings,boolean mobile,Consumer<Position> save,
                       top.totodile.pokemmo.server.game.GameService.TravelState state,
                       Consumer<top.totodile.pokemmo.server.game.GameService.TravelState> saveState) {
+        this(maps,movement,character,settings,mobile,save,state,saveState,
+                top.totodile.pokemmo.server.game.GameService.PokedexState.defaults(),pokedex -> {});
+    }
+    public WorldScene(WorldMaps maps,MapMovement movement,OverworldCharacter character,ClientSettings settings,boolean mobile,Consumer<Position> save,
+                      top.totodile.pokemmo.server.game.GameService.TravelState state,
+                      Consumer<top.totodile.pokemmo.server.game.GameService.TravelState> saveState,
+                      top.totodile.pokemmo.server.game.GameService.PokedexState pokedexState,
+                      Consumer<top.totodile.pokemmo.server.game.GameService.PokedexState> savePokedex) {
         this.maps=maps; this.movement=movement; this.character=character; this.settings=settings;
         this.mobile=mobile;
         motion=new PlayerMotion(movement,Boolean.parseBoolean(settings.get("client.gameplay.autosprint.enabled","true")),save);
         WorldState.bind(settings,motion,state,saveState);
-        commands=new WorldCommands(motion);
+        commands=new WorldCommands(motion,pokedexState,savePokedex);
         try {
             nds=maps.is3d()?new NdsWorldRenderer(maps,movement.map().id()):null;
             if(nds==null)atlas(maps.tiles(movement.map()));
@@ -57,6 +67,8 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
     public MapMovement movement() { return movement; }
     public PlayerMotion motion() { return motion; }
     public WorldCommands commands() { return commands; }
+    public WorldInfo worldInfo(){return worldInfo;}
+    public void setWorldInfo(WorldInfo info){worldInfo=Objects.requireNonNull(info);}
     public int locationStringId() { return maps.locationStringId(movement.map().id()); }
     public String locationName() { return maps.locationName(movement.map().id()); }
     public void setInputBlocked(boolean blocked) {

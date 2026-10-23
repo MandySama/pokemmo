@@ -34,8 +34,20 @@ public interface GameService extends AutoCloseable {
             if(!Float.isFinite(speed) || speed<=0 || speed>16)throw new IllegalArgumentException("Invalid character speed");
         }
     }
-    record Entry(Character character, Position position,TravelState travelState) {
+    /** Local Pokédex currently exposes the all-unlocked / empty debug states. */
+    record PokedexState(boolean unlocked) {
+        public static PokedexState defaults() { return new PokedexState(false); }
+    }
+    /** CharacterData money/channel and SendJoinGameWorldResponsePacket's game clock origin. */
+    record WorldInfo(int money,int channel,long timeOrigin) {
+        public static WorldInfo defaults(){return new WorldInfo(0,0,1640995200L);}
+    }
+    record Entry(Character character, Position position,TravelState travelState,PokedexState pokedexState,WorldInfo worldInfo) {
         public Entry(Character character,Position position) {this(character,position,TravelState.defaults());}
+        public Entry(Character character,Position position,TravelState travelState) {this(character,position,travelState,PokedexState.defaults());}
+        public Entry(Character character,Position position,TravelState travelState,PokedexState pokedexState) {
+            this(character,position,travelState,pokedexState,WorldInfo.defaults());
+        }
     }
     enum Failure { INVALID_NAME, NAME_TAKEN, ACCOUNT_FULL, NOT_FOUND }
     final class Rejected extends RuntimeException {
@@ -48,5 +60,8 @@ public interface GameService extends AutoCloseable {
     CompletionStage<Entry> enter(Selection selection, String characterId);
     CompletionStage<Void> savePosition(Selection selection, String characterId, Position position);
     CompletionStage<Void> saveTravelState(Selection selection,String characterId,TravelState state);
+    CompletionStage<Void> savePokedexState(Selection selection,String characterId,PokedexState state);
+    /** Payload of the reference SendPokemonPvpLevelInfoPacket (client opcode 79). */
+    default byte[] pokedexTiers(){return new byte[0];}
     @Override void close();
 }

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resource name="中文汉化" description="同时支持「简体」和「繁體」。根据设置的客户端语言自动应用" version="2025-11-01" author="Yibu" weblink="https://forums.pokemmo.com/index.php?/topic/107378-0/">
+  <strings string_revision="1">
+    <string path="custom-strings/ns_strings_zh.xml" />
+    <string path="custom-strings/strings_zh_dump.xml" />
+  </strings>
+</resource>
