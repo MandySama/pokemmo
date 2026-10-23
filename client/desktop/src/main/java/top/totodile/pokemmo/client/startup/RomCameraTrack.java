@@ -29,7 +29,8 @@ final class RomCameraTrack {
         if (rotation>=10 || distance>=10) fraction=0;
         float[] values=new float[6];
         for (int i=0;i<6;i++) values[i]=sample(i,first)+(sample(i,next)-sample(i,first))*fraction;
-        camera.position.set(values[3],values[4],values[5]);
+        // Abstract3DCutsceneScene.pG0：镜头位置与模型共同换算为 1/64 场景单位。
+        camera.position.set(values[3]/64,values[4]/64,values[5]/64);
         camera.direction.set(0,0,-1);
         camera.up.set(Vector3.Y);
         for (int i=0;i<3;i++) {

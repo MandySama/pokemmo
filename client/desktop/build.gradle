@@ -7,7 +7,6 @@ version = rootProject.version
 
 repositories {
     mavenCentral()
-    maven { url 'https://jitpack.io' }
 }
 
 java {
@@ -20,7 +19,6 @@ def gdxVersion = rootProject.gdxVersion
 def lwjglVersion = '3.3.6'
 
 dependencies {
-    implementation 'com.github.mgsx-dev.gdx-gltf:gltf:2.2.1'
     implementation project(':server:db:desktop')
     implementation project(':server:login')
     testImplementation 'junit:junit:4.13.2'

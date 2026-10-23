@@ -5,7 +5,7 @@ import java.nio.file.*;
 import java.security.*;
 import java.util.HexFormat;
 
-/** 随 PC 包交付的转换器/合成器；按内容散列释放，运行时不依赖参考工程目录。 */
+/** 随 PC 包交付的 Sseqj 音乐合成库；按内容散列释放，运行时不依赖参考工程目录。 */
 final class NativeTools {
     private NativeTools() {}
     static Path extract(Path cache, String name) throws IOException {

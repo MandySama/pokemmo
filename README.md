@@ -33,11 +33,13 @@ UI 再按功能分一层：`ui.login` 包含登录、账号选择、服务器选
 
 Windows x64 的 PC 登录背景从已加载的黑白 ROM 读取：`a/1/6/0` 内的莱希拉姆/捷克罗姆主模型、独立倒影模型、棋盘背景及光束、光晕，连同骨骼动画、眨眼贴图和镜头轨迹，启动时随机选择一套，按参考的 30 FPS 时间轴循环播放，随窗口尺寸调整镜头。倒影使用 ROM 自带模型和独立动画，光效沿用 ROM 贴图、透明度与节点动画。Android 保留原有滚动背景。PC 未加载黑白 ROM 时使用滚动背景；已加载时仅显示 ROM 场景，模型准备或读取失败期间保留黑色底色，不切回滚动背景。在客户端管理中更换 ROM 后会重新加载。
 
-骨骼动画由 `RomModelAnimation` 直接解析 NSBCA，按参考 `NdsNitroModelParser.Xy` 及其曲线通道展开完整的 30 FPS 关键帧。转换器只提供网格和骨骼层级，生成的动画全部丢弃，避免长动画边界字段及采样宽度解码错误。当前验证了黑白标题所用的逐帧、隔帧采样，其它采样格式明确报错。
+模型按参考 `NdsNitroModelParser.a40/decodePolygon/Un0/Xy` 直接解析 NSBMD：节点、SBC 矩阵索引、GX 顶点指令与三角形组装位于 `rom.nds.model`，`NitroTextureDictionary` 从 TEX0 直接解码纹理和调色板，`NitroModelRenderer` 创建 LibGDX 网格、骨骼及材质。镜头和模型沿用参考的 1/64 场景单位，PAT0 换图也直接使用 ROM 纹理。模型不经过外部转换器，不生成中间格式或模型缓存。
 
-PC 与 Android ARM64 登录背景音乐使用黑白 ROM 的 `wb_sound_data.sdat`，按参考 `AudioManager.bk0` 的登录默认曲目 1159 合成 48kHz 立体声并循环播放。沿用音乐音量及“窗口失焦时静音”设置；失焦静音默认开启，与参考一致：后台音量归零但合成时间轴继续，回到前台恢复当前进度，不暂停或重播。音量采用参考的平方曲线并在 Sseqj 合成阶段应用。每批 960 帧，混音前清零 PCM；Android 通过 AudioTrack 播放，保留滚动背景，切后台按失焦静音设置处理，进入地图或退出时释放播放器。桌面输出按参考 `Client.main` 配置为 1920 字节、6 个缓冲，退出释放音频设备和播放器。模型和音频从用户本机 ROM 读取，不随安装包分发；模型转换在后台执行，缓存位于 `cache/login/`。
+骨骼动画由 `RomModelAnimation` 直接解析 NSBCA，按参考 `NdsNitroModelParser.Xy` 及其曲线通道展开完整的 30 FPS 关键帧。当前验证了黑白标题所用的逐帧、隔帧采样，其它采样格式明确报错。
 
-PC 包随附模型转换器与 Sseqj 原生合成器，运行时不依赖 `E:\PokeMMO` 或联网下载工具。第三方组件来源、版本、许可和转换器重建步骤见 [native-tools/README.md](client/desktop/native-tools/README.md)。当前随附的原生工具针对 Windows x64，其他 PC 平台保留原背景。
+PC 与 Android ARM64 登录背景音乐使用黑白 ROM 的 `wb_sound_data.sdat`，按参考 `AudioManager.bk0` 的登录默认曲目 1159 合成 48kHz 立体声并循环播放。沿用音乐音量及“窗口失焦时静音”设置；失焦静音默认开启，与参考一致：后台音量归零但合成时间轴继续，回到前台恢复当前进度，不暂停或重播。音量采用参考的平方曲线并在 Sseqj 合成阶段应用。每批 960 帧，混音前清零 PCM；Android 通过 AudioTrack 播放，保留滚动背景，切后台按失焦静音设置处理，进入地图或退出时释放播放器。桌面输出按参考 `Client.main` 配置为 1920 字节、6 个缓冲，退出释放音频设备和播放器。模型和音频从用户本机 ROM 读取，不随安装包分发；模型在后台直接解析到内存。
+
+PC 包仅随附参考 Sseqj 音乐合成库，运行时不依赖 `E:\PokeMMO` 或联网下载工具。组件来源、版本和许可见 [native-tools/README.md](client/desktop/native-tools/README.md)。当前 PC 音乐库针对 Windows x64，模型解析与绘制使用 Java/LibGDX。
 
 PC 的 `config/` 与 `data/` 同级，主题目录为 `data/themes/`；Android 使用外部应用目录 `Android/data/top.totodile.pokemmo/files/config/`、`Android/data/top.totodile.pokemmo/files/data/`，构建时将背景和解压弹窗必需的 XML、字体、图集放入 APK assets 的独立 `startup/` 目录，其余 `data/` 打成 `resources.zip` 和 `manifest.json`，不重复存放资源。首次启动先显示滚动背景，再使用参考 ROM 解压弹窗的 TWL/XML 主题显示绿色进度条，并解压到 `files/data/`，之后从该目录读取基础资源；资源版本与文件大小检查通过时跳过解压，缺失或版本变化时重装。两端使用同一套资源解析和 XML 加载代码。
 

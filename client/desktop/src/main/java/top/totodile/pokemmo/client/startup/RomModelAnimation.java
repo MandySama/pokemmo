@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * 登录场景 NSBCA。对应 NdsNitroModelParser.Xy、ResourceCacheIndexLookup、
  * KeyframeHermiteCurveChannel 和 GdxFrameBufferTextureProvider。
- * 直接展开 ROM 的整数帧，再交给 libGDX 插值；不使用转换器的动画采样。
+ * 与参考相同，展开 ROM 的整数帧，再交给 libGDX 插值。
  */
 final class RomModelAnimation {
     static Animation read(byte[] modelBytes,byte[] animationBytes,ModelInstance instance) throws IOException {
@@ -38,7 +38,7 @@ final class RomModelAnimation {
                 if((flags&6)==0) channel.translation=vectors(data,base,frames,flags,3,false);
                 if((flags&192)==0) channel.rotation=rotations(data,base,pivot,basis,frames,(flags&256)!=0);
                 if((flags&1536)==0) channel.scaling=vectors(data,base,frames,flags,11,true);
-                // 转换网格可能省略未参与绘制的节点；与参考解析器一样跳过未解析节点。
+                // 与参考解析器一样跳过未解析节点。
                 if(channel.node!=null) animation.nodeAnimations.add(channel);
             }
             return animation;
