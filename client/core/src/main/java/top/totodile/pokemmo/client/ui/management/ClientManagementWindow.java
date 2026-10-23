@@ -50,6 +50,7 @@ public final class ClientManagementWindow extends ClientWindow {
     private boolean restartRequired;
     private Runnable restart=() -> com.badlogic.gdx.Gdx.app.exit();
     private volatile double progressValue;
+    private volatile int progressStage=1095;
 
     public void onRestart(Runnable restart) { this.restart=java.util.Objects.requireNonNull(restart); }
     public boolean isImporting() { return busy; }
@@ -187,20 +188,25 @@ public final class ClientManagementWindow extends ClientWindow {
             picker.choose(selected.extension, source -> com.badlogic.gdx.Gdx.app.postRunnable(() -> {
                 if(disposed)return;
                 if (source==null) { finish(strings.get(1085)); return; }
-                progressValue=0;
+                progressValue=0;progressStage=1095;
                 progressDialog.show(strings.get(1095));
                 java.util.concurrent.CompletableFuture.runAsync(() -> {
                     String result;
                     boolean imported=false;
                     String kind=strings.get(90+selected.id);
                     try {
-                        var outcome=roms.importRom(selected,source,value -> progressValue=value);
+                        var outcome=roms.importRom(selected,source,(stage,value) -> { progressStage=stage;progressValue=value; });
                         imported=outcome==RomManager.ImportResult.IMPORTED;
                         result=strings.format(imported?1184:1180,kind);
                     } catch (RomImportFailure error) {
                         String game=kind.endsWith("ROM")?kind.substring(0,kind.length()-3):kind;
-                        result=error.stringId==1181?strings.format(1181,error.detail)
-                                : strings.format(error.stringId,source.name()==null?kind:source.name(),game);
+                        String filename=source.name()==null?kind:source.name();
+                        result=switch(error.stringId) {
+                            case 1089,1181 -> strings.format(error.stringId,error.detail);
+                            case 1090 -> strings.format(1090,error.detail,filename);
+                            case 1092,1093 -> strings.format(error.stringId,filename);
+                            default -> strings.format(error.stringId,filename,game);
+                        };
                     } catch (Exception error) {
                         result=strings.format(1094,source.name()==null?kind:source.name());
                     }
@@ -229,7 +235,7 @@ public final class ClientManagementWindow extends ClientWindow {
 
     public void positionWindow() {
         messageDialog.positionWindow();
-        if(progressDialog.isOpen())progressDialog.update(strings.get(1095),progressValue);
+        if(progressDialog.isOpen())progressDialog.update(strings.get(progressStage),progressValue);
         if (!isOpen()) return;
         Widget owner = getOwner();
         if (mobile) {

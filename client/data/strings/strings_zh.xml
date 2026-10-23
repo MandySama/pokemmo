@@ -55,6 +55,11 @@
     <string id="1177">信息</string>
     <string id="1085">已取消选择文件.</string>
     <string id="1094">无法访问文件{00}, 可能是被杀毒软件防护性锁住了.</string>
+    <string id="1089">{00}\n\n指定压缩包无法解压:\n文件格式不支持.</string>
+    <string id="1090">错误码: {00}\n{01}\n\n无法解压指定的压缩包</string>
+    <string id="1091">解压中...</string>
+    <string id="1092">根据文件后缀, 无法在压缩包{00}中找到合适的ROM.</string>
+    <string id="1093">压缩包{00}有密码保护.</string>
     <string id="1178">需要{00}来运行游戏.\n\n请选择以继续.</string>
     <string id="1179">游戏需要重启.</string>
     <string id="1180">{00}已加载.</string>

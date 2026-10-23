@@ -216,9 +216,7 @@ public final class ModManagementWindow extends ClientWindow {
     private void enableMod(String filename,boolean active) {
         if(busy || disposed)return;
         if(active)enabledMods.add(filename); else enabledMods.remove(filename);
-        // 参考启用时置顶；保留用户指定的“所有 MOD 可排序”，禁用项仍可调整。
-        displayOrder.remove(filename);
-        if(active)displayOrder.add(0,filename); else displayOrder.add(filename);
+        // 启停只改变状态，保持当前顺序；保存完整顺序，避免重开后按启用项重新排序。
         orderDirty=true;
         updateList();
     }
