@@ -28,6 +28,7 @@ public final class NitroModelRenderer implements AutoCloseable {
                 int polygon=source.polygon;
                 int faces=switch(polygon>>>6&3) { case 0->GL20.GL_FRONT_AND_BACK; case 1->GL20.GL_FRONT; case 2->GL20.GL_BACK; default->GL20.GL_NONE; };
                 target.set(IntAttribute.createCullFace(faces));
+                if(source.ambient!=null)target.set(ColorAttribute.createAmbientLight(source.ambient));
                 target.set(new DepthTestAttribute((polygon&(1<<4))!=0?GL20.GL_EQUAL:GL20.GL_LESS,true));
                 float alpha=(polygon>>>16&31)/31f;
                 if(source.texture!=null && source.palette!=null) {
@@ -51,8 +52,8 @@ public final class NitroModelRenderer implements AutoCloseable {
             finally { pixels.dispose(); }
             // 参考 NdsNitroModelParser：eb0_1.Y30 对应 Nearest，避免棋盘与模型纹理被平滑。
             texture.setFilter(Texture.TextureFilter.Nearest,Texture.TextureFilter.Nearest);
-            texture.setWrap((source.textureParams&(1<<16))!=0?Texture.TextureWrap.Repeat:Texture.TextureWrap.ClampToEdge,
-                    (source.textureParams&(1<<17))!=0?Texture.TextureWrap.Repeat:Texture.TextureWrap.ClampToEdge);
+            // GdxTextureStreamDecoderWrapper.Od0 统一采用 Repeat，镜像已由像素字典展开。
+            texture.setWrap(Texture.TextureWrap.Repeat,Texture.TextureWrap.Repeat);
             textures.put(key,texture);
         }
         return texture;

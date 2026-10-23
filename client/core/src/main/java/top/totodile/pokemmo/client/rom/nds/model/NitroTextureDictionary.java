@@ -40,7 +40,11 @@ public final class NitroTextureDictionary {
         Integer paletteOffset=palettes.get(palette);
         if(info==null || paletteOffset==null)throw new IOException("Missing Nitro texture/palette: "+texture+" / "+palette);
         int w=info.width,h=info.height;
-        Pixmap result=new Pixmap(w*(mirrorS?2:1),h*(mirrorT?2:1),Pixmap.Format.RGBA8888);
+        // NitroTextureDictionary.Rd：不透明索引纹理使用 RGB565，带透明度的纹理使用 RGBA8888。
+        // 必须保留上传格式；直接改为 RGBA 会改变 GPU 展开后的亮部颜色。
+        boolean opaqueIndexed=info.format>=2 && info.format<=4 && !info.transparent;
+        Pixmap result=new Pixmap(w*(mirrorS?2:1),h*(mirrorT?2:1),
+                opaqueIndexed?Pixmap.Format.RGB565:Pixmap.Format.RGBA8888);
         result.setBlending(Pixmap.Blending.None);
         try {
             for(int y=0;y<h;y++)for(int x=0;x<w;x++) {

@@ -7,6 +7,8 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.*;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.shaders.DefaultShader;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.graphics.g3d.utils.DefaultShaderProvider;
@@ -27,6 +29,8 @@ public final class DesktopLoginScene implements LoginScene {
     private CompletableFuture<RomLoginAssets.Prepared> loading;
     private RomCameraTrack track;
     private ModelBatch renderer;
+    // UiThemeSkinResource.IZ：白色环境光，材质中的环境色可覆盖此值。
+    private final Environment environment=new Environment();
     private RomLoginMusic music;
     private RomTexturePattern pattern;
     private float time;
@@ -38,6 +42,7 @@ public final class DesktopLoginScene implements LoginScene {
     DesktopLoginScene(ClientResources resources,Path cache,int variant) {
         this.resources=resources; this.cache=cache; this.variant=variant;
         camera.near=0.01f; camera.far=200;
+        environment.set(ColorAttribute.createAmbientLight(1,1,1,1));
     }
     @Override public boolean draw(float delta,int width,int height) {
         if (closed) return false;
@@ -76,7 +81,7 @@ public final class DesktopLoginScene implements LoginScene {
         if(pattern!=null)try { pattern.update(time); }
         catch(java.io.IOException error) { pattern.close(); pattern=null; Gdx.app.error("Login scene","Unable to update ROM texture animation",error); }
         renderer.begin(camera);
-        for(var scene:scenes)renderer.render(scene.instance);
+        for(var scene:scenes)renderer.render(scene.instance,environment);
         renderer.end();
         Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
         return true;

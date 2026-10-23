@@ -19,6 +19,7 @@ public final class NdsNitroModelParser {
         public String name,texture,palette;
         public int polygon,textureParams,width,height,flags;
         public float scaleU=1,scaleV=1;
+        public Color ambient;
         public boolean mirrorS() { return (textureParams&(1<<18))!=0; }
         public boolean mirrorT() { return (textureParams&(1<<19))!=0; }
     }
@@ -105,6 +106,12 @@ public final class NdsNitroModelParser {
         Material mat=new Material(); mat.name=name; mat.polygon=data.getInt(offset+12);
         mat.textureParams=data.getInt(offset+20); mat.flags=u16(data,offset+30);
         mat.width=u16(data,offset+32); mat.height=u16(data,offset+34);
+        if((mat.flags&0x400)!=0) {
+            int rgb=data.getInt(offset+8)>>>16;
+            Color ambient=new Color((rgb&31)/31f,(rgb>>>5&31)/31f,(rgb>>>10&31)/31f,1);
+            // NdsNitroModelParser.Xy 只采用三个通道均大于 0.25 的材质环境色。
+            if(ambient.r>.25f && ambient.g>.25f && ambient.b>.25f)mat.ambient=ambient;
+        }
         if((mat.flags&2)==0) { mat.scaleU=data.getInt(offset+44)/4096f; mat.scaleV=data.getInt(offset+48)/4096f; }
         return mat;
     }
