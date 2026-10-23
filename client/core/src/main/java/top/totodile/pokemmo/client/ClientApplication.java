@@ -138,7 +138,19 @@ public final class ClientApplication extends ApplicationAdapter {
         clientUi = new ClientUi(uiViewport, resources, mobile, SavedAccounts.open(configDirectory.get()),
                 () -> System.nanoTime() / 1_000_000L, loginController, batteryPercent, () -> Gdx.app.exit(), gameService);
         clientUi.onEnterWorld(this::enterWorld);
+        clientUi.onLeaveWorld(this::leaveWorld);
         clientUi.onRomRestart(restart);
+    }
+
+    private void leaveWorld() {
+        if(world==null)return;
+        world.setFocused(false);
+        world.close();world=null;
+        clientUi.showCharacters();
+        if(loginSceneFactory!=null) {
+            loginScene=loginSceneFactory.apply(resources);
+            loginScene.setFocused(focused);
+        }
     }
 
     private java.util.concurrent.CompletionStage<Void> enterWorld(top.totodile.pokemmo.server.game.GameService.Entry entry) {
@@ -160,11 +172,13 @@ public final class ClientApplication extends ApplicationAdapter {
             WorldScene scene=null;
             try {
                 var catalog=new CharacterAppearance(resources.apply("sprites/addons.pak"),resources.strings());
-                try { sprite=new OverworldCharacter(catalog,entry.character().appearance()); }
+                try { sprite=new OverworldCharacter(catalog,entry.character().appearance(),resources.apply("sprites/game.pak")); }
                 finally { catalog.dispose(); }
                 scene=new WorldScene(loaded.maps(),loaded.movement(),sprite,resources.preferences(),mobile,
                         position -> gameService.savePosition(selection,entry.character().id(),position)
-                            .exceptionally(failure -> { Gdx.app.error("world","Cannot save character position",failure); return null; }));
+                            .exceptionally(failure -> { Gdx.app.error("world","Cannot save character position",failure); return null; }),
+                        entry.travelState(),state -> gameService.saveTravelState(selection,entry.character().id(),state)
+                            .exceptionally(failure -> { Gdx.app.error("world","Cannot save character travel state",failure); return null; }));
                 if(mobile) scene.setControls(new MobileMapControls(resources.apply("buttons/controller.png"),resources.preferences()));
                 scene.setFocused(focused);
                 if(loginScene!=null) { loginScene.close(); loginScene=null; }

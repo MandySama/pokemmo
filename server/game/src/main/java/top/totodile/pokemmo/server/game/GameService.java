@@ -17,7 +17,15 @@ public interface GameService extends AutoCloseable {
                 throw new IllegalArgumentException("Invalid character position");
         }
     }
-    record Entry(Character character, Position position) {}
+    record TravelState(boolean noClip,float speed,boolean bicycle) {
+        public static TravelState defaults() { return new TravelState(false,1,false); }
+        public TravelState {
+            if(!Float.isFinite(speed) || speed<=0 || speed>16)throw new IllegalArgumentException("Invalid character speed");
+        }
+    }
+    record Entry(Character character, Position position,TravelState travelState) {
+        public Entry(Character character,Position position) {this(character,position,TravelState.defaults());}
+    }
     enum Failure { INVALID_NAME, NAME_TAKEN, ACCOUNT_FULL, NOT_FOUND }
     final class Rejected extends RuntimeException {
         public final Failure reason;
@@ -28,5 +36,6 @@ public interface GameService extends AutoCloseable {
     CompletionStage<Void> delete(Selection selection, String characterId);
     CompletionStage<Entry> enter(Selection selection, String characterId);
     CompletionStage<Void> savePosition(Selection selection, String characterId, Position position);
+    CompletionStage<Void> saveTravelState(Selection selection,String characterId,TravelState state);
     @Override void close();
 }

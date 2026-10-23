@@ -10,6 +10,7 @@ public final class MapMovement {
     private MapData map;
     private int x,y,direction,elevation;
     private boolean noClip;
+    private Runnable stateChanged=() -> {};
     public MapMovement(FireRedMaps maps,Position position) {
         this.maps=maps; map=maps.map(new Id(position.bank(),position.map()));
         if(!map.contains(position.x(),position.y()) || (map.block(position.x(),position.y())&0xc00)!=0
@@ -20,18 +21,25 @@ public final class MapMovement {
     public MapData map() { return map; }
     public int elevation() { return elevation; }
     public boolean noClip() { return noClip; }
+    public void onStateChanged(Runnable callback) { stateChanged=java.util.Objects.requireNonNull(callback); }
     public boolean canStand() {
         int block=map.block(x,y), behavior=maps.tiles(map).behavior(block&1023);
         return (block&0xc00)==0 && block>>>12!=15 && !(behavior>=0x10 && behavior<=0x15 || behavior==0x1a || behavior==0x1b);
     }
     public void setNoClip(boolean enabled) {
         if(!enabled && !canStand()) throw new IllegalStateException("请先回到可行走的地面，再关闭穿墙。");
-        noClip=enabled;
+        if(noClip!=enabled) { noClip=enabled;stateChanged.run(); }
     }
     public Position position() { return new Position(map.id().bank(),map.id().map(),x,y,direction); }
+    public boolean face(int dx,int dy) {
+        if(Math.abs(dx)+Math.abs(dy)!=1)return false;
+        int next=dy>0?0:dy<0?1:dx<0?2:3;
+        if(next==direction)return false;
+        direction=next;return true;
+    }
     public boolean step(int dx,int dy) {
         if(Math.abs(dx)+Math.abs(dy)!=1) return false;
-        direction=dy>0?0:dy<0?1:dx<0?2:3;
+        face(dx,dy);
         MapData target=map;
         int nx=x+dx,ny=y+dy;
         if(!map.contains(nx,ny)) {

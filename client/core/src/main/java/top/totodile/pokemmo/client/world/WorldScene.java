@@ -23,6 +23,8 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
     private final SpriteBatch batch=new SpriteBatch();
     private final OrthographicCamera camera=new OrthographicCamera();
     private final LinkedHashMap<Tiles,Texture[]> atlases=new LinkedHashMap<>(8,.75f,true);
+    private final Map<Tiles,int[]> animationFrames=new HashMap<>();
+    private double animationTime;
     private boolean focused=true;
     private boolean inputBlocked;
     private final Set<Integer> actionKeys=new HashSet<>();
@@ -34,9 +36,16 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
         this(maps,movement,character,settings,false,save);
     }
     public WorldScene(FireRedMaps maps,MapMovement movement,OverworldCharacter character,ClientSettings settings,boolean mobile,Consumer<Position> save) {
+        this(maps,movement,character,settings,mobile,save,
+                top.totodile.pokemmo.server.game.GameService.TravelState.defaults(),state -> {});
+    }
+    public WorldScene(FireRedMaps maps,MapMovement movement,OverworldCharacter character,ClientSettings settings,boolean mobile,Consumer<Position> save,
+                      top.totodile.pokemmo.server.game.GameService.TravelState state,
+                      Consumer<top.totodile.pokemmo.server.game.GameService.TravelState> saveState) {
         this.maps=maps; this.movement=movement; this.character=character; this.settings=settings;
         this.mobile=mobile;
         motion=new PlayerMotion(movement,Boolean.parseBoolean(settings.get("client.gameplay.autosprint.enabled","true")),save);
+        WorldState.bind(settings,motion,state,saveState);
         commands=new WorldCommands(motion);
         try { atlas(maps.tiles(movement.map())); }
         catch(RuntimeException error) { batch.dispose(); throw error; }
@@ -44,6 +53,7 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
     public MapMovement movement() { return movement; }
     public PlayerMotion motion() { return motion; }
     public WorldCommands commands() { return commands; }
+    public int locationStringId() { return maps.locationStringId(movement.map().id()); }
     public void setInputBlocked(boolean blocked) {
         inputBlocked=blocked;
         if(blocked) { actionKeys.clear(); directionKeys.clear(); if(controls!=null)controls.release(); }
@@ -58,6 +68,7 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
         catch(NumberFormatException error) { return fallback; }
     }
     public void draw(float delta,int width,int height) {
+        if(Float.isFinite(delta) && delta>0)animationTime+=delta;
         int dx=0,dy=0;
         if(focused && !inputBlocked) {
             dx=controls==null?0:controls.dx(); dy=controls==null?0:controls.dy();
@@ -83,6 +94,7 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
         Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
         Gdx.gl.glDisable(GL20.GL_CULL_FACE);
         prepareNeighbors();
+        updateAnimations();
         batch.setProjectionMatrix(camera.combined); batch.begin();
         drawMap(0,px,py);
         // GdxTileLayerRenderer.jL：低高程对象 -> 普通上层 -> 高高程对象 -> 高层遮挡。
@@ -150,7 +162,6 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
         if(key==Input.Keys.K) {
             if(!actionKeys.add(key))return true;
             motion.toggleRunning();
-            settings.save(Map.of("client.gameplay.autosprint.enabled",Boolean.toString(motion.running())));
             return true;
         }
         if(key==Input.Keys.NUM_2 || key==Input.Keys.NUMPAD_2) {
@@ -178,15 +189,36 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
             }
         } catch(RuntimeException error) { for(Texture texture:result) if(texture!=null) texture.dispose(); throw error; }
         atlases.put(tiles,result);
+        animationFrames.put(tiles,new int[tiles.animations().size()]);
         if(atlases.size()>6) {
             var oldest=atlases.entrySet().iterator(); var entry=oldest.next();
             for(Texture texture:entry.getValue()) texture.dispose(); oldest.remove();
+            animationFrames.remove(entry.getKey());
         }
         return result;
     }
+    private void updateAnimations() {
+        Pixmap image=null;
+        try {
+            for(var atlas:atlases.entrySet()) {
+                Tiles tiles=atlas.getKey();int[] previous=animationFrames.get(tiles);
+                for(int index=0;index<tiles.animations().size();index++) {
+                    TileAnimation animation=tiles.animations().get(index);
+                    // 参考 SpriteAnimationFrameSet.gA0：300 毫秒一帧，与角色移动倍率无关。
+                    int frame=(int)((long)(animationTime/.3)%animation.frames().length);
+                    if(previous[index]==frame)continue;
+                    if(image==null){image=new Pixmap(16,16,Pixmap.Format.RGBA8888);image.setBlending(Pixmap.Blending.None);}
+                    int[] pixels=animation.frames()[frame];
+                    for(int y=0;y<16;y++)for(int x=0;x<16;x++)image.drawPixel(x,y,pixels[y*16+x]);
+                    atlas.getValue()[animation.layer()].draw(image,animation.id()%16*16,animation.id()/16*16);
+                    previous[index]=frame;
+                }
+            }
+        } finally {if(image!=null)image.dispose();}
+    }
     @Override public void close() {
         for(Texture[] textures:atlases.values()) for(Texture texture:textures) texture.dispose();
-        atlases.clear(); character.close(); if(controls!=null)controls.close(); batch.dispose();
+        atlases.clear();animationFrames.clear(); character.close(); if(controls!=null)controls.close(); batch.dispose();
     }
     @Override public boolean touchDown(int x,int y,int pointer,int button) { return controls!=null && controls.touchDown(x,y,pointer); }
     @Override public boolean touchDragged(int x,int y,int pointer) { return controls!=null && controls.touchDragged(x,y,pointer); }

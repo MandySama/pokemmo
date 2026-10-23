@@ -26,11 +26,13 @@ public final class FireRedMaps {
             return warps.stream().filter(w -> w.x==x && w.y==y).findFirst().orElse(null);
         }
     }
-    public record Tiles(int count, int[][] pixels, int[] attributes) {
+    public record TileAnimation(int id,int layer,int[][] frames) {}
+    public record Tiles(int count, int[][] pixels, int[] attributes,List<TileAnimation> animations) {
         public int behavior(int id) { return attributes[id] & 511; }
         public int layer(int id) { return attributes[id] >>> 29 & 3; }
     }
     private final byte[] rom;
+    private final FireRedTileAnimations animations;
     private final Map<Id,Integer> headers = new LinkedHashMap<>();
     private final Map<Id,MapData> maps = new HashMap<>();
     private final Map<Long,Tiles> tiles = new LinkedHashMap<>(16, .75f, true) {
@@ -39,6 +41,7 @@ public final class FireRedMaps {
     public FireRedMaps(RomInfo info) throws IOException {
         if (info.type()!=RomType.FIRE_RED) throw new IllegalArgumentException("FireRed ROM required");
         rom=Files.readAllBytes(info.path());
+        animations=new FireRedTileAnimations(rom);
         byte[] signature={(byte)0x80,0x18,0,0x68,(byte)0x89,0x0b,9,0x18,8,0x68,0x70,0x47};
         int table=-1;
         search: for(int p=0;p<=rom.length-signature.length-4;p+=2) {
@@ -58,6 +61,12 @@ public final class FireRedMaps {
     }
     public Set<Id> ids() { return Collections.unmodifiableSet(headers.keySet()); }
     public MapData map(Id id) { return maps.computeIfAbsent(id,this::readMap); }
+    /** GbaMapHeader.Nw0: FireRed section IDs start at 88. */
+    public int locationStringId(Id id) {
+        Integer header=headers.get(id);
+        if(header==null)throw invalid("Unknown map "+id);
+        return 139912+u8(header+20);
+    }
     private MapData readMap(Id id) {
         Integer h=headers.get(id);
         if(h==null) throw invalid("Unknown map "+id);
@@ -95,23 +104,25 @@ public final class FireRedMaps {
         int first=count(primary), second=count(secondary), count=first+second;
         if(first!=640 || count>1024) throw invalid("Unsupported FireRed tileset size");
         byte[] a=graphics(primary,first*32), b=graphics(secondary,(1024-first)*32);
-        int[] palette=new int[256];
-        for(int i=0;i<256;i++) {
-            int source=pointer((i<96?primary:secondary)+8), c=u16(source+i*2);
+        int[][] palettes=new int[2][256];
+        for(int part=0;part<2;part++)for(int i=0;i<256;i++) {
+            int source=pointer((part==0?primary:secondary)+8), c=u16(source+i*2);
             int r=c&31, g=c>>5&31, blue=c>>10&31;
-            palette[i]=((r<<3|r>>2)<<24)|((g<<3|g>>2)<<16)|((blue<<3|blue>>2)<<8)|255;
+            palettes[part][i]=((r<<3|r>>2)<<24)|((g<<3|g>>2)<<16)|((blue<<3|blue>>2)<<8)|255;
         }
         int[][] pixels={new int[count*256],new int[count*256]};
         int[] attributes=new int[count];
+        var animatedTiles=animations.frames(primary,secondary);
+        var animatedBlocks=new ArrayList<TileAnimation>();
         for(int id=0;id<count;id++) {
             int source=id<first?primary:secondary, local=id<first?id:id-first;
             attributes[id]=u32(pointer(source+20)+local*4);
             int metatile=pointer(source+12)+local*16;
             for(int layer=0;layer<2;layer++) for(int q=0;q<4;q++) {
                 int entry=u16(metatile+layer*8+q*2), tile=entry&1023, pal=entry>>>12;
+                int[] palette=paletteFor(id<first,tile<first,pal,palettes);
                 byte[] graphics=tile<first?a:b;
                 int tileOffset=(tile<first?tile:tile-first)*32;
-                // Some maps reference VRAM animation slots absent from the initial compressed data.
                 if(tileOffset+32>graphics.length) continue;
                 for(int y=0;y<8;y++) for(int x=0;x<8;x++) {
                     int sx=(entry&1024)!=0?7-x:x, sy=(entry&2048)!=0?7-y:y;
@@ -119,8 +130,40 @@ public final class FireRedMaps {
                     pixels[layer][id*256+(q/2*8+y)*16+q%2*8+x]=color==0?0:palette[pal*16+color];
                 }
             }
+            for(int layer=0;layer<2;layer++) {
+                int frames=0;
+                for(int q=0;q<4;q++) {
+                    byte[][] animation=animatedTiles.get(u16(metatile+layer*8+q*2)&1023);
+                    if(animation!=null)frames=Math.max(frames,animation.length);
+                }
+                if(frames==0)continue;
+                int[][] decoded=new int[frames][];
+                for(int frame=0;frame<frames;frame++) {
+                    decoded[frame]=Arrays.copyOfRange(pixels[layer],id*256,(id+1)*256);
+                    for(int q=0;q<4;q++) {
+                        int entry=u16(metatile+layer*8+q*2),pal=entry>>>12;
+                        // GbaMapTileset.nj 的动画帧按动画所属 tileset 取完整调色板，
+                        // 不使用上面静态副图块的“前 6 组”拼接规则。
+                        int[] palette=palettes[(entry&1023)<first?0:1];
+                        byte[][] animation=animatedTiles.get(entry&1023);
+                        if(animation==null)continue;
+                        byte[] graphics=animation[frame%animation.length];
+                        for(int y=0;y<8;y++)for(int x=0;x<8;x++) {
+                            int sx=(entry&1024)!=0?7-x:x,sy=(entry&2048)!=0?7-y:y;
+                            int color=(graphics[sy*4+sx/2]&255)>>((sx&1)*4)&15;
+                            decoded[frame][(q/2*8+y)*16+q%2*8+x]=color==0?0:palette[pal*16+color];
+                        }
+                    }
+                }
+                System.arraycopy(decoded[0],0,pixels[layer],id*256,256);
+                animatedBlocks.add(new TileAnimation(id,layer,decoded));
+            }
         }
-        return new Tiles(count,pixels,attributes);
+        return new Tiles(count,pixels,attributes,List.copyOf(animatedBlocks));
+    }
+    private static int[] paletteFor(boolean primaryBlock,boolean primaryTile,int palette,int[][] palettes) {
+        // GbaMapTileset.nj：主图块按图形来源取完整调色板；副图块才按前 6 组切分。
+        return palettes[(primaryBlock?primaryTile:palette<6)?0:1];
     }
     private int count(int tileset) {
         int bytes=pointer(tileset+20)-pointer(tileset+12);

@@ -34,7 +34,9 @@ final class CharacterPreview extends Widget implements AutoCloseable {
     private boolean portrait;
     private com.badlogic.gdx.graphics.g2d.SpriteBatch worldBatch;
     private boolean worldFlip;
-    private int worldHeight;
+    // GdxAddonSpriteManager.eI：地图中的所有 addon 层统一使用 0.75 倍。
+    private static final float WORLD_SCALE=.75f;
+    private float worldHeight,worldX,worldY;
     private int worldGroundPadding=-1;
     private CharacterAppearance.Slot colorSlot;
     private int pendingColor;
@@ -81,8 +83,10 @@ final class CharacterPreview extends Widget implements AutoCloseable {
                 worldGroundPadding=bottom<0?0:standing.pixels.getHeight()-bottom-1;
             }
         }
-        worldBatch=batch; worldFlip=flip; worldHeight=body.pixels.getHeight();
-        try { drawCharacter(0,frame,x-body.pixels.getWidth()/2,y-worldGroundPadding,1); }
+        worldBatch=batch; worldFlip=flip; worldHeight=body.pixels.getHeight()*WORLD_SCALE;
+        worldX=x-body.pixels.getWidth()*WORLD_SCALE/2;
+        worldY=y-worldGroundPadding*WORLD_SCALE;
+        try { drawCharacter(0,frame,0,0,1); }
         finally { worldBatch=null; batch.setColor(com.badlogic.gdx.graphics.Color.WHITE); }
     }
 
@@ -150,12 +154,13 @@ final class CharacterPreview extends Widget implements AutoCloseable {
         Cached sprite = load(key);
         if (sprite == null) return;
         if(worldBatch!=null) {
-            int width=sprite.pixels.getWidth(), height=sprite.pixels.getHeight();
+            float width=sprite.pixels.getWidth()*WORLD_SCALE, height=sprite.pixels.getHeight()*WORLD_SCALE;
+            float left=worldFlip?worldX+width:worldX,bottom=worldY+worldHeight-height;
             worldBatch.setColor(com.badlogic.gdx.graphics.Color.WHITE);
-            worldBatch.draw(sprite.texture,worldFlip?x+width:x,y+worldHeight-height,worldFlip?-width:width,height);
+            worldBatch.draw(sprite.texture,left,bottom,worldFlip?-width:width,height);
             if(key.slot>=0 && key.layer%3!=2) {
                 if(tint!=null) worldBatch.setColor(((tint>>>16)&255)/255f,((tint>>>8)&255)/255f,(tint&255)/255f,(tint>>>24)/255f);
-                worldBatch.draw(sprite.texture,worldFlip?x+width:x,y+worldHeight-height,worldFlip?-width:width,height);
+                worldBatch.draw(sprite.texture,left,bottom,worldFlip?-width:width,height);
             }
             return;
         }

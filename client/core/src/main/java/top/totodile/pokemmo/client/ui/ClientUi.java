@@ -75,12 +75,38 @@ public final class ClientUi implements Disposable {
     private long characterLoadVersion;
     private boolean disposed;
     private boolean enteringWorld;
-    private top.totodile.pokemmo.client.ui.world.WorldConsole worldConsole;
+    private top.totodile.pokemmo.client.ui.world.WorldActions worldActions;
+    private top.totodile.pokemmo.client.ui.world.WorldHud worldHud;
+    private top.totodile.pokemmo.client.world.WorldScene worldScene;
+    private Runnable worldExit;
+    private final top.totodile.pokemmo.client.ui.common.ActionConfirmDialog worldLogout;
+    private final java.util.Map<Widget,Boolean> worldHidden=new java.util.IdentityHashMap<>();
+    private Runnable leaveWorld=() -> {};
+
+    public void onLeaveWorld(Runnable action) { leaveWorld=java.util.Objects.requireNonNull(action); }
+
+    public void showCharacters() {
+        if(worldActions==null)return;
+        root.removeChild(worldHud);worldHud=null;worldScene=null;
+        root.removeChild(worldActions);worldActions=null;
+        worldHidden.forEach(Widget::setVisible);worldHidden.clear();
+        enteringWorld=false;
+        refreshLoginState();
+        if(controller.selection()!=null)loadCharacters(controller.selection());
+        Gdx.input.setInputProcessor(input);
+        root.invalidateLayout();
+    }
 
     public com.badlogic.gdx.InputProcessor showWorld(top.totodile.pokemmo.client.world.WorldScene world) {
-        worldConsole=new top.totodile.pokemmo.client.ui.world.WorldConsole(world);
-        for(int i=0;i<root.getNumChildren();i++) root.getChild(i).setVisible(false);
-        root.add(worldConsole); fps.setVisible(true);
+        worldActions=new top.totodile.pokemmo.client.ui.world.WorldActions(world);
+        worldScene=world;
+        worldHud=new top.totodile.pokemmo.client.ui.world.WorldHud(world,strings,mobile,this::itemIcon,
+                ()->{world.setInputBlocked(true);settings.open();},
+                ()->{world.setInputBlocked(true);worldLogout.show(strings.get(1160),()->{leaveWorld.run();controller.back();});},worldExit);
+        for(int i=0;i<root.getNumChildren();i++) {
+            Widget child=root.getChild(i);worldHidden.put(child,child.isVisible());child.setVisible(false);
+        }
+        root.add(worldHud);root.add(worldActions); fps.setVisible(true);
         root.invalidateLayout();
         return new com.badlogic.gdx.InputMultiplexer(input,world);
     }
@@ -139,8 +165,9 @@ public final class ClientUi implements Disposable {
         logo.setTheme("logo");
         root = new Widget() {
             @Override protected void layout() {
-                if(worldConsole!=null) {
-                    worldConsole.position(getInnerX(),getInnerY(),getInnerWidth(),getInnerHeight());
+                if(worldActions!=null) {
+                    worldHud.position(getInnerX(),getInnerY(),getInnerWidth(),getInnerHeight());
+                    worldActions.position(getInnerX(),getInnerY(),getInnerWidth(),getInnerHeight());
                     fps.adjustSize(); fps.setPosition(getInnerRight()-fps.getWidth(),getInnerY());
                     return;
                 }
@@ -201,6 +228,7 @@ public final class ClientUi implements Disposable {
         java.util.function.Consumer<de.matthiasmann.twl.renderer.Image> mobileBackground =
                 image -> renderer.drawScreenBackground(image, root.getAnimationState());
         entryError=new top.totodile.pokemmo.client.ui.common.MessageDialog(root,strings,mobile,mobileBackground,this::restoreWindowFocus);
+        worldLogout=new top.totodile.pokemmo.client.ui.common.ActionConfirmDialog(root,strings,mobile,mobileBackground,this::restoreWindowFocus);
         characterPage.onEnter(this::enterWorld);
         clientManagement = new ClientManagementWindow(root, strings, mobile, restoreFocus, mobileBackground,
                 resources.roms(), resources.romFilePicker(), () -> romInfo.setText(romSummary()));
@@ -224,6 +252,7 @@ public final class ClientUi implements Disposable {
             characterCreation.hideKeyboard();
             if (mobile) exitConfirmation.open(); else exit.run();
         };
+        worldExit=requestExit;
         if (desktopMenu != null) desktopMenu.onExit(requestExit);
         if (mobileMenu != null) mobileMenu.onExit(requestExit);
         Runnable openManagement = () -> { loginPanel.hideKeyboard(); characterCreation.hideKeyboard(); clientManagement.open(); };
@@ -239,14 +268,22 @@ public final class ClientUi implements Disposable {
         gui.applyTheme(theme);
         input = new InputAdapter() {
             private boolean pointer(int x,int y,int button,boolean pressed) {
-                if(worldConsole!=null && !worldConsole.isVisible()) return false;
                 if(enteringWorld) return true;
                 Vector2 point=viewport.unproject(new Vector2(x,y));
+                if(worldActions!=null && !settings.isOpen() && !worldLogout.isOpen() && (exitConfirmation==null||!exitConfirmation.isOpen())
+                        && !worldActions.isInside(Math.round(point.x),renderer.getHeight()-Math.round(point.y))
+                        && !worldHud.ownsPointer(Math.round(point.x),renderer.getHeight()-Math.round(point.y))) {
+                    gui.handleMouse(-1,-1,button,false);return false;
+                }
                 return gui.handleMouse(Math.round(point.x), renderer.getHeight()-Math.round(point.y),button,pressed);
             }
             @Override public boolean touchDown(int x,int y,int pointer,int button){
                 if (pointer != 0) return false;
-                if(worldConsole!=null) return pointer(x,y,button,true);
+                if(worldHud!=null&&!settings.isOpen()&&!worldLogout.isOpen()) {
+                    Vector2 point=viewport.unproject(new Vector2(x,y));
+                    if(worldHud.dismissMenuOutside(Math.round(point.x),renderer.getHeight()-Math.round(point.y)))return true;
+                }
+                if(worldActions!=null && !settings.isOpen()) return pointer(x,y,button,true);
                 Vector2 point = viewport.unproject(new Vector2(x,y));
                 if ((exitConfirmation == null || !exitConfirmation.isOpen()) && !characterCreation.isAbove(settings))
                     settings.touchDown(Math.round(point.x), renderer.getHeight()-Math.round(point.y), x, y, button);
@@ -254,13 +291,13 @@ public final class ClientUi implements Disposable {
             }
             @Override public boolean touchUp(int x,int y,int pointer,int button){
                 if (pointer != 0) return false;
-                if(worldConsole!=null) return pointer(x,y,button,false);
+                if(worldActions!=null && !settings.isOpen()) return pointer(x,y,button,false);
                 if (settings.touchUp(x,y,button)) return true;
                 return pointer(x,y,button,false);
             }
             @Override public boolean touchDragged(int x,int y,int pointer){
                 if (pointer != 0) return false;
-                if(worldConsole!=null) return pointer(x,y,-1,false);
+                if(worldActions!=null && !settings.isOpen()) return pointer(x,y,-1,false);
                 if (settings.touchDragged(x,y)) return true;
                 return pointer(x,y,-1,false);
             }
@@ -271,12 +308,27 @@ public final class ClientUi implements Disposable {
             }
             @Override public boolean mouseMoved(int x,int y){return pointer(x,y,-1,false);}
             @Override public boolean keyDown(int key){
-                if(worldConsole!=null) {
-                    if(key==Input.Keys.GRAVE) { worldConsole.toggle(); return true; }
-                    if(!worldConsole.isVisible()) return false;
-                    if(key==Input.Keys.ESCAPE || key==Input.Keys.BACK) { worldConsole.show(false); return true; }
-                    int code=keyCode(key); if(code!=0) gui.handleKey(code,'\0',true);
-                    return true;
+                if(worldActions!=null) {
+                    if(worldLogout.isOpen()) {
+                        int code=keyCode(key);if(code!=0)gui.handleKey(code,'\0',true);return true;
+                    }
+                    if(exitConfirmation!=null&&exitConfirmation.isOpen()) {
+                        if(key==Input.Keys.ESCAPE||key==Input.Keys.BACK)exitConfirmation.closePopup();
+                        return true;
+                    }
+                    if(settings.isOpen()) {
+                        if(settings.captureKey(key))return true;
+                        if(key==Input.Keys.ESCAPE||key==Input.Keys.BACK){settings.back();return true;}
+                        int code=keyCode(key);return code!=0&&gui.handleKey(code,'\0',true);
+                    }
+                    if(key==Input.Keys.ESCAPE || key==Input.Keys.BACK) {
+                        if(!worldHud.closeOverlay())leaveWorld.run();return true;
+                    }
+                    if(worldHud.editingChat()) {
+                        if(key==Input.Keys.ENTER){worldHud.closeOverlay();return true;}
+                        int code=keyCode(key);if(code!=0)gui.handleKey(code,'\0',true);return true;
+                    }
+                    return false;
                 }
                 if(enteringWorld) return true;
                 if(entryError.isOpen()) {
@@ -306,11 +358,11 @@ public final class ClientUi implements Disposable {
                 return code!=0 && gui.handleKey(code,'\0',true);
             }
             @Override public boolean keyUp(int key){
-                if(worldConsole!=null && !worldConsole.isVisible())return false;
+                if(worldActions!=null&&!worldHud.editingChat()&&!settings.isOpen()&&!worldLogout.isOpen())return false;
                 int code=keyCode(key);return code!=0 && gui.handleKey(code,'\0',false);
             }
             @Override public boolean keyTyped(char value){
-                if(worldConsole!=null && (!worldConsole.isVisible() || value=='`' || value=='~'))return false;
+                if(worldActions!=null&&!worldHud.editingChat()&&!settings.isOpen())return false;
                 if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT))return false;
                 if(value<32 || value==127)return false;
                 boolean handled=gui.handleKey(Event.KEY_NONE,value,true);
@@ -319,7 +371,7 @@ public final class ClientUi implements Disposable {
                 return handled;
             }
             @Override public boolean scrolled(float x,float y){
-                if(worldConsole!=null && !worldConsole.isVisible())return false;
+                if(worldActions!=null&&!settings.isOpen())return false;
                 return gui.handleMouseWheel(-(int)y);
             }
         };
@@ -532,11 +584,14 @@ public final class ClientUi implements Disposable {
     }
 
     public void draw(float width,float height,float x,float y) {
-        if(worldConsole!=null) {
+        if(worldActions!=null) {
+            worldHud.update();
+            worldScene.setInputBlocked(worldHud.editingChat()||settings.isOpen()||worldLogout.isOpen()||(exitConfirmation!=null&&exitConfirmation.isOpen()));
             fps.setVisible(Boolean.parseBoolean(resources.preferences().get("client.graphics.show_fps","true")));
             fps.setText(frameRate.frame());
             if(renderer.updateFontScale()) invalidateFontLayout(gui);
-            gui.update(); return;
+            gui.update();settings.positionWindow();worldLogout.positionWindow();
+            if(exitConfirmation!=null)exitConfirmation.positionWindow();return;
         }
         fps.setVisible(Boolean.parseBoolean(resources.preferences().get("client.graphics.show_fps","true")));
         if (mobileStatus != null) mobileStatus.update(System.nanoTime());

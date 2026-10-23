@@ -389,4 +389,13 @@
     <area name="customization.preview-previous" xywh="426,22,16,16" />
     <area name="customization.preview-next" xywh="564,82,16,16" />
   </images>
+
+  <images file="res/main-hud.png" filter="nearest">
+    <area name="world.location" xywh="9,461,18,18" />
+    <area name="world.money" xywh="35,461,18,18" />
+    <area name="world.day" xywh="200,461,18,18" />
+    <area name="world.night" xywh="220,461,18,18" />
+    <area name="world.morning" xywh="240,460,18,18" />
+    <area name="world.chat" xywh="197,482,24,24" />
+  </images>
 </themes>

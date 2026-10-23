@@ -1,15 +1,52 @@
 package top.totodile.pokemmo.client.ui.character;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.zip.GZIPInputStream;
 import top.totodile.pokemmo.server.game.GameService;
 
 /** Shares the character editor's addon composition and saved outfit in the map scene. */
 public final class OverworldCharacter implements AutoCloseable {
     private final CharacterAppearance appearance;
     private final CharacterPreview sprites;
+    private final Texture shadow;
     public OverworldCharacter(CharacterAppearance catalog,GameService.Appearance saved) {
+        this(catalog,saved,com.badlogic.gdx.Gdx.files.local("data/sprites/game.pak"));
+    }
+    public OverworldCharacter(CharacterAppearance catalog,GameService.Appearance saved,FileHandle gameSprites) {
         appearance=catalog.restore(saved);
         sprites=new CharacterPreview(appearance,null,false,saved::skin,saved::gender,()->0);
+        try {shadow=loadShadow(gameSprites);}
+        catch(RuntimeException failure){sprites.close();appearance.dispose();throw failure;}
+    }
+    private static Texture loadShadow(FileHandle gameSprites) {
+        // GlBufferStateManager：game.pak 为 GZIP，8 字节头、纹理数量、逐张 PNG 长度及数据。
+        try(var input=new GZIPInputStream(gameSprites.read())) {
+            byte[] bytes=input.readAllBytes();
+            if(bytes.length<9 || bytes[8]<3)throw new IOException("Missing character shadow texture");
+            ByteBuffer data=ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);data.position(9);
+            for(int index=0;index<=2;index++) {
+                if(data.remaining()<4)throw new IOException("Invalid game sprite archive");
+                int length=data.getInt();
+                if(length<1 || length>data.remaining())throw new IOException("Invalid game sprite image");
+                if(index==2) {
+                    Pixmap pixels=new Pixmap(bytes,data.position(),length);
+                    try {
+                        Texture texture=new Texture(pixels);
+                        texture.setFilter(Texture.TextureFilter.Nearest,Texture.TextureFilter.Nearest);
+                        return texture;
+                    } finally {pixels.dispose();}
+                }
+                data.position(data.position()+length);
+            }
+            throw new IOException("Missing character shadow texture");
+        } catch(IOException failure){throw new IllegalStateException("Cannot load character shadow",failure);}
     }
     public void draw(SpriteBatch batch,float x,float feetY,int direction,float walkTime,boolean moving) {
         draw(batch,x,feetY,direction,walkTime,moving,0);
@@ -22,7 +59,12 @@ public final class OverworldCharacter implements AutoCloseable {
         int[] frames={first,left,first,right};
         // KeyframeSplineInterpolator.pv0：步行、跑步、骑车三套帧，整数像素落点。
         int frame=moving?frames[(int)(walkTime/.16f)%4]:first;
-        sprites.drawWorld(batch,Math.round(x),Math.round(feetY),frame,direction==3);
+        // GdxParticleController.wH0：24×24 贴图，以中心为原点缩放 0.75；
+        // 将参考的向下 Y 坐标换算到当前脚点，保留贴图自身的半透明像素。
+        float centerX=Math.round(x),groundY=Math.round(feetY);
+        batch.setColor(Color.WHITE);
+        batch.draw(shadow,centerX-9.5f,groundY-4,18,18);
+        sprites.drawWorld(batch,(int)centerX,(int)groundY,frame,direction==3);
     }
-    @Override public void close() { sprites.close(); appearance.dispose(); }
+    @Override public void close() { shadow.dispose();sprites.close(); appearance.dispose(); }
 }

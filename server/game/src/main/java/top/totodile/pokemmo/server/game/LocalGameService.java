@@ -23,6 +23,7 @@ public final class LocalGameService implements GameService {
                 opened.execute("CREATE TABLE IF NOT EXISTS characters (id TEXT PRIMARY KEY, account TEXT NOT NULL, server TEXT NOT NULL, name TEXT NOT NULL, name_key TEXT NOT NULL, gender INTEGER NOT NULL, skin INTEGER NOT NULL, region INTEGER NOT NULL, created_at INTEGER NOT NULL, UNIQUE(server,name_key))");
                 opened.execute("CREATE TABLE IF NOT EXISTS character_parts (character_id TEXT NOT NULL REFERENCES characters(id) ON DELETE CASCADE, slot INTEGER NOT NULL, style INTEGER NOT NULL, color INTEGER NOT NULL, PRIMARY KEY(character_id,slot))");
                 opened.execute("CREATE TABLE IF NOT EXISTS character_positions (character_id TEXT PRIMARY KEY REFERENCES characters(id) ON DELETE CASCADE, bank INTEGER NOT NULL, map INTEGER NOT NULL, x INTEGER NOT NULL, y INTEGER NOT NULL, direction INTEGER NOT NULL)");
+                opened.execute("CREATE TABLE IF NOT EXISTS character_travel_state (character_id TEXT PRIMARY KEY REFERENCES characters(id) ON DELETE CASCADE, no_clip INTEGER NOT NULL, speed REAL NOT NULL, bicycle INTEGER NOT NULL)");
                 database = opened;
             } catch (RuntimeException | Error error) {
                 try { opened.close(); }
@@ -94,7 +95,13 @@ public final class LocalGameService implements GameService {
                 position=new Position(Integer.parseInt(row[0]),Integer.parseInt(row[1]),Integer.parseInt(row[2]),
                         Integer.parseInt(row[3]),Integer.parseInt(row[4]));
             }
-            return new Entry(character,position);
+            var states=db().query("SELECT no_clip,speed,bicycle FROM character_travel_state WHERE character_id=?",characterId);
+            TravelState state=TravelState.defaults();
+            if(!states.isEmpty()) {
+                String[] row=states.get(0);
+                state=new TravelState(Integer.parseInt(row[0])!=0,Float.parseFloat(row[1]),Integer.parseInt(row[2])!=0);
+            }
+            return new Entry(character,position,state);
         },worker);
     }
     @Override public CompletionStage<Void> savePosition(Selection selection,String characterId,Position position) {
@@ -106,6 +113,18 @@ public final class LocalGameService implements GameService {
                         selection.session().username(),selection.server().id()).isEmpty()) throw new Rejected(Failure.NOT_FOUND);
                 db().execute("INSERT OR REPLACE INTO character_positions VALUES (?,?,?,?,?,?)",characterId,
                         position.bank(),position.map(),position.x(),position.y(),position.direction());
+            });
+        },worker);
+    }
+    @Override public CompletionStage<Void> saveTravelState(Selection selection,String characterId,TravelState state) {
+        Objects.requireNonNull(state);
+        return CompletableFuture.runAsync(() -> {
+            identity(selection);
+            db().transaction(() -> {
+                if(db().query("SELECT id FROM characters WHERE id=? AND account=? AND server=?",characterId,
+                        selection.session().username(),selection.server().id()).isEmpty())throw new Rejected(Failure.NOT_FOUND);
+                db().execute("INSERT OR REPLACE INTO character_travel_state VALUES (?,?,?,?)",characterId,
+                        state.noClip()?1:0,state.speed(),state.bicycle()?1:0);
             });
         },worker);
     }
