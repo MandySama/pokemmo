@@ -2,3 +2,12 @@
 group = 'top.totodile'
 version = '1.0-SNAPSHOT'
 ext.gdxVersion = '1.14.2'
+
+// build 用于打包，保留各模块的 assemble / 自定义产物依赖；测试由 test 或 check 显式执行。
+subprojects {
+    afterEvaluate {
+        tasks.matching { it.name == 'build' }.configureEach {
+            setDependsOn(dependsOn.findAll { it != 'check' })
+        }
+    }
+}

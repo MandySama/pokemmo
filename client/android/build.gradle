@@ -20,6 +20,8 @@ android {
     useLibrary 'android.test.base'
     namespace = 'top.totodile.pokemmo.android'
     compileSdk = 36
+    // 参考 Android 工程：资源包本身已压缩，APK 中直接存储，避免重复压缩及其内存开销。
+    androidResources { noCompress += ['zip'] }
     defaultConfig {
         applicationId 'top.totodile.pokemmo'
         minSdk = 26
@@ -70,8 +72,10 @@ dependencies {
 
 // 背景和解压弹窗资源独立放入 startup/，其余资源解压到 files/data 后使用。
 abstract class BundleAndroidResources extends DefaultTask {
-    @InputDirectory @PathSensitive(PathSensitivity.RELATIVE)
+    @Internal
     abstract DirectoryProperty getDataDirectory()
+    @InputFiles @PathSensitive(PathSensitivity.RELATIVE)
+    abstract ConfigurableFileCollection getResourceFiles()
     @OutputDirectory
     abstract DirectoryProperty getOutputDirectory()
 
@@ -80,10 +84,7 @@ abstract class BundleAndroidResources extends DefaultTask {
         def root = dataDirectory.get().asFile.toPath()
         def output = outputDirectory.get().asFile
         output.mkdirs()
-        def files
-        try (def paths = java.nio.file.Files.walk(root)) {
-            files = paths.filter { java.nio.file.Files.isRegularFile(it) }.sorted().toList()
-        }
+        def files = resourceFiles.files.collect { it.toPath() }.sort()
         def entries = []
         def startupFiles = [
                 'themes/android/resource-progress.xml',
@@ -127,6 +128,10 @@ abstract class BundleAndroidResources extends DefaultTask {
 
 tasks.register('bundleResources', BundleAndroidResources) {
     dataDirectory.set(project(':client').layout.projectDirectory.dir('data'))
+    // 用户导入内容由运行时单独管理，不能作为客户端内置资源分发。
+    resourceFiles.from(project(':client').fileTree('data') {
+        exclude '**/mods/**', '**/roms/**'
+    })
     outputDirectory.set(layout.buildDirectory.dir('generated/bundledAssets'))
 }
 
