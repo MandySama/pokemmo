@@ -192,11 +192,16 @@ public final class ClientResources implements Function<String, FileHandle>, Auto
             boolean[] available={true};
             Function<String,FileHandle> files=path -> available[0]?archiveFiles.apply(path):missingFile(path);
             var factory = DocumentBuilderFactory.newInstance();
-            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-            factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            // CompressedChunkBlockReader.yS tolerates Android parsers without these optional features.
+            for(String feature:List.of("http://apache.org/xml/features/disallow-doctype-decl","http://xml.org/sax/features/external-general-entities","http://xml.org/sax/features/external-parameter-entities")){
+                try {factory.setFeature(feature,feature.endsWith("disallow-doctype-decl"));}
+                catch(javax.xml.parsers.ParserConfigurationException unsupported) {}
+            }
+            var builder=factory.newDocumentBuilder();
+            builder.setEntityResolver((publicId,systemId)->new org.xml.sax.InputSource(new StringReader("")));
             Element resource;
             try (InputStream input=files.apply("info.xml").read()) {
-                resource=factory.newDocumentBuilder().parse(input).getDocumentElement();
+                resource=builder.parse(input).getDocumentElement();
             }
             if (!resource.getTagName().equals("resource")) throw new IllegalArgumentException("Invalid mod metadata");
             List<Theme> declaredThemes=new ArrayList<>();

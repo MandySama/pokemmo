@@ -87,6 +87,17 @@ final class PokedexDetails extends Widget {
             @Override public int getPreferredWidth(){return mobile?200:170;}
             @Override public int getPreferredHeight(){return mobile?200:185;}
             @Override protected void layout(){name.setPosition(getInnerX(),getInnerY());name.setSize(getInnerWidth(),name.computeTextHeight());}
+            @Override protected void paintWidget(GUI gui){
+                super.paintWidget(gui);
+                Image image=images.animatedFront(speciesId,form,shiny,(System.nanoTime()-animationStart)/1_000_000_000.0);
+                if(!unlocked)image=image.createTintedVersion(new Color((byte)0,(byte)0,(byte)0,(byte)127));
+                // PokedexWindow's two-stage offsets, with StatefulImageButton's
+                // own paint order: following controls paint over sprite overflow.
+                int spriteX=80-image.getWidth()/2,spriteY=80-image.getHeight()/2;
+                spriteX=(int)(spriteX-(image.getWidth()/2f-(mobile?20:7)));
+                spriteY=(int)(spriteY-(image.getHeight()/2f-(mobile?40:20)));
+                image.draw(getAnimationState(),getX()+spriteX,getY()+spriteY,image.getWidth()*2,image.getHeight()*2);
+            }
         };
         Button sound=new Button(strings.get(1727));sound.setTheme("/pokedex-small-button");sound.setCanAcceptKeyboardFocus(false);
         Button sparkle=new Button(strings.get(6470));sparkle.setTheme("/pokedex-small-button");sparkle.setCanAcceptKeyboardFocus(false);
@@ -100,21 +111,6 @@ final class PokedexDetails extends Widget {
                 setHorizontalGroup(createSequentialGroup().addGroup(left).addGap(15).addWidget(rows));
                 var controls=createSequentialGroup().addWidget(portrait).addGap(5).addWidget(sound).addGap(5).addWidget(sparkle).addGap(5).addWidget(next);
                 setVerticalGroup(createParallelGroup(controls,createSequentialGroup(rows).addGap()));
-            }
-            @Override protected void paintOverlay(GUI gui){
-                super.paintOverlay(gui);
-                Image image=images.animatedFront(speciesId,form,shiny,(System.nanoTime()-animationStart)/1_000_000_000.0);
-                if(!unlocked)image=image.createTintedVersion(new Color((byte)0,(byte)0,(byte)0,(byte)127));
-                // Native sprite overlay: keep the page scissor, not the picture rectangle's bounds.
-                // Reference native frames are 96x96; the animation's 192x128
-                // canvas and camera offset must retain that native frame origin.
-                int nativeHeight=images.front(speciesId,form,shiny).getHeight();
-                int originOffset=PokedexSpriteAnimation.CAMERA_Y-(image.getHeight()-nativeHeight)/2;
-                int top=portrait.getChild(0).getBottom();
-                var renderer=gui.getRenderer();renderer.clipEnter(getX(),top,getWidth(),Math.max(0,getBottom()-top));
-                try{
-                    image.draw(portrait.getAnimationState(),portrait.getX()+80+(mobile?20:7)-image.getWidth(),portrait.getY()+80+(mobile?40:20)-image.getHeight()-originOffset*2,image.getWidth()*2,image.getHeight()*2);
-                }finally{renderer.clipLeave();}
             }
         };
     }

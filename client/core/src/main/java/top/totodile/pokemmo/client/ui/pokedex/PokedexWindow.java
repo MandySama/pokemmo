@@ -46,6 +46,7 @@ public final class PokedexWindow extends ClientWindow implements AutoCloseable {
     private PokedexImages images;
     private PokedexGrid grid;
     private PokedexDetails details;
+    private Set<Integer> ownedSpecies=Set.of();
     private PokedexAdvanced advancedPage;
     private PokedexHordes hordes;
     private boolean detail,advanced,nativeInput,disposed;
@@ -138,10 +139,11 @@ public final class PokedexWindow extends ClientWindow implements AutoCloseable {
     /** Display the active character's persisted all-unlocked / empty local dex state. */
     public void setUnlocked(boolean value){
         if(filter.unlocked==value)return;filter.unlocked=value;
-        if(details!=null)details.setUnlocked(value);
-        if(detail)detailFrame.setTitle(String.format(Locale.ROOT,"%s %03d %s",strings.get(1705),details.speciesId(),value?dex.name(details.speciesId()):"???"));
+        if(details!=null)details.setUnlocked(value||ownedSpecies.contains(details.speciesId()));
+        if(detail)detailFrame.setTitle(String.format(Locale.ROOT,"%s %03d %s",strings.get(1705),details.speciesId(),value||ownedSpecies.contains(details.speciesId())?dex.name(details.speciesId()):"???"));
         refresh();
     }
+    public void setOwnedSpecies(Set<Integer> ids){ownedSpecies=Set.copyOf(ids);if(detail)select(details.speciesId());}
     public boolean editingSearch(){return isOpen()&&editing(this);}
     private boolean editing(Widget parent){if(!parent.isVisible()||parent!=this&&!parent.hasKeyboardFocus())return false;if(parent instanceof EditField)return true;for(int i=0;i<parent.getNumChildren();i++)if(editing(parent.getChild(i)))return true;return false;}
     public boolean showingMessage(){return message.isOpen();}
@@ -154,9 +156,10 @@ public final class PokedexWindow extends ClientWindow implements AutoCloseable {
         closePopup();
     }
     private void select(int id){
-        detail=true;details.show(id);detailFrame.setTitle(String.format(Locale.ROOT,"%s %03d %s",strings.get(1705),id,filter.unlocked?dex.name(id):"???"));
+        detail=true;details.setUnlocked(filter.unlocked||ownedSpecies.contains(id));details.show(id);detailFrame.setTitle(String.format(Locale.ROOT,"%s %03d %s",strings.get(1705),id,filter.unlocked||ownedSpecies.contains(id)?dex.name(id):"???"));
         detailFrame.setVisible(true);removeChild(detailFrame);add(detailFrame);hideKeyboard();requestKeyboardFocus(null);requestKeyboardFocus();invalidateLayout();
     }
+    public void showSpecies(int id){if(open())select(id);}
     private void closeDetails(){detail=false;detailFrame.setHardVisible(false);if(mobile)frame.setHardVisible(true);if(!frame.isVisible()&&!hordeFrame.isVisible())closePopup();else{requestKeyboardFocus(null);requestKeyboardFocus();}}
     private void closeCatalogue(){frame.setHardVisible(false);if(!detailFrame.isVisible()&&!hordeFrame.isVisible())closePopup();}
     private void showAdvanced(){advanced=true;advancedPage.query(search.getText());listing.setVisible(false);advancedPage.setVisible(true);hideKeyboard();invalidateLayout();}

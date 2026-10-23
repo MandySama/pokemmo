@@ -12,7 +12,7 @@ import top.totodile.pokemmo.client.twl.GdxTwlRenderer;
 import static top.totodile.pokemmo.client.ui.character.CharacterAppearance.Slot.*;
 
 /** 沿用参考的三层合成、五种预览状态和动画帧序列。纹理按实际访问帧加载。 */
-final class CharacterPreview extends Widget implements AutoCloseable {
+public final class CharacterPreview extends Widget implements AutoCloseable {
     private static final int[][] FRAMES = {
             {0,3,0,4}, {1,5,1,6}, {2,7,2,8},
             {9,10,9,11}, {12,13,12,14}, {15,16,15,17},
@@ -32,6 +32,7 @@ final class CharacterPreview extends Widget implements AutoCloseable {
     private int mode;
     private int centerX;
     private boolean portrait;
+    private int portraitScale;
     private com.badlogic.gdx.graphics.g2d.SpriteBatch worldBatch;
     private boolean worldFlip;
     // GdxAddonSpriteManager.eI：地图中的所有 addon 层统一使用 0.75 倍。
@@ -51,7 +52,7 @@ final class CharacterPreview extends Widget implements AutoCloseable {
         }
     }
 
-    CharacterPreview(CharacterAppearance appearance, GdxTwlRenderer renderer, boolean mobile,
+    public CharacterPreview(CharacterAppearance appearance, GdxTwlRenderer renderer, boolean mobile,
                      IntSupplier skin, IntSupplier gender, LongSupplier clock) {
         this.appearance = appearance;
         this.renderer = renderer;
@@ -69,7 +70,9 @@ final class CharacterPreview extends Widget implements AutoCloseable {
     boolean coloring() { return colorSlot != null; }
     // 保存相对坐标，父窗口移动时预览中心随控件一起移动。
     void centerBetween(int left, int right) { centerX = (left + right) / 2 - getX(); }
-    void portrait() { portrait = true; }
+    public void portrait() { portrait = true; }
+    /** TrainerCardWindow's PlayerAvatarAppearanceState.CF0(2), independent of UI platform. */
+    public void portrait(int scale) { portrait = true;portraitScale=scale; }
     void drawWorld(com.badlogic.gdx.graphics.g2d.SpriteBatch batch,int x,int y,int frame,boolean flip) {
         Cached body=load(new Key(-1,skin.getAsInt(),0,frame,0));
         if(body==null) return;
@@ -94,7 +97,7 @@ final class CharacterPreview extends Widget implements AutoCloseable {
     @Override protected boolean isMouseInside(Event event) { return false; }
     @Override protected void paintWidget(GUI gui) {
         if (portrait) {
-            drawCharacter(2, gender.getAsInt(), getX(), getY(), mobile ? 2 : 1);
+            drawCharacter(2, gender.getAsInt(), getX(), getY(), portraitScale>0?portraitScale:mobile?2:1);
             return;
         }
         int scale = mode < 3 ? (mobile ? 5 : 4) : (mobile ? 4 : 3);

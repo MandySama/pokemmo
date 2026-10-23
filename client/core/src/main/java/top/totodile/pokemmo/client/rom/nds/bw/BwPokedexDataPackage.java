@@ -9,39 +9,48 @@ import java.util.zip.GZIPInputStream;
 import static top.totodile.pokemmo.client.rom.nds.bw.BwPokedex.*;
 
 /** Pokédex sections of Pokemmo2Pro-Client DataPackageLoader.ha0/xu0, data.pak v133. */
-final class BwPokedexDataPackage {
+public final class BwPokedexDataPackage {
     private final BwPokedex dex;
     BwPokedexDataPackage(BwPokedex dex){this.dex=dex;}
 
-    void load(FileHandle file) throws IOException {
+    public record Section(int type,ByteBuffer data) {}
+    /** Shared DataPackageLoader.ha0/xu0 framing; every registry uses the same version check. */
+    public static List<Section> sections(FileHandle file)throws IOException {
         try(var stream=new GZIPInputStream(file.read())) {
             ByteBuffer input=ByteBuffer.wrap(stream.readAllBytes()).order(ByteOrder.LITTLE_ENDIAN);
             byte[] signature={7,'P','O','K','E','M','M','O'};
             for(byte value:signature)if(input.get()!=value)throw new IOException("Invalid data.pak header");
             int version=input.getInt();
             if(version!=133)throw new IOException("Mismatched data.pak version. Expected 133 got "+version);
-            int sections=u8(input);
+            int sections=u8(input);var result=new ArrayList<Section>();
             for(int i=0;i<sections;i++) {
                 int type=u8(input),length=input.getInt();
                 if(length<0||length>input.remaining())throw new IOException("Invalid data.pak section length: "+type);
                 ByteBuffer section=input.slice().order(ByteOrder.LITTLE_ENDIAN);section.limit(length);
-                boolean handled=true;
-                switch(type) {
+                result.add(new Section(type,section));input.position(input.position()+length);
+            }
+            if(input.hasRemaining())throw new IOException("Trailing data.pak bytes");
+            return List.copyOf(result);
+        }catch(RuntimeException error){throw new IOException("Cannot read data.pak",error);}
+    }
+    void load(FileHandle file) throws IOException {
+        try {
+            for(var entry:sections(file)) {
+                var section=entry.data();boolean handled=true;
+                switch(entry.type()) {
                     case 1 -> levelMoves(section);
                     case 2 -> otherMoves(section);
                     case 4 -> moves(section);
                     case 5 -> locations(section);
                     case 6 -> species(section);
                     case 11 -> regions(section);
-                    // Item, event, texture and additional-species registries are outside the BW 1–649 view.
                     default -> handled=false;
                 }
-                if(handled&&section.hasRemaining())throw new IOException("Unread data.pak section "+type+": "+section.remaining());
-                input.position(input.position()+length);
+                if(handled&&section.hasRemaining())throw new IOException("Unread data.pak section "+entry.type()+": "+section.remaining());
             }
-            if(input.hasRemaining())throw new IOException("Trailing data.pak bytes");
         }catch(RuntimeException error){throw new IOException("Cannot read data.pak",error);}
     }
+    public static void skipEffectParameter(ByteBuffer input){parameter(input);}
     private static int u8(ByteBuffer b){return Byte.toUnsignedInt(b.get());}
     private static int u16(ByteBuffer b){return Short.toUnsignedInt(b.getShort());}
     private static boolean supported(int id){return id>=1&&id<=LAST_SPECIES;}

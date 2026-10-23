@@ -5,10 +5,10 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /** BlackWhite NdsTextBank.VJ0: per-entry seed, rotating XOR key and optional 9-bit text. */
-final class BwText {
+public final class BwText {
     private BwText() {}
 
-    static String[] decode(byte[] bytes) throws IOException {
+    public static String[] decode(byte[] bytes) throws IOException {
         try {
             var data=ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
             int blocks=Short.toUnsignedInt(data.getShort(0)),count=Short.toUnsignedInt(data.getShort(2));

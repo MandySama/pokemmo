@@ -24,4 +24,8 @@
   <include filename="ui/chat.xml" />
   <include filename="ui/staff.xml" />
   <include filename="ui/monster-dex.xml" />
+  <include filename="ui/inventory.xml" />
+  <include filename="ui/social.xml" />
+  <include filename="ui/pc.xml" />
+  <include filename="ui/party.xml" />
 </themes>

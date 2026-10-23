@@ -85,6 +85,7 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
         catch(NumberFormatException error) { return fallback; }
     }
     public void draw(float delta,int width,int height) {
+        if(controls!=null)controls.enabled(focused&&!inputBlocked);
         if(Float.isFinite(delta) && delta>0)animationTime+=delta;
         int dx=0,dy=0;
         if(focused && !inputBlocked) {

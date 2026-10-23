@@ -37,8 +37,10 @@ final class PokedexEvolutionTree extends Widget {
                 case 16->5261;case 25,26,27->5442;default->0;
             };
             boolean level=Set.of(4,14,23,24).contains(evolution.method());
-            var badge=new Button(){
-                final Label label=new Label(level?"Lv. "+evolution.parameter():"");
+            var badge=new ConditionButton(){
+                final Label label=new Label(level?"Lv. "+evolution.parameter():""){
+                    @Override protected boolean handleEvent(Event event){return false;}
+                };
                 {setTheme("/monsterdex-button");setCanAcceptKeyboardFocus(false);label.setTheme("/pokedex-evolution-name");label.setEnabled(false);add(label);setTooltipContent(dex.evolution(evolution));}
                 @Override protected void layout(){label.setSize(getInnerWidth(),label.computeTextHeight());label.setPosition(getInnerX(),getInnerBottom()-label.getHeight());}
                 @Override protected void paintWidget(GUI gui){super.paintWidget(gui);int scale=mobile?2:1,size=24*scale;
@@ -47,6 +49,11 @@ final class PokedexEvolutionTree extends Widget {
             conditions.put(id,badge);add(badge);
             Widget[] pair={new Label("─➤"),new Label("─➤")};
             for(Widget arrow:pair){arrow.setTheme("/pokedex-evolution-arrow");add(arrow);}arrows.put(id,pair);
+        }
+    }
+    private static class ConditionButton extends Button implements GUI.TooltipPositionAdjuster {
+        @Override public void adjustTooltipPosition(GUI.TooltipPositionAdjuster.TooltipPositionData position){
+            position.x=getX()+getWidth()/2;position.y=getY()-5;position.alignment=Alignment.BOTTOM;
         }
     }
     private int collect(int id,int depth,Set<Integer> visited) {

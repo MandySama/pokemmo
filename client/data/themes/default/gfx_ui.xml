@@ -482,4 +482,63 @@
       <alias ref="ui-inputbox.default" inset="1" />
     </select>
   </images>
+  <images file="res/pokemmo_ui.png" filter="nearest">
+    <grid name="ui-inner-frame-tab2.background" weightsX="0,1,0" weightsY="0,0,1,0" inset="34,0,0,0">
+      <area xywh="5,151,10,11" />
+      <area xywh="33,151,10,11" tiled="true" />
+      <area xywh="67,151,10,11" />
+      <area xywh="5,162,10,28" />
+      <area xywh="33,162,10,28" tiled="true" />
+      <area xywh="67,162,10,28" />
+      <area xywh="5,124,10,4" />
+      <area xywh="33,124,10,4" />
+      <area xywh="67,124,10,4" />
+      <area xywh="5,131,10,5" />
+      <area xywh="33,131,10,5" />
+      <area xywh="67,131,10,5" />
+    </grid>
+    <grid name="ui-inner-frame-tab3.background" weightsX="0,1,0" weightsY="0,0,0,1,0" inset="-13,0,0,0">
+      <area xywh="5,139,10,11" />
+      <area xywh="33,139,10,11" tiled="true" />
+      <area xywh="67,139,10,11" />
+      <area xywh="5,151,10,11" />
+      <area xywh="33,151,10,11" tiled="true" />
+      <area xywh="67,151,10,11" />
+      <area xywh="5,162,10,28" />
+      <area xywh="33,162,10,28" tiled="true" />
+      <area xywh="67,162,10,28" />
+      <area xywh="5,124,10,4" />
+      <area xywh="33,124,10,4" />
+      <area xywh="67,124,10,4" />
+      <area xywh="5,131,10,5" />
+      <area xywh="33,131,10,5" />
+      <area xywh="67,131,10,5" />
+    </grid>
+  </images>
+  <images file="res/pokemmo_ui.png" filter="nearest">
+    <area name="ui-tab.active.color" xywh="14,216,40,26" splitx="L12,R12" inset="0,0,0,0" />
+  </images>
+  <images file="res/pokemmo_ui.png" filter="nearest">
+    <select name="ui-tab-shop.background">
+      <alias ref="ui-tab.active" if="selected" />
+      <alias ref="ui-tab.hover-animation" if="hover" />
+      <alias ref="ui-tab.default" />
+    </select>
+  </images>
+  <images file="res/pokemmo_ui.png" filter="nearest">
+    <select name="ui-tab-color.background">
+      <alias ref="ui-tab.active.color" if="selected" />
+      <alias ref="ui-tab.hover-animation" if="hover" />
+      <alias ref="ui-tab.default" />
+    </select>
+  </images>
+<images file="res/pokemmo_ui.png" filter="nearest"><composed name="monster-slot-selected">
+			<alias ref="ui-button.default" />
+      <alias ref="ui-button.selected.background" inset="-2,-2,-3,-3" tint="#FFFFFFFF" />
+      <alias ref="ui-button.selected.background" inset="-1,-1,-2,-2" tint="#FFFFFFFF" />
+      <alias ref="ui-button.selected.background" inset="0,0,-1,-1" tint="#FFFFFFFF" />
+      <alias ref="ui-button.hover" />
+		</composed>
+
+		</images>
 </themes>

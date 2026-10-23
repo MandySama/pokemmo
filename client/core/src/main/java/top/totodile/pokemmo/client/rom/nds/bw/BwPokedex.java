@@ -140,6 +140,8 @@ public final class BwPokedex {
     public String name(int id){return strings.getOrDefault(150000+id,"#"+id);}
     public String moveName(int id){return strings.getOrDefault(110000+id,"#"+id);}
     public String ability(int id){return strings.getOrDefault(210000+id,"—");}
+    /** LocalizationMessageFormatter maps nature names to the original BW text bank 24. */
+    public String nature(int id){return text(24,id);}
     public String abilityDescription(int id){return strings.getOrDefault(220000+id,"");}
     public String item(int id){return strings.getOrDefault(245000+id,"#"+id);}
     public String type(int id){return strings.getOrDefault(230000+(id>=9?id+1:id),"—");}

@@ -12,6 +12,10 @@ public interface WorldMaps {
     int locationStringId(Id id);
     /** Original ROM text, including deliberately empty names; null means unavailable. */
     default String locationName(Id id) {return null;}
+    /** Native moveto2 coordinates are absolute within an NDS matrix; saves use this map's origin. */
+    default top.totodile.pokemmo.server.game.GameService.Position teleportPosition(Id id,int x,int y,int direction) {
+        return new top.totodile.pokemmo.server.game.GameService.Position(id.bank(),id.map(),x,y,direction);
+    }
     default top.totodile.pokemmo.server.game.GameService.Position start() {
         return top.totodile.pokemmo.server.game.GameService.Position.kantoStart();
     }

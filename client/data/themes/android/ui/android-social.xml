@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<themes>
+  <!-- Current official Android MailWindow: full-screen panel with tabs across its header. -->
+  <theme name="mail-window" ref="mobile-panel" overwrite="true"><param name="border"><border>0</border></param></theme>
+  <theme name="player-mail-tab" ref="togglebutton" overwrite="true">
+    <param name=""><image>mobile.tab.*</image></param>
+    <param name="font"><font>med-noshadow-18-white</font></param>
+    <param name="border"><border>0</border></param>
+  </theme>
+  <theme name="player-mail-row" ref="button" overwrite="true">
+    <param name=""><image>mobile.button.50.*</image></param>
+    <param name="font"><font>med-noshadow-18-white</font></param>
+    <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+  </theme>
+  <theme name="player-mail-header" ref="label" overwrite="true"><param name="font"><font>med-noshadow-18-white</font></param><param name="background"><image>ui-header.background</image></param><param name="textAlignment"><enum type="alignment">CENTER</enum></param></theme>
+  <theme name="player-mail-form" ref="dialoglayout" overwrite="true">
+    <param name="border"><border>10</border></param>
+    <param name="defaultGap"><dimension>5,5</dimension></param>
+    <theme name="editfield" ref="editfield"><param name="minHeight"><int>45</int></param></theme>
+    <theme name="button" ref="button"><param name="minHeight"><int>60</int></param><param name="minWidth"><int>200</int></param></theme>
+  </theme>
+  <theme name="player-mail-label" ref="label" overwrite="true"><param name="minWidth"><int>100</int></param><param name="font"><font>med-noshadow-18-white</font></param></theme>
+  <theme name="player-mail-body" ref="editfield" overwrite="true"><param name="minHeight"><int>180</int></param><param name="textAlignment"><enum type="alignment">TOPLEFT</enum></param><theme name="renderer" ref="renderer"><param name="textAlignment"><enum type="alignment">TOPLEFT</enum></param></theme></theme>
+  <theme name="player-mail-counts" ref="label"><param name="font"><font>med-noshadow-18-white</font></param></theme>
+  <theme name="player-mail-page" ref="button"><param name=""><image>mobile.tab.*</image></param><param name="font"><font>med-noshadow-18-white</font></param><param name="border"><border>0</border></param></theme>
+</themes>

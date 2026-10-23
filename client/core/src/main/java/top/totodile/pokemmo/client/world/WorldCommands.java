@@ -8,16 +8,22 @@ public final class WorldCommands {
     private final PlayerMotion motion;
     private final Consumer<PokedexState> savePokedex;
     private boolean pokedexUnlocked;
+    private Runnable openPc;
+    public void onPc(Runnable action){openPc=action;}
     public WorldCommands(PlayerMotion motion) { this(motion,PokedexState.defaults(),state -> {}); }
     public WorldCommands(PlayerMotion motion,PokedexState state,Consumer<PokedexState> savePokedex) {
         this.motion=motion;this.pokedexUnlocked=state.unlocked();this.savePokedex=savePokedex;
     }
     public boolean pokedexUnlocked(){return pokedexUnlocked;}
     public String execute(String line) {
-        String command=line.trim(); if(command.startsWith("/")) command=command.substring(1);
+        String command=line.trim().replaceFirst("^/+","");
         String[] args=command.split("\\s+");
         try {
             switch(args[0].toLowerCase(java.util.Locale.ROOT)) {
+                case "pc":
+                    if(args.length!=1)return "Usage: //pc";
+                    if(openPc==null)return "Unable to open the PC.";
+                    openPc.run();return "PC opened.";
                 case "pokedex":
                     if(args.length>2||args.length==2&&!args[1].equalsIgnoreCase("on")&&!args[1].equalsIgnoreCase("off"))
                         return "用法: pokedex [on|off]";

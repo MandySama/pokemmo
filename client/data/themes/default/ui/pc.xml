@@ -1,0 +1,61 @@
+<?xml version='1.0' encoding='utf-8'?>
+<themes>
+  <theme name="pc-frame" ref="resizableframe">
+    <param name="border">
+      <border>25,6,8,6</border>
+    </param>
+    <param name="fadeColorInactive">
+      <color>#FFFFFFFF</color>
+    </param>
+  </theme>
+  <theme name="pc-slot" ref="-defaults">
+    <param name="background">
+      <image>pc-slot.background</image>
+    </param>
+  </theme>
+  <theme name="pc-box-button" ref="togglebutton">
+    <param name="border">
+      <border>3,5</border>
+    </param>
+  </theme>
+  <theme name="pc-box-name" ref="button">
+    <param name="background">
+      <image>none</image>
+    </param>
+    <param name="textAlignment">
+      <enum type="alignment">CENTER</enum>
+    </param>
+  </theme>
+  <theme name="pc-preview" ref="-defaults" />
+  <theme name="pc-portrait" ref="-defaults">
+    <param name="background">
+      <image>pc-preview.default</image>
+    </param>
+  </theme>
+  <theme name="pc-monster-name" ref="label">
+    <param name="textAlignment">
+      <enum type="alignment">CENTER</enum>
+    </param>
+  </theme>
+  <theme name="pc-label-title" ref="label">
+    <param name="background">
+      <image>ui-table-header.background</image>
+    </param>
+    <param name="border">
+      <border>2,4</border>
+    </param>
+    <param name="textAlignment">
+      <enum type="alignment">CENTER</enum>
+    </param>
+  </theme>
+  <theme name="pc-label-value" ref="label">
+    <param name="border">
+      <border>2,3</border>
+    </param>
+  </theme>
+  <theme name="pc-grid-scroll" ref="scrollpane">
+    <param name="border">
+      <border>0</border>
+    </param>
+  </theme>
+</themes>

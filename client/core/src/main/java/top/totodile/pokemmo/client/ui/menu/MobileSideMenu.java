@@ -3,6 +3,7 @@ package top.totodile.pokemmo.client.ui.menu;
 import de.matthiasmann.twl.*;
 import java.util.function.LongSupplier;
 import top.totodile.pokemmo.client.resources.ClientStrings;
+import top.totodile.pokemmo.client.ui.common.TouchScrollPane;
 
 /** 参考 MF0：登录阶段的单列侧栏，以及右上角入口的串行动画。 */
 public final class MobileSideMenu extends Widget {
@@ -15,6 +16,7 @@ public final class MobileSideMenu extends Widget {
     private final ScrollPane scroll;
     private final Button settings = new Button();
     private final Button close = new Button();
+    private Widget header;
     private long started;
     private boolean opening, animating;
     private float statusFrom, statusOffset, panelOffset = MIN_WIDTH;
@@ -64,7 +66,7 @@ public final class MobileSideMenu extends Widget {
         }
         entries.setHorizontalGroup(column);
         entries.setVerticalGroup(rows);
-        scroll = new ScrollPane(entries);
+        scroll = new TouchScrollPane(entries);
         scroll.setFixed(ScrollPane.Fixed.HORIZONTAL);
         scroll.setCanAcceptKeyboardFocus(false);
         var drag = scroll.createDragListener();
@@ -81,6 +83,33 @@ public final class MobileSideMenu extends Widget {
         add(content);
         setVisible(false);
     }
+
+    /** MF0.hu: in-game entries use two 260x64 columns inside the same 600-wide panel. */
+    public void worldEntries(ClientStrings strings,java.util.function.IntFunction<de.matthiasmann.twl.renderer.Image> icons,
+                             Widget statusHeader,Runnable bag,Runnable trainer,Runnable dex,Runnable mail,Runnable logout,Runnable exit) {
+        header=statusHeader;add(header);
+        entries.setHorizontalGroup(null);entries.setVerticalGroup(null);entries.removeAllChildren();
+        int[] texts={1100,2807,1101,1,8034,2353,1116,1126,1161,1121,7900,1124,1159,1114};
+        int[] images={5436,5454,5432,5431,5471,5452,5459,5437,5001,5265,5277,5621,5481,5547};
+        Runnable[] actions={bag,null,trainer,dex,null,mail,null,null,null,null,null,null,logout,exit};
+        var left=entries.createParallelGroup();var right=entries.createParallelGroup();var rows=entries.createSequentialGroup();
+        var buttons=new Button[texts.length];
+        for(int i=0;i<buttons.length;i++){
+            final int index=i;
+            var button=new Button(strings.get(texts[i])){
+                @Override protected void applyTheme(ThemeInfo theme){super.applyTheme(theme);setMinSize(260,64);setMaxSize(260,64);}
+                @Override protected void paintWidget(GUI gui){super.paintWidget(gui);var icon=icons.apply(images[index]);if(icon!=null)icon.draw(getAnimationState(),getX()+4,getY()+8,48,48);}
+            };
+            button.setTheme("hud-item-button");button.setCanAcceptKeyboardFocus(false);button.setMinSize(260,64);button.setMaxSize(260,64);
+            button.setEnabled(actions[i]!=null);if(actions[i]!=null)button.addCallback(()->{close();actions[index].run();});buttons[i]=button;
+            (i%2==0?left:right).addWidget(button);
+            if(i%2==1){if(i>1)rows.addGap(DialogLayout.DEFAULT_GAP);rows.addGroup(entries.createParallelGroup(buttons[i-1],button));}
+        }
+        entries.setHorizontalGroup(entries.createSequentialGroup().addGroup(left).addGap(DialogLayout.DEFAULT_GAP).addGroup(right));entries.setVerticalGroup(rows);
+        content.invalidateLayout();invalidateLayout();
+    }
+
+    public boolean contains(int x,int y){return isVisible()&&isInside(x,y);}
 
     public void onClientManagement(Runnable action) {
         ((Button) entries.getChild(0)).addCallback(() -> { close(); action.run(); });
@@ -168,7 +197,9 @@ public final class MobileSideMenu extends Widget {
 
     @Override protected void layout() {
         content.adjustSize();
+        content.setSize(getInnerWidth(),getInnerHeight());
         content.setPosition(getInnerX(), getInnerY());
+        if(header!=null){header.adjustSize();header.setPosition(getX()+8,getY()+8);}
     }
 
     @Override protected boolean handleEvent(Event event) {

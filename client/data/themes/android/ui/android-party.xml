@@ -1,0 +1,101 @@
+<?xml version='1.0' encoding='utf-8'?>
+<themes>
+  <theme name="pokemon-menu-button" ref="button" overwrite="true">
+    <param name="minHeight">
+      <int>40</int>
+    </param>
+    <param name="font">
+      <font>med-noshadow-18-white</font>
+    </param>
+  </theme>
+  <theme name="monster-slot" ref="-defaults">
+    <param name="background">
+      <image>mobile.circle.plain</image>
+    </param>
+    <param name="radial-progress">
+      <image>mobile.circle.red</image>
+    </param>
+    <param name="minWidth">
+      <int>34</int>
+    </param>
+    <param name="minHeight">
+      <int>34</int>
+    </param>
+    <theme name="slot-health-progressbar" ref="-defaults" allowWildcard="true">
+      <param name="">
+        <image>mi-hpbar-green.*</image>
+      </param>
+      <param name="border">
+        <border>background.border</border>
+      </param>
+      <param name="minWidth">
+        <int>100</int>
+      </param>
+    </theme>
+  </theme>
+  <theme name="monster-slot-orange" ref="monster-slot">
+    <param name="background">
+      <image>mobile.circle.plain</image>
+    </param>
+    <param name="radial-progress">
+      <image>mobile.circle.red</image>
+    </param>
+    <theme name="slot-health-progressbar" ref="-defaults" allowWildcard="true">
+      <param name="">
+        <image>mi-hpbar-orange.*</image>
+      </param>
+      <param name="border">
+        <border>background.border</border>
+      </param>
+      <param name="minWidth">
+        <int>100</int>
+      </param>
+    </theme>
+  </theme>
+  <theme name="monster-slot-red" ref="monster-slot">
+    <param name="background">
+      <image>mobile.circle.plain</image>
+    </param>
+    <param name="radial-progress">
+      <image>mobile.circle.red</image>
+    </param>
+    <theme name="slot-health-progressbar" ref="-defaults" allowWildcard="true">
+      <param name="">
+        <image>mi-hpbar.*</image>
+      </param>
+      <param name="border">
+        <border>background.border</border>
+      </param>
+      <param name="minWidth">
+        <int>100</int>
+      </param>
+    </theme>
+  </theme>
+  <theme name="monster-slot-purple" ref="monster-slot">
+    <param name="background">
+      <image>mobile.circle.purple</image>
+    </param>
+    <param name="radial-progress">
+      <image>mobile.circle.red</image>
+    </param>
+    <theme name="slot-health-progressbar" ref="-defaults" allowWildcard="true">
+      <param name="">
+        <image>mi-hpbar.*</image>
+      </param>
+      <param name="border">
+        <border>background.border</border>
+      </param>
+      <param name="minWidth">
+        <int>100</int>
+      </param>
+    </theme>
+  </theme>
+  <theme name="monster-slot-empty" ref="-defaults">
+    <param name="background">
+      <image>mobile.circle.plain</image>
+    </param>
+    <param name="radial-progress">
+      <image>none</image>
+    </param>
+  </theme>
+</themes>

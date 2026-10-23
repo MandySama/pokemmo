@@ -15,7 +15,7 @@ public final class BwMaps implements WorldMaps {
     private record Archive(NdsArchive data,int count) {
         byte[] read(int id) {try{return data.readRaw(id);}catch(IOException e){throw new UncheckedIOException(e);}}
     }
-    private record Header(int area,int matrix,int events,int location,int kind,int camera) {}
+    private record Header(int area,int matrix,int events,int location,int kind,int camera,int teleportX,int teleportY) {}
     private record Matrix(int width,int height,int[] land,int[] headers) {}
     private record Bounds(int x,int y,int width,int height,int cellWidth,int cellHeight) {}
     private record Land(byte[] data,int model,int objects,int width,int height,short[][] cells,short[][] slopes) {}
@@ -46,7 +46,7 @@ public final class BwMaps implements WorldMaps {
         headers=new Header[table.length/48];
         for(int i=0;i<headers.length;i++) {
             int p=i*48;
-            headers[i]=new Header(u16(table,p+2),u16(table,p+4),u16(table,p+22),table[p+26]&255,table[p]&255,table[p+29]&254);
+            headers[i]=new Header(u16(table,p+2),u16(table,p+4),u16(table,p+22),table[p+26]&255,table[p]&255,table[p+29]&254,i32(table,p+36),i32(table,p+44));
         }
         var available=new LinkedHashSet<Id>();
         for(int i=0;i<headers.length;i++)if(bounds(i)!=null)available.add(id(i));
@@ -57,6 +57,25 @@ public final class BwMaps implements WorldMaps {
     @Override public Position start(){return new Position(1,133,14,14,0);}
     @Override public Set<Id> ids(){return ids;}
     @Override public boolean is3d(){return true;}
+    public record TeleportPoint(int header,int x,int y,boolean noGrid) {}
+    /** TeleportMenuWindow.sL(2), including its native coordinate corrections and no-grid list. */
+    public List<TeleportPoint> teleportPoints(){
+        var result=new ArrayList<TeleportPoint>();
+        for(int id=0;id<headers.length;id++){
+            var h=headers[id];if(h.teleportX==0||h.matrix!=0)continue;
+            int x=h.teleportX,y=h.teleportY;
+            switch(id){case 205-> {x=180;y=147;}case 235->{x=298;y=757;}case 238->{x=725;y=715;}case 319->{x=756;y=648;}case 345->{x=203;y=183;}case 348->{x=358;y=175;}case 355->{x=434;y=120;}case 365->{x=463;y=175;}case 368->{x=592;y=175;}case 370->{x=675;y=204;}case 374->{x=710;y=362;}case 383->{x=478;y=442;}}
+            result.add(new TeleportPoint(id,x,y,false));
+        }
+        result.add(new TeleportPoint(0,43,39,false));result.add(new TeleportPoint(295,43,39,false));
+        // MapPointDataBinaryParser.Hm0(2, header), in native header iteration order.
+        for(int id:new int[]{28,30,36,66,114,121,137,209,211,214,241,242,243,244,249,255,338,339,340,341})result.add(new TeleportPoint(id,0,0,true));
+        return List.copyOf(result);
+    }
+    @Override public Position teleportPosition(Id id,int x,int y,int direction){
+        var region=bounds(number(id));if(region==null)throw new IllegalArgumentException("BW map has no terrain: "+number(id));
+        return new Position(id.bank(),id.map(),x-region.x*region.cellWidth,y-region.y*region.cellHeight,direction);
+    }
     @Override public boolean includesNeighborGeometry(){return true;}
     @Override public boolean isDoor(int behavior){return behavior==2;}
     @Override public boolean isWater(int behavior){return behavior==1;}

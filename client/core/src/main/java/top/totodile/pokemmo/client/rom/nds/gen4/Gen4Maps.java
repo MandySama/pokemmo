@@ -101,6 +101,9 @@ public final class Gen4Maps implements WorldMaps {
     });}
     @Override public Set<Id> ids(){return Collections.unmodifiableSet(ids);}
     @Override public boolean is3d(){return true;}
+    @Override public Position teleportPosition(Id id,int x,int y,int direction){
+        var region=bounds[index(id)];return new Position(id.bank(),id.map(),x-region.x*32,y-region.y*32,direction);
+    }
     @Override public boolean includesNeighborGeometry(){return true;}
     @Override public Position transition(Id id,int x,int y,int direction) {
         int n=index(id);Header h=headers[n];Bounds region=bounds[n];Matrix matrix=matrices[h.matrix];

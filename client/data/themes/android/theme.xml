@@ -25,9 +25,17 @@
   <include filename="../default/ui/customization.xml" />
   <include filename="ui/android-customization.xml" />
   <include filename="../default/ui/main.xml" />
-  <include filename="ui/android-main.xml" />
   <include filename="../default/ui/chat.xml" />
   <include filename="../default/ui/staff.xml" />
   <include filename="../default/ui/monster-dex.xml" />
+  <include filename="../default/ui/inventory.xml" />
+  <include filename="../default/ui/social.xml" />
+  <include filename="ui/android-inventory.xml" />
+  <include filename="ui/android-social.xml" />
   <include filename="ui/android-monster-dex.xml" />
+  <include filename="../default/ui/pc.xml" />
+  <include filename="../default/ui/party.xml" />
+  <include filename="ui/android-pc.xml" />
+  <include filename="ui/android-party.xml" />
+  <include filename="ui/android-staff.xml" />
 </themes>

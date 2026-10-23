@@ -58,6 +58,8 @@ public final class ClientApplication extends ApplicationAdapter {
     private volatile boolean disposed;
     private final java.util.Set<java.util.concurrent.CompletableFuture<Void>> pendingWorldEntries=
             java.util.concurrent.ConcurrentHashMap.newKeySet();
+    // Destination scenes own GL resources while a teleport waits for its database commit.
+    private final java.util.Set<WorldScene> preparedWorlds=new java.util.HashSet<>();
     private final java.util.concurrent.ExecutorService worldLoader=java.util.concurrent.Executors.newSingleThreadExecutor(r -> {
         Thread thread=new Thread(r,"world-maps"); thread.setDaemon(true); return thread;
     });
@@ -141,6 +143,7 @@ public final class ClientApplication extends ApplicationAdapter {
         clientUi = new ClientUi(uiViewport, resources, mobile, SavedAccounts.open(configDirectory.get()),
                 () -> System.nanoTime() / 1_000_000L, loginController, batteryPercent, () -> Gdx.app.exit(), gameService);
         clientUi.onEnterWorld(this::enterWorld);
+        clientUi.onTeleport(this::relocateWorld);
         clientUi.onLeaveWorld(this::leaveWorld);
         clientUi.onRomRestart(restart);
     }
@@ -157,9 +160,13 @@ public final class ClientApplication extends ApplicationAdapter {
     }
 
     private java.util.concurrent.CompletionStage<Void> enterWorld(top.totodile.pokemmo.server.game.GameService.Entry entry) {
+        return enterWorld(entry,false);
+    }
+    private java.util.concurrent.CompletionStage<Void> relocateWorld(top.totodile.pokemmo.server.game.GameService.Entry entry){return enterWorld(entry,true);}
+    private java.util.concurrent.CompletionStage<Void> enterWorld(top.totodile.pokemmo.server.game.GameService.Entry entry,boolean relocate) {
         if(disposed)return java.util.concurrent.CompletableFuture.failedFuture(new java.util.concurrent.CancellationException());
         var selection=selectedServer();
-        var type=RomType.of(entry.character().appearance().region());
+        var type=RomType.of(entry.region());
         var rom=resources.roms().get(type);
         if(rom==null) return java.util.concurrent.CompletableFuture.failedFuture(new IllegalStateException(type+" ROM is not loaded"));
         var ready=new java.util.concurrent.CompletableFuture<Void>();
@@ -199,11 +206,7 @@ public final class ClientApplication extends ApplicationAdapter {
                             scene.setWorldInfo(entry.worldInfo());
                             if(mobile) scene.setControls(new MobileMapControls(resources.apply("buttons/controller.png"),resources.preferences()));
                             scene.setFocused(focused);
-                            if(loginScene!=null) { loginScene.close(); loginScene=null; }
-                            var worldInput=clientUi.showWorld(scene);
-                            world=scene;
-                            Gdx.input.setInputProcessor(worldInput);
-                            ready.complete(null);
+                            installWorld(scene,entry,selection,ready,relocate);
                         } catch(RuntimeException failure) {
                             if(scene!=null) scene.close(); else if(sprite!=null) sprite.close();
                             ready.completeExceptionally(failure);
@@ -215,6 +218,27 @@ public final class ClientApplication extends ApplicationAdapter {
             if(disposed)ready.cancel(false);else ready.completeExceptionally(failure);
         }
         return ready;
+    }
+    private void installWorld(WorldScene prepared,top.totodile.pokemmo.server.game.GameService.Entry entry,
+                              top.totodile.pokemmo.server.login.LoginService.Selection selection,
+                              java.util.concurrent.CompletableFuture<Void> ready,boolean relocate){
+        preparedWorlds.add(prepared);
+        Runnable discard=()->{if(preparedWorlds.remove(prepared))prepared.close();};
+        Runnable install=()->{
+            if(disposed||ready.isDone()||selection!=selectedServer()){discard.run();ready.cancel(false);return;}
+            try{
+                var previous=world;
+                if(loginScene!=null){loginScene.close();loginScene=null;}
+                var worldInput=clientUi.showWorld(prepared,entry);world=prepared;preparedWorlds.remove(prepared);Gdx.input.setInputProcessor(worldInput);
+                if(previous!=null)previous.close();ready.complete(null);
+            }catch(RuntimeException failure){discard.run();ready.completeExceptionally(failure);}
+        };
+        if(!relocate){install.run();return;}
+        // Decode the ROM and upload the destination scene before saving its region/position atomically.
+        gameService.teleport(selection,entry.character().id(),entry.region(),entry.position()).whenComplete((ignored,failure)->{
+            if(disposed){ready.cancel(false);return;}
+            Gdx.app.postRunnable(()->{if(failure!=null){discard.run();ready.completeExceptionally(failure);}else install.run();});
+        });
     }
 
     /** 后续角色/世界入口从此取得选择结果，不需要访问登录界面或密码。 */
@@ -297,6 +321,8 @@ public final class ClientApplication extends ApplicationAdapter {
         // shutdownNow also removes queued loader jobs, so their dependent futures must be completed here.
         for(var pending:pendingWorldEntries)pending.cancel(false);
         worldLoader.shutdownNow();
+        for(var prepared:preparedWorlds)prepared.close();
+        preparedWorlds.clear();
         if(world!=null) {
             Gdx.input.setInputProcessor(null);
             world.close();

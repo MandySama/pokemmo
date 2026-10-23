@@ -43,6 +43,20 @@ public final class BwPokemonSprites {
         dex.get(id);
         return compose(icons.read(id*2+7),iconColors,iconCells,0,36,iconPaletteIds[id]&15);
     }
+    /** BlackWhiteRom.loadSprites / PokemonSpriteManager.Ed, including the native egg icon 650. */
+    public Pixels icon(int species,int form,int gender,boolean egg) throws IOException {
+        dex.get(species);
+        int index=egg?650:form==0?species:switch(species){
+            case 201->form+651;case 351->form+678;case 386->form+681;case 412->form+684;
+            case 413->form+686;case 421->689;case 422->690;case 423->691;case 479->form+691;
+            case 487->697;case 492->698;case 550->699;case 555->700;case 585->form+700;
+            case 586->form+703;case 648->707;case 649->form+707;default->species;
+        };
+        int female=gender==1?1:0;byte[] tiles=icons.read(index*2+7+female);
+        if(tiles.length==0&&female==1)tiles=icons.read(index*2+7);
+        int palette=(iconPaletteIds[index]>>(female*4))&15;
+        return compose(tiles,iconColors,iconCells,0,36,palette);
+    }
     public Pixels front(int id) throws IOException {
         return front(id,0,false);
     }

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<themes>
+  <!-- Adapted from D:/PokeMMO/data/themes/default/ui/inventory.xml. -->
+  <theme name="inventory-tabbedframe" ref="resizableframe">
+    <param name="background"><image>ui-inner-frame-tab2.background</image></param>
+    <param name="titleAreaTop"><int>33</int></param>
+    <param name="titleAreaLeft"><int>11</int></param>
+    <param name="titleAreaRight"><int>-1</int></param>
+    <param name="titleAreaBottom"><int>75</int></param>
+    <param name="closeButtonX"><int>-24</int></param>
+    <param name="closeButtonY"><int>47</int></param>
+    <param name="border"><border>0</border></param>
+    <param name="fadeColorInactive"><color>#FFFFFFFF</color></param>
+  </theme>
+  <theme name="inventory-tab-empty" ref="togglebutton">
+    <param name="background"><image>ui-tab-color.background</image></param>
+    <param name="border"><border>0</border></param>
+    <param name="textAlignment"><enum type="alignment">BOTTOM</enum></param>
+  </theme>
+  <theme name="inventory-button" ref="button">
+    <param name="background"><image>ui-inputbox-mixed.background</image></param>
+    <param name="border"><border>1,1,1,0</border></param>
+    <param name="textAlignment"><enum type="alignment">BOTTOM</enum></param>
+    <param name="minWidth"><int>0</int></param>
+    <param name="minHeight"><int>0</int></param>
+  </theme>
+  <theme name="player-inventory-search" ref="editfield"/>
+  <theme name="player-inventory-scroll" ref="scrollpane">
+    <theme name="vscrollbar" ref="vscrollbar-white"/>
+  </theme>
+</themes>

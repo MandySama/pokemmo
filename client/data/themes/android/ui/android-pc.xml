@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='utf-8'?>
+<themes>
+  <theme name="pc-frame" ref="mobile-panel" overwrite="true">
+    <param name="border">
+      <border>0</border>
+    </param>
+    <param name="titleAreaTop">
+      <int>0</int>
+    </param>
+    <param name="titleAreaLeft">
+      <int>0</int>
+    </param>
+    <param name="titleAreaRight">
+      <int>0</int>
+    </param>
+    <param name="titleAreaBottom">
+      <int>0</int>
+    </param>
+  </theme>
+  <theme name="pc-box-name" ref="button" overwrite="true">
+    <param name="font">
+      <font>med-shadow-22-white</font>
+    </param>
+    <param name="background">
+      <image>none</image>
+    </param>
+    <param name="textAlignment">
+      <enum type="alignment">CENTER</enum>
+    </param>
+  </theme>
+  <theme name="pc-box-button" ref="togglebutton" overwrite="true">
+    <param name="border">
+      <border>0,8</border>
+    </param>
+    <param name="textAlignment">
+      <enum type="alignment">CENTER</enum>
+    </param>
+  </theme>
+  <theme name="pc-preview" ref="-defaults" overwrite="true">
+    <param name="background">
+      <image>label5.background</image>
+    </param>
+  </theme>
+  <theme name="pc-label-title" ref="pc-label-title" overwrite="true">
+    <param name="font">
+      <font>med-noshadow-18-white</font>
+    </param>
+  </theme>
+  <theme name="pc-label-value" ref="pc-label-value" overwrite="true">
+    <param name="font">
+      <font>med-noshadow-18-white</font>
+    </param>
+  </theme>
+</themes>

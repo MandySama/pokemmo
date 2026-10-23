@@ -57,4 +57,84 @@
     <area name="mi-xpbar.progressImage" xywh="12,89,5,4" repeatX="true" inset="1,1,3,1" sizeOverwriteH="0" />
     <alias name="progressbar-gold.progressImage" tint="#d4af37" ref="progressbar-white.progressImage" />
   </images>
+  <images file="res/MainTCTexture.png">
+    <area name="trainer-card.background" xywh="0,0,454,287" />
+  </images>
+<images file="res/pc-window.png" filter="nearest"><area name="pc-preview.background" xywh="2,2,20,20" splitx="L7,R7" splity="T7,B7" />
+
+    </images>
+<images file="res/pc-window.png" filter="nearest"><grid name="pc-preview-pattern.background" weightsX="1" weightsY="1" tint="#0FFFFFFF">
+      <area xywh="23,2,10,10" repeatX="true" repeatY="true" sizeOverwriteV="0" />
+    </grid>
+
+    </images>
+<images file="res/pc-window.png" filter="nearest"><composed name="pc-preview.default" inset="-31,0,-40,0">
+      <alias ref="pc-preview.background" inset="0" />
+      <alias ref="pc-preview-pattern.background" inset="0" />
+    </composed>
+  </images>
+<images file="res/user-interface.png" filter="nearest"><area name="monster-slot-purple" xywh="42,59,23,25" tint="#a09781cf" />
+		</images>
+<images file="res/pc_slots.png" filter="nearest"><area name="pcslot.bg.active" xywh="66,1,60,50" />
+		</images>
+<images file="res/pc_slots.png" filter="nearest"><area name="pcslot.bg.default" xywh="3,1,60,50" />
+		</images>
+<images file="res/pc_slots.png" filter="nearest"><area name="pcslot.bg.overlay.disabled" xywh="3,104,60,50" />
+		</images>
+<images file="res/pc_slots.png" filter="nearest"><area name="pcslot.bg.overlay.battlebox" xywh="129,104,60,50" />
+		</images>
+<images file="res/pc_slots.png" filter="nearest"><area name="pcslot.inner.filtered" xywh="129,53,60,50" />
+		</images>
+<images file="res/pc_slots.png" filter="nearest"><area name="pcslot.inner.active" xywh="66,53,60,50" />
+		</images>
+<images file="res/pc_slots.png" filter="nearest"><area name="pcslot.inner.default" xywh="3,53,60,50" />
+		</images>
+<images file="res/pc_slots.png" filter="nearest"><area name="pcslot.border.filtered" xywh="129,157,60,50" />
+    </images>
+<images file="res/pc_slots.png" filter="nearest"><area name="pcslot.border.filtered2" xywh="129,157,60,50" inset="-1" />
+		</images>
+<images file="res/pc_slots.png" filter="nearest"><area name="pcslot.border.selected2" xywh="66,157,60,50" inset="-1" />
+		</images>
+<images file="res/pc_slots.png" filter="nearest"><area name="pcslot.border.selected" xywh="66,157,60,50" />
+		</images>
+<images file="res/pc_slots.png" filter="nearest"><area name="pcslot.border.default" xywh="3,157,60,50" />
+		</images>
+<images file="res/pc_slots.png" filter="nearest"><composed name="pc-slot.background">
+
+			<select center="true">
+				<alias ref="pcslot.bg.active" if="filtered" />
+				<alias ref="pcslot.bg.default" />
+			</select>
+
+			<select center="true">
+			  <alias ref="pcslot.bg.overlay.disabled" if="obey" />
+        <alias ref="pcslot.bg.overlay.battlebox" if="battlebox" />
+
+			</select>
+
+			<select center="true">
+				<alias ref="pcslot.inner.filtered" if="selected + filtered" />
+				<alias ref="pcslot.inner.active" if="selected" />
+				<alias ref="pcslot.inner.default" />
+			</select>
+
+          <select center="true">
+            <alias if="multiselectActive" ref="pcslot.border.filtered" />
+            <animation if="multiselect" timeSource="keyboardFocus">
+              <frame duration="400" ref="pcslot.border.filtered2" tint="#FFFFFFFF" />
+              <frame duration="400" ref="pcslot.border.filtered" tint="#FFFFFFFF" />
+            </animation>
+            <animation if="keyboardFocus" timeSource="keyboardFocus">
+              <frame duration="400" ref="pcslot.border.selected2" tint="#FFFFFFFF" />
+              <frame duration="400" ref="pcslot.border.selected" tint="#FFFFFFFF" />
+            </animation>
+            <alias ref="pcslot.border.default" />
+          </select>
+			<select center="true">
+				<alias ref="pcslot.border.filtered" inset="2" if="filtered" />
+			</select>
+		</composed>
+    </images>
+<images file="res/main-hud.png" filter="nearest"><area name="label5.background" tint="#55FFFFFF" xywh="9,191,5,5" inset="0,0,0,0" />
+		</images>
 </themes>

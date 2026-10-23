@@ -21,7 +21,7 @@ final class WorldStatus extends DialogLayout {
     private final Label placeIcon=new Label(), moneyIcon=new Label(), timeIcon=new Label();
     WorldStatus(WorldScene world,ClientStrings strings,LongSupplier clock) {
         this.world=world;this.strings=strings;this.clock=clock;
-        moneyFormat=new DecimalFormat("$###,###.###",DecimalFormatSymbols.getInstance(Locale.forLanguageTag(strings.language())));
+        moneyFormat=new DecimalFormat("$###,###.###",DecimalFormatSymbols.getInstance());
         setTheme("/world-status");
         setAddDefaultGaps(false);
         placeIcon.setTheme("location");moneyIcon.setTheme("money");timeIcon.setTheme("day");

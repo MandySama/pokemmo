@@ -198,6 +198,21 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
         return atlas.getImage(0,0,atlas.getWidth(),atlas.getHeight(),Color.WHITE,false,de.matthiasmann.twl.renderer.Texture.Rotation.NONE);
     }
     public LineRenderer getLineRenderer() { return null; }
+    /** CompassRoseRenderer's textured radial progress, converted to TWL's top-left coordinates. */
+    public void drawRadial(Image image,int x,int y,int size,float fraction,Color color){
+        if(!(image instanceof AtlasImage atlas)||fraction<=0)return;
+        var region=atlas.region;float packed=packed(atlas.color.multiply(color));
+        float stop=Math.min(1,fraction)*8;
+        for(int sector=0;sector<8&&sector<stop;sector++){
+            float a=sector*(float)Math.PI/4,b=Math.min(sector+1,stop)*(float)Math.PI/4;
+            float ax=(float)Math.sin(a),ay=-(float)Math.cos(a),bx=(float)Math.sin(b),by=-(float)Math.cos(b);
+            float an=2*Math.max(Math.abs(ax),Math.abs(ay)),bn=2*Math.max(Math.abs(bx),Math.abs(by));
+            ax=.5f+ax/an;ay=.5f+ay/an;bx=.5f+bx/bn;by=.5f+by/bn;
+            float[] vertices=new float[20];float[] points={.5f,.5f,ax,ay,bx,by,bx,by};
+            for(int i=0;i<4;i++){float px=points[i*2],py=points[i*2+1];int at=i*5;vertices[at]=x+px*size;vertices[at+1]=getHeight()-y-py*size;vertices[at+2]=packed;vertices[at+3]=region.getU()+px*(region.getU2()-region.getU());vertices[at+4]=region.getV()+py*(region.getV2()-region.getV());}
+            batch.draw(region.getTexture(),vertices,0,vertices.length);
+        }
+    }
     public OffscreenRenderer getOffscreenRenderer() { return null; }
     public FontMapper getFontMapper() { return null; }
     public DynamicImage createDynamicImage(int width, int height) { return null; }
