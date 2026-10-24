@@ -13,6 +13,8 @@ import top.totodile.pokemmo.client.ui.menu.MobileStatusIcons;
 /** Basic overworld HUD. Window bodies and online game services are supplied separately. */
 public final class WorldHud extends Widget {
     private final WorldScene world;
+    private top.totodile.pokemmo.client.ui.inventory.HotkeyBar hotkeyBar;
+    public void hotkeyBar(top.totodile.pokemmo.client.ui.inventory.HotkeyBar value){hotkeyBar=value;add(value);invalidateLayout();}
     private final WorldStatus status;
     private final Widget bar=new Widget(), menu=new Widget(), chat=new Widget();
     private final Button chatToggle=new Button();
@@ -26,7 +28,6 @@ public final class WorldHud extends Widget {
     public void onCustomization(Runnable action){customizationAction=action;}
     private Runnable bagAction=()->{},trainerAction=()->{},dexAction=()->{},mailAction=()->{};
     private top.totodile.pokemmo.client.ui.pokemon.PartyPanel party;
-    private java.util.function.Consumer<String> command=line->{};
     public WorldHud(WorldScene world,ClientStrings strings,boolean mobile,ClientSettings preferences,IntFunction<Image> icons,
                     Runnable settings,Runnable logout,Runnable exit) {
         this(world,strings,mobile,preferences,icons,settings,logout,exit,()->-1);
@@ -99,9 +100,8 @@ public final class WorldHud extends Widget {
     private void closeMenu(){menu.setVisible(false);if(mobileMenu!=null)mobileMenu.close();invalidateLayout();}
     public void toggleMenu(){menu.setVisible(!menu.isVisible());invalidateLayout();}
     public void party(top.totodile.pokemmo.client.ui.pokemon.PartyPanel panel){party=panel;add(panel);if(mobileMenu!=null){removeChild(mobileMenu);add(mobileMenu);}invalidateLayout();}
-    public void onCommand(java.util.function.Consumer<String> action){command=action;}
     public void openChat(){chat.setVisible(true);world.setInputBlocked(true);invalidateLayout();chatInput.requestKeyboardFocus();}
-    public void submitChat(){String line=chatInput.getText();chatInput.setText("");closeOverlay();if(!line.isBlank())command.accept(line);}
+    public void submitChat(){chatInput.setText("");closeOverlay();}
     public void onBag(Runnable open){bagAction=open;}
     public void onTrainer(Runnable open){trainerAction=open;}
     public void onPokedex(Runnable open){dexAction=open;}
@@ -113,7 +113,7 @@ public final class WorldHud extends Widget {
         }
         return false;
     }
-    public void update(){status.update();if(mobileStatus!=null){mobileStatus.update(System.nanoTime());mobileMenu.update();}}
+    public void update(){if(hotkeyBar!=null)hotkeyBar.update();status.update();if(mobileStatus!=null){mobileStatus.update(System.nanoTime());mobileMenu.update();}}
     public boolean menuOpen(){return menu.isVisible()||mobileMenu!=null&&mobileMenu.isVisible();}
     public boolean closeOverlay() {
         if(mobileMenu!=null&&mobileMenu.isVisible()){mobileMenu.close();return true;}
@@ -123,7 +123,7 @@ public final class WorldHud extends Widget {
     }
     public boolean editingChat(){return chat.isVisible();}
     public boolean ownsPointer(int x,int y) {
-        return !mobile&&bar.isInside(x,y)||chatToggle.isInside(x,y)
+        return hotkeyBar!=null&&hotkeyBar.isInside(x,y)||!mobile&&bar.isInside(x,y)||chatToggle.isInside(x,y)
                 ||mobileStatus!=null&&mobileStatus.isVisible()&&mobileStatus.isInside(x,y)||mobileMenu!=null&&mobileMenu.contains(x,y)
                 ||party!=null&&party.isInside(x,y)
                 ||menu.isVisible()&&menu.isInside(x,y)||chat.isVisible()&&chat.isInside(x,y);
@@ -132,6 +132,7 @@ public final class WorldHud extends Widget {
     @Override protected void layout() {
         if(party!=null){int w=Math.min(party.getPreferredWidth(),getInnerWidth()),h=Math.max(0,Math.min(party.getPreferredHeight(),getInnerHeight()-90));party.setSize(w,h);party.setPosition(getInnerRight()-w-5,mobile?getInnerBottom()-h-10:getInnerY()+(getInnerHeight()-h)/2);}
         if(!mobile)status.position(getInnerX(),getInnerY());
+        if(hotkeyBar!=null)hotkeyBar.position(getInnerX(),getInnerY(),getInnerWidth(),getInnerHeight());
         if(mobileStatus!=null){mobileStatus.adjustSize();mobileMenu.position();}
         int iconSize=mobile?40:24,gap=mobile?6:3;
         int barWidth=shortcuts.length*(iconSize+gap)-gap;

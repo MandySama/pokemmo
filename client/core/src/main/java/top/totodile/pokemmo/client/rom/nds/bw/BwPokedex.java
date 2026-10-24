@@ -25,6 +25,8 @@ public final class BwPokedex {
                           List<Integer> heldItems,List<LearnedMove> moves,List<Evolution> evolutions) {
         public int total(){return stats.stream().mapToInt(Integer::intValue).sum();}
     }
+    final Map<Integer,Integer> rarityClasses=new HashMap<>();
+    public boolean legendary(int species){int value=rarityClasses.getOrDefault(species,0);return value==1||value==2;}
     private final RomInfo rom;
     final ClientStrings strings;
     final List<Species> species=new ArrayList<>();

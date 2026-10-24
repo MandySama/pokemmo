@@ -8,12 +8,13 @@ public interface GameService extends AutoCloseable {
     default CompletionStage<PokemonData.Containers> selectPokemonParticle(Selection selection,String character,String pokemonId,int particle){return java.util.concurrent.CompletableFuture.failedFuture(new Rejected(Failure.NOT_FOUND));}
     default CompletionStage<PokemonData.Containers> setPokemonMarks(Selection selection,String character,String pokemonId,int marks){return java.util.concurrent.CompletableFuture.failedFuture(new Rejected(Failure.NOT_FOUND));}
     default CompletionStage<PokemonData.Containers> movePokemonMove(Selection selection,String character,String pokemonId,int from,int to){return java.util.concurrent.CompletableFuture.failedFuture(new Rejected(Failure.NOT_FOUND));}
-    enum PokemonSetting { EV, NATURE, GENDER, ABILITY, IV, FRIENDSHIP, PARTICLE, RIBBON, BALL }
+    enum PokemonSetting { EV, NATURE, GENDER, ABILITY, IV, FRIENDSHIP, PARTICLE, RIBBON, BALL, OT }
     default CompletionStage<PokemonData.Containers> setPokemonSetting(Selection selection,String character,String pokemonId,PokemonSetting setting,int index,int value){return java.util.concurrent.CompletableFuture.failedFuture(new Rejected(Failure.NOT_FOUND));}
-    enum PokemonFlag { SHINY, HIDDEN_ABILITY, ALPHA }
+    enum PokemonFlag { SHINY, HIDDEN_ABILITY, ALPHA, SECRET_SHINY }
     default CompletionStage<PokemonData.Containers> setPokemonFlag(Selection selection,String character,String pokemonId,PokemonFlag flag,boolean enabled){return java.util.concurrent.CompletableFuture.failedFuture(new Rejected(Failure.NOT_FOUND));}
     /** SendSetFollowPokemonPacket appearance; zero species recalls the follower. */
-    record Follower(int species,int form,int gender,boolean shiny) {
+    record Follower(int species,int form,int gender,boolean shiny,boolean alpha) {
+        public Follower(int species,int form,int gender,boolean shiny){this(species,form,gender,shiny,false);}
         public Follower {if(species<0||species>649||form<0||form>31||gender< -1||gender>1)throw new IllegalArgumentException("Invalid follower");}
         public static Follower none(){return new Follower(0,0,-1,false);}
     }

@@ -26,6 +26,7 @@ final class WorldState {
             save.run();
         });
         motion.movement().onStateChanged(save);
+        save.run();
     }
     private WorldState() {}
 }

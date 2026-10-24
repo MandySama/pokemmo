@@ -15,6 +15,9 @@ import top.totodile.pokemmo.server.game.PlayerData;
 /** InventoryWindow / l5_0.Oy / ItemListContainerLayout: eight pockets, search and native item grid. */
 public final class InventoryWindow extends PlayerWindow {
     public enum ItemAction { USE, GIVE, DISCARD }
+    @FunctionalInterface public interface ItemDrop {boolean drop(PlayerData.Item item,int x,int y);}
+    private ItemDrop itemDrop=(item,x,y)->false;
+    public void onItemDrop(ItemDrop handler){itemDrop=Objects.requireNonNull(handler);}
     private static final int[] POCKETS={1,7,8,2,3,4,5,6};
     private static final int[] TITLES={1401,1404,1405,1402,2,3,1406,1403};
     private static final int[] ICONS={5436,5017,5057,5476,5004,5252,5155,5459};
@@ -64,6 +67,7 @@ public final class InventoryWindow extends PlayerWindow {
     public boolean editing(){return search.hasKeyboardFocus();}
     @Override public void open(){super.open();search.giveupKeyboardFocus();requestKeyboardFocus(null);requestKeyboardFocus();}
     public void onItemAction(BiConsumer<PlayerData.Item,ItemAction> action){itemAction=Objects.requireNonNull(action);}
+    public void activateItem(PlayerData.Item item,ItemAction action){itemAction.accept(item,action);}
     public boolean hasMenu(){return itemMenu.isOpen();}
     public boolean closeMenu(){boolean open=hasMenu();itemMenu.close();return open;}
     @Override public void closePopup(){itemMenu.close();textInput.close();super.closePopup();}
@@ -79,6 +83,15 @@ public final class InventoryWindow extends PlayerWindow {
             if(next!=group){if(!cells.isEmpty()){rows.add(cells.toArray(Widget[]::new));cells.clear();}group=next;
                 String title=items.groupTitle(item.itemId());if(!title.isEmpty()){Label label=new Label(title);label.setTheme(mobile?"/mobile-inventory-name":"label");grid.add(label);rows.add(new Widget[]{label});}}
             Button cell=new Button(mobile||machines?item.amount()+"x "+items.name(item.itemId()):"x"+item.amount()){
+                private int downX,downY;private boolean dragging;
+                @Override protected boolean handleEvent(Event event){
+                    if(!mobile){
+                        if(event.getType()==Event.Type.MOUSE_BTNDOWN&&event.getMouseButton()==0){downX=event.getMouseX();downY=event.getMouseY();dragging=false;}
+                        if(event.getType()==Event.Type.MOUSE_DRAGGED&&Math.abs(event.getMouseX()-downX)+Math.abs(event.getMouseY()-downY)>4){dragging=true;getModel().setArmed(false);return true;}
+                        if(event.getType()==Event.Type.MOUSE_BTNUP&&event.getMouseButton()==0&&dragging){getModel().setArmed(false);getModel().setPressed(false);dragging=false;itemDrop.drop(item,event.getMouseX(),event.getMouseY());return true;}
+                    }
+                    return super.handleEvent(event);
+                }
                 @Override public Object getTooltipContent(){return mobile?null:items.tooltipContent(item.itemId());}
                 @Override public int getMinWidth(){return mobile?400:machines?196:40;}
                 @Override public int getMaxWidth(){return getMinWidth();}

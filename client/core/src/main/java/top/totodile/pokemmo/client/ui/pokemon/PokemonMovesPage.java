@@ -60,7 +60,7 @@ final class PokemonMovesPage extends Widget {
             if(down[i]!=null){down[i].setPosition(x+25,top+(i==0?13:24));down[i].setSize(16,16);}
         }
         abilityTitle.setPosition(x,y+194);abilityTitle.setSize(103,25);ability.setPosition(x+106,y+194);ability.setSize(110,25);
-        description.setPosition(x,y+224);description.setSize(238,43);var p=selected.get();description.setText(p==null?"":wrap(controller.dex().abilityDescription(p.ability()),228));
+        description.setPosition(x,y+224);description.setSize(258,43);var p=selected.get();description.setText(p==null?"":wrap(controller.dex().abilityDescription(p.ability()),248));
     }
     private final class MoveCard extends Button {
         final int slot;

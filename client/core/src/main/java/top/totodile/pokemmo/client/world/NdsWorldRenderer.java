@@ -103,7 +103,7 @@ final class NdsWorldRenderer implements AutoCloseable {
         Gdx.gl.glEnable(GL20.GL_DEPTH_TEST);Gdx.gl.glDepthFunc(GL20.GL_LEQUAL);Gdx.gl.glDisable(GL20.GL_CULL_FACE);
         // Ground shadow and upright sprite have independent planes, both depth-tested against field meshes.
         transform.setToTranslation(x,y+.2f,z).rotate(Vector3.X,-90);
-        sprites.setTransformMatrix(transform);sprites.begin();character.drawShadow(sprites,0,0);sprites.end();
+        sprites.setTransformMatrix(transform);sprites.begin();if(!motion.surfing())character.drawShadow(sprites,0,0);sprites.end();
         if(follower!=null&&follower.visible()&&follower.y()<=motion.y())drawFollower(follower,id,view.pitch(),sprites,character);
         transform.setToTranslation(x,y+.3f,z).rotate(Vector3.X,-view.pitch());
         sprites.setTransformMatrix(transform);sprites.begin();

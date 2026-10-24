@@ -4,7 +4,7 @@ import de.matthiasmann.twl.*;
 import de.matthiasmann.twl.model.SimpleListModel;
 
 /** Same themed combobox/list popup as the character and settings choices. */
-final class PokedexChoice extends Button {
+public final class PokedexChoice extends Button {
     private final String[] options;
     private final Label display=new Label(getAnimationState()) {
         @Override protected boolean handleEvent(Event event){return false;}
@@ -13,14 +13,14 @@ final class PokedexChoice extends Button {
     private final PopupWindow popup=new PopupWindow(this);
     private final Runnable changed;
     private int selected;
-    PokedexChoice(Runnable changed,String... options) {
+    public PokedexChoice(Runnable changed,String... options) {
         this.options=options;this.changed=changed;setTheme("/monsterdex-frame.dialoglayout.combobox");setCanAcceptKeyboardFocus(false);
         display.setTheme("display");display.setClip(true);arrow.setTheme("button");add(display);add(arrow);
         popup.setTheme("/comboboxPopup");select(0);addCallback(this::openChoices);
     }
-    int selected(){return selected;}
-    void select(int index){selected=Math.max(0,Math.min(options.length-1,index));display.setText(options[selected]);}
-    boolean closeChoices(){if(!popup.isOpen())return false;popup.closePopup();return true;}
+    public int selected(){return selected;}
+    public void select(int index){selected=Math.max(0,Math.min(options.length-1,index));display.setText(options[selected]);}
+    public boolean closeChoices(){if(!popup.isOpen())return false;popup.closePopup();return true;}
     @Override protected void paintWidget(GUI gui){}
     @Override protected void layout(){
         int w=arrow.getPreferredWidth();arrow.setSize(w,getInnerHeight());arrow.setPosition(getInnerRight()-w,getInnerY());

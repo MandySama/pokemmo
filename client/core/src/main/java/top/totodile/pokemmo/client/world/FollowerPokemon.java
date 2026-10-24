@@ -21,6 +21,7 @@ public final class FollowerPokemon implements AutoCloseable {
     private double elapsed,lastMoved,recallStarted=-1;
     private float recallOpacity;
     private final int animationOffset=java.util.concurrent.ThreadLocalRandom.current().nextInt(332);
+    private boolean suppressed;
     private Follower pending;
     private Consumer<String> pendingError;
     private int[][] directions;
@@ -57,12 +58,15 @@ public final class FollowerPokemon implements AutoCloseable {
     }
     public void step(PlayerMotion.Step step){motion.step(step);}
     public void update(float delta){
+        boolean hidden=!owner.allowsFollower();
+        if(suppressed&&!hidden){var position=owner.movement().position();motion.reset(owner.x(),owner.y(),position.direction());elapsed=lastMoved=0;}
+        suppressed=hidden;
         if(Float.isFinite(delta)&&delta>0)elapsed+=delta;if(owner.moving())lastMoved=elapsed;
         if(pending!=null&&elapsed-recallStarted>=.3){var value=pending;var error=pendingError;load(value,error);}
     }
     public float x(){return motion.x(owner.stepProgress());}
     public float y(){return motion.y(owner.stepProgress());}
-    public boolean visible(){return !frames.isEmpty()&&(Math.abs(x()-owner.x())+Math.abs(y()-owner.y())>.01f);}
+    public boolean visible(){return owner.allowsFollower()&&!frames.isEmpty()&&(Math.abs(x()-owner.x())+Math.abs(y()-owner.y())>.01f);}
     public int elevation(){var map=owner.movement().map();int x=Math.round(x()),y=Math.round(y());return map.contains(x,y)?map.block(x,y)>>>12:owner.movement().elevation();}
     public float opacity(){return pending!=null?recallOpacity*(float)Math.max(0,1-(elapsed-recallStarted)/.3):(float)Math.min(1,Math.max(0,(elapsed-.15)/.3));}
     public void draw(SpriteBatch batch,float footX,float footY){
@@ -73,7 +77,7 @@ public final class FollowerPokemon implements AutoCloseable {
         int bounce;try{bounce=Integer.parseInt(resources.preferences().get("client.gameplay.follower_bounce","0"));}catch(NumberFormatException invalid){bounce=0;}
         boolean raised=bounce!=2&&(bounce==0||elapsed-lastMoved<=.3)&&FollowerAnimation.bounce(animationTime);
         footY+=raised?1:0;footX+=offsets[1]*.25f;footY-=offsets[2]*.25f;
-        batch.setColor(1,1,1,alpha);float scale=.75f*(offsets[0]>0?offsets[0]:1);
+        batch.setColor(1,1,1,alpha);float scale=.75f*(selected.alpha()?1.3333334f:1f)*(offsets[0]>0?offsets[0]:1);
         float width=image.getWidth()*scale;
         boolean mirror=FollowerAnimation.mirror(direction,frames.size());
         batch.draw(image,footX-width/2+(mirror?width:0),footY-groundPadding*scale,mirror?-width:width,image.getHeight()*scale);

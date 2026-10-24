@@ -139,4 +139,4 @@
 		<alias name="progressbar-pink.progressImage" tint="#FF99CC" ref="progressbar-white.progressImage"/>
 <alias name="progressbar-pink.background" ref="progressbar-white.background"/>
 </images>
-</themes>
+<images file="res/main-hud.png" filter="nearest"><area name="label7.background" tint="#95949494" xywh="9,191,5,5" inset="7,0,0,0" /></images></themes>

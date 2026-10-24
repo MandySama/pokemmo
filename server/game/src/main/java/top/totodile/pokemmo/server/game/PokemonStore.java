@@ -20,10 +20,11 @@ final class PokemonStore {
         for(String column:List.of("contests_category_values","normal_ribbon","contest_ribbon","particle_effects"))if(db.query("PRAGMA table_info(pokemon)").stream().noneMatch(row->column.equals(row[1])))db.execute("ALTER TABLE pokemon ADD COLUMN "+column+" TEXT NOT NULL DEFAULT ''");
         if(db.query("PRAGMA table_info(pokemon)").stream().noneMatch(row->"selected_particle".equals(row[1])))db.execute("ALTER TABLE pokemon ADD COLUMN selected_particle INTEGER NOT NULL DEFAULT -1");
         if(db.query("PRAGMA table_info(pokemon)").stream().noneMatch(row->"ball_type".equals(row[1])))db.execute("ALTER TABLE pokemon ADD COLUMN ball_type INTEGER NOT NULL DEFAULT 3");
+        if(db.query("PRAGMA table_info(pokemon)").stream().noneMatch(row->"is_secret".equals(row[1])))db.execute("ALTER TABLE pokemon ADD COLUMN is_secret INTEGER NOT NULL DEFAULT 0");
         db.execute("CREATE INDEX IF NOT EXISTS pokemon_owner_container ON pokemon(trainer_id,container_id,container_position)");
     }
     Containers load(String id){
-        var pokemons=db.query("SELECT id,container_id,container_position,dex_id,form_type,gender,is_shiny,is_egg,name,level_value,current_hp,status,item,nature,ability,stats,iv_values,ev_values,moves,friend_value,has_hidden_ability,is_alpha,mark_status,moves_pp,pp_up_times,catch_address,catch_level,catch_region,catch_time,ot_name,personality_value,origin_flags,can_remember_moves,contests_category_values,normal_ribbon,contest_ribbon,particle_effects,selected_particle,ball_type FROM pokemon WHERE trainer_id=? AND container_id IN (0,1) ORDER BY container_id,container_position",id).stream().map(r->new Pokemon(r[0],n(r[1]),n(r[2]),n(r[3]),n(r[4]),n(r[5]),n(r[6])!=0,n(r[7])!=0,r[8],n(r[9]),n(r[10]),n(r[11]),n(r[12]),n(r[13]),n(r[14]),values(r[15]),values(r[16]),values(r[17]),values(r[18]),n(r[19]),n(r[20])!=0,n(r[21])!=0,n(r[22]),r[23].isEmpty()?List.of(-1,-1,-1,-1):values(r[23]),r[24].isEmpty()?List.of(0,0,0,0):values(r[24]),new Origin(n(r[25]),n(r[26]),n(r[27]),Long.parseLong(r[28]),r[29],n(r[30]),(n(r[31])&16)!=0,(n(r[31])&64)!=0,r[32].isEmpty()?List.of():values(r[32])),new Honors(r[33].isEmpty()?List.of(0,0,0,0,0):values(r[33]),r[34].isEmpty()?List.of():values(r[34]),r[35].isEmpty()?List.of(0,0,0,0,0):values(r[35]),r[36].isEmpty()?List.of():values(r[36]),n(r[37])),n(r[38]))).toList();
+        var pokemons=db.query("SELECT id,container_id,container_position,dex_id,form_type,gender,is_shiny,is_egg,name,level_value,current_hp,status,item,nature,ability,stats,iv_values,ev_values,moves,friend_value,has_hidden_ability,is_alpha,mark_status,moves_pp,pp_up_times,catch_address,catch_level,catch_region,catch_time,ot_name,personality_value,origin_flags,can_remember_moves,contests_category_values,normal_ribbon,contest_ribbon,particle_effects,selected_particle,ball_type,is_secret FROM pokemon WHERE trainer_id=? AND container_id IN (0,1) ORDER BY container_id,container_position",id).stream().map(r->new Pokemon(r[0],n(r[1]),n(r[2]),n(r[3]),n(r[4]),n(r[5]),n(r[6])!=0,n(r[7])!=0,r[8],n(r[9]),n(r[10]),n(r[11]),n(r[12]),n(r[13]),n(r[14]),values(r[15]),values(r[16]),values(r[17]),values(r[18]),n(r[19]),n(r[20])!=0,n(r[21])!=0,n(r[22]),r[23].isEmpty()?List.of(-1,-1,-1,-1):values(r[23]),r[24].isEmpty()?List.of(0,0,0,0):values(r[24]),new Origin(n(r[25]),n(r[26]),n(r[27]),Long.parseLong(r[28]),r[29],n(r[30]),(n(r[31])&16)!=0,(n(r[31])&64)!=0,r[32].isEmpty()?List.of():values(r[32])),new Honors(r[33].isEmpty()?List.of(0,0,0,0,0):values(r[33]),r[34].isEmpty()?List.of():values(r[34]),r[35].isEmpty()?List.of(0,0,0,0,0):values(r[35]),r[36].isEmpty()?List.of():values(r[36]),n(r[37])),n(r[38]),n(r[39])!=0)).toList();
         return new Containers(pokemons,BASE_BOXES);
     }
     Containers selectParticle(String owner,String id,int particle){
@@ -49,6 +50,11 @@ final class PokemonStore {
             switch(setting){
                 case EV->{if(index< -1||index>5||value<0||value>252)reject();if(index<0)Collections.fill(evs,value);else evs.set(index,value);}
                 case IV->{if(index!= -1||value< -1||value>31)reject();var random=new Random();for(int i=0;i<6;i++)ivs.set(i,value== -1?random.nextInt(31):value);}
+                case OT->{
+                    if(index!=0||value<0||value>3)reject();
+                    String trainer=switch(value){case 0->"{STRING_5685}";case 1->"{STRING_5684}";case 2->"unknown";default->db.query("SELECT name FROM characters WHERE id=?",owner).get(0)[0];};
+                    if(trainer.isBlank()||trainer.length()>32)reject();db.execute("UPDATE pokemon SET ot_name=? WHERE id=? AND trainer_id=?",trainer,id,owner);return;
+                }
                 case BALL->{if(index!=0||value<0||value>24)reject();db.execute("UPDATE pokemon SET ball_type=? WHERE id=? AND trainer_id=?",value,id,owner);return;}
                 case FRIENDSHIP->{if(index!=0||value<0||value>255)reject();db.execute("UPDATE pokemon SET friend_value=? WHERE id=? AND trainer_id=?",value,id,owner);return;}
                 case PARTICLE->{
@@ -58,7 +64,8 @@ final class PokemonStore {
                 }
                 case RIBBON->{
                     var ribbons=new TreeSet<>(p.honors().ribbons());var contest=new ArrayList<>(p.honors().contestRibbons());
-                    if(index== -1&&value==0){ribbons.clear();Collections.fill(contest,0);}
+                    if(index== -2&&value==0){ribbons.addAll(List.of(16,22,23,20,27,28,29,30,31,32,33,24,25,26,34));Collections.fill(contest,4);}
+                    else if(index== -1&&value==0){ribbons.clear();Collections.fill(contest,0);}
                     else if(index==0&&value>=0&&value<=34)ribbons.add(value);
                     else if(index>=1&&index<=5&&value>=1&&value<=4)contest.set(index-1,Math.max(contest.get(index-1),value));else reject();
                     db.execute("UPDATE pokemon SET normal_ribbon=?,contest_ribbon=? WHERE id=? AND trainer_id=?",encoded(new ArrayList<>(ribbons)),encoded(contest),id,owner);return;
@@ -83,7 +90,7 @@ final class PokemonStore {
     }
     Containers setFlag(String owner,String pokemonId,GameService.PokemonFlag flag,boolean enabled){
         if(flag==null||load(owner).pokemons().stream().noneMatch(p->p.id().equals(pokemonId)))throw new GameService.Rejected(GameService.Failure.NOT_FOUND);
-        String column=switch(flag){case SHINY->"is_shiny";case HIDDEN_ABILITY->"has_hidden_ability";case ALPHA->"is_alpha";};
+        String column=switch(flag){case SHINY->"is_shiny";case SECRET_SHINY->"is_secret";case HIDDEN_ABILITY->"has_hidden_ability";case ALPHA->"is_alpha";};
         db.execute("UPDATE pokemon SET "+column+"=? WHERE id=? AND trainer_id=?",enabled?1:0,pokemonId,owner);return load(owner);
     }
     private static int n(String v){return Integer.parseInt(v);}

@@ -54,18 +54,22 @@ public final class PokemonSummaryWindow extends PlayerWindow {
     };
     private final Button portrait=new Button(){
         @Override protected boolean handleEvent(Event event){if(event.getType()==Event.Type.MOUSE_BTNUP&&event.getMouseButton()==Event.MOUSE_RBUTTON){openRarityMenu(event.getMouseX(),event.getMouseY());return true;}return super.handleEvent(event);}
-        @Override protected void paintWidget(GUI gui){
+    };
+    private final Widget portraitVisual=new Widget(){
+        @Override protected void paintWidget(GUI gui){paintPortrait();}
+        @Override protected boolean handleEvent(Event event){return false;}
+    };
+    private void paintPortrait(){
             if(pokemon==null||controller.images()==null)return;
             var image=pokemon.egg()?controller.images().icon(pokemon.species(),pokemon.form(),pokemon.gender(),true)
                     :controller.images().animated(pokemon.species(),pokemon.form(),pokemon.shiny(),back,System.nanoTime()/1e9);
             float scale=pokemon.alpha()?2.666667f:2;int w=Math.round(image.getWidth()*scale),h=Math.round(image.getHeight()*scale);
             // TaskCallbackXt0 FBO ground is CAMERA_Y + HEIGHT/2 (7/8 of its height).
-            int drawY=getY()+(getHeight()-image.getHeight()*2)/2-Math.round((scale-2)*image.getHeight()*7/8f);
-            int drawX=getX()+(getWidth()-w)/2;
-            if(pokemon.alpha()&&!pokemon.egg())controller.images().drawAlpha(image,getAnimationState(),drawX,drawY,w,h,pokemon.shiny());
-            else image.draw(getAnimationState(),drawX,drawY,w,h);
-        }
-    };
+            int drawY=portrait.getY()+(portrait.getHeight()-image.getHeight()*2)/2-Math.round((scale-2)*image.getHeight()*7/8f);
+            int drawX=portrait.getX()+(portrait.getWidth()-w)/2;
+            if(pokemon.alpha()&&!pokemon.egg())controller.images().drawAlpha(image,portrait.getAnimationState(),drawX,drawY,w,h,pokemon.shiny());
+            else image.draw(portrait.getAnimationState(),drawX,drawY,w,h);
+    }
     private final Widget types=new Widget(){
         @Override protected void paintWidget(GUI gui){
             if(pokemon==null||pokemon.egg()||controller.images()==null)return;
@@ -77,12 +81,20 @@ public final class PokemonSummaryWindow extends PlayerWindow {
     private final Button[] markButtons=new Button[4];
     private final Widget selectedParticle=new Widget(){@Override protected void paintWidget(GUI gui){
         if(pokemon==null||pokemon.egg()||pokemon.honors().selectedParticle()<0)return;
-        var image=controller.images().atlas("particle_id",pokemon.honors().selectedParticle());if(image!=null)image.draw(getAnimationState(),getX(),getY(),24,24);
+        var image=pokemon.honors().selectedParticle()==0&&pokemon.secretShiny()?controller.images().atlas("secret_shiny_particle"):controller.images().atlas("particle_id",pokemon.honors().selectedParticle());if(image!=null)image.draw(getAnimationState(),getX(),getY(),24,24);
+    }
+        @Override protected boolean handleEvent(Event event){return pokemon!=null&&!pokemon.egg()&&pokemon.honors().selectedParticle()>=0&&event.isMouseEvent();}
+        @Override protected Object getTooltipContentAt(int x,int y){return pokemon==null||pokemon.egg()||pokemon.honors().selectedParticle()<0?null:PokemonHonorsPage.particleTooltip(controller,pokemon.honors().selectedParticle(),pokemon.secretShiny());}
+    };
+    private final Widget[] statusBadges=new Widget[3];
+    private final Widget rarityIcons=new Widget(){@Override protected void layout(){
+        int y=getY();for(int i=0;i<statusBadges.length;i++){var badge=statusBadges[i];boolean visible=rarityIcon(i)!=null;badge.setVisible(visible);if(visible){badge.setPosition(getX(),y);badge.setSize(24,24);y+=24;}}
     }};
-    private final Widget rarityIcons=new Widget(){@Override protected void paintWidget(GUI gui){
-        if(pokemon==null||pokemon.egg())return;int y=getY();
-        for(String icon:new String[]{pokemon.shiny()?"shiny":null,usingHiddenAbility()?"HiddenAbility":null,pokemon.alpha()?"alphaLight":null})if(icon!=null){var image=controller.images().atlas(icon);if(image!=null)image.draw(getAnimationState(),getX(),y,24,24);y+=24;}
-    }};
+    private String rarityIcon(int index){
+        if(pokemon==null||pokemon.egg())return null;
+        return switch(index){case 0->pokemon.shiny()?(pokemon.secretShiny()?"secret_shiny":"shiny"):null;case 1->usingHiddenAbility()?"HiddenAbility":null;default->pokemon.alpha()?"alphaLight":null;};
+    }
+    private String rarityTooltip(int index){return switch(index){case 0->controller.strings.get(pokemon.secretShiny()?10996:5614);case 1->controller.strings.get(1886);default->controller.strings.format(1887,controller.strings.get(0));};}
     private final Button lock=new Button(){
         private de.matthiasmann.twl.renderer.Image selected,unselected;
         @Override protected void paintWidget(GUI gui){
@@ -103,7 +115,7 @@ public final class PokemonSummaryWindow extends PlayerWindow {
     public PokemonSummaryWindow(Widget owner,PokemonController controller,java.util.function.IntFunction<de.matthiasmann.twl.renderer.Image> itemIcon,Runnable closed){
         super(owner,false,"/monster-frame",506,316,closed);this.controller=controller;this.itemIcon=itemIcon;particles=new SummaryParticles(controller);movesPage=new PokemonMovesPage(controller,()->pokemon);historyPage=new PokemonHistoryPage(controller,()->pokemon);honorsPage=new PokemonHonorsPage(controller,()->pokemon);
         frame.setTitle(controller.strings.get(0)+" "+controller.strings.get(1801));
-        content.setTheme("");body.setTheme("/label-monster-area");portrait.setTheme("");portrait.setClip(true);types.setTheme("");typeBackground.setTheme("/summary-type-background");content.add(typeBackground);
+        content.setTheme("");body.setTheme("/label-monster-area");portrait.setTheme("");portrait.setClip(false);types.setTheme("");typeBackground.setTheme("/summary-type-background");content.add(typeBackground);
         name.setTheme("/monster-frame.nameplate.label-monster-name");level.setTheme("/monster-frame.nameplate.label-level");held.setTheme("/monster-frame.itemplate.label2");
         String[] themes={"info","stats","stats2","stats3","attack","history","stats4","ribbons","particles"};
         for(int i=0;i<tabs.length;i++){
@@ -130,7 +142,14 @@ public final class PokemonSummaryWindow extends PlayerWindow {
         }
         portrait.setCanAcceptKeyboardFocus(false);portrait.addCallback(()->{if(pokemon!=null&&!pokemon.egg())back=!back;});
         effortHelpLabel.setTheme("/label");effortHelpLabel.setText(controller.strings.get(1838));effortHelp.setTheme("/summary-help-button");effortHelp.setCanAcceptKeyboardFocus(false);effortHelp.setTooltipContent(controller.strings.get(1839));effortHelp.setTooltipDelay(0);
+        for(int i=0;i<statusBadges.length;i++){final int index=i;var badge=new Widget(){
+            @Override protected void paintWidget(GUI gui){String icon=rarityIcon(index);if(icon!=null){var image=controller.images().atlas(icon);if(image!=null)image.draw(getAnimationState(),getX(),getY(),24,24);}}
+            @Override protected boolean handleEvent(Event event){return event.isMouseEvent();}
+            @Override protected Object getTooltipContentAt(int x,int y){return rarityIcon(index)==null?null:rarityTooltip(index);}
+        };badge.setTheme("");badge.setTooltipDelay(0);statusBadges[i]=badge;rarityIcons.add(badge);}
+        selectedParticle.setTooltipDelay(0);lock.setTooltipContent("锁定标记");lock.setTooltipDelay(0);
         rarityIcons.setTheme("");lock.setTheme("");lock.setCanAcceptKeyboardFocus(false);lock.addCallback(()->{if(pokemon!=null&&!controller.busy())controller.setMarks(pokemonId,pokemon.marks()^16);});
+        portraitVisual.setTheme("");portraitVisual.setClip(false);add(portraitVisual);
         controller.onChanged(this::update);
     }
     public void show(Pokemon value,String trainer){
@@ -152,6 +171,13 @@ public final class PokemonSummaryWindow extends PlayerWindow {
         held.setText(controller.strings.get(1842)+" "+item);
         showPage(pokemon.egg()&&page!=0&&page!=5?0:page);
     }
+    private String originalTrainer(){
+        String trainer=pokemon.origin().trainer();
+        if(trainer.isEmpty())return currentTrainer;
+        if(trainer.equals("{STRING_5685}"))return controller.strings.get(5685);
+        if(trainer.equals("{STRING_5684}"))return controller.strings.get(5684);
+        return trainer;
+    }
     private Label label(String text,String theme){var value=new Label(text);value.setTheme("/label-monster-area."+theme);return value;}
     private void pair(int title,String value){pair(controller.strings.get(title),value,false);}
     private void pair(String title,String value,boolean complete){
@@ -169,7 +195,7 @@ public final class PokemonSummaryWindow extends PlayerWindow {
                 pair(1805,pokemon.egg()?"???":strings.getOrDefault(180000+pokemon.nature(),dex.nature(pokemon.nature())));
                 // These fields are not present in the current authoritative snapshot.
                 // Do not infer the original trainer from the current owner or invent EXP.
-                pair(1807,currentTrainer);
+                pair(1807,originalTrainer());
                 boolean maximum=!pokemon.egg()&&pokemon.level()==100;
                 pair(1810,maximum?java.text.NumberFormat.getIntegerInstance(Locale.US).format(dex.experienceAt100(pokemon.species())):"—");pair(1829,maximum?"-":"—");
                 for(int index:new int[]{1,3})rows.get(index).setTheme("/label-monster-area.summary-info-value-icon");
@@ -202,11 +228,12 @@ public final class PokemonSummaryWindow extends PlayerWindow {
             case 6,7,8->{body.add(honorsPage);honorsPage.refresh(page);}
             default->throw new IllegalStateException("Unknown Pokemon summary page");
         }
-        if(!pokemon.egg())particles.type(controller.dex().get(pokemon.species()).type1());particles.setVisible(!pokemon.egg());typeBackground.setVisible(true);content.invalidateLayout();
+        if(!pokemon.egg())particles.type(controller.dex().get(pokemon.species()).type1());particles.setVisible(!pokemon.egg());typeBackground.setVisible(true);rarityIcons.invalidateLayout();content.invalidateLayout();
     }
     private void layoutSummary(){
         // PokemonSummaryWindow.K8 uses fixed coordinates on the PC frame.
         int x=frame.getX(),y=frame.getY();
+        portraitVisual.setPosition(getX(),getY());portraitVisual.setSize(getWidth(),getHeight());
         rarityIcons.setPosition(x+476,y+58);rarityIcons.setSize(24,72);int count=pokemon==null||pokemon.egg()?0:(pokemon.shiny()?1:0)+(usingHiddenAbility()?1:0)+(pokemon.alpha()?1:0);lock.setPosition(x+476,y+58+count*24);lock.setSize(24,24);
         particles.setPosition(x+275,y+35);particles.setSize(224,227);typeBackground.setPosition(x+274,y+33);typeBackground.setSize(232,231);
         for(int i=0;i<tabs.length;i++){tabs[i].setPosition(x+12+i*26,y+10);tabs[i].setSize(20,20);}
@@ -255,6 +282,7 @@ public final class PokemonSummaryWindow extends PlayerWindow {
         for(int i=0;i<flags.length;i++){final var flag=flags[i];var button=new Button(controller.strings.get(labels[i]));button.setTheme("/pokemon-menu-button");button.setCanAcceptKeyboardFocus(false);submenuHover.put(button,()->openRarityChoices(button,flag));buttons.add(button);}
         GameService.PokemonSetting[] settings={GameService.PokemonSetting.GENDER,GameService.PokemonSetting.ABILITY,GameService.PokemonSetting.NATURE,GameService.PokemonSetting.PARTICLE,GameService.PokemonSetting.IV,GameService.PokemonSetting.EV,GameService.PokemonSetting.FRIENDSHIP,GameService.PokemonSetting.BALL,GameService.PokemonSetting.RIBBON};int[] settingLabels={8100,1824,5585,3057,1849,1800,1811,2,1847};
         for(int i=0;i<settings.length;i++){final var setting=settings[i];var button=menuButton(controller.strings.get(settingLabels[i]),()->{});submenuHover.put(button,()->openSettingMenu(button,setting));buttons.add(button);}
+        var ot=menuButton("设置初训",()->{});submenuHover.put(ot,()->openSettingMenu(ot,GameService.PokemonSetting.OT));buttons.add(buttons.size()-1,ot);
         var content=new ScrollPane(menuRows(buttons));content.setTheme("/scrollpane");content.setFixed(ScrollPane.Fixed.HORIZONTAL);rarityMenu.add(content);if(rarityMenu.openPopup()){int height=Math.min(getHeight()-20,buttons.size()*31+rarityMenu.getBorderVertical()+content.getBorderVertical());rarityMenu.setPosition(Math.max(getX(),Math.min(x,getRight()-120)),Math.max(getY(),Math.min(y,getBottom()-height)));rarityMenu.setSize(120,height);}
     }
     private Widget menuRows(List<Button> buttons){return new Widget(){
@@ -264,9 +292,10 @@ public final class PokemonSummaryWindow extends PlayerWindow {
     };}
     private void openRarityChoices(Button owner,top.totodile.pokemmo.server.game.GameService.PokemonFlag flag){
         if(nestedChoices!=null){nestedChoices.closePopup();nestedChoices=null;}if(rarityChoices!=null)rarityChoices.closePopup();rarityChoices=new PopupWindow(owner);rarityChoices.setTheme("/pokemon-menu");var buttons=new ArrayList<Button>();
-        boolean current=switch(flag){case SHINY->pokemon.shiny();case HIDDEN_ABILITY->pokemon.hiddenAbility();case ALPHA->pokemon.alpha();};
+        boolean current=switch(flag){case SHINY->pokemon.shiny();case SECRET_SHINY->pokemon.secretShiny();case HIDDEN_ABILITY->pokemon.hiddenAbility();case ALPHA->pokemon.alpha();};
         for(boolean value:new boolean[]{true,false}){var button=new Button(Boolean.toString(value));button.setTheme("/pokemon-menu-button");button.setEnabled(current!=value);button.setCanAcceptKeyboardFocus(false);button.addCallback(()->{String id=pokemonId;closeRarityMenu();controller.setFlag(id,flag,value);});buttons.add(button);}
-        rarityChoices.add(menuRows(buttons));if(rarityChoices.openPopup()){int height=62+rarityChoices.getBorderVertical();rarityChoices.setPosition(Math.min(owner.getRight(),getRight()-100),Math.min(owner.getY(),getBottom()-height));rarityChoices.setSize(100,height);}
+        if(flag==GameService.PokemonFlag.SHINY)for(boolean value:new boolean[]{true,false}){var button=menuButton("Secret "+value,()->{String id=pokemonId;closeRarityMenu();controller.setFlag(id,GameService.PokemonFlag.SECRET_SHINY,value);});button.setEnabled(pokemon.secretShiny()!=value);buttons.add(button);}
+        rarityChoices.add(menuRows(buttons));if(rarityChoices.openPopup()){int height=buttons.size()*31+rarityChoices.getBorderVertical();rarityChoices.setPosition(Math.min(owner.getRight(),getRight()-100),Math.min(owner.getY(),getBottom()-height));rarityChoices.setSize(100,height);}
     }
     private Button menuButton(String text,Runnable action){var button=new Button(text);button.setTheme("/pokemon-menu-button");button.setCanAcceptKeyboardFocus(false);button.addCallback(action);return button;}
     private void applySetting(GameService.PokemonSetting setting,int index,int value){String id=pokemonId;closeRarityMenu();controller.setSetting(id,setting,index,value);}
@@ -296,12 +325,17 @@ public final class PokemonSummaryWindow extends PlayerWindow {
     private void openSettingMenu(Button owner,GameService.PokemonSetting setting){
         var buttons=new ArrayList<Button>();var dex=controller.dex();
         switch(setting){
+            case OT->{
+                String[] values={"{STRING_5685}","{STRING_5684}","unknown",currentTrainer};
+                String[] names={controller.strings.get(5685),controller.strings.get(5684),"Unknown OT",currentTrainer};
+                for(int i=0;i<values.length;i++){final int value=i;var button=menuButton(names[i],()->applySetting(setting,0,value));button.setEnabled(!values[i].equals(pokemon.origin().trainer()));buttons.add(button);}
+            }
             case BALL->{
                 for(int i=0;i<25;i++){
                     final int ball=i;int item=i<16?i+1:i<24?i+476:576;
                     String text=i<16?controller.strings.getOrDefault(248001+i,dex.item(item)):dex.item(item);
                     var button=new Button(text){@Override protected void paintWidget(GUI gui){super.paintWidget(gui);var image=controller.images().ball(ball);if(image!=null)image.draw(getAnimationState(),getX()+8,getY()+(getHeight()-16)/2,16,16);}};
-                    button.setTheme("/pokemon-menu-button");button.setCanAcceptKeyboardFocus(false);button.setEnabled(i!=pokemon.ball());button.addCallback(()->applySetting(setting,0,ball));buttons.add(button);
+                    button.setTheme("/pokemon-ball-menu-button");button.setCanAcceptKeyboardFocus(false);button.setEnabled(i!=pokemon.ball());button.addCallback(()->applySetting(setting,0,ball));buttons.add(button);
                 }
             }
             case IV->{int[] values={31,15,0,-1};String[] names={"Max","Half","Zero","Random"};for(int i=0;i<values.length;i++){final int value=values[i];buttons.add(menuButton(names[i],()->applySetting(setting,-1,value)));}}
@@ -311,6 +345,7 @@ public final class PokemonSummaryWindow extends PlayerWindow {
                 for(int i=0;i<=38;i++){final int id=i;var button=menuButton(controller.strings.get(10800+i),()->applySetting(setting,0,id));button.setEnabled(!pokemon.honors().particles().contains(i));buttons.add(button);}
             }
             case RIBBON->{
+                var all=menuButton("<ADD ALL>",()->applySetting(setting,-2,0));all.setEnabled(!java.util.Arrays.stream(PokemonHonorsPage.RIBBONS).allMatch(r->pokemon.honors().ribbons().contains(r[0]))||pokemon.honors().contestRibbons().stream().anyMatch(v->v<4));buttons.add(all);
                 buttons.add(menuButton("Clear",()->applySetting(setting,-1,0)));
                 for(int[] ribbon:PokemonHonorsPage.RIBBONS){var button=menuButton(dex.ribbonText(ribbon[3]),()->applySetting(setting,0,ribbon[0]));button.setEnabled(!pokemon.honors().ribbons().contains(ribbon[0]));buttons.add(button);}
                 for(int rank=0;rank<4;rank++)for(int category=0;category<5;category++){final int c=category,r=rank;var button=menuButton(dex.ribbonText(category*4+2+rank),()->applySetting(setting,c+1,r+1));button.setEnabled(pokemon.honors().contestRibbons().get(category)<rank+1);buttons.add(button);}
@@ -326,10 +361,10 @@ public final class PokemonSummaryWindow extends PlayerWindow {
                 });buttons.add(button);}
             }
         }
-        showOptions(owner,buttons,setting==GameService.PokemonSetting.NATURE||setting==GameService.PokemonSetting.RIBBON||setting==GameService.PokemonSetting.BALL?190:150);
+        showOptions(owner,buttons,setting==GameService.PokemonSetting.NATURE||setting==GameService.PokemonSetting.RIBBON?190:150);
     }
     /** EventTriggerHandlerRegistry.I2 / PokemonSummaryWindow.Qa, ROM type IDs omit Fairy. */
-    private static Color typeColor(int romType){
+    static Color typeColor(int romType){
         int type=romType>=9?romType+1:romType;
         return new Color(switch(type){
             case 0->0xffe8cf84;case 1->-554912;case 3->0xffd289d3;case 4->-1398141;

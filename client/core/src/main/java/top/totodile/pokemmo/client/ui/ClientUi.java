@@ -75,6 +75,7 @@ public final class ClientUi implements Disposable {
     private final PokedexWindow pokedex;
     private final InventoryItems inventoryItems;
     private final InventoryWindow inventory;
+    private top.totodile.pokemmo.client.ui.inventory.HotkeyBar hotkeyBar;
     private final TrainerCardWindow trainerCard;
     private final MailWindow mail;
     private final PcMenuWindow pcMenu;
@@ -122,13 +123,12 @@ public final class ClientUi implements Disposable {
     public void showCharacters() {
         if(worldActions==null)return;
         playerKeys.clear();repeatingPlayerKey=0;suppressedPlayerCharacter=0;
-        characterCustomization.closePopup();inventory.closePopup();trainerCard.closePopup();mail.forceClose();pcMenu.closePopup();storage.closePopup();pokemonSummary.closePopup();worldTools.forceClose();pokemon.bind(null,null);
+        characterCustomization.closePopup();inventory.closePopup();trainerCard.closePopup();mail.forceClose();pcMenu.closePopup();storage.forceClose();pokemonSummary.closePopup();worldTools.forceClose();pokemon.bind(null,null);
         if(playerEntry!=null&&gameService!=null&&controller.selection()!=null)gameService.leave(controller.selection(),playerEntry.character().id());
         playerEntry=null;
         pokedex.closePopup();
         pokemon.removeParty(party);party=null;
-        worldScene.commands().onPc(null);
-        root.removeChild(worldHud);worldHud=null;worldScene=null;
+        root.removeChild(worldHud);worldHud=null;worldScene=null;hotkeyBar=null;
         root.removeChild(worldActions);worldActions=null;
         worldHidden.forEach(Widget::setVisible);worldHidden.clear();
         enteringWorld=false;
@@ -156,37 +156,41 @@ public final class ClientUi implements Disposable {
         playerKeys.clear();repeatingPlayerKey=0;suppressedPlayerCharacter=0;
         boolean replacing=worldScene!=null;
         if(replacing){
-            characterCustomization.closePopup();inventory.closePopup();trainerCard.closePopup();mail.forceClose();pcMenu.closePopup();storage.closePopup();pokemonSummary.closePopup();worldTools.closeForTeleport();pokedex.closePopup();
-            pokemon.removeParty(party);worldScene.commands().onPc(null);root.removeChild(worldHud);root.removeChild(worldActions);
+            characterCustomization.closePopup();inventory.closePopup();trainerCard.closePopup();mail.forceClose();pcMenu.closePopup();storage.forceClose();pokemonSummary.closePopup();worldTools.closeForTeleport();pokedex.closePopup();
+            pokemon.removeParty(party);root.removeChild(worldHud);root.removeChild(worldActions);
         }
         playerEntry=entry;enteringWorld=false;
+        world.surfSprites(resources.roms().get(top.totodile.pokemmo.client.rom.RomType.FIRE_RED));
         inventoryItems.previewAppearance(entry==null?null:entry.character().appearance());
-        displayedPokedexState=world.commands().pokedexState();pokedex.setState(displayedPokedexState);
+        displayedPokedexState=world.pokedex().pokedexState();pokedex.setState(displayedPokedexState);
         worldActions=new top.totodile.pokemmo.client.ui.world.WorldActions(world,mobile);
         worldActions.onTeleport(()->openWorldTool(WorldToolsWindow.Tool.TELEPORT));
         worldActions.onItem(()->openWorldTool(WorldToolsWindow.Tool.ITEM));
         worldActions.onRandomItems(this::generateRandomItems);
         worldActions.onRandomOutfit(this::generateRandomOutfit);
+        worldActions.onPortablePc(this::openPortablePc);
         worldActions.onPokemon(()->openWorldTool(WorldToolsWindow.Tool.POKEMON));
         worldScene=world;
         worldHud=new top.totodile.pokemmo.client.ui.world.WorldHud(world,strings,mobile,resources.preferences(),this::itemIcon,
                 ()->{world.setInputBlocked(true);settings.open();},
                 ()->{world.setInputBlocked(true);worldLogout.show(strings.get(1160),()->{leaveWorld.run();controller.back();});},worldExit,batteryPercent);
+        hotkeyBar=new top.totodile.pokemmo.client.ui.inventory.HotkeyBar(inventoryItems,resources.preferences(),mobile);
+        hotkeyBar.onUse(item->inventory.activateItem(item,InventoryWindow.ItemAction.USE));
+        inventory.onItemDrop((item,x,y)->hotkeyBar!=null&&hotkeyBar.drop(item,x,y));
+        worldHud.hotkeyBar(hotkeyBar);reloadHotkeyInventory();
         worldHud.onBag(()->toggle(inventory));
         worldHud.onTrainer(()->toggle(trainerCard));
         worldHud.onMail(()->toggle(mail));
         pokemon.onFollower(value->{if(worldScene==world)world.follower(resources,value,this::showNotification);});
-        pokemon.onFollowerDrop((x,y)->worldScene==world&&!enteringWorld&&!entryError.isOpen()&&!pokedex.isOpen()
-                &&!playerWindowsOpen()&&!pokemon.hasMenu()&&!pokedex.showingMessage()&&!settings.blocksInput()
+        pokemon.onFollowerDrop((x,y)->worldScene==world&&!enteringWorld&&!entryError.isOpen()&&(!mobile||!pokedex.isOpen()&&!playerWindowsOpen())
+                &&!playerWindowsOwnPointer(x,y)&&!gui.hasOpenPopups()&&!pokemon.hasMenu()&&!pokedex.showingMessage()&&!settings.blocksInput()
                 &&!worldLogout.isOpen()&&(exitConfirmation==null||!exitConfirmation.isOpen())
                 &&!worldActions.isInside(x,y)&&!worldHud.ownsPointer(x,y));
         storage.reset();pokemon.bind(controller.selection(),playerEntry==null?null:playerEntry.character().id());
         party=pokemon.party(false);worldHud.party(party);
-        world.commands().onPc(this::openPortablePc);
-        worldHud.onCommand(line->{if(line.strip().matches("(?i)//?pc(?:\\s.*)?"))world.commands().execute(line);});
         if(playerEntry!=null){inventory.region(playerEntry.region());inventory.money(world.worldInfo().money());mail.bind(controller.selection(),playerEntry.character());}
         worldHud.onCustomization(()->{if(playerEntry!=null){while(worldHud.closeOverlay()){}characterCustomization.openCustomization(playerEntry.character().appearance());restoreWorldInput();}});
-        worldHud.onPokedex(()->{while(worldHud.closeOverlay()){}world.setInputBlocked(true);pokedex.open();});
+        worldHud.onPokedex(()->{while(worldHud.closeOverlay()){}if(mobile)world.setInputBlocked(true);pokedex.open();restoreWorldInput();});
         if(!replacing)for(int i=0;i<root.getNumChildren();i++) {
             Widget child=root.getChild(i);worldHidden.put(child,child.isVisible());child.setVisible(false);
         }
@@ -255,7 +259,7 @@ public final class ClientUi implements Disposable {
                 if(worldActions!=null) {
                     loginPanel.layoutNotifications();
                     worldHud.position(getInnerX(),getInnerY(),getInnerWidth(),getInnerHeight());
-                    worldActions.position(getInnerX(),getInnerY(),getInnerWidth(),getInnerHeight());
+                    worldActions.position(getInnerX()+(mobile?100:0),getInnerY(),getInnerWidth()-(mobile?100:0),getInnerHeight());
                     fps.adjustSize(); fps.setPosition(mobile?getInnerX():getInnerRight()-fps.getWidth(),mobile?getInnerBottom()-fps.getHeight():getInnerY());
                     return;
                 }
@@ -326,7 +330,7 @@ public final class ClientUi implements Disposable {
                 resources.modImporter(),resources.romFilePicker(),renderer,resources.preferences(),loginPanel::showNotification);
         settings = new SettingsWindow(root, strings, mobile, restoreFocus, mobileBackground, resources.preferences(),loginPanel::showNotification);
         pokedex = new PokedexWindow(root,resources,renderer,mobile,mobileBackground,()->{
-            if(worldScene!=null)worldScene.setInputBlocked(worldHud.editingChat()||settings.blocksInput()||worldLogout.isOpen());
+            restoreWorldInput();
         });
         if(gameService!=null)pokedex.setTierData(gameService.pokedexTiers());
         characterCreation = new CharacterCreationWindow(root, strings, mobile, () -> {
@@ -342,17 +346,19 @@ public final class ClientUi implements Disposable {
         },completed->{
             try { inventoryItems.load(); }
             catch(IOException failure){Gdx.app.error("inventory","Cannot load item ROM",failure);entryError.show(strings.format(1186,strings.get(92)));return;}
-            playerRequest((selection,id)->gameService.inventory(selection,id),completed);
+            playerRequest((selection,id)->gameService.inventory(selection,id),value->{if(hotkeyBar!=null&&playerEntry!=null)hotkeyBar.inventory(value,playerEntry.region());completed.accept(value);});
         },this::restoreWorldInput);
+        inventory.onItemAction(this::useInventoryItem);
         trainerCard=new TrainerCardWindow(root,resources,renderer,mobile,characterCreation::savedAppearance,inventoryItems::icon,
                 completed->playerRequest((selection,id)->gameService.trainer(selection,id),completed),this::restoreWorldInput);
         mail=new MailWindow(root,resources,renderer,mobile,gameService,mobileBackground,this::restoreWorldInput);
         pokemon=new PokemonController(resources,renderer,mobile,gameService,text->entryError.show(text),id->{pokedex.showSpecies(id);restoreWorldInput();});
+        pokemon.itemIcons(inventoryItems::icon);
         storage=new PokemonStorageWindow(root,pokemon,mobile,this::restoreWorldInput);
         pokemonSummary=new PokemonSummaryWindow(root,pokemon,inventoryItems::icon,this::restoreWorldInput);
         if(!mobile)pokemon.onSummary(value->{try{inventoryItems.gameData(gameService);}catch(IOException failure){Gdx.app.error("pokemon","Cannot register species data",failure);return;}pokemonSummary.show(value,playerEntry==null?null:playerEntry.character().name());restoreWorldInput();});
         worldTools=new WorldToolsWindow(root,mobile,resources,inventoryItems,gameService,this::executeWorldTool,text->{
-            if(worldActions!=null){pokemon.reload();inventory.reloadIfOpen();}
+            if(worldActions!=null){pokemon.reload();inventory.reloadIfOpen();reloadHotkeyInventory();}
         },text->Gdx.app.error("world-tools",text),this::restoreWorldInput);
         pokemon.onChanged(()->pokedex.setOwnedSpecies(pokemon.state().pokemons().stream().filter(p->!p.egg()).map(top.totodile.pokemmo.server.game.PokemonData.Pokemon::species).collect(java.util.stream.Collectors.toSet())));
         pcMenu=new PcMenuWindow(root,strings,mobile,this::openPortablePc,this::openPcMail,this::restoreWorldInput);
@@ -386,18 +392,23 @@ public final class ClientUi implements Disposable {
         gui.applyTheme(theme);
         if (!mobile) renderer.setFullscreenCursors(theme.getImage("fullscreen.cursor.arrow"), theme.getImage("fullscreen.cursor.text"));
         input = new InputAdapter() {
+            private boolean windowPointerCapture;
             private boolean pointer(int x,int y,int button,boolean pressed) {
                 if(enteringWorld) return true;
                 Vector2 point=viewport.unproject(new Vector2(x,y));
+                int px=Math.round(point.x),py=renderer.getHeight()-Math.round(point.y);
+                boolean captured=windowPointerCapture;
+                if(pressed&&button>=0){windowPointerCapture=playerWindowsOwnPointer(px,py)||gui.hasOpenPopups()||hotkeyBar!=null&&hotkeyBar.isInside(px,py);captured=windowPointerCapture;if(worldScene!=null&&!mobile&&!windowPointerCapture&&!worldHud.ownsPointer(px,py))releaseWindowFocus();}
+                if(!pressed&&button>=0)windowPointerCapture=false;
                 if(!pressed&&button<0)pokemonSummary.hoverMenus(Math.round(point.x),renderer.getHeight()-Math.round(point.y));
-                if(worldScene!=null&&pressed&&button==0&&!entryError.isOpen()&&!settings.blocksInput()&&!pokedex.isOpen()&&!mail.isOpen()&&!inventory.isOpen()&&!trainerCard.isOpen()&&!characterCustomization.isOpen())pokemon.touchDown(Math.round(point.x),renderer.getHeight()-Math.round(point.y),button);
+                if(worldScene!=null&&pressed&&button==0&&!entryError.isOpen()&&!settings.blocksInput()&&(!mobile||!pokedex.isOpen()&&!mail.isOpen()&&!inventory.isOpen()&&!trainerCard.isOpen())&&!characterCustomization.isOpen()&&(mobile||(!playerWindowsOwnPointer(px,py)||storage.isOpen()&&storage.ownsPointer(px,py)&&topPlayerWindow()==storage)&&!gui.hasOpenPopups()))pokemon.touchDown(Math.round(point.x),renderer.getHeight()-Math.round(point.y),button);
                 if(pressed&&button==0&&pokedex.isOpen())pokedex.touchDown(Math.round(point.x),renderer.getHeight()-Math.round(point.y));
-                if(worldActions!=null && !pokedex.isOpen() && !playerWindowsOpen() && !pokemon.hasMenu() && !pokedex.showingMessage() && !settings.blocksInput() && !worldLogout.isOpen() && (exitConfirmation==null||!exitConfirmation.isOpen())
+                if(worldActions!=null && !captured && (!mobile||!pokedex.isOpen()&&!playerWindowsOpen()) && !playerWindowsOwnPointer(px,py) && !gui.hasOpenPopups() && !pokemon.hasMenu() && !pokedex.showingMessage() && !settings.blocksInput() && !worldLogout.isOpen() && (exitConfirmation==null||!exitConfirmation.isOpen())
                         && !worldActions.isInside(Math.round(point.x),renderer.getHeight()-Math.round(point.y))
                         && !worldHud.ownsPointer(Math.round(point.x),renderer.getHeight()-Math.round(point.y))) {
                     gui.handleMouse(-1,-1,button,false);return false;
                 }
-                return gui.handleMouse(Math.round(point.x), renderer.getHeight()-Math.round(point.y),button,pressed);
+                boolean handled=gui.handleMouse(Math.round(point.x), renderer.getHeight()-Math.round(point.y),button,pressed);if(pressed)restoreWorldInput();return handled;
             }
             @Override public boolean touchDown(int x,int y,int pointer,int button){
                 if (pointer != 0) return false;
@@ -415,7 +426,7 @@ public final class ClientUi implements Disposable {
                     playerTouchScroll=(top.totodile.pokemmo.client.ui.common.TouchScrollPane)target;
                     if(playerTouchScroll!=null)playerTouchScroll.beginTouch(px,py,mobile);
                 }
-                if(worldHud!=null&&!pokedex.isOpen()&&!playerWindowsOpen()&&!pokedex.showingMessage()&&!settings.blocksInput()&&!worldLogout.isOpen()) {
+                if(worldHud!=null&&(!mobile||!pokedex.isOpen()&&!playerWindowsOpen())&&!pokedex.showingMessage()&&!settings.blocksInput()&&!worldLogout.isOpen()) {
                     Vector2 point=viewport.unproject(new Vector2(x,y));
                     if(worldHud.dismissMenuOutside(Math.round(point.x),renderer.getHeight()-Math.round(point.y)))return true;
                 }
@@ -486,11 +497,25 @@ public final class ClientUi implements Disposable {
                         if(key==Input.Keys.ESCAPE||key==Input.Keys.BACK)inventory.closeMenu();
                         else {int code=keyCode(key);if(code!=0)gui.handleKey(code,'\0',true);}return true;
                     }
+                    if(worldHud.editingChat()) {
+                        if(key==Input.Keys.ESCAPE||key==Input.Keys.BACK){worldHud.closeOverlay();restoreWorldInput();return true;}
+                        if(key==Input.Keys.ENTER){worldHud.submitChat();restoreWorldInput();return true;}
+                        int code=keyCode(key);if(code!=0)gui.handleKey(code,'\0',true);return true;
+                    }
+                    if(!worldInputBlocked()&&hotkeyBar!=null){
+                        if(playerKeys.contains(key))return true;
+                        if(hotkeyBar.keyDown(key)){playerKeys.add(key);return true;}
+                    }
                     if(handlePlayerShortcut(key))return true;
+                    if(!mobile&&!focusedTextInput()&&!gui.hasOpenPopups()){
+                        if(key==Input.Keys.ENTER){worldHud.openChat();return true;}
+                        int action=Integer.parseInt(resources.preferences().get("client.controls.gdx.key_a",Integer.toString(Input.Keys.J)));
+                        if(key==action&&playerEntry!=null&&PlayerData.pcTarget(worldScene.movement().position(),playerEntry.region())){pcMenu.playerName(strings,playerEntry.character().name());pcMenu.open();restoreWorldInput();return true;}
+                    }
                     var top=topPlayerWindow();
                     if(top!=null){
                         if(key==Input.Keys.ESCAPE||key==Input.Keys.BACK){if(top==mail)mail.back();else if(top==worldTools)worldTools.back();else top.closePopup();return true;}
-                        int code=keyCode(key);if(code!=0)gui.handleKey(code,'\0',true);return true;
+                        int code=keyCode(key);return code!=0&&gui.handleKey(code,'\0',true);
                     }
                     if(pokedex.showingMessage()) {
                         if(key==Input.Keys.ESCAPE||key==Input.Keys.BACK||key==Input.Keys.ENTER)pokedex.back();
@@ -498,14 +523,10 @@ public final class ClientUi implements Disposable {
                     }
                     if(pokedex.isOpen()) {
                         if(key==Input.Keys.ESCAPE||key==Input.Keys.BACK){pokedex.back();return true;}
-                        int code=keyCode(key);if(code!=0)gui.handleKey(code,'\0',true);return true;
+                        int code=keyCode(key);return code!=0&&gui.handleKey(code,'\0',true);
                     }
                     if(key==Input.Keys.ESCAPE || key==Input.Keys.BACK) {
                         if(!worldHud.closeOverlay())leaveWorld.run();return true;
-                    }
-                    if(worldHud.editingChat()) {
-                        if(key==Input.Keys.ENTER){worldHud.submitChat();return true;}
-                        int code=keyCode(key);if(code!=0)gui.handleKey(code,'\0',true);return true;
                     }
                     if(key==Input.Keys.ENTER){worldHud.openChat();return true;}
                     if(key==Integer.parseInt(resources.preferences().get("client.controls.gdx.key_a",Integer.toString(Input.Keys.J)))){
@@ -543,14 +564,14 @@ public final class ClientUi implements Disposable {
                 return code!=0 && gui.handleKey(code,'\0',true);
             }
             @Override public boolean keyUp(int key){
+                if(worldScene!=null)worldScene.keyUp(key);
                 if(playerKeys.remove(key)){if(repeatingPlayerKey==key)repeatingPlayerKey=0;suppressedPlayerCharacter=0;return true;}
-                if(worldActions!=null&&!worldHud.editingChat()&&!pokedex.isOpen()&&!playerWindowsOpen()&&!settings.blocksInput()&&!worldLogout.isOpen())return false;
                 int code=keyCode(key);return code!=0 && gui.handleKey(code,'\0',false);
             }
             @Override public boolean keyTyped(char value){
                 for(int held:playerKeys)if(held>=Input.Keys.A&&held<=Input.Keys.Z&&java.lang.Character.toLowerCase(value)=='a'+held-Input.Keys.A)return true;
                 if(suppressedPlayerCharacter!=0){char suppressed=suppressedPlayerCharacter;suppressedPlayerCharacter=0;if(java.lang.Character.toLowerCase(value)==suppressed)return true;}
-                if(worldActions!=null&&!worldHud.editingChat()&&!pokedex.isOpen()&&!playerWindowsOpen()&&!settings.blocksInput())return false;
+                if(worldActions!=null&&!worldHud.editingChat()&&(!mobile||!pokedex.isOpen()&&!playerWindowsOpen())&&!focusedTextInput()&&!gui.hasOpenPopups()&&!settings.blocksInput())return false;
                 if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT))return false;
                 if(value<32 || value==127)return false;
                 boolean handled=gui.handleKey(Event.KEY_NONE,value,true);
@@ -575,13 +596,21 @@ public final class ClientUi implements Disposable {
         for(var window:new PlayerWindow[]{inventory,trainerCard,mail,pcMenu,storage,worldTools,pokemonSummary})if(window.isOpen()&&window.isAbove(pokedex)&&(top==null||window.isAbove(top)))top=window;
         return top;
     }
-    private void restoreWorldInput(){if(worldScene!=null)worldScene.setInputBlocked(enteringWorld||playerWindowsOpen()||pokemon.hasMenu()||entryError.isOpen()||pokedex.isOpen()||worldHud.menuOpen()||worldHud.editingChat()||settings.blocksInput()||worldLogout.isOpen());}
+    private boolean playerWindowsOwnPointer(int x,int y){
+        for(var window:new top.totodile.pokemmo.client.ui.common.ClientWindow[]{pokedex,inventory,trainerCard,mail,pcMenu,storage,worldTools,pokemonSummary,characterCustomization})if(window!=null&&window.isOpen()&&window.ownsPointer(x,y))return true;
+        return false;
+    }
+    private void releaseWindowFocus(){for(var window:new top.totodile.pokemmo.client.ui.common.ClientWindow[]{pokedex,inventory,trainerCard,mail,pcMenu,storage,worldTools,pokemonSummary})if(window!=null)window.giveupKeyboardFocus();restoreWorldInput();}
+    private boolean focusedTextInput(){return focusedTextInput(gui);}
+    private boolean focusedTextInput(Widget parent){if(parent instanceof EditField)return true;for(int i=0;i<parent.getNumChildren();i++){var child=parent.getChild(i);if(child.isVisible()&&child.hasKeyboardFocus()&&focusedTextInput(child))return true;}return false;}
+    private boolean worldInputBlocked(){return enteringWorld||mobile&&(playerWindowsOpen()||pokedex.isOpen())||characterCustomization.isOpen()||gui.hasOpenPopups()||focusedTextInput()||pokemon.hasMenu()||entryError.isOpen()||pokedex.showingMessage()||worldHud.menuOpen()||worldHud.editingChat()||settings.blocksInput()||worldLogout.isOpen()||exitConfirmation!=null&&exitConfirmation.isOpen();}
+    private void restoreWorldInput(){if(worldScene!=null)worldScene.setInputBlocked(worldInputBlocked());}
     private void toggle(PlayerWindow window){if(window.isOpen())window.closePopup();else{while(worldHud.closeOverlay()){}window.open();}restoreWorldInput();}
     private boolean handlePlayerShortcut(int key){
         return handlePlayerShortcut(key,false);
     }
     private boolean handlePlayerShortcut(int key,boolean repeated){
-        if(entryError.isOpen()||worldTools.isOpen()||pokedex.showingMessage()||worldHud.editingChat()||pokedex.isOpen()&&pokedex.editingSearch()||inventory.isOpen()&&inventory.editing()||storage.isOpen()&&storage.editing()||mail.isOpen()&&(mail.editing()||mail.hasDialog()))return false;
+        if(entryError.isOpen()||pokedex.showingMessage()||worldHud.editingChat()||focusedTextInput()||mail.isOpen()&&mail.hasDialog()||mobile&&worldTools.isOpen())return false;
         int bag=Integer.parseInt(resources.preferences().get("client.controls.gdx.bag",Integer.toString(Input.Keys.B)));
         int trainer=Integer.parseInt(resources.preferences().get("client.controls.gdx.trainer",Integer.toString(Input.Keys.C)));
         int dex=Integer.parseInt(resources.preferences().get("client.controls.gdx.codex",Integer.toString(Input.Keys.N)));
@@ -608,6 +637,18 @@ public final class ClientUi implements Disposable {
             if(disposed||playerEntry!=entry||controller.selection()!=selection)return;
             if(error!=null){Gdx.app.error("player","Cannot load player data",error);entryError.show(strings.get(2103));}else completed.accept(result);
         }));
+    }
+    private void useInventoryItem(PlayerData.Item item,InventoryWindow.ItemAction action){
+        if(action!=InventoryWindow.ItemAction.USE||worldScene==null||enteringWorld||item.amount()<=0)return;
+        // ItemUseService.useBike toggles transportation without consuming the item.
+        // WorldState already persists this character's travel state.
+        if(inventoryItems.bicycle(item.itemId()))worldScene.motion().toggleBicycle();
+    }
+    private void reloadHotkeyInventory(){
+        if(hotkeyBar==null||playerEntry==null)return;
+        try{inventoryItems.load();}catch(IOException error){Gdx.app.error("hotbar","Cannot load item resources",error);return;}
+        var target=hotkeyBar;int region=playerEntry.region();
+        playerRequest((selection,id)->gameService.inventory(selection,id),value->{if(target==hotkeyBar)target.inventory(value,region);});
     }
     private void openPcMail(){
         if(playerEntry==null||gameService==null)return;
@@ -660,7 +701,7 @@ public final class ClientUi implements Disposable {
         gameService.replaceInventory(selection,entry.character().id(),replacement).whenComplete((ignored,error)->Gdx.app.postRunnable(()->{
             generatingRandomItems=false;if(disposed||playerEntry!=entry)return;
             if(error!=null){Gdx.app.error("inventory","Cannot generate random items",error);entryError.show(strings.get(2103));}
-            else inventory.reloadIfOpen();
+            else {inventory.reloadIfOpen();reloadHotkeyInventory();}
         }));
     }
     private void openWorldTool(WorldToolsWindow.Tool tool){
@@ -676,7 +717,7 @@ public final class ClientUi implements Disposable {
         if(values[0]<0||values[0]>4)throw new IllegalArgumentException("Unknown region: "+values[0]);
         var old=worldScene;var position=new GameService.Position(values[1],values[2],values[3],values[4],old.movement().position().direction());
         var state=new GameService.TravelState(old.movement().noClip(),old.motion().speed(),old.motion().bicycle());
-        var next=new GameService.Entry(entry.character(),position,state,old.commands().pokedexState(),old.worldInfo(),values[0]);
+        var next=new GameService.Entry(entry.character(),position,state,old.pokedex().pokedexState(),old.worldInfo(),values[0]);
         enteringWorld=true;old.setInputBlocked(true);
         java.util.concurrent.CompletionStage<Void> operation;
         try{operation=teleportWorld.apply(next);}catch(RuntimeException failure){enteringWorld=false;throw failure;}
@@ -896,11 +937,11 @@ public final class ClientUi implements Disposable {
         loginPanel.updateNotifications();
         if(worldActions!=null) {
             repeatPlayerShortcut();
-            var dexState=worldScene.commands().pokedexState();
+            var dexState=worldScene.pokedex().pokedexState();
             if(!dexState.equals(displayedPokedexState)){displayedPokedexState=dexState;pokedex.setState(dexState);trainerCard.reloadIfOpen();}
             worldActions.update();
             worldHud.update();
-            worldScene.setInputBlocked(enteringWorld||worldHud.menuOpen()||worldHud.editingChat()||playerWindowsOpen()||pokemon.hasMenu()||entryError.isOpen()||pokedex.isOpen()||pokedex.showingMessage()||settings.blocksInput()||worldLogout.isOpen()||(exitConfirmation!=null&&exitConfirmation.isOpen()));
+            worldScene.setInputBlocked(worldInputBlocked());
             fps.setVisible(Boolean.parseBoolean(resources.preferences().get("client.graphics.show_fps","true")));
             fps.setText(frameRate.frame());
             if(renderer.updateFontScale()) invalidateFontLayout(gui);
@@ -931,7 +972,7 @@ public final class ClientUi implements Disposable {
     @Override public void dispose() {
         clientManagement.dispose();
         mods.dispose();
-        inventory.closePopup();trainerCard.close();mail.close();pcMenu.closePopup();storage.closePopup();pokemonSummary.closePopup();worldTools.forceClose();pokemon.close();inventoryItems.close();
+        inventory.closePopup();trainerCard.close();mail.close();pcMenu.closePopup();storage.forceClose();pokemonSummary.closePopup();worldTools.forceClose();pokemon.close();inventoryItems.close();
         pokedex.close();
         disposed = true;
         characterDelete.closePopup();

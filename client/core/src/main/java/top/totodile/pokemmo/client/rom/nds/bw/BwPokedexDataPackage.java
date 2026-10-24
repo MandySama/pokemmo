@@ -147,7 +147,7 @@ public final class BwPokedexDataPackage {
             if((flags&16)!=0){int ev=u16(b);yield=List.of(ev&3,ev>>2&3,ev>>4&3,ev>>8&3,ev>>10&3,ev>>6&3);}
             if((flags&32)!=0)skip(b,u8(b)*2);
             if((flags&128)!=0)b.getShort();
-            if((flags&256)!=0)b.get();
+            if((flags&256)!=0){int rarity=u8(b);if(old!=null)dex.rarityClasses.put(id,rarity);}
             if(old!=null){
                 dex.species.set(id-1,new Species(id,List.copyOf(stats),old.type1(),old.type2(),old.height(),old.weight(),abilities,groups,yield,old.heldItems(),old.moves(),old.evolutions()));
                 Extra extra=dex.extra(id);dex.extras.put(id,new Extra(extra.genderRatio(),extra.catchRate(),extra.growthRate(),extra.baseExperience(),extra.formCount(),extra.formSprite(),

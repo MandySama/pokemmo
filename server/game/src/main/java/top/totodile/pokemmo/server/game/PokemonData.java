@@ -19,7 +19,7 @@ public final class PokemonData {
     }
     public record Pokemon(String id,int container,int position,int species,int form,int gender,
                           boolean shiny,boolean egg,String name,int level,int hp,int status,int item,
-                          int nature,int ability,List<Integer> stats,List<Integer> ivs,List<Integer> evs,List<Integer> moves,int friendship,boolean hiddenAbility,boolean alpha,int marks,List<Integer> pp,List<Integer> ppUps,Origin origin,Honors honors,int ball) {
+                          int nature,int ability,List<Integer> stats,List<Integer> ivs,List<Integer> evs,List<Integer> moves,int friendship,boolean hiddenAbility,boolean alpha,int marks,List<Integer> pp,List<Integer> ppUps,Origin origin,Honors honors,int ball,boolean secretShiny) {
         public Pokemon(String id,int container,int position,int species,int form,int gender,boolean shiny,boolean egg,String name,int level,int hp,int status,int item,int nature,int ability,List<Integer> stats,List<Integer> ivs,List<Integer> evs,List<Integer> moves){
             this(id,container,position,species,form,gender,shiny,egg,name,level,hp,status,item,nature,ability,stats,ivs,evs,moves,0,false,false,0);
         }
@@ -38,6 +38,9 @@ public final class PokemonData {
         public Pokemon(String id,int container,int position,int species,int form,int gender,boolean shiny,boolean egg,String name,int level,int hp,int status,int item,int nature,int ability,List<Integer> stats,List<Integer> ivs,List<Integer> evs,List<Integer> moves,int friendship,boolean hiddenAbility,boolean alpha,int marks,List<Integer> pp,List<Integer> ppUps,Origin origin,Honors honors){
             this(id,container,position,species,form,gender,shiny,egg,name,level,hp,status,item,nature,ability,stats,ivs,evs,moves,friendship,hiddenAbility,alpha,marks,pp,ppUps,origin,honors,3);
         }
+        public Pokemon(String id,int container,int position,int species,int form,int gender,boolean shiny,boolean egg,String name,int level,int hp,int status,int item,int nature,int ability,List<Integer> stats,List<Integer> ivs,List<Integer> evs,List<Integer> moves,int friendship,boolean hiddenAbility,boolean alpha,int marks,List<Integer> pp,List<Integer> ppUps,Origin origin,Honors honors,int ball){
+            this(id,container,position,species,form,gender,shiny,egg,name,level,hp,status,item,nature,ability,stats,ivs,evs,moves,friendship,hiddenAbility,alpha,marks,pp,ppUps,origin,honors,ball,false);
+        }
         public Pokemon {
             stats=List.copyOf(stats);ivs=List.copyOf(ivs);evs=List.copyOf(evs);moves=List.copyOf(moves);pp=List.copyOf(pp);ppUps=List.copyOf(ppUps);
             if(ball<0||ball>24||honors==null||origin==null||id==null||id.isBlank()||name==null||species<1||species>649||form<0||gender< -1||gender>1
@@ -45,6 +48,7 @@ public final class PokemonData {
                     ||stats.stream().anyMatch(v->v<1)||ivs.stream().anyMatch(v->v<0||v>31)
                     ||evs.stream().anyMatch(v->v<0||v>252)||hp<0||hp>stats.get(0))throw new IllegalArgumentException("Invalid Pokemon snapshot");
         }
+        public boolean shiny(){return shiny||secretShiny;}
         public int maxHp(){return stats.get(0);}
     }
     public record Containers(List<Pokemon> pokemons,int boxes) {

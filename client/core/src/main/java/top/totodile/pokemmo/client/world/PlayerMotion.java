@@ -6,15 +6,15 @@ import top.totodile.pokemmo.server.game.GameService.Position;
 /** 本地地图移动时间轴。保留跨格剩余时间，帧率不影响移动速度。 */
 public final class PlayerMotion {
     private static final float TURN_SECONDS=.1f;
-    // 参考 MapDirectionElevationUtils.li / NA / GP，单位为每格秒数。
+    // MapDirectionElevationUtils.li / NA / GP；冲浪沿用 GdxParticleEmitterNode.ud 的 100ms。
     public enum Mode {
-        WALK(.275f,0), RUN(.135f,1), BICYCLE(.080f,2);
+        WALK(.275f,0), RUN(.135f,1), BICYCLE(.080f,2), SURF(.100f,3);
         public final float seconds; public final int animation;
         Mode(float seconds,int animation) { this.seconds=seconds; this.animation=animation; }
     }
     private final MapMovement movement;
     private final Consumer<Position> save;
-    private boolean running,bicycle,moving;
+    private boolean running,bicycle,moving,surfing;
     private float speed=1,time,duration,fromX,fromY,animationTime;
     private Mode stepMode=Mode.WALK;
     private float idleTime=TURN_SECONDS,turnTime;
@@ -24,18 +24,20 @@ public final class PlayerMotion {
     public void onStep(Consumer<Step> callback){stepped=java.util.Objects.requireNonNull(callback);}
     public float stepProgress(){return moving?Math.min(1,time/duration):1;}
     public PlayerMotion(MapMovement movement,boolean running,Consumer<Position> save) {
-        this.movement=movement; this.running=running; this.save=save;
+        this.movement=movement; this.running=running; this.save=save;surfing=movement.water();
     }
     public MapMovement movement() { return movement; }
     public boolean running() { return running; }
     public boolean bicycle() { return bicycle; }
+    public boolean surfing(){return surfing;}
+    public boolean allowsFollower(){return !bicycle&&!surfing;}
     public boolean moving() { return moving; }
     public float speed() { return speed; }
     public float animationTime() { return animationTime; }
-    public Mode mode() { return moving?stepMode:bicycle?Mode.BICYCLE:running?Mode.RUN:Mode.WALK; }
+    public Mode mode() { return moving?stepMode:surfing?Mode.SURF:bicycle?Mode.BICYCLE:running?Mode.RUN:Mode.WALK; }
     public void onStateChanged(Runnable callback) { stateChanged=java.util.Objects.requireNonNull(callback); }
     public void toggleRunning() { running=!running;stateChanged.run(); }
-    public void toggleBicycle() { bicycle=!bicycle;stateChanged.run(); }
+    public void toggleBicycle() { if(surfing)return;bicycle=!bicycle;stateChanged.run(); }
     public void setSpeed(float value) {
         if(!Float.isFinite(value) || value<=0 || value>16) throw new IllegalArgumentException("倍率必须大于 0 且不超过 16。");
         if(speed!=value) { speed=value;stateChanged.run(); }
@@ -51,7 +53,9 @@ public final class PlayerMotion {
         }
         Position after=movement.position();
         fromX=movement.stepFromX(); fromY=movement.stepFromY(); time=0;
-        stepMode=bicycle?Mode.BICYCLE:running?Mode.RUN:Mode.WALK;
+        boolean wasSurfing=surfing,wasBicycle=bicycle;surfing=movement.water();if(surfing)bicycle=false;
+        if(surfing!=wasSurfing||bicycle!=wasBicycle)stateChanged.run();
+        stepMode=surfing?Mode.SURF:bicycle?Mode.BICYCLE:running?Mode.RUN:Mode.WALK;
         duration=stepMode.seconds;
         moving=movement.continuousStep();
         stepped.accept(new Step(before,after,movement.stepFromX(),movement.stepFromY(),moving));

@@ -112,4 +112,26 @@
         </map>
       </param>
     </theme>
+  <!-- Align the desktop key glyphs with the reference slot's upper-left corner. -->
+  <fontDef name="hotbar-key" ref="inventory-quantity" offsetY="-8">
+    <fontParam if="pressed" offsetX="0" offsetY="-8" />
+  </fontDef>
+  <!-- Official hotkeybar-frame/hotkeybar/item-slot dimensions and typography. -->
+  <theme name="hotkeybar" ref="-defaults">
+    <theme name="item-slot" ref="button">
+      <param name="background"><image>ui-button.background</image></param>
+      <param name="border"><border>5,5,14,5</border></param>
+      <param name="font"><font>hotbar-key</font></param>
+      <param name="textAlignment"><enum type="alignment">TOPLEFT</enum></param>
+      <theme name="quantity" ref="label"><param name="font"><font>noto-8pt</font></param></theme>
+    </theme>
+  </theme>
+  <fontDef name="hotbar-mobile" filename="../res/fonts/NotoSansCJK-Bold.ttc" faces="sc,tc,jp" color="#FFFFFF" shadow_color="#A0000000" shadow_offset_x="2" shadow_offset_y="2" size="16"/>
+  <theme name="mobile-hotkeybar" ref="hotkeybar">
+    <theme name="item-slot" ref="hotkeybar.item-slot">
+      <param name="background"><image>label1.background</image></param>
+      <param name="border"><border>5</border></param>
+      <theme name="quantity" ref="label"><param name="font"><font>hotbar-mobile</font></param></theme>
+    </theme>
+  </theme>
 </themes>

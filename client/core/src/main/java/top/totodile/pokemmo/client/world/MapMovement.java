@@ -21,6 +21,7 @@ public final class MapMovement {
     }
     public MapData map() { return map; }
     public int elevation() { return elevation; }
+    public boolean water(){return maps.isWater(maps.tiles(map).behavior(map.block(x,y)&1023));}
     public boolean noClip() { return noClip; }
     /** Last successful step's source footpoint, rebased into the destination map. */
     public int stepFromX() {return stepFromX;}
@@ -67,9 +68,9 @@ public final class MapMovement {
         Warp warp=target.warp(nx,ny);
         // GBA animated doors are impassable blocks; approaching their warp from below enters the building.
         boolean doorEntry=maps.isDoor(behavior) && warp!=null && dy<0;
-        if(!noClip && ((block&0xc00)!=0 && !doorEntry || nextElevation==15 || elevation!=0 && nextElevation!=0 && elevation!=nextElevation)) return false;
-        // Water requires Surf; directional ledges and scripted movement are handled separately later.
-        if(!noClip && maps.isWater(behavior)) return false;
+        boolean water=maps.isWater(behavior),shore=water||water();
+        // Automatic Surf is user-authorized; retain wall and elevation checks on land.
+        if(!noClip && ((block&0xc00)!=0 && !doorEntry && !water || nextElevation==15 || !shore&&elevation!=0&&nextElevation!=0&&elevation!=nextElevation))return false;
         int sourceBehavior=maps.tiles(map).behavior(map.block(x,y)&1023);
         if(!noClip && (maps.blocked(sourceBehavior,dx,dy) || maps.blocked(behavior,-dx,-dy))) return false;
         boolean warped=false;

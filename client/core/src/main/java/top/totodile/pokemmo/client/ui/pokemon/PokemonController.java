@@ -21,6 +21,17 @@ public final class PokemonController implements AutoCloseable {
     final ClientStrings strings;
     final boolean mobile;
     private final GdxTwlRenderer renderer;
+    private java.util.concurrent.CompletableFuture<Map<Integer,com.badlogic.gdx.utils.JsonValue>> typeEffects;
+    synchronized java.util.concurrent.CompletableFuture<Map<Integer,com.badlogic.gdx.utils.JsonValue>> typeEffects(){
+        if(typeEffects==null)typeEffects=java.util.concurrent.CompletableFuture.supplyAsync(()->{
+            try{return SummaryParticles.readEffects(resources.apply("sprites/particles.pak"));}
+            catch(IOException error){throw new java.io.UncheckedIOException(error);}
+        });
+        return typeEffects;
+    }
+    private IntFunction<de.matthiasmann.twl.renderer.Image> itemIcons=id->null;
+    public void itemIcons(IntFunction<de.matthiasmann.twl.renderer.Image> icons){itemIcons=icons;}
+    de.matthiasmann.twl.renderer.Image itemIcon(int id){return itemIcons.apply(id);}
     private final GameService game;
     private final Consumer<String> error;
     private final IntConsumer codex;
@@ -63,7 +74,7 @@ public final class PokemonController implements AutoCloseable {
     public boolean busy(){return busy;}
     boolean ready(){
         if(dex!=null)return true;
-        try {dex=new BwPokedex(resources.roms().get(RomType.BLACK_WHITE),strings);dex.loadDataPackage(resources.apply("data.pak"));images=new PokedexImages(new BwPokemonSprites(dex),renderer,resources);return true;}
+        try {dex=new BwPokedex(resources.roms().get(RomType.BLACK_WHITE),strings);dex.loadDataPackage(resources.apply("data.pak"));if(game!=null)dex.loadTiers(game.pokedexTiers());images=new PokedexImages(new BwPokemonSprites(dex),renderer,resources);return true;}
         catch(IOException|RuntimeException failure){dex=null;Gdx.app.error("pokemon","Cannot load Pokemon ROM resources",failure);return false;}
     }
     BwPokedex dex(){return ready()?dex:null;}
@@ -105,7 +116,12 @@ public final class PokemonController implements AutoCloseable {
     private void refreshSlots(){for(var slot:slots)slot.refresh();}
     void move(PokemonSlot from,int container,int position){
         if(busy||game==null||character==null||from.pokemon()==null||from.container==container&&from.position==position)return;
-        closeMenu();request(game.movePokemon(selection,character,List.of(new Move(from.container,from.position,container,position))));
+        closeMenu();var selected=storageSelection.get();
+        if(from.storage&&selected.size()>1&&selected.contains(from)){
+            var changes=new ArrayList<Move>();int index=0;
+            for(var slot:selected){int target=container==PC?position+slot.position-from.position:position+index++;if(target<0||container==PC&&target/BOX_SIZE!=position/BOX_SIZE||container==PARTY&&target>=PARTY_SIZE)return;changes.add(new Move(slot.container,slot.position,container,target));}
+            request(game.movePokemon(selection,character,changes));
+        }else request(game.movePokemon(selection,character,List.of(new Move(from.container,from.position,container,position))));
     }
     void sort(int box){if(!busy&&game!=null&&character!=null)request(game.sortPokemon(selection,character,box));}
     void menu(PokemonSlot slot,boolean pc){
@@ -124,7 +140,7 @@ public final class PokemonController implements AutoCloseable {
             if(slot.position>0)add(actions,2313,()->move(slot,PARTY,0));
         }
         if(!pc&&!mobile){
-            boolean matching=follower.species()==p.species()&&follower.form()==p.form()&&follower.gender()==p.gender()&&follower.shiny()==p.shiny();
+            boolean matching=follower.species()==p.species()&&follower.form()==p.form()&&follower.gender()==p.gender()&&follower.shiny()==p.shiny()&&follower.alpha()==p.alpha();
             if(matching)add(actions,2256,()->selectFollower(2,null,0));
             else{
                 if(!p.egg())add(actions,strings.format(2262,name(p)),()->selectFollower(1,p.id(),0));
@@ -154,6 +170,8 @@ public final class PokemonController implements AutoCloseable {
         int box=storageBox.getAsInt(),target=firstEmpty(PC,box*BOX_SIZE,BOX_SIZE);
         if(target<0)error.accept(strings.format(2306,boxName(box)));else move(slot,PC,target);
     }
+    private Supplier<List<PokemonSlot>> storageSelection=List::of;
+    void storageSelection(Supplier<List<PokemonSlot>> selection){storageSelection=selection;}
     private IntSupplier storageBox=()->0;
     void storageBox(IntSupplier box){storageBox=box;}
     int firstEmpty(int container,int first,int amount){for(int i=first;i<first+amount;i++)if(state.at(container,i)==null)return i;return -1;}
@@ -167,7 +185,7 @@ public final class PokemonController implements AutoCloseable {
     public boolean hasMenu(){return menu!=null&&menu.isOpen();}
     public boolean touchDown(int x,int y,int button){
         if(button!=0||busy)return false;
-        var slot=hit(x,y);if(slot==null||slot.pokemon()==null)return false;
+        var slot=hit(x,y);if(slot==null||slot.pokemon()==null||!slot.canDragPokemon())return false;
         dragged=slot;draggedId=slot.pokemon().id();downX=x;downY=y;dragging=false;return false;
     }
     public boolean touchDragged(int x,int y){

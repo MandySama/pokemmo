@@ -2,7 +2,7 @@
 <themes>
   <theme name="pc-frame" ref="resizableframe">
     <param name="border">
-      <border>25,6,8,6</border>
+      <border>20,6,8,0</border>
     </param>
     <param name="fadeColorInactive">
       <color>#FFFFFFFF</color>
@@ -20,7 +20,7 @@
         <enum type="alignment">CENTER</enum>
       </param>
     </theme>
-    <theme name="preview-frame" ref="-defaults">
+    <theme name="preview-frame" ref="-defaults"><param name="background"><image>label7.background</image></param>
       <theme name="border-container" ref="-defaults">
         <param name="background">
           <image>pc-preview.default</image>
@@ -73,4 +73,6 @@
     <theme name="editfield" ref="editfield" />
     <theme name="label-button-small2-centered" ref="button" />
   </theme>
+<theme name="pc-tool-button" ref="button"><param name="background"><image>none</image></param><param name="border"><border>0</border></param></theme>
+<theme name="pc-slot-level" ref="label"><param name="border"><border>0</border></param><param name="textAlignment"><enum type="alignment">RIGHT</enum></param></theme>
 </themes>

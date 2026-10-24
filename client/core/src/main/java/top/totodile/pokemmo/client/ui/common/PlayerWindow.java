@@ -25,6 +25,7 @@ public abstract class PlayerWindow extends ClientWindow {
         if(isOpen()){raiseWindow();return;}
         if(openPopup()){width=-1;positionWindow();frame.setHardVisible(true);refresh();}
     }
+    @Override public boolean ownsPointer(int x,int y){return frame.isVisible()&&frame.isInside(x,y);}
     protected abstract void refresh();
     protected boolean handleFrameEvent(Event event){return false;}
     protected boolean fullScreen(){return mobile;}

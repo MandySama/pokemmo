@@ -43,4 +43,8 @@
       <border>2,8</border>
     </param>
   </theme>
+  <theme name="pokemon-ball-menu-button" ref="pokemon-menu-button">
+    <param name="border"><border>2,30,2,8</border></param>
+    <param name="textAlignment"><enum type="alignment">LEFT</enum></param>
+  </theme>
 </themes>

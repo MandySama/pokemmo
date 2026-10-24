@@ -35,4 +35,5 @@
   <fontDef name="trainer-name" filename="res/fonts/NotoSans-SemiCondensedBlack.ttf" color="#434343" size="18" incremental="false" characters="AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz" />
   <fontDef name="main-lightgreen" ref="main" color="#66FF66" />
   <fontDef name="summary-iv-red" ref="main" color="#f09999" />
+<fontDef name="noto-8pt" filename="res/fonts/NotoSansCJK-Medium.ttc" faces="sc,tc,jp" color="#FFFFFF" border_width="1" border_color="#434343" size="8" incremental="false" characters="0123456789ABCDEF" />
 </themes>

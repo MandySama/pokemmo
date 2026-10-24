@@ -226,6 +226,8 @@ public final class InventoryItems implements AutoCloseable {
         return name(id)+"\n"+(details.isEmpty()?"":"--------\n"+details)+"--------\n"+desc;
     }
     public Image tabIcon(int id,boolean selected){return image(id,!selected);}
+    /** AbstractClientProtocolContext.wn[0]: bicycle items in each region. */
+    public boolean bicycle(int id){return switch(textSource(id)){case 360,259,272,5450,8450,9450->true;default->false;};}
     public Image icon(int id){return image(id,false);}
     public Object tooltipContent(int id){
         var vanity=vanityItems.get(textSource(id));if(vanity==null)return tooltip(id,false);

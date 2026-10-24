@@ -13,6 +13,7 @@ import top.totodile.pokemmo.server.game.GameService.WorldInfo;
 
 /** Shared world input and motion, with GBA metatiles or the ROM's NDS field geometry. */
 public final class WorldScene extends InputAdapter implements AutoCloseable {
+    public void surfSprites(top.totodile.pokemmo.client.rom.RomInfo rom){character.surfSprites(rom);}
     public void appearance(top.totodile.pokemmo.server.game.GameService.Appearance saved){character.appearance(saved);}
     private final WorldMaps maps;
     private final NdsWorldRenderer nds;
@@ -21,7 +22,7 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
     private final ClientSettings settings;
     private final boolean mobile;
     private final PlayerMotion motion;
-    private final WorldCommands commands;
+    private final WorldPokedex pokedex;
     private WorldInfo worldInfo=WorldInfo.defaults();
     private final SpriteBatch batch=new SpriteBatch();
     private final OrthographicCamera camera=new OrthographicCamera();
@@ -61,7 +62,7 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
         this.mobile=mobile;
         motion=new PlayerMotion(movement,Boolean.parseBoolean(settings.get("client.gameplay.autosprint.enabled","true")),save);
         WorldState.bind(settings,motion,state,saveState);
-        commands=new WorldCommands(motion,pokedexState,savePokedex);
+        pokedex=new WorldPokedex(pokedexState,savePokedex);
         try {
             nds=maps.is3d()?new NdsWorldRenderer(maps,movement.map().id()):null;
             if(nds==null)atlas(maps.tiles(movement.map()));
@@ -71,7 +72,7 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
     }
     public MapMovement movement() { return movement; }
     public PlayerMotion motion() { return motion; }
-    public WorldCommands commands() { return commands; }
+    public WorldPokedex pokedex() { return pokedex; }
     public WorldInfo worldInfo(){return worldInfo;}
     public void setWorldInfo(WorldInfo info){worldInfo=Objects.requireNonNull(info);}
     public int locationStringId() { return maps.locationStringId(movement.map().id()); }
@@ -205,9 +206,6 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
             if(!actionKeys.add(key))return true;
             motion.toggleRunning();
             return true;
-        }
-        if(key==Input.Keys.NUM_2 || key==Input.Keys.NUMPAD_2) {
-            if(actionKeys.add(key))motion.toggleBicycle(); return true;
         }
         return false;
     }
