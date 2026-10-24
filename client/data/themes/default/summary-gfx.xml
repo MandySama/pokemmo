@@ -1,0 +1,89 @@
+<?xml version='1.0' encoding='utf-8'?>
+<themes>
+  <images file="res/monster-info.png" filter="nearest">
+    <area name="mi-label-title" xywh="7,58,15,24" splitx="L10,R0" splity="T16,B0" />
+    <area name="mi-label-title-inset" inset="0,6" xywh="7,58,15,24" splitx="L10,R0" splity="T16,B0" />
+    <area name="mi-label-value" xywh="25,58,125,25" splitx="L2,R2" splity="T2,B2" />
+    <area name="mi-label-value-blue" tint="#FFFFFF" xywh="181,21,57,47" splitx="L2,R2" splity="T2,B2" />
+    <area name="mi-label-value-inset" xywh="25,58,125,25" inset="0,-22,0,0" splitx="L2,R2" splity="T2,B2" />
+    <area name="mi-nameplate" xywh="7,101,165,17" splitx="L2,R2" splity="T6,B6" />
+    <area name="mi-skill" xywh="22,118,164,42" />
+    <area name="mi-skill-use" xywh="203,117,165,42" />
+    <area name="mi-skill-use-selected" xywh="203,75,165,42" />
+    <area name="mi-bg" xywh="279,226,234,231" />
+    <area name="mi-frame" xywh="6,194,506,316" />
+    <grid name="mi-frame-grid" weightsX="1,1" weightsY="1,1,1">
+      <area xywh="5,193,274,33" />
+      <area xywh="279,193,234,33" />
+      <area xywh="5,226,274,231" />
+      <alias ref="mi-bg" />
+      <area xywh="5,457,274,52" />
+      <area xywh="279,457,234,52" />
+    </grid>
+    <area name="mi-frame-type" xywh="279,226,229,231" tint="#c68a55" />
+    <area name="mi-tab1.default" xywh="5,32,20,20" />
+    <area name="mi-tab1.selected" xywh="5,6,20,20" />
+    <area name="mi-tab2.default" xywh="31,32,20,20" />
+    <area name="mi-tab2.selected" xywh="31,6,20,20" />
+    <area name="mi-tab3.default" xywh="56,32,20,20" />
+    <area name="mi-tab3.selected" xywh="56,6,20,20" />
+    <area name="mi-tab4.default" xywh="85,32,20,20" />
+    <area name="mi-tab4.selected" xywh="85,6,20,20" />
+    <area name="mi-tab5.selected" xywh="112,6,20,20" />
+    <area name="mi-tab5.default" xywh="112,32,20,20" />
+    <area name="mi-tab6.selected" xywh="138,6,20,20" />
+    <area name="mi-tab6.default" xywh="138,32,20,20" />
+    <area name="mi-tab7.selected" xywh="158,6,20,20" />
+    <area name="mi-tab7.default" xywh="158,32,20,20" />
+    <area name="mi-tab8.selected" xywh="243,6,20,20" />
+    <area name="mi-tab8.default" xywh="243,32,20,20" />
+    <area name="mi-tab9.selected" xywh="263,6,20,20" />
+    <area name="mi-tab9.default" xywh="263,32,20,20" />
+    <select name="mi-skill-use.background">
+      <alias ref="mi-skill-use-selected" if="selected | hover" />
+      <alias ref="mi-skill-use" />
+    </select>
+    <select name="mi-tab1.background">
+      <alias ref="mi-tab1.selected" if="selected | hover" />
+      <alias ref="mi-tab1.default" />
+    </select>
+    <select name="mi-tab2.background">
+      <alias ref="mi-tab2.selected" if="selected | hover" />
+      <alias ref="mi-tab2.default" />
+    </select>
+    <select name="mi-tab3.background">
+      <alias ref="mi-tab3.selected" if="selected | hover" />
+      <alias ref="mi-tab3.default" />
+    </select>
+    <select name="mi-tab4.background">
+      <alias ref="mi-tab4.selected" if="selected | hover" />
+      <alias ref="mi-tab4.default" />
+    </select>
+    <select name="mi-tab5.background">
+      <alias ref="mi-tab5.selected" if="selected | hover" />
+      <alias ref="mi-tab5.default" />
+    </select>
+    <select name="mi-tab6.background">
+      <alias ref="mi-tab6.selected" if="selected | hover" />
+      <alias ref="mi-tab6.default" />
+    </select>
+    <select name="mi-tab7.background">
+      <alias ref="mi-tab7.selected" if="selected | hover" />
+      <alias ref="mi-tab7.default" />
+    </select>
+    <select name="mi-tab8.background">
+      <alias ref="mi-tab8.selected" if="selected | hover" />
+      <alias ref="mi-tab8.default" />
+    </select>
+    <select name="mi-tab9.background">
+      <alias ref="mi-tab9.selected" if="selected | hover" />
+      <alias ref="mi-tab9.default" />
+    </select>
+  </images>
+  <images file="res/iconreel.png" filter="nearest">
+    <area name="icon.refresh" xywh="48,0,16,16" />
+  </images>
+  <images file="res/main-hud.png" filter="nearest">
+    <area name="summary-help-icon" xywh="45,236,16,16" />
+  </images>
+</themes>

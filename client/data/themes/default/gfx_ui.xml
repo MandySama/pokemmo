@@ -4,6 +4,7 @@
   <images file="res/cursors.png" filter="nearest">
     <area name="fullscreen.cursor.arrow" xywh="3,21,15,23" />
     <area name="fullscreen.cursor.text" xywh="2,1,9,17" />
+    <cursor name="cursor.text" hotSpotX="3" hotSpotY="8" xywh="2,1,9,17" />
   </images>
   <images file="res/user-interface.png" filter="nearest">
     <area name="console.background" xywh="43,100,1,1" tint="#B0000000" />

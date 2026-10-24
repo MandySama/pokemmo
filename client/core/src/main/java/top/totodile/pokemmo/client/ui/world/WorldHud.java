@@ -22,6 +22,8 @@ public final class WorldHud extends Widget {
     private final boolean mobile;
     private final MobileStatusIcons mobileStatus;
     private final MobileSideMenu mobileMenu;
+    private Runnable customizationAction=()->{};
+    public void onCustomization(Runnable action){customizationAction=action;}
     private Runnable bagAction=()->{},trainerAction=()->{},dexAction=()->{},mailAction=()->{};
     private top.totodile.pokemmo.client.ui.pokemon.PartyPanel party;
     private java.util.function.Consumer<String> command=line->{};
@@ -72,6 +74,7 @@ public final class WorldHud extends Widget {
             Button entry=new Button(strings.get(menuTexts[i]));entry.setTheme("button");
             entry.setCanAcceptKeyboardFocus(false);entries[i]=entry;menu.add(entry);
         }
+        entries[3].addCallback(()->{closeMenu();customizationAction.run();});
         entries[1].addCallback(()->{closeMenu();settings.run();});
         entries[6].addCallback(()->{closeMenu();logout.run();});
         entries[7].addCallback(()->{closeMenu();exit.run();});
@@ -89,7 +92,7 @@ public final class WorldHud extends Widget {
         mobileMenu=mobile?new MobileSideMenu(strings,mobileStatus,System::currentTimeMillis,icons):null;
         if(mobile){
             bar.setVisible(false);removeChild(status);
-            mobileMenu.worldEntries(strings,icons,status,()->bagAction.run(),()->trainerAction.run(),()->dexAction.run(),()->mailAction.run(),logout,exit);
+            mobileMenu.worldEntries(strings,icons,status,()->bagAction.run(),()->trainerAction.run(),()->dexAction.run(),()->mailAction.run(),()->customizationAction.run(),logout,exit);
             mobileMenu.onSettings(settings);mobileStatus.onMenu(mobileMenu::open);add(mobileStatus);add(mobileMenu);
         }
     }

@@ -12,8 +12,8 @@ import top.totodile.pokemmo.client.resources.ClientStrings;
 /** 参考 addons.pak 的外观目录、精灵帧索引和新角色筛选规则。 */
 public final class CharacterAppearance {
     enum Slot {
-        HAT(1, true), HAIR(2, false), EYES(3, false), FACE(4, true), BACK(5, true),
-        TOP(6, false), GLOVES(7, true), SHOES(8, false), PANTS(9, false), BICYCLE(11, false);
+        FOREHEAD(0, true), HAT(1, true), HAIR(2, false), EYES(3, false), FACE(4, true), BACK(5, true),
+        TOP(6, false), GLOVES(7, true), SHOES(8, false), PANTS(9, false), ROD(10, false), BICYCLE(11, false);
         final int id;
         final boolean optional;
         Slot(int id, boolean optional) { this.id = id; this.optional = optional; }
@@ -31,6 +31,7 @@ public final class CharacterAppearance {
         }
     }
 
+    private boolean allStyles;
     private final List<Entry> entries;
     private final ClientStrings strings;
     private final EnumMap<Slot,List<Entry>> choices = new EnumMap<>(Slot.class);
@@ -41,6 +42,21 @@ public final class CharacterAppearance {
     private record FrameKey(int slot, int id, int view, int variant, int frame, int layer) {}
     private Map<FrameKey,Frame> frames = new HashMap<>();
     private byte[] archive;
+    private record Track(int step,byte[] frames){}
+    private Map<Long,Track> animationTracks=new HashMap<>();
+    private static long trackKey(int slot,int id){return ((long)slot<<32)|(id&0xffffffffL);}
+    int variant(int slot,int id,long time){var track=animationTracks.get(trackKey(slot,id));return track==null||track.frames.length==0?0:track.frames[(int)(Math.max(0,time)/Math.max(1,track.step)%track.frames.length)]&255;}
+    // Modern_Battle_Ss0: subordinate effect IDs belong to a complete mount.
+    static int bicycleStyle(int id){
+        if(id>=13&&id<=16)return 12;
+        if(id>=18&&id<=27)return 17;
+        if(id==29)return 28;if(id==31)return 30;
+        if(id>=41&&id<=50)return 40;
+        if(id>=53&&id<=56)return 52;
+        return id;
+    }
+    Frame frame(int slot,int id,int view,int frame,int layer,int variant){return frames.get(new FrameKey(slot,id,view,variant,frame,layer));}
+
 
     Frame frame(int slot, int id, int view, int direction, int layer) {
         return frames.get(new FrameKey(slot, id, view, 0, direction, layer));
@@ -59,7 +75,7 @@ public final class CharacterAppearance {
 
     private CharacterAppearance(CharacterAppearance source) {
         strings = source.strings; entries = source.entries;
-        frames = source.frames; archive = source.archive;
+        frames = source.frames; archive = source.archive;animationTracks=source.animationTracks;
     }
 
     /** 参考共享 addon 目录；仅复用只读索引和归档，角色选择与颜色保持独立。 */
@@ -88,23 +104,28 @@ public final class CharacterAppearance {
 
     top.totodile.pokemmo.server.game.GameService.Appearance snapshot(int gender, int skin, int region) {
         var parts = new HashMap<Integer, top.totodile.pokemmo.server.game.GameService.Part>();
-        for (Slot slot : Slot.values()) parts.put(slot.id,
+        for (Slot slot : Slot.values()) if(allStyles||slot.id!=0&&slot.id!=10)parts.put(slot.id,
                 new top.totodile.pokemmo.server.game.GameService.Part(selected(slot).id(), color(slot)));
         return new top.totodile.pokemmo.server.game.GameService.Appearance(gender, skin, region, parts);
     }
 
     public CharacterAppearance restore(top.totodile.pokemmo.server.game.GameService.Appearance saved) {
         var result = new CharacterAppearance(this);
-        result.reset(saved.gender());
-        for (Slot slot : Slot.values()) {
-            var part = saved.parts().get(slot.id);
-            if (part == null) throw new IllegalArgumentException("Missing saved appearance");
-            var entry = result.choices(slot).stream().filter(value -> value.id() == part.style()).findFirst().orElseThrow();
-            result.selected.put(slot, entry); result.colors.put(slot, part.color());
-        }
+        result.loadSaved(saved,true);
         return result;
     }
 
+    void loadSaved(top.totodile.pokemmo.server.game.GameService.Appearance saved,boolean all){
+        allStyles=all;reset(saved.gender());
+        for(Slot slot:Slot.values()){
+            var part=saved.parts().get(slot.id);if(part==null){if(slot.id==0){selected.put(slot,new Entry(slot.id,-1,"",0));colors.put(slot,-1);}else if(slot.id==10){var entry=choices(slot).stream().min(Comparator.comparingInt(Entry::id)).orElseThrow();selected.put(slot,entry);colors.put(slot,0);}continue;}
+            int style=slot==Slot.BICYCLE?bicycleStyle(part.style()):part.style();
+            var entry=entries.stream().filter(e->e.slot()==slot.id&&e.id()==style).findFirst().orElse(null);
+            if(entry==null&&part.style()==-1)entry=new Entry(slot.id,-1,"",0);
+            if(entry==null)throw new IllegalArgumentException("Unknown saved appearance style");
+            selected.put(slot,entry);colors.put(slot,part.color());optionColors.put(slot,part.color());
+        }
+    }
     List<Entry> choices(Slot slot) { return choices.get(slot); }
     Entry selected(Slot slot) { return selected.get(slot); }
     int color(Slot slot) { return colors.get(slot); }
@@ -114,7 +135,7 @@ public final class CharacterAppearance {
         colors.put(slot, color);
     }
     boolean enabled(Slot slot) {
-        return choices(slot).size() > 1 && (slot != Slot.HAT || !selected(Slot.HAIR).coversHair());
+        return choices(slot).size() > 1 && (allStyles || slot != Slot.HAT || !selected(Slot.HAIR).coversHair());
     }
     void reset(int gender) {
         var random = ThreadLocalRandom.current();
@@ -122,13 +143,13 @@ public final class CharacterAppearance {
             List<Entry> available = new ArrayList<>();
             if (slot.optional) available.add(new Entry(slot.id, -1, "", 0));
             for (Entry entry : entries)
-                if (entry.slot() == slot.id && entry.available(gender)) available.add(entry);
+                if ((allStyles||slot.id!=0) && entry.slot() == slot.id && (slot!=Slot.BICYCLE||bicycleStyle(entry.id())==entry.id()) && (allStyles||entry.available(gender))) available.add(entry);
             available.sort(Comparator.comparingInt((Entry entry) -> entry.id() < 0 ? 0 : 1)
                     .thenComparing(entry -> entry.name(strings)));
             if (available.isEmpty()) throw new IllegalStateException("Missing appearance options for " + slot);
             choices.put(slot, List.copyOf(available));
             // 参考新角色随机化：脸部始终从“无”开始。
-            Entry entry = available.get(slot == Slot.FACE ? 0 : random.nextInt(available.size()));
+            Entry entry = available.get(slot == Slot.FOREHEAD || slot == Slot.FACE&&!allStyles ? 0 : random.nextInt(available.size()));
             selected.put(slot, entry);
             colors.put(slot, entry.colorable() ? random.nextInt(AppearancePalette.COLORS.length) : 0);
             // 参考 q9：重建下拉项时，各款式记下该栏当时的颜色。
@@ -175,7 +196,8 @@ public final class CharacterAppearance {
                 for (int table = data.get(); table > 0; table--) skip(data, data.getShort() * 2);
                 int rows = data.get();
                 for (int animation = data.get(); animation > 0; animation--) {
-                    skip(data, 3); skip(data, data.get() & 255);
+                    int type=data.get()&255,step=data.getShort()&65535;byte[] sequence=new byte[data.get()&255];data.get(sequence);
+                    if(type==1)animationTracks.put(trackKey(slot,id),new Track(step,sequence));
                 }
                 for (int row = 0; row < rows; row++) {
                     for (int format = 0; format < 3; format++) {

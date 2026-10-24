@@ -236,6 +236,7 @@
     </param>
   </theme>
   <theme name="editfield" ref="-defaults" allowWildcard="true">
+    <param name="mouseCursor"><cursor>cursor.text</cursor></param>
     <param name="background">
       <image>ui-inputbox.background</image>
     </param>

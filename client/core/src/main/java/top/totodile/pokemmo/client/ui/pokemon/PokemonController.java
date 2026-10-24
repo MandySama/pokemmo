@@ -30,6 +30,14 @@ public final class PokemonController implements AutoCloseable {
     private long generation;
     private boolean disposed,busy;
     private Containers state=Containers.empty();
+    private GameService.Follower follower=GameService.Follower.none();
+    private Consumer<GameService.Follower> followerChanged=value->{};
+    public void onFollower(Consumer<GameService.Follower> changed){followerChanged=changed;}
+    private Consumer<Pokemon> summary=value->{};
+    public void onSummary(Consumer<Pokemon> action){summary=action;}
+    private BiPredicate<Integer,Integer> followerDrop=(x,y)->false;
+    public void onFollowerDrop(BiPredicate<Integer,Integer> target){followerDrop=target;}
+    public GameService.Follower follower(){return follower;}
     private BwPokedex dex;
     private PokedexImages images;
     private PokemonSlot dragged;
@@ -48,7 +56,8 @@ public final class PokemonController implements AutoCloseable {
     public void onChanged(Runnable changed){var previous=this.changed;this.changed=()->{previous.run();changed.run();};}
     public void bind(Selection selection,String character){
         generation++;cancelDrag();closeMenu();this.selection=selection;this.character=character;busy=false;state=Containers.empty();refreshSlots();changed.run();
-        if(character!=null&&selection!=null&&game!=null)reload();
+        follower=GameService.Follower.none();followerChanged.accept(follower);
+        if(character!=null&&selection!=null&&game!=null){reload();long version=generation;game.follower(selection,character).whenComplete((value,failure)->Gdx.app.postRunnable(()->{if(!disposed&&version==generation&&failure==null){follower=value;followerChanged.accept(value);}}));}
     }
     public Containers state(){return state;}
     public boolean busy(){return busy;}
@@ -59,10 +68,25 @@ public final class PokemonController implements AutoCloseable {
     }
     BwPokedex dex(){return ready()?dex:null;}
     PokedexImages images(){return ready()?images:null;}
+    public de.matthiasmann.twl.renderer.Image characterPartyIcon(Pokemon pokemon){
+        return ready()?images.icon(pokemon.species(),pokemon.form(),pokemon.gender(),pokemon.egg()):null;
+    }
+    public String characterPartyName(Pokemon pokemon){return ready()?dex.name(pokemon.species()):"#"+pokemon.species();}
     String name(Pokemon p){String species=ready()?dex.name(p.species()):"#"+p.species();return p.egg()?strings.format(1893,species):p.name().isEmpty()?species:p.name();}
     PokemonSlot slot(int container,int position,boolean storage){var slot=new PokemonSlot(this,container,position,storage);slots.add(slot);return slot;}
     public PartyPanel party(boolean storage){return new PartyPanel(this,storage);}
     public void removeParty(PartyPanel party){slots.removeAll(Arrays.asList(party.slots));}
+    void moveMove(String id,int from,int to){if(!busy&&game!=null&&character!=null)request(game.movePokemonMove(selection,character,id,from,to));}
+    void setSetting(String id,GameService.PokemonSetting setting,int index,int value){
+        if(!busy&&game!=null&&character!=null)request(game.setPokemonSetting(selection,character,id,setting,index,value));
+    }
+    void selectParticle(String pokemonId,int particle){if(!busy&&game!=null&&character!=null)request(game.selectPokemonParticle(selection,character,pokemonId,particle));}
+    void setMarks(String pokemonId,int marks){
+        if(!busy&&game!=null&&character!=null)request(game.setPokemonMarks(selection,character,pokemonId,marks));
+    }
+    void setFlag(String pokemonId,GameService.PokemonFlag flag,boolean enabled){
+        if(!busy&&game!=null&&character!=null)request(game.setPokemonFlag(selection,character,pokemonId,flag,enabled));
+    }
     public void reload(){if(game!=null&&character!=null)request(game.pokemon(selection,character));}
     private void request(CompletionStage<Containers> operation){
         long version=generation;busy=true;refreshSlots();
@@ -87,8 +111,7 @@ public final class PokemonController implements AutoCloseable {
     void menu(PokemonSlot slot,boolean pc){
         var p=slot.pokemon();if(p==null||busy)return;closeMenu();
         var actions=new ArrayList<Button>();
-        // Summary / field moves / following require systems not supplied by this container implementation.
-        add(actions,1801,null);
+        add(actions,1801,mobile?null:()->summary.accept(p));
         add(actions,1729,()->codex.accept(p.species()));
         if(pc){
             if(slot.container==PC)add(actions,2301,()->{
@@ -100,15 +123,32 @@ public final class PokemonController implements AutoCloseable {
             if(slot.position+1<PARTY_SIZE&&state.at(PARTY,slot.position+1)!=null)add(actions,2304,()->move(slot,PARTY,slot.position+1));
             if(slot.position>0)add(actions,2313,()->move(slot,PARTY,0));
         }
+        if(!pc&&!mobile){
+            boolean matching=follower.species()==p.species()&&follower.form()==p.form()&&follower.gender()==p.gender()&&follower.shiny()==p.shiny();
+            if(matching)add(actions,2256,()->selectFollower(2,null,0));
+            else{
+                if(!p.egg())add(actions,strings.format(2262,name(p)),()->selectFollower(1,p.id(),0));
+                add(actions,strings.format(2263,Integer.toString(slot.position+1))+" Slot",()->selectFollower(0,null,slot.position));
+            }
+        }
         add(actions,53,()->{});
         var popup=new PopupWindow(slot);popup.setTheme("/pokemon-menu");
-        var content=new Widget(){@Override protected void layout(){int y=getInnerY();for(var b:actions){b.setPosition(getInnerX(),y);b.setSize(getInnerWidth(),mobile?40:26);y+=b.getHeight();}}};
+        var content=new Widget(){@Override protected void layout(){int y=getInnerY();for(var b:actions){b.setPosition(getInnerX(),y);b.setSize(getInnerWidth(),mobile?40:31);y+=b.getHeight();}}};
         content.setTheme("");for(var b:actions)content.add(b);popup.add(content);menu=popup;
         if(popup.openPopup()){
-            int w=mobile?240:190,h=actions.size()*(mobile?40:26)+popup.getBorderVertical();popup.setSize(w,h);
+            int w=mobile?240:Math.max(160,actions.stream().mapToInt(Button::getPreferredWidth).max().orElse(0)+popup.getBorderHorizontal()),h=actions.size()*(mobile?40:31)+popup.getBorderVertical();popup.setSize(w,h);
             popup.setPosition(Math.max(0,slot.getX()-w),Math.max(0,Math.min(slot.getY(),slot.getGUI().getHeight()-h)));
         }
     }
+    private void selectFollower(int type,String object,int position){
+        if(busy||character==null)return;long version=generation;busy=true;
+        game.selectFollower(selection,character,type,object,position).whenComplete((value,failure)->Gdx.app.postRunnable(()->{
+            if(disposed||version!=generation)return;busy=false;
+            if(failure!=null){Gdx.app.error("pokemon","Follower selection failed",failure);error.accept(strings.get(2312));return;}
+            follower=value;followerChanged.accept(value);changed.run();
+        }));
+    }
+    private void add(List<Button> list,String text,Runnable callback){var b=new Button(text);b.setTheme("/pokemon-menu-button");b.setCanAcceptKeyboardFocus(false);b.addCallback(()->{closeMenu();callback.run();});list.add(b);}
     private void add(List<Button> list,int text,Runnable callback){var b=new Button(strings.get(text));b.setTheme("/pokemon-menu-button");b.setCanAcceptKeyboardFocus(false);b.setEnabled(callback!=null);if(callback!=null)b.addCallback(()->{closeMenu();callback.run();});list.add(b);}
     private void moveToBox(PokemonSlot slot){
         int box=storageBox.getAsInt(),target=firstEmpty(PC,box*BOX_SIZE,BOX_SIZE);
@@ -133,7 +173,7 @@ public final class PokemonController implements AutoCloseable {
     public boolean touchDragged(int x,int y){
         if(dragged==null)return false;
         dragX=x;dragY=y;
-        if(Math.abs(x-downX)+Math.abs(y-downY)>6){dragging=true;dragged.getAnimationState().setAnimationState(Button.STATE_PRESSED,true);}
+        if(!dragging&&Math.abs(x-downX)+Math.abs(y-downY)>6){dragging=true;dragged.cancelClick();dragged.getAnimationState().setAnimationState(Button.STATE_PRESSED,true);}
         return dragging;
     }
     public boolean hasDragCandidate(){return dragged!=null;}
@@ -141,10 +181,14 @@ public final class PokemonController implements AutoCloseable {
         if(dragged==null)return false;var from=dragged;boolean moved=dragging;var to=hit(x,y);
         if(moved&&from.pokemon()!=null&&from.pokemon().id().equals(draggedId)&&to!=null&&to!=from)move(from,to.container,to.position);
         else if(moved&&from.pokemon()!=null&&from.pokemon().id().equals(draggedId)){
+            boolean handled=false;
             for(var target:boxDrops)if(target.widget.getGUI()!=null&&target.widget.isInside(x,y)){
+                handled=true;
                 int empty=firstEmpty(PC,target.box*BOX_SIZE,BOX_SIZE);
                 if(empty>=0)move(from,PC,empty);else error.accept(strings.format(2306,boxName(target.box)));break;
             }
+            if(!handled&&to==null&&!mobile&&!from.storage&&from.container==PARTY&&!from.pokemon().egg()&&followerDrop.test(x,y))
+                selectFollower(1,from.pokemon().id(),0);
         }
         cancelDrag();return moved;
     }

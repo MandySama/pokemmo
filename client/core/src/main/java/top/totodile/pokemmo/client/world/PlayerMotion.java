@@ -19,6 +19,10 @@ public final class PlayerMotion {
     private Mode stepMode=Mode.WALK;
     private float idleTime=TURN_SECONDS,turnTime;
     private Runnable stateChanged=() -> {};
+    public record Step(Position before,Position after,int sourceX,int sourceY,boolean continuous) {}
+    private Consumer<Step> stepped=step->{};
+    public void onStep(Consumer<Step> callback){stepped=java.util.Objects.requireNonNull(callback);}
+    public float stepProgress(){return moving?Math.min(1,time/duration):1;}
     public PlayerMotion(MapMovement movement,boolean running,Consumer<Position> save) {
         this.movement=movement; this.running=running; this.save=save;
     }
@@ -50,6 +54,7 @@ public final class PlayerMotion {
         stepMode=bicycle?Mode.BICYCLE:running?Mode.RUN:Mode.WALK;
         duration=stepMode.seconds;
         moving=movement.continuousStep();
+        stepped.accept(new Step(before,after,movement.stepFromX(),movement.stepFromY(),moving));
         save.accept(after);
         return true;
     }

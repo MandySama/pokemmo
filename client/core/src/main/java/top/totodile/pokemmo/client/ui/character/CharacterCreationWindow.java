@@ -44,6 +44,7 @@ public final class CharacterCreationWindow extends ClientWindow {
         @Override protected void layout() { layoutForm(); }
     };
     private boolean nativeEditor;
+    private boolean customization;
     private Runnable submit = () -> {};
     private long version;
     private final LongSupplier clock;
@@ -73,7 +74,13 @@ public final class CharacterCreationWindow extends ClientWindow {
                             Consumer<de.matthiasmann.twl.renderer.Image> mobileBackground,
                             CharacterAppearance appearanceState, GdxTwlRenderer renderer, LongSupplier clock,
                             Consumer<String> notification) {
+        this(owner,strings,mobile,onClose,mobileBackground,appearanceState,renderer,clock,notification,false);
+    }
+    public CharacterCreationWindow(Widget owner,ClientStrings strings,boolean mobile,Runnable onClose,
+            Consumer<de.matthiasmann.twl.renderer.Image> mobileBackground,CharacterAppearance appearanceState,
+            GdxTwlRenderer renderer,LongSupplier clock,Consumer<String> notification,boolean customization){
         super(owner);
+        this.customization=customization;
         this.mobile = mobile;
         this.strings = strings;
         this.onClose = onClose;
@@ -97,13 +104,15 @@ public final class CharacterCreationWindow extends ClientWindow {
         skin = new Choice(colors);
         preview = new CharacterPreview(appearanceState, renderer, mobile,
                 () -> skin.selected, () -> gender.selected, clock);
+        preview.customization(customization);
         var labels = appearance.createParallelGroup(genderLabel, skinLabel);
         var choices = appearance.createParallelGroup(gender, skin);
         var actions = appearance.createParallelGroup();
-        var rows = appearance.createSequentialGroup()
-                .addGroup(appearance.createParallelGroup(genderLabel, gender)).addGap(DialogLayout.DEFAULT_GAP)
-                .addGroup(appearance.createParallelGroup(skinLabel, skin));
+        var rows = appearance.createSequentialGroup();
+        rows.addGroup(appearance.createParallelGroup(genderLabel,gender)).addGap(DialogLayout.DEFAULT_GAP);
+        rows.addGroup(appearance.createParallelGroup(skinLabel,skin));
         for (var slot : CharacterAppearance.Slot.values()) {
+            if(slot.id==0||!customization&&slot.id==10)continue;
             Label title = label(strings.get(2871 + slot.id));
             Choice choice = new Choice(strings.get(2803));
             Button color = new Button("") {
@@ -138,6 +147,7 @@ public final class CharacterCreationWindow extends ClientWindow {
                 .addGap(DialogLayout.DEFAULT_GAP).addGroup(choices).addGap(DialogLayout.DEFAULT_GAP).addGroup(actions));
         appearance.setVerticalGroup(rows);
         gender.onSelected = () -> {
+            if(customization)return;
             skin.select(ThreadLocalRandom.current().nextInt(5));
             resetAppearance(strings);
         };
@@ -247,8 +257,10 @@ public final class CharacterCreationWindow extends ClientWindow {
             regionLabel.setPosition(x, y + 46); regionLabel.setSize(labelWidth, 40);
             region.setPosition(inputX, y + 46); region.setSize(inputWidth, 40);
             create.setPosition(x, content.getInnerBottom() - 50);
-            create.setSize(Math.max(0, content.getInnerRight() - x), 50);
+            int available=Math.max(0,content.getInnerRight()-x);
+            create.setSize(available,50);
         }
+
         colorPanel.setPosition(content.getX(), content.getY());
         colorPanel.setSize(content.getWidth(), colorPanel.getPreferredHeight());
         if (!mobile) {
@@ -258,11 +270,12 @@ public final class CharacterCreationWindow extends ClientWindow {
         preview.setPosition(getX(), getY());
         preview.setSize(getWidth(), getHeight());
         previousPreview.adjustSize(); nextPreview.adjustSize();
-        int spacing = mobile ? 520 : 300;
+        int spacing = mobile ? 520 : customization?220:300;
         int centerX = mobile ? 640 + spacing / 2 + previousPreview.getWidth() / 2
                 : (x + content.getInnerRight()) / 2 - getX();
         int arrowX = centerX - spacing / 2 - previousPreview.getWidth() / 2;
-        int arrowY = mobile ? 550 : 450;
+        int arrowY = mobile ? 550 : customization?550:450;
+        if(customization&&!mobile)arrowX=440;
         if (preview.coloring()) {
             arrowX = getWidth() / 2 - spacing / 2 - previousPreview.getWidth() / 2;
             arrowY = mobile ? 550 : 500;
@@ -276,6 +289,7 @@ public final class CharacterCreationWindow extends ClientWindow {
     private void resetAppearance(ClientStrings strings) {
         appearanceState.reset(gender.selected);
         for (var slot : CharacterAppearance.Slot.values()) {
+            if(slot.id==0||!customization&&slot.id==10)continue;
             Choice choice = appearanceChoices.get(slot);
             List<CharacterAppearance.Entry> options = appearanceState.choices(slot);
             choice.setOptions(options.stream().map(entry -> entry.name(strings)).toArray(String[]::new));
@@ -285,6 +299,7 @@ public final class CharacterCreationWindow extends ClientWindow {
     }
     private void updateAppearanceControls() {
         for (var slot : CharacterAppearance.Slot.values()) {
+            if(slot.id==0||!customization&&slot.id==10)continue;
             appearanceChoices.get(slot).setEnabled(appearanceState.enabled(slot));
             colorActions.get(slot).setVisible(appearanceState.selected(slot).colorable());
         }
@@ -293,7 +308,7 @@ public final class CharacterCreationWindow extends ClientWindow {
         hideKeyboard();
         if (!appearanceState.selected(slot).colorable()) return;
         colorSlot = slot;
-        pendingColor = appearanceState.color(slot);
+        pendingColor = Math.max(0,appearanceState.color(slot));
         preview.color(slot, pendingColor);
         selectColorButton();
         showForm(false);
@@ -321,11 +336,29 @@ public final class CharacterCreationWindow extends ClientWindow {
     }
     private void showForm(boolean visible) {
         appearance.setVisible(visible);
-        nameLabel.setVisible(visible); name.setVisible(visible);
-        regionLabel.setVisible(visible); region.setVisible(visible);
+        nameLabel.setVisible(visible&&!customization); name.setVisible(visible&&!customization);
+        regionLabel.setVisible(visible&&!customization); region.setVisible(visible&&!customization);
         create.setVisible(visible);
     }
 
+    public void openCustomization(top.totodile.pokemmo.server.game.GameService.Appearance saved){
+        if(!customization)throw new IllegalStateException();
+        version++;gender.select(saved.gender());skin.select(saved.skin());
+        regionIds=List.of(saved.region());region.setOptions(new String[]{strings.get(250000+saved.region())});region.select(0);
+        appearanceState.loadSaved(saved,true);
+        for(var slot:appearanceChoices.keySet()){
+            var options=appearanceState.choices(slot);var choice=appearanceChoices.get(slot);
+            choice.setOptions(options.stream().map(e->e.name(strings)).toArray(String[]::new));choice.select(options.indexOf(appearanceState.selected(slot)));
+        }
+        gender.setEnabled(true);skin.setEnabled(true);frame.setTitle(strings.get(2800));create.setText(mobile?"":strings.get(2802));
+        showForm(true);updateAppearanceControls();preview.reset();if(openPopup()){positionWindow();frame.setHardVisible(true);}
+    }
+    public top.totodile.pokemmo.server.game.GameService.Appearance randomAppearance(top.totodile.pokemmo.server.game.GameService.Appearance saved){
+        var model=appearanceState.copy();model.loadSaved(saved,true);
+        int gender=ThreadLocalRandom.current().nextInt(2),skin=ThreadLocalRandom.current().nextInt(5);model.reset(gender);
+        return model.snapshot(gender,skin,saved.region());
+    }
+    public void saving(boolean saving){create.setEnabled(!saving);}
     public void open() {
         if (isOpen()) { raiseWindow(); return; }
         version++;
@@ -345,7 +378,7 @@ public final class CharacterCreationWindow extends ClientWindow {
     public void positionWindow() {
         if (!isOpen()) return;
         Widget owner = getOwner();
-        int width = mobile ? owner.getInnerWidth() : Math.min(880, owner.getInnerWidth());
+        int width = mobile ? owner.getInnerWidth() : Math.min(customization?740:880, owner.getInnerWidth());
         int height = mobile ? owner.getInnerHeight() : Math.min(680, owner.getInnerHeight());
         setSize(width, height);
         setPosition(owner.getInnerX() + (owner.getInnerWidth() - width) / 2,

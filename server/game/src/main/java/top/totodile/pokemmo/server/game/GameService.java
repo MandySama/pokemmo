@@ -5,15 +5,32 @@ import java.util.concurrent.CompletionStage;
 import top.totodile.pokemmo.server.login.LoginService.Selection;
 
 public interface GameService extends AutoCloseable {
+    default CompletionStage<PokemonData.Containers> selectPokemonParticle(Selection selection,String character,String pokemonId,int particle){return java.util.concurrent.CompletableFuture.failedFuture(new Rejected(Failure.NOT_FOUND));}
+    default CompletionStage<PokemonData.Containers> setPokemonMarks(Selection selection,String character,String pokemonId,int marks){return java.util.concurrent.CompletableFuture.failedFuture(new Rejected(Failure.NOT_FOUND));}
+    default CompletionStage<PokemonData.Containers> movePokemonMove(Selection selection,String character,String pokemonId,int from,int to){return java.util.concurrent.CompletableFuture.failedFuture(new Rejected(Failure.NOT_FOUND));}
+    enum PokemonSetting { EV, NATURE, GENDER, ABILITY, IV, FRIENDSHIP, PARTICLE, RIBBON, BALL }
+    default CompletionStage<PokemonData.Containers> setPokemonSetting(Selection selection,String character,String pokemonId,PokemonSetting setting,int index,int value){return java.util.concurrent.CompletableFuture.failedFuture(new Rejected(Failure.NOT_FOUND));}
+    enum PokemonFlag { SHINY, HIDDEN_ABILITY, ALPHA }
+    default CompletionStage<PokemonData.Containers> setPokemonFlag(Selection selection,String character,String pokemonId,PokemonFlag flag,boolean enabled){return java.util.concurrent.CompletableFuture.failedFuture(new Rejected(Failure.NOT_FOUND));}
+    /** SendSetFollowPokemonPacket appearance; zero species recalls the follower. */
+    record Follower(int species,int form,int gender,boolean shiny) {
+        public Follower {if(species<0||species>649||form<0||form>31||gender< -1||gender>1)throw new IllegalArgumentException("Invalid follower");}
+        public static Follower none(){return new Follower(0,0,-1,false);}
+    }
+    default CompletionStage<Follower> follower(Selection selection,String character){return java.util.concurrent.CompletableFuture.completedFuture(Follower.none());}
+    /** ChangeFllowPokemonPacket: 0=party position, 1=owned party object, 2=recall. */
+    default CompletionStage<Follower> selectFollower(Selection selection,String character,int type,String pokemonId,int position){return java.util.concurrent.CompletableFuture.failedFuture(new Rejected(Failure.NOT_FOUND));}
     record Part(int style, int color) {}
     record Appearance(int gender, int skin, int region, Map<Integer, Part> parts) {
         public Appearance { parts = Map.copyOf(parts); }
     }
     record Character(String id, String name, Appearance appearance, long createdAt) {}
+    default CompletionStage<Character> saveAppearance(Selection selection,String characterId,Appearance appearance){return java.util.concurrent.CompletableFuture.failedFuture(new UnsupportedOperationException());}
     record ItemTemplate(int id,int region,int maximumStack) {}
     record LearnedMove(int id,int level) {}
-    record SpeciesTemplate(int id,int genderRatio,List<Integer> stats,int ability,List<LearnedMove> moves) {
-        public SpeciesTemplate {stats=List.copyOf(stats);moves=List.copyOf(moves);}
+    record SpeciesTemplate(int id,int genderRatio,List<Integer> stats,int ability,List<LearnedMove> moves,List<Integer> abilities) {
+        public SpeciesTemplate(int id,int genderRatio,List<Integer> stats,int ability,List<LearnedMove> moves){this(id,genderRatio,stats,ability,moves,List.of(ability));}
+        public SpeciesTemplate {stats=List.copyOf(stats);moves=List.copyOf(moves);abilities=List.copyOf(abilities);}
     }
     record Position(int bank, int map, int x, int y, int direction) {
         public static Position kantoStart() { return new Position(4,1,6,6,0); }

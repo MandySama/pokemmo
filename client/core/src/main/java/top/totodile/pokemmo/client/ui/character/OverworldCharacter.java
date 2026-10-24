@@ -16,12 +16,14 @@ public final class OverworldCharacter implements AutoCloseable {
     private final CharacterAppearance appearance;
     private final CharacterPreview sprites;
     private final Texture shadow;
+    private GameService.Appearance savedAppearance;
+    public void appearance(GameService.Appearance saved){appearance.loadSaved(saved,true);savedAppearance=saved;}
     public OverworldCharacter(CharacterAppearance catalog,GameService.Appearance saved) {
         this(catalog,saved,com.badlogic.gdx.Gdx.files.local("data/sprites/game.pak"));
     }
     public OverworldCharacter(CharacterAppearance catalog,GameService.Appearance saved,FileHandle gameSprites) {
-        appearance=catalog.restore(saved);
-        sprites=new CharacterPreview(appearance,null,false,saved::skin,saved::gender,()->0);
+        savedAppearance=saved;appearance=catalog.restore(saved);
+        sprites=new CharacterPreview(appearance,null,false,()->savedAppearance.skin(),()->savedAppearance.gender(),System::currentTimeMillis);
         try {shadow=loadShadow(gameSprites);}
         catch(RuntimeException failure){sprites.close();appearance.dispose();throw failure;}
     }

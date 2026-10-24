@@ -10,11 +10,81 @@ final class PokemonStore {
     PokemonStore(Database db){this.db=db;}
     static void initialize(Database db){
         db.execute("CREATE TABLE IF NOT EXISTS pokemon (id TEXT PRIMARY KEY,trainer_id TEXT NOT NULL REFERENCES characters(id) ON DELETE CASCADE,container_id INTEGER NOT NULL,container_position INTEGER NOT NULL,dex_id INTEGER NOT NULL,form_type INTEGER NOT NULL DEFAULT 0,gender INTEGER NOT NULL DEFAULT -1,is_shiny INTEGER NOT NULL DEFAULT 0,is_egg INTEGER NOT NULL DEFAULT 0,name TEXT NOT NULL DEFAULT '',level_value INTEGER NOT NULL,current_hp INTEGER NOT NULL,status INTEGER NOT NULL DEFAULT 0,item INTEGER NOT NULL DEFAULT 0,nature INTEGER NOT NULL DEFAULT 0,ability INTEGER NOT NULL DEFAULT 0,stats TEXT NOT NULL,iv_values TEXT NOT NULL,ev_values TEXT NOT NULL,moves TEXT NOT NULL)");
+        if(db.query("PRAGMA table_info(pokemon)").stream().noneMatch(row->"friend_value".equals(row[1])))
+            db.execute("ALTER TABLE pokemon ADD COLUMN friend_value INTEGER NOT NULL DEFAULT 0");
+        for(String column:List.of("has_hidden_ability","is_alpha","mark_status"))if(db.query("PRAGMA table_info(pokemon)").stream().noneMatch(row->column.equals(row[1])))db.execute("ALTER TABLE pokemon ADD COLUMN "+column+" INTEGER NOT NULL DEFAULT 0");
+        for(String column:List.of("moves_pp","pp_up_times"))if(db.query("PRAGMA table_info(pokemon)").stream().noneMatch(row->column.equals(row[1])))db.execute("ALTER TABLE pokemon ADD COLUMN "+column+" TEXT NOT NULL DEFAULT ''");
+        for(String column:List.of("catch_address","catch_level","catch_region","catch_time","personality_value","origin_flags"))if(db.query("PRAGMA table_info(pokemon)").stream().noneMatch(row->column.equals(row[1])))db.execute("ALTER TABLE pokemon ADD COLUMN "+column+" INTEGER NOT NULL DEFAULT "+(column.equals("catch_address")?Integer.MIN_VALUE:column.equals("catch_region")?-1:0));
+        if(db.query("PRAGMA table_info(pokemon)").stream().noneMatch(row->"ot_name".equals(row[1])))db.execute("ALTER TABLE pokemon ADD COLUMN ot_name TEXT NOT NULL DEFAULT ''");
+        if(db.query("PRAGMA table_info(pokemon)").stream().noneMatch(row->"can_remember_moves".equals(row[1])))db.execute("ALTER TABLE pokemon ADD COLUMN can_remember_moves TEXT NOT NULL DEFAULT ''");
+        for(String column:List.of("contests_category_values","normal_ribbon","contest_ribbon","particle_effects"))if(db.query("PRAGMA table_info(pokemon)").stream().noneMatch(row->column.equals(row[1])))db.execute("ALTER TABLE pokemon ADD COLUMN "+column+" TEXT NOT NULL DEFAULT ''");
+        if(db.query("PRAGMA table_info(pokemon)").stream().noneMatch(row->"selected_particle".equals(row[1])))db.execute("ALTER TABLE pokemon ADD COLUMN selected_particle INTEGER NOT NULL DEFAULT -1");
+        if(db.query("PRAGMA table_info(pokemon)").stream().noneMatch(row->"ball_type".equals(row[1])))db.execute("ALTER TABLE pokemon ADD COLUMN ball_type INTEGER NOT NULL DEFAULT 3");
         db.execute("CREATE INDEX IF NOT EXISTS pokemon_owner_container ON pokemon(trainer_id,container_id,container_position)");
     }
     Containers load(String id){
-        var pokemons=db.query("SELECT id,container_id,container_position,dex_id,form_type,gender,is_shiny,is_egg,name,level_value,current_hp,status,item,nature,ability,stats,iv_values,ev_values,moves FROM pokemon WHERE trainer_id=? AND container_id IN (0,1) ORDER BY container_id,container_position",id).stream().map(r->new Pokemon(r[0],n(r[1]),n(r[2]),n(r[3]),n(r[4]),n(r[5]),n(r[6])!=0,n(r[7])!=0,r[8],n(r[9]),n(r[10]),n(r[11]),n(r[12]),n(r[13]),n(r[14]),values(r[15]),values(r[16]),values(r[17]),values(r[18]))).toList();
+        var pokemons=db.query("SELECT id,container_id,container_position,dex_id,form_type,gender,is_shiny,is_egg,name,level_value,current_hp,status,item,nature,ability,stats,iv_values,ev_values,moves,friend_value,has_hidden_ability,is_alpha,mark_status,moves_pp,pp_up_times,catch_address,catch_level,catch_region,catch_time,ot_name,personality_value,origin_flags,can_remember_moves,contests_category_values,normal_ribbon,contest_ribbon,particle_effects,selected_particle,ball_type FROM pokemon WHERE trainer_id=? AND container_id IN (0,1) ORDER BY container_id,container_position",id).stream().map(r->new Pokemon(r[0],n(r[1]),n(r[2]),n(r[3]),n(r[4]),n(r[5]),n(r[6])!=0,n(r[7])!=0,r[8],n(r[9]),n(r[10]),n(r[11]),n(r[12]),n(r[13]),n(r[14]),values(r[15]),values(r[16]),values(r[17]),values(r[18]),n(r[19]),n(r[20])!=0,n(r[21])!=0,n(r[22]),r[23].isEmpty()?List.of(-1,-1,-1,-1):values(r[23]),r[24].isEmpty()?List.of(0,0,0,0):values(r[24]),new Origin(n(r[25]),n(r[26]),n(r[27]),Long.parseLong(r[28]),r[29],n(r[30]),(n(r[31])&16)!=0,(n(r[31])&64)!=0,r[32].isEmpty()?List.of():values(r[32])),new Honors(r[33].isEmpty()?List.of(0,0,0,0,0):values(r[33]),r[34].isEmpty()?List.of():values(r[34]),r[35].isEmpty()?List.of(0,0,0,0,0):values(r[35]),r[36].isEmpty()?List.of():values(r[36]),n(r[37])),n(r[38]))).toList();
         return new Containers(pokemons,BASE_BOXES);
+    }
+    Containers selectParticle(String owner,String id,int particle){
+        db.transaction(()->{var p=load(owner).pokemons().stream().filter(v->v.id().equals(id)).findFirst().orElseThrow(()->new GameService.Rejected(GameService.Failure.NOT_FOUND));
+            if(p.egg()||particle== -3&&p.honors().particles().isEmpty()||particle!= -1&&particle!= -3&&!p.honors().particles().contains(particle))reject();
+            db.execute("UPDATE pokemon SET selected_particle=? WHERE trainer_id=? AND id=?",particle,owner,id);
+        });return load(owner);
+    }
+    /** ChangePokemonMovePosPacket swaps the entire move slot, including PP and PP Ups. */
+    Containers moveMove(String owner,String id,int from,int to){
+        if(from<0||from>3||to<0||to>3||from==to)reject();
+        db.transaction(()->{var p=load(owner).pokemons().stream().filter(v->v.id().equals(id)).findFirst().orElseThrow(()->new GameService.Rejected(GameService.Failure.NOT_FOUND));
+            var moves=new ArrayList<>(p.moves());var pp=new ArrayList<>(p.pp());var ups=new ArrayList<>(p.ppUps());
+            if(p.egg()||moves.get(from)==0||moves.get(to)==0)reject();Collections.swap(moves,from,to);Collections.swap(pp,from,to);Collections.swap(ups,from,to);
+            db.execute("UPDATE pokemon SET moves=?,moves_pp=?,pp_up_times=? WHERE id=? AND trainer_id=?",encoded(moves),encoded(pp),encoded(ups),id,owner);
+        });return load(owner);
+    }
+    Containers setSetting(String owner,String id,GameService.PokemonSetting setting,int index,int value,Map<Integer,GameService.SpeciesTemplate> species){
+        db.transaction(()->{
+            var p=load(owner).pokemons().stream().filter(v->v.id().equals(id)).findFirst().orElseThrow(()->new GameService.Rejected(GameService.Failure.NOT_FOUND));
+            var template=species.get(p.species());if(template==null||setting==null)reject();
+            var evs=new ArrayList<>(p.evs());var ivs=new ArrayList<>(p.ivs());int nature=p.nature(),gender=p.gender(),ability=p.ability();boolean hidden=p.hiddenAbility();
+            switch(setting){
+                case EV->{if(index< -1||index>5||value<0||value>252)reject();if(index<0)Collections.fill(evs,value);else evs.set(index,value);}
+                case IV->{if(index!= -1||value< -1||value>31)reject();var random=new Random();for(int i=0;i<6;i++)ivs.set(i,value== -1?random.nextInt(31):value);}
+                case BALL->{if(index!=0||value<0||value>24)reject();db.execute("UPDATE pokemon SET ball_type=? WHERE id=? AND trainer_id=?",value,id,owner);return;}
+                case FRIENDSHIP->{if(index!=0||value<0||value>255)reject();db.execute("UPDATE pokemon SET friend_value=? WHERE id=? AND trainer_id=?",value,id,owner);return;}
+                case PARTICLE->{
+                    if(index!= -1&&index!=0||value<0||value>38)reject();var particles=new TreeSet<>(p.honors().particles());
+                    if(index== -1)for(int i=0;i<=38;i++)particles.add(i);else particles.add(value);
+                    db.execute("UPDATE pokemon SET particle_effects=? WHERE id=? AND trainer_id=?",encoded(new ArrayList<>(particles)),id,owner);return;
+                }
+                case RIBBON->{
+                    var ribbons=new TreeSet<>(p.honors().ribbons());var contest=new ArrayList<>(p.honors().contestRibbons());
+                    if(index== -1&&value==0){ribbons.clear();Collections.fill(contest,0);}
+                    else if(index==0&&value>=0&&value<=34)ribbons.add(value);
+                    else if(index>=1&&index<=5&&value>=1&&value<=4)contest.set(index-1,Math.max(contest.get(index-1),value));else reject();
+                    db.execute("UPDATE pokemon SET normal_ribbon=?,contest_ribbon=? WHERE id=? AND trainer_id=?",encoded(new ArrayList<>(ribbons)),encoded(contest),id,owner);return;
+                }
+                case NATURE->{if(value<0||value>24)reject();nature=value;}
+                case GENDER->{int ratio=template.genderRatio();if(value<0||value>1||ratio==255||ratio==0&&value!=0||ratio==254&&value!=1)reject();gender=value;}
+                case ABILITY->{if(value<=0||index<0||index>=template.abilities().size()||template.abilities().get(index)!=value)reject();ability=value;hidden=index==2;}
+            }
+            var stats=new ArrayList<>(p.stats());
+            if(setting==GameService.PokemonSetting.EV||setting==GameService.PokemonSetting.NATURE||setting==GameService.PokemonSetting.IV)for(int i=0;i<6;i++){
+                int stat=((2*template.stats().get(i)+ivs.get(i)+evs.get(i)/4)*p.level())/100+(i==0?p.level()+10:5);
+                int up=NATURE_STATS[nature/5],down=NATURE_STATS[nature%5];if(i!=0&&up!=down)stat=(int)(stat*(i==up?1.1:i==down?.9:1));
+                if(i==0&&p.species()==292)stat=1;stats.set(i,stat);
+            }
+            db.execute("UPDATE pokemon SET ev_values=?,iv_values=?,nature=?,gender=?,ability=?,has_hidden_ability=?,stats=?,current_hp=? WHERE id=? AND trainer_id=?",encoded(evs),encoded(ivs),nature,gender,ability,hidden?1:0,encoded(stats),Math.min(p.hp(),stats.get(0)),id,owner);
+        });return load(owner);
+    }
+    /** ClientOpcode029RequestPacket: replace the five mark bits on an owned Pokemon. */
+    Containers setMarks(String owner,String pokemonId,int marks){
+        if(marks<0||marks>31||load(owner).pokemons().stream().noneMatch(p->p.id().equals(pokemonId)))throw new GameService.Rejected(GameService.Failure.NOT_FOUND);
+        db.execute("UPDATE pokemon SET mark_status=? WHERE id=? AND trainer_id=?",marks,pokemonId,owner);return load(owner);
+    }
+    Containers setFlag(String owner,String pokemonId,GameService.PokemonFlag flag,boolean enabled){
+        if(flag==null||load(owner).pokemons().stream().noneMatch(p->p.id().equals(pokemonId)))throw new GameService.Rejected(GameService.Failure.NOT_FOUND);
+        String column=switch(flag){case SHINY->"is_shiny";case HIDDEN_ABILITY->"has_hidden_ability";case ALPHA->"is_alpha";};
+        db.execute("UPDATE pokemon SET "+column+"=? WHERE id=? AND trainer_id=?",enabled?1:0,pokemonId,owner);return load(owner);
     }
     private static int n(String v){return Integer.parseInt(v);}
     private static List<Integer> values(String value){return Arrays.stream(value.split(",",-1)).map(Integer::valueOf).toList();}
@@ -61,7 +131,12 @@ final class PokemonStore {
             if(position==PARTY_SIZE){container=PC;position=0;while(position<current.boxes()*BOX_SIZE&&current.at(PC,position)!=null)position++;}
             if(container==PC&&position>=current.boxes()*BOX_SIZE)throw new IllegalStateException("The target has no free party or PC slot.");
             var p=createWildPokemon(species,level,container,position,random);
-            db.execute("INSERT INTO pokemon(id,trainer_id,container_id,container_position,dex_id,form_type,gender,is_shiny,is_egg,name,level_value,current_hp,status,item,nature,ability,stats,iv_values,ev_values,moves) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",p.id(),id,p.container(),p.position(),p.species(),p.form(),p.gender(),p.shiny()?1:0,p.egg()?1:0,p.name(),p.level(),p.hp(),p.status(),p.item(),p.nature(),p.ability(),encoded(p.stats()),encoded(p.ivs()),encoded(p.evs()),encoded(p.moves()));added[0]=p;
+            db.execute("INSERT INTO pokemon(id,trainer_id,container_id,container_position,dex_id,form_type,gender,is_shiny,is_egg,name,level_value,current_hp,status,item,nature,ability,stats,iv_values,ev_values,moves) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",p.id(),id,p.container(),p.position(),p.species(),p.form(),p.gender(),p.shiny()?1:0,p.egg()?1:0,p.name(),p.level(),p.hp(),p.status(),p.item(),p.nature(),p.ability(),encoded(p.stats()),encoded(p.ivs()),encoded(p.evs()),encoded(p.moves()));
+            var owner=db.query("SELECT name,region FROM characters WHERE id=?",id);
+            var regions=db.query("SELECT region FROM character_current_region WHERE character_id=?",id);
+            int region=regions.isEmpty()?(owner.isEmpty()?-1:Integer.parseInt(owner.get(0)[1])):Integer.parseInt(regions.get(0)[0]);
+            db.execute("UPDATE pokemon SET catch_level=?,catch_region=?,catch_time=?,ot_name=?,personality_value=? WHERE id=?",level,region,System.currentTimeMillis()/1000,owner.isEmpty()?"":owner.get(0)[0],p.origin().personality(),p.id());
+            added[0]=load(id).pokemons().stream().filter(v->v.id().equals(p.id())).findFirst().orElseThrow();
         });return added[0];
     }
     private static String encoded(List<Integer> values){return values.stream().map(String::valueOf).collect(java.util.stream.Collectors.joining(","));}
@@ -88,6 +163,6 @@ final class PokemonStore {
         int gender=ratio==255?-1:ratio==254?1:ratio==0?0:(personality&255)>=ratio?0:1;
         // The supplied reference server is explicitly in its wild-rarity test mode (denominator 1).
         boolean shiny=random.nextInt(1)==0;if(shiny)random.nextInt(2);
-        return new PokemonData.Pokemon(UUID.randomUUID().toString(),container,position,species.id(),0,gender,shiny,false,"",level,stats.get(0),0,0,nature,species.ability(),stats,ivs,List.of(0,0,0,0,0,0),moves);
+        return new PokemonData.Pokemon(UUID.randomUUID().toString(),container,position,species.id(),0,gender,shiny,false,"",level,stats.get(0),0,0,nature,species.ability(),stats,ivs,List.of(0,0,0,0,0,0),moves,0,false,false,0,List.of(-1,-1,-1,-1),List.of(0,0,0,0),new Origin(Integer.MIN_VALUE,0,-1,0,"",personality,false,false));
     }
 }

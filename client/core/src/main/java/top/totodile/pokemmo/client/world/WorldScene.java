@@ -13,6 +13,7 @@ import top.totodile.pokemmo.server.game.GameService.WorldInfo;
 
 /** Shared world input and motion, with GBA metatiles or the ROM's NDS field geometry. */
 public final class WorldScene extends InputAdapter implements AutoCloseable {
+    public void appearance(top.totodile.pokemmo.server.game.GameService.Appearance saved){character.appearance(saved);}
     private final WorldMaps maps;
     private final NdsWorldRenderer nds;
     private final MapMovement movement;
@@ -32,6 +33,10 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
     private final Set<Integer> actionKeys=new HashSet<>();
     private final DirectionKeys directionKeys=new DirectionKeys();
     private MobileMapControls controls;
+    private FollowerPokemon follower;
+    public void follower(top.totodile.pokemmo.client.resources.ClientResources resources,top.totodile.pokemmo.server.game.GameService.Follower value,Consumer<String> error){
+        if(mobile)return;if(follower==null){follower=new FollowerPokemon(resources,motion,maps);motion.onStep(follower::step);}follower.select(value,error);
+    }
     private record Neighbor(MapData map,int x,int y) {}
     private final List<Neighbor> neighbors=new ArrayList<>();
     public WorldScene(WorldMaps maps,MapMovement movement,OverworldCharacter character,ClientSettings settings,Consumer<Position> save) {
@@ -100,10 +105,12 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
         try { motion.update(focused?delta:0,dx,dy); }
         catch(RuntimeException error) { Gdx.app.error("world","Cannot move to ROM map",error); }
         if(nds!=null) {
-            nds.draw(movement,motion,character,batch,width,height,mobile);
+            if(follower!=null)follower.update(focused?delta:0);
+            nds.draw(movement,motion,character,batch,width,height,mobile,follower);
             if(controls!=null)controls.draw(batch,width,height);
             return;
         }
+        if(follower!=null)follower.update(focused?delta:0);
         Position position=movement.position();
         float px=motion.x()*16+8;
         float py=motion.y()*16+16;
@@ -121,9 +128,9 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
         batch.setProjectionMatrix(camera.combined); batch.begin();
         drawMap(0,px,py);
         // GdxTileLayerRenderer.jL：低高程对象 -> 普通上层 -> 高高程对象 -> 高层遮挡。
-        if(movement.elevation()<=3) drawCharacter(px,py,position.direction());
+        drawActors(px,py,position.direction(),false);
         drawMap(1,px,py);
-        if(movement.elevation()>3) drawCharacter(px,py,position.direction());
+        drawActors(px,py,position.direction(),true);
         drawMap(2,px,py);
         batch.end();
         if(controls!=null) controls.draw(batch,width,height);
@@ -134,6 +141,18 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
         if(value==Input.Keys.A || value==Input.Keys.LEFT || value==key("left",Input.Keys.A))return 2;
         if(value==Input.Keys.D || value==Input.Keys.RIGHT || value==key("right",Input.Keys.D))return 3;
         return -1;
+    }
+    private void drawActors(float px,float py,int direction,boolean high){
+        boolean drawFollower=follower!=null&&follower.visible()&&(follower.elevation()>3)==high;
+        boolean behind=drawFollower&&follower.y()<=motion.y();
+        if(behind)drawFollower();
+        if((movement.elevation()>3)==high)drawCharacter(px,py,direction);
+        if(drawFollower&&!behind)drawFollower();
+    }
+    private void drawFollower(){
+        float x=Math.round(follower.x()*16+8),y=Math.round(-(follower.y()*16+16)+4);
+        if(follower.opacity()>.49f)character.drawShadow(batch,x,y);
+        follower.draw(batch,x,y);
     }
     private void drawCharacter(float px,float py,int direction) {
         character.draw(batch,px,-py+4,direction,motion.animationTime(),motion.moving(),motion.mode().animation);
@@ -240,7 +259,7 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
         } finally {if(image!=null)image.dispose();}
     }
     @Override public void close() {
-        if(nds!=null)nds.close();
+        if(nds!=null)nds.close();if(follower!=null)follower.close();
         for(Texture[] textures:atlases.values()) for(Texture texture:textures) texture.dispose();
         atlases.clear();animationFrames.clear(); character.close(); if(controls!=null)controls.close(); batch.dispose();
     }

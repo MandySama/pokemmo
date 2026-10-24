@@ -35,6 +35,7 @@ public final class LocalGameService implements GameService {
                 PlayerDataStore.initialize(opened);
                 PokemonStore.initialize(opened);
                 PokedexStore.initialize(opened);
+                FollowerStore.initialize(opened);
                 database = opened;
             } catch (RuntimeException | Error error) {
                 try { opened.close(); }
@@ -95,6 +96,17 @@ public final class LocalGameService implements GameService {
                 playStarted.remove(characterId);mailboxes.remove(characterId);
             });
         }, worker);
+    }
+    @Override public CompletionStage<Character> saveAppearance(Selection selection,String id,Appearance appearance){
+        return characters(selection).thenApplyAsync(values->{
+            var old=values.stream().filter(c->c.id().equals(id)).findFirst().orElseThrow(()->new Rejected(Failure.NOT_FOUND));
+            // TrainerCustomizationOutboundPacket: ten style bits and six colour bits.
+            if(appearance.gender()<0||appearance.gender()>1||appearance.skin()<0||appearance.skin()>4||appearance.region()!=old.appearance().region()
+                    ||!appearance.parts().keySet().containsAll(Set.of(1,2,3,4,5,6,7,8,9,11))
+                    ||appearance.parts().entrySet().stream().anyMatch(e->e.getKey()<0||e.getKey()>11||e.getValue().style()< -1||e.getValue().style()>1023||e.getValue().color()< -1||e.getValue().color()>63))throw new IllegalArgumentException("Invalid character customization");
+            db().transaction(()->{db().execute("UPDATE characters SET gender=?,skin=? WHERE id=?",appearance.gender(),appearance.skin(),id);db().execute("DELETE FROM character_parts WHERE character_id=?",id);appearance.parts().forEach((slot,part)->db().execute("INSERT INTO character_parts VALUES (?,?,?,?)",id,slot,part.style(),part.color()));});
+            return new Character(old.id(),old.name(),appearance,old.createdAt());
+        },worker);
     }
     @Override public CompletionStage<Entry> enter(Selection selection, String characterId) {
         return characters(selection).thenApplyAsync(values -> {
@@ -196,6 +208,27 @@ public final class LocalGameService implements GameService {
     }
     @Override public CompletionStage<List<PlayerData.Item>> inventory(Selection selection,String id){
         return CompletableFuture.supplyAsync(()->playerData(selection,id).inventory(id),worker);
+    }
+    @Override public CompletionStage<Follower> follower(Selection selection,String id){
+        return CompletableFuture.supplyAsync(()->{playerData(selection,id);return new FollowerStore(db()).load(id);},worker);
+    }
+    @Override public CompletionStage<Follower> selectFollower(Selection selection,String id,int type,String pokemonId,int position){
+        return CompletableFuture.supplyAsync(()->{playerData(selection,id);return new FollowerStore(db()).select(id,type,pokemonId,position);},worker);
+    }
+    @Override public CompletionStage<PokemonData.Containers> movePokemonMove(Selection selection,String id,String pokemonId,int from,int to){
+        return CompletableFuture.supplyAsync(()->{playerData(selection,id);return new PokemonStore(db()).moveMove(id,pokemonId,from,to);},worker);
+    }
+    @Override public CompletionStage<PokemonData.Containers> setPokemonSetting(Selection selection,String id,String pokemonId,PokemonSetting setting,int index,int value){
+        return CompletableFuture.supplyAsync(()->{playerData(selection,id);return new PokemonStore(db()).setSetting(id,pokemonId,setting,index,value,speciesTemplates);},worker);
+    }
+    @Override public CompletionStage<PokemonData.Containers> selectPokemonParticle(Selection selection,String character,String pokemonId,int particle){
+        return CompletableFuture.supplyAsync(()->{playerData(selection,character);return new PokemonStore(db()).selectParticle(character,pokemonId,particle);},worker);
+    }
+    @Override public CompletionStage<PokemonData.Containers> setPokemonMarks(Selection selection,String id,String pokemonId,int marks){
+        return CompletableFuture.supplyAsync(()->{playerData(selection,id);return new PokemonStore(db()).setMarks(id,pokemonId,marks);},worker);
+    }
+    @Override public CompletionStage<PokemonData.Containers> setPokemonFlag(Selection selection,String id,String pokemonId,PokemonFlag flag,boolean enabled){
+        return CompletableFuture.supplyAsync(()->{playerData(selection,id);return new PokemonStore(db()).setFlag(id,pokemonId,flag,enabled);},worker);
     }
     @Override public CompletionStage<PokemonData.Containers> pokemon(Selection selection,String id){
         return CompletableFuture.supplyAsync(()->{playerData(selection,id);return new PokemonStore(db()).load(id);},worker);

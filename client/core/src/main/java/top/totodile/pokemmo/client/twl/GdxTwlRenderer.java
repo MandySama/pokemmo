@@ -34,6 +34,7 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
     private final Deque<Rect> clips = new ArrayDeque<>();
     private final Map<String, Atlas> textures = new HashMap<>();
     private final List<GdxTwlFont> fonts = new ArrayList<>();
+    private final List<Cursor> nativeCursors = new ArrayList<>();
     private CacheContext context;
     private Cursor.SystemCursor currentSystemCursor;
     private float currentFontScale;
@@ -90,6 +91,25 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
     }
     public Image image(TextureRegion region) {
         return new AtlasImage(new TextureRegion(region),Color.WHITE,false,de.matthiasmann.twl.renderer.Texture.Rotation.NONE);
+    }
+    private com.badlogic.gdx.graphics.glutils.ShaderProgram spriteGlow;
+    /** Reference GdxRenderViewPortManager: glow around the composed sprite, not each body part. */
+    public void drawSpriteGlow(Image image,AnimationState state,int x,int y,int width,int height,boolean shiny,String fragment) {
+        if(!(image instanceof AtlasImage atlasImage)){image.draw(state,x,y,width,height);return;}
+        if(spriteGlow==null){
+            var defaults=SpriteBatch.createDefaultShader();
+            try{spriteGlow=new com.badlogic.gdx.graphics.glutils.ShaderProgram(defaults.getVertexShaderSource(),fragment);}
+            finally{defaults.dispose();}
+            if(!spriteGlow.isCompiled())throw new IllegalStateException(spriteGlow.getLog());
+        }
+        var previous=batch.getShader();batch.setShader(spriteGlow);
+        try{
+            spriteGlow.setUniformf("glowSize",shiny?1f:.8f);
+            spriteGlow.setUniformf("glowIntensity",1.5f);spriteGlow.setUniformf("glowThreshold",.1f);
+            spriteGlow.setUniformf("glowColor",shiny?1f:249/255f,shiny?208/255f:56/255f,shiny?51/255f:34/255f);
+            spriteGlow.setUniformf("glowInvTexSize",1f/(atlasImage.region.getTexture().getWidth()-1),1f/(atlasImage.region.getTexture().getHeight()-1));
+            spriteGlow.setUniformf("grayScale",0f);image.draw(state,x,y,width,height);
+        }finally{batch.setShader(previous);}
     }
     com.badlogic.gdx.graphics.g2d.PixmapPacker fontPacker(boolean unique) {
         if (!unique && sharedFontPacker != null) return sharedFontPacker;
@@ -202,6 +222,11 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
         return atlas.getImage(0,0,atlas.getWidth(),atlas.getHeight(),Color.WHITE,false,de.matthiasmann.twl.renderer.Texture.Rotation.NONE);
     }
     public LineRenderer getLineRenderer() { return null; }
+    public void drawParticle(Image image,float x,float y,float size,float angle,float alpha){
+        if(!(image instanceof AtlasImage atlas)||alpha<=0)return;
+        tint(atlas.color);float packed=batch.getPackedColor();var color=batch.getColor();batch.setColor(color.r,color.g,color.b,color.a*alpha);
+        batch.draw(atlas.region,x-size/2,getHeight()-y-size/2,size/2,size/2,size,size,1,1,angle);batch.setPackedColor(packed);
+    }
     /** CompassRoseRenderer's textured radial progress, converted to TWL's top-left coordinates. */
     public void drawRadial(Image image,int x,int y,int size,float fraction,Color color){
         if(!(image instanceof AtlasImage atlas)||fraction<=0)return;
@@ -265,6 +290,10 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
     public void setCursor(MouseCursor cursor) {
         if (Gdx.app.getType() != ApplicationType.Desktop) return;
         themeCursor=cursor instanceof ThemeCursor?(ThemeCursor)cursor:null;
+        if(themeCursor!=null && themeCursor.nativeCursor!=null && !Gdx.graphics.isFullscreen()){
+            Gdx.graphics.setCursor(themeCursor.nativeCursor);
+            themeCursor=null;currentSystemCursor=null;return;
+        }
         // 独占全屏下部分系统/驱动不显示原生光标，直接绘制官方主题的对应光标。
         if (themeCursor == null && Gdx.graphics.isFullscreen()) {
             themeCursor = cursor == SystemMouseCursor.TEXT ? fullscreenText : fullscreenArrow;
@@ -272,6 +301,7 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
         if(themeCursor!=null){
             if(hiddenCursor==null){
                 var pixels=new com.badlogic.gdx.graphics.Pixmap(16,16,com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888);
+                pixels.setColor(0,0,0,0);pixels.fill();
                 hiddenCursor=Gdx.graphics.newCursor(pixels,0,0);pixels.dispose();
             }
             Gdx.graphics.setCursor(hiddenCursor);currentSystemCursor=null;return;
@@ -303,6 +333,8 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
     public void close() {
         setCursor(null);
         if(hiddenCursor!=null)hiddenCursor.dispose();
+        for(var cursor:nativeCursors)cursor.dispose();
+        nativeCursors.clear();
         if(white!=null)white.dispose();
         if(whitePixels!=null)whitePixels.dispose();
         fonts.forEach(GdxTwlFont::destroy);
@@ -310,6 +342,7 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
         derivedPixels.forEach(com.badlogic.gdx.graphics.Pixmap::dispose);
         disposeFontPackers();
         batch.dispose();
+        if(spriteGlow!=null)spriteGlow.dispose();
     }
     private void disposeFontPackers() {
         for (var packer : fontPackers) {
@@ -330,7 +363,25 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
             return new AtlasImage(region,tint==null?Color.WHITE:tint,tiled,rotation);
         }
         public MouseCursor createCursor(int x,int y,int w,int h,int hx,int hy,Image image){
-            return new ThemeCursor(image==null?getImage(x,y,w,h,Color.WHITE,false,Rotation.NONE):image,hx,hy);
+            Image cursorImage=image==null?getImage(x,y,w,h,Color.WHITE,false,Rotation.NONE):image;
+            // TwlThemeImageManager / CroppedTextureAtlasRegion: imageRef uses software;
+            // an atlas rectangle uses an RGBA, power-of-two native cursor.
+            Cursor nativeCursor=null;
+            if(image==null && Gdx.app.getType()==ApplicationType.Desktop){
+                var data=texture.getTextureData();
+                if(!data.isPrepared())data.prepare();
+                var source=data.consumePixmap();
+                var pixels=new com.badlogic.gdx.graphics.Pixmap(com.badlogic.gdx.math.MathUtils.nextPowerOfTwo(w),
+                        com.badlogic.gdx.math.MathUtils.nextPowerOfTwo(h),com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888);
+                try{
+                    pixels.setBlending(com.badlogic.gdx.graphics.Pixmap.Blending.None);
+                    pixels.setColor(0,0,0,0);pixels.fill();
+                    pixels.drawPixmap(source,0,0,x,y,w,h);
+                    nativeCursor=Gdx.graphics.newCursor(pixels,hx,hy);
+                    nativeCursors.add(nativeCursor);
+                }finally{pixels.dispose();if(data.disposePixmap())source.dispose();}
+            }
+            return new ThemeCursor(cursorImage,hx,hy,nativeCursor);
         }
         public void themeLoadingDone(){}
         public void destroy(){texture.dispose();}
@@ -360,5 +411,7 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
         }
         public Image createTintedVersion(Color tint){return new AtlasImage(region,color.multiply(tint),tiled,rotation);}
     }
-    private record ThemeCursor(Image image,int hotX,int hotY) implements MouseCursor {}
+    private record ThemeCursor(Image image,int hotX,int hotY,Cursor nativeCursor) implements MouseCursor {
+        ThemeCursor(Image image,int hotX,int hotY){this(image,hotX,hotY,null);}
+    }
 }

@@ -86,12 +86,12 @@ public final class MobileSideMenu extends Widget {
 
     /** MF0.hu: in-game entries use two 260x64 columns inside the same 600-wide panel. */
     public void worldEntries(ClientStrings strings,java.util.function.IntFunction<de.matthiasmann.twl.renderer.Image> icons,
-                             Widget statusHeader,Runnable bag,Runnable trainer,Runnable dex,Runnable mail,Runnable logout,Runnable exit) {
+                             Widget statusHeader,Runnable bag,Runnable trainer,Runnable dex,Runnable mail,Runnable customization,Runnable logout,Runnable exit) {
         header=statusHeader;add(header);
         entries.setHorizontalGroup(null);entries.setVerticalGroup(null);entries.removeAllChildren();
         int[] texts={1100,2807,1101,1,8034,2353,1116,1126,1161,1121,7900,1124,1159,1114};
         int[] images={5436,5454,5432,5431,5471,5452,5459,5437,5001,5265,5277,5621,5481,5547};
-        Runnable[] actions={bag,null,trainer,dex,null,mail,null,null,null,null,null,null,logout,exit};
+        Runnable[] actions={bag,customization,trainer,dex,null,mail,null,null,null,null,null,null,logout,exit};
         var left=entries.createParallelGroup();var right=entries.createParallelGroup();var rows=entries.createSequentialGroup();
         var buttons=new Button[texts.length];
         for(int i=0;i<buttons.length;i++){

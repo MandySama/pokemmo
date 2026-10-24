@@ -80,6 +80,7 @@ public final class ClientUi implements Disposable {
     private final PcMenuWindow pcMenu;
     private final PokemonController pokemon;
     private final PokemonStorageWindow storage;
+    private final PokemonSummaryWindow pokemonSummary;
     private final WorldToolsWindow worldTools;
     private java.util.function.Function<GameService.Entry,java.util.concurrent.CompletionStage<Void>> teleportWorld;
     public void onTeleport(java.util.function.Function<GameService.Entry,java.util.concurrent.CompletionStage<Void>> action){teleportWorld=action;}
@@ -92,6 +93,7 @@ public final class ClientUi implements Disposable {
     private GameService.PokedexState displayedPokedexState;
     private char suppressedPlayerCharacter;
     private final CharacterCreationWindow characterCreation;
+    private final CharacterCreationWindow characterCustomization;
     private final CharacterDeleteWindow characterDelete;
     private final ExitConfirmation exitConfirmation;
     private final Label fps = new Label("0.00");
@@ -120,7 +122,7 @@ public final class ClientUi implements Disposable {
     public void showCharacters() {
         if(worldActions==null)return;
         playerKeys.clear();repeatingPlayerKey=0;suppressedPlayerCharacter=0;
-        inventory.closePopup();trainerCard.closePopup();mail.forceClose();pcMenu.closePopup();storage.closePopup();worldTools.forceClose();pokemon.bind(null,null);
+        characterCustomization.closePopup();inventory.closePopup();trainerCard.closePopup();mail.forceClose();pcMenu.closePopup();storage.closePopup();pokemonSummary.closePopup();worldTools.forceClose();pokemon.bind(null,null);
         if(playerEntry!=null&&gameService!=null&&controller.selection()!=null)gameService.leave(controller.selection(),playerEntry.character().id());
         playerEntry=null;
         pokedex.closePopup();
@@ -136,6 +138,17 @@ public final class ClientUi implements Disposable {
         root.invalidateLayout();
     }
 
+    /** Reference ROM loadItems runs before the world HUD becomes visible. */
+    public void prepareWorldData() throws java.io.IOException {
+        if(!mobile&&resources.roms().get(top.totodile.pokemmo.client.rom.RomType.BLACK_WHITE)!=null)inventoryItems.prepare();
+    }
+    public void prepareWorldIcons() throws java.io.IOException {
+        if(mobile||resources.roms().get(top.totodile.pokemmo.client.rom.RomType.BLACK_WHITE)==null)return;
+        inventoryItems.load();
+        for(int id:new int[]{5436,5432,5437,5001,5431,5471,5452,5459,5626}){
+            inventoryItems.tabIcon(id,false);inventoryItems.tabIcon(id,true);
+        }
+    }
     public com.badlogic.gdx.InputProcessor showWorld(top.totodile.pokemmo.client.world.WorldScene world) {
         return showWorld(world,playerEntry);
     }
@@ -143,7 +156,7 @@ public final class ClientUi implements Disposable {
         playerKeys.clear();repeatingPlayerKey=0;suppressedPlayerCharacter=0;
         boolean replacing=worldScene!=null;
         if(replacing){
-            inventory.closePopup();trainerCard.closePopup();mail.forceClose();pcMenu.closePopup();storage.closePopup();worldTools.closeForTeleport();pokedex.closePopup();
+            characterCustomization.closePopup();inventory.closePopup();trainerCard.closePopup();mail.forceClose();pcMenu.closePopup();storage.closePopup();pokemonSummary.closePopup();worldTools.closeForTeleport();pokedex.closePopup();
             pokemon.removeParty(party);worldScene.commands().onPc(null);root.removeChild(worldHud);root.removeChild(worldActions);
         }
         playerEntry=entry;enteringWorld=false;
@@ -153,6 +166,7 @@ public final class ClientUi implements Disposable {
         worldActions.onTeleport(()->openWorldTool(WorldToolsWindow.Tool.TELEPORT));
         worldActions.onItem(()->openWorldTool(WorldToolsWindow.Tool.ITEM));
         worldActions.onRandomItems(this::generateRandomItems);
+        worldActions.onRandomOutfit(this::generateRandomOutfit);
         worldActions.onPokemon(()->openWorldTool(WorldToolsWindow.Tool.POKEMON));
         worldScene=world;
         worldHud=new top.totodile.pokemmo.client.ui.world.WorldHud(world,strings,mobile,resources.preferences(),this::itemIcon,
@@ -161,11 +175,17 @@ public final class ClientUi implements Disposable {
         worldHud.onBag(()->toggle(inventory));
         worldHud.onTrainer(()->toggle(trainerCard));
         worldHud.onMail(()->toggle(mail));
+        pokemon.onFollower(value->{if(worldScene==world)world.follower(resources,value,this::showNotification);});
+        pokemon.onFollowerDrop((x,y)->worldScene==world&&!enteringWorld&&!entryError.isOpen()&&!pokedex.isOpen()
+                &&!playerWindowsOpen()&&!pokemon.hasMenu()&&!pokedex.showingMessage()&&!settings.blocksInput()
+                &&!worldLogout.isOpen()&&(exitConfirmation==null||!exitConfirmation.isOpen())
+                &&!worldActions.isInside(x,y)&&!worldHud.ownsPointer(x,y));
         storage.reset();pokemon.bind(controller.selection(),playerEntry==null?null:playerEntry.character().id());
         party=pokemon.party(false);worldHud.party(party);
         world.commands().onPc(this::openPortablePc);
         worldHud.onCommand(line->{if(line.strip().matches("(?i)//?pc(?:\\s.*)?"))world.commands().execute(line);});
         if(playerEntry!=null){inventory.region(playerEntry.region());inventory.money(world.worldInfo().money());mail.bind(controller.selection(),playerEntry.character());}
+        worldHud.onCustomization(()->{if(playerEntry!=null){while(worldHud.closeOverlay()){}characterCustomization.openCustomization(playerEntry.character().appearance());restoreWorldInput();}});
         worldHud.onPokedex(()->{while(worldHud.closeOverlay()){}world.setInputBlocked(true);pokedex.open();});
         if(!replacing)for(int i=0;i<root.getNumChildren();i++) {
             Widget child=root.getChild(i);worldHidden.put(child,child.isVisible());child.setVisible(false);
@@ -313,6 +333,8 @@ public final class ClientUi implements Disposable {
             characterPage.setVisible(controller.state() == LoginController.State.SELECTED);
             restoreWindowFocus();
         }, mobileBackground, resources.newAppearance(), renderer, notificationClock,loginPanel::showNotification);
+        characterCustomization=new CharacterCreationWindow(root,strings,mobile,this::restoreWorldInput,mobileBackground,resources.newAppearance(),renderer,notificationClock,loginPanel::showNotification,true);
+        characterCustomization.onCreate(this::saveCustomization);
         inventoryItems=new InventoryItems(resources,renderer);
         inventory=new InventoryWindow(root,strings,mobile,inventoryItems,id->{
             if(resources.apply("sprites/itemicons/"+id+".png").exists())return itemIcon(id);
@@ -327,6 +349,8 @@ public final class ClientUi implements Disposable {
         mail=new MailWindow(root,resources,renderer,mobile,gameService,mobileBackground,this::restoreWorldInput);
         pokemon=new PokemonController(resources,renderer,mobile,gameService,text->entryError.show(text),id->{pokedex.showSpecies(id);restoreWorldInput();});
         storage=new PokemonStorageWindow(root,pokemon,mobile,this::restoreWorldInput);
+        pokemonSummary=new PokemonSummaryWindow(root,pokemon,inventoryItems::icon,this::restoreWorldInput);
+        if(!mobile)pokemon.onSummary(value->{try{inventoryItems.gameData(gameService);}catch(IOException failure){Gdx.app.error("pokemon","Cannot register species data",failure);return;}pokemonSummary.show(value,playerEntry==null?null:playerEntry.character().name());restoreWorldInput();});
         worldTools=new WorldToolsWindow(root,mobile,resources,inventoryItems,gameService,this::executeWorldTool,text->{
             if(worldActions!=null){pokemon.reload();inventory.reloadIfOpen();}
         },text->Gdx.app.error("world-tools",text),this::restoreWorldInput);
@@ -365,7 +389,8 @@ public final class ClientUi implements Disposable {
             private boolean pointer(int x,int y,int button,boolean pressed) {
                 if(enteringWorld) return true;
                 Vector2 point=viewport.unproject(new Vector2(x,y));
-                if(worldScene!=null&&pressed&&button==0&&!entryError.isOpen()&&!settings.blocksInput()&&!pokedex.isOpen()&&!mail.isOpen()&&!inventory.isOpen()&&!trainerCard.isOpen())pokemon.touchDown(Math.round(point.x),renderer.getHeight()-Math.round(point.y),button);
+                if(!pressed&&button<0)pokemonSummary.hoverMenus(Math.round(point.x),renderer.getHeight()-Math.round(point.y));
+                if(worldScene!=null&&pressed&&button==0&&!entryError.isOpen()&&!settings.blocksInput()&&!pokedex.isOpen()&&!mail.isOpen()&&!inventory.isOpen()&&!trainerCard.isOpen()&&!characterCustomization.isOpen())pokemon.touchDown(Math.round(point.x),renderer.getHeight()-Math.round(point.y),button);
                 if(pressed&&button==0&&pokedex.isOpen())pokedex.touchDown(Math.round(point.x),renderer.getHeight()-Math.round(point.y));
                 if(worldActions!=null && !pokedex.isOpen() && !playerWindowsOpen() && !pokemon.hasMenu() && !pokedex.showingMessage() && !settings.blocksInput() && !worldLogout.isOpen() && (exitConfirmation==null||!exitConfirmation.isOpen())
                         && !worldActions.isInside(Math.round(point.x),renderer.getHeight()-Math.round(point.y))
@@ -404,7 +429,7 @@ public final class ClientUi implements Disposable {
                 if (pointer != 0) return false;
                 if(button==0&&mods.pointerUp())return true;
                 if(playerTouchScroll!=null){Vector2 p=viewport.unproject(new Vector2(x,y));boolean pan=playerTouchScroll.endTouch(Math.round(p.x),renderer.getHeight()-Math.round(p.y));playerTouchScroll=null;if(pan)return true;}
-                if(worldScene!=null){Vector2 p=viewport.unproject(new Vector2(x,y));if(pokemon.touchUp(Math.round(p.x),renderer.getHeight()-Math.round(p.y))){gui.handleMouse(-1,-1,button,false);return true;}}
+                if(button==0&&worldScene!=null){Vector2 p=viewport.unproject(new Vector2(x,y));if(pokemon.touchUp(Math.round(p.x),renderer.getHeight()-Math.round(p.y))){gui.handleMouse(-1,-1,button,false);return true;}}
                 if(pokedex.isOpen()){Vector2 p=viewport.unproject(new Vector2(x,y));if(pokedex.touchUp(Math.round(p.x),renderer.getHeight()-Math.round(p.y)))return true;}
                 if(worldActions!=null && !settings.blocksInput()) return pointer(x,y,button,false);
                 if (settings.touchUp(x,y,button)) return true;
@@ -439,6 +464,7 @@ public final class ClientUi implements Disposable {
                     int code=keyCode(key);if(code!=0)gui.handleKey(code,'\0',true);return true;
                 }
                 if(worldActions!=null) {
+                    if(characterCustomization.isOpen()){if(key==Input.Keys.ESCAPE||key==Input.Keys.BACK){characterCustomization.back();return true;}int code=keyCode(key);return code!=0&&gui.handleKey(code,'\0',true);}
                     if(entryError.isOpen()){
                         if(key==Input.Keys.ESCAPE||key==Input.Keys.BACK||key==Input.Keys.ENTER)entryError.closePopup();return true;
                     }
@@ -543,10 +569,10 @@ public final class ClientUi implements Disposable {
         loginPanel.focusDefault();
     }
 
-    private boolean playerWindowsOpen(){return inventory!=null&&(inventory.isOpen()||trainerCard.isOpen()||mail.isOpen()||pcMenu.isOpen()||storage.isOpen()||worldTools.isOpen());}
+    private boolean playerWindowsOpen(){return inventory!=null&&(characterCustomization.isOpen()||inventory.isOpen()||trainerCard.isOpen()||mail.isOpen()||pcMenu.isOpen()||storage.isOpen()||worldTools.isOpen()||pokemonSummary.isOpen());}
     private PlayerWindow topPlayerWindow(){
         PlayerWindow top=null;
-        for(var window:new PlayerWindow[]{inventory,trainerCard,mail,pcMenu,storage,worldTools})if(window.isOpen()&&window.isAbove(pokedex)&&(top==null||window.isAbove(top)))top=window;
+        for(var window:new PlayerWindow[]{inventory,trainerCard,mail,pcMenu,storage,worldTools,pokemonSummary})if(window.isOpen()&&window.isAbove(pokedex)&&(top==null||window.isAbove(top)))top=window;
         return top;
     }
     private void restoreWorldInput(){if(worldScene!=null)worldScene.setInputBlocked(enteringWorld||playerWindowsOpen()||pokemon.hasMenu()||entryError.isOpen()||pokedex.isOpen()||worldHud.menuOpen()||worldHud.editingChat()||settings.blocksInput()||worldLogout.isOpen());}
@@ -596,6 +622,29 @@ public final class ClientUi implements Disposable {
     private void openPortablePc(){
         if(playerEntry==null||gameService==null)return;
         pokemon.closeMenu();pokemon.cancelDrag();while(worldHud.closeOverlay()){}storage.open();restoreWorldInput();
+    }
+    private void generateRandomOutfit(){
+        if(playerEntry==null||gameService==null)return;
+        var entry=playerEntry;worldActions.randomOutfitEnabled(false);
+        var appearance=characterCustomization.randomAppearance(entry.character().appearance());
+        gameService.saveAppearance(controller.selection(),entry.character().id(),appearance).whenComplete((character,error)->Gdx.app.postRunnable(()->{
+            if(worldActions!=null)worldActions.randomOutfitEnabled(true);
+            if(disposed||playerEntry!=entry)return;
+            if(error!=null){Gdx.app.error("customization","Cannot randomize outfit",error);entryError.show(strings.get(2103));return;}
+            playerEntry=new GameService.Entry(character,entry.position(),entry.travelState(),entry.pokedexState(),entry.worldInfo(),entry.region());
+            if(worldScene!=null)worldScene.appearance(character.appearance());trainerCard.reloadIfOpen();
+        }));
+    }
+    private void saveCustomization(){
+        if(playerEntry==null||gameService==null||!characterCustomization.isOpen())return;
+        var entry=playerEntry;long version=characterCustomization.version();characterCustomization.saving(true);
+        gameService.saveAppearance(controller.selection(),entry.character().id(),characterCustomization.selectedAppearance()).whenComplete((character,error)->Gdx.app.postRunnable(()->{
+            characterCustomization.saving(false);if(disposed||playerEntry!=entry)return;
+            if(error!=null){Gdx.app.error("customization","Cannot save character outfit",error);entryError.show(strings.get(2103));return;}
+            playerEntry=new GameService.Entry(character,entry.position(),entry.travelState(),entry.pokedexState(),entry.worldInfo(),entry.region());
+            if(worldScene!=null)worldScene.appearance(character.appearance());trainerCard.reloadIfOpen();
+            if(version==characterCustomization.version())characterCustomization.closePopup();restoreWorldInput();
+        }));
     }
     private void generateRandomItems(){
         if(generatingRandomItems||playerEntry==null||gameService==null)return;
@@ -742,12 +791,23 @@ public final class ClientUi implements Disposable {
         if (gameService == null) return;
         long request = ++characterLoadVersion;
         characterPage.beginLoading();
-        gameService.characters(selection).whenComplete((characters, error) -> Gdx.app.postRunnable(() -> {
+        gameService.characters(selection).thenCompose(characters->{
+            var parties=characters.stream().map(character->gameService.pokemon(selection,character.id()).handle((party,error)->{
+                if(error!=null){Gdx.app.error("game","Cannot load character party",error);return top.totodile.pokemmo.server.game.PokemonData.Containers.empty();}
+                return party;
+            }).toCompletableFuture()).toList();
+            return java.util.concurrent.CompletableFuture.allOf(parties.toArray(java.util.concurrent.CompletableFuture[]::new))
+                    .thenApply(ignored->java.util.stream.IntStream.range(0,characters.size())
+                            .mapToObj(i->new CharacterRoster(characters.get(i),parties.get(i).join())).toList());
+        }).whenComplete((rosters, error) -> Gdx.app.postRunnable(() -> {
             if (disposed || selection != controller.selection() || request != characterLoadVersion) return;
             if (error != null) {
                 characterPage.loadFailed();
                 Gdx.app.error("game", "Cannot load local characters", error);
-            } else characterPage.characters(characters, strings, mobile, renderer, characterCreation::savedAppearance);
+            } else {
+                characterPage.characters(rosters.stream().map(CharacterRoster::character).toList(), strings, mobile, renderer, characterCreation::savedAppearance);
+                for(var roster:rosters)characterPage.party(roster.character().id(),roster.party(),pokemon::characterPartyIcon,pokemon::characterPartyName);
+            }
             if (!characterCreation.isOpen()) {
                 // 不把上一个页面遗留的鼠标/触点位置解释为新按钮的悬停。
                 gui.handleMouse(-1, -1, -1, false);
@@ -755,6 +815,8 @@ public final class ClientUi implements Disposable {
             }
         }));
     }
+    private record CharacterRoster(top.totodile.pokemmo.server.game.GameService.Character character,
+                                   top.totodile.pokemmo.server.game.PokemonData.Containers party){}
     private void enterWorld(top.totodile.pokemmo.server.game.GameService.Character character) {
         var selection=controller.selection();
         if(disposed || enteringWorld || worldEntry==null || gameService==null || selection==null) return;
@@ -831,6 +893,7 @@ public final class ClientUi implements Disposable {
     }
 
     public void draw(float width,float height,float x,float y) {
+        loginPanel.updateNotifications();
         if(worldActions!=null) {
             repeatPlayerShortcut();
             var dexState=worldScene.commands().pokedexState();
@@ -841,7 +904,7 @@ public final class ClientUi implements Disposable {
             fps.setVisible(Boolean.parseBoolean(resources.preferences().get("client.graphics.show_fps","true")));
             fps.setText(frameRate.frame());
             if(renderer.updateFontScale()) invalidateFontLayout(gui);
-            pokedex.positionWindow();inventory.positionWindow();trainerCard.positionWindow();mail.positionWindow();pcMenu.positionWindow();storage.positionWindow();worldTools.positionWindow();gui.update();settings.positionWindow();worldLogout.positionWindow();
+            pokedex.positionWindow();inventory.positionWindow();trainerCard.positionWindow();mail.positionWindow();pcMenu.positionWindow();storage.positionWindow();pokemonSummary.positionWindow();worldTools.positionWindow();gui.update();settings.positionWindow();worldLogout.positionWindow();
             if(exitConfirmation!=null)exitConfirmation.positionWindow();return;
         }
         fps.setVisible(Boolean.parseBoolean(resources.preferences().get("client.graphics.show_fps","true")));
@@ -851,12 +914,11 @@ public final class ClientUi implements Disposable {
         if (renderer.updateFontScale()) invalidateFontLayout(gui);
         int nextX=Math.round(x),nextY=Math.round(y);
         if(nextX!=offsetX || nextY!=offsetY){offsetX=nextX;offsetY=nextY;root.invalidateLayout();}
-        loginPanel.updateNotifications();
         gui.update();
         clientManagement.positionWindow();
         mods.positionWindow();
         settings.positionWindow();
-        characterCreation.positionWindow();
+        characterCreation.positionWindow();characterCustomization.positionWindow();
         characterDelete.positionWindow();
         entryError.positionWindow();
         if (exitConfirmation != null) exitConfirmation.positionWindow();
@@ -869,14 +931,14 @@ public final class ClientUi implements Disposable {
     @Override public void dispose() {
         clientManagement.dispose();
         mods.dispose();
-        inventory.closePopup();trainerCard.close();mail.close();pcMenu.closePopup();storage.closePopup();worldTools.forceClose();pokemon.close();inventoryItems.close();
+        inventory.closePopup();trainerCard.close();mail.close();pcMenu.closePopup();storage.closePopup();pokemonSummary.closePopup();worldTools.forceClose();pokemon.close();inventoryItems.close();
         pokedex.close();
         disposed = true;
         characterDelete.closePopup();
         characterPage.clearCards();
         loginPanel.dispose();
         controller.close();
-        characterCreation.dispose();
+        characterCreation.dispose();characterCustomization.dispose();
         if(Gdx.input.getInputProcessor()==input)Gdx.input.setInputProcessor(null);
         gui.destroy();theme.destroy();renderer.close();
         if (ownsResources) resources.close();

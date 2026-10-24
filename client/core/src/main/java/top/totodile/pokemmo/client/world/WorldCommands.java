@@ -16,6 +16,18 @@ public final class WorldCommands {
     }
     public boolean pokedexUnlocked(){return pokedexState.unlocked();}
     public PokedexState pokedexState(){return pokedexState;}
+    /** User-requested local fixture; keep WorldService's fourth (caught alpha) bitset intact. */
+    public void randomizePokedex(java.util.random.RandomGenerator random){
+        var entries=new java.util.HashMap<Integer,Integer>();
+        for(int species=1;species<=PokedexState.LAST_SPECIES;species++){
+            int level=random.nextInt(4);
+            int flags=((1<<level)-1)|(pokedexState.entries().getOrDefault(species,0)&8);
+            if(flags!=0)entries.put(species,flags);
+        }
+        var state=new PokedexState(entries);
+        savePokedex.accept(state);
+        pokedexState=state;
+    }
     public String execute(String line) {
         String command=line.trim().replaceFirst("^/+","");
         String[] args=command.split("\\s+");

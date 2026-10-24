@@ -75,7 +75,7 @@ final class NdsWorldRenderer implements AutoCloseable {
             }
         }
     }
-    void draw(MapMovement movement,PlayerMotion motion,OverworldCharacter character,SpriteBatch sprites,int width,int height,boolean mobile) {
+    void draw(MapMovement movement,PlayerMotion motion,OverworldCharacter character,SpriteBatch sprites,int width,int height,boolean mobile,FollowerPokemon follower) {
         Id id=movement.map().id();var view=maps.camera(id,mobile);
         float x=(motion.x()+.5f)*16,z=(motion.y()+.5f)*16,y=maps.height(id,motion.x(),motion.y());
         float angle=view.pitch()*MathUtils.degreesToRadians;
@@ -104,14 +104,22 @@ final class NdsWorldRenderer implements AutoCloseable {
         // Ground shadow and upright sprite have independent planes, both depth-tested against field meshes.
         transform.setToTranslation(x,y+.2f,z).rotate(Vector3.X,-90);
         sprites.setTransformMatrix(transform);sprites.begin();character.drawShadow(sprites,0,0);sprites.end();
+        if(follower!=null&&follower.visible()&&follower.y()<=motion.y())drawFollower(follower,id,view.pitch(),sprites,character);
         transform.setToTranslation(x,y+.3f,z).rotate(Vector3.X,-view.pitch());
         sprites.setTransformMatrix(transform);sprites.begin();
         character.drawBody(sprites,0,0,movement.position().direction(),motion.animationTime(),motion.moving(),motion.mode().animation);
         sprites.end();sprites.setTransformMatrix(transform.idt());
+        if(follower!=null&&follower.visible()&&follower.y()>motion.y())drawFollower(follower,id,view.pitch(),sprites,character);
         Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);Gdx.gl.glDepthMask(true);
         boolean evicted=false;
         while(loaded.size()>6) {var entries=loaded.entrySet().iterator();entries.next();entries.remove();evicted=true;}
         if(evicted)releaseUnusedAssets();
+    }
+    private void drawFollower(FollowerPokemon follower,Id id,float pitch,SpriteBatch sprites,OverworldCharacter character){
+        float x=(follower.x()+.5f)*16,z=(follower.y()+.5f)*16,y=maps.height(id,follower.x(),follower.y());
+        if(follower.opacity()>.49f){transform.setToTranslation(x,y+.2f,z).rotate(Vector3.X,-90);sprites.setTransformMatrix(transform);sprites.begin();character.drawShadow(sprites,0,0);sprites.end();}
+        transform.setToTranslation(x,y+.3f,z).rotate(Vector3.X,-pitch);
+        sprites.setTransformMatrix(transform);sprites.begin();follower.draw(sprites,0,0);sprites.end();sprites.setTransformMatrix(transform.idt());
     }
     private void drawMap(Id id,float x,float z) {
         for(Piece piece:load(id)) {

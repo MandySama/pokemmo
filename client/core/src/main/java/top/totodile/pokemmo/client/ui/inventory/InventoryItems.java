@@ -10,6 +10,7 @@ import top.totodile.pokemmo.client.rom.*;
 import top.totodile.pokemmo.client.rom.nds.NdsArchive;
 import top.totodile.pokemmo.client.rom.nds.bw.*;
 import top.totodile.pokemmo.client.rom.gba.GbaItems;
+import top.totodile.pokemmo.client.rom.gba.GbaItemIcons;
 import top.totodile.pokemmo.client.twl.GdxTwlRenderer;
 import top.totodile.pokemmo.server.game.GameService;
 
@@ -38,8 +39,10 @@ public final class InventoryItems implements AutoCloseable {
     private final Map<Integer,Icon> grayIcons=new HashMap<>();
     private final Map<Integer,Attributes> attributes=new HashMap<>();
     private BwPokemonSprites sprites;
+    private final Map<Integer,GbaItemIcons.Icon> gbaIcons=new HashMap<>();
     private BwPokedex dex;
-    private boolean loaded;
+    private boolean loaded,prepared;
+    private final List<ClientStrings.RomMessages> pendingRomMessages=new ArrayList<>();
     private GameService registeredGame;
     private Map<Integer,Map<Integer,List<Integer>>> randomCandidates;
     private Set<Integer> availableIconFiles;
@@ -52,11 +55,17 @@ public final class InventoryItems implements AutoCloseable {
     private com.badlogic.gdx.graphics.g2d.TextureAtlas tooltipAtlas;
     public void previewAppearance(GameService.Appearance appearance){previewAppearance=appearance;fashionTooltips.values().forEach(InventoryFashionTooltip::close);fashionTooltips.clear();}
     public InventoryItems(ClientResources resources,GdxTwlRenderer renderer){this.resources=resources;this.strings=resources.strings();this.renderer=renderer;}
-    public void load()throws IOException {
+    public synchronized void load()throws IOException {
         if(loaded)return;
+        prepare();strings.registerRomMessages(pendingRomMessages);pendingRomMessages.clear();loaded=true;
+    }
+    /** ROM decoding only; safe for the entry worker, without GL or shared string mutations. */
+    public synchronized void prepare()throws IOException {
+        if(prepared)return;
         var rom=resources.roms().get(RomType.BLACK_WHITE);if(rom==null)throw new IOException("Black/White ROM required");
         for(var type:List.of(RomType.FIRE_RED,RomType.EMERALD)){
             var gba=resources.roms().get(type);if(gba==null)continue;
+            GbaItemIcons.load(gba).forEach(gbaIcons::putIfAbsent);
             for(var item:GbaItems.load(gba)){
                 gbaNames.putIfAbsent(item.id(),item.name());gbaDescriptions.putIfAbsent(item.id(),item.description());
                 int group=switch(item.pocket()){case 1->129;case 2->210;default->item.pocket()*100;};
@@ -80,11 +89,11 @@ public final class InventoryItems implements AutoCloseable {
         var text=new NdsArchive(RomReader.readFile(rom,"a/0/0/2"));
         names=BwText.decode(text.readRaw(54));descriptions=BwText.decode(text.readRaw(53));
         // LocalizationMessageFormatter's BW banks, including references used by built-in item names.
-        strings.registerRomMessages(2,0,54,245000,0,names);strings.registerRomMessages(2,0,53,135000,0,descriptions);
-        strings.registerRomMessages(2,0,203,110000,0,BwText.decode(text.readRaw(203)));
-        strings.registerRomMessages(2,0,202,120000,0,BwText.decode(text.readRaw(202)));
+        registerRomMessages(2,0,54,245000,0,names);registerRomMessages(2,0,53,135000,0,descriptions);
+        registerRomMessages(2,0,203,110000,0,BwText.decode(text.readRaw(203)));
+        registerRomMessages(2,0,202,120000,0,BwText.decode(text.readRaw(202)));
         var typeNames=BwText.decode(text.readRaw(199));
-        for(int type=0;type<18;type++)if(type!=9){int entry=type>9?type-1:type;strings.registerRomMessages(2,0,199,230000+type,entry,typeNames[entry]);}
+        for(int type=0;type<18;type++)if(type!=9){int entry=type>9?type-1:type;registerRomMessages(2,0,199,230000+type,entry,typeNames[entry]);}
         // BlackWhiteRom.loadItems: ARM9's TM/HM move table follows this four-word signature.
         byte[] arm=BwPokemonSprites.arm9(rom),signature=ByteBuffer.allocate(16).order(ByteOrder.LITTLE_ENDIAN).putInt(56165208).putInt(56492888).putInt(59114373).putInt(59245447).array();
         int moveTable=-1;for(int p=0;p<=arm.length-signature.length;p++)if(Arrays.equals(arm,p,p+signature.length,signature,0,signature.length)){moveTable=p+signature.length;break;}
@@ -112,7 +121,10 @@ public final class InventoryItems implements AutoCloseable {
         for(var t:templates.values())if(t.pocket()==4&&attributes(t.id()).move>0&&!hiddenMachine(t.id())){
             int type=dex.move(attributes(t.id()).move).type();if(type>=0&&type<typeIcons.length)iconSources.put(t.id(),typeIcons[type]);
         }
-        sprites=new BwPokemonSprites(dex);loaded=true;
+        sprites=new BwPokemonSprites(dex);prepared=true;
+    }
+    private void registerRomMessages(int region,int type,int table,int base,int first,String... values){
+        pendingRomMessages.add(new ClientStrings.RomMessages(region,type,table,base,first,values));
     }
     // ItemDatabase.getItem uses the ordinary pocket and strings 1450/1451 for unknown templates.
     public Template template(int id){return templates.getOrDefault(aliases.getOrDefault(id,id),new Template(id,1,0,129));}
@@ -122,7 +134,7 @@ public final class InventoryItems implements AutoCloseable {
         load();if(registeredGame==game)return;game.gameData(catalogue(),speciesTemplates());registeredGame=game;
     }
     Map<Integer,Map<Integer,List<Integer>>> randomCandidates(){if(randomCandidates==null)randomCandidates=RandomInventoryItems.candidates(this);return randomCandidates;}
-    public List<GameService.SpeciesTemplate> speciesTemplates(){return dex.all().stream().map(s->new GameService.SpeciesTemplate(s.id(),dex.extra(s.id()).genderRatio(),s.stats(),s.abilities().get(0),s.moves().stream().filter(m->m.source()<0).map(m->new GameService.LearnedMove(m.move(),m.level())).toList())).toList();}
+    public List<GameService.SpeciesTemplate> speciesTemplates(){return dex.all().stream().map(s->new GameService.SpeciesTemplate(s.id(),dex.extra(s.id()).genderRatio(),s.stats(),s.abilities().get(0),s.moves().stream().filter(m->m.source()<0).map(m->new GameService.LearnedMove(m.move(),m.level())).toList(),s.abilities())).toList();}
     public String speciesName(int id){return dex.name(id);}
     void define(int id,int icon,int name,int description,int price,int pocket){
         int group=switch(pocket){case 1->129;case 2->210;default->pocket*100;};
@@ -250,7 +262,7 @@ public final class InventoryItems implements AutoCloseable {
             availableIconFiles=Set.copyOf(available);
         }
         int icon=source(id);
-        return availableIconFiles.contains(icon)||availableIconFiles.contains(id)
+        return gbaIcons.containsKey(icon)||availableIconFiles.contains(icon)||availableIconFiles.contains(id)
                 ||!vanityItems.containsKey(textSource(id))&&sprites.hasItemIcon(icon);
     }
     /** BwTrainerModelLoader.F10: resource-package override first, then the ROM sprite registry. */
@@ -268,7 +280,8 @@ public final class InventoryItems implements AutoCloseable {
                 else {var texture=renderer.loadTexture(url,null,"nearest");image=texture.getImage(0,0,texture.getWidth(),texture.getHeight(),de.matthiasmann.twl.Color.WHITE,false,de.matthiasmann.twl.renderer.Texture.Rotation.NONE);}
                 cache.put(id,new Icon(null,image));return image;
             }
-            var p=sprites.item(source(id),gray);var pixmap=new Pixmap(p.width(),p.height(),Pixmap.Format.RGBA8888);
+            var gba=gbaIcons.get(source(id));
+            var p=gba==null?sprites.item(source(id),gray):new BwPokemonSprites.Pixels(24,24,gba.rgba(gray));var pixmap=new Pixmap(p.width(),p.height(),Pixmap.Format.RGBA8888);
             try{
                 pixmap.setBlending(Pixmap.Blending.None);
                 for(int y=0;y<p.height();y++)for(int x=0;x<p.width();x++)pixmap.drawPixel(x,y,p.rgba()[y*p.width()+x]);

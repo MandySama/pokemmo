@@ -33,6 +33,15 @@ public final class NitroTextureDictionary {
             for(int i=0;i<pal.count;i++)palettes.put(pal.name(i),paletteData+(u16(data,pal.record(i))&8191)*8);
         } catch(RuntimeException error) { throw new IOException("Invalid Nitro texture dictionary",error); }
     }
+    public Set<String> paletteNames(){return Collections.unmodifiableSet(palettes.keySet());}
+    /** BlackWhiteRom.Z10: sprites/sp.pak XOR patch for the first follower palette. */
+    public void xorFirstPalette(byte[] patch,int modelIndex){
+        if(palettes.isEmpty()||textures.isEmpty()||modelIndex<198||modelIndex>763)return;
+        int size=textures.values().iterator().next().format()==4?512:32;
+        int offset=(modelIndex-198)*size,start=palettes.values().iterator().next();
+        if(offset+size>patch.length||start+size>data.limit())return;
+        for(int i=0;i<size;i++)data.put(start+i,(byte)(data.get(start+i)^patch[offset+i]));
+    }
     public TextureInfo info(String name) { return textures.get(name); }
     public boolean has(String texture,String palette) {return textures.containsKey(texture)&&palettes.containsKey(palette);}
     public Set<String> names() { return Collections.unmodifiableSet(textures.keySet()); }

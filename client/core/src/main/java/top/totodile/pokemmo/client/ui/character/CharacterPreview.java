@@ -32,6 +32,8 @@ public final class CharacterPreview extends Widget implements AutoCloseable {
     private int mode;
     private int centerX;
     private boolean portrait;
+    private boolean customization;
+    void customization(boolean value){customization=value;}
     private boolean tooltipRow;
     private boolean measuringTooltip;
     private int tooltipMinX,tooltipMinY,tooltipMaxX,tooltipMaxY;
@@ -45,7 +47,9 @@ public final class CharacterPreview extends Widget implements AutoCloseable {
     private int worldGroundPadding=-1;
     private CharacterAppearance.Slot colorSlot;
     private int pendingColor;
-    private record Key(int slot, int id, int view, int frame, int layer) {}
+    private record Key(int slot,int id,int view,int frame,int layer,int variant){
+        Key(int slot,int id,int view,int frame,int layer){this(slot,id,view,frame,layer,0);}
+    }
     private static final class Cached {
         final Pixmap pixels;
         final Texture texture;
@@ -144,16 +148,26 @@ public final class CharacterPreview extends Widget implements AutoCloseable {
                 x += (direction - 1) * 160;
                 y = 250;
             } else {
-                y = 120 + direction * 160;
+                y = (customization?10:120) + direction * 160;
             }
             drawCharacter(view, frame, getX() + x, getY() + y, scale);
         }
     }
 
     private void drawCharacter(int view, int frame, int x, int y, int scale) {
+        int bicycleFrame=frame,bicycle=appearance.selected(BICYCLE).id();
+        boolean riding=view==0&&frame>=18&&frame<=26;
+        if(riding){
+            int direction=frame==18||frame==21||frame==22?0:frame==19||frame==23||frame==24?1:2;
+            if(bicycle==2||bicycle==12||bicycle==17||bicycle==28||bicycle==30||bicycle==40||bicycle==51){frame=18+direction;if(bicycle==17||bicycle==40)bicycleFrame=frame;}
+            else if(bicycle==52){frame=27+direction;bicycleFrame=18+direction;}
+        }
+        boolean layered=riding&&(bicycle==12||bicycle==17||bicycle==40||bicycle==51);
+        if(layered)bicycleEffect(bicycle,bicycleFrame,false,view,x,y,scale);
         for (int group = 0; group < 3; group++) {
             if (group == 1) draw(new Key(-1, skin.getAsInt(), view, frame, 0), x, y, scale, null);
-            part(BICYCLE, view, frame, group, x, y, scale);
+            if(!layered)part(BICYCLE, view, bicycleFrame, group, x, y, scale);
+            part(ROD, view, frame, group, x, y, scale);
             int topFlags = appearance.selected(TOP).flags();
             if ((topFlags & 4096) == 0) part(SHOES, view, frame, group, x, y, scale);
             if ((topFlags & 2048) == 0) part(PANTS, view, frame, group, x, y, scale);
@@ -165,8 +179,20 @@ public final class CharacterPreview extends Widget implements AutoCloseable {
             part(EYES, view, frame, group, x, y, scale);
             part(HAIR, view, frame, group, x, y, scale);
             part(HAT, view, frame, group, x, y, scale);
+            part(FOREHEAD, view, frame, group, x, y, scale);
             if (!handsFirst) part(GLOVES, view, frame, group, x, y, scale);
         }
+        if(layered)bicycleEffect(bicycle,bicycleFrame,true,view,x,y,scale);
+    }
+    // PlayerAvatarAppearanceState.Bd: mount body and trail straddle the rider.
+    private void bicycleEffect(int id,int frame,boolean front,int view,int x,int y,int scale){
+        int phase=(int)(clock.getAsLong()/200%4),step=phase==3?1:phase;
+        int main=id,trail=13+phase;
+        if(id==17){main=18+step;trail=23+step;}else if(id==40){main=41+step;trail=46+step;}
+        boolean north=frame==19||frame==23||frame==24;
+        if(!front&&!north)draw(new Key(11,trail,view,frame,0,appearance.variant(11,trail,clock.getAsLong())),x,y,scale,null);
+        int layer=front?0:2;draw(new Key(11,main,view,frame,layer,appearance.variant(11,main,clock.getAsLong())),x,y,scale,null);
+        if(front&&north)draw(new Key(11,trail,view,frame,0,appearance.variant(11,trail,clock.getAsLong())),x,y,scale,null);
     }
     private void part(CharacterAppearance.Slot slot, int view, int frame, int group, int x, int y, int scale) {
         var entry = appearance.selected(slot);
@@ -174,8 +200,11 @@ public final class CharacterPreview extends Widget implements AutoCloseable {
         int layer = GROUP_LAYERS[group];
         int color = slot == colorSlot ? pendingColor : appearance.color(slot);
         Integer tint = entry.colorable() && color >= 0 ? AppearancePalette.tint(color) : null;
+        int style=entry.id();
+        // PlayerAvatarAppearanceState.HX uses the three Xuanwu loop parts.
+        if(slot==BICYCLE&&style==52){int phase=(int)(clock.getAsLong()/200%4);style=54+(phase==3?1:phase);}
         for (int offset : LAYER_OFFSETS) {
-            Key key = new Key(slot.id, entry.id(), view, frame, layer + offset);
+            Key key = new Key(slot.id,style,view,frame,layer+offset,appearance.variant(slot.id,style,clock.getAsLong()));
             draw(key, x, y, scale, offset == 2 ? null : tint);
         }
     }
@@ -211,7 +240,7 @@ public final class CharacterPreview extends Widget implements AutoCloseable {
     }
     private Cached load(Key key) {
         if (cache.containsKey(key)) return cache.get(key);
-        CharacterAppearance.Frame frame = appearance.frame(key.slot, key.id, key.view, key.frame, key.layer);
+        CharacterAppearance.Frame frame = appearance.frame(key.slot,key.id,key.view,key.frame,key.layer,key.variant);
         if (frame == null || frame.length() == 0 && frame.source() < 0) {
             cache.put(key, null); return null;
         }
@@ -219,7 +248,7 @@ public final class CharacterPreview extends Widget implements AutoCloseable {
         Pixmap pixels = null;
         try {
             if (frame.source() >= 0) {
-                Cached source = load(new Key(key.slot, key.id, key.view, frame.source(), key.layer));
+                Cached source = load(new Key(key.slot,key.id,key.view,frame.source(),key.layer,key.variant));
                 if (source == null) { cache.put(key, null); return null; }
                 pixels = new Pixmap(source.pixels.getWidth(), source.pixels.getHeight(), Pixmap.Format.RGBA8888);
                 pixels.setBlending(Pixmap.Blending.None);

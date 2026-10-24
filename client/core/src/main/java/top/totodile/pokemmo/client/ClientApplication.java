@@ -191,9 +191,11 @@ public final class ClientApplication extends ApplicationAdapter {
             java.util.concurrent.CompletableFuture.supplyAsync(() -> {
                 if(disposed || ready.isDone())throw new java.util.concurrent.CancellationException();
                 try {
+                    if(clientUi!=null)clientUi.prepareWorldData();
                     var maps=WorldMapLoader.load(rom,mobile?null:resources.modelCaches().cache(type));
                     var movement=new MapMovement(maps,entry.position());
                     maps.tiles(movement.map());
+                    if(!mobile&&!maps.is3d())for(var connection:movement.map().connections())if(connection.direction()>=1&&connection.direction()<=4)maps.tiles(maps.map(connection.target()));
                     if(maps.is3d())maps.geometry(movement.map().id());
                     return new LoadedWorld(maps,movement);
                 } catch(java.io.IOException error) { throw new java.util.concurrent.CompletionException(error); }
@@ -221,8 +223,13 @@ public final class ClientApplication extends ApplicationAdapter {
                             scene.setWorldInfo(entry.worldInfo());
                             if(mobile) scene.setControls(new MobileMapControls(resources.apply("buttons/controller.png"),resources.preferences()));
                             scene.setFocused(focused);
+                            if(!mobile){
+                                clientUi.prepareWorldIcons();
+                                // Finish initial neighbor/character uploads before starting the reference map fade.
+                                scene.draw(0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+                            }
                             installWorld(scene,entry,selection,ready,relocate);
-                        } catch(RuntimeException failure) {
+                        } catch(RuntimeException | java.io.IOException failure) {
                             if(scene!=null) scene.close(); else if(sprite!=null) sprite.close();
                             ready.completeExceptionally(failure);
                         }

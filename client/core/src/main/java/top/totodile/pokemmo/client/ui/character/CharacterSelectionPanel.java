@@ -7,6 +7,8 @@ import top.totodile.pokemmo.client.resources.ClientStrings;
 import top.totodile.pokemmo.client.twl.GdxTwlRenderer;
 import top.totodile.pokemmo.client.ui.login.LoginController;
 import top.totodile.pokemmo.server.game.GameService;
+import top.totodile.pokemmo.server.game.PokemonData;
+import de.matthiasmann.twl.renderer.Image;
 
 /** 无角色时沿用参考的纵向按钮布局。 */
 public final class CharacterSelectionPanel extends Widget {
@@ -70,6 +72,9 @@ public final class CharacterSelectionPanel extends Widget {
     public void onDeleteCharacter(Runnable action) { deleteCharacter.addCallback(action); }
     public void onEnter(java.util.function.Consumer<GameService.Character> action) { enter=Objects.requireNonNull(action); }
     public java.util.List<GameService.Character> characters() { return cards.stream().map(card -> card.character).toList(); }
+    public void party(String characterId,PokemonData.Containers state,Function<PokemonData.Pokemon,Image> icons,Function<PokemonData.Pokemon,String> names){
+        for(var card:cards)if(card.character.id().equals(characterId))card.party(state,icons,names);
+    }
 
     public void characters(java.util.List<GameService.Character> values, ClientStrings strings, boolean mobile,
                     GdxTwlRenderer renderer, Function<GameService.Appearance,CharacterAppearance> appearances) {
@@ -139,6 +144,7 @@ public final class CharacterSelectionPanel extends Widget {
         private final Label name;
         private final int scale;
         private final GameService.Character character;
+        private final Widget[] party=new Widget[PokemonData.PARTY_SIZE];
         Card(GameService.Character character, ClientStrings strings, boolean mobile, GdxTwlRenderer renderer, CharacterAppearance appearance) {
             this.appearance = appearance; scale = mobile ? 2 : 1;
             this.character = character;
@@ -148,9 +154,23 @@ public final class CharacterSelectionPanel extends Widget {
             preview = new CharacterPreview(appearance, renderer, mobile, () -> character.appearance().skin(), () -> character.appearance().gender(), () -> 0);
             preview.portrait(); add(preview);
         }
+        void party(PokemonData.Containers state,Function<PokemonData.Pokemon,Image> icons,Function<PokemonData.Pokemon,String> names){
+            for(int i=0;i<party.length;i++){
+                if(party[i]!=null){removeChild(party[i]);party[i]=null;}
+                var pokemon=state.at(PokemonData.PARTY,i);if(pokemon==null)continue;
+                Image image=icons.apply(pokemon);
+                Widget slot=new Widget(){
+                    @Override protected void paintWidget(GUI gui){if(image!=null)image.draw(getAnimationState(),getX(),getY(),36*scale,36*scale);}
+                    @Override protected boolean handleEvent(Event event){return false;}
+                };
+                slot.setTheme("");slot.setTooltipContent(names.apply(pokemon));slot.setTooltipDelay(0);party[i]=slot;add(slot);
+            }
+            invalidateLayout();
+        }
         @Override protected void layout() {
             name.adjustSize(); name.setPosition(getX() + (getWidth() - name.getWidth()) / 2, getY() + 5);
             preview.setPosition(getX(), getY() + 16 * scale + 11); preview.setSize(80 * scale, 80 * scale);
+            for(int i=0;i<party.length;i++)if(party[i]!=null){party[i].setPosition(getX()+(70+i%3*32)*scale,name.getY()+(25+i/3*32)*scale);party[i].setSize(16*scale,16*scale);}
         }
         @Override public void close() { preview.close(); appearance.dispose(); }
     }

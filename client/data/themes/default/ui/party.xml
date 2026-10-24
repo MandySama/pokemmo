@@ -31,12 +31,14 @@
       <image>mi-hpbar.*</image>
     </param>
   </theme>
-  <theme name="pokemon-menu" ref="comboboxPopup">
+  <theme name="pokemon-menu" ref="-defaults">
+    <param name="background"><image>ui-popup.background</image></param>
     <param name="border">
       <border>4</border>
     </param>
   </theme>
   <theme name="pokemon-menu-button" ref="button">
+    <param name="background"><image>ui-popup-button.background</image></param>
     <param name="border">
       <border>2,8</border>
     </param>

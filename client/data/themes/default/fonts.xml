@@ -33,4 +33,6 @@
   </fontDef>
   <fontDef name="symbols-white" filename="res/fonts/DejaVuLGCSans.ttf" color="#FFFFFF" size="14" hinting="AutoFull" incremental="false" characters="┌├└─←→↑↓▸◂↖↗↙↘☒➤↻⇲" />
   <fontDef name="trainer-name" filename="res/fonts/NotoSans-SemiCondensedBlack.ttf" color="#434343" size="18" incremental="false" characters="AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz" />
+  <fontDef name="main-lightgreen" ref="main" color="#66FF66" />
+  <fontDef name="summary-iv-red" ref="main" color="#f09999" />
 </themes>

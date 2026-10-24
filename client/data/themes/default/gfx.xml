@@ -136,5 +136,7 @@
 		</composed>
     </images>
 <images file="res/main-hud.png" filter="nearest"><area name="label5.background" tint="#55FFFFFF" xywh="9,191,5,5" inset="0,0,0,0" />
-		</images>
+		<alias name="progressbar-pink.progressImage" tint="#FF99CC" ref="progressbar-white.progressImage"/>
+<alias name="progressbar-pink.background" ref="progressbar-white.background"/>
+</images>
 </themes>

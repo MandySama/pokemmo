@@ -266,7 +266,7 @@ public final class ClientResources implements Function<String, FileHandle>, Auto
             }
             // 参考 pd：道具图标位于包内 sprites/itemicons/，与 data/ 下的主题覆盖分别解析。
             Function<String,FileHandle> root=path -> {
-                if(path.equals("data/sprites/itemicons")||path.startsWith("data/sprites/itemicons/")) {
+                if(path.equals("data/sprites/itemicons")||path.startsWith("data/sprites/itemicons/")||path.equals("data/sprites/followsprites")||path.startsWith("data/sprites/followsprites/")) {
                     FileHandle icon=files.apply(withoutData(path));
                     if(icon.exists())return icon;
                 }
@@ -308,6 +308,10 @@ public final class ClientResources implements Function<String, FileHandle>, Auto
         return cachedStrings;
     }
     /** PC 对齐 GdxAddonSpriteManager 的共享资源生命周期，Android 暂沿用原加载流程。 */
+    private top.totodile.pokemmo.client.rom.nds.bw.BwFollowerSprites followerSprites;
+    public synchronized top.totodile.pokemmo.client.rom.nds.bw.BwFollowerSprites followerSprites() throws java.io.IOException {
+        if(followerSprites==null)followerSprites=new top.totodile.pokemmo.client.rom.nds.bw.BwFollowerSprites(roms().get(top.totodile.pokemmo.client.rom.RomType.BLACK_WHITE),this::apply);return followerSprites;
+    }
     public synchronized top.totodile.pokemmo.client.ui.character.CharacterAppearance newAppearance() {
         if(mobile)return new top.totodile.pokemmo.client.ui.character.CharacterAppearance(apply("sprites/addons.pak"),strings());
         if(appearance==null)appearance=new top.totodile.pokemmo.client.ui.character.CharacterAppearance(apply("sprites/addons.pak"),strings());

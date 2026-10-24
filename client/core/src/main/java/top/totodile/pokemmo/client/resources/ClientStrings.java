@@ -21,7 +21,9 @@ public final class ClientStrings {
     private final Map<Integer, String> messages = new LinkedHashMap<>();
     private final Map<String, String> archives = new LinkedHashMap<>();
     private final Map<Integer, String> preloaded = new LinkedHashMap<>();
-    private record RomMessages(int region,int type,int table,int base,int first,String[] values) {}
+    public record RomMessages(int region,int type,int table,int base,int first,String[] values) {
+        public RomMessages { values=values.clone(); }
+    }
     private final Map<Integer,RomMessages> romMessages=new LinkedHashMap<>();
     private IntFunction<String> variables = id -> "";
     private String language;
@@ -104,7 +106,11 @@ public final class ClientStrings {
     }
     /** LocalizationMessageFormatter.a7 / Tm0: ROM messages fill IDs absent from XML. */
     public void registerRomMessages(int region,int type,int table,int base,int first,String... values){
-        romMessages.put(base,new RomMessages(region,type,table,base,first,values.clone()));applyRomMessages();
+        registerRomMessages(List.of(new RomMessages(region,type,table,base,first,values)));
+    }
+    /** Publish a prepared ROM batch on the UI thread, resolving references once. */
+    public void registerRomMessages(Collection<RomMessages> batch){
+        for(var source:batch)romMessages.put(source.base,source);applyRomMessages();
         for(int pass=0;pass<2;pass++)messages.replaceAll((id,value)->expandReferences(value));
     }
     private void applyRomMessages(){

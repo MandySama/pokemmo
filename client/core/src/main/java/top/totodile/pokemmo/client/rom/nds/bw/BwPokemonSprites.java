@@ -14,7 +14,9 @@ public final class BwPokemonSprites {
     private NdsArchive battle;
     private final byte[] iconCells,iconColors,iconPaletteIds;
     private byte[] battleCells;
-    private NdsArchive items;
+    private NdsArchive items,ribbons;
+    private byte[] ribbonPalette;
+    private NdsArchive balls;
     private byte[] itemCells;
     private final int[] itemTiles=new int[627],itemPalettes=new int[627];
 
@@ -62,6 +64,18 @@ public final class BwPokemonSprites {
     public Pixels front(int id) throws IOException {
         return front(id,0,false);
     }
+    /** BwBadgeModelLoader.es0: top-left 8x8 of archive a/0/8/3 NCGR 65, NCLR 66. */
+    public Pixels heldItem()throws IOException {
+        var archive=dex.archive("a/0/8/3");byte[] tiles=archive.read(65),palette=archive.read(66);
+        if(i32(tiles,0)!=0x4e434752||i32(palette,0)!=0x4e434c52)throw new IOException("Invalid held-item marker");
+        int tileStart=24+i32(tiles,44),paletteStart=24+i32(palette,36);int[] pixels=new int[64];
+        for(int y=0;y<8;y++)for(int x=0;x<8;x++){
+            int index=(tiles[tileStart+y*4+x/2]>>((x&1)*4))&15;if(index==0)continue;
+            int c=u16(palette,paletteStart+index*2);
+            pixels[y*8+x]=((c&31)*255/31)<<24|((c>>5&31)*255/31)<<16|((c>>10&31)*255/31)<<8|255;
+        }
+        return new Pixels(8,8,pixels);
+    }
     public Pixels item(int id) throws IOException {
         return item(id,false);
     }
@@ -87,13 +101,65 @@ public final class BwPokemonSprites {
         if(battle==null){battle=dex.archive("a/0/0/4");battleCells=battle.read(4);}
         return compose(battle.read(sprite*20),battle.read(sprite*20+18+(shiny?1:0)),battleCells,0,96,-1);
     }
-    public BwPokemonAnimation frontAnimation(int id,int form,boolean shiny) throws IOException {
+    /** BlackWhiteRom sets PokemonSpriteManager's egg battle sprite to index 650. */
+    public Pixels egg()throws IOException {
+        if(battle==null){battle=dex.archive("a/0/0/4");battleCells=battle.read(4);}
+        return compose(battle.read(650*20),battle.read(650*20+18),battleCells,0,96,-1);
+    }
+    /** BwBadgeModelLoader / H10: 32x32 ribbon tile at column+16 with palette row. */
+    public Pixels ribbon(int row,int column)throws IOException {
+        if(ribbons==null){ribbons=dex.archive("a/0/7/8");ribbonPalette=ribbons.read(6);}
+        byte[] tiles=ribbons.read(column+16),palette=ribbonPalette;
+        int offset=24+i32(tiles,44),paletteOffset=24+i32(palette,36)+row*32;int[] pixels=new int[1024];
+        for(int y=0;y<32;y++)for(int x=0;x<32;x++){
+            int pixel=((y/8)*4+x/8)*64+(y%8)*8+x%8;
+            int index=(tiles[offset+pixel/2]>>>((pixel&1)*4))&15;if(index==0)continue;
+            int c=u16(palette,paletteOffset+index*2),rgba=((c&31)*255/31)<<24|((c>>5&31)*255/31)<<16|((c>>10&31)*255/31)<<8|255;
+            pixels[y*32+x]=rgba==-2004313857?-1061097472:rgba;
+        }return new Pixels(32,32,pixels);
+    }
+    /** BwBadgeModelLoader.W6 / E4: matching NCLR 87+n and NCGR 112+n. */
+    public Pixels ball(int type)throws IOException {
+        if(type<0||type>24)throw new IOException("Invalid ball type "+type);
+        if(balls==null)balls=dex.archive("a/0/8/3");
+        byte[] palette=balls.read(type+87),tiles=balls.read(type+112);
+        int start=24+i32(tiles,44),colors=24+i32(palette,36);int[] pixels=new int[256];
+        for(int y=0;y<16;y++)for(int x=0;x<16;x++){
+            int i=((y/8)*2+x/8)*64+(y%8)*8+x%8;
+            int index=(tiles[start+i/2]>>>((i&1)*4))&15;if(index==0)continue;
+            int c=u16(palette,colors+index*2);pixels[y*16+x]=((c&31)*255/31)<<24|((c>>5&31)*255/31)<<16|((c>>10&31)*255/31)<<8|255;
+        }return new Pixels(16,16,pixels);
+    }
+    /** NitroCharacterSpriteTable.vE0/RB0: APS texture used by the official type effects. */
+    public Pixels particle(int id)throws IOException{
+        var data=java.nio.ByteBuffer.wrap(dex.archive("a/0/0/6").read(id)).order(java.nio.ByteOrder.LITTLE_ENDIAN);
+        try{
+            if(data.getInt(0)!=1397768480||Short.toUnsignedInt(data.getShort(10))<1)throw new IOException("Missing APS texture "+id);
+            data.position(data.getInt(24));data.getInt();int flags=Short.toUnsignedInt(data.getShort());data.getShort();
+            int size=data.getInt();data.getInt();int paletteSize=Short.toUnsignedInt(data.getShort());data.position(data.position()+14);
+            byte[] pixels=new byte[size],palette=new byte[paletteSize];data.get(pixels);data.get(palette);
+            int width=8<<((flags>>>4)&7),height=8<<((flags>>>8)&7),format=flags&7;int[] rgba=new int[width*height];
+            for(int i=0;i<rgba.length;i++){
+                int value=pixels[format==3?i/2:i]&255,index,alpha;
+                if(format==3){index=(value>>>((i&1)*4))&15;alpha=index==0?0:255;}
+                else if(format==1){index=value&31;int a=value>>>5;int a5=(a<<2)|(a>>>1);alpha=(a5<<3)|(a5>>>2);}
+                else if(format==6){index=value&7;int a=value>>>3;alpha=(a<<3)|(a>>>2);}
+                else throw new IOException("Unsupported APS format "+format);
+                int color=(palette[index*2]&255)|((palette[index*2+1]&255)<<8);
+                rgba[i]=((color&31)*8<<24)|((color>>>5&31)*8<<16)|((color>>>10&31)*8<<8)|alpha;
+            }
+            return new Pixels(width,height,rgba);
+        }catch(RuntimeException failure){throw new IOException("Invalid APS texture "+id,failure);}
+    }
+    public BwPokemonAnimation frontAnimation(int id,int form,boolean shiny) throws IOException {return animation(id,form,shiny,false);}
+    /** BlackWhiteRom.loadSprites: rear sprites use the second nine-entry battle group. */
+    public BwPokemonAnimation animation(int id,int form,boolean shiny,boolean back) throws IOException {
         dex.get(id);var extra=dex.extra(id);
         if(form<0||form>=Math.max(1,extra.formCount()))throw new IOException("Invalid Pokémon form");
         int sprite=form>0&&id!=493?652+extra.formSprite()+form-1:id;
         if(battle==null){battle=dex.archive("a/0/0/4");battleCells=battle.read(4);}
-        int base=sprite*20;
-        return new BwPokemonAnimation(battle.read(base+2),battle.read(base+18+(shiny?1:0)),battle.read(base+4),
+        int base=sprite*20+(back?9:0);
+        return new BwPokemonAnimation(battle.read(base+2),battle.read(sprite*20+18+(shiny?1:0)),battle.read(base+4),
                 battle.read(base+5),battle.read(base+6),battle.read(base+7));
     }
     static Pixels compose(byte[] tiles,byte[] palette,byte[] cells,int frame,int size,int paletteOverride) throws IOException {
