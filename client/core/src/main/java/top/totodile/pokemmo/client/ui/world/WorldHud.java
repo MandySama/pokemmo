@@ -66,7 +66,7 @@ public final class WorldHud extends Widget {
             button.setTheme("shortcut");button.setCanAcceptKeyboardFocus(false);
             shortcuts[i]=button;bar.add(button);
         }
-        shortcuts[8].addCallback(()->{menu.setVisible(!menu.isVisible());invalidateLayout();});
+        shortcuts[8].addCallback(this::toggleMenu);
         int[] menuTexts={1117,1111,1112,2807,7900,1124,1159,1114};
         for(int i=0;i<entries.length;i++) {
             Button entry=new Button(strings.get(menuTexts[i]));entry.setTheme("button");
@@ -94,6 +94,7 @@ public final class WorldHud extends Widget {
         }
     }
     private void closeMenu(){menu.setVisible(false);if(mobileMenu!=null)mobileMenu.close();invalidateLayout();}
+    public void toggleMenu(){menu.setVisible(!menu.isVisible());invalidateLayout();}
     public void party(top.totodile.pokemmo.client.ui.pokemon.PartyPanel panel){party=panel;add(panel);if(mobileMenu!=null){removeChild(mobileMenu);add(mobileMenu);}invalidateLayout();}
     public void onCommand(java.util.function.Consumer<String> action){command=action;}
     public void openChat(){chat.setVisible(true);world.setInputBlocked(true);invalidateLayout();chatInput.requestKeyboardFocus();}
@@ -110,7 +111,7 @@ public final class WorldHud extends Widget {
         return false;
     }
     public void update(){status.update();if(mobileStatus!=null){mobileStatus.update(System.nanoTime());mobileMenu.update();}}
-    public boolean menuOpen(){return mobileMenu!=null&&mobileMenu.isVisible();}
+    public boolean menuOpen(){return menu.isVisible()||mobileMenu!=null&&mobileMenu.isVisible();}
     public boolean closeOverlay() {
         if(mobileMenu!=null&&mobileMenu.isVisible()){mobileMenu.close();return true;}
         if(menu.isVisible()){closeMenu();return true;}

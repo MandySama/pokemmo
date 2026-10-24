@@ -39,7 +39,8 @@ final class PokedexGrid extends Widget {
                 }
             };
             card.setTheme(unlocked?"/monsterdex-button-caught-ot":"/monsterdex-button");card.setCanAcceptKeyboardFocus(false);
-            card.setTooltipContent(unlocked?dex.name(id):"???");card.addCallback(()->selected.accept(id));add(card);
+            card.setTooltipContent(unlocked?dex.name(id):"???");card.setTooltipDelay(200); // TrainerBadgeTagLabel.Bb(200).
+            card.addCallback(()->selected.accept(id));add(card);
         }
         invalidateLayout();
     }

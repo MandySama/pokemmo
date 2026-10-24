@@ -430,7 +430,8 @@ public final class GUI extends Widget {
     }
 
     /**
-     * Sets the delay in MS before the tooltip is shown
+     * Sets this GUI widget's delay in MS. As in the reference TwlGui/TwlWidget,
+     * child widgets keep their own delay instead of inheriting this value.
      * @param tooltipDelay the delay in MS, must be &gt;= 1.
      */
     public void setTooltipDelay(int tooltipDelay) {
@@ -445,9 +446,9 @@ public final class GUI extends Widget {
     }
 
     /**
-     * Sets the time window in which a new tooltip is shown after the last
-     * tooltip was closed before waiting for the tooltip delay.
-     * @param tooltipReappearDelay the delay in MS - set to 0 to disable
+     * Sets the minimum elapsed time since the last tooltip closed before the
+     * reappearance condition in reference PopupWindowBaseComponent.Gy0 applies.
+     * @param tooltipReappearDelay the delay in MS
      */
     public void setTooltipReappearDelay(int tooltipReappearDelay) {
         this.tooltipReappearDelay = tooltipReappearDelay;
@@ -1046,8 +1047,9 @@ public final class GUI extends Widget {
         Widget widgetUnderMouse = getWidgetUnderMouse();
         if(widgetUnderMouse != tooltipOwner) {
             if(widgetUnderMouse != null && (
-                    ((curTime-tooltipEventTime) > (widgetUnderMouse.getTooltipDelay()<0?tooltipDelay:widgetUnderMouse.getTooltipDelay())) ||
-                    (hadOpenTooltip && (curTime-tooltipClosedTime) < tooltipReappearDelay))) {
+                    ((curTime-tooltipEventTime) > widgetUnderMouse.getTooltipDelay()) ||
+                    // Reference PopupWindowBaseComponent.Gy0: elapsed >= xx, not upstream TWL's <.
+                    (hadOpenTooltip && (curTime-tooltipClosedTime) >= tooltipReappearDelay))) {
                 TooltipPositionAdjuster.TooltipPositionData tpd = new TooltipPositionAdjuster.TooltipPositionData(
                         widgetUnderMouse.getX() + widgetUnderMouse.getWidth()/2 + tooltipOffsetX,
                         widgetUnderMouse.getY() + tooltipOffsetY,

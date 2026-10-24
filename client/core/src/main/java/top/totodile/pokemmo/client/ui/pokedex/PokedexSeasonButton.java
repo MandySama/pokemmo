@@ -11,10 +11,11 @@ final class PokedexSeasonButton extends Button {
     };
     private final Image icon;
     private final int iconSize;
+    private final int iconOffsetY;
     PokedexSeasonButton(PokedexImages images,String text,boolean mobile,int season,Runnable action){
         setTheme("/pokedex-tab");setModel(new ToggleButtonModel());setCanAcceptKeyboardFocus(false);
         label.setText(text);label.setTheme("/pokedex-plain");add(label);
-        icon=images.atlas("season",season);iconSize=mobile?32:16;addCallback(action);
+        icon=images.atlas("season",season);iconSize=mobile?32:16;iconOffsetY=mobile?0:2;addCallback(action);
     }
     @Override public int getPreferredInnerWidth(){return label.getPreferredWidth()+3+iconSize;}
     @Override public int getPreferredInnerHeight(){return Math.max(label.getPreferredHeight(),iconSize);}
@@ -25,6 +26,6 @@ final class PokedexSeasonButton extends Button {
     }
     @Override protected void paintWidget(GUI gui){
         super.paintWidget(gui);
-        if(icon!=null)icon.draw(getAnimationState(),label.getRight()+3,getInnerY()+(getInnerHeight()-iconSize)/2,iconSize,iconSize);
+        if(icon!=null)icon.draw(getAnimationState(),label.getRight()+3,getInnerY()+(getInnerHeight()-iconSize)/2+iconOffsetY,iconSize,iconSize);
     }
 }

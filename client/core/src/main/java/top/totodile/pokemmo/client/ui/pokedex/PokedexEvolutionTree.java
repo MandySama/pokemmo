@@ -25,7 +25,8 @@ final class PokedexEvolutionTree extends Widget {
                     images.icon(id).draw(getAnimationState(),getX()+(mobile?10:5),getY()+(mobile?4:2),size,size);}
             };
             card.setTheme("/monsterdex-button-evo-tree");card.setCanAcceptKeyboardFocus(false);
-            card.setTooltipContent(String.format(Locale.ROOT,"%03d %s",id,dex.name(id)));card.addCallback(()->select.accept(id));
+            card.setTooltipContent(String.format(Locale.ROOT,"%03d %s",id,dex.name(id)));card.setTooltipDelay(200); // TrainerBadgeTagLabel.
+            card.addCallback(()->select.accept(id));
             cards.put(id,card);add(card);
             int parent=dex.parent(id);
             if(!depths.containsKey(parent))continue;
@@ -52,6 +53,7 @@ final class PokedexEvolutionTree extends Widget {
         }
     }
     private static class ConditionButton extends Button implements GUI.TooltipPositionAdjuster {
+        ConditionButton(){setTooltipDelay(0);} // BattleStatModTagLabel.Bb(0), including unknown conditions.
         @Override public void adjustTooltipPosition(GUI.TooltipPositionAdjuster.TooltipPositionData position){
             position.x=getX()+getWidth()/2;position.y=getY()-5;position.alignment=Alignment.BOTTOM;
         }

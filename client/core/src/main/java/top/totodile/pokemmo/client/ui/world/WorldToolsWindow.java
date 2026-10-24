@@ -114,7 +114,7 @@ public final class WorldToolsWindow extends PlayerWindow {
         }
         results.invalidateLayout();
     }
-    private Widget label(String text,boolean header){var label=new Label(text);label.setTheme(header?"/database-header":"/database-cell");label.setClip(true);if(text.length()>40&&!text.contains("\n")){label.setText(text.substring(0,40)+" ...");label.setTooltipContent(text.replace("|br|","\n"));}return label;}
+    private Widget label(String text,boolean header){var label=new Label(text);label.setTheme(header?"/database-header":"/database-cell");label.setClip(true);if(text.length()>40&&!text.contains("\n")){label.setText(text.substring(0,40)+" ...");label.setTooltipContent(text.replace("|br|","\n"));label.setTooltipDelay(200);/* AdminDatabaseSearchWindow.JG: name.GH0 */}return label;}
     private void addRow(boolean heading,Widget... cells){for(var cell:cells)results.add(cell);rows.add(new Row(cells,heading));}
     private void add(int id,int value){if(!busy)perform(tool,new int[]{id,value});}
     private void teleport(ReferenceTeleportEntries.Entry entry){

@@ -69,6 +69,7 @@ final class PokedexDetails extends Widget {
         String ability=s.abilities().subList(0,2).stream().filter(i->i>0).distinct().map(dex::ability).collect(Collectors.joining(" / "));
         if(s.abilities().get(2)>0)ability+=" / "+strings.format(6480,dex.ability(s.abilities().get(2)));
         Label abilities=PokedexForm.value(ability);abilities.setTooltipContent(s.abilities().stream().filter(i->i>0).distinct().map(dex::abilityDescription).collect(Collectors.joining("\n")));
+        abilities.setTooltipDelay(100); // PokedexWindow.G50/Ch0.GH0.
         rows.row(PokedexForm.title(strings.get(1733)),abilities);
         String items=s.heldItems().stream().filter(i->i>0).distinct().map(dex::item).collect(Collectors.joining(", "));
         rows.values(strings.get(1735),items.isEmpty()?strings.getOrDefault(61,"无"):items);
@@ -93,9 +94,10 @@ final class PokedexDetails extends Widget {
                 if(!unlocked)image=image.createTintedVersion(new Color((byte)0,(byte)0,(byte)0,(byte)127));
                 // PokedexWindow's two-stage offsets, with StatefulImageButton's
                 // own paint order: following controls paint over sprite overflow.
+                // Desktop portrait is raised 4 px from the reference offset per the UI target.
                 int spriteX=80-image.getWidth()/2,spriteY=80-image.getHeight()/2;
                 spriteX=(int)(spriteX-(image.getWidth()/2f-(mobile?20:7)));
-                spriteY=(int)(spriteY-(image.getHeight()/2f-(mobile?40:20)));
+                spriteY=(int)(spriteY-(image.getHeight()/2f-(mobile?40:16)));
                 image.draw(getAnimationState(),getX()+spriteX,getY()+spriteY,image.getWidth()*2,image.getHeight()*2);
             }
         };
@@ -121,7 +123,7 @@ final class PokedexDetails extends Widget {
         page.setTheme("/dex-move-table");
         int[] names={1711,1716,1712,1713,1715,1714};Widget[] header=new Widget[6];
         for(int i=0;i<6;i++){int column=i;Button button=new Button(strings.get(names[i]));
-            button.setTheme("/dex-move-table.columnHeader");button.setCanAcceptKeyboardFocus(false);button.addCallback(()->{if(sortColumn==column)descending=!descending;else{sortColumn=column;descending=false;}showTab(1);});header[i]=button;}
+            button.setTheme("/dex-move-table.columnHeader");button.setCanAcceptKeyboardFocus(false);button.addCallback(()->{if(sortColumn==column)descending=!descending;else sortColumn=column;showTab(1);});header[i]=button;}
         for(int i=0;i<header.length;i++){
             header[i].getAnimationState().setAnimationState(de.matthiasmann.twl.renderer.AnimationState.StateKey.get("sortAscending"),sortColumn==i&&!descending);
             header[i].getAnimationState().setAnimationState(de.matthiasmann.twl.renderer.AnimationState.StateKey.get("sortDescending"),sortColumn==i&&descending);
@@ -133,12 +135,16 @@ final class PokedexDetails extends Widget {
             case 2->Comparator.comparingInt(m->dex.move(m.move()).type());
             case 3->Comparator.comparingInt(m->dex.move(m.move()).power());
             case 4->Comparator.comparingInt(m->dex.move(m.move()).pp());
-            case 5->Comparator.comparingInt(m->dex.move(m.move()).accuracy());
-            default->Comparator.<BwPokedex.LearnedMove>comparingInt(m->m.source()==6?-1:m.source()<0?m.level():256+m.source()).thenComparing(m->dex.moveName(m.move()));
+            case 5->Comparator.comparingInt(m->{int accuracy=dex.move(m.move()).accuracy();return accuracy==0||accuracy==101?100:accuracy;});
+            default->Comparator.<BwPokedex.LearnedMove>comparingInt(m->switch(m.source()){
+                case -1->-3;case 6->-4;case 0->4000;case 1->2000;case 2->6000;case 3->3000;case 4->1000;case 5->5000;default->1000;
+            }).thenComparingInt(BwPokedex.LearnedMove::level);
         };
+        order=order.thenComparing(m->dex.moveName(m.move()));
         learned.sort(descending?order.reversed():order);
         for(var learnedMove:learned){
             var move=dex.move(learnedMove.move());Label name=new Label(dex.moveName(move.id()));name.setTooltipContent(dex.moveDescription(move.id()));
+            name.setTooltipDelay(50); // BattleLogTableModel.RG0: dex-move-table-name-label.GH0.
             Widget[] cells={new Label(dex.moveSource(learnedMove)),name,new PokedexTypeBadge(images,mobile,move.type()),
                     new Label(move.power()==0?"-":Integer.toString(move.power())),new Label(Integer.toString(move.pp())),
                     new Label(move.accuracy()==0||move.accuracy()>100?"-":Integer.toString(move.accuracy()))};
@@ -236,12 +242,12 @@ final class PokedexDetails extends Widget {
         }
     }
     private static final class StatBar extends Widget {
-        private final float value;private Image fill,track;
+        private final float value;private Image fill,track,frame;
         StatBar(float value,String style){this.value=Math.min(1,value);setTheme("/label-area-monsterdex.stat-widget.progressbar-"+style);}
-        @Override protected void applyTheme(ThemeInfo info){super.applyTheme(info);fill=info.getImage("progressImage");track=info.getImage("background");}
-        @Override protected void paintBackground(GUI gui) { /* Match the progress strip's bounds in paintWidget. */ }
+        @Override protected void applyTheme(ThemeInfo info){super.applyTheme(info);fill=info.getImage("progressImage");track=info.getImage("background");frame=info.getImage("frameImage");}
+        @Override protected void paintBackground(GUI gui){if(frame!=null)frame.draw(getAnimationState(),getX(),getY(),getWidth(),getHeight());}
         @Override protected void paintWidget(GUI gui){
-            int height=track==null?8:track.getHeight();
+            int height=10;
             int x=getInnerX()+5,y=getInnerY()+(getInnerHeight()-height)/2,width=Math.max(0,getInnerWidth()-10);
             if(track!=null)track.draw(getAnimationState(),x,y,width,height);
             if(fill!=null&&value>0)fill.draw(getAnimationState(),x,y,Math.round(width*value),height);

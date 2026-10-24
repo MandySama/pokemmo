@@ -3,6 +3,7 @@ package top.totodile.pokemmo.client.ui.pokemon;
 import de.matthiasmann.twl.*;
 import de.matthiasmann.twl.renderer.Image;
 import top.totodile.pokemmo.server.game.PokemonData.*;
+import static top.totodile.pokemmo.server.game.PokemonData.PC;
 
 /** PcStorageSlotWidget / ExpandableItemButton dimensions and native sprite offsets. */
 final class PokemonSlot extends Button {
@@ -15,6 +16,8 @@ final class PokemonSlot extends Button {
     private Runnable select=()->{};
     PokemonSlot(PokemonController controller,int container,int position,boolean storage){
         this.controller=controller;this.container=container;this.position=position;this.storage=storage;setCanAcceptKeyboardFocus(false);
+        // ServerRegionTagLabel.Bb(200); SlotGridContainerLayout.PH overrides PC box cells to 300.
+        setTooltipDelay(storage&&container==PC?300:200);
         health.setTheme("/pokemon-health");health.setVisible(!storage);add(health);
         addCallback(()->{select.run();if(!storage||controller.mobile)controller.menu(this,storage);});refresh();
     }

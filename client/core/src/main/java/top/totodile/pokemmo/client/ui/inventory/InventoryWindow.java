@@ -61,6 +61,7 @@ public final class InventoryWindow extends PlayerWindow {
     public void money(long money){wallet.setText(strings.format(1928,java.text.NumberFormat.getInstance().format(money)));}
     public void region(int region){this.region=region;inventory=List.of();search.setText("");select(0);}
     public boolean editing(){return search.hasKeyboardFocus();}
+    @Override public void open(){super.open();search.giveupKeyboardFocus();requestKeyboardFocus(null);requestKeyboardFocus();}
     public void onItemAction(BiConsumer<PlayerData.Item,ItemAction> action){itemAction=Objects.requireNonNull(action);}
     public boolean hasMenu(){return itemMenu.isOpen();}
     public boolean closeMenu(){boolean open=hasMenu();itemMenu.close();return open;}
@@ -85,7 +86,9 @@ public final class InventoryWindow extends PlayerWindow {
                 @Override public int getPreferredHeight(){return getMinHeight();}
                 @Override protected void paintWidget(GUI gui){super.paintWidget(gui);Image icon=items.icon(item.itemId());if(icon!=null){int size=mobile?48:24;icon.draw(getAnimationState(),mobile?getX():machines?getX()+7:getX()+(getWidth()-size)/2,getY()+(mobile?3:machines?5:3),size,size);}}
             };
-            cell.setTheme(mobile?"/mobile-inventory-button":machines?"/tm-button":"/inventory-button");cell.setTooltipContent(items.tooltip(item.itemId(),mobile));cell.setTooltipDelay(40);cell.setCanAcceptKeyboardFocus(false);
+            cell.setTheme(mobile?"/mobile-inventory-button":machines?"/tm-button":"/inventory-button");cell.setCanAcceptKeyboardFocus(false);
+            // ItemListContainerLayout: only desktop cells have a hover tooltip (GH0=40).
+            if(!mobile){cell.setTooltipContent(items.tooltip(item.itemId(),false));cell.setTooltipDelay(40);}
             cell.addCallback(()->{if(mobile){selectedItem=item.itemId();itemName.setText(item.amount()+"x "+items.name(selectedItem));itemInfo.setVisible(true);itemInfo.invalidateLayout();}else itemMenu.open(item,cell);});
             grid.add(cell);cells.add(cell);if(cells.size()==(mobile?1:machines?2:11)){rows.add(cells.toArray(Widget[]::new));cells.clear();}
         }

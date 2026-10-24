@@ -196,7 +196,7 @@ public final class LoginPanel extends ResizableFrame implements Disposable {
         while (iterator.hasNext()) {
             LoginNotification notice = iterator.next();
             if (notice.fading) {
-                if (now >= notice.fadeStartedAt + 300) {
+                if (now >= notice.expiresAt + 300) {
                     notificationHost.removeChild(notice);
                     iterator.remove();
                     notificationHost.invalidateLayout();
@@ -204,7 +204,6 @@ public final class LoginPanel extends ResizableFrame implements Disposable {
             } else if (now >= notice.expiresAt) {
                 // NotificationWindow.HP：每条提示独立到期，250ms 淡出、300ms 后移除。
                 notice.fading = true;
-                notice.fadeStartedAt = now;
                 notice.getTintAnimator().fadeToHide(250);
             }
         }
@@ -213,7 +212,6 @@ public final class LoginPanel extends ResizableFrame implements Disposable {
     private final class LoginNotification extends ResizableFrame {
         private final Button message;
         private long expiresAt = notificationClock.getAsLong() + 5000;
-        private long fadeStartedAt;
         private boolean fading;
 
         LoginNotification(String text) {

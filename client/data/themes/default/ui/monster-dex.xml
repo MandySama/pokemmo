@@ -471,6 +471,9 @@
   <theme name="label-area-monsterdex" ref="-defaults">
     <theme name="stat-widget" ref="label">
       <theme name="progressbar-hp" ref="-defaults">
+        <param name="frameImage">
+          <image>ui-header.background</image>
+        </param>
         <param name="progressImage">
           <image>mi-hpbar-green.progressImage</image>
         </param>

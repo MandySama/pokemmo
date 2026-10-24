@@ -58,6 +58,7 @@ public final class ClientApplication extends ApplicationAdapter {
     private boolean focused=true;
     private final top.totodile.pokemmo.client.config.FrameRateLimit frameRateLimit = new top.totodile.pokemmo.client.config.FrameRateLimit();
     private WorldScene world;
+    private top.totodile.pokemmo.client.world.WorldTransition worldTransition;
     private record LoadedWorld(WorldMaps maps,MapMovement movement) {}
     private volatile boolean disposed;
     private final java.util.Set<java.util.concurrent.CompletableFuture<Void>> pendingWorldEntries=
@@ -158,6 +159,7 @@ public final class ClientApplication extends ApplicationAdapter {
 
     private void leaveWorld() {
         if(world==null)return;
+        if(worldTransition!=null)worldTransition.reset();
         world.setFocused(false);
         world.close();world=null;
         clientUi.showCharacters();
@@ -178,8 +180,12 @@ public final class ClientApplication extends ApplicationAdapter {
         var rom=resources.roms().get(type);
         if(rom==null) return java.util.concurrent.CompletableFuture.failedFuture(new top.totodile.pokemmo.client.rom.MissingRomException(type));
         var ready=new java.util.concurrent.CompletableFuture<Void>();
+        var covered=relocate&&world!=null?worldTransition().cover():java.util.concurrent.CompletableFuture.<Void>completedFuture(null);
         pendingWorldEntries.add(ready);
         ready.whenComplete((ignored,failure)->pendingWorldEntries.remove(ready));
+        if(relocate)ready.whenComplete((ignored,failure)->{
+            if(failure!=null&&!disposed)Gdx.app.postRunnable(()->{if(!disposed&&world!=null&&selection==selectedServer())worldTransition().restore(covered);});
+        });
         if(disposed) {ready.cancel(false);return ready;}
         try {
             java.util.concurrent.CompletableFuture.supplyAsync(() -> {
@@ -191,12 +197,13 @@ public final class ClientApplication extends ApplicationAdapter {
                     if(maps.is3d())maps.geometry(movement.map().id());
                     return new LoadedWorld(maps,movement);
                 } catch(java.io.IOException error) { throw new java.util.concurrent.CompletionException(error); }
-            },worldLoader).whenComplete((loaded,error) -> {
+            },worldLoader).whenComplete((loaded,error) -> covered.whenComplete((coveredResult,fadeError) -> {
                 // The render queue may stop permanently during dispose; finish cancellation on this worker instead.
                 if(disposed || ready.isDone()) {ready.cancel(false);return;}
                 try {
                     Gdx.app.postRunnable(() -> {
                         if(disposed || ready.isDone() || selection!=selectedServer()) { ready.cancel(false); return; }
+                        if(fadeError!=null) { ready.completeExceptionally(fadeError); return; }
                         if(error!=null) { ready.completeExceptionally(error); return; }
                         OverworldCharacter sprite=null;
                         WorldScene scene=null;
@@ -221,7 +228,7 @@ public final class ClientApplication extends ApplicationAdapter {
                         }
                     });
                 } catch(RuntimeException failure) {ready.completeExceptionally(failure);}
-            });
+            }));
         } catch(java.util.concurrent.RejectedExecutionException failure) {
             if(disposed)ready.cancel(false);else ready.completeExceptionally(failure);
         }
@@ -238,6 +245,7 @@ public final class ClientApplication extends ApplicationAdapter {
                 var previous=world;
                 if(loginScene!=null){loginScene.close();loginScene=null;}
                 var worldInput=clientUi.showWorld(prepared,entry);world=prepared;preparedWorlds.remove(prepared);Gdx.input.setInputProcessor(worldInput);
+                worldTransition().reveal();
                 if(previous!=null)previous.close();ready.complete(null);
             }catch(RuntimeException failure){discard.run();ready.completeExceptionally(failure);}
         };
@@ -252,6 +260,11 @@ public final class ClientApplication extends ApplicationAdapter {
     /** 后续角色/世界入口从此取得选择结果，不需要访问登录界面或密码。 */
     public top.totodile.pokemmo.server.login.LoginService.Selection selectedServer() {
         return loginController == null ? null : loginController.selection();
+    }
+
+    private top.totodile.pokemmo.client.world.WorldTransition worldTransition(){
+        if(worldTransition==null)worldTransition=new top.totodile.pokemmo.client.world.WorldTransition(()->clock.getAsLong()/1_000_000L);
+        return worldTransition;
     }
 
     @Override
@@ -287,6 +300,7 @@ public final class ClientApplication extends ApplicationAdapter {
         }
         if(world!=null) {
             world.draw(Math.min(.1f,Gdx.graphics.getDeltaTime()),Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+            if(worldTransition!=null)worldTransition.draw(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
             uiViewport.apply();
             clientUi.draw(uiViewport.getWorldWidth(),uiViewport.getWorldHeight(),0,0);
             return;
@@ -341,6 +355,7 @@ public final class ClientApplication extends ApplicationAdapter {
         if(modelPrecacheScreen!=null){modelPrecacheScreen.close();modelPrecacheScreen=null;}
         if(disposed)return;
         disposed=true;
+        if(worldTransition!=null)worldTransition.close();
         // shutdownNow also removes queued loader jobs, so their dependent futures must be completed here.
         for(var pending:pendingWorldEntries)pending.cancel(false);
         worldLoader.shutdownNow();

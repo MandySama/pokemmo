@@ -86,6 +86,8 @@ public final class ClientUi implements Disposable {
     private PartyPanel party;
     private GameService.Entry playerEntry;
     private final java.util.Set<Integer> playerKeys=new java.util.HashSet<>();
+    private int repeatingPlayerKey;
+    private long playerRepeatAt;
     private char suppressedPlayerCharacter;
     private final CharacterCreationWindow characterCreation;
     private final CharacterDeleteWindow characterDelete;
@@ -115,6 +117,7 @@ public final class ClientUi implements Disposable {
 
     public void showCharacters() {
         if(worldActions==null)return;
+        playerKeys.clear();repeatingPlayerKey=0;suppressedPlayerCharacter=0;
         inventory.closePopup();trainerCard.closePopup();mail.forceClose();pcMenu.closePopup();storage.closePopup();worldTools.forceClose();pokemon.bind(null,null);
         if(playerEntry!=null&&gameService!=null&&controller.selection()!=null)gameService.leave(controller.selection(),playerEntry.character().id());
         playerEntry=null;
@@ -135,6 +138,7 @@ public final class ClientUi implements Disposable {
         return showWorld(world,playerEntry);
     }
     public com.badlogic.gdx.InputProcessor showWorld(top.totodile.pokemmo.client.world.WorldScene world,GameService.Entry entry) {
+        playerKeys.clear();repeatingPlayerKey=0;suppressedPlayerCharacter=0;
         boolean replacing=worldScene!=null;
         if(replacing){
             inventory.closePopup();trainerCard.closePopup();mail.forceClose();pcMenu.closePopup();storage.closePopup();worldTools.closeForTeleport();pokedex.closePopup();
@@ -284,6 +288,7 @@ public final class ClientUi implements Disposable {
         if (mobileStatus != null) root.add(mobileStatus);
         if (mobileMenu != null) root.add(mobileMenu);
         gui = new GUI(root, renderer, null);
+        gui.setTooltipDelay(500); // TwlGui: u10.Bb(500); child widgets retain their own GH0.
         Runnable restoreFocus = this::restoreWindowFocus;
         java.util.function.Consumer<de.matthiasmann.twl.renderer.Image> mobileBackground =
                 image -> renderer.drawScreenBackground(image, root.getAnimationState());
@@ -354,7 +359,6 @@ public final class ClientUi implements Disposable {
         gui.applyTheme(theme);
         if (!mobile) renderer.setFullscreenCursors(theme.getImage("fullscreen.cursor.arrow"), theme.getImage("fullscreen.cursor.text"));
         input = new InputAdapter() {
-            private boolean dexKeyHeld,suppressDexCharacter;
             private boolean pointer(int x,int y,int button,boolean pressed) {
                 if(enteringWorld) return true;
                 Vector2 point=viewport.unproject(new Vector2(x,y));
@@ -465,10 +469,6 @@ public final class ClientUi implements Disposable {
                     }
                     if(pokedex.isOpen()) {
                         if(key==Input.Keys.ESCAPE||key==Input.Keys.BACK){pokedex.back();return true;}
-                        if(key==Input.Keys.N&&!pokedex.editingSearch()) {
-                            if(!dexKeyHeld){dexKeyHeld=true;suppressDexCharacter=true;pokedex.closePopup();}
-                            return true;
-                        }
                         int code=keyCode(key);if(code!=0)gui.handleKey(code,'\0',true);return true;
                     }
                     if(key==Input.Keys.ESCAPE || key==Input.Keys.BACK) {
@@ -479,10 +479,6 @@ public final class ClientUi implements Disposable {
                         int code=keyCode(key);if(code!=0)gui.handleKey(code,'\0',true);return true;
                     }
                     if(key==Input.Keys.ENTER){worldHud.openChat();return true;}
-                    if(key==Input.Keys.N) {
-                        if(!dexKeyHeld){dexKeyHeld=true;suppressDexCharacter=true;while(worldHud.closeOverlay()){}worldScene.setInputBlocked(true);pokedex.open();}
-                        return true;
-                    }
                     if(key==Integer.parseInt(resources.preferences().get("client.controls.gdx.key_a",Integer.toString(Input.Keys.J)))){
                         if(playerEntry!=null&&PlayerData.pcTarget(worldScene.movement().position(),playerEntry.region())){
                             pcMenu.playerName(strings,playerEntry.character().name());pcMenu.open();restoreWorldInput();return true;
@@ -518,14 +514,13 @@ public final class ClientUi implements Disposable {
                 return code!=0 && gui.handleKey(code,'\0',true);
             }
             @Override public boolean keyUp(int key){
-                if(playerKeys.remove(key))return true;
-                if(key==Input.Keys.N&&dexKeyHeld){dexKeyHeld=false;suppressDexCharacter=false;return true;}
+                if(playerKeys.remove(key)){if(repeatingPlayerKey==key)repeatingPlayerKey=0;suppressedPlayerCharacter=0;return true;}
                 if(worldActions!=null&&!worldHud.editingChat()&&!pokedex.isOpen()&&!playerWindowsOpen()&&!settings.blocksInput()&&!worldLogout.isOpen())return false;
                 int code=keyCode(key);return code!=0 && gui.handleKey(code,'\0',false);
             }
             @Override public boolean keyTyped(char value){
+                for(int held:playerKeys)if(held>=Input.Keys.A&&held<=Input.Keys.Z&&java.lang.Character.toLowerCase(value)=='a'+held-Input.Keys.A)return true;
                 if(suppressedPlayerCharacter!=0){char suppressed=suppressedPlayerCharacter;suppressedPlayerCharacter=0;if(java.lang.Character.toLowerCase(value)==suppressed)return true;}
-                if(suppressDexCharacter&&(value=='n'||value=='N')){suppressDexCharacter=false;return true;}
                 if(worldActions!=null&&!worldHud.editingChat()&&!pokedex.isOpen()&&!playerWindowsOpen()&&!settings.blocksInput())return false;
                 if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT))return false;
                 if(value<32 || value==127)return false;
@@ -551,14 +546,32 @@ public final class ClientUi implements Disposable {
         for(var window:new PlayerWindow[]{inventory,trainerCard,mail,pcMenu,storage,worldTools})if(window.isOpen()&&window.isAbove(pokedex)&&(top==null||window.isAbove(top)))top=window;
         return top;
     }
-    private void restoreWorldInput(){if(worldScene!=null)worldScene.setInputBlocked(enteringWorld||playerWindowsOpen()||pokemon.hasMenu()||entryError.isOpen()||pokedex.isOpen()||worldHud.editingChat()||settings.blocksInput()||worldLogout.isOpen());}
+    private void restoreWorldInput(){if(worldScene!=null)worldScene.setInputBlocked(enteringWorld||playerWindowsOpen()||pokemon.hasMenu()||entryError.isOpen()||pokedex.isOpen()||worldHud.menuOpen()||worldHud.editingChat()||settings.blocksInput()||worldLogout.isOpen());}
     private void toggle(PlayerWindow window){if(window.isOpen())window.closePopup();else{while(worldHud.closeOverlay()){}window.open();}restoreWorldInput();}
     private boolean handlePlayerShortcut(int key){
+        return handlePlayerShortcut(key,false);
+    }
+    private boolean handlePlayerShortcut(int key,boolean repeated){
         if(entryError.isOpen()||worldTools.isOpen()||pokedex.showingMessage()||worldHud.editingChat()||pokedex.isOpen()&&pokedex.editingSearch()||inventory.isOpen()&&inventory.editing()||storage.isOpen()&&storage.editing()||mail.isOpen()&&(mail.editing()||mail.hasDialog()))return false;
         int bag=Integer.parseInt(resources.preferences().get("client.controls.gdx.bag",Integer.toString(Input.Keys.B)));
         int trainer=Integer.parseInt(resources.preferences().get("client.controls.gdx.trainer",Integer.toString(Input.Keys.C)));
-        if(key!=bag&&key!=trainer)return false;
-        if(playerKeys.add(key)){suppressedPlayerCharacter=key>=Input.Keys.A&&key<=Input.Keys.Z?(char)('a'+key-Input.Keys.A):0;toggle(key==bag?inventory:trainerCard);}return true;
+        int dex=Integer.parseInt(resources.preferences().get("client.controls.gdx.codex",Integer.toString(Input.Keys.N)));
+        int menu=Integer.parseInt(resources.preferences().get("client.controls.gdx.gamemenu",Integer.toString(Input.Keys.D)));
+        if(key<=0||key!=bag&&key!=trainer&&key!=dex&&key!=menu)return false;
+        if(repeated||playerKeys.add(key)){
+            if(!repeated){repeatingPlayerKey=key;playerRepeatAt=gui.getCurrentTime()+250;}
+            suppressedPlayerCharacter=key>=Input.Keys.A&&key<=Input.Keys.Z?(char)('a'+key-Input.Keys.A):0;
+            if(key==bag||key==trainer)toggle(key==bag?inventory:trainerCard);
+            else if(key==dex){if(pokedex.isOpen())pokedex.closePopup();else{while(worldHud.closeOverlay()){}pokedex.open();}restoreWorldInput();}
+            else{worldHud.toggleMenu();restoreWorldInput();}
+        }
+        return true;
+    }
+    private void repeatPlayerShortcut(){
+        if(repeatingPlayerKey==0||gui.getCurrentTime()<playerRepeatAt)return;
+        // TWL GUI key repeat: 250 ms initial delay, then 30 repeats per second.
+        playerRepeatAt=gui.getCurrentTime()+1000/30;
+        if(!enteringWorld&&!settings.blocksInput()&&!worldLogout.isOpen()&&!pokemon.hasMenu()&&!inventory.hasMenu()&&(exitConfirmation==null||!exitConfirmation.isOpen()))handlePlayerShortcut(repeatingPlayerKey,true);
     }
     private <T> void playerRequest(java.util.function.BiFunction<top.totodile.pokemmo.server.login.LoginService.Selection,String,java.util.concurrent.CompletionStage<T>> operation,java.util.function.Consumer<T> completed){
         var entry=playerEntry;var selection=controller.selection();if(entry==null||selection==null||gameService==null)return;
@@ -799,6 +812,7 @@ public final class ClientUi implements Disposable {
 
     public void draw(float width,float height,float x,float y) {
         if(worldActions!=null) {
+            repeatPlayerShortcut();
             pokedex.setUnlocked(worldScene.commands().pokedexUnlocked());
             worldActions.update();
             worldHud.update();
