@@ -12,7 +12,9 @@ final class PokemonSlot extends Button {
     int position;
     final boolean storage;
     private final Health health=new Health();
-    private final Label storageLevel=new Label();
+    private final Label storageLevel=new Label(){
+        @Override protected boolean handleEvent(Event event){return false;}
+    };
     private Image radial,noHeldSource,noHeldIcon;
     private boolean itemsMode;
     void itemMode(boolean active){itemsMode=active;}
@@ -40,7 +42,7 @@ final class PokemonSlot extends Button {
         if(!healthTheme.equals(health.getTheme())){health.setTheme(healthTheme);if(health.getGUI()!=null)health.reapplyTheme();}
         setTooltipContent(p==null?null:controller.name(p)+"\n"+controller.strings.format(1731,Integer.toString(p.level()))+"\nHP "+p.hp()+"/"+p.maxHp());
     }
-    @Override protected void layout(){storageLevel.setPosition(getX()+18,getBottom()-18);storageLevel.setSize(Math.max(0,getWidth()-20),18);health.setSize(Math.max(0,Math.min(40,getWidth()-4)),8);health.setPosition(getX()+2,getBottom()-10);}
+    @Override protected void layout(){int line=storageLevel.getFont()==null?16:storageLevel.getFont().getLineHeight();storageLevel.setPosition(getX()+18,getBottom()-line-1);storageLevel.setSize(Math.max(0,getWidth()-24),line);health.setSize(Math.max(0,Math.min(40,getWidth()-4)),8);health.setPosition(getX()+2,getBottom()-10);}
     @Override protected void applyTheme(ThemeInfo theme){
         super.applyTheme(theme);
         // Reference ServerRegionTagLabel only loads this image when radial health is enabled.
@@ -52,23 +54,26 @@ final class PokemonSlot extends Button {
             float fraction=p.egg()?1:(float)p.hp()/p.maxHp();int rgba=fraction>.5?785150431:fraction>.2?-207875361:fraction>0?-414434081:-1688619297;
             renderer.drawRadial(radial,getX(),getY(),getWidth(),fraction,new Color((byte)(rgba>>>24),(byte)(rgba>>>16),(byte)(rgba>>>8),(byte)rgba));
         }
-        Image icon=images.icon(p.species(),p.form(),p.gender(),p.egg(),!controller.mobile&&!p.egg()&&p.hp()==0);int size=controller.mobile?72:36;
+        Image icon=container==PC?images.icon(p.species(),p.form(),p.gender(),p.egg(),!controller.mobile&&!p.egg()&&p.hp()==0,!controller.mobile&&p.alpha(),p.shiny()):images.partyIcon(p.species(),p.form(),p.gender(),p.egg(),!controller.mobile&&!p.egg()&&p.hp()==0,p.shiny(),p.alpha());int size=controller.mobile?72:36;
         int x=getX()+(getWidth()-size)/2+(storage&&!controller.mobile?1:0);
-        int y=storage?getY()+(controller.mobile?0:container==0?-4:4):controller.mobile?getY()+8:getY()+(getHeight()-size)/2-5;
+        int y=storage?getY()+(controller.mobile?0:-4):controller.mobile?getY()+8:getY()-4;
         if(itemsMode&&p.item()==0){if(noHeldSource!=icon){noHeldSource=icon;noHeldIcon=icon.createTintedVersion(new Color(0xff808080));}icon=noHeldIcon;}
         if(itemsMode&&p.item()>0){var held=controller.itemIcon(p.item());if(held!=null){icon=held;size=32;x=getX()+(getWidth()-32)/2;y=getY()+4;}}
         icon.draw(getAnimationState(),x,y,size,size);
         if(!storage&&!controller.mobile&&p.item()>0){images.heldItem().draw(getAnimationState(),getX()+30,getY()+18,13,10);}
         else if(p.item()>5000&&p.item()<5627){var item=images.item(p.item());int s=controller.mobile?24:12;item.draw(getAnimationState(),getRight()-s,getBottom()-s-2,s,s);}
         if(storage&&!controller.mobile){
-            if(!p.egg()&&p.gender()>=0){var gender=images.atlas(p.gender()==1?"icon_gender_female":"icon_gender_male");if(gender!=null)gender.draw(getAnimationState(),getX()+2,getBottom()-15,12,12);}
-            if(p.hiddenAbility()){var hidden=images.atlas("HiddenAbility");if(hidden!=null)hidden.draw(getAnimationState(),getRight()-13,getY()+2,12,12);}
-            if(p.alpha()){var alpha=images.atlas("alphaLight");if(alpha!=null)alpha.draw(getAnimationState(),getRight()-13,getY()+15,12,12);}
+            if(!p.egg()&&p.gender()>=0){var gender=images.atlas(p.gender()==1?"icon_gender_female":"icon_gender_male");if(gender!=null)gender.draw(getAnimationState(),getX()+2,getBottom()-17,16,16);}
+            if(p.hiddenAbility()){var hidden=images.atlas("HiddenAbilitySmall");if(hidden!=null)hidden.draw(getAnimationState(),getRight()-19,getY()+3,16,16);}
+            if(!p.egg()&&!p.honors().particles().isEmpty()){var particle=images.atlas("particle_small");if(particle!=null)particle.draw(getAnimationState(),getX()+1,getY()+(p.shiny()?14:1),16,16);}
         }
-        if(p.shiny()){var shiny=images.atlas("shiny-small");if(shiny!=null)shiny.draw(getAnimationState(),getX()+2,getY()+2,controller.mobile?24:12,controller.mobile?24:12);}
+        if(container==PC&&p.shiny()){
+            boolean pc=storage&&!controller.mobile;var shiny=images.atlas(pc&&p.secretShiny()?"secret_shiny-small":"shiny-small");
+            if(shiny!=null){int badge=controller.mobile?24:pc?16:12;shiny.draw(getAnimationState(),getX()+(pc?1:2),getY()+(pc?1:2),badge,badge);}
+        }
     }
     @Override public boolean handleEvent(Event event){
-        if(event.getType()==Event.Type.MOUSE_BTNUP&&event.getMouseButton()==Event.MOUSE_RBUTTON){context.run();controller.menu(this,storage);return true;}
+        if(event.getType()==Event.Type.MOUSE_BTNUP&&event.getMouseButton()==Event.MOUSE_RBUTTON){context.run();controller.menu(this,storage,event.getMouseX(),event.getMouseY());return true;}
         return super.handleEvent(event);
     }
     private static final class Health extends Widget {

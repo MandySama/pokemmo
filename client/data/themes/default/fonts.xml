@@ -1,5 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <themes>
+  <fontDef name="noto-bold-large-white" filename="res/fonts/NotoSansCJK-Bold.ttc" faces="sc,tc,jp" color="#FFFFFF" hinting="Medium" kerning="false" size="16" shadow_color="#40000000" shadow_offset_x="1" shadow_offset_y="1" border_width="1" border_color="#282828" />
+  <fontDef name="pc-slot-level" filename="res/fonts/NotoSansCJK-Medium.ttc" faces="sc,tc,jp" color="#FFFFFF" size="12" hinting="Full" />
   <fontDef name="alphabeta" filename="res/fonts/NotoSansCJK-Medium.ttc" faces="sc,tc,jp" color="#FFFFFF" size="12" size_cjk="14" hinting="Full" hinting_cjk="Slight" default="true" unique_atlas="true">
     <fontParam if="disabled" color="#A9A9A9" />
     <fontParam if="pressed" offsetX="1" offsetY="1" />

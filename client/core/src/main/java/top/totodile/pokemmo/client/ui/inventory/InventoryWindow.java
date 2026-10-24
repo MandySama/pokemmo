@@ -30,6 +30,11 @@ public final class InventoryWindow extends PlayerWindow {
     private final EditField search;
     private final PlayerTextInput textInput;
     private final InventoryContextMenu itemMenu;
+    private final ItemDiscardDialog discard;
+    private BiConsumer<PlayerData.Item,Integer> destroy=(item,amount)->{};
+    public void onDestroy(BiConsumer<PlayerData.Item,Integer> action){destroy=Objects.requireNonNull(action);}
+    public boolean hasDialog(){return discard.isOpen();}
+    @Override public void positionWindow(){super.positionWindow();if(discard!=null)discard.position();}
     private BiConsumer<PlayerData.Item,ItemAction> itemAction=(item,action)->{};
     private final ScrollPane scroll=new TouchScrollPane();
     private final Label wallet=new Label(),itemName=new Label(),description=new Label();
@@ -46,7 +51,8 @@ public final class InventoryWindow extends PlayerWindow {
     public InventoryWindow(Widget owner,ClientStrings strings,boolean mobile,InventoryItems items,IntFunction<Image> uiIcons,
                            Consumer<Consumer<List<PlayerData.Item>>> load,Runnable onClose){
         super(owner,mobile,mobile?"/mobile-inventory-tabbedframe":"/inventory-tabbedframe",530,386,onClose);this.strings=strings;this.items=items;this.uiIcons=uiIcons;this.load=load;
-        itemMenu=new InventoryContextMenu(items,strings,(item,action)->itemAction.accept(item,action));
+        itemMenu=new InventoryContextMenu(items,strings,this::activateItem);
+        discard=new ItemDiscardDialog(owner,strings,items,mobile,(item,amount)->destroy.accept(item,amount),onClose);
         textInput=new PlayerTextInput(mobile,this::isOpen);search=textInput.field(40,false);
         content.setTheme("");grid.setTheme("/player-inventory-grid");frame.add(content);scroll.setTheme("/player-inventory-scroll");scroll.setFixed(ScrollPane.Fixed.HORIZONTAL);scroll.setContent(grid);content.add(scroll);
         if(!mobile){tabBox.setTheme("/player-inventory-tabbox");tabBox.setAlignment(Alignment.FILL);content.add(tabBox);}
@@ -67,10 +73,10 @@ public final class InventoryWindow extends PlayerWindow {
     public boolean editing(){return search.hasKeyboardFocus();}
     @Override public void open(){super.open();search.giveupKeyboardFocus();requestKeyboardFocus(null);requestKeyboardFocus();}
     public void onItemAction(BiConsumer<PlayerData.Item,ItemAction> action){itemAction=Objects.requireNonNull(action);}
-    public void activateItem(PlayerData.Item item,ItemAction action){itemAction.accept(item,action);}
+    public void activateItem(PlayerData.Item item,ItemAction action){if(action==ItemAction.DISCARD)discard.show(item);else itemAction.accept(item,action);}
     public boolean hasMenu(){return itemMenu.isOpen();}
     public boolean closeMenu(){boolean open=hasMenu();itemMenu.close();return open;}
-    @Override public void closePopup(){itemMenu.close();textInput.close();super.closePopup();}
+    @Override public void closePopup(){discard.close();itemMenu.close();textInput.close();super.closePopup();}
     @Override protected void refresh(){load.accept(value->{if(!isOpen())return;inventory=List.copyOf(value);for(int i=0;i<tabs.length;i++){tabs[i].setTooltipContent(items.pocketName(TITLES[i]));if(mobile)tabs[i].setText(items.pocketName(TITLES[i]));}select(selected);});}
     private void select(int index){selected=index;for(int i=0;i<tabs.length;i++)((ToggleButtonModel)tabs[i].getModel()).setSelected(i==index);frame.setTitle(strings.get(1400)+" - "+items.pocketName(TITLES[index]).toUpperCase(Locale.ROOT));rebuild();}
     private void rebuild(){

@@ -128,7 +128,7 @@ public final class InventoryItems implements AutoCloseable {
     }
     // ItemDatabase.getItem uses the ordinary pocket and strings 1450/1451 for unknown templates.
     public Template template(int id){return templates.getOrDefault(aliases.getOrDefault(id,id),new Template(id,1,0,129));}
-    public List<GameService.ItemTemplate> catalogue(){return templates.values().stream().filter(t->t.id()>0&&t.id()<=32767&&!aliases.containsKey(t.id())).sorted(Comparator.comparingInt(Template::id)).map(t->new GameService.ItemTemplate(t.id(),t.region(),t.maximumStack())).toList();}
+    public List<GameService.ItemTemplate> catalogue(){return templates.values().stream().filter(t->t.id()>0&&t.id()<=32767&&!aliases.containsKey(t.id())).sorted(Comparator.comparingInt(Template::id)).map(t->new GameService.ItemTemplate(t.id(),t.region(),t.maximumStack(),destroyable(t.id()))).toList();}
     /** The offline service uses this already-loaded registry; it never opens a second species/item data source. */
     public void gameData(GameService game)throws IOException {
         load();if(registeredGame==game)return;game.gameData(catalogue(),speciesTemplates());registeredGame=game;
@@ -211,6 +211,7 @@ public final class InventoryItems implements AutoCloseable {
     public String description(int id){if(dex!=null&&template(id).pocket()==4&&attributes(id).move>0)return dex.moveDescription(attributes(id).move);id=textSource(id);if(descriptionIds.containsKey(id)){int key=descriptionIds.get(id);return key<0?"":key>=135000&&key<135627?text(key-130000,53,descriptions,130000):strings.get(key);}if(id<5000)return strings.getOrDefault(130000+id,gbaDescriptions.getOrDefault(id,strings.get(1451)));return templates.containsKey(id)?text(id,53,descriptions,130000):strings.getOrDefault(130000+id,strings.get(1451));}
     int group(int id){var vanity=vanityItems.get(textSource(id));if(vanity!=null)return 600+vanity.slot();if(dex!=null&&template(id).pocket()==4&&attributes(id).move>0)return hiddenMachine(id)?998:1000+dex.move(attributes(id).move).type();return template(id).group();}
     String groupTitle(int id){int group=group(id);if(template(id).pocket()==4&&attributes(id).move>0)return hiddenMachine(id)?strings.get(10798):strings.format(10799,strings.get(230000+dex.move(attributes(id).move).type()));return group<800?strings.getOrDefault(10000+group,""):"";}
+    public boolean destroyable(int id){var a=attributes(id);return template(id).pocket()!=2&&!hiddenMachine(id)&&a.depositable&&a.tossable;}
     Attributes attributes(int id){return attributes.getOrDefault(aliases.getOrDefault(id,id),new Attributes());}
     boolean hiddenMachine(int id){int n=aliases.getOrDefault(id,id);return n>=339&&n<=346||n>=5420&&n<=5425||n>=8420&&n<=8427||n>=1297&&n<=1298||n>=9420&&n<=9427;}
     public String tooltip(int id,boolean mobile){
@@ -229,6 +230,7 @@ public final class InventoryItems implements AutoCloseable {
     /** AbstractClientProtocolContext.wn[0]: bicycle items in each region. */
     public boolean bicycle(int id){return switch(textSource(id)){case 360,259,272,5450,8450,9450->true;default->false;};}
     public Image icon(int id){return image(id,false);}
+    public Image grayIcon(int id){return image(id,true);}
     public Object tooltipContent(int id){
         var vanity=vanityItems.get(textSource(id));if(vanity==null)return tooltip(id,false);
         var cached=fashionTooltips.get(id);if(cached!=null)return cached;

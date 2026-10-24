@@ -117,6 +117,11 @@ final class PokemonStore {
             for(var m:changes){var p=occupied.get(target(m));if(p!=null&&!moved.contains(p.id()))finalSlots.put(p.id(),source(m));}
             if(new HashSet<>(finalSlots.values()).size()!=finalSlots.size())reject();
             if(original.values().stream().anyMatch(s->s.container==PARTY)&&finalSlots.values().stream().noneMatch(s->s.container==PARTY))throw new Rejected(Failure.LAST_PARTY_POKEMON);
+            // After a deposit removes party members, retain their relative order and close the gaps.
+            long beforeParty=original.values().stream().filter(s->s.container==PARTY).count();
+            var remaining=finalSlots.entrySet().stream().filter(e->e.getValue().container==PARTY)
+                    .sorted(Comparator.comparingInt(e->e.getValue().position)).map(Map.Entry::getKey).toList();
+            if(remaining.size()<beforeParty)for(int i=0;i<remaining.size();i++)finalSlots.put(remaining.get(i),new Slot(PARTY,i));
             for(var e:finalSlots.entrySet())if(!e.getValue().equals(original.get(e.getKey())))
                 db.execute("UPDATE pokemon SET container_id=?,container_position=? WHERE id=? AND trainer_id=?",e.getValue().container,e.getValue().position,e.getKey(),id);
         });return load(id);
@@ -138,13 +143,36 @@ final class PokemonStore {
             if(position==PARTY_SIZE){container=PC;position=0;while(position<current.boxes()*BOX_SIZE&&current.at(PC,position)!=null)position++;}
             if(container==PC&&position>=current.boxes()*BOX_SIZE)throw new IllegalStateException("The target has no free party or PC slot.");
             var p=createWildPokemon(species,level,container,position,random);
-            db.execute("INSERT INTO pokemon(id,trainer_id,container_id,container_position,dex_id,form_type,gender,is_shiny,is_egg,name,level_value,current_hp,status,item,nature,ability,stats,iv_values,ev_values,moves) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",p.id(),id,p.container(),p.position(),p.species(),p.form(),p.gender(),p.shiny()?1:0,p.egg()?1:0,p.name(),p.level(),p.hp(),p.status(),p.item(),p.nature(),p.ability(),encoded(p.stats()),encoded(p.ivs()),encoded(p.evs()),encoded(p.moves()));
-            var owner=db.query("SELECT name,region FROM characters WHERE id=?",id);
-            var regions=db.query("SELECT region FROM character_current_region WHERE character_id=?",id);
-            int region=regions.isEmpty()?(owner.isEmpty()?-1:Integer.parseInt(owner.get(0)[1])):Integer.parseInt(regions.get(0)[0]);
-            db.execute("UPDATE pokemon SET catch_level=?,catch_region=?,catch_time=?,ot_name=?,personality_value=? WHERE id=?",level,region,System.currentTimeMillis()/1000,owner.isEmpty()?"":owner.get(0)[0],p.origin().personality(),p.id());
+            insert(id,p);
             added[0]=load(id).pokemons().stream().filter(v->v.id().equals(p.id())).findFirst().orElseThrow();
         });return added[0];
+    }
+    private void insert(String id,Pokemon p){
+        int level=p.level();
+        db.execute("INSERT INTO pokemon(id,trainer_id,container_id,container_position,dex_id,form_type,gender,is_shiny,is_egg,name,level_value,current_hp,status,item,nature,ability,stats,iv_values,ev_values,moves) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",p.id(),id,p.container(),p.position(),p.species(),p.form(),p.gender(),p.shiny()?1:0,p.egg()?1:0,p.name(),p.level(),p.hp(),p.status(),p.item(),p.nature(),p.ability(),encoded(p.stats()),encoded(p.ivs()),encoded(p.evs()),encoded(p.moves()));
+        var owner=db.query("SELECT name,region FROM characters WHERE id=?",id);
+        var regions=db.query("SELECT region FROM character_current_region WHERE character_id=?",id);
+        int region=regions.isEmpty()?(owner.isEmpty()?-1:Integer.parseInt(owner.get(0)[1])):Integer.parseInt(regions.get(0)[0]);
+        db.execute("UPDATE pokemon SET catch_level=?,catch_region=?,catch_time=?,ot_name=?,personality_value=? WHERE id=?",level,region,System.currentTimeMillis()/1000,owner.isEmpty()?"":owner.get(0)[0],p.origin().personality(),p.id());
+    }
+    /** User-requested local tool; creation and rarity fields follow PokemonManager/PokemonAttributeService. */
+    Containers randomBox(String id,Collection<GameService.SpeciesTemplate> registry,Random random){
+        var candidates=registry.stream().filter(s->s.id()>0&&s.id()<=649).sorted(Comparator.comparingInt(GameService.SpeciesTemplate::id)).toList();
+        if(candidates.isEmpty())throw new IllegalStateException("No loaded Pokemon templates");
+        db.transaction(()->{
+            var current=load(id);var available=new ArrayList<Integer>();
+            // PokemonContainerService uses absolute PC positions across all boxes.
+            for(int position=0;position<current.boxes()*BOX_SIZE&&available.size()<BOX_SIZE;position++)
+                if(current.at(PC,position)==null)available.add(position);
+            if(available.isEmpty())throw new IllegalStateException("No free Pokemon PC slot");
+            for(int position:available){
+                var species=candidates.get(random.nextInt(candidates.size()));
+                var p=createWildPokemon(species,random.nextInt(100)+1,PC,position,random);
+                insert(id,p);
+                // A secret shiny retains the shiny bit; alpha is independent. No custom shiny particle ID.
+                db.execute("UPDATE pokemon SET is_shiny=1,is_secret=?,is_alpha=?,selected_particle=0 WHERE id=? AND trainer_id=?",random.nextBoolean()?1:0,random.nextBoolean()?1:0,p.id(),id);
+            }
+        });return load(id);
     }
     private static String encoded(List<Integer> values){return values.stream().map(String::valueOf).collect(java.util.stream.Collectors.joining(","));}
 

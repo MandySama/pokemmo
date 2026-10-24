@@ -27,7 +27,9 @@ public interface GameService extends AutoCloseable {
     }
     record Character(String id, String name, Appearance appearance, long createdAt) {}
     default CompletionStage<Character> saveAppearance(Selection selection,String characterId,Appearance appearance){return java.util.concurrent.CompletableFuture.failedFuture(new UnsupportedOperationException());}
-    record ItemTemplate(int id,int region,int maximumStack) {}
+    record ItemTemplate(int id,int region,int maximumStack,boolean destroyable) {
+        public ItemTemplate(int id,int region,int maximumStack){this(id,region,maximumStack,false);}
+    }
     record LearnedMove(int id,int level) {}
     record SpeciesTemplate(int id,int genderRatio,List<Integer> stats,int ability,List<LearnedMove> moves,List<Integer> abilities) {
         public SpeciesTemplate(int id,int genderRatio,List<Integer> stats,int ability,List<LearnedMove> moves){this(id,genderRatio,stats,ability,moves,List.of(ability));}
@@ -92,7 +94,9 @@ public interface GameService extends AutoCloseable {
     CompletionStage<Void> savePosition(Selection selection, String characterId, Position position);
     default CompletionStage<Void> teleport(Selection selection,String characterId,int region,Position position){return java.util.concurrent.CompletableFuture.failedFuture(new UnsupportedOperationException());}
     default CompletionStage<PlayerData.Item> createItem(Selection selection,String characterId,int itemId,int amount){return java.util.concurrent.CompletableFuture.failedFuture(new UnsupportedOperationException());}
+    default CompletionStage<List<PlayerData.Item>> destroyItem(Selection selection,String characterId,String objectId,int amount){return java.util.concurrent.CompletableFuture.failedFuture(new UnsupportedOperationException());}
     default CompletionStage<List<PlayerData.Item>> replaceInventory(Selection selection,String characterId,java.util.Map<Integer,Integer> items){return java.util.concurrent.CompletableFuture.failedFuture(new UnsupportedOperationException());}
+    default CompletionStage<PokemonData.Containers> randomPokemonBox(Selection selection,String characterId){return java.util.concurrent.CompletableFuture.failedFuture(new UnsupportedOperationException());}
     default CompletionStage<PokemonData.Pokemon> addPokemon(Selection selection,String characterId,int species,int level){return java.util.concurrent.CompletableFuture.failedFuture(new UnsupportedOperationException());}
     default List<ItemTemplate> itemTemplates(){return List.of();}
     /** Local service consumes the same loaded ROM/data.pak registry as the client. */

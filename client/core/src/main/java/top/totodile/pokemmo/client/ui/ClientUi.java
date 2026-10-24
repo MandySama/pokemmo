@@ -168,6 +168,7 @@ public final class ClientUi implements Disposable {
         worldActions.onItem(()->openWorldTool(WorldToolsWindow.Tool.ITEM));
         worldActions.onRandomItems(this::generateRandomItems);
         worldActions.onRandomOutfit(this::generateRandomOutfit);
+        worldActions.onRandomPokemon(this::generateRandomPokemon);
         worldActions.onPortablePc(this::openPortablePc);
         worldActions.onPokemon(()->openWorldTool(WorldToolsWindow.Tool.POKEMON));
         worldScene=world;
@@ -349,11 +350,14 @@ public final class ClientUi implements Disposable {
             playerRequest((selection,id)->gameService.inventory(selection,id),value->{if(hotkeyBar!=null&&playerEntry!=null)hotkeyBar.inventory(value,playerEntry.region());completed.accept(value);});
         },this::restoreWorldInput);
         inventory.onItemAction(this::useInventoryItem);
+        inventory.onDestroy(this::destroyInventoryItem);
         trainerCard=new TrainerCardWindow(root,resources,renderer,mobile,characterCreation::savedAppearance,inventoryItems::icon,
                 completed->playerRequest((selection,id)->gameService.trainer(selection,id),completed),this::restoreWorldInput);
         mail=new MailWindow(root,resources,renderer,mobile,gameService,mobileBackground,this::restoreWorldInput);
         pokemon=new PokemonController(resources,renderer,mobile,gameService,text->entryError.show(text),id->{pokedex.showSpecies(id);restoreWorldInput();});
+        pokemon.onNotification(this::showNotification);
         pokemon.itemIcons(inventoryItems::icon);
+        pokemon.grayItemIcons(inventoryItems::grayIcon);
         storage=new PokemonStorageWindow(root,pokemon,mobile,this::restoreWorldInput);
         pokemonSummary=new PokemonSummaryWindow(root,pokemon,inventoryItems::icon,this::restoreWorldInput);
         if(!mobile)pokemon.onSummary(value->{try{inventoryItems.gameData(gameService);}catch(IOException failure){Gdx.app.error("pokemon","Cannot register species data",failure);return;}pokemonSummary.show(value,playerEntry==null?null:playerEntry.character().name());restoreWorldInput();});
@@ -402,6 +406,7 @@ public final class ClientUi implements Disposable {
                 if(!pressed&&button>=0)windowPointerCapture=false;
                 if(!pressed&&button<0)pokemonSummary.hoverMenus(Math.round(point.x),renderer.getHeight()-Math.round(point.y));
                 if(worldScene!=null&&pressed&&button==0&&!entryError.isOpen()&&!settings.blocksInput()&&(!mobile||!pokedex.isOpen()&&!mail.isOpen()&&!inventory.isOpen()&&!trainerCard.isOpen())&&!characterCustomization.isOpen()&&(mobile||(!playerWindowsOwnPointer(px,py)||storage.isOpen()&&storage.ownsPointer(px,py)&&topPlayerWindow()==storage)&&!gui.hasOpenPopups()))pokemon.touchDown(Math.round(point.x),renderer.getHeight()-Math.round(point.y),button);
+                if(worldScene!=null&&!mobile&&pressed&&button==0&&topPlayerWindow()==storage&&!gui.hasOpenPopups()&&!settings.blocksInput())storage.selectionDown(px,py);
                 if(pressed&&button==0&&pokedex.isOpen())pokedex.touchDown(Math.round(point.x),renderer.getHeight()-Math.round(point.y));
                 if(worldActions!=null && !captured && (!mobile||!pokedex.isOpen()&&!playerWindowsOpen()) && !playerWindowsOwnPointer(px,py) && !gui.hasOpenPopups() && !pokemon.hasMenu() && !pokedex.showingMessage() && !settings.blocksInput() && !worldLogout.isOpen() && (exitConfirmation==null||!exitConfirmation.isOpen())
                         && !worldActions.isInside(Math.round(point.x),renderer.getHeight()-Math.round(point.y))
@@ -440,6 +445,7 @@ public final class ClientUi implements Disposable {
                 if (pointer != 0) return false;
                 if(button==0&&mods.pointerUp())return true;
                 if(playerTouchScroll!=null){Vector2 p=viewport.unproject(new Vector2(x,y));boolean pan=playerTouchScroll.endTouch(Math.round(p.x),renderer.getHeight()-Math.round(p.y));playerTouchScroll=null;if(pan)return true;}
+                if(button==0&&!mobile&&storage.selectionUp()){windowPointerCapture=false;gui.handleMouse(-1,-1,button,false);return true;}
                 if(button==0&&worldScene!=null){Vector2 p=viewport.unproject(new Vector2(x,y));if(pokemon.touchUp(Math.round(p.x),renderer.getHeight()-Math.round(p.y))){gui.handleMouse(-1,-1,button,false);return true;}}
                 if(pokedex.isOpen()){Vector2 p=viewport.unproject(new Vector2(x,y));if(pokedex.touchUp(Math.round(p.x),renderer.getHeight()-Math.round(p.y)))return true;}
                 if(worldActions!=null && !settings.blocksInput()) return pointer(x,y,button,false);
@@ -452,6 +458,7 @@ public final class ClientUi implements Disposable {
                     Vector2 p=viewport.unproject(new Vector2(x,y));
                     if(mods.pointerDrag(Math.round(p.x),renderer.getHeight()-Math.round(p.y)))return true;
                 }
+                if(!mobile&&storage.isOpen()){Vector2 p=viewport.unproject(new Vector2(x,y));if(storage.selectionDragged(Math.round(p.x),renderer.getHeight()-Math.round(p.y)))return true;}
                 if(playerTouchScroll!=null&&!pokemon.hasDragCandidate()){Vector2 p=viewport.unproject(new Vector2(x,y));if(playerTouchScroll.drag(Math.round(p.x),renderer.getHeight()-Math.round(p.y)))return true;}
                 if(worldScene!=null){Vector2 p=viewport.unproject(new Vector2(x,y));if(pokemon.touchDragged(Math.round(p.x),renderer.getHeight()-Math.round(p.y)))return true;}
                 if(pokedex.isOpen()){Vector2 p=viewport.unproject(new Vector2(x,y));if(pokedex.touchDragged(Math.round(p.x),renderer.getHeight()-Math.round(p.y)))return true;}
@@ -462,7 +469,7 @@ public final class ClientUi implements Disposable {
             @Override public boolean touchCancelled(int x,int y,int pointer,int button){
                 if(pointer==0)mods.pointerUp();
                 if(pointer==0&&playerTouchScroll!=null){playerTouchScroll.cancelTouch();playerTouchScroll=null;gui.handleMouse(-1,-1,button,false);}
-                if(pointer==0)pokemon.cancelDrag();
+                if(pointer==0){pokemon.cancelDrag();storage.selectionUp();}
                 if(pointer==0&&pokedex.isOpen()){pokedex.cancelTouch();return gui.handleMouse(-1,-1,button,false);}
                 if (pointer != 0 || !settings.blocksInput()) return false;
                 settings.cancelTouch();
@@ -493,6 +500,7 @@ public final class ClientUi implements Disposable {
                     }
                     if((key==Input.Keys.ESCAPE||key==Input.Keys.BACK)&&pokemon.closeMenu())return true;
                     if(pokemon.hasMenu()){int code=keyCode(key);if(code!=0)gui.handleKey(code,'\0',true);return true;}
+                    if(inventory.hasDialog()){int code=keyCode(key);if(code!=0)gui.handleKey(code,'\0',true);return true;}
                     if(inventory.hasMenu()){
                         if(key==Input.Keys.ESCAPE||key==Input.Keys.BACK)inventory.closeMenu();
                         else {int code=keyCode(key);if(code!=0)gui.handleKey(code,'\0',true);}return true;
@@ -638,6 +646,17 @@ public final class ClientUi implements Disposable {
             if(error!=null){Gdx.app.error("player","Cannot load player data",error);entryError.show(strings.get(2103));}else completed.accept(result);
         }));
     }
+    private boolean destroyingItem;
+    private void destroyInventoryItem(PlayerData.Item item,int amount){
+        if(destroyingItem||playerEntry==null||gameService==null||controller.selection()==null)return;
+        try{inventoryItems.gameData(gameService);}catch(IOException error){Gdx.app.error("inventory","Cannot load item rules",error);return;}
+        var entry=playerEntry;var selection=controller.selection();destroyingItem=true;
+        gameService.destroyItem(selection,entry.character().id(),item.objectId(),amount).whenComplete((value,error)->Gdx.app.postRunnable(()->{
+            destroyingItem=false;if(disposed||playerEntry!=entry||controller.selection()!=selection)return;
+            if(error!=null){Gdx.app.error("inventory","Cannot destroy item",error);entryError.show(strings.get(2103));return;}
+            inventory.reloadIfOpen();if(hotkeyBar!=null)hotkeyBar.inventory(value,entry.region());
+        }));
+    }
     private void useInventoryItem(PlayerData.Item item,InventoryWindow.ItemAction action){
         if(action!=InventoryWindow.ItemAction.USE||worldScene==null||enteringWorld||item.amount()<=0)return;
         // ItemUseService.useBike toggles transportation without consuming the item.
@@ -663,6 +682,19 @@ public final class ClientUi implements Disposable {
     private void openPortablePc(){
         if(playerEntry==null||gameService==null)return;
         pokemon.closeMenu();pokemon.cancelDrag();while(worldHud.closeOverlay()){}storage.open();restoreWorldInput();
+    }
+    private boolean generatingRandomPokemon;
+    private void generateRandomPokemon(){
+        if(generatingRandomPokemon||playerEntry==null||gameService==null||controller.selection()==null)return;
+        try{inventoryItems.gameData(gameService);}catch(IOException error){Gdx.app.error("pokemon","Cannot load Pokemon templates",error);entryError.show(strings.get(2103));return;}
+        var entry=playerEntry;var selection=controller.selection();var actions=worldActions;
+        generatingRandomPokemon=true;actions.randomPokemonEnabled(false);
+        gameService.randomPokemonBox(selection,entry.character().id()).whenComplete((value,error)->Gdx.app.postRunnable(()->{
+            generatingRandomPokemon=false;if(actions==worldActions)actions.randomPokemonEnabled(true);
+            if(disposed||playerEntry!=entry||controller.selection()!=selection)return;
+            if(error!=null){Gdx.app.error("pokemon","Cannot generate random Pokemon box",error);entryError.show(strings.get(2103));return;}
+            pokemon.reload();
+        }));
     }
     private void generateRandomOutfit(){
         if(playerEntry==null||gameService==null)return;

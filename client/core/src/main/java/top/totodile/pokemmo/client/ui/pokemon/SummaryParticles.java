@@ -15,15 +15,34 @@ final class SummaryParticles extends Widget {
     private final Random random=new Random();
     private record Curve(float[] values,float[] times){}
     private final Map<JsonValue,Curve> curves=new IdentityHashMap<>();
-    private int type=-1;
-    SummaryParticles(PokemonController controller){this.controller=controller;setTheme("");setClip(true);}
+    private int type=-1,loadedType=-1;
+    private final java.util.concurrent.CompletableFuture<Map<Integer,JsonValue>> definitions;
+    SummaryParticles(PokemonController controller){this.controller=controller;definitions=controller.typeEffects();setTheme("");setClip(true);}
     void type(int romType){
-        int next=romType>=9?romType+1:romType;if(next==type)return;emitters.clear();curves.clear();
+        int next=romType>=9?romType+1:romType;if(next==type)return;
+        type=next;loadedType=-1;emitters.clear();curves.clear();
+    }
+    private void loadType(){
+        if(type<0||loadedType==type||!definitions.isDone())return;
+        loadedType=type;
         try{
-            var effect=readEffect(controller.resources.apply("sprites/particles.pak"),next);
+            var effect=definitions.join().get(type);if(effect==null)throw new java.io.IOException("Missing official type effect "+type);
             for(var config:effect.get("resource").get("controllers"))emitters.add(new Emitter(config));
-            type=next;
-        }catch(Exception failure){type=-1;emitters.clear();Gdx.app.error("pokemon-summary","Cannot load official type effect "+next,failure);}
+        }catch(Exception failure){emitters.clear();Gdx.app.error("pokemon-summary","Cannot load official type effect "+type,failure);}
+    }
+    /** ResourceData's type effects, read once off the render thread and shared by PC and summary. */
+    static Map<Integer,JsonValue> readEffects(com.badlogic.gdx.files.FileHandle resource)throws java.io.IOException{
+        var result=new HashMap<Integer,JsonValue>();
+        try(var zip=new ZipInputStream(resource.read())){
+            for(var entry=zip.getNextEntry();entry!=null;entry=zip.getNextEntry()){
+                String name=entry.getName(),prefix="particle/special/type_";
+                if(name.startsWith(prefix)&&name.endsWith(".vfx")){
+                    try{int id=Integer.parseInt(name.substring(prefix.length(),name.length()-4));if(id>=0&&id<18)result.put(id,new JsonReader().parse(new String(zip.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8)));}
+                    catch(NumberFormatException ignored){}
+                }
+            }
+        }
+        return Map.copyOf(result);
     }
     static JsonValue readEffect(com.badlogic.gdx.files.FileHandle resource,int type)throws java.io.IOException{
         // ClientResources handles may represent bundled/overlaid assets, not a working-directory file.
@@ -39,6 +58,7 @@ final class SummaryParticles extends Widget {
     void reset(){for(var emitter:emitters){emitter.particles.clear();emitter.pending=0;}}
     @Override protected void paintWidget(GUI gui){
         if(!(gui.getRenderer() instanceof GdxTwlRenderer renderer))return;
+        loadType();
         float delta=Math.min(.1f,Gdx.graphics.getDeltaTime());
         for(var emitter:emitters)emitter.draw(renderer,delta);
     }

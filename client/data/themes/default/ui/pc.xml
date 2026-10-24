@@ -27,6 +27,8 @@
         </param>
       </theme>
       <theme name="monster-name-label" ref="label">
+        <param name="font"><font>noto-bold-large-white</font></param>
+        <param name="border"><border>0</border></param>
         <param name="textAlignment">
           <enum type="alignment">CENTER</enum>
         </param>
@@ -36,7 +38,7 @@
           <image>ui-table-header.background</image>
         </param>
         <param name="border">
-          <border>2,4</border>
+          <border>6,5</border>
         </param>
         <param name="textAlignment">
           <enum type="alignment">CENTER</enum>
@@ -74,5 +76,5 @@
     <theme name="label-button-small2-centered" ref="button" />
   </theme>
 <theme name="pc-tool-button" ref="button"><param name="background"><image>none</image></param><param name="border"><border>0</border></param></theme>
-<theme name="pc-slot-level" ref="label"><param name="border"><border>0</border></param><param name="textAlignment"><enum type="alignment">RIGHT</enum></param></theme>
+<theme name="pc-slot-level" ref="label"><param name="font"><font>pc-slot-level</font></param><param name="border"><border>0</border></param><param name="textAlignment"><enum type="alignment">RIGHT</enum></param></theme>
 </themes>

@@ -23,6 +23,17 @@ final class PlayerDataStore {
             result.add(new PlayerData.Item(row[0],Integer.parseInt(row[1]),Integer.parseInt(row[2]),Integer.parseInt(row[3])));
         return List.copyOf(result);
     }
+    List<PlayerData.Item> destroyItem(String owner,String objectId,int amount,Map<Integer,GameService.ItemTemplate> templates){
+        if(amount<1||amount>Short.MAX_VALUE)throw new IllegalArgumentException("Invalid destroy amount");
+        db.transaction(()->{
+            var rows=db.query("SELECT item_index_id,item_amount FROM owned_item WHERE item_id=? AND owner_id=? AND inventory_id=1",objectId,owner);
+            if(rows.size()!=1)throw new GameService.Rejected(GameService.Failure.NOT_FOUND);
+            var row=rows.get(0);var template=templates.get(Integer.parseInt(row[0]));int available=Integer.parseInt(row[1]);
+            if(template==null||!template.destroyable()||amount>available)throw new IllegalArgumentException("Item cannot be destroyed");
+            if(amount==available)db.execute("DELETE FROM owned_item WHERE item_id=? AND owner_id=? AND inventory_id=1",objectId,owner);
+            else db.execute("UPDATE owned_item SET item_amount=item_amount-? WHERE item_id=? AND owner_id=? AND inventory_id=1",amount,objectId,owner);
+        });return inventory(owner);
+    }
     List<PlayerData.Item> replaceInventory(String owner,Map<Integer,Integer> items){
         db.transaction(()->{
             db.execute("DELETE FROM owned_item WHERE owner_id=? AND inventory_id=1",owner);

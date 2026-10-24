@@ -221,6 +221,10 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
         }
         return atlas.getImage(0,0,atlas.getWidth(),atlas.getHeight(),Color.WHITE,false,de.matthiasmann.twl.renderer.Texture.Rotation.NONE);
     }
+    public Image grayscale(URL url,int x,int y,int width,int height)throws IOException{
+        grayscale(url);
+        return textures.get(url+"#gray").getImage(x,y,width,height,Color.WHITE,false,de.matthiasmann.twl.renderer.Texture.Rotation.NONE);
+    }
     public LineRenderer getLineRenderer() { return null; }
     public void drawParticle(Image image,float x,float y,float size,float angle,float alpha){
         if(!(image instanceof AtlasImage atlas)||alpha<=0)return;

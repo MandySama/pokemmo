@@ -25,21 +25,32 @@ public final class PokedexImages implements AutoCloseable {
     private ClientResources resources;
     private String glowFragment;
     PokedexImages(BwPokemonSprites source,GdxTwlRenderer renderer){this.source=source;this.renderer=renderer;}
-    public PokedexImages(BwPokemonSprites source,GdxTwlRenderer renderer,ClientResources resources){this(source,renderer);this.resources=resources;language=resources.strings().language().split("-")[0];atlas=new TextureAtlas(resources.apply("sprites/atlas/main.atlas"));}
+    public PokedexImages(BwPokemonSprites source,GdxTwlRenderer renderer,ClientResources resources){this(source,renderer);this.resources=resources;try{var patch=resources.apply("sprites/sp-icon.pak");if(patch.exists())source.loadShinyIcons(patch.readBytes());}catch(IOException error){throw new UncheckedIOException(error);}language=resources.strings().language().split("-")[0];atlas=new TextureAtlas(resources.apply("sprites/atlas/main.atlas"));}
     public void drawAlpha(Image image,de.matthiasmann.twl.renderer.AnimationState state,int x,int y,int width,int height,boolean shiny){
         if(glowFragment==null)glowFragment=resources.apply("shaders/twl.fragment.glsl").readString("UTF-8");
         renderer.drawSpriteGlow(image,state,x,y,width,height,shiny,glowFragment);
     }
     public Image atlas(String name){if(atlas==null)return null;var region=atlas.findRegion(name);return region==null?null:renderer.image(region);}
+    private final Map<String,Image> grayAtlasImages=new HashMap<>();
+    public Image grayAtlas(String name){
+        if(atlas==null)return null;var cached=grayAtlasImages.get(name);if(cached!=null)return cached;
+        var region=atlas.findRegion(name);if(region==null)return null;
+        try{var url=new java.net.URL(null,"asset:/sprites/atlas/main.png",new top.totodile.pokemmo.client.resources.AssetUrlStreamHandler(resources));
+            var image=renderer.grayscale(url,region.getRegionX(),region.getRegionY(),region.getRegionWidth(),region.getRegionHeight());grayAtlasImages.put(name,image);return image;
+        }catch(IOException failure){throw new UncheckedIOException(failure);}
+    }
     public Image atlas(String name,int index){if(atlas==null)return null;var region=atlas.findRegion(name,index);return region==null?null:renderer.image(region);}
     public Image skillType(int type){int id=type>=9?type+1:type;Image image=atlas("skill_type_"+id+"_"+language);return image==null?atlas("skill_type_"+id+"_en"):image;}
     public Image type(int type){int id=type>=9?type+1:type;Image image=atlas("monster_type_"+id+"_"+language);return image==null?atlas("monster_type_"+id+"_en"):image;}
     public Image icon(int id){return load(id,false);}
-    public Image icon(int id,int form,int gender,boolean egg){
-        int key=1<<24|id|form<<10|(gender+1)<<20|(egg?1<<23:0);Entry entry=icons.get(key);
+    public Image icon(int id,int form,int gender,boolean egg){return iconVariant(id,form,gender,egg,false);}
+    private Image iconVariant(int id,int form,int gender,boolean egg,boolean alpha){return iconVariant(id,form,gender,egg,alpha,false);}
+    private Image iconVariant(int id,int form,int gender,boolean egg,boolean alpha,boolean gold){return iconVariant(id,form,gender,egg,alpha,gold,false);}
+    private Image iconVariant(int id,int form,int gender,boolean egg,boolean alpha,boolean gold,boolean shiny){
+        int key=1<<24|id|form<<10|(gender+1)<<20|(egg?1<<23:0)|(alpha?1<<25:0)|(gold?1<<26:0)|(shiny?1<<27:0);Entry entry=icons.get(key);
         if(entry==null){
             try{
-                var pixels=source.icon(id,form,gender,egg);var pixmap=new Pixmap(pixels.width(),pixels.height(),Pixmap.Format.RGBA8888);
+                var pixels=source.icon(id,form,gender,egg,shiny);if(alpha&&!egg)pixels=BwPokemonSprites.outlined(pixels,gold?0xffd033ff:0xc2141dff);var pixmap=new Pixmap(pixels.width(),pixels.height(),Pixmap.Format.RGBA8888);
                 try{
                     pixmap.setBlending(Pixmap.Blending.None);
                     for(int y=0;y<pixels.height();y++)for(int x=0;x<pixels.width();x++)pixmap.drawPixel(x,y,pixels.rgba()[y*pixels.width()+x]);
@@ -51,6 +62,19 @@ public final class PokedexImages implements AutoCloseable {
     }
     public Image icon(int id,int form,int gender,boolean egg,boolean fainted){
         var image=icon(id,form,gender,egg);
+        return fainted?faintIcons.computeIfAbsent(image,value->value.createTintedVersion(new de.matthiasmann.twl.Color(0xb0ffffff))):image;
+    }
+    public Image icon(int id,int form,int gender,boolean egg,boolean fainted,boolean alpha){
+        var image=iconVariant(id,form,gender,egg,alpha&&!egg);
+        return fainted?faintIcons.computeIfAbsent(image,value->value.createTintedVersion(new de.matthiasmann.twl.Color(0xb0ffffff))):image;
+    }
+    /** Dedicated ROM small icons, patched by the latest official sp-icon.pak for shiny colours. */
+    public Image partyIcon(int id,int form,int gender,boolean egg,boolean fainted,boolean shiny,boolean alpha){
+        var image=iconVariant(id,form,gender,egg,alpha&&!egg,shiny&&alpha&&!egg,shiny&&!egg);
+        return fainted?faintIcons.computeIfAbsent(image,value->value.createTintedVersion(new de.matthiasmann.twl.Color(0xb0ffffff))):image;
+    }
+    public Image icon(int id,int form,int gender,boolean egg,boolean fainted,boolean alpha,boolean shiny){
+        var image=iconVariant(id,form,gender,egg,alpha&&!egg,shiny&&alpha&&!egg,shiny&&!egg);
         return fainted?faintIcons.computeIfAbsent(image,value->value.createTintedVersion(new de.matthiasmann.twl.Color(0xb0ffffff))):image;
     }
     public Image egg(){return load(Integer.MAX_VALUE,true);}

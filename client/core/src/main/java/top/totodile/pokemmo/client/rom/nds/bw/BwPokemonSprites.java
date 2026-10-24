@@ -9,8 +9,23 @@ import top.totodile.pokemmo.client.rom.nds.NdsArchive;
 /** BW icon and battle sprite NCGR/NCLR/NCER composition, following loadSprites / NitroOamData.oQ. */
 public final class BwPokemonSprites {
     public record Pixels(int width,int height,int[] rgba) {}
+    /** PokemonSpriteManager.y60: one-pixel eight-neighbour outline, without changing the source icon. */
+    public static Pixels outlined(Pixels source,int color){
+        int width=source.width(),height=source.height();int[] original=source.rgba(),pixels=original.clone();
+        for(int y=0;y<height;y++)for(int x=0;x<width;x++){
+            if((original[y*width+x]&255)!=0)continue;
+            boolean adjacent=false;
+            for(int dy=-1;dy<=1&&!adjacent;dy++)for(int dx=-1;dx<=1;dx++){
+                int nx=x+dx,ny=y+dy;if(nx>=0&&nx<width&&ny>=0&&ny<height&&(original[ny*width+nx]&255)!=0){adjacent=true;break;}
+            }
+            if(adjacent)pixels[y*width+x]=color;
+        }
+        return new Pixels(width,height,pixels);
+    }
     private final BwPokedex dex;
     private final NdsArchive icons;
+    private BwShinyIcons shinyIcons;
+    public void loadShinyIcons(byte[] bytes)throws IOException{shinyIcons=new BwShinyIcons(bytes);}
     private NdsArchive battle;
     private final byte[] iconCells,iconColors,iconPaletteIds;
     private byte[] battleCells;
@@ -48,7 +63,8 @@ public final class BwPokemonSprites {
         return compose(icons.read(id*2+7),iconColors,iconCells,0,36,iconPaletteIds[id]&15);
     }
     /** BlackWhiteRom.loadSprites / PokemonSpriteManager.Ed, including the native egg icon 650. */
-    public Pixels icon(int species,int form,int gender,boolean egg) throws IOException {
+    public Pixels icon(int species,int form,int gender,boolean egg)throws IOException{return icon(species,form,gender,egg,false);}
+    public Pixels icon(int species,int form,int gender,boolean egg,boolean shiny) throws IOException {
         dex.get(species);
         int index=egg?650:form==0?species:switch(species){
             case 201->form+651;case 351->form+678;case 386->form+681;case 412->form+684;
@@ -59,7 +75,12 @@ public final class BwPokemonSprites {
         int female=gender==1?1:0;byte[] tiles=icons.read(index*2+7+female);
         if(tiles.length==0&&female==1)tiles=icons.read(index*2+7);
         int palette=(iconPaletteIds[index]>>(female*4))&15;
-        return compose(tiles,iconColors,iconCells,0,36,palette);
+        if(!shiny||egg||shinyIcons==null)return compose(tiles,iconColors,iconCells,0,36,palette);
+        int start=24+i32(iconColors,36);int[] original=new int[16];
+        for(int i=0;i<16;i++){int color=u16(iconColors,start+(palette*16+i)*2);original[i]=((color&31)*255/31)<<24|((color>>5&31)*255/31)<<16|((color>>10&31)*255/31)<<8|255;}
+        original[0]=0;var corrected=shinyIcons.palette(index,female,original);
+        var result=compose(tiles,iconColors,iconCells,0,36,36,18,18,palette,false,corrected);
+        return shinyIcons.pixels(index,female,0,result,original,corrected);
     }
     public Pixels front(int id) throws IOException {
         return front(id,0,false);
@@ -172,6 +193,9 @@ public final class BwPokemonSprites {
         return compose(tiles,palette,cells,frame,width,height,originX,originY,-1,true);
     }
     private static Pixels compose(byte[] tiles,byte[] palette,byte[] cells,int frame,int width,int height,int originX,int originY,int paletteOverride,boolean animated) throws IOException {
+        return compose(tiles,palette,cells,frame,width,height,originX,originY,paletteOverride,animated,null);
+    }
+    private static Pixels compose(byte[] tiles,byte[] palette,byte[] cells,int frame,int width,int height,int originX,int originY,int paletteOverride,boolean animated,int[] customColors)throws IOException{
         try {
             if(i32(tiles,0)!=0x4e434752||i32(palette,0)!=0x4e434c52||i32(cells,0)!=0x4e434552)
                 throw new IOException("Invalid Nitro Pokémon sprite");
@@ -185,6 +209,7 @@ public final class BwPokemonSprites {
                 int c=u16(palette,paletteStart+i*2);
                 colors[i]=((c&31)*255/31)<<24|((c>>5&31)*255/31)<<16|((c>>10&31)*255/31)<<8|255;
             }
+            if(customColors!=null)System.arraycopy(customColors,0,colors,paletteOverride*16,16);
             int count=u16(cells,24),cellSize=u16(cells,26)==1?16:8;
             if(frame>=count)throw new IOException("Missing NCER frame");
             int cellStart=24+i32(cells,28),cell=cellStart+frame*cellSize;

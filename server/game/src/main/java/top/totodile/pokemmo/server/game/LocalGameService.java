@@ -169,6 +169,9 @@ public final class LocalGameService implements GameService {
         },worker);
     }
     @Override public List<ItemTemplate> itemTemplates(){return itemTemplates.values().stream().sorted(Comparator.comparingInt(ItemTemplate::id)).toList();}
+    @Override public CompletionStage<List<PlayerData.Item>> destroyItem(Selection selection,String id,String objectId,int amount){
+        return CompletableFuture.supplyAsync(()->playerData(selection,id).destroyItem(id,objectId,amount,itemTemplates),worker);
+    }
     @Override public CompletionStage<List<PlayerData.Item>> replaceInventory(Selection selection,String id,Map<Integer,Integer> items){
         var replacement=Map.copyOf(items);
         return CompletableFuture.supplyAsync(()->{
@@ -180,6 +183,9 @@ public final class LocalGameService implements GameService {
             }
             return store.replaceInventory(id,replacement);
         },worker);
+    }
+    @Override public CompletionStage<PokemonData.Containers> randomPokemonBox(Selection selection,String id){
+        return CompletableFuture.supplyAsync(()->{playerData(selection,id);return new PokemonStore(db()).randomBox(id,speciesTemplates.values(),new Random());},worker);
     }
     @Override public CompletionStage<PokemonData.Pokemon> addPokemon(Selection selection,String id,int species,int level){
         return CompletableFuture.supplyAsync(()->{playerData(selection,id);return new PokemonStore(db()).add(id,speciesTemplates.get(species),level,new Random());},worker);

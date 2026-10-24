@@ -3181,4 +3181,8 @@
     <string id="8115">层级</string>
     <string id="8116">质子</string>
     <string id="8131">标签</string>
+    <string id="1431">确定销毁{00}个{01}?\n\n销毁后无法恢复.</string>
+    <string id="1432">销毁多少个{00}?</string>
+    <string id="8043">在交易行出售</string>
+    <string id="2302">放生</string>
 </strings>

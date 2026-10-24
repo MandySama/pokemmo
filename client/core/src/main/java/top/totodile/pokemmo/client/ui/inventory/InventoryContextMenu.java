@@ -21,7 +21,7 @@ final class InventoryContextMenu {
             menu.add(register);
         }
         if(t.pocket()!=2&&t.pocket()!=6&&a.holdable)menu.add(new MenuAction(strings.get(1411),()->actions.accept(item,InventoryWindow.ItemAction.GIVE)));
-        if(t.pocket()!=2&&!items.hiddenMachine(item.itemId())&&a.depositable&&a.tossable)menu.add(new MenuAction(strings.get(1424),()->actions.accept(item,InventoryWindow.ItemAction.DISCARD)));
+        if(items.destroyable(item.itemId()))menu.add(new MenuAction(strings.get(1424),()->actions.accept(item,InventoryWindow.ItemAction.DISCARD)));
         menu.add(new MenuAction(strings.get(1423),null));return menu;
     }
     void open(PlayerData.Item item,Widget anchor){
