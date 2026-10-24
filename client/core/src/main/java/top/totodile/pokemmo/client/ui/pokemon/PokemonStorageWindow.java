@@ -42,23 +42,23 @@ public final class PokemonStorageWindow extends PlayerWindow {
     public PokemonStorageWindow(Widget owner,PokemonController controller,boolean mobile,Runnable onClose){
         super(owner,mobile,"/pc-frame",1010,680,onClose);this.controller=controller;
         frame.setTitle(controller.strings.get(1118));keyboard=new PlayerTextInput(mobile,this::isOpen);
-        content.setTheme("");preview.setTheme("/pc-preview");portrait.setTheme("/pc-portrait");portrait.setClip(true);grid.setTheme("");
-        title.setTheme("/pc-box-name");title.setCanAcceptKeyboardFocus(false);title.addCallback(this::renameBox);
-        name.setTheme("/pc-monster-name");level.setTheme("/pc-monster-name");slotNumber.setTheme("/label");slotNumber.setClip(true);
+        content.setTheme("");preview.setTheme("preview-frame");portrait.setTheme("border-container");portrait.setClip(true);grid.setTheme("dialoglayout");
+        title.setTheme("box-name");title.setCanAcceptKeyboardFocus(false);title.addCallback(this::renameBox);
+        name.setTheme("monster-name-label");level.setTheme("monster-name-label");slotNumber.setTheme("/label");slotNumber.setClip(true);
         preview.add(name);preview.add(portrait);preview.add(level);
         int[] headingIds={2318,1849,1800,1805,1824,1842,1869};
-        for(int i=0;i<headingIds.length;i++){headings[i]=new Label(controller.strings.get(headingIds[i]));headings[i].setTheme("/pc-label-title");values[i]=new Label();values[i].setTheme("/pc-label-value");values[i].setClip(true);preview.add(headings[i]);preview.add(values[i]);}
-        for(int i=0;i<moves.length;i++){moves[i]=new Label();moves[i].setTheme("/label");preview.add(moves[i]);}
+        for(int i=0;i<headingIds.length;i++){headings[i]=new Label(controller.strings.get(headingIds[i]));headings[i].setTheme("label-title");values[i]=new Label();values[i].setTheme("label");values[i].setClip(true);preview.add(headings[i]);preview.add(values[i]);}
+        for(int i=0;i<moves.length;i++){moves[i]=new Label();moves[i].setTheme("label");preview.add(moves[i]);}
         for(int i=0;i<boxes.length;i++){
-            final int index=i;var b=new Button();b.setTheme("/pc-box-button");b.setModel(new ToggleButtonModel());b.setCanAcceptKeyboardFocus(false);
+            final int index=i;var b=new Button();b.setTheme("pc-box-button");b.setModel(new ToggleButtonModel());b.setCanAcceptKeyboardFocus(false);
             if(i<BASE_BOXES){b.addCallback(()->selectBox(index));controller.boxDrop(b,i);}else b.setEnabled(false);
             boxes[i]=b;content.add(b);
         }
         for(int i=0;i<cells.length;i++){final int index=i;var s=controller.slot(PC,i,true);s.onSelect(()->select(s));cells[index]=s;grid.add(s);}
-        party=controller.party(true);for(var s:party.slots)s.onSelect(()->select(s));
-        gridScroll=new TouchScrollPane(grid);gridScroll.setTheme("/pc-grid-scroll");gridScroll.setFixed(ScrollPane.Fixed.HORIZONTAL);
-        search=keyboard.field(100,false);search.setTheme("/editfield");search.addCallback(key->filter());
-        sort=new Button(controller.strings.get(2315));sort.setTheme("/button");sort.setCanAcceptKeyboardFocus(false);sort.addCallback(this::sortMenu);
+        party=controller.party(true);party.setTheme("/pc-frame.container.dialoglayout");for(var s:party.slots)s.onSelect(()->select(s));
+        gridScroll=new TouchScrollPane(grid);gridScroll.setTheme("/pc-frame.container.scrollpane");gridScroll.setFixed(ScrollPane.Fixed.HORIZONTAL);
+        search=keyboard.field(100,false);search.setTheme("/pc-frame.editfield");search.addCallback(key->filter());
+        sort=new Button(controller.strings.get(2315));sort.setTheme("/pc-frame.label-button-small2-centered");sort.setCanAcceptKeyboardFocus(false);sort.addCallback(this::sortMenu);
         sortPopup=new PopupWindow(sort);sortPopup.setTheme("/pokemon-menu");
         int[] criteria={2330,2331,2329,2334,8100,2332,2333,2328,2336};var checks=new ToggleButton[criteria.length];var labels=new Label[criteria.length];
         var sortApply=new Button(controller.strings.get(2335));sortApply.setTheme("/button");sortApply.setEnabled(false);sortApply.addCallback(()->{sortPopup.closePopup();if(levelOrder.isActive())controller.sort(box);});

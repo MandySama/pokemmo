@@ -64,30 +64,38 @@ public final class RomManager {
     }
     private ImportResult importSelected(RomType expected, RomFilePicker.Source source,
                                        Progress progress) throws IOException {
-        if (source.path()!=null && directory.equals(source.path().toAbsolutePath().normalize().getParent())) {
+        Path local=source.path();
+        String localArchive=null;
+        // 参考 ClientSettingsWindow.mh0/Le0：PC 先检查原文件，再决定解压或复制。
+        if (local!=null) {
             byte[] header=new byte[512];
-            try(InputStream input=Files.newInputStream(source.path())) { header=Arrays.copyOf(header,readBlock(input,header)); }
-            if(archiveType(header)==null) {
-                RomInfo rom=validate(expected,source.path());
+            try(InputStream input=Files.newInputStream(local)) { header=Arrays.copyOf(header,readBlock(input,header)); }
+            localArchive=archiveType(header);
+            checkArchive(localArchive,header);
+            if(Files.size(local)>512L*1024*1024)throw new RomImportFailure(1182,"ROM 文件过大",null);
+            if(localArchive==null) {
+                RomInfo rom=validate(expected,local);
                 if(alreadyLoaded(expected,rom.path()))return ImportResult.ALREADY_LOADED;
-                try { configuration.selectFile(expected, rom.path().getFileName().toString()); }
-                catch (RuntimeException error) { throw new IOException("无法保存 ROM 配置",error); }
-                refresh();
-                return ImportResult.IMPORTED;
+                if(directory.equals(local.toAbsolutePath().normalize().getParent())) {
+                    try { configuration.selectFile(expected, rom.path().getFileName().toString()); }
+                    catch (RuntimeException error) { throw new IOException("无法保存 ROM 配置",error); }
+                    refresh();
+                    return ImportResult.IMPORTED;
+                }
             }
         }
         Files.createDirectories(directory);
         Path temporary=Files.createTempFile(directory, "rom-", ".tmp");
         Path extracted=null;
         try {
-            String archive;
-            try (InputStream input=source.open(); OutputStream output=Files.newOutputStream(temporary)) {
+            String archive=localArchive;
+            // PC 压缩包由 libarchive 直接读取；只有无本地路径的文档流需要先落盘。
+            if(local==null || archive==null)try (InputStream input=source.open(); OutputStream output=Files.newOutputStream(temporary)) {
                 byte[] prefix=new byte[512];
                 prefix=Arrays.copyOf(prefix,readBlock(input,prefix));
                 archive=archiveType(prefix);
-                if(archive!=null && (!List.of("ZIP","RAR","7z","GZIP","TAR").contains(archive)
-                        || archive.equals("ZIP") && prefix.length>=4 && prefix[2]==5))
-                    throw new RomImportFailure(1089,archive,null);
+                checkArchive(archive,prefix);
+                progress.update(archive==null?1142:1091,0);
                 output.write(prefix);
                 byte[] buffer=new byte[65536]; long size=prefix.length;
                 long total=source.path()==null?0:Files.size(source.path());
@@ -95,7 +103,7 @@ public final class RomManager {
                     size+=count;
                     if (size>512L*1024*1024) throw new RomImportFailure(1182,"ROM 文件过大",null);
                     output.write(buffer,0,count);
-                    progress.update(archive==null?1095:1091,total>0?Math.min(0.9,size/(double)total*0.9):-1);
+                    progress.update(archive==null?1142:1091,total>0?Math.min(0.9,size/(double)total*0.9):-1);
                 }
             }
             Path candidate=temporary;
@@ -104,7 +112,7 @@ public final class RomManager {
                 extracted=Files.createTempFile(directory,"rom-extracted-",".tmp");
                 progress.update(1091,-1);
                 try {
-                    extractedName=LibArchiveRomExtractor.extract(temporary,extracted,expected.extension,archive.equals("GZIP"),
+                    extractedName=LibArchiveRomExtractor.extract(local==null?temporary:local,extracted,expected.extension,archive.equals("GZIP"),
                             directory.getParent().resolve("cache/archive"),value -> progress.update(1091,value));
                 } catch(RomImportFailure error) { throw error; }
                 catch(IOException | LinkageError error) { throw new RomImportFailure(1090,"1",error); }
@@ -190,5 +198,10 @@ public final class RomManager {
         if(prefix.length>=4 && prefix[0]=='L' && prefix[1]=='Z' && prefix[2]=='I' && prefix[3]=='P')return "lzip";
         if(prefix.length>=4 && prefix[0]==0x28 && prefix[1]==(byte)0xb5 && prefix[2]==0x2f && prefix[3]==(byte)0xfd)return "Zstandard";
         return null;
+    }
+    private static void checkArchive(String archive,byte[] prefix) throws RomImportFailure {
+        if(archive!=null && (!List.of("ZIP","RAR","7z","GZIP","TAR").contains(archive)
+                || archive.equals("ZIP") && prefix.length>=4 && prefix[2]==5))
+            throw new RomImportFailure(1089,archive,null);
     }
 }

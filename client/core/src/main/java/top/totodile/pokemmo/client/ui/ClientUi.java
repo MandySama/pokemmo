@@ -289,7 +289,8 @@ public final class ClientUi implements Disposable {
         worldLogout=new top.totodile.pokemmo.client.ui.common.ActionConfirmDialog(root,strings,mobile,mobileBackground,this::restoreWindowFocus);
         characterPage.onEnter(this::enterWorld);
         clientManagement = new ClientManagementWindow(root, strings, mobile, restoreFocus, mobileBackground,
-                resources.roms(), resources.romFilePicker(), () -> romInfo.setText(romSummary()));
+                resources.roms(), resources.romFilePicker(), () -> romInfo.setText(romSummary()),
+                loginPanel::showNotification);
         mods = new ModManagementWindow(root, strings, mobile, restoreFocus, mobileBackground,
                 resources.modImporter(),resources.romFilePicker(),renderer,resources.preferences());
         settings = new SettingsWindow(root, strings, mobile, restoreFocus, mobileBackground, resources.preferences());

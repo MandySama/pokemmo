@@ -17,7 +17,7 @@ final class PokedexScrollPane extends ScrollPane {
             if(Math.abs(vy)>150){velocity=-vy;remaining=.5;position=getScrollPositionY();flingTime=System.nanoTime();}return true;
         }
     });
-    PokedexScrollPane(){setTheme("/pokedex-scroll");setFixed(Fixed.HORIZONTAL);setExpandContentSize(true);}
+    PokedexScrollPane(){setTheme("/monsterdex-frame.tabbedpane.container.scrollpane");setFixed(Fixed.HORIZONTAL);setExpandContentSize(true);}
     void beginTouch(int x,int y){touching=true;panning=false;remaining=0;position=getScrollPositionY();gesture.reset();gesture.touchDown(x,y,0,0);}
     boolean drag(int x,int y){if(!touching)return false;gesture.touchDragged(x,y,0);return panning;}
     boolean endTouch(int x,int y){if(!touching)return false;touching=false;gesture.touchUp(x,y,0,0);return panning;}

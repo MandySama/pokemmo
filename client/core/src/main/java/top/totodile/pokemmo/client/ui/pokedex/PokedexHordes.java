@@ -49,7 +49,7 @@ final class PokedexHordes extends Widget {
         Widget cell=new Widget(){
             @Override public int getPreferredInnerHeight(){int size=mobile?40:30,columns=Math.max(1,getInnerWidth()/size);return Math.max(mobile?44:32,(getNumChildren()+columns-1)/columns*size);}
             @Override protected void layout(){int size=mobile?40:30,columns=Math.max(1,getInnerWidth()/size);for(int i=0;i<getNumChildren();i++){getChild(i).setSize(size,size);getChild(i).setPosition(getInnerX()+i%columns*size,getInnerY()+i/columns*size);}}
-        };cell.setTheme("/pokedex-value");
+        };cell.setTheme("/label-value-dex");
         for(int id:species){
             Button button=new Button(){@Override protected void paintWidget(GUI gui){int size=mobile?40:30;images.icon(id).draw(getAnimationState(),getX(),getY(),size,size);}};
             button.setTheme("/pokedex-icon-button");button.setCanAcceptKeyboardFocus(false);button.setTooltipContent(dex.name(id)+" +"+dex.get(id).evYield().get(stat));button.addCallback(()->select.accept(id));cell.add(button);

@@ -15,6 +15,14 @@ import java.nio.charset.StandardCharsets;
  */
 final class RomModelAnimation {
     static Animation read(byte[] modelBytes,byte[] animationBytes,ModelInstance instance) throws IOException {
+        return read(modelBytes,animationBytes,name -> instance.getNode(name,true));
+    }
+    /** CPU 解码可在后台完成；真实模型节点在 GL 线程安装时绑定。 */
+    static Animation prepare(byte[] modelBytes,byte[] animationBytes) throws IOException {
+        return read(modelBytes,animationBytes,name -> { Node node=new Node(); node.id=name; return node; });
+    }
+    private static Animation read(byte[] modelBytes,byte[] animationBytes,
+            java.util.function.Function<String,Node> nodes) throws IOException {
         try {
             ByteBuffer model=ByteBuffer.wrap(modelBytes).order(ByteOrder.LITTLE_ENDIAN);
             int section=model.getInt(16), dictionary=section+8;
@@ -34,7 +42,7 @@ final class RomModelAnimation {
                 data.position(base+u16(data,base+20+i*2));
                 int flags=Short.toUnsignedInt(data.getShort()); data.getShort();
                 if((flags&1)!=0) continue;
-                NodeAnimation channel=new NodeAnimation(); channel.node=instance.getNode(names[i],true);
+                NodeAnimation channel=new NodeAnimation(); channel.node=nodes.apply(names[i]);
                 if((flags&6)==0) channel.translation=vectors(data,base,frames,flags,3,false);
                 if((flags&192)==0) channel.rotation=rotations(data,base,pivot,basis,frames,(flags&256)!=0);
                 if((flags&1536)==0) channel.scaling=vectors(data,base,frames,flags,11,true);

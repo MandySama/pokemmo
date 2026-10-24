@@ -3,10 +3,10 @@ package top.totodile.pokemmo.client.ui.pokedex;
 import de.matthiasmann.twl.*;
 import java.util.*;
 
-/** Compact dex tables: fixed column proportions, wrapped values and themed header cells. */
+/** Compact dex tables with theme-controlled columns, wrapped values and themed header cells. */
 final class PokedexRows extends Widget {
     private final List<Widget[]> rows=new ArrayList<>();
-    private final int rowHeight;
+    private int rowHeight;
     private final int[] weights;
     private final List<Widget> backgrounds=new ArrayList<>();
     private final Set<Integer> centered=new HashSet<>();
@@ -18,8 +18,16 @@ final class PokedexRows extends Widget {
     PokedexRows table(int...columns){table=true;for(int column:columns)centered.add(column);return this;}
     PokedexRows headerHeight(int height){headerHeight=height;return this;}
     PokedexRows rowTheme(String theme){rowTheme=theme;return this;}
-    static Label value(String text){Label label=new PokedexDetails.WrappedLabel(text.isBlank()?"—":text);label.setTheme("/pokedex-value");return label;}
-    static Label title(String text){Label label=new PokedexDetails.WrappedLabel(text);label.setTheme("/pokedex-title");return label;}
+    @Override protected void applyTheme(ThemeInfo theme) {
+        super.applyTheme(theme);
+        // Reference PokemonBoxStorageGridComponent.H10/C60: widths are indexed by column number.
+        ParameterMap widths=theme.getParameterValue("columnWidths",false,ParameterMap.class);
+        if(widths!=null)for(int i=0;i<weights.length;i++)weights[i]=Math.max(1,widths.getParameter(Integer.toString(i),weights[i]));
+        rowHeight=Math.max(1,theme.getParameter("rowHeight",rowHeight));
+        headerHeight=Math.max(1,theme.getParameter("columnHeaderHeight",headerHeight));
+    }
+    static Label value(String text){Label label=new PokedexDetails.WrappedLabel(text.isBlank()?"—":text);label.setTheme("/label-value-dex");return label;}
+    static Label title(String text){Label label=new PokedexDetails.WrappedLabel(text);label.setTheme("/label-title-dex-long");return label;}
     void row(Widget...widgets){
         int index=rows.size();rows.add(widgets);
         if(table&&index>0){
@@ -32,7 +40,7 @@ final class PokedexRows extends Widget {
             background.addCallback(select);
             background.setTheme(rowTheme);backgrounds.add(background);add(background);
             for(int i=0;i<widgets.length;i++)if(widgets[i] instanceof Label label){label.setTheme(centered.contains(i)?"/pokedex-table-center":"/pokedex-table-value");label.addCallback(reason->select.run());}
-            for(Widget widget:widgets)if(!(widget instanceof Label)&&"/pokedex-value".equals(widget.getTheme()))widget.setTheme("/pokedex-table-cell");
+            for(Widget widget:widgets)if(!(widget instanceof Label)&&"/label-value-dex".equals(widget.getTheme()))widget.setTheme("/pokedex-table-cell");
         }
         for(Widget widget:widgets)add(widget);invalidateLayout();
     }

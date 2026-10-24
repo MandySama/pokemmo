@@ -20,8 +20,8 @@ final class PokedexAdvanced extends Widget {
     PokedexAdvanced(BwPokedex dex,ClientStrings strings,boolean mobile,PokedexFilter filter,
                     Function<Boolean,EditField> fields,Runnable applied) {
         this.filter=filter;this.strings=strings;this.mobile=mobile;setTheme("");
-        query=fields.apply(false);query.setTheme("/pokedex-search");add(query);
-        clear=new Button(strings.get(8008));clear.setTheme("/pokedex-small-button");
+        query=fields.apply(false);query.setTheme("/editfield-search");add(query);
+        clear=new Button(strings.get(8008));clear.setTheme("/monsterdex-frame.tabbedpane.container.dialoglayout.button");
         clear.setCanAcceptKeyboardFocus(false);clear.addCallback(this::reset);add(clear);
         String[] types=new String[18];types[0]=strings.get(6495);for(int i=0;i<17;i++)types[i+1]=dex.type(i);
         String[] groups=new String[16];groups[0]="--";for(int i=1;i<16;i++)groups[i]=dex.eggGroup(i);
@@ -40,7 +40,7 @@ final class PokedexAdvanced extends Widget {
             String stat=strings.get(statIds[i]).replace(":","");
             row(strings.format(6477,stat),minimum[i],strings.format(6478,stat),maximum[i]);
         }
-        apply=new Button(strings.get(8112));apply.setTheme("/pokedex-small-button");apply.setCanAcceptKeyboardFocus(false);
+        apply=new Button(strings.get(8112));apply.setTheme("/monsterdex-frame.tabbedpane.container.dialoglayout.button");apply.setCanAcceptKeyboardFocus(false);
         apply.addCallback(()->{
             filter.query=query.getText();filter.eggGroup=egg.selected();filter.ability=ability.selected();
             filter.type1=first.selected()-1;filter.type2=second.selected()-1;filter.heldItem=items.get(item.selected());filter.status=status.selected();
@@ -55,7 +55,7 @@ final class PokedexAdvanced extends Widget {
         for(int i=0;i<6;i++){minimum[i].set(0);maximum[i].set(255);}
     }
     private void row(String left,Widget first,String right,Widget second){
-        Label a=new Label(left),b=new Label(right);a.setTheme("/pokedex-title");b.setTheme("/pokedex-title");
+        Label a=new Label(left),b=new Label(right);a.setTheme("/label-title-dex-long");b.setTheme("/label-title-dex-long");
         Widget[] row={a,first,b,second};rows.add(row);for(Widget child:row)add(child);
     }
     @Override protected void layout(){
@@ -73,8 +73,8 @@ final class PokedexAdvanced extends Widget {
     private final class NumberField extends Widget {
         private final EditField edit;private final Button less=new Button("-"),more=new Button("+");
         NumberField(EditField edit,int initial){
-            this.edit=edit;setTheme("");edit.setTheme("/pokedex-search");edit.setMaxTextLength(3);set(initial);
-            less.setTheme("/pokedex-small-button");more.setTheme("/pokedex-small-button");
+            this.edit=edit;setTheme("");edit.setTheme("/editfield-search");edit.setMaxTextLength(3);set(initial);
+            less.setTheme("/monsterdex-frame.tabbedpane.container.dialoglayout.button");more.setTheme("/monsterdex-frame.tabbedpane.container.dialoglayout.button");
             less.setCanAcceptKeyboardFocus(false);more.setCanAcceptKeyboardFocus(false);
             less.addCallback(()->set(value()-1));more.addCallback(()->set(value()+1));add(less);add(edit);add(more);
         }

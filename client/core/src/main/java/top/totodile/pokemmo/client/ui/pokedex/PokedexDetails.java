@@ -28,12 +28,12 @@ final class PokedexDetails extends Widget {
     PokedexDetails(BwPokedex dex,PokedexImages images,ClientStrings strings,boolean mobile,IntConsumer select,Runnable goBack) {
         this.dex=dex;this.images=images;this.strings=strings;this.mobile=mobile;this.select=select;setTheme("");
         int[] names={1703,1704,1717,6468,1775,2550};
-        if(!mobile){tabBar.setTheme("/pokedex-detail-tabs");add(tabBar);}
+        if(!mobile){tabBar.setTheme("/monsterdex-frame.tabbedpane.tabbox");add(tabBar);}
         for(int i=0;i<tabs.length;i++){
-            int index=i;tabs[i]=new Button(strings.get(names[i]));tabs[i].setTheme(mobile?"/pokedex-tab":"/pokedex-detail-tab");tabs[i].setModel(new ToggleButtonModel());
+            int index=i;tabs[i]=new Button(strings.get(names[i]));tabs[i].setTheme("/monsterdex-frame.tabbedpane.tabbox.tabbutton");tabs[i].setModel(new ToggleButtonModel());
             tabs[i].setCanAcceptKeyboardFocus(false);tabs[i].addCallback(()->showTab(index));if(mobile)add(tabs[i]);else tabBar.add(tabs[i]);
         }
-        add(pane);back=new Button(strings.get(58));back.setTheme("/pokedex-small-button");back.setCanAcceptKeyboardFocus(false);back.addCallback(goBack);
+        add(pane);back=new Button(strings.get(58));back.setTheme("/monsterdex-frame.tabbedpane.container.dialoglayout.button");back.setCanAcceptKeyboardFocus(false);back.addCallback(goBack);
         if(mobile)add(back);
     }
     void show(int id){speciesId=id;form=0;shiny=false;animationStart=System.nanoTime();showTab(0);}
@@ -46,7 +46,7 @@ final class PokedexDetails extends Widget {
     private int rowHeight(){return mobile?42:28;}
     private void showTab(int index){
         pane.cancelTouch();tab=index;
-        String paneTheme=index==1?"/pokedex-move-scroll":index==0?"/pokedex-information-scroll":index==4?"/pokedex-locations-scroll":"/pokedex-scroll";
+        String paneTheme=index==4?"/wildlocations.tabbedpane.container.scrollpane":"/monsterdex-frame.tabbedpane.container.scrollpane";
         if(!pane.getTheme().equals(paneTheme)){pane.setTheme(paneTheme);pane.reapplyTheme();}
         for(int i=0;i<tabs.length;i++)((ToggleButtonModel)tabs[i].getModel()).setSelected(i==index);
         Widget page=!unlocked&&index!=0?PokedexRows.value("?????"):switch(index){case 0->information();case 1->moves();case 2->stats();case 3->effectiveness();case 4->encounters();default->evolutions();};
@@ -57,7 +57,7 @@ final class PokedexDetails extends Widget {
         Widget category=new Widget(){
             final Label label=PokedexRows.value(unlocked?dex.category(speciesId):"?????");
             final Widget types=new PokedexTypeBadge(images,mobile,s.type1()==s.type2()?new int[]{s.type1()}:new int[]{s.type1(),s.type2()});
-            {setTheme("/pokedex-information-value");add(label);add(types);types.setVisible(unlocked);label.setTheme("/pokedex-plain");}
+            {setTheme("/label-value-dex2");add(label);add(types);types.setVisible(unlocked);label.setTheme("/pokedex-plain");}
             @Override public int getPreferredInnerWidth(){return Math.max(0,getMinWidth()-getBorderHorizontal());}
             @Override public int getPreferredInnerHeight(){return Math.max(label.getPreferredHeight(),types.getPreferredHeight());}
             @Override protected void layout(){int width=types.getPreferredWidth();types.setSize(width,getInnerHeight());types.setPosition(getInnerRight()-width,getInnerY());
@@ -82,7 +82,7 @@ final class PokedexDetails extends Widget {
         if(!unlocked)for(int i=1;i<rows.getNumChildren();i+=2)if(rows.getChild(i) instanceof WrappedLabel label){label.replace("?????");label.setTooltipContent(null);}
         Widget portrait=new Widget(){
             final Label name=new Label(String.format(Locale.ROOT,"%s %03d %s",strings.get(1705),speciesId,unlocked?dex.name(speciesId):"???"));
-            {setTheme("/pokedex-picture");name.setTheme("/pokedex-picture-name");add(name);}
+            {setTheme("/monstergear-pic");name.setTheme("/pokedex-picture-name");add(name);}
             // StatefulImageButton is fixed at 170x185 / 200x200; its sprite may overflow it.
             @Override public int getPreferredWidth(){return mobile?200:170;}
             @Override public int getPreferredHeight(){return mobile?200:185;}
@@ -99,13 +99,13 @@ final class PokedexDetails extends Widget {
                 image.draw(getAnimationState(),getX()+spriteX,getY()+spriteY,image.getWidth()*2,image.getHeight()*2);
             }
         };
-        Button sound=new Button(strings.get(1727));sound.setTheme("/pokedex-small-button");sound.setCanAcceptKeyboardFocus(false);
-        Button sparkle=new Button(strings.get(6470));sparkle.setTheme("/pokedex-small-button");sparkle.setCanAcceptKeyboardFocus(false);
+        Button sound=new Button(strings.get(1727));sound.setTheme("/monsterdex-frame.tabbedpane.container.dialoglayout.button");sound.setCanAcceptKeyboardFocus(false);
+        Button sparkle=new Button(strings.get(6470));sparkle.setTheme("/monsterdex-frame.tabbedpane.container.dialoglayout.button");sparkle.setCanAcceptKeyboardFocus(false);
         sparkle.addCallback(()->{shiny=!shiny;animationStart=System.nanoTime();});
-        Button next=new Button(strings.get(1760));next.setTheme("/pokedex-small-button");next.setCanAcceptKeyboardFocus(false);next.addCallback(()->{form=(form+1)%Math.max(1,extra.formCount());animationStart=System.nanoTime();});
+        Button next=new Button(strings.get(1760));next.setTheme("/monsterdex-frame.tabbedpane.container.dialoglayout.button");next.setCanAcceptKeyboardFocus(false);next.addCallback(()->{form=(form+1)%Math.max(1,extra.formCount());animationStart=System.nanoTime();});
         next.setVisible(extra.formCount()>1);
         return new DialogLayout(){
-            {setTheme("/pokedex-information");setAddDefaultGaps(false);setIncludeInvisibleWidgets(false);
+            {setTheme("/monsterdex-frame.tabbedpane.container.dialoglayout");setAddDefaultGaps(false);setIncludeInvisibleWidgets(false);
                 // Preserve the reference's two parallel columns and independently sized left controls.
                 var left=createParallelGroup(portrait,sound,sparkle,next);
                 setHorizontalGroup(createSequentialGroup().addGroup(left).addGap(15).addWidget(rows));
@@ -117,11 +117,11 @@ final class PokedexDetails extends Widget {
     private Widget moves(){
         // dex-move-table uses different column widths and renderer padding on Android.
         int[] widths=mobile?new int[]{200,280,130,65,65,65}:new int[]{120,210,65,65,65,65};
-        var page=new PokedexRows(mobile?50:30,widths).table().headerHeight(mobile?40:30).rowTheme("/pokedex-move-row");
-        page.setTheme("/pokedex-move-table");
+        var page=new PokedexRows(mobile?50:30,widths).table().headerHeight(mobile?40:30).rowTheme("/dex-move-table.box-layout-row");
+        page.setTheme("/dex-move-table");
         int[] names={1711,1716,1712,1713,1715,1714};Widget[] header=new Widget[6];
         for(int i=0;i<6;i++){int column=i;Button button=new Button(strings.get(names[i]));
-            button.setTheme("/pokedex-move-header");button.setCanAcceptKeyboardFocus(false);button.addCallback(()->{if(sortColumn==column)descending=!descending;else{sortColumn=column;descending=false;}showTab(1);});header[i]=button;}
+            button.setTheme("/dex-move-table.columnHeader");button.setCanAcceptKeyboardFocus(false);button.addCallback(()->{if(sortColumn==column)descending=!descending;else{sortColumn=column;descending=false;}showTab(1);});header[i]=button;}
         for(int i=0;i<header.length;i++){
             header[i].getAnimationState().setAnimationState(de.matthiasmann.twl.renderer.AnimationState.StateKey.get("sortAscending"),sortColumn==i&&!descending);
             header[i].getAnimationState().setAnimationState(de.matthiasmann.twl.renderer.AnimationState.StateKey.get("sortDescending"),sortColumn==i&&descending);
@@ -144,7 +144,7 @@ final class PokedexDetails extends Widget {
                     new Label(move.accuracy()==0||move.accuracy()>100?"-":Integer.toString(move.accuracy()))};
             page.row(cells);
             for(int i=0;i<cells.length;i++){
-                cells[i].setTheme(i==1?"/pokedex-move-name":i==2?"/pokedex-move-type":"/pokedex-move-value");
+                cells[i].setTheme(i==1?"/dex-move-table-name-label":i==2?"/pokedex-move-type":"/dex-move-table.box-layout-row.label");
                 cells[i].setClip(true);
             }
         }
@@ -160,9 +160,9 @@ final class PokedexDetails extends Widget {
                     title.setPosition(x,getInnerY()+i*(h+3));value.setPosition(title.getRight()+3,title.getY());bar.setPosition(value.getRight()+3,title.getY());
                 }
             }
-        };body.setTheme("");
+        };body.setTheme("/label-area-monsterdex");
         String[] styles={"hp","attack","defense","spatk","spdef","speed","total"};
-        for(int i=0;i<7;i++){int number=i<6?s.stats().get(i):s.total();body.add(PokedexRows.title(strings.get(STAT_NAMES[i])));Label value=PokedexRows.title(Integer.toString(number));body.add(value);body.add(new StatBar((float)number/(i<6?255:680),styles[i]));}
+        for(int i=0;i<7;i++){int number=i<6?s.stats().get(i):s.total();Label title=PokedexRows.title(strings.get(STAT_NAMES[i]));title.setTheme("/label-area-monsterdex.label");body.add(title);Label value=PokedexRows.title(Integer.toString(number));value.setTheme("/label-area-monsterdex.label");body.add(value);body.add(new StatBar((float)number/(i<6?255:680),styles[i]));}
         return body;
     }
     private Widget effectiveness(){
@@ -171,7 +171,7 @@ final class PokedexDetails extends Widget {
         for(int i=0;i<groups.length;i++){
             var attacks=new ArrayList<Integer>();for(int type=0;type<17;type++)if(dex.effectiveness(type,speciesId)==groups[i])attacks.add(type);
             Widget badges=new Widget(){
-                {setTheme("/pokedex-value");for(int type:attacks)add(new PokedexTypeBadge(images,mobile,type));}
+                {setTheme("/label-value-dex");for(int type:attacks)add(new PokedexTypeBadge(images,mobile,type));}
                 @Override public int getPreferredInnerHeight(){int columns=Math.max(1,(getInnerWidth()+(mobile?6:5))/(mobile?104:54));return Math.max(mobile?28:14,((attacks.size()+columns-1)/columns)*(mobile?31:17));}
                 @Override protected void layout(){int w=mobile?104:54,h=mobile?31:17,columns=Math.max(1,(getInnerWidth()+(mobile?6:5))/w);
                     for(int j=0;j<getNumChildren();j++){getChild(j).setSize(w,h);getChild(j).setPosition(getInnerX()+j%columns*w,getInnerY()+j/columns*h);}}
@@ -194,11 +194,11 @@ final class PokedexDetails extends Widget {
         if(entries.isEmpty())rows.values("--","--",strings.get(1791),"--","--","--","--");
         return new DialogLayout(){
             final Button[] seasons=new Button[4];
-            {setTheme("/pokedex-locations");setAddDefaultGaps(false);
+            {setTheme("/wildlocations");setAddDefaultGaps(false);
                 var tabs=createSequentialGroup();int[] ids={6496,6497,6498,6499};
                 for(int i=0;i<4;i++){
                     final int index=i;seasons[i]=new PokedexSeasonButton(images,strings.get(ids[i]),mobile,i,()->{season=index;showTab(4);});
-                    seasons[i].setTheme("/pokedex-season-tab");((ToggleButtonModel)seasons[i].getModel()).setSelected(i==season);
+                    seasons[i].setTheme("/wildlocations.tabbedpane.tabbox.tabbutton");((ToggleButtonModel)seasons[i].getModel()).setSelected(i==season);
                     if(i>0)tabs.addGap(2);tabs.addWidget(seasons[i]);
                 }
                 setHorizontalGroup(createParallelGroup(createSequentialGroup().addGap().addGroup(tabs),createSequentialGroup(rows)));
@@ -237,8 +237,9 @@ final class PokedexDetails extends Widget {
     }
     private static final class StatBar extends Widget {
         private final float value;private Image fill,track;
-        StatBar(float value,String style){this.value=Math.min(1,value);setTheme("/pokedex-stat-"+style);}
-        @Override protected void applyTheme(ThemeInfo info){super.applyTheme(info);fill=info.getImage("progressImage");track=info.getImage("progressBackground");}
+        StatBar(float value,String style){this.value=Math.min(1,value);setTheme("/label-area-monsterdex.stat-widget.progressbar-"+style);}
+        @Override protected void applyTheme(ThemeInfo info){super.applyTheme(info);fill=info.getImage("progressImage");track=info.getImage("background");}
+        @Override protected void paintBackground(GUI gui) { /* Match the progress strip's bounds in paintWidget. */ }
         @Override protected void paintWidget(GUI gui){
             int x=getInnerX()+5,y=getInnerY()+(getInnerHeight()-10)/2,width=Math.max(0,getInnerWidth()-10);
             if(track!=null)track.draw(getAnimationState(),x,y,width,10);

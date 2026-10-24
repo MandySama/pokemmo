@@ -106,6 +106,15 @@ public final class LoginPanel extends ResizableFrame implements Disposable {
         boolean loginPage = controller.state() == LoginController.State.LOGIN
                 || controller.state() == LoginController.State.LOGGING_IN;
         boolean enteringLogin = loginPage && !isVisible();
+        if (enteringLogin || !loginPage && isVisible()) {
+            // 隐藏父窗口不会调用 Button.setVisible(false)，旧点击的后续事件还可能到达。
+            // 离开及重新显示时均清理，避免复用表单后残留登录按钮的悬停高亮。
+            // 顺序与 Button.disarm 一致，先解除 armed，避免释放 pressed 时再次提交。
+            var model = login.getModel();
+            model.setHover(false);
+            model.setArmed(false);
+            model.setPressed(false);
+        }
         // 切换页面立即移除旧页面的命中区域，避免淡出中的窗口继续挡住点击。
         setHardVisible(loginPage);
         if (enteringLogin && controller.state() == LoginController.State.LOGIN) {
@@ -116,7 +125,7 @@ public final class LoginPanel extends ResizableFrame implements Disposable {
             focusDefault();
         }
         if (controller.failed() && controller.state() == LoginController.State.LOGIN) {
-            showError(strings.get(2001) + " (2)");
+            showNotification(strings.get(2001) + " (2)");
             if (!mobile) {
                 if (selectedAccount == null)
                     focusAndEdit(username.getText().isBlank() ? username : password);
@@ -175,7 +184,7 @@ public final class LoginPanel extends ResizableFrame implements Disposable {
         if (selectedAccount == null) focusDefault();
     }
 
-    private void showError(String message) {
+    public void showNotification(String message) {
         LoginNotification notice = new LoginNotification(message);
         notifications.add(notice);
         notificationHost.add(notice);

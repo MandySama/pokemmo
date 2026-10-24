@@ -22,7 +22,7 @@ final class PokemonSlot extends Button {
     void onSelect(Runnable action){select=action;}
     void refresh(){
         var p=pokemon();double fraction=p==null?1:(double)p.hp()/p.maxHp();
-        String theme=storage?"/pc-slot":p==null?"/monster-slot-empty":fraction==0?"/monster-slot-purple":fraction<=.2?"/monster-slot-red":fraction<=.5?"/monster-slot-orange":"/monster-slot";
+        String theme=storage?"pc-slot":p==null?"/monster-slot-empty":fraction==0?"/monster-slot-purple":fraction<=.2?"/monster-slot-red":fraction<=.5?"/monster-slot-orange":"/monster-slot";
         if(!theme.equals(getTheme())){setTheme(theme);if(getGUI()!=null)reapplyTheme();}
         health.setVisible(!storage&&!controller.mobile&&p!=null&&!p.egg());health.setValue((float)fraction);
         String healthTheme=fraction<=.2?"/pokemon-health-red":fraction<=.5?"/pokemon-health-orange":"/pokemon-health";

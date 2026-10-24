@@ -1,6 +1,9 @@
 <?xml version='1.0' encoding='utf-8'?>
 <themes>
   <theme name="pc-frame" ref="mobile-panel" overwrite="true">
+    <param name="fadeColorInactive">
+      <color>#FFFFFFFF</color>
+    </param>
     <param name="border">
       <border>0</border>
     </param>
@@ -16,39 +19,85 @@
     <param name="titleAreaBottom">
       <int>0</int>
     </param>
-  </theme>
-  <theme name="pc-box-name" ref="button" overwrite="true">
-    <param name="font">
-      <font>med-shadow-22-white</font>
-    </param>
-    <param name="background">
-      <image>none</image>
-    </param>
-    <param name="textAlignment">
-      <enum type="alignment">CENTER</enum>
-    </param>
-  </theme>
-  <theme name="pc-box-button" ref="togglebutton" overwrite="true">
-    <param name="border">
-      <border>0,8</border>
-    </param>
-    <param name="textAlignment">
-      <enum type="alignment">CENTER</enum>
-    </param>
-  </theme>
-  <theme name="pc-preview" ref="-defaults" overwrite="true">
-    <param name="background">
-      <image>label5.background</image>
-    </param>
-  </theme>
-  <theme name="pc-label-title" ref="pc-label-title" overwrite="true">
-    <param name="font">
-      <font>med-noshadow-18-white</font>
-    </param>
-  </theme>
-  <theme name="pc-label-value" ref="pc-label-value" overwrite="true">
-    <param name="font">
-      <font>med-noshadow-18-white</font>
-    </param>
+    <theme name="pc-box-button" ref="togglebutton">
+      <param name="border">
+        <border>0,8</border>
+      </param>
+      <param name="textAlignment">
+        <enum type="alignment">CENTER</enum>
+      </param>
+    </theme>
+    <theme name="box-name" ref="button">
+      <param name="font">
+        <font>med-shadow-22-white</font>
+      </param>
+      <param name="background">
+        <image>none</image>
+      </param>
+      <param name="textAlignment">
+        <enum type="alignment">CENTER</enum>
+      </param>
+    </theme>
+    <theme name="preview-frame" ref="-defaults">
+      <theme name="border-container" ref="-defaults">
+        <param name="background">
+          <image>pc-preview.default</image>
+        </param>
+      </theme>
+      <theme name="monster-name-label" ref="label">
+        <param name="textAlignment">
+          <enum type="alignment">CENTER</enum>
+        </param>
+      </theme>
+      <param name="background">
+        <image>label5.background</image>
+      </param>
+      <theme name="label-title" ref="label">
+        <param name="background">
+          <image>ui-table-header.background</image>
+        </param>
+        <param name="border">
+          <border>2,4</border>
+        </param>
+        <param name="textAlignment">
+          <enum type="alignment">CENTER</enum>
+        </param>
+        <param name="font">
+          <font>med-noshadow-18-white</font>
+        </param>
+      </theme>
+      <theme name="label" ref="label">
+        <param name="border">
+          <border>2,3</border>
+        </param>
+        <param name="font">
+          <font>med-noshadow-18-white</font>
+        </param>
+      </theme>
+      <theme name="label-markup" ref="label" />
+    </theme>
+    <theme name="container" ref="-defaults">
+      <theme name="scrollpane" ref="scrollpane">
+        <param name="border">
+          <border>0</border>
+        </param>
+        <theme name="dialoglayout" ref="-defaults">
+          <theme name="pc-slot" ref="-defaults">
+            <param name="background">
+              <image>pc-slot.background</image>
+            </param>
+          </theme>
+        </theme>
+      </theme>
+      <theme name="dialoglayout" ref="-defaults">
+        <theme name="pc-slot" ref="pc-frame.container.scrollpane.dialoglayout.pc-slot">
+          <param name="background">
+            <image>pc-slot.background</image>
+          </param>
+        </theme>
+      </theme>
+    </theme>
+    <theme name="editfield" ref="editfield" />
+    <theme name="label-button-small2-centered" ref="button" />
   </theme>
 </themes>

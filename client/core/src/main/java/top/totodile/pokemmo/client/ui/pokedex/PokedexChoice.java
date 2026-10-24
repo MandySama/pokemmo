@@ -14,7 +14,7 @@ final class PokedexChoice extends Button {
     private final Runnable changed;
     private int selected;
     PokedexChoice(Runnable changed,String... options) {
-        this.options=options;this.changed=changed;setTheme("/pokedex-choice");setCanAcceptKeyboardFocus(false);
+        this.options=options;this.changed=changed;setTheme("/monsterdex-frame.dialoglayout.combobox");setCanAcceptKeyboardFocus(false);
         display.setTheme("display");display.setClip(true);arrow.setTheme("button");add(display);add(arrow);
         popup.setTheme("/comboboxPopup");select(0);addCallback(this::openChoices);
     }

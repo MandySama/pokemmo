@@ -24,7 +24,7 @@ final class PokedexEvolutionTree extends Widget {
                 @Override protected void paintWidget(GUI gui){super.paintWidget(gui);int size=mobile?72:36;
                     images.icon(id).draw(getAnimationState(),getX()+(mobile?10:5),getY()+(mobile?4:2),size,size);}
             };
-            card.setTheme("/monsterdex-button-caught-ot");card.setCanAcceptKeyboardFocus(false);
+            card.setTheme("/monsterdex-button-evo-tree");card.setCanAcceptKeyboardFocus(false);
             card.setTooltipContent(String.format(Locale.ROOT,"%03d %s",id,dex.name(id)));card.addCallback(()->select.accept(id));
             cards.put(id,card);add(card);
             int parent=dex.parent(id);
@@ -41,7 +41,7 @@ final class PokedexEvolutionTree extends Widget {
                 final Label label=new Label(level?"Lv. "+evolution.parameter():""){
                     @Override protected boolean handleEvent(Event event){return false;}
                 };
-                {setTheme("/monsterdex-button");setCanAcceptKeyboardFocus(false);label.setTheme("/pokedex-evolution-name");label.setEnabled(false);add(label);setTooltipContent(dex.evolution(evolution));}
+                {setTheme("/monsterdex-button-evo-tree");setCanAcceptKeyboardFocus(false);label.setTheme("/pokedex-evolution-name");label.setEnabled(false);add(label);setTooltipContent(dex.evolution(evolution));}
                 @Override protected void layout(){label.setSize(getInnerWidth(),label.computeTextHeight());label.setPosition(getInnerX(),getInnerBottom()-label.getHeight());}
                 @Override protected void paintWidget(GUI gui){super.paintWidget(gui);int scale=mobile?2:1,size=24*scale;
                     if(item>0)images.item(item).draw(getAnimationState(),getX()+10*scale,getY()+(level?4*scale:10*scale),size,size);}

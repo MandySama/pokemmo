@@ -27,7 +27,7 @@ final class PokedexLocations extends DialogLayout {
             // Reference PokedexWindow.qx uses single-line labels: natural text
             // width is the preferred width; theme minWidth is only a minimum.
             Label cell=new Label(values[i]);cells[i]=cell;
-            cell.setTheme("/pokedex-location-"+(header?"title-":"value-")+SIZES[i]);
+            cell.setTheme("/label-"+(header?"title-dex-":"value-dex-")+SIZES[i]);
             if(values.length==5&&i==4)times.addWidget(cell);else columns[i].addWidget(cell);
             line.addWidget(cell);
         }

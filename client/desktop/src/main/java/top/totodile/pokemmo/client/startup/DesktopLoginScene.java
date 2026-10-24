@@ -34,6 +34,7 @@ public final class DesktopLoginScene implements LoginScene {
     private RomLoginMusic music;
     private RomTexturePattern pattern;
     private float time;
+    private boolean warming, starting;
     private boolean focused=true, closed;
 
     public DesktopLoginScene(ClientResources resources,Path cache) {
@@ -65,7 +66,9 @@ public final class DesktopLoginScene implements LoginScene {
         }
         if (renderer==null) return false;
         // 参考场景按实际帧间隔推进；截断为 0.25 秒会在卡顿后丢失镜头和动画时间。
-        float step=Math.max(0,delta);
+        // 加载与首次 GL 绘制不属于播放时间；正常播放仍保留完整 delta。
+        float step=warming || starting?0:Math.max(0,delta);
+        starting=false;
         time+=step;
         if (time*30>=track.frames) {
             time=0; resetAnimation();
@@ -84,19 +87,31 @@ public final class DesktopLoginScene implements LoginScene {
         for(var scene:scenes)renderer.render(scene.instance,environment);
         renderer.end();
         Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
+        if(warming) {
+            // 先完成着色器编译和首次上传，下一帧才把场景交给前景 UI。
+            warming=false; starting=true;
+            ScreenUtils.clear(0,0,0,1,true);
+            return false;
+        }
         return true;
     }
     private void install(RomLoginAssets.Prepared prepared) throws Exception {
         track=new RomCameraTrack(prepared.camera());
         for (int i=0;i<prepared.models().length;i++) {
             NitroModelRenderer scene=new NitroModelRenderer(prepared.models()[i]); scenes.add(scene);
-            scene.instance.animations.add(RomModelAnimation.read(prepared.modelData()[i],prepared.animationData()[i],scene.instance));
+            var animation=prepared.animations()[i];
+            for(int channel=animation.nodeAnimations.size-1;channel>=0;channel--) {
+                var entry=animation.nodeAnimations.get(channel);
+                entry.node=scene.instance.getNode(entry.node.id,true);
+                if(entry.node==null)animation.nodeAnimations.removeIndex(channel);
+            }
+            scene.instance.animations.add(animation);
             animations.add(new AnimationController(scene.instance));
         }
         var config=new DefaultShader.Config(); config.numBones=Math.max(1,scenes.stream().mapToInt(NitroModelRenderer::maxBones).max().orElse(0));
         renderer=new ModelBatch(new DefaultShaderProvider(config));
         pattern=new RomTexturePattern(prepared.pattern(),scenes.get(0));
-        resetAnimation(); time=0;
+        resetAnimation(); time=0; warming=true; starting=false;
     }
     private void resetAnimation() {
         for(int i=0;i<scenes.size();i++)
@@ -110,7 +125,7 @@ public final class DesktopLoginScene implements LoginScene {
         if(pattern!=null) { pattern.close(); pattern=null; }
         if (renderer!=null) { renderer.dispose(); renderer=null; }
         scenes.forEach(NitroModelRenderer::close);
-        scenes.clear(); animations.clear(); track=null;
+        scenes.clear(); animations.clear(); track=null; warming=false; starting=false;
     }
     private void release() {
         if (music!=null) { music.close(); music=null; }

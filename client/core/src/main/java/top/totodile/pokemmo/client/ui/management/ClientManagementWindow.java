@@ -45,6 +45,7 @@ public final class ClientManagementWindow extends ClientWindow {
     private final RomManager roms;
     private final RomFilePicker picker;
     private final Runnable changed;
+    private final java.util.function.Consumer<String> notification;
     private final ClientStrings strings;
     private boolean busy, disposed;
     private boolean restartRequired;
@@ -57,11 +58,13 @@ public final class ClientManagementWindow extends ClientWindow {
 
     public ClientManagementWindow(Widget owner, ClientStrings strings, boolean mobile, Runnable onClose,
                            java.util.function.Consumer<de.matthiasmann.twl.renderer.Image> mobileBackground,
-                           RomManager roms, RomFilePicker picker, Runnable changed) {
+                           RomManager roms, RomFilePicker picker, Runnable changed,
+                           java.util.function.Consumer<String> notification) {
         super(owner);
         this.roms=roms;
         this.picker=picker;
         this.changed=changed;
+        this.notification=notification;
         this.strings=strings;
         this.mobile = mobile;
         this.onClose = onClose;
@@ -182,25 +185,40 @@ public final class ClientManagementWindow extends ClientWindow {
         if (busy || disposed) return;
         if (picker==null) { showMessage("当前环境未提供文件选择器"); return; }
         busy=true;
-        chooseButtons.forEach(button -> button.setEnabled(false));
         var selected=RomType.of(type);
         try {
             picker.choose(selected.extension, source -> com.badlogic.gdx.Gdx.app.postRunnable(() -> {
                 if(disposed)return;
-                if (source==null) { finish(strings.get(1085)); return; }
-                progressValue=0;progressStage=1095;
-                progressDialog.show(strings.get(1095));
+                if (source==null) {
+                    finish(null);
+                    notification.accept(strings.get(1085));
+                    return;
+                }
                 java.util.concurrent.CompletableFuture.runAsync(() -> {
                     String result;
                     boolean imported=false;
+                    boolean loaded=false;
                     String kind=strings.get(90+selected.id);
+                    String filename=source.name();
+                    if(filename==null)filename=kind;
+                    // 只在提示中显示文件名，兼容选择器返回的 Windows/Android 路径。
+                    filename=filename.substring(Math.max(filename.lastIndexOf('/'),filename.lastIndexOf('\\'))+1);
                     try {
-                        var outcome=roms.importRom(selected,source,(stage,value) -> { progressStage=stage;progressValue=value; });
+                        boolean[] progressStarted={false};
+                        var outcome=roms.importRom(selected,source,(stage,value) -> {
+                            progressStage=stage;progressValue=value;
+                            if(!progressStarted[0]) {
+                                progressStarted[0]=true;
+                                com.badlogic.gdx.Gdx.app.postRunnable(() -> {
+                                    if(!disposed && busy)progressDialog.show(strings.get(progressStage));
+                                });
+                            }
+                        });
                         imported=outcome==RomManager.ImportResult.IMPORTED;
+                        loaded=true;
                         result=strings.format(imported?1184:1180,kind);
                     } catch (RomImportFailure error) {
                         String game=kind.endsWith("ROM")?kind.substring(0,kind.length()-3):kind;
-                        String filename=source.name()==null?kind:source.name();
                         result=switch(error.stringId) {
                             case 1089,1181 -> strings.format(error.stringId,error.detail);
                             case 1090 -> strings.format(1090,error.detail,filename);
@@ -208,14 +226,21 @@ public final class ClientManagementWindow extends ClientWindow {
                             default -> strings.format(error.stringId,filename,game);
                         };
                     } catch (Exception error) {
-                        result=strings.format(1094,source.name()==null?kind:source.name());
+                        result=strings.format(1094,filename);
                     }
                     String text=result;
-                    boolean changed=imported;
+                    // 参考 Le0：成功选择并加载 ROM 即标记重启，已加载的相同文件也适用。
+                    boolean changed=loaded;
                     com.badlogic.gdx.Gdx.app.postRunnable(() -> {
                         if(changed)restartRequired=true;
                         finish(text);
                     });
+                }).whenComplete((ignored,error) -> {
+                    // CompletableFuture 会保存未捕获异常；统一结束 busy，避免界面永久卡在导入状态。
+                    if(error!=null) {
+                        com.badlogic.gdx.Gdx.app.error("ROM import","Unable to complete ROM import",error);
+                        com.badlogic.gdx.Gdx.app.postRunnable(() -> finish(strings.get(2103)));
+                    }
                 });
             }), text -> com.badlogic.gdx.Gdx.app.postRunnable(() -> finish(text)));
         } catch (RuntimeException error) { finish(error.getMessage()); }
@@ -225,7 +250,6 @@ public final class ClientManagementWindow extends ClientWindow {
         if (disposed) return;
         progressDialog.closePopup();
         busy=false;
-        chooseButtons.forEach(button -> button.setEnabled(true));
         updateStates(); changed.run();
         if (text!=null) showMessage(text);
         positionWindow();

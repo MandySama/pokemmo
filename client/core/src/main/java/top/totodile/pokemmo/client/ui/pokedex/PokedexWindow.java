@@ -59,19 +59,19 @@ public final class PokedexWindow extends ClientWindow implements AutoCloseable {
                          Consumer<Image> mobileBackground,Runnable onClose) {
         super(owner);this.resources=resources;this.renderer=renderer;this.mobile=mobile;
         this.mobileBackground=mobileBackground;this.onClose=onClose;strings=resources.strings();
-        frame=frame(strings.get(1),this::closeCatalogue,"/pokedex-list-frame");
+        frame=frame(strings.get(1),this::closeCatalogue,"/monsterdex-frame");
         detailFrame=frame("",this::closeDetails,"/monsterdex-frame");detailFrame.setVisible(false);
         hordeFrame=frame(strings.get(6481),()->{hordeFrameVisible(false);if(!frame.isVisible()&&!detailFrame.isVisible())closePopup();},"/monsterdex-frame");hordeFrame.setVisible(false);
-        content.setTheme("");detailContent.setTheme("");hordeContent.setTheme("");listing.setTheme("");body.setTheme(mobile?"/pokedex-catalogue-body":"/pokedex-catalogue-panel");
-        scroll.setTheme("/pokedex-catalogue-scroll");
-        search=field(false);search.setTheme("/pokedex-search");search.setMaxTextLength(40);
+        content.setTheme("");detailContent.setTheme("");hordeContent.setTheme("");listing.setTheme("");body.setTheme(mobile?"/monsterdex-box":"/monsterdex-frame.dialoglayout");
+        scroll.setTheme("/monsterdex-frame.dialoglayout.scrollpane");
+        search=field(false);search.setTheme("/editfield-search");search.setMaxTextLength(40);
         search.addCallback(key->{filter.query=search.getText();refresh();});
-        advancedButton=new Button(strings.get(8010));advancedButton.setTheme("/pokedex-small-button");advancedButton.setCanAcceptKeyboardFocus(false);advancedButton.addCallback(this::showAdvanced);
+        advancedButton=new Button(strings.get(8010));advancedButton.setTheme("/monsterdex-frame.tabbedpane.container.dialoglayout.button");advancedButton.setCanAcceptKeyboardFocus(false);advancedButton.addCallback(this::showAdvanced);
         known=atlasButton("map_icon",24,24);
-        known.setTheme("/pokedex-small-button");known.setModel(new ToggleButtonModel());known.setCanAcceptKeyboardFocus(false);known.setTooltipContent(strings.get(1700));
+        known.setTheme("/monsterdex-frame.tabbedpane.container.dialoglayout.button");known.setModel(new ToggleButtonModel());known.setCanAcceptKeyboardFocus(false);known.setTooltipContent(strings.get(1700));
         known.addCallback(()->{filter.knownOnly=((ToggleButtonModel)known.getModel()).isSelected();refresh();});
         horde=atlasButton("horde_5x",24,24);
-        horde.setTheme("/pokedex-small-button");horde.setCanAcceptKeyboardFocus(false);horde.setTooltipContent(strings.get(6481));horde.addCallback(this::showHordes);
+        horde.setTheme("/monsterdex-frame.tabbedpane.container.dialoglayout.button");horde.setCanAcceptKeyboardFocus(false);horde.setTooltipContent(strings.get(6481));horde.addCallback(this::showHordes);
         listing.add(body);listing.add(search);listing.add(advancedButton);listing.add(known);listing.add(horde);body.add(scroll);
         int[] labels={1701,1702,1728,1762,6472,6473};
         counters.setTheme("/pokedex-counters");counters.setAddDefaultGaps(false);
@@ -234,10 +234,11 @@ public final class PokedexWindow extends ClientWindow implements AutoCloseable {
     }
     private final class Counter extends Label {
         private Image background,fill;
-        private final String label;private final int index;private float progress;
-        Counter(String text,int index){super(text);this.label=text.replaceAll("[:：]$","");this.index=index;setTheme("/pokedex-counter");}
+        private final String label;private float progress;
+        Counter(String text,int index){super(text);this.label=text.replaceAll("[:：]$","");setTheme("/monsterdex-frame.dialoglayout.progressbar-"+new String[]{"white","blue","green","pink","gold","orange"}[index]);}
         void value(long current,long total){progress=total==0?0:(float)current/total;setText(label+": "+current+" / "+total);}
-        @Override protected void applyTheme(ThemeInfo info){super.applyTheme(info);background=info.getImage("progressBackground");fill=info.getImage(new String[]{"progressWhite","progressBlue","progressGreen","progressRed","progressGold","progressOrange"}[index]);}
+        @Override protected void applyTheme(ThemeInfo info){super.applyTheme(info);background=info.getImage("background");fill=info.getImage("progressImage");}
+        @Override protected void paintBackground(GUI gui) { /* The progress track occupies the strip below the label. */ }
         @Override protected void paintWidget(GUI gui){super.paintWidget(gui);
             int y=getBottom()-8;if(background!=null)background.draw(getAnimationState(),getX(),y,getWidth(),8);
             if(fill!=null&&progress>0)fill.draw(getAnimationState(),getX(),y,Math.round(getWidth()*Math.min(1,progress)),8);
