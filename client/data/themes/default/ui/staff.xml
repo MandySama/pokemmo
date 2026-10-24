@@ -61,24 +61,37 @@
     </param>
   </theme>
   <theme name="database-header" ref="label">
-    <param name="background">
-      <image>ui-table-header.background</image>
-    </param>
-    <param name="border">
-      <border>2,4</border>
-    </param>
+    <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+    <param name="background"><image>ui-table-header.background</image></param>
+    <param name="border"><border>5,8</border></param>
+  </theme>
+  <theme name="database-name-header" ref="database-header">
+    <param name="border"><border>5,12,5,8</border></param>
+    <param name="textAlignment"><enum type="alignment">LEFT</enum></param>
   </theme>
   <theme name="database-cell" ref="label">
-    <param name="border">
-      <border>2,4</border>
-    </param>
+    <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+    <param name="background"><image>ui-table-row.background</image></param>
+    <param name="border"><border>5,8</border></param>
+  </theme>
+  <theme name="database-name-cell" ref="database-cell">
+    <param name="textAlignment"><enum type="alignment">LEFT</enum></param>
+    <param name="border"><border>5,12,5,8</border></param>
   </theme>
   <theme name="database-add" ref="button">
     <param name="border">
-      <border>3,30,3,4</border>
+      <border>3,8</border>
     </param>
     <param name="textAlignment">
-      <enum type="alignment">RIGHT</enum>
+      <enum type="alignment">CENTER</enum>
     </param>
+  </theme>
+  <theme name="admin-value-panel" ref="confirm-panel" allowWildcard="true">
+    <param name="minWidth"><int>294</int></param>
+    <param name="border"><border>18</border></param>
+    <param name="defaultGap"><dimension>8,8</dimension></param>
+    <theme name="label" ref="label">
+      <param name="textAlignment"><enum type="alignment">LEFT</enum></param>
+    </theme>
   </theme>
 </themes>

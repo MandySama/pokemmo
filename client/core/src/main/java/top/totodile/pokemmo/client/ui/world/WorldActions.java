@@ -10,7 +10,7 @@ public final class WorldActions extends Widget {
     private final Button noClip=new Button();
     private final Button speed=new Button();
     private final Button pokedex=new Button();
-    private final Button teleport=new Button("传送"),item=new Button("添加道具"),pokemon=new Button("添加宝可梦");
+    private final Button teleport=new Button("传送"),item=new Button("添加道具"),randomItems=new Button("随机道具"),pokemon=new Button("添加宝可梦");
     private int buttonWidth;
     public WorldActions(WorldScene world) {
         this(world,false);
@@ -29,13 +29,14 @@ public final class WorldActions extends Widget {
             refresh();
         });
         pokedex.setCanAcceptKeyboardFocus(false);pokedex.addCallback(()->{world.commands().execute("pokedex");refresh();});
-        for(var button:new Button[]{teleport,item,pokemon}){button.setTheme("/button");button.setCanAcceptKeyboardFocus(false);add(button);}
+        for(var button:new Button[]{teleport,randomItems,item,pokemon}){button.setTheme("/button");button.setCanAcceptKeyboardFocus(false);add(button);}
         add(noClip);add(speed);add(pokedex);refresh();
     }
     public void onTeleport(Runnable action){teleport.addCallback(action);}
     public void onItem(Runnable action){item.addCallback(action);}
+    public void onRandomItems(Runnable action){randomItems.addCallback(action);}
     public void onPokemon(Runnable action){pokemon.addCallback(action);}
-    private Button[] buttons(){return new Button[]{noClip,speed,pokedex,teleport,item,pokemon};}
+    private Button[] buttons(){return new Button[]{noClip,speed,pokedex,teleport,randomItems,item,pokemon};}
     @Override protected void applyTheme(ThemeInfo theme) {
         super.applyTheme(theme);
         buttonWidth=0;

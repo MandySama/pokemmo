@@ -64,6 +64,27 @@ public final class CharacterAppearance {
 
     /** 参考共享 addon 目录；仅复用只读索引和归档，角色选择与颜色保持独立。 */
     public CharacterAppearance copy() { return new CharacterAppearance(this); }
+    public record VanityItem(int itemId,int slot,int style,String name,int flags) {}
+    public CharacterAppearance previewVanity(VanityItem item,top.totodile.pokemmo.server.game.GameService.Appearance saved){
+        CharacterAppearance result;
+        if(saved==null){result=copy();result.reset(0);}else result=restore(saved);
+        for(Slot slot:Slot.values())if(slot.id==item.slot()){
+            var entry=entries.stream().filter(e->e.slot()==item.slot()&&e.id()==item.style()).findFirst().orElseThrow();
+            result.selected.put(slot,entry);result.colors.put(slot,-1);break;
+        }
+        return result;
+    }
+    /** MapWarpConnectionData.nW/KE0 and VanityItemDefinitionRegistry.vK0. */
+    public List<VanityItem> vanityItems(){
+        var result=new ArrayList<VanityItem>();
+        for(var entry:entries){
+            boolean itemCategory=entry.slot()==0||entry.slot()==2||entry.slot()==3||entry.slot()==4;
+            if(!itemCategory&&(entry.flags()&4)==0)continue;
+            int id=entry.slot()==1&&entry.id()>255?entry.id()-4320:entry.slot()*256+2000+entry.id();
+            if(id>0&&id<=Short.MAX_VALUE)result.add(new VanityItem(id,entry.slot(),entry.id(),entry.fallbackName(),entry.flags()));
+        }
+        return List.copyOf(result);
+    }
 
     top.totodile.pokemmo.server.game.GameService.Appearance snapshot(int gender, int skin, int region) {
         var parts = new HashMap<Integer, top.totodile.pokemmo.server.game.GameService.Part>();

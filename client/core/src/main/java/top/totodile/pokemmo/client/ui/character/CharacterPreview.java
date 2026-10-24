@@ -32,6 +32,10 @@ public final class CharacterPreview extends Widget implements AutoCloseable {
     private int mode;
     private int centerX;
     private boolean portrait;
+    private boolean tooltipRow;
+    private boolean measuringTooltip;
+    private int tooltipMinX,tooltipMinY,tooltipMaxX,tooltipMaxY;
+    private boolean tooltipMeasured;
     private int portraitScale;
     private com.badlogic.gdx.graphics.g2d.SpriteBatch worldBatch;
     private boolean worldFlip;
@@ -47,6 +51,7 @@ public final class CharacterPreview extends Widget implements AutoCloseable {
         final Texture texture;
         final Image image;
         final Map<Integer,Image> colors = new HashMap<>();
+        int[] inkBounds;
         Cached(Pixmap pixels, Texture texture, Image image) {
             this.pixels = pixels; this.texture = texture; this.image = image;
         }
@@ -71,6 +76,18 @@ public final class CharacterPreview extends Widget implements AutoCloseable {
     // 保存相对坐标，父窗口移动时预览中心随控件一起移动。
     void centerBetween(int left, int right) { centerX = (left + right) / 2 - getX(); }
     public void portrait() { portrait = true; }
+    public void tooltipRow(){tooltipRow=true;}
+    private void measureTooltip(){
+        if(tooltipMeasured)return;
+        tooltipMinX=tooltipMinY=Integer.MAX_VALUE;tooltipMaxX=tooltipMaxY=Integer.MIN_VALUE;
+        measuringTooltip=true;
+        try{for(int direction=0;direction<3;direction++)drawCharacter(0,direction,direction*84,0,3);}
+        finally{measuringTooltip=false;}
+        if(tooltipMinX==Integer.MAX_VALUE){tooltipMinX=tooltipMinY=0;tooltipMaxX=251;tooltipMaxY=107;}
+        tooltipMeasured=true;
+    }
+    @Override public int getPreferredInnerWidth(){if(!tooltipRow)return super.getPreferredInnerWidth();measureTooltip();return Math.max(324,tooltipMaxX-tooltipMinX+21);}
+    @Override public int getPreferredInnerHeight(){if(!tooltipRow)return super.getPreferredInnerHeight();measureTooltip();return tooltipMaxY-tooltipMinY+21;}
     /** TrainerCardWindow's PlayerAvatarAppearanceState.CF0(2), independent of UI platform. */
     public void portrait(int scale) { portrait = true;portraitScale=scale; }
     void drawWorld(com.badlogic.gdx.graphics.g2d.SpriteBatch batch,int x,int y,int frame,boolean flip) {
@@ -96,6 +113,15 @@ public final class CharacterPreview extends Widget implements AutoCloseable {
     @Override protected boolean handleEvent(Event event) { return false; }
     @Override protected boolean isMouseInside(Event event) { return false; }
     @Override protected void paintWidget(GUI gui) {
+        if(tooltipRow){
+            measureTooltip();
+            long time=clock.getAsLong();
+            int originX=getInnerX()+(getInnerWidth()-(tooltipMaxX-tooltipMinX+1))/2-tooltipMinX,originY=getInnerY()+10-tooltipMinY;
+            for(int direction=0;direction<3;direction++){
+                int frame=FRAMES[direction][(int)(time/160%4)];drawCharacter(0,frame,originX+direction*84,originY,3);
+            }
+            return;
+        }
         if (portrait) {
             drawCharacter(2, gender.getAsInt(), getX(), getY(), portraitScale>0?portraitScale:mobile?2:1);
             return;
@@ -156,6 +182,14 @@ public final class CharacterPreview extends Widget implements AutoCloseable {
     private void draw(Key key, int x, int y, int scale, Integer tint) {
         Cached sprite = load(key);
         if (sprite == null) return;
+        if(measuringTooltip){
+            if(sprite.inkBounds==null){
+                int left=sprite.pixels.getWidth(),top=sprite.pixels.getHeight(),right=-1,bottom=-1;
+                for(int py=0;py<sprite.pixels.getHeight();py++)for(int px=0;px<sprite.pixels.getWidth();px++)if((sprite.pixels.getPixel(px,py)&255)!=0){left=Math.min(left,px);right=Math.max(right,px);top=Math.min(top,py);bottom=Math.max(bottom,py);}
+                sprite.inkBounds=new int[]{left,top,right,bottom};
+            }
+            var b=sprite.inkBounds;if(b[2]>=b[0]){tooltipMinX=Math.min(tooltipMinX,x+b[0]*scale);tooltipMinY=Math.min(tooltipMinY,y+b[1]*scale);tooltipMaxX=Math.max(tooltipMaxX,x+(b[2]+1)*scale-1);tooltipMaxY=Math.max(tooltipMaxY,y+(b[3]+1)*scale-1);}return;
+        }
         if(worldBatch!=null) {
             float width=sprite.pixels.getWidth()*WORLD_SCALE, height=sprite.pixels.getHeight()*WORLD_SCALE;
             float left=worldFlip?worldX+width:worldX,bottom=worldY+worldHeight-height;

@@ -37,6 +37,7 @@ public final class InventoryWindow extends PlayerWindow {
     private final Widget content=new Widget(){@Override protected void layout(){layoutContent();}};
     private List<PlayerData.Item> inventory=List.of();
     public void reloadIfOpen(){if(isOpen())refresh();}
+    public int randomItemPageHeight(){return isOpen()?Math.max(1,scroll.getInnerHeight()):296;}
     private int selected,region;
     private final List<Widget[]> rows=new ArrayList<>();
     public InventoryWindow(Widget owner,ClientStrings strings,boolean mobile,InventoryItems items,IntFunction<Image> uiIcons,
@@ -50,7 +51,7 @@ public final class InventoryWindow extends PlayerWindow {
             final int index=i;tabs[i]=new Button(mobile?strings.get(TITLES[i]):""){
                 @Override public int getPreferredInnerWidth(){return mobile?super.getPreferredInnerWidth():24;}
                 @Override public int getPreferredInnerHeight(){return mobile?super.getPreferredInnerHeight():26;}
-                @Override protected void paintWidget(GUI gui){super.paintWidget(gui);Image icon=items.tabIcon(ICONS[index],((ToggleButtonModel)getModel()).isSelected());if(icon==null)icon=uiIcons.apply(ICONS[index]);if(icon!=null){int size=mobile?48:24;icon.draw(getAnimationState(),getX()+(mobile?6:14),getY()+(mobile?6:1),size,size);}}
+                @Override protected void paintWidget(GUI gui){super.paintWidget(gui);Image icon=items.tabIcon(ICONS[index],((ToggleButtonModel)getModel()).isSelected());if(icon==null)icon=uiIcons.apply(ICONS[index]);if(icon!=null){int size=mobile?48:24;icon.draw(getAnimationState(),getX()+(mobile?6:(getWidth()-size)/2),getY()+(mobile?6:1),size,size);}}
             };
             tabs[i].setTheme("/inventory-tab-empty");tabs[i].setModel(new ToggleButtonModel());tabs[i].setTooltipContent(strings.get(TITLES[i]));tabs[i].setCanAcceptKeyboardFocus(false);
             tabs[i].addCallback(()->select(index));if(mobile)content.add(tabs[i]);else tabBox.add(tabs[i]);
@@ -78,6 +79,7 @@ public final class InventoryWindow extends PlayerWindow {
             if(next!=group){if(!cells.isEmpty()){rows.add(cells.toArray(Widget[]::new));cells.clear();}group=next;
                 String title=items.groupTitle(item.itemId());if(!title.isEmpty()){Label label=new Label(title);label.setTheme(mobile?"/mobile-inventory-name":"label");grid.add(label);rows.add(new Widget[]{label});}}
             Button cell=new Button(mobile||machines?item.amount()+"x "+items.name(item.itemId()):"x"+item.amount()){
+                @Override public Object getTooltipContent(){return mobile?null:items.tooltipContent(item.itemId());}
                 @Override public int getMinWidth(){return mobile?400:machines?196:40;}
                 @Override public int getMaxWidth(){return getMinWidth();}
                 @Override public int getPreferredWidth(){return getMinWidth();}
@@ -112,7 +114,7 @@ public final class InventoryWindow extends PlayerWindow {
             itemInfo.setPosition(listX+listWidth+15,y+61);itemInfo.setSize(Math.max(0,x+width-itemInfo.getX()-15),Math.max(0,height-61));return;
         }
         tabBox.setPosition(content.getX()+10,content.getY());tabBox.setSize(Math.max(0,content.getWidth()-15),tabBox.getPreferredHeight());
-        search.setPosition(frame.getX()+330,frame.getY()+40);search.setSize(180,28);
+        search.setPosition(frame.getX()+330,frame.getY()+40);search.setSize(Math.max(0,Math.min(180,frame.getWidth()-330-32)),28);
         int top=80;scroll.setPosition(frame.getX()+20,frame.getY()+top);scroll.setSize(Math.max(0,frame.getWidth()-30),Math.max(0,frame.getHeight()-top-10));
     }
     private void layoutInfo(){

@@ -2,6 +2,8 @@
 <themes>
   <!-- TrainerCardWindow, MailWindow and the corresponding official theme resources. -->
   <theme name="trainercard" ref="resizableframe">
+    <param name="fadeDurationShow"><int>200</int></param>
+    <param name="fadeDurationHide"><int>200</int></param>
     <param name="background"><image>none</image></param>
     <param name="border"><border>30,0,0,0</border></param>
     <param name="titleAreaTop"><int>0</int></param>
@@ -15,7 +17,7 @@
   </theme>
   <theme name="player-trainer-name" ref="label"><param name="font"><font>trainer-name</font></param></theme>
   <theme name="player-trainer-text" ref="label"><param name="font"><font>main</font></param></theme>
-  <theme name="player-trainer-date" ref="player-trainer-text"><param name="textAlignment"><enum type="alignment">RIGHT</enum></param></theme>
+  <theme name="player-trainer-date" ref="player-trainer-text"><param name="textAlignment"><enum type="alignment">CENTER</enum></param></theme>
   <theme name="mail-window" ref="resizableframe">
     <param name="border"><border>30,10,10,10</border></param>
     <param name="fadeColorInactive"><color>#FFFFFFFF</color></param>

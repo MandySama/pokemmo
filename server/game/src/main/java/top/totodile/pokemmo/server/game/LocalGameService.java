@@ -34,6 +34,7 @@ public final class LocalGameService implements GameService {
                 opened.execute("CREATE TABLE IF NOT EXISTS character_pokedex_state (character_id TEXT PRIMARY KEY REFERENCES characters(id) ON DELETE CASCADE, unlocked INTEGER NOT NULL)");
                 PlayerDataStore.initialize(opened);
                 PokemonStore.initialize(opened);
+                PokedexStore.initialize(opened);
                 database = opened;
             } catch (RuntimeException | Error error) {
                 try { opened.close(); }
@@ -113,11 +114,11 @@ public final class LocalGameService implements GameService {
                 String[] row=states.get(0);
                 state=new TravelState(Integer.parseInt(row[0])!=0,Float.parseFloat(row[1]),Integer.parseInt(row[2])!=0);
             }
-            var pokedex=db().query("SELECT unlocked FROM character_pokedex_state WHERE character_id=?",characterId);
+            var pokedex=new PokedexStore(db()).load(characterId);
             int money=Integer.parseInt(db().query("SELECT money FROM characters WHERE id=?",characterId).get(0)[0]);
             WorldInfo defaults=WorldInfo.defaults();
             playStarted.putIfAbsent(characterId,System.nanoTime());
-            return new Entry(character,position,state,pokedex.isEmpty()?PokedexState.defaults():new PokedexState(Integer.parseInt(pokedex.get(0)[0])!=0),
+            return new Entry(character,position,state,pokedex,
                     new WorldInfo(money,defaults.channel(),defaults.timeOrigin()),region);
         },worker);
     }
@@ -156,6 +157,18 @@ public final class LocalGameService implements GameService {
         },worker);
     }
     @Override public List<ItemTemplate> itemTemplates(){return itemTemplates.values().stream().sorted(Comparator.comparingInt(ItemTemplate::id)).toList();}
+    @Override public CompletionStage<List<PlayerData.Item>> replaceInventory(Selection selection,String id,Map<Integer,Integer> items){
+        var replacement=Map.copyOf(items);
+        return CompletableFuture.supplyAsync(()->{
+            var store=playerData(selection,id);
+            for(var entry:replacement.entrySet()){
+                var template=itemTemplates.get(entry.getKey());
+                if(template==null||entry.getKey()<1||entry.getKey()>Short.MAX_VALUE)throw new IllegalArgumentException("Unknown item id: "+entry.getKey());
+                if(entry.getValue()<1||entry.getValue()>Math.min(Short.MAX_VALUE,template.maximumStack()))throw new IllegalArgumentException("Invalid item amount: "+entry.getValue());
+            }
+            return store.replaceInventory(id,replacement);
+        },worker);
+    }
     @Override public CompletionStage<PokemonData.Pokemon> addPokemon(Selection selection,String id,int species,int level){
         return CompletableFuture.supplyAsync(()->{playerData(selection,id);return new PokemonStore(db()).add(id,speciesTemplates.get(species),level,new Random());},worker);
     }
@@ -174,12 +187,7 @@ public final class LocalGameService implements GameService {
     @Override public CompletionStage<Void> savePokedexState(Selection selection,String characterId,PokedexState state) {
         Objects.requireNonNull(state);
         return CompletableFuture.runAsync(() -> {
-            identity(selection);
-            db().transaction(() -> {
-                if(db().query("SELECT id FROM characters WHERE id=? AND account=? AND server=?",characterId,
-                        selection.session().username(),selection.server().id()).isEmpty())throw new Rejected(Failure.NOT_FOUND);
-                db().execute("INSERT OR REPLACE INTO character_pokedex_state VALUES (?,?)",characterId,state.unlocked()?1:0);
-            });
+            playerData(selection,characterId);new PokedexStore(db()).save(characterId,state);
         },worker);
     }
     private PlayerDataStore playerData(Selection selection,String characterId) {

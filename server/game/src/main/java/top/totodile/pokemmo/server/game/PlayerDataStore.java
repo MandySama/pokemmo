@@ -23,6 +23,13 @@ final class PlayerDataStore {
             result.add(new PlayerData.Item(row[0],Integer.parseInt(row[1]),Integer.parseInt(row[2]),Integer.parseInt(row[3])));
         return List.copyOf(result);
     }
+    List<PlayerData.Item> replaceInventory(String owner,Map<Integer,Integer> items){
+        db.transaction(()->{
+            db.execute("DELETE FROM owned_item WHERE owner_id=? AND inventory_id=1",owner);
+            for(var item:items.entrySet())db.execute("INSERT INTO owned_item(item_id,owner_id,item_index_id,item_amount,inventory_id,region) VALUES (?,?,?,?,1,-1)",UUID.randomUUID().toString(),owner,item.getKey(),item.getValue());
+        });
+        return inventory(owner);
+    }
     PlayerData.Item createItem(String owner,int itemId,int amount){
         if(amount<1||amount>Short.MAX_VALUE)throw new IllegalArgumentException("Item amount must be an integer from 1 to 32767.");
         var result=new PlayerData.Item[1];db.transaction(()->{
@@ -38,8 +45,8 @@ final class PlayerDataStore {
     }
     PlayerData.Trainer trainer(GameService.Character character){
         db.execute("INSERT OR IGNORE INTO character_trainer(character_id) VALUES (?)",character.id());
-        var row=db.query("SELECT c.money,t.battle_points,t.played_seconds,t.caught,t.obedience,t.badges FROM characters c JOIN character_trainer t ON t.character_id=c.id WHERE c.id=?",character.id()).get(0);
-        return new PlayerData.Trainer(character,Integer.parseInt(row[0]),Integer.parseInt(row[1]),Long.parseLong(row[2]),Integer.parseInt(row[3]),Integer.parseInt(row[4]),Integer.parseInt(row[5]));
+        var row=db.query("SELECT c.money,t.battle_points,t.played_seconds,t.obedience,t.badges FROM characters c JOIN character_trainer t ON t.character_id=c.id WHERE c.id=?",character.id()).get(0);
+        return new PlayerData.Trainer(character,Integer.parseInt(row[0]),Integer.parseInt(row[1]),Long.parseLong(row[2]),(int)new PokedexStore(db).load(character.id()).count(1),Integer.parseInt(row[3]),Integer.parseInt(row[4]));
     }
     void addPlayedSeconds(String id,long seconds){
         if(seconds<=0)return;

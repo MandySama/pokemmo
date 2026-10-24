@@ -15,10 +15,10 @@ final class AdminValueDialog extends PopupWindow {
     private final Runnable onClose;
     private IntConsumer accept;
     AdminValueDialog(Widget owner,ClientStrings strings,boolean mobile,Runnable onClose){
-        super(owner);this.onClose=onClose;setTheme("/confirm-widget");setCloseOnClickedOutside(false);panel.setTheme("/confirm-panel");keyboard=new PlayerTextInput(mobile,this::isOpen);input=keyboard.field(3,false);okay=new Button(strings.get(52));cancel=new Button(strings.get(53));
+        super(owner);this.onClose=onClose;setTheme("/confirm-widget");setCloseOnClickedOutside(false);panel.setTheme("/admin-value-panel");keyboard=new PlayerTextInput(mobile,this::isOpen);input=keyboard.field(3,false);okay=new Button(strings.get(52));cancel=new Button(strings.get(53));
         okay.addCallback(this::submit);cancel.addCallback(this::closePopup);
-        panel.setHorizontalGroup(panel.createParallelGroup(message,input).addGroup(panel.createSequentialGroup(okay,cancel)));
-        panel.setVerticalGroup(panel.createSequentialGroup(message,input).addGroup(panel.createParallelGroup(okay,cancel)));add(panel);
+        panel.setHorizontalGroup(panel.createParallelGroup(message,input,okay,cancel));
+        panel.setVerticalGroup(panel.createSequentialGroup(message,input,okay,cancel));add(panel);
     }
     void show(String prompt,IntConsumer accept){this.accept=accept;message.setText(prompt);input.setText("100");if(openPopup()){positionWindow();input.requestKeyboardFocus();input.setSelection(0,3);}}
     private void submit(){String value=input.getText().strip();try{int number=Integer.parseInt(value);closePopup();accept.accept(number);}catch(NumberFormatException ignored){input.requestKeyboardFocus();}}

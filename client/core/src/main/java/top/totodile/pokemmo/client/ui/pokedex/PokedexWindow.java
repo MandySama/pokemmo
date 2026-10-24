@@ -110,7 +110,7 @@ public final class PokedexWindow extends ClientWindow implements AutoCloseable {
                 images=new PokedexImages(new BwPokemonSprites(dex),renderer,resources);
                 grid=new PokedexGrid(dex,images,mobile,this::select);scroll.setContent(grid);
                 details=new PokedexDetails(dex,images,strings,mobile,this::select,this::back);detailContent.add(details);
-                details.setUnlocked(filter.unlocked);
+                details.setUnlocked(filter.state.unlocked());
                 advancedPage=new PokedexAdvanced(dex,strings,mobile,filter,this::field,()->{
                     advanced=false;advancedPage.setVisible(false);listing.setVisible(true);search.setText(filter.query);hideKeyboard();refresh();invalidateLayout();
                 });advancedPage.setVisible(false);content.add(advancedPage);
@@ -134,13 +134,16 @@ public final class PokedexWindow extends ClientWindow implements AutoCloseable {
     private void refresh(){
         if(grid==null)return;scroll.cancelTouch();grid.filter(filter);scroll.setScrollPositionY(0);
         long eligible=dex.all().stream().filter(s->filter.region<0||dex.number(s.id(),filter.region)>0).count();
-        for(int i=0;i<counts.length;i++)counts[i].value(filter.unlocked&&i<4?eligible:0,i>=4?0:eligible);
+        for(int i=0;i<counts.length;i++){final int type=i;long count=i>=4?0:dex.all().stream().filter(s->filter.region<0||dex.number(s.id(),filter.region)>0).filter(s->filter.state.has(s.id(),type)).count();counts[i].value(count,i>=4?0:eligible);}
     }
     /** Display the active character's persisted all-unlocked / empty local dex state. */
     public void setUnlocked(boolean value){
-        if(filter.unlocked==value)return;filter.unlocked=value;
-        if(details!=null)details.setUnlocked(value||ownedSpecies.contains(details.speciesId()));
-        if(detail)detailFrame.setTitle(String.format(Locale.ROOT,"%s %03d %s",strings.get(1705),details.speciesId(),value||ownedSpecies.contains(details.speciesId())?dex.name(details.speciesId()):"???"));
+        setState(new top.totodile.pokemmo.server.game.GameService.PokedexState(value));
+    }
+    public void setState(top.totodile.pokemmo.server.game.GameService.PokedexState state){
+        if(filter.state.equals(state))return;filter.state=state;
+        if(details!=null)details.setUnlocked(state.has(details.speciesId(),0)||ownedSpecies.contains(details.speciesId()));
+        if(detail)detailFrame.setTitle(String.format(Locale.ROOT,"%s %03d %s",strings.get(1705),details.speciesId(),state.has(details.speciesId(),0)||ownedSpecies.contains(details.speciesId())?dex.name(details.speciesId()):"???"));
         refresh();
     }
     public void setOwnedSpecies(Set<Integer> ids){ownedSpecies=Set.copyOf(ids);if(detail)select(details.speciesId());}
@@ -156,7 +159,7 @@ public final class PokedexWindow extends ClientWindow implements AutoCloseable {
         closePopup();
     }
     private void select(int id){
-        detail=true;details.setUnlocked(filter.unlocked||ownedSpecies.contains(id));details.show(id);detailFrame.setTitle(String.format(Locale.ROOT,"%s %03d %s",strings.get(1705),id,filter.unlocked||ownedSpecies.contains(id)?dex.name(id):"???"));
+        detail=true;details.setUnlocked(filter.state.has(id,0)||ownedSpecies.contains(id));details.show(id);detailFrame.setTitle(String.format(Locale.ROOT,"%s %03d %s",strings.get(1705),id,filter.state.has(id,0)||ownedSpecies.contains(id)?dex.name(id):"???"));
         detailFrame.setVisible(true);removeChild(detailFrame);add(detailFrame);hideKeyboard();requestKeyboardFocus(null);requestKeyboardFocus();invalidateLayout();
     }
     public void showSpecies(int id){if(open())select(id);}

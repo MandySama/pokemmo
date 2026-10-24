@@ -219,6 +219,9 @@
       <image>ui-button.background-green</image>
     </param>
   </theme>
+  <theme name="monsterdex-button-caught" ref="monsterdex-button" allowWildcard="true">
+    <param name="background"><image>ui-button.background-blue</image></param>
+  </theme>
   <theme name="pokedex-value-centered" ref="label-value-dex">
     <param name="textAlignment">
       <enum type="alignment">CENTER</enum>

@@ -39,8 +39,15 @@ public interface GameService extends AutoCloseable {
             if(!Float.isFinite(speed) || speed<=0 || speed>16)throw new IllegalArgumentException("Invalid character speed");
         }
     }
-    /** Local Pokédex currently exposes the all-unlocked / empty debug states. */
-    record PokedexState(boolean unlocked) {
+    /** Reference SendLoadDexPacket: seen, owned, caught and caught-alpha flags per species. */
+    record PokedexState(Map<Integer,Integer> entries) {
+        public static final int LAST_SPECIES=649;
+        public PokedexState {entries=Map.copyOf(entries);for(var entry:entries.entrySet())if(entry.getKey()<1||entry.getKey()>LAST_SPECIES||entry.getValue()<1||entry.getValue()>15)throw new IllegalArgumentException("Invalid Pokédex record");}
+        public PokedexState(boolean unlocked){this(all(unlocked));}
+        private static Map<Integer,Integer> all(boolean unlocked){var result=new HashMap<Integer,Integer>();if(unlocked)for(int id=1;id<=LAST_SPECIES;id++)result.put(id,15);return result;}
+        public boolean has(int species,int type){return (entries.getOrDefault(species,0)&(1<<type))!=0;}
+        public long count(int type){return entries.values().stream().filter(flags->(flags&(1<<type))!=0).count();}
+        public boolean unlocked(){return entries.size()==LAST_SPECIES&&entries.values().stream().allMatch(flags->flags==15);}
         public static PokedexState defaults() { return new PokedexState(false); }
     }
     /** CharacterData money/channel and SendJoinGameWorldResponsePacket's game clock origin. */
@@ -67,6 +74,7 @@ public interface GameService extends AutoCloseable {
     CompletionStage<Void> savePosition(Selection selection, String characterId, Position position);
     default CompletionStage<Void> teleport(Selection selection,String characterId,int region,Position position){return java.util.concurrent.CompletableFuture.failedFuture(new UnsupportedOperationException());}
     default CompletionStage<PlayerData.Item> createItem(Selection selection,String characterId,int itemId,int amount){return java.util.concurrent.CompletableFuture.failedFuture(new UnsupportedOperationException());}
+    default CompletionStage<List<PlayerData.Item>> replaceInventory(Selection selection,String characterId,java.util.Map<Integer,Integer> items){return java.util.concurrent.CompletableFuture.failedFuture(new UnsupportedOperationException());}
     default CompletionStage<PokemonData.Pokemon> addPokemon(Selection selection,String characterId,int species,int level){return java.util.concurrent.CompletableFuture.failedFuture(new UnsupportedOperationException());}
     default List<ItemTemplate> itemTemplates(){return List.of();}
     /** Local service consumes the same loaded ROM/data.pak registry as the client. */

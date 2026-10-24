@@ -65,6 +65,7 @@ public final class BwPokemonSprites {
     public Pixels item(int id) throws IOException {
         return item(id,false);
     }
+    public boolean hasItemIcon(int id){int index=id-5000;return index>0&&index<627&&itemTiles[index]!=0;}
     /** BwTrainerModelLoader.CR / MapWeatherSandstormParticleProvider: normal and gray variants. */
     public Pixels item(int id,boolean gray) throws IOException {
         int index=id-5000;

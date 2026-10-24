@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <themes>
+  <!-- Keep the item's quantity anchored while the button changes pressed/menu state. -->
+  <fontDef name="inventory-quantity" ref="pb-dark" color="#FFFFFF">
+    <fontParam if="disabled" color="#A9A9A9" />
+    <fontParam if="pressed" offsetX="0" offsetY="0" />
+  </fontDef>
+  <theme name="inventory-fashion-tooltip" ref="dialoglayout" allowWildcard="true">
+    <param name="minWidth"><int>350</int></param>
+    <param name="border"><border>5</border></param>
+    <theme name="label" ref="label"><param name="font"><font>tooltip-font</font></param></theme>
+  </theme>
   <!-- Adapted from D:/PokeMMO/data/themes/default/ui/inventory.xml. -->
   <theme name="inventory-tabbedframe" ref="resizableframe">
     <param name="background"><image>ui-inner-frame-tab2.background</image></param>
@@ -18,7 +28,7 @@
     <param name="textAlignment"><enum type="alignment">BOTTOM</enum></param>
   </theme>
   <theme name="inventory-button" ref="button">
-    <param name="font"><font>pb-dark</font></param>
+    <param name="font"><font>inventory-quantity</font></param>
     <param name="background"><image>ui-inputbox-mixed.background</image></param>
     <param name="border"><border>1,1,1,0</border></param>
     <param name="textAlignment"><enum type="alignment">BOTTOM</enum></param>

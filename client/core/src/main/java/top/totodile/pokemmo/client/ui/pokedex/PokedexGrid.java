@@ -15,7 +15,6 @@ final class PokedexGrid extends Widget {
     private List<BwPokedex.Species> entries=List.of();
     private int columns=12;
     private int region=-1;
-    private boolean unlocked;
     PokedexGrid(BwPokedex dex,PokedexImages images,boolean mobile,IntConsumer selected) {
         this.dex=dex;this.images=images;this.mobile=mobile;this.selected=selected;setTheme("");
         filter("");
@@ -25,21 +24,21 @@ final class PokedexGrid extends Widget {
     }
     void filter(PokedexFilter filter) {
         region=filter.region;
-        unlocked=filter.unlocked;
         entries=dex.search(filter.query).stream().filter(s->filter.matches(dex,s))
                 .sorted(java.util.Comparator.comparingInt(s->dex.number(s.id(),region))).toList();removeAllChildren();
         for(var species:entries) {
             int id=species.id();
+            boolean seen=filter.state.has(id,0),owned=filter.state.has(id,1),caught=filter.state.has(id,2);
             Button card=new Button(String.format(Locale.ROOT,"%03d",dex.number(id,region))) {
                 @Override protected void paintWidget(GUI gui) {
                     int size=mobile?72:36;
                     // TrainerBadgeTagLabel offsets the 36px icon by (5, -6); the number stays bottom aligned.
-                    images.icon(id,unlocked).draw(getAnimationState(),getX()+(getWidth()-size)/2,getY()+(mobile?5:-6),size,size);
+                    images.icon(id,seen).draw(getAnimationState(),getX()+(getWidth()-size)/2,getY()+(mobile?5:-6),size,size);
                     super.paintWidget(gui);
                 }
             };
-            card.setTheme(unlocked?"/monsterdex-button-caught-ot":"/monsterdex-button");card.setCanAcceptKeyboardFocus(false);
-            card.setTooltipContent(unlocked?dex.name(id):"???");card.setTooltipDelay(200); // TrainerBadgeTagLabel.Bb(200).
+            card.setTheme(caught?"/monsterdex-button-caught-ot":owned?"/monsterdex-button-caught":"/monsterdex-button");card.setCanAcceptKeyboardFocus(false);
+            card.setTooltipContent(seen?dex.name(id):"???");card.setTooltipDelay(200); // TrainerBadgeTagLabel.Bb(200).
             card.addCallback(()->selected.accept(id));add(card);
         }
         invalidateLayout();

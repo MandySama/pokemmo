@@ -267,7 +267,7 @@ public final class SettingsWindow extends ClientWindow {
         if (mobile) { page.key(1363, "Page Down"); page.key(1364, "Page Up"); }
         for (int i = 1; i <= 9; i++) page.keyRow(strings.get(1306) + " " + i + ":", "hotbar"+i, Integer.toString(i));
         int[] remaining = {1309,1308,1307,1,1310,1312,1313,8000,1314,1311};
-        String[] remainingKeys = {"M","B","C","N","D","J","H","Space","F12","F11"};
+        String[] remainingKeys = {"M","B","C","N","","J","H","Space","F12","F11"};
         for (int i = 0; i < remaining.length; i++) page.key(remaining[i], remainingKeys[i]);
     }
 
@@ -375,9 +375,9 @@ public final class SettingsWindow extends ClientWindow {
             String property = "client.controls.gdx." + name;
             keyBindings.put(button,property);
             button.addCallback(() -> pendingKey = button);
-            bind(property, () -> Integer.toString(com.badlogic.gdx.Input.Keys.valueOf(button.getText())), value -> {
+            bind(property, () -> button.getText().isEmpty()?"0":Integer.toString(com.badlogic.gdx.Input.Keys.valueOf(button.getText())), value -> {
                 try { int code=Integer.parseInt(value); String text=com.badlogic.gdx.Input.Keys.toString(code);
-                    button.setText(text == null || code < 0 || code > 255 ? key : text); }
+                    button.setText(code==0?"":text == null || code < 0 || code > 255 ? key : text); }
                 catch (NumberFormatException error) { button.setText(key); }
             });
             row(title,value(button));

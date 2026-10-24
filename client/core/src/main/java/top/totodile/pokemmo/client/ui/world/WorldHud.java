@@ -37,7 +37,7 @@ public final class WorldHud extends Widget {
         int[] texts={1100,1101,1126,1161,1,8000,2353,1116,1102};
         int[] ids={5436,5432,5437,5001,5431,5471,5452,5459,5626};
         String[] bindings={"bag","trainer","friendlist",null,"codex",null,null,null,"gamemenu"};
-        int[] keys={Input.Keys.B,Input.Keys.C,Input.Keys.M,0,Input.Keys.N,0,0,0,Input.Keys.D};
+        int[] keys={Input.Keys.B,Input.Keys.C,Input.Keys.M,0,Input.Keys.N,0,0,0,0};
         // ChatBadgePrefixLabel: name + configured key, centred above the shortcut.
         class ShortcutButton extends Button implements GUI.TooltipPositionAdjuster {
             private final int index;

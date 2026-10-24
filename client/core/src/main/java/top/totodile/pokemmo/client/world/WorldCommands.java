@@ -7,14 +7,15 @@ import top.totodile.pokemmo.server.game.GameService.PokedexState;
 public final class WorldCommands {
     private final PlayerMotion motion;
     private final Consumer<PokedexState> savePokedex;
-    private boolean pokedexUnlocked;
+    private PokedexState pokedexState;
     private Runnable openPc;
     public void onPc(Runnable action){openPc=action;}
     public WorldCommands(PlayerMotion motion) { this(motion,PokedexState.defaults(),state -> {}); }
     public WorldCommands(PlayerMotion motion,PokedexState state,Consumer<PokedexState> savePokedex) {
-        this.motion=motion;this.pokedexUnlocked=state.unlocked();this.savePokedex=savePokedex;
+        this.motion=motion;this.pokedexState=state;this.savePokedex=savePokedex;
     }
-    public boolean pokedexUnlocked(){return pokedexUnlocked;}
+    public boolean pokedexUnlocked(){return pokedexState.unlocked();}
+    public PokedexState pokedexState(){return pokedexState;}
     public String execute(String line) {
         String command=line.trim().replaceFirst("^/+","");
         String[] args=command.split("\\s+");
@@ -27,12 +28,12 @@ public final class WorldCommands {
                 case "pokedex":
                     if(args.length>2||args.length==2&&!args[1].equalsIgnoreCase("on")&&!args[1].equalsIgnoreCase("off"))
                         return "用法: pokedex [on|off]";
-                    boolean unlocked=args.length==1?!pokedexUnlocked:args[1].equalsIgnoreCase("on");
-                    if(unlocked!=pokedexUnlocked){
+                    boolean unlocked=args.length==1?!pokedexState.unlocked():args[1].equalsIgnoreCase("on");
+                    if(unlocked!=pokedexState.unlocked()){
                         savePokedex.accept(new PokedexState(unlocked));
-                        pokedexUnlocked=unlocked;
+                        pokedexState=new PokedexState(unlocked);
                     }
-                    return "图鉴: "+(pokedexUnlocked?"全解锁":"全零");
+                    return "图鉴: "+(pokedexState.unlocked()?"全解锁":"全零");
                 case "noclip":
                     if(args.length>2 || args.length==2 && !args[1].equalsIgnoreCase("on") && !args[1].equalsIgnoreCase("off"))
                         return "用法: noclip [on|off]";

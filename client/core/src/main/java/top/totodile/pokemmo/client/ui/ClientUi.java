@@ -88,6 +88,8 @@ public final class ClientUi implements Disposable {
     private final java.util.Set<Integer> playerKeys=new java.util.HashSet<>();
     private int repeatingPlayerKey;
     private long playerRepeatAt;
+    private boolean generatingRandomItems;
+    private GameService.PokedexState displayedPokedexState;
     private char suppressedPlayerCharacter;
     private final CharacterCreationWindow characterCreation;
     private final CharacterDeleteWindow characterDelete;
@@ -145,10 +147,12 @@ public final class ClientUi implements Disposable {
             pokemon.removeParty(party);worldScene.commands().onPc(null);root.removeChild(worldHud);root.removeChild(worldActions);
         }
         playerEntry=entry;enteringWorld=false;
-        pokedex.setUnlocked(world.commands().pokedexUnlocked());
+        inventoryItems.previewAppearance(entry==null?null:entry.character().appearance());
+        displayedPokedexState=world.commands().pokedexState();pokedex.setState(displayedPokedexState);
         worldActions=new top.totodile.pokemmo.client.ui.world.WorldActions(world,mobile);
         worldActions.onTeleport(()->openWorldTool(WorldToolsWindow.Tool.TELEPORT));
         worldActions.onItem(()->openWorldTool(WorldToolsWindow.Tool.ITEM));
+        worldActions.onRandomItems(this::generateRandomItems);
         worldActions.onPokemon(()->openWorldTool(WorldToolsWindow.Tool.POKEMON));
         worldScene=world;
         worldHud=new top.totodile.pokemmo.client.ui.world.WorldHud(world,strings,mobile,resources.preferences(),this::itemIcon,
@@ -318,9 +322,8 @@ public final class ClientUi implements Disposable {
             catch(IOException failure){Gdx.app.error("inventory","Cannot load item ROM",failure);entryError.show(strings.format(1186,strings.get(92)));return;}
             playerRequest((selection,id)->gameService.inventory(selection,id),completed);
         },this::restoreWorldInput);
-        trainerCard=new TrainerCardWindow(root,resources,renderer,mobile,characterCreation::savedAppearance,id->{
-            try{return itemIcon(id);}catch(RuntimeException absent){return inventoryItems.icon(id);}
-        },completed->playerRequest((selection,id)->gameService.trainer(selection,id),completed),this::restoreWorldInput);
+        trainerCard=new TrainerCardWindow(root,resources,renderer,mobile,characterCreation::savedAppearance,inventoryItems::icon,
+                completed->playerRequest((selection,id)->gameService.trainer(selection,id),completed),this::restoreWorldInput);
         mail=new MailWindow(root,resources,renderer,mobile,gameService,mobileBackground,this::restoreWorldInput);
         pokemon=new PokemonController(resources,renderer,mobile,gameService,text->entryError.show(text),id->{pokedex.showSpecies(id);restoreWorldInput();});
         storage=new PokemonStorageWindow(root,pokemon,mobile,this::restoreWorldInput);
@@ -556,7 +559,7 @@ public final class ClientUi implements Disposable {
         int bag=Integer.parseInt(resources.preferences().get("client.controls.gdx.bag",Integer.toString(Input.Keys.B)));
         int trainer=Integer.parseInt(resources.preferences().get("client.controls.gdx.trainer",Integer.toString(Input.Keys.C)));
         int dex=Integer.parseInt(resources.preferences().get("client.controls.gdx.codex",Integer.toString(Input.Keys.N)));
-        int menu=Integer.parseInt(resources.preferences().get("client.controls.gdx.gamemenu",Integer.toString(Input.Keys.D)));
+        int menu=Integer.parseInt(resources.preferences().get("client.controls.gdx.gamemenu","0"));
         if(key<=0||key!=bag&&key!=trainer&&key!=dex&&key!=menu)return false;
         if(repeated||playerKeys.add(key)){
             if(!repeated){repeatingPlayerKey=key;playerRepeatAt=gui.getCurrentTime()+250;}
@@ -594,6 +597,23 @@ public final class ClientUi implements Disposable {
         if(playerEntry==null||gameService==null)return;
         pokemon.closeMenu();pokemon.cancelDrag();while(worldHud.closeOverlay()){}storage.open();restoreWorldInput();
     }
+    private void generateRandomItems(){
+        if(generatingRandomItems||playerEntry==null||gameService==null)return;
+        final java.util.List<top.totodile.pokemmo.client.ui.inventory.RandomInventoryItems.Grant> grants;
+        try{
+            inventoryItems.gameData(gameService);
+            grants=top.totodile.pokemmo.client.ui.inventory.RandomInventoryItems.sample(inventoryItems,inventory.randomItemPageHeight(),new java.util.Random());
+            if(grants.isEmpty())throw new IllegalStateException("No available item templates for random inventory");
+        }catch(Exception error){Gdx.app.error("inventory","Cannot prepare random items",error);entryError.show(strings.get(2103));return;}
+        var entry=playerEntry;var selection=controller.selection();generatingRandomItems=true;
+        var replacement=new java.util.LinkedHashMap<Integer,Integer>();
+        for(var grant:grants)replacement.put(grant.itemId(),grant.amount());
+        gameService.replaceInventory(selection,entry.character().id(),replacement).whenComplete((ignored,error)->Gdx.app.postRunnable(()->{
+            generatingRandomItems=false;if(disposed||playerEntry!=entry)return;
+            if(error!=null){Gdx.app.error("inventory","Cannot generate random items",error);entryError.show(strings.get(2103));}
+            else inventory.reloadIfOpen();
+        }));
+    }
     private void openWorldTool(WorldToolsWindow.Tool tool){
         if(playerEntry==null||gameService==null)return;
         pokemon.closeMenu();while(worldHud.closeOverlay()){}worldTools.show(tool,playerEntry.region(),worldScene.movement().position());restoreWorldInput();
@@ -607,7 +627,7 @@ public final class ClientUi implements Disposable {
         if(values[0]<0||values[0]>4)throw new IllegalArgumentException("Unknown region: "+values[0]);
         var old=worldScene;var position=new GameService.Position(values[1],values[2],values[3],values[4],old.movement().position().direction());
         var state=new GameService.TravelState(old.movement().noClip(),old.motion().speed(),old.motion().bicycle());
-        var next=new GameService.Entry(entry.character(),position,state,new GameService.PokedexState(old.commands().pokedexUnlocked()),old.worldInfo(),values[0]);
+        var next=new GameService.Entry(entry.character(),position,state,old.commands().pokedexState(),old.worldInfo(),values[0]);
         enteringWorld=true;old.setInputBlocked(true);
         java.util.concurrent.CompletionStage<Void> operation;
         try{operation=teleportWorld.apply(next);}catch(RuntimeException failure){enteringWorld=false;throw failure;}
@@ -813,7 +833,8 @@ public final class ClientUi implements Disposable {
     public void draw(float width,float height,float x,float y) {
         if(worldActions!=null) {
             repeatPlayerShortcut();
-            pokedex.setUnlocked(worldScene.commands().pokedexUnlocked());
+            var dexState=worldScene.commands().pokedexState();
+            if(!dexState.equals(displayedPokedexState)){displayedPokedexState=dexState;pokedex.setState(dexState);trainerCard.reloadIfOpen();}
             worldActions.update();
             worldHud.update();
             worldScene.setInputBlocked(enteringWorld||worldHud.menuOpen()||worldHud.editingChat()||playerWindowsOpen()||pokemon.hasMenu()||entryError.isOpen()||pokedex.isOpen()||pokedex.showingMessage()||settings.blocksInput()||worldLogout.isOpen()||(exitConfirmation!=null&&exitConfirmation.isOpen()));

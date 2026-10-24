@@ -266,7 +266,7 @@ public final class ClientResources implements Function<String, FileHandle>, Auto
             }
             // 参考 pd：道具图标位于包内 sprites/itemicons/，与 data/ 下的主题覆盖分别解析。
             Function<String,FileHandle> root=path -> {
-                if(path.startsWith("data/sprites/itemicons/")) {
+                if(path.equals("data/sprites/itemicons")||path.startsWith("data/sprites/itemicons/")) {
                     FileHandle icon=files.apply(withoutData(path));
                     if(icon.exists())return icon;
                 }

@@ -5,6 +5,9 @@ import de.matthiasmann.twl.*;
 /** Shared host for the reference's regular draggable PC / full-screen Android frames. */
 public abstract class PlayerWindow extends ClientWindow {
     protected final ResizableFrame frame=new ResizableFrame(){
+        @Override protected boolean handleEvent(Event event){
+            return handleFrameEvent(event)||super.handleEvent(event);
+        }
         @Override protected void paintBackground(GUI gui){
             if(mobile&&fullScreen()&&gui.getRenderer() instanceof top.totodile.pokemmo.client.twl.GdxTwlRenderer renderer)renderer.drawScreenBackground(getBackground(),getAnimationState());
             else super.paintBackground(gui);
@@ -23,6 +26,7 @@ public abstract class PlayerWindow extends ClientWindow {
         if(openPopup()){width=-1;positionWindow();frame.setHardVisible(true);refresh();}
     }
     protected abstract void refresh();
+    protected boolean handleFrameEvent(Event event){return false;}
     protected boolean fullScreen(){return mobile;}
     public void positionWindow(){
         if(!isOpen())return;
