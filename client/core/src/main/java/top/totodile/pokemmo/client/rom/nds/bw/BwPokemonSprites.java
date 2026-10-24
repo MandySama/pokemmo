@@ -21,8 +21,7 @@ public final class BwPokemonSprites {
     public BwPokemonSprites(BwPokedex dex) throws IOException {
         this.dex=dex;icons=dex.archive("a/0/0/7");
         iconCells=icons.read(2);iconColors=icons.read(0);
-        byte[] h=RomReader.read(dex.rom(),0,0x40);
-        byte[] arm=decompressArm(RomReader.read(dex.rom(),i32(h,0x20),i32(h,0x2c)));
+        byte[] arm=arm9(dex.rom());
         byte[] signature={0,17,17,17,0,0,0,0,34,34,17,17,0,17,34,34};
         int table=-1;
         for(int i=0;i<=arm.length-712;i++) {
@@ -38,6 +37,9 @@ public final class BwPokemonSprites {
             for(int id=1;id<627;id++){itemTiles[id]=u16(arm,p+16+(id-1)*4);itemPalettes[id]=u16(arm,p+18+(id-1)*4);}
             break;
         }
+    }
+    public static byte[] arm9(top.totodile.pokemmo.client.rom.RomInfo rom)throws IOException{
+        byte[] h=RomReader.read(rom,0,0x40);return decompressArm(RomReader.read(rom,i32(h,0x20),i32(h,0x2c)));
     }
     public Pixels icon(int id) throws IOException {
         dex.get(id);
@@ -61,12 +63,20 @@ public final class BwPokemonSprites {
         return front(id,0,false);
     }
     public Pixels item(int id) throws IOException {
+        return item(id,false);
+    }
+    /** BwTrainerModelLoader.CR / MapWeatherSandstormParticleProvider: normal and gray variants. */
+    public Pixels item(int id,boolean gray) throws IOException {
         int index=id-5000;
         if(index<1||index>=627||itemTiles[index]==0)throw new IOException("Missing BW item "+id);
         if(items==null){items=dex.archive("a/0/2/5");itemCells=items.read(1);}
         Pixels full=compose(items.read(itemTiles[index]),items.read(itemPalettes[index]),itemCells,0,32,0);
         int[] cropped=new int[24*24];
         for(int y=0;y<24;y++)System.arraycopy(full.rgba(),y*32,cropped,y*24,24);
+        if(gray)for(int i=0;i<cropped.length;i++){
+            int rgba=cropped[i],average=((rgba>>>24)+(rgba>>>16&255)+(rgba>>>8&255))/3;
+            cropped[i]=average<<24|average<<16|average<<8|rgba&255;
+        }
         return new Pixels(24,24,cropped);
     }
     public Pixels front(int id,int form,boolean shiny) throws IOException {

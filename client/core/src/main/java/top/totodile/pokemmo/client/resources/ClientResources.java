@@ -27,6 +27,7 @@ public final class ClientResources implements Function<String, FileHandle>, Auto
     private final Map<java.nio.file.Path,Runnable> packageCleanup = new HashMap<>();
     private final List<ClientStrings.Source> stringSources = new ArrayList<>();
     private ClientStrings cachedStrings;
+    private top.totodile.pokemmo.client.ui.character.CharacterAppearance appearance;
     private final Map<String, Theme> themes = new LinkedHashMap<>();
     private final Properties settings = new Properties();
     private final boolean mobile;
@@ -306,6 +307,12 @@ public final class ClientResources implements Function<String, FileHandle>, Auto
                 stringSources.toArray(ClientStrings.Source[]::new));
         return cachedStrings;
     }
+    /** PC 对齐 GdxAddonSpriteManager 的共享资源生命周期，Android 暂沿用原加载流程。 */
+    public synchronized top.totodile.pokemmo.client.ui.character.CharacterAppearance newAppearance() {
+        if(mobile)return new top.totodile.pokemmo.client.ui.character.CharacterAppearance(apply("sprites/addons.pak"),strings());
+        if(appearance==null)appearance=new top.totodile.pokemmo.client.ui.character.CharacterAppearance(apply("sprites/addons.pak"),strings());
+        return appearance.copy();
+    }
     public Theme selectedTheme() {
         Theme selected=themes.get(settings.getProperty("client.ui.theme",mobile?"android":"default"));
         return selected==null || (mobile && !selected.mobile()) ? defaultTheme() : selected;
@@ -327,6 +334,7 @@ public final class ClientResources implements Function<String, FileHandle>, Auto
         return constants;
     }
     @Override public void close() {
+        if(appearance!=null){appearance.dispose();appearance=null;}
         modelCaches.close();
         for (ZipFile zip:archives.values()) try { zip.close(); }
         catch (IOException error) { LOG.log(Level.WARNING,"Cannot close resource package",error); }

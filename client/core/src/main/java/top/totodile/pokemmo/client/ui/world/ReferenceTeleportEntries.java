@@ -37,15 +37,15 @@ final class ReferenceTeleportEntries {
         String name=strings.getOrDefault(maps.locationStringId(id),maps.locationName(id));
         return new Entry(name==null?Integer.toString(header):name,region,id.bank(),id.map(),x,y,height,noGrid);
     }
-    private Entry contest(){return new Entry("CONTEST HALL",1,63,4,14,6,0,false);}
-    private Entry arena(){return new Entry("Tournament Arena",10,0,1,28,64,0,false);}
+    private Entry contest(){return new Entry("华丽大赛会场",1,63,4,14,6,0,false);}
+    private Entry arena(){return new Entry("锦标赛竞技场",10,0,1,28,64,0,false);}
     private List<Entry> entries(int region) {
         if (!available(region)) {
             return Collections.emptyList();
         }
         if (region == 0) {
             List<Entry> entries = new ArrayList<>();
-            String title = new StringBuilder().append(regionName(0)).append(" Pt1").toString();
+            String title = new StringBuilder().append(regionName(0)).append(" 第一部分").toString();
             Entry label;
             label=heading(title);
             entries.add(label);
@@ -61,7 +61,7 @@ final class ReferenceTeleportEntries {
             entries.add(gba((byte) 0, (byte) 3, (byte) 10, (short) 33, (short) 31, 140010));
             entries.add(gba((byte) 0, (byte) 3, (byte) 8, (short) 14, (short) 12, 140008));
             entries.add(gba((byte) 0, (byte) 3, (byte) 9, (short) 11, (short) 7, 140009));
-            title = new StringBuilder().append(regionName(0)).append(" Pt2").toString();
+            title = new StringBuilder().append(regionName(0)).append(" 第二部分").toString();
             
             label=heading(title);
             entries.add(label);
@@ -101,20 +101,20 @@ final class ReferenceTeleportEntries {
             entries.add(gba((byte) 1, (byte) 50, (byte) 15, (short) 8, (short) 16, 141006));
             entries.add(gba((byte) 1, (byte) 74, (byte) 78, (short) 14, (short) 6, 141085));
             
-            label=heading("Instances");
+            label=heading("副本");
             entries.add(label);
             entries.add(gba((byte) 1, (byte) 76, (byte) 4, (short) 26, (short) 43, 141058));
             entries.add(gba((byte) 1, (byte) 76, (byte) 60, (short) 9, (short) 13, 141212));
             entries.add(contest());
             
-            label=heading("Islands");
+            label=heading("岛屿");
             entries.add(label);
             entries.add(gba((byte) 1, (byte) 76, (byte) 56, (short) 13, (short) 38, 141201));
             entries.add(gba((byte) 1, (byte) 76, (byte) 9, (short) 13, (short) 22, 141073));
             entries.add(gba((byte) 1, (byte) 76, (byte) 58, (short) 15, (short) 12, 141200));
             entries.add(gba((byte) 1, (byte) 76, (byte) 66, (short) 10, (short) 11, 141211));
             
-            label=heading("Berries");
+            label=heading("树果");
             entries.add(label);
             entries.add(gba((byte) 1, (byte) 50, (byte) 19, (short) 8, (short) 22, 141019));
             entries.add(gba((byte) 1, (byte) 50, (byte) 38, (short) 14, (short) 7, 141038));
@@ -124,7 +124,7 @@ final class ReferenceTeleportEntries {
             var entries=new ArrayList<Entry>();entries.add(heading(regionName(2)));
             boolean noGrid=false;
             for(var point:((BwMaps)maps(2)).teleportPoints()){
-                if(point.noGrid()&&!noGrid){entries.add(heading(regionName(2)+" Nogrid Maps"));noGrid=true;}
+                if(point.noGrid()&&!noGrid){entries.add(heading(regionName(2)+" 非网格地图"));noGrid=true;}
                 entries.add(nds(2,point.header(),point.x(),point.y(),point.header()==28?2:0,point.noGrid()));
             }
             return entries;
@@ -203,7 +203,7 @@ final class ReferenceTeleportEntries {
             entries.add(nds((byte) 4, (short) 11, (short) 1167, (short) 107, (byte) 0, false));
             entries.add(nds((byte) 4, (short) 18, (short) 1426, (short) 164, (byte) 0, false));
             
-            label=heading("Instances");
+            label=heading("副本");
             entries.add(label);
             entries.add(nds((byte) 4, (short) 340, (short) 15, (short) 19, (byte) 0, false));
             entries.add(nds((byte) 4, (short) 465, (short) 30, (short) 16, (byte) 0, false));
@@ -257,7 +257,7 @@ final class ReferenceTeleportEntries {
             entries.add(nds((byte) 2, (short) 182, (short) 16, (short) 12, (byte) 0, false));
             entries.add(nds((byte) 2, (short) 354, (short) 10, (short) 23, (byte) 0, false));
             
-            label=heading("Custom Maps");
+            label=heading("自定义地图");
             entries.add(label);
             entries.add(arena());
             return entries;

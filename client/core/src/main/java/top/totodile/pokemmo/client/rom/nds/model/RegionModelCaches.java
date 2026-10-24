@@ -42,7 +42,7 @@ public final class RegionModelCaches implements AutoCloseable {
                 byte[] fingerprint=RegionModelCache.fingerprint(rom.path());
                 if(!regenerate)try {
                     var cache=RegionModelCache.open(file,rom.type().id,fingerprint);
-                    caches.put(rom.type(),cache);reused.add(rom.type());
+                    if(!publish(rom.type(),cache))return;reused.add(rom.type());
                     LOG.info("Reused model cache: "+rom.type()+", "+cache.size()+" records");
                     progress=(region+1d)/roms.size();continue;
                 }catch(IOException invalid){LOG.fine("Rebuilding model cache: "+invalid.getMessage());}
@@ -59,7 +59,7 @@ public final class RegionModelCaches implements AutoCloseable {
                     builder.commit();
                 }
                 var cache=RegionModelCache.open(file,rom.type().id,fingerprint);
-                caches.put(rom.type(),cache);
+                if(!publish(rom.type(),cache))return;
                 LOG.info("Built model cache: "+rom.type()+", "+cache.size()+" records");
             }catch(Exception error) {
                 if(closed||error instanceof InterruptedIOException)return;
@@ -76,5 +76,9 @@ public final class RegionModelCaches implements AutoCloseable {
     public Throwable failure(){return failure;}
     public RegionModelCache cache(RomType type){return caches.get(type);}
     public boolean reused(RomType type){return reused.contains(type);}
-    @Override public void close(){closed=true;worker.shutdownNow();caches.clear();}
+    private synchronized boolean publish(RomType type,RegionModelCache cache) {
+        if(closed){cache.close();return false;}
+        var previous=caches.put(type,cache);if(previous!=null)previous.close();return true;
+    }
+    @Override public synchronized void close(){closed=true;worker.shutdownNow();caches.values().forEach(RegionModelCache::close);caches.clear();}
 }

@@ -303,7 +303,7 @@ public final class ClientUi implements Disposable {
         characterCreation = new CharacterCreationWindow(root, strings, mobile, () -> {
             characterPage.setVisible(controller.state() == LoginController.State.SELECTED);
             restoreWindowFocus();
-        }, mobileBackground, new CharacterAppearance(resources.apply("sprites/addons.pak"), strings), renderer, notificationClock,loginPanel::showNotification);
+        }, mobileBackground, resources.newAppearance(), renderer, notificationClock,loginPanel::showNotification);
         inventoryItems=new InventoryItems(resources,renderer);
         inventory=new InventoryWindow(root,strings,mobile,inventoryItems,id->{
             if(resources.apply("sprites/itemicons/"+id+".png").exists())return itemIcon(id);
@@ -320,8 +320,8 @@ public final class ClientUi implements Disposable {
         pokemon=new PokemonController(resources,renderer,mobile,gameService,text->entryError.show(text),id->{pokedex.showSpecies(id);restoreWorldInput();});
         storage=new PokemonStorageWindow(root,pokemon,mobile,this::restoreWorldInput);
         worldTools=new WorldToolsWindow(root,mobile,resources,inventoryItems,gameService,this::executeWorldTool,text->{
-            if(worldActions!=null){worldActions.message(text);pokemon.reload();inventory.reloadIfOpen();}
-        },text->entryError.show(text),this::restoreWorldInput);
+            if(worldActions!=null){pokemon.reload();inventory.reloadIfOpen();}
+        },text->Gdx.app.error("world-tools",text),this::restoreWorldInput);
         pokemon.onChanged(()->pokedex.setOwnedSpecies(pokemon.state().pokemons().stream().filter(p->!p.egg()).map(top.totodile.pokemmo.server.game.PokemonData.Pokemon::species).collect(java.util.stream.Collectors.toSet())));
         pcMenu=new PcMenuWindow(root,strings,mobile,this::openPortablePc,this::openPcMail,this::restoreWorldInput);
         characterPage.onNewCharacter(() -> {
@@ -373,12 +373,15 @@ public final class ClientUi implements Disposable {
                     Vector2 p=viewport.unproject(new Vector2(x,y));
                     mods.pointerDown(Math.round(p.x),renderer.getHeight()-Math.round(p.y));
                 }
-                if(mobile&&button==0){
+                if(button==0){
                     Vector2 point=viewport.unproject(new Vector2(x,y));int px=Math.round(point.x),py=renderer.getHeight()-Math.round(point.y);
                     Widget target=gui.getWidgetAt(px,py);
-                    while(target!=null&&!(target instanceof top.totodile.pokemmo.client.ui.common.TouchScrollPane))target=target.getParent();
+                    while(target!=null&&!(target instanceof top.totodile.pokemmo.client.ui.common.TouchScrollPane)){
+                        if(target instanceof Scrollbar){target=null;break;}
+                        target=target.getParent();
+                    }
                     playerTouchScroll=(top.totodile.pokemmo.client.ui.common.TouchScrollPane)target;
-                    if(playerTouchScroll!=null)playerTouchScroll.beginTouch(px,py);
+                    if(playerTouchScroll!=null)playerTouchScroll.beginTouch(px,py,mobile);
                 }
                 if(worldHud!=null&&!pokedex.isOpen()&&!playerWindowsOpen()&&!pokedex.showingMessage()&&!settings.blocksInput()&&!worldLogout.isOpen()) {
                     Vector2 point=viewport.unproject(new Vector2(x,y));
@@ -446,6 +449,10 @@ public final class ClientUi implements Disposable {
                     }
                     if((key==Input.Keys.ESCAPE||key==Input.Keys.BACK)&&pokemon.closeMenu())return true;
                     if(pokemon.hasMenu()){int code=keyCode(key);if(code!=0)gui.handleKey(code,'\0',true);return true;}
+                    if(inventory.hasMenu()){
+                        if(key==Input.Keys.ESCAPE||key==Input.Keys.BACK)inventory.closeMenu();
+                        else {int code=keyCode(key);if(code!=0)gui.handleKey(code,'\0',true);}return true;
+                    }
                     if(handlePlayerShortcut(key))return true;
                     var top=topPlayerWindow();
                     if(top!=null){
@@ -581,8 +588,8 @@ public final class ClientUi implements Disposable {
     private java.util.concurrent.CompletionStage<String> executeWorldTool(WorldToolsWindow.Tool tool,int[] values){
         var entry=playerEntry;var selection=controller.selection();
         if(entry==null||selection==null||gameService==null)return java.util.concurrent.CompletableFuture.failedFuture(new IllegalStateException("The character is not ready."));
-        if(tool==WorldToolsWindow.Tool.ITEM)return gameService.createItem(selection,entry.character().id(),values[0],values[1]).thenApply(item->"Added item "+item.itemId()+" x"+values[1]+" to "+entry.character().name()+".");
-        if(tool==WorldToolsWindow.Tool.POKEMON)return gameService.addPokemon(selection,entry.character().id(),values[0],values[1]).thenApply(p->"Added Pokemon "+p.species()+" at level "+p.level()+" to "+entry.character().name()+" "+(p.container()==0?"PC":"party")+" position "+p.position()+".");
+        if(tool==WorldToolsWindow.Tool.ITEM)return gameService.createItem(selection,entry.character().id(),values[0],values[1]).thenApply(item->"");
+        if(tool==WorldToolsWindow.Tool.POKEMON)return gameService.addPokemon(selection,entry.character().id(),values[0],values[1]).thenApply(p->"");
         if(teleportWorld==null)return java.util.concurrent.CompletableFuture.failedFuture(new IllegalStateException("The character is not ready for movement."));
         if(values[0]<0||values[0]>4)throw new IllegalArgumentException("Unknown region: "+values[0]);
         var old=worldScene;var position=new GameService.Position(values[1],values[2],values[3],values[4],old.movement().position().direction());
@@ -591,7 +598,7 @@ public final class ClientUi implements Disposable {
         enteringWorld=true;old.setInputBlocked(true);
         java.util.concurrent.CompletionStage<Void> operation;
         try{operation=teleportWorld.apply(next);}catch(RuntimeException failure){enteringWorld=false;throw failure;}
-        return operation.whenComplete((ignored,error)->Gdx.app.postRunnable(()->{enteringWorld=false;restoreWorldInput();})).thenApply(ignored->"Moved to the requested map position.");
+        return operation.whenComplete((ignored,error)->Gdx.app.postRunnable(()->{enteringWorld=false;restoreWorldInput();})).thenApply(ignored->"");
     }
     private String romSummary() {
         // 参考 ChatHistoryViewportComponent.Nq：主卡带缺失时保留 --，其余按固定顺序追加。
@@ -638,26 +645,16 @@ public final class ClientUi implements Disposable {
         }
     }
     private de.matthiasmann.twl.renderer.Image itemIcon(int id) {
-        return itemIcons.computeIfAbsent(id, key -> {
-            try {
-                URL url=new URL(null,"asset:/data/sprites/itemicons/"+key+".png",
-                        new AssetUrlStreamHandler(path->resources.apply(path.startsWith("data/")?path.substring(5):path)));
-                var normal=renderer.loadTexture(url,null,"nearest");
-                var color=normal.getImage(0,0,normal.getWidth(),normal.getHeight(),Color.WHITE,false,
-                        de.matthiasmann.twl.renderer.Texture.Rotation.NONE);
-                var gray=renderer.grayscale(url);
-                return new de.matthiasmann.twl.renderer.Image() {
-                    public int getWidth(){return color.getWidth();}
-                    public int getHeight(){return color.getHeight();}
-                    public void draw(de.matthiasmann.twl.renderer.AnimationState state,int x,int y){draw(state,x,y,getWidth(),getHeight());}
-                    public void draw(de.matthiasmann.twl.renderer.AnimationState state,int x,int y,int w,int h){
-                        (state.getAnimationState(Button.STATE_HOVER)||state.getAnimationState(Widget.STATE_KEYBOARD_FOCUS)?color:gray).draw(state,x,y,w,h);
-                    }
-                    public de.matthiasmann.twl.renderer.Image createTintedVersion(Color tint){
-                        return color.createTintedVersion(tint);
-                    }
-                };
-            } catch(IOException error){throw new IllegalStateException("Cannot load menu icon",error);}
+        return itemIcons.computeIfAbsent(id,key->new de.matthiasmann.twl.renderer.Image(){
+            public int getWidth(){return 24;}
+            public int getHeight(){return 24;}
+            public void draw(de.matthiasmann.twl.renderer.AnimationState state,int x,int y){draw(state,x,y,24,24);}
+            public void draw(de.matthiasmann.twl.renderer.AnimationState state,int x,int y,int w,int h){
+                if(inventoryItems==null)return;
+                var image=inventoryItems.tabIcon(key,state.getAnimationState(Button.STATE_HOVER)||state.getAnimationState(Widget.STATE_KEYBOARD_FOCUS));
+                if(image!=null)image.draw(state,x,y,w,h);
+            }
+            public de.matthiasmann.twl.renderer.Image createTintedVersion(Color tint){var image=inventoryItems.icon(key);return image==null?this:image.createTintedVersion(tint);}
         });
     }
     private static int keyCode(int key) {

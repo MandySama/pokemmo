@@ -41,7 +41,7 @@ final class PokedexEvolutionTree extends Widget {
                 final Label label=new Label(level?"Lv. "+evolution.parameter():""){
                     @Override protected boolean handleEvent(Event event){return false;}
                 };
-                {setTheme("/monsterdex-button-evo-tree");setCanAcceptKeyboardFocus(false);label.setTheme("/pokedex-evolution-name");label.setEnabled(false);add(label);setTooltipContent(dex.evolution(evolution));}
+                {setTheme("/monsterdex-button");setCanAcceptKeyboardFocus(false);label.setTheme("/pokedex-evolution-name");label.setEnabled(false);add(label);setTooltipContent(dex.evolution(evolution));}
                 @Override protected void layout(){label.setSize(getInnerWidth(),label.computeTextHeight());label.setPosition(getInnerX(),getInnerBottom()-label.getHeight());}
                 @Override protected void paintWidget(GUI gui){super.paintWidget(gui);int scale=mobile?2:1,size=24*scale;
                     if(item>0)images.item(item).draw(getAnimationState(),getX()+10*scale,getY()+(level?4*scale:10*scale),size,size);}

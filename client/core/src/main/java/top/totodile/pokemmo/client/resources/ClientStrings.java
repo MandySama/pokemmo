@@ -21,6 +21,8 @@ public final class ClientStrings {
     private final Map<Integer, String> messages = new LinkedHashMap<>();
     private final Map<String, String> archives = new LinkedHashMap<>();
     private final Map<Integer, String> preloaded = new LinkedHashMap<>();
+    private record RomMessages(int region,int type,int table,int base,int first,String[] values) {}
+    private final Map<Integer,RomMessages> romMessages=new LinkedHashMap<>();
     private IntFunction<String> variables = id -> "";
     private String language;
     private String typeface;
@@ -95,6 +97,21 @@ public final class ClientStrings {
         // 对齐 t2(false)：先主语言，再按优先级应用所选语言容器。
         if (primary != null) apply(primary, false);
         for (Container value : selected) apply(value, false);
+        applyRomMessages();
+        // XmlDocumentDomSerializer.com8 / LocalizationMessageFormatter.dd:
+        // resolve references that become available from a later language/ROM container.
+        for(int pass=0;pass<2;pass++)messages.replaceAll((id,value)->expandReferences(value));
+    }
+    /** LocalizationMessageFormatter.a7 / Tm0: ROM messages fill IDs absent from XML. */
+    public void registerRomMessages(int region,int type,int table,int base,int first,String... values){
+        romMessages.put(base,new RomMessages(region,type,table,base,first,values.clone()));applyRomMessages();
+        for(int pass=0;pass<2;pass++)messages.replaceAll((id,value)->expandReferences(value));
+    }
+    private void applyRomMessages(){
+        for(var source:romMessages.values())for(int i=0;i<source.values.length;i++){
+            String translated=archive(source.region,source.type,source.table,0,source.first+i);
+            messages.putIfAbsent(source.base+i,translated!=null?translated:source.values[i]);
+        }
     }
 
     String preferredLanguage(Locale locale) {

@@ -15,9 +15,8 @@ public final class MapMovement {
     private java.util.function.Consumer<MapData> prepareTransition=target -> {};
     public MapMovement(WorldMaps maps,Position position) {
         this.maps=maps; map=maps.map(new Id(position.bank(),position.map()));
-        if(!map.contains(position.x(),position.y()) || (map.block(position.x(),position.y())&0xc00)!=0
-                && !(map.warp(position.x(),position.y())!=null && maps.isDoor(maps.tiles(map).behavior(map.block(position.x(),position.y())&1023))))
-            throw new IllegalArgumentException("Saved position is outside walkable map");
+        if(!map.contains(position.x(),position.y()))
+            throw new IllegalArgumentException("Saved position is outside map");
         x=position.x(); y=position.y(); direction=position.direction(); elevation=map.block(x,y)>>>12;
     }
     public MapData map() { return map; }
@@ -34,7 +33,6 @@ public final class MapMovement {
         return (block&0xc00)==0 && block>>>12!=15 && !maps.isWater(behavior);
     }
     public void setNoClip(boolean enabled) {
-        if(!enabled && !canStand()) throw new IllegalStateException("请先回到可行走的地面，再关闭穿墙。");
         if(noClip!=enabled) { noClip=enabled;stateChanged.run(); }
     }
     public Position position() { return new Position(map.id().bank(),map.id().map(),x,y,direction); }

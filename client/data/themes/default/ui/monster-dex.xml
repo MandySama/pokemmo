@@ -550,7 +550,7 @@
       <theme name="tabbox" ref="-defaults">
         <theme name="tabbutton" ref="pokedex-tab" allowWildcard="true">
           <param name="border">
-            <border>0,18,0,18</border>
+            <border>0,20,0,20</border>
           </param>
           <param name="minHeight">
             <int>24</int>

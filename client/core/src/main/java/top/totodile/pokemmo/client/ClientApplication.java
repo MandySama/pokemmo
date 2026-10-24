@@ -201,7 +201,7 @@ public final class ClientApplication extends ApplicationAdapter {
                         OverworldCharacter sprite=null;
                         WorldScene scene=null;
                         try {
-                            var catalog=new CharacterAppearance(resources.apply("sprites/addons.pak"),resources.strings());
+                            var catalog=resources.newAppearance();
                             try { sprite=new OverworldCharacter(catalog,entry.character().appearance(),resources.apply("sprites/game.pak")); }
                             finally { catalog.dispose(); }
                             scene=new WorldScene(loaded.maps(),loaded.movement(),sprite,resources.preferences(),mobile,

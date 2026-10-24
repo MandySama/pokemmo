@@ -217,7 +217,7 @@ public final class PokedexWindow extends ClientWindow implements AutoCloseable {
     private void layoutHordes(){if(hordes==null)return;int top=mobile?60:27;hordes.setPosition(hordeContent.getInnerX()+10,hordeContent.getInnerY()+top);hordes.setSize(Math.max(1,hordeContent.getInnerWidth()-20),Math.max(1,hordeContent.getInnerHeight()-top-12));}
     private void layoutList(){
         if(national==null)return;int x=listing.getInnerX(),y=listing.getInnerY(),w=listing.getInnerWidth(),h=listing.getInnerHeight();
-        int bar=mobile?44:32,gap=mobile?4:7,searchGap=mobile?4:5,toolbarY=mobile?y:y-1;
+        int bar=mobile?44:32,gap=mobile?4:7,searchGap=mobile?4:5,toolbarY=mobile?y:y+3;
         int nationalWidth=mobile?220:150,tierWidth=mobile?150:100,button=mobile?42:30,advancedWidth=mobile?120:69;
         national.setSize(nationalWidth,bar);national.setPosition(x,toolbarY);tier.setSize(tierWidth,bar);tier.setPosition(x+w-tierWidth,toolbarY);
         horde.setSize(button,bar);horde.setPosition(tier.getX()-button-gap,toolbarY);known.setSize(button,bar);known.setPosition(horde.getX()-button-gap,toolbarY);
@@ -230,7 +230,7 @@ public final class PokedexWindow extends ClientWindow implements AutoCloseable {
         int available=Math.max(0,body.getBottom()-footer-10-scrollY);
         if(!mobile)available=Math.max(0,(available+5)/51*51-5);
         scroll.setPosition(x,scrollY);scroll.setSize(w,available);
-        counters.setPosition(x+(mobile?0:2),scroll.getBottom()+5);counters.setSize(Math.max(0,w-2),footer);
+        counters.setPosition(x+(mobile?0:2),scroll.getBottom()+(mobile?5:9));counters.setSize(Math.max(0,w-2),footer);
     }
     private final class Counter extends Label {
         private Image background,fill;

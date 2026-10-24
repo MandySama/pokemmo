@@ -241,9 +241,10 @@ final class PokedexDetails extends Widget {
         @Override protected void applyTheme(ThemeInfo info){super.applyTheme(info);fill=info.getImage("progressImage");track=info.getImage("background");}
         @Override protected void paintBackground(GUI gui) { /* Match the progress strip's bounds in paintWidget. */ }
         @Override protected void paintWidget(GUI gui){
-            int x=getInnerX()+5,y=getInnerY()+(getInnerHeight()-10)/2,width=Math.max(0,getInnerWidth()-10);
-            if(track!=null)track.draw(getAnimationState(),x,y,width,10);
-            if(fill!=null&&value>0)fill.draw(getAnimationState(),x,y,Math.round(width*value),10);
+            int height=track==null?8:track.getHeight();
+            int x=getInnerX()+5,y=getInnerY()+(getInnerHeight()-height)/2,width=Math.max(0,getInnerWidth()-10);
+            if(track!=null)track.draw(getAnimationState(),x,y,width,height);
+            if(fill!=null&&value>0)fill.draw(getAnimationState(),x,y,Math.round(width*value),height);
         }
     }
 }

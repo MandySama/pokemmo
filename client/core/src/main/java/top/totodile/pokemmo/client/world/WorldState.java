@@ -11,7 +11,7 @@ final class WorldState {
     static void bind(ClientSettings settings,PlayerMotion motion,TravelState state,Consumer<TravelState> saveCharacter) {
         if(motion.running()!=Boolean.parseBoolean(settings.get(RUNNING,"true")))motion.toggleRunning();
         if(motion.bicycle()!=state.bicycle())motion.toggleBicycle();
-        // 旧存档保持正常碰撞；开启穿墙不会把不安全位置写入角色存档。
+        // 穿墙状态按角色存档恢复，与角色实际坐标一同保留。
         boolean noClip=state.noClip();
         if(motion.movement().noClip()!=noClip)motion.movement().setNoClip(noClip);
         motion.setSpeed(state.speed());

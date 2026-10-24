@@ -42,7 +42,7 @@ public final class PlayerMotion {
         if(moving) return false;
         Position before=movement.position();
         if(!movement.step(dx,dy)) {
-            if(before.direction()!=movement.position().direction() && movement.canStand())save.accept(movement.position());
+            if(before.direction()!=movement.position().direction())save.accept(movement.position());
             return false;
         }
         Position after=movement.position();
@@ -50,8 +50,7 @@ public final class PlayerMotion {
         stepMode=bicycle?Mode.BICYCLE:running?Mode.RUN:Mode.WALK;
         duration=stepMode.seconds;
         moving=movement.continuousStep();
-        // 穿墙期间只保存正常地面，避免下次登录落在墙里而无法进入地图。
-        if(movement.canStand()) save.accept(after);
+        save.accept(after);
         return true;
     }
     public void update(float delta,int dx,int dy) {
@@ -63,7 +62,7 @@ public final class PlayerMotion {
         // AbstractClientProtocolContext.uh0 / GdxParticleEmitterNode.qc0：
         // 静止改变朝向是独立动作，之后 100ms 才能迈步；持续行走时不插入转身停顿。
         if(!moving && input && (idleTime>=TURN_SECONDS || turnTime>0) && movement.face(dx,dy)) {
-            if(movement.canStand())save.accept(movement.position());
+            save.accept(movement.position());
             turnTime=TURN_SECONDS;idleTime=0;
         }
         if(turnTime>0) {

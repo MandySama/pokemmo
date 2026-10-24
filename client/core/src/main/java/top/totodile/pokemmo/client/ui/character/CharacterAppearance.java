@@ -62,6 +62,9 @@ public final class CharacterAppearance {
         frames = source.frames; archive = source.archive;
     }
 
+    /** 参考共享 addon 目录；仅复用只读索引和归档，角色选择与颜色保持独立。 */
+    public CharacterAppearance copy() { return new CharacterAppearance(this); }
+
     top.totodile.pokemmo.server.game.GameService.Appearance snapshot(int gender, int skin, int region) {
         var parts = new HashMap<Integer, top.totodile.pokemmo.server.game.GameService.Part>();
         for (Slot slot : Slot.values()) parts.put(slot.id,

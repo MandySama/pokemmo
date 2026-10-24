@@ -1,69 +1,13 @@
 package top.totodile.pokemmo.client.rom.nds.model;
 
-import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.g3d.model.data.*;
-import com.badlogic.gdx.utils.*;
+import com.badlogic.gdx.utils.Array;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.zip.*;
+import java.nio.ByteBuffer;
+import java.util.*;
 
-/** NitroModelRenderer.Iq/RG 的当前架构适配：持久化 CPU ModelData，不创建 GL 对象。
- * 使用独立格式版本，不能把参考客户端的 Ou0 二进制文件误读为 ModelData。
- */
+/** 参考 wh0_2 的直接二进制字段读写；独立格式适配当前 ModelData。 */
 final class ModelCacheCodec {
-    static final class Data {
-        public ModelData[] models;
-        public NdsNitroModelParser.Material[][] materials;
-        public int[] bones;
-        public float[] scales;
-        public byte[][][] resourceAnimations;
-    }
-    private static Json json() {
-        Json json=new Json();
-        json.setUsePrototypes(false);
-        json.setElementType(ModelData.class,"meshes",ModelMesh.class);
-        json.setElementType(ModelData.class,"materials",ModelMaterial.class);
-        json.setElementType(ModelData.class,"nodes",ModelNode.class);
-        json.setElementType(ModelData.class,"animations",ModelAnimation.class);
-        json.setElementType(ModelAnimation.class,"nodeAnimations",ModelNodeAnimation.class);
-        json.setElementType(ModelNodeAnimation.class,"translation",ModelNodeKeyframe.class);
-        json.setElementType(ModelNodeAnimation.class,"rotation",ModelNodeKeyframe.class);
-        json.setElementType(ModelNodeAnimation.class,"scaling",ModelNodeKeyframe.class);
-        json.setSerializer(VertexAttribute.class,new Json.Serializer<VertexAttribute>() {
-            public void write(Json j,VertexAttribute a,Class type) {
-                j.writeObjectStart();j.writeValue("usage",a.usage);j.writeValue("components",a.numComponents);
-                j.writeValue("type",a.type);j.writeValue("normalized",a.normalized);j.writeValue("alias",a.alias);
-                j.writeValue("unit",a.unit);j.writeObjectEnd();
-            }
-            public VertexAttribute read(Json j,JsonValue v,Class type) {
-                return new VertexAttribute(v.getInt("usage"),v.getInt("components"),v.getInt("type"),
-                        v.getBoolean("normalized"),v.getString("alias"),v.getInt("unit"));
-            }
-        });
-        json.setSerializer(ModelNodePart.class,new Json.Serializer<ModelNodePart>() {
-            public void write(Json j,ModelNodePart p,Class type) {
-                j.writeObjectStart();j.writeValue("materialId",p.materialId);j.writeValue("meshPartId",p.meshPartId);
-                j.writeValue("uvMapping",p.uvMapping,int[][].class);
-                j.writeArrayStart("bones");
-                if(p.bones!=null)for(var bone:p.bones) {
-                    j.writeObjectStart();j.writeValue("node",bone.key);j.writeValue("matrix",bone.value.val,float[].class);j.writeObjectEnd();
-                }
-                j.writeArrayEnd();j.writeObjectEnd();
-            }
-            public ModelNodePart read(Json j,JsonValue v,Class type) {
-                var p=new ModelNodePart();p.materialId=v.getString("materialId");p.meshPartId=v.getString("meshPartId");
-                p.uvMapping=j.readValue("uvMapping",int[][].class,v);
-                JsonValue bones=v.get("bones");
-                if(bones.size>0) {
-                    p.bones=new ArrayMap<>();
-                    for(JsonValue b:bones)p.bones.put(b.getString("node"),new com.badlogic.gdx.math.Matrix4(b.get("matrix").asFloatArray()));
-                }
-                return p;
-            }
-        });
-        return json;
-    }
     static List<NdsNitroModelParser.Parsed> parse(byte[] model,byte[] textures,List<byte[]> animations) throws IOException {
         var parsed=NdsNitroModelParser.readAll(model,textures);
         if(animations.isEmpty())return parsed;
@@ -92,36 +36,48 @@ final class ModelCacheCodec {
         return result;
     }
     static byte[] encode(List<NdsNitroModelParser.Parsed> parsed) throws IOException {
-        Data data=new Data();int count=parsed.size();
-        data.models=new ModelData[count];data.materials=new NdsNitroModelParser.Material[count][];
-        data.bones=new int[count];data.scales=new float[count];
-        data.resourceAnimations=new byte[count][][];
-        for(int i=0;i<count;i++) {
-            var p=parsed.get(i);data.models[i]=p.model();data.materials[i]=p.materials().toArray(NdsNitroModelParser.Material[]::new);
-            data.bones[i]=p.bones();data.scales[i]=p.positionScale();
-            data.resourceAnimations[i]=p.resourceAnimations().toArray(byte[][]::new);
-        }
         var bytes=new ByteArrayOutputStream();
-        try(var output=new GZIPOutputStream(bytes)) { output.write(json().toJson(data,Data.class).getBytes(StandardCharsets.UTF_8)); }
+        write(new DataOutputStream(bytes),parsed);
         return bytes.toByteArray();
     }
+    static void write(DataOutput out,List<NdsNitroModelParser.Parsed> parsed) throws IOException {
+        out.writeInt(parsed.size());
+        for(var p:parsed) {
+            BinaryModelData.write(out,p.model());out.writeInt(p.bones());out.writeFloat(p.positionScale());
+            out.writeInt(p.materials().size());
+            for(var m:p.materials()) {
+                BinaryModelData.text(out,m.name);BinaryModelData.text(out,m.texture);BinaryModelData.text(out,m.palette);
+                out.writeInt(m.polygon);out.writeInt(m.textureParams);out.writeInt(m.width);out.writeInt(m.height);out.writeInt(m.flags);
+                out.writeFloat(m.scaleU);out.writeFloat(m.scaleV);BinaryModelData.color(out,m.ambient);
+            }
+            out.writeInt(p.resourceAnimations().size());for(byte[] animation:p.resourceAnimations()){out.writeInt(animation.length);out.write(animation);}
+        }
+    }
     static List<NdsNitroModelParser.Parsed> decode(byte[] bytes,byte[] textures) throws IOException {
-        try(var input=new GZIPInputStream(new ByteArrayInputStream(bytes))) {
-            var output=new ByteArrayOutputStream();byte[] buffer=new byte[65536];
-            for(int n;(n=input.read(buffer))!=-1;) {
-                if(output.size()>64*1024*1024-n)throw new IOException("Model cache record too large");
-                output.write(buffer,0,n);
-            }
-            Data d=json().fromJson(Data.class,output.toString(StandardCharsets.UTF_8));
-            if(d.models.length!=d.materials.length||d.models.length!=d.bones.length||d.models.length!=d.scales.length)
-                throw new IOException("Invalid cached model arrays");
-            var result=new java.util.ArrayList<NdsNitroModelParser.Parsed>();
-            for(int i=0;i<d.models.length;i++) {
-                var materials=List.of(d.materials[i]);
+        return decode(ByteBuffer.wrap(bytes),textures);
+    }
+    static List<NdsNitroModelParser.Parsed> decode(ByteBuffer bytes,byte[] textures) throws IOException {
+        var input=new DataInputStream(new InputStream() {
+            @Override public int read(){return bytes.hasRemaining()?bytes.get()&255:-1;}
+            @Override public int read(byte[] data,int offset,int length){if(length==0)return 0;if(!bytes.hasRemaining())return -1;int n=Math.min(length,bytes.remaining());bytes.get(data,offset,n);return n;}
+        });
+        try {
+            var result=new ArrayList<NdsNitroModelParser.Parsed>();
+            for(int n=BinaryModelData.count(input);n>0;n--) {
+                var model=BinaryModelData.read(input);int bones=input.readInt();float scale=input.readFloat();
+                var materials=new ArrayList<NdsNitroModelParser.Material>();
+                for(int count=BinaryModelData.count(input);count>0;count--) {
+                    var m=new NdsNitroModelParser.Material();m.name=BinaryModelData.text(input);m.texture=BinaryModelData.text(input);m.palette=BinaryModelData.text(input);
+                    m.polygon=input.readInt();m.textureParams=input.readInt();m.width=input.readInt();m.height=input.readInt();m.flags=input.readInt();
+                    m.scaleU=input.readFloat();m.scaleV=input.readFloat();m.ambient=BinaryModelData.color(input);materials.add(m);
+                }
+                var animations=new ArrayList<byte[]>();
+                for(int count=BinaryModelData.count(input);count>0;count--){int length=input.readInt();if(length<0||length>bytes.remaining())throw new IOException("Invalid model animation length");byte[] data=new byte[length];input.readFully(data);animations.add(data);}
                 var dictionary=materials.stream().anyMatch(m->m.texture!=null)?new NitroTextureDictionary(textures):null;
-                result.add(new NdsNitroModelParser.Parsed(d.models[i],materials,dictionary,d.bones[i],d.scales[i],List.of(d.resourceAnimations[i])));
+                result.add(new NdsNitroModelParser.Parsed(model,List.copyOf(materials),dictionary,bones,scale,List.copyOf(animations)));
             }
+            if(bytes.hasRemaining())throw new IOException("Unexpected model record data");
             return List.copyOf(result);
-        }catch(RuntimeException error){throw new IOException("Invalid model cache record",error);}
+        }catch(RuntimeException error){throw new IOException("Invalid cached model record",error);}
     }
 }
