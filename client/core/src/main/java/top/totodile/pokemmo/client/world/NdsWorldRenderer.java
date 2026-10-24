@@ -16,11 +16,11 @@ import top.totodile.pokemmo.client.ui.character.OverworldCharacter;
 final class NdsWorldRenderer implements AutoCloseable {
     private record Piece(NitroModelRenderer model,Matrix4 local,BoundingBox bounds) {}
     private record Asset(NitroModelRenderer model,BoundingBox bounds) {}
-    private record AssetKey(byte[] model,byte[] textures,int hash) {
-        AssetKey(byte[] model,byte[] textures) {this(model,textures,31*Arrays.hashCode(model)+Arrays.hashCode(textures));}
+    private record AssetKey(byte[] model,byte[] textures,List<byte[]> animations,int hash) {
+        AssetKey(byte[] model,byte[] textures,List<byte[]> animations) {this(model,textures,animations,31*(31*Arrays.hashCode(model)+Arrays.hashCode(textures))+Arrays.deepHashCode(animations.toArray()));}
         @Override public int hashCode(){return hash;}
         @Override public boolean equals(Object other) {
-            return other instanceof AssetKey key&&hash==key.hash&&Arrays.equals(model,key.model)&&Arrays.equals(textures,key.textures);
+            return other instanceof AssetKey key&&hash==key.hash&&Arrays.equals(model,key.model)&&Arrays.equals(textures,key.textures)&&Arrays.deepEquals(animations.toArray(),key.animations.toArray());
         }
     }
     private final WorldMaps maps;
@@ -51,11 +51,13 @@ final class NdsWorldRenderer implements AutoCloseable {
         }
     }
     private List<Asset> assets(WorldMaps.ModelPlacement placement) throws IOException {
-        var key=new AssetKey(placement.model(),placement.textures());var existing=assets.get(key);
+        var key=new AssetKey(placement.model(),placement.textures(),placement.animations());var existing=assets.get(key);
         if(existing!=null)return existing;
         List<Asset> created=new ArrayList<>();
         try {
-            for(var parsed:NdsNitroModelParser.readAll(placement.model(),placement.textures())) {
+            var parsedModels=maps.modelCache()==null?NdsNitroModelParser.readAll(placement.model(),placement.textures(),placement.animations())
+                    :maps.modelCache().read(placement.model(),placement.textures(),placement.animations());
+            for(var parsed:parsedModels) {
                 var model=new NitroModelRenderer(parsed,1);
                 created.add(new Asset(model,model.instance.calculateBoundingBox(new BoundingBox())));
             }

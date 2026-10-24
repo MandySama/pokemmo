@@ -10,10 +10,13 @@ import top.totodile.pokemmo.client.rom.nds.gen4.Gen4Maps;
 public final class WorldMapLoader {
     private WorldMapLoader() {}
     public static WorldMaps load(RomInfo rom) throws IOException {
+        return load(rom,null);
+    }
+    public static WorldMaps load(RomInfo rom,top.totodile.pokemmo.client.rom.nds.model.RegionModelCache cache) throws IOException {
         return switch(rom.type()) {
             case FIRE_RED,EMERALD -> new FireRedMaps(rom);
-            case BLACK_WHITE -> new BwMaps(rom);
-            case PLATINUM,HEART_GOLD_SOUL_SILVER -> new Gen4Maps(rom);
+            case BLACK_WHITE -> new BwMaps(rom,cache);
+            case PLATINUM,HEART_GOLD_SOUL_SILVER -> new Gen4Maps(rom,cache);
         };
     }
 }

@@ -25,14 +25,20 @@ public final class Gen4Maps implements WorldMaps {
     private final int[] textureIds;
     private final String[] locationNames;
     private final NdsArchive land,textures,buildings,interiorBuildings,events;
+    private final NdsArchive buildingAnimations,buildingAnimationList,interiorAnimationList;
     private final Set<Id> ids=new LinkedHashSet<>();
     private final Map<Id,MapData> maps=new HashMap<>();
     private final Map<Integer,Chunk> chunks=lru(48);
     private final Map<Integer,byte[]> textureData=new HashMap<>(),buildingData=new HashMap<>();
     private final Map<Id,List<ModelPlacement>> geometries=lru(6);
     private final Tiles tiles;
+    private final top.totodile.pokemmo.client.rom.nds.model.RegionModelCache modelCache;
 
     public Gen4Maps(RomInfo rom) throws IOException {
+        this(rom,null);
+    }
+    public Gen4Maps(RomInfo rom,top.totodile.pokemmo.client.rom.nds.model.RegionModelCache cache) throws IOException {
+        modelCache=cache;
         hgss=rom.type()==RomType.HEART_GOLD_SOUL_SILVER;
         if(!hgss&&rom.type()!=RomType.PLATINUM)throw new IllegalArgumentException("Platinum or HGSS ROM required");
         var matrixArchive=archive(rom,hgss?"a/0/4/1":"fielddata/mapmatrix/map_matrix.narc");
@@ -40,6 +46,9 @@ public final class Gen4Maps implements WorldMaps {
         textures=archive(rom,hgss?"a/0/4/4":"fielddata/areadata/area_map_tex/map_tex_set.narc");
         buildings=archive(rom,hgss?"a/0/4/0":"fielddata/build_model/build_model.narc");
         interiorBuildings=hgss?archive(rom,"a/1/4/8"):buildings;
+        buildingAnimations=archive(rom,hgss?"a/1/0/6":"arc/bm_anime.narc");
+        buildingAnimationList=archive(rom,hgss?"a/1/0/7":"arc/bm_anime_list.narc");
+        interiorAnimationList=hgss?archive(rom,"a/1/0/8"):buildingAnimationList;
         events=archive(rom,hgss?"a/0/3/2":"fielddata/eventdata/zone_event.narc");
         var messages=archive(rom,hgss?"a/0/2/7":"msgdata/pl_msg.narc");
         int locationBank=hgss?279:433;
@@ -101,6 +110,17 @@ public final class Gen4Maps implements WorldMaps {
     });}
     @Override public Set<Id> ids(){return Collections.unmodifiableSet(ids);}
     @Override public boolean is3d(){return true;}
+    @Override public top.totodile.pokemmo.client.rom.nds.model.RegionModelCache modelCache(){return modelCache;}
+    @Override public List<java.util.function.Supplier<List<ModelPlacement>>> modelCacheTasks() {
+        var tasks=new ArrayList<java.util.function.Supplier<List<ModelPlacement>>>(WorldMaps.super.modelCacheTasks());
+        // RomModelCacheBuilder.vl0：白金建筑库；心金/魂银分室外与室内两库。
+        for(NdsArchive archive:hgss?List.of(buildings,interiorBuildings):List.of(buildings))
+            for(int i=0;i<archive.size();i++) {
+                int index=i;
+                tasks.add(()->List.of(new ModelPlacement(read(archive,index),null,0,0,0,0,animations(index,archive==interiorBuildings&&hgss))));
+            }
+        return List.copyOf(tasks);
+    }
     @Override public Position teleportPosition(Id id,int x,int y,int direction){
         var region=bounds[index(id)];return new Position(id.bank(),id.map(),x-region.x*32,y-region.y*32,direction);
     }
@@ -193,9 +213,16 @@ public final class Gen4Maps implements WorldMaps {
                     int key=model+(models==interiorBuildings&&hgss?65536:0);
                     int selected=model;
                     byte[] bytes=buildingData.computeIfAbsent(key,ignored->read(models,selected));
-                    result.add(new ModelPlacement(bytes,null,x+building.x(),y+building.y(),z+building.z(),0));
+                    result.add(new ModelPlacement(bytes,null,x+building.x(),y+building.y(),z+building.z(),0,animations(model,models==interiorBuildings&&hgss)));
                 }
             }
+        return List.copyOf(result);
+    }
+    private List<byte[]> animations(int model,boolean indoor) {
+        NdsArchive list=indoor?interiorAnimationList:buildingAnimationList;
+        byte[] data=read(list,model);int start=hgss?8:4;
+        var result=new ArrayList<byte[]>();
+        for(int i=0;i<4;i++){int id=buffer(data).getInt(start+i*4);if(id!=-1)result.add(read(buildingAnimations,id));}
         return List.copyOf(result);
     }
     @Override public float height(Id id,float x,float y) {

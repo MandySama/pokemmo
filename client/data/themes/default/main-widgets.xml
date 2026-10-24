@@ -7,6 +7,11 @@
   </theme>
   <theme name="logingui" ref="-defaults">
     <theme name="login-panel" ref="base-frame" allowWildcard="true">
+      <theme name="progressbar" ref="-defaults" allowWildcard="true">
+        <param name=""><image>progressbar.*</image></param>
+        <param name="minWidth"><int>100</int></param>
+        <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+      </theme>
       <param name="background">
         <image>label1.background</image>
       </param>

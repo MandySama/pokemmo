@@ -32,6 +32,7 @@ public final class ClientResources implements Function<String, FileHandle>, Auto
     private final ClientSettings preferences;
     private final RomManager roms;
     private final ModImporter modImporter;
+    private final top.totodile.pokemmo.client.rom.nds.model.RegionModelCaches modelCaches;
     private RomFilePicker romFilePicker;
 
     public ClientResources(Function<String, FileHandle> bundled, FileHandle config, boolean mobile) {
@@ -48,6 +49,7 @@ public final class ClientResources implements Function<String, FileHandle>, Auto
                 preferences.save(Map.of("client.roms." + type.id, filename));
             }
         });
+        modelCaches=new top.totodile.pokemmo.client.rom.nds.model.RegionModelCaches(config.parent().child("cache").file().toPath(),preferences);
         settings.putAll(preferences.snapshot());
         roots.add(path -> writable.child(withoutData(path)));
         roots.add(path -> base(withoutData(path)));
@@ -80,6 +82,7 @@ public final class ClientResources implements Function<String, FileHandle>, Auto
     }
 
     public RomManager roms() { return roms; }
+    public top.totodile.pokemmo.client.rom.nds.model.RegionModelCaches modelCaches(){return modelCaches;}
     public ModImporter modImporter() { return modImporter; }
     public RomFilePicker romFilePicker() { return romFilePicker; }
     public void setRomFilePicker(RomFilePicker picker) { romFilePicker=picker; }
@@ -313,6 +316,7 @@ public final class ClientResources implements Function<String, FileHandle>, Auto
         return constants;
     }
     @Override public void close() {
+        modelCaches.close();
         for (ZipFile zip:archives.values()) try { zip.close(); }
         catch (IOException error) { LOG.log(Level.WARNING,"Cannot close resource package",error); }
         archives.clear(); packageCleanup.clear();

@@ -233,7 +233,8 @@ public final class ClientManagementWindow extends ClientWindow {
                     boolean changed=loaded;
                     com.badlogic.gdx.Gdx.app.postRunnable(() -> {
                         if(changed)restartRequired=true;
-                        finish(text);
+                        finish(changed?null:text);
+                        if(changed && !disposed)notification.accept(text);
                     });
                 }).whenComplete((ignored,error) -> {
                     // CompletableFuture 会保存未捕获异常；统一结束 busy，避免界面永久卡在导入状态。

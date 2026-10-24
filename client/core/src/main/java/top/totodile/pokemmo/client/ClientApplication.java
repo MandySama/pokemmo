@@ -47,6 +47,8 @@ public final class ClientApplication extends ApplicationAdapter {
     private final java.util.function.IntSupplier batteryPercent;
     private AssetManager sceneAssets;
     private StartupBackground startupBackground;
+    private top.totodile.pokemmo.client.ui.startup.PcModelPrecacheScreen modelPrecacheScreen;
+    private boolean modelPrecacheReported;
     private top.totodile.pokemmo.server.game.GameService gameService;
     private RomFilePicker romFilePicker;
     private Runnable restart=() -> Gdx.app.exit();
@@ -122,6 +124,7 @@ public final class ClientApplication extends ApplicationAdapter {
     public void create() {
         resources = new ClientResources(assets, configDirectory.get(), mobile);
         resources.setRomFilePicker(romFilePicker);
+        if(!mobile)resources.modelCaches().start(resources.roms().loaded());
         if (loginSceneFactory!=null) { loginScene=loginSceneFactory.apply(resources); loginScene.setFocused(focused); }
         if (startupBackground == null) {
             sceneAssets = new AssetManager(resources::apply);
@@ -177,7 +180,7 @@ public final class ClientApplication extends ApplicationAdapter {
             java.util.concurrent.CompletableFuture.supplyAsync(() -> {
                 if(disposed || ready.isDone())throw new java.util.concurrent.CancellationException();
                 try {
-                    var maps=WorldMapLoader.load(rom);
+                    var maps=WorldMapLoader.load(rom,mobile?null:resources.modelCaches().cache(type));
                     var movement=new MapMovement(maps,entry.position());
                     maps.tiles(movement.map());
                     if(maps.is3d())maps.geometry(movement.map().id());
@@ -255,6 +258,14 @@ public final class ClientApplication extends ApplicationAdapter {
     public void render() {
         updateUiViewport();
         ScreenUtils.clear(0f, 0f, 0f, 1f);
+        if(!mobile && !resources.modelCaches().done()) {
+            if(resources.modelCaches().building()) {
+                if(modelPrecacheScreen==null)modelPrecacheScreen=new top.totodile.pokemmo.client.ui.startup.PcModelPrecacheScreen(resources);
+                modelPrecacheScreen.draw(resources.modelCaches().progress());
+            }
+            return;
+        }
+        if(modelPrecacheScreen!=null){modelPrecacheScreen.close();modelPrecacheScreen=null;}
         // 以资源实际加载状态决定画面，不规定 Logo 或背景出现在哪一帧。
         // AssetManager 在后台解码图片，在渲染线程上传纹理。
         if (clientUi == null && (startupBackground != null ? startupBackground.update() : sceneAssets.update())) {
@@ -263,6 +274,10 @@ public final class ClientApplication extends ApplicationAdapter {
         }
         // 普通启动等待资源就绪；移动端已加载的启动背景由外层保留并交接。
         if (clientUi == null) return;
+        if(!mobile && !modelPrecacheReported) {
+            modelPrecacheReported=true;
+            if(resources.modelCaches().failure()!=null)clientUi.showNotification(resources.strings().get(926));
+        }
         if(world!=null) {
             world.draw(Math.min(.1f,Gdx.graphics.getDeltaTime()),Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
             uiViewport.apply();
@@ -316,6 +331,7 @@ public final class ClientApplication extends ApplicationAdapter {
 
     @Override
     public void dispose() {
+        if(modelPrecacheScreen!=null){modelPrecacheScreen.close();modelPrecacheScreen=null;}
         if(disposed)return;
         disposed=true;
         // shutdownNow also removes queued loader jobs, so their dependent futures must be completed here.

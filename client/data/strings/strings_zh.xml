@@ -3,6 +3,8 @@
     <string id="12">宝可梦中心</string>
     <!-- 登录界面沿用参考客户端的文本 ID。 -->
     <string id="74">加载中... 请稍候.</string>
+    <string id="925">预缓存模组中... 请稍后.</string>
+    <string id="926">预缓存模组失败.</string>
     <string id="1000">登录</string>
     <string id="1001">用户名:</string>
     <string id="1002">密 码:</string>

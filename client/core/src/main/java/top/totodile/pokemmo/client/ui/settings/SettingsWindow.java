@@ -151,7 +151,7 @@ public final class SettingsWindow extends ClientWindow {
         video.toggle(1252, true);
         if (mobile) video.choice(7701, 1289, 1287);
         else { video.number(1237, "1x"); video.number(1238, "1x"); }
-        video.toggle(1233, false);
+        video.toggle(1233, !mobile);
 
         Page sound = page(1202);
         sound.number(1276, "50"); sound.number(1277, "50"); sound.number(1279, "50");

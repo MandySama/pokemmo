@@ -170,6 +170,7 @@ public final class ClientUi implements Disposable {
     private final top.totodile.pokemmo.client.ui.common.MessageDialog entryError;
 
     public void onRomRestart(Runnable restart) { clientManagement.onRestart(restart); mods.onRestart(restart); }
+    public void showNotification(String text){loginPanel.showNotification(text);}
 
     public void onEnterWorld(java.util.function.Function<top.totodile.pokemmo.server.game.GameService.Entry,java.util.concurrent.CompletionStage<Void>> action) {
         worldEntry=java.util.Objects.requireNonNull(action);

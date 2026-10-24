@@ -19,7 +19,7 @@ public final class BwMaps implements WorldMaps {
     private record Matrix(int width,int height,int[] land,int[] headers) {}
     private record Bounds(int x,int y,int width,int height,int cellWidth,int cellHeight) {}
     private record Land(byte[] data,int model,int objects,int width,int height,short[][] cells,short[][] slopes) {}
-    private record Building(byte[] model,int linked,int dx,int dy,int dz) {}
+    private record Building(byte[] model,int linked,int dx,int dy,int dz,List<byte[]> animations) {}
     private final RomInfo rom;
     private final Header[] headers;
     private final byte[] areas,cameras;
@@ -34,8 +34,13 @@ public final class BwMaps implements WorldMaps {
     private final Map<String,Map<Integer,Building>> buildings=new HashMap<>();
     private final Map<String,byte[]> textures=new HashMap<>();
     private final Set<Id> ids;
+    private final top.totodile.pokemmo.client.rom.nds.model.RegionModelCache modelCache;
 
     public BwMaps(RomInfo rom) throws IOException {
+        this(rom,null);
+    }
+    public BwMaps(RomInfo rom,top.totodile.pokemmo.client.rom.nds.model.RegionModelCache cache) throws IOException {
+        modelCache=cache;
         if(rom.type()!=RomType.BLACK_WHITE)throw new IllegalArgumentException("Black/White ROM required");
         this.rom=rom;
         matrices=archive("/a/0/0/9");landArchive=archive("/a/0/0/8");events=archive("/a/1/2/5");
@@ -57,6 +62,21 @@ public final class BwMaps implements WorldMaps {
     @Override public Position start(){return new Position(1,133,14,14,0);}
     @Override public Set<Id> ids(){return ids;}
     @Override public boolean is3d(){return true;}
+    @Override public top.totodile.pokemmo.client.rom.nds.model.RegionModelCache modelCache(){return modelCache;}
+    @Override public List<java.util.function.Supplier<List<ModelPlacement>>> modelCacheTasks() {
+        var tasks=new ArrayList<java.util.function.Supplier<List<ModelPlacement>>>(WorldMaps.super.modelCacheTasks());
+        // RomModelCacheBuilder.Ar0：室外 a/2/2/9、室内 a/2/3/0，分别绑定对应材质库。
+        for(boolean indoor:new boolean[]{false,true}) {
+            String models=indoor?"/a/2/3/0":"/a/2/2/9",texture=indoor?"/a/1/7/7":"/a/1/7/6";
+            int count=uncheckedArchive(models).count;
+            for(int i=0;i<count;i++) {
+                int index=i;
+                tasks.add(()->buildings(models,index).values().stream()
+                        .map(b->new ModelPlacement(b.model,texture(texture,index),0,0,0,0,b.animations)).toList());
+            }
+        }
+        return List.copyOf(tasks);
+    }
     public record TeleportPoint(int header,int x,int y,boolean noGrid) {}
     /** TeleportMenuWindow.sL(2), including its native coordinate corrections and no-grid list. */
     public List<TeleportPoint> teleportPoints(){
@@ -196,10 +216,10 @@ public final class BwMaps implements WorldMaps {
                 float rotation=(land.data[p+13]&255)/64f*90;
                 int object=(land.data[p+14]&255)<<8|land.data[p+15]&255;
                 Building building=library.get(object);if(building==null)continue;
-                result.add(new ModelPlacement(building.model,texture,bx,by,bz,rotation));
+                result.add(new ModelPlacement(building.model,texture,bx,by,bz,rotation,building.animations));
                 Building linked=library.get(building.linked);
                 if(linked!=null)result.add(new ModelPlacement(linked.model,texture,
-                        bx+building.dx*.016f*64,by,bz+building.dz*.015f*64,rotation));
+                        bx+building.dx*.016f*64,by,bz+building.dz*.015f*64,rotation,linked.animations));
             }
         }
         return List.copyOf(result);
@@ -282,8 +302,17 @@ public final class BwMaps implements WorldMaps {
             int count=u16(data,2)/2;var result=new HashMap<Integer,Building>();
             for(int i=0;i<count;i++) {
                 int record=i32(data,4+i*4),payload=i32(data,4+count*4+i*4);
+                var animations=new ArrayList<byte[]>();
+                // NdsFieldLayoutTable：四个动画引用相对 record+16；每个都是 Nitro 文件。
+                for(int a=0;a<4;a++) {
+                    int reference=i32(data,record+20+a*4);
+                    if(reference>0&&reference<data.length) {
+                        int p=record+16+reference,length=i32(data,p+8);check(data,p,length);
+                        animations.add(Arrays.copyOfRange(data,p,p+length));
+                    }
+                }
                 result.put(u16(data,record),new Building(model(data,payload),s16(data,record+4),
-                        s16(data,record+6),s16(data,record+8),s16(data,record+10)));
+                        s16(data,record+6),s16(data,record+8),s16(data,record+10),List.copyOf(animations)));
             }
             return result;
         });

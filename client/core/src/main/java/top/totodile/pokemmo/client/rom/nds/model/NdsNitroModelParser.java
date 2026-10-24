@@ -12,7 +12,7 @@ import static top.totodile.pokemmo.client.rom.nds.model.NitroDictionary.u16;
 /**
  * 参考 NdsNitroModelParser.a40/decodePolygon/Un0/Xy 的直接解析路径。
  * 对应 AreaHeaderRomChunk、MoveEffectRomChunk、MonsterStatsRomChunk 的字段，
- * 使用当前 LibGDX 的 ModelData 类型替代参考工程的同类包装；不经过转换器或磁盘缓存。
+ * 使用当前 LibGDX 的 ModelData 类型替代参考工程的同类包装；地区缓存保存此直接解析结果。
  */
 public final class NdsNitroModelParser {
     public static final class Material {
@@ -23,7 +23,9 @@ public final class NdsNitroModelParser {
         public boolean mirrorS() { return (textureParams&(1<<18))!=0; }
         public boolean mirrorT() { return (textureParams&(1<<19))!=0; }
     }
-    public record Parsed(ModelData model,List<Material> materials,NitroTextureDictionary textures,int bones,float positionScale) {}
+    public record Parsed(ModelData model,List<Material> materials,NitroTextureDictionary textures,int bones,float positionScale,List<byte[]> resourceAnimations) {
+        public Parsed(ModelData model,List<Material> materials,NitroTextureDictionary textures,int bones,float positionScale){this(model,materials,textures,bones,positionScale,List.of());}
+    }
     private static final class Joint {
         String name; int parent=-1;
         final Vector3 translation=new Vector3(),scale=new Vector3(1,1,1);
@@ -60,6 +62,9 @@ public final class NdsNitroModelParser {
         List<Parsed> result=new ArrayList<>();
         for(int i=0;i<dictionary.count;i++)result.add(read(bytes,textures,i));
         return List.copyOf(result);
+    }
+    public static List<Parsed> readAll(byte[] bytes,byte[] textures,List<byte[]> animations) throws IOException {
+        return ModelCacheCodec.parse(bytes,textures,animations);
     }
     private static Parsed read(byte[] bytes,byte[] textures,int index) throws IOException {
         try {
