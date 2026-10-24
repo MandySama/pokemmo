@@ -34,6 +34,7 @@
     <string id="2101">无效的角色名称. 请输入不含数字或符号的2-16个字符.</string>
     <string id="2102">角色名称已存在或不可用.</string>
     <string id="2103">系统错误. 请稍候再试.</string>
+    <string id="6805">此地图缺少ROM.\n请先添加所需的ROM再登录游戏.\n\n部分地区可能需要多个ROM.</string>
     <string id="1114">关闭</string>
     <string id="1124">申请帮助</string>
     <string id="1159">注销</string>
@@ -294,6 +295,7 @@
     <string id="1227">MOD导入成功.\n您可以删除MOD文件来释放空间了.</string>
     <string id="1232">已存在同名MOD, 请删除后重试.</string>
     <string id="1095">验证文件中...</string>
+    <string id="1142">复制ROM到PokeMMO应用空间中...</string>
     <string id="1138">复制到PokeMMO应用空间失败.\n请检查容量是否足够.</string>
     <string id="1139">复制MOD到PokeMMO应用空间中…</string>
     <string id="1230">没有可显示的MOD.</string>
@@ -1194,4 +1196,19 @@
 
     <string id="1121">附近玩家</string>
     <string id="1928">目前金钱: ${00}</string>
+    <string id="1218">设置 ANGLE 可以提升旧电脑或者MacOS的性能,\n并解决错误显卡驱动造成的崩溃.</string>
+    <string id="1242">限制屏幕一次渲染多少玩家.\n调低有助于提升旧硬件上的性能.</string>
+    <string id="1222">4倍或者8倍缩放后像素绘制会更精确.\n缩放等级越高性能越好.</string>
+    <string id="1267">GBA地图不可达重复边框图块.\n\n关闭后或能提升旧硬件性能.</string>
+    <string id="1268">在战斗中渲染世界背景.\n\n关闭后将提升旧硬件性能.</string>
+    <string id="1269">渲染战斗背景.\n\n关闭后将显示更多世界背景.\n\n仅视觉上有差别.</string>
+    <string id="1249">在资料窗口渲染特效.\n\n关闭后能改善性能.</string>
+    <string id="1244">隐藏屏幕上的系统栏和按钮.</string>
+    <string id="1298">减少渲染区域数量.\n启用后可提升性能.</string>
+    <string id="1285">隐藏其他玩家秀出的质子特效.\n启用后可提升性能.</string>
+    <string id="1214">开闭战斗前的动画.</string>
+    <string id="1235">[实验性] 可能造成图像故障</string>
+    <string id="1246">启用界面缩放时将使用高分辨率字体.\n会占用更多VRAM和CPU.\n关闭时可提升性能.</string>
+    <string id="1294">十字键处的交互忽略程度.\n\n增大此设置可降低十字键敏感度.</string>
+    <string id="1296">可在移动过程中减少方向突变.\n\n增大此设置可降低十字键敏感度.</string>
 </strings>

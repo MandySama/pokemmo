@@ -17,6 +17,7 @@ public final class ModManagementWindow extends ClientWindow {
     private static final java.util.logging.Logger LOG=java.util.logging.Logger.getLogger(ModManagementWindow.class.getName());
     private final boolean mobile;
     private final Runnable onClose;
+    private final java.util.function.Consumer<String> notification;
     private final java.util.function.Consumer<de.matthiasmann.twl.renderer.Image> mobileBackground;
     private final Button save = new Button();
     private final ToggleButton verbose = new ToggleButton("    ");
@@ -32,14 +33,52 @@ public final class ModManagementWindow extends ClientWindow {
     private boolean restartRequired;
     private Runnable restart=() -> com.badlogic.gdx.Gdx.app.exit();
     private final Button importMod;
+    private final Button folder;
     private final DialogLayout list=new DialogLayout();
     private final ScrollPane scroll=new ScrollPane(list);
     private final MessageDialog messageDialog;
     private final ActionConfirmDialog deleteDialog;
     private final ImportProgressDialog progressDialog;
     private boolean busy, disposed;
-    private volatile int progressStage=1095;
-    private volatile double progressValue=-1;
+    private boolean pointerHeld, pointerPanning;
+    private int pointerX, pointerY, scrollX, scrollY;
+
+    public void pointerDown(int x,int y) {
+        pointerHeld=false;pointerPanning=false;
+        if(mobile || !isOpen() || busy)return;
+        Widget target=getGUI().getWidgetAt(x,y);
+        while(target!=null && target!=scroll) {
+            if(target==scroll.getVerticalScrollbar() || target==scroll.getHorizontalScrollbar())return;
+            target=target.getParent();
+        }
+        if(target==null)return;
+        pointerHeld=true;pointerX=x;pointerY=y;
+        scrollX=scroll.getScrollPositionX();scrollY=scroll.getScrollPositionY();
+    }
+    public boolean pointerDrag(int x,int y) {
+        if(!pointerHeld)return false;
+        int dx=x-pointerX,dy=y-pointerY;
+        if(!pointerPanning) {
+            if(Math.abs(dx)<6 && Math.abs(dy)<6)return false;
+            pointerPanning=true;
+            // 沿用参考 pan 的按压取消流程，避免松开拖动时触发按钮。
+            cancelPress(list);getGUI().handleMouse(-1,-1,Event.MOUSE_LBUTTON,false);cancelPress(list);
+        }
+        scroll.setScrollPositionX(Math.max(0,Math.min(scroll.getMaxScrollPosX(),scrollX-dx)));
+        scroll.setScrollPositionY(Math.max(0,Math.min(scroll.getMaxScrollPosY(),scrollY-dy)));
+        return true;
+    }
+    public boolean pointerUp() {
+        boolean dragged=pointerPanning;pointerHeld=false;pointerPanning=false;return dragged;
+    }
+    private static void cancelPress(Widget widget) {
+        if(widget instanceof Button button) {
+            button.getModel().setArmed(false);button.getModel().setPressed(false);button.getModel().setHover(false);
+        }
+        for(int i=0;i<widget.getNumChildren();i++)cancelPress(widget.getChild(i));
+    }
+    private record ImportProgress(int stage,double value) {}
+    private volatile ImportProgress importProgress=new ImportProgress(1095,-1);
     private final ResizableFrame frame = new ResizableFrame() {
         private int headerActionRight;
         @Override protected void applyTheme(ThemeInfo theme) {
@@ -64,13 +103,15 @@ public final class ModManagementWindow extends ClientWindow {
     public ModManagementWindow(Widget owner, ClientStrings strings, boolean mobile, Runnable onClose,
                         java.util.function.Consumer<de.matthiasmann.twl.renderer.Image> mobileBackground,
                         ModImporter importer, RomFilePicker picker,top.totodile.pokemmo.client.twl.GdxTwlRenderer renderer,
-                        top.totodile.pokemmo.client.config.ClientSettings preferences) {
+                        top.totodile.pokemmo.client.config.ClientSettings preferences,
+                        java.util.function.Consumer<String> notification) {
         super(owner);
         this.strings=strings;
         this.importer=importer;
         this.picker=picker;
         this.renderer=renderer;
         this.preferences=preferences;
+        this.notification=notification;
         this.mobile = mobile;
         this.onClose = onClose;
         this.mobileBackground = mobileBackground;
@@ -92,10 +133,13 @@ public final class ModManagementWindow extends ClientWindow {
         var browse = new Button(strings.get(1191));
         importMod = new Button(strings.get(1225));
         importMod.addCallback(this::importMod);
-        var folder = new Button(strings.get(mobile ? 1154 : 1189));
+        folder = new Button(strings.get(mobile ? 1154 : 1189));
+        if(!mobile)folder.addCallback(this::openModDirectory);
         verbose.setTooltipContent(strings.get(1199));
+        verbose.setTooltipDelay(150);
         var verboseLabel = new Label(strings.get(1198));
         verboseLabel.setTooltipContent(strings.get(1199));
+        verboseLabel.setTooltipDelay(150);
         verboseLabel.setLabelFor(verbose);
         save.setText(strings.get(54));
         save.addCallback(this::saveChanges);
@@ -119,12 +163,16 @@ public final class ModManagementWindow extends ClientWindow {
     }
 
     public void open() {
-        if (isOpen()) { raiseWindow(); return; }
+        if (busy) { if(isOpen())raiseWindow();return; }
+        pointerUp();messageDialog.closePopup();deleteDialog.closePopup();
         resetOrder();
         updateList();
         verbose.setActive(Boolean.parseBoolean(preferences.get(VERBOSE_KEY,"false")));
-        if (openPopup()) {
+        boolean alreadyOpen=isOpen();
+        if (alreadyOpen || openPopup()) {
+            if(alreadyOpen)raiseWindow();
             positionWindow();
+            scroll.setScrollPositionX(0);scroll.setScrollPositionY(0);
             frame.setHardVisible(true);
         }
     }
@@ -132,7 +180,10 @@ public final class ModManagementWindow extends ClientWindow {
     public void positionWindow() {
         messageDialog.positionWindow();
         deleteDialog.positionWindow();
-        if (progressDialog.isOpen()) progressDialog.update(strings.get(progressStage),progressValue);
+        if (progressDialog.isOpen()) {
+            var progress=importProgress;
+            progressDialog.update(strings.get(progress.stage()),progress.value());
+        }
         if (!isOpen()) return;
         Widget owner = getOwner();
         if (mobile) {
@@ -271,6 +322,19 @@ public final class ModManagementWindow extends ClientWindow {
 
     public void onRestart(Runnable restart) { this.restart=java.util.Objects.requireNonNull(restart); }
 
+    private void openModDirectory() {
+        try {
+            if(picker==null)throw new java.io.IOException("File browser unavailable");
+            java.nio.file.Files.createDirectories(importer.directory());
+            picker.openDirectory(importer.directory().toString(),error -> com.badlogic.gdx.Gdx.app.postRunnable(() -> {
+                if(!disposed)messageDialog.show(strings.format(1094,importer.directory().getFileName().toString()));
+            }));
+        }catch(java.io.IOException | RuntimeException error) {
+            LOG.log(java.util.logging.Level.WARNING,"Unable to open MOD directory",error);
+            messageDialog.show(strings.format(1094,importer.directory().getFileName().toString()));
+        }
+    }
+
     private void importMod() {
         if (busy || disposed) return;
         if (picker==null) { messageDialog.show(strings.get(1226)); return; }
@@ -278,12 +342,12 @@ public final class ModManagementWindow extends ClientWindow {
         try {
             picker.chooseMod(source -> com.badlogic.gdx.Gdx.app.postRunnable(() -> {
                 if (disposed) return;
-                if (source==null) { finishImport(0); return; }
-                progressStage=1095; progressValue=-1;
+                if (source==null) { finishImport(0); notification.accept(strings.get(1085)); return; }
+                importProgress=new ImportProgress(1095,-1);
                 progressDialog.show(strings.get(1095));
                 java.util.concurrent.CompletableFuture.supplyAsync(() -> {
                     int result=1227;
-                    try { importer.importMod(source,(stage,value) -> { progressStage=stage; progressValue=value; }); }
+                    try { importer.importMod(source,(stage,value) -> importProgress=new ImportProgress(stage,value)); }
                     catch (ModImporter.Failure error) {
                         LOG.log(java.util.logging.Level.FINE,"Unable to import MOD",error);
                         result=error.stringId;
@@ -295,18 +359,32 @@ public final class ModManagementWindow extends ClientWindow {
                 }).whenComplete((message,error) -> {
                     // CompletableFuture 会保存 Error；必须从完成回调统一关闭进度框、恢复按钮。
                     if(error!=null)LOG.log(java.util.logging.Level.SEVERE,"MOD import task failed",error);
-                    com.badlogic.gdx.Gdx.app.postRunnable(() -> finishImport(error==null?message:1226));
+                    com.badlogic.gdx.Gdx.app.postRunnable(() -> finishImport(error==null?message:1226,source.name()));
                 });
             }),error -> com.badlogic.gdx.Gdx.app.postRunnable(() -> finishImport(1226)));
         } catch (RuntimeException error) { finishImport(1226); }
     }
 
     private void finishImport(int message) {
+        finishImport(message,null);
+    }
+
+    private void finishImport(int message,String importedFilename) {
         if (disposed) return;
         progressDialog.closePopup();
         busy=false; importMod.setEnabled(true);
-        if (message==1227) updateList();
-        if (message!=0) messageDialog.show(strings.get(message));
+        if (message==1227) {
+            // 参考 ModManagerWindow.Ir：成功导入即标记 rl，关闭管理窗口时提示重启。
+            restartRequired=true;
+            if(importedFilename!=null) {
+                displayOrder.remove(importedFilename);
+                displayOrder.add(0,importedFilename);
+                orderDirty=true;
+            }
+            updateList();
+            scroll.setScrollPositionX(0);scroll.setScrollPositionY(0);
+        }
+        if (message!=0) notification.accept(strings.get(message));
     }
 
     public boolean isImporting() { return busy; }
@@ -321,6 +399,7 @@ public final class ModManagementWindow extends ClientWindow {
     }
 
     @Override public void closePopup() {
+        pointerUp();
         if(busy)return;
         if(!disposed && restartRequired) {
             messageDialog.show(strings.get(1179),() -> {

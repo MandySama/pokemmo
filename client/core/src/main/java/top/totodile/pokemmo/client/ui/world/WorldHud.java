@@ -42,7 +42,7 @@ public final class WorldHud extends Widget {
         class ShortcutButton extends Button implements GUI.TooltipPositionAdjuster {
             private final int index;
             private Image icon;
-            ShortcutButton(int index){this.index=index;}
+            ShortcutButton(int index){this.index=index;if(!mobile)setTooltipDelay(150);}
             @Override protected void applyTheme(ThemeInfo theme) {super.applyTheme(theme);icon=icons.apply(ids[index]);}
             @Override public Object getTooltipContent() {
                 String name=strings.get(texts[index]);

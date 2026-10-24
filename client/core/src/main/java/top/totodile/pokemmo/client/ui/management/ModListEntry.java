@@ -18,6 +18,9 @@ final class ModListEntry extends DialogLayout implements AutoCloseable {
         setTheme("dialoglayout");
         setAddDefaultGaps(false);
         Widget icon=new Widget() {
+            @Override protected boolean handleEvent(Event event) {
+                return event.isMouseEvent() && event.getType()!=Event.Type.MOUSE_WHEEL;
+            }
             @Override protected void applyTheme(ThemeInfo theme) {
                 super.applyTheme(theme);
                 setMinSize(64,64); setMaxSize(64,64);
@@ -40,10 +43,11 @@ final class ModListEntry extends DialogLayout implements AutoCloseable {
         }
         Label title=new Label(mod.name()+"\n"+strings.format(1192,mod.author())+"\n"+strings.format(1193,mod.version()));
         title.setTheme("label-settings-title");
-        title.setClip(true);
         if(!mod.description().isBlank()) {
             icon.setTooltipContent(mod.description());
             title.setTooltipContent(mod.description());
+            icon.setTooltipDelay(250);
+            title.setTooltipDelay(250);
         }
         ToggleButton selected=new ToggleButton();
         selected.setSize(80,30);
@@ -83,7 +87,16 @@ final class ModListEntry extends DialogLayout implements AutoCloseable {
     }
 
     private static DialogLayout verticalButtons(Widget... widgets) {
-        DialogLayout panel=new DialogLayout();
+        DialogLayout panel=new DialogLayout() {
+            private int columnWidth=100;
+            @Override protected void applyTheme(ThemeInfo info) {
+                super.applyTheme(info);
+                columnWidth=info.getParameter("minWidth",100);
+            }
+            @Override public int getMinWidth() { return columnWidth; }
+            @Override public int getPreferredWidth() { return getMinWidth(); }
+            @Override public int getMaxWidth() { return getMinWidth(); }
+        };
         panel.setTheme("label-settings-value-modbuttons");
         panel.setAddDefaultGaps(false);
         panel.setHorizontalGroup(panel.createParallelGroup(widgets));

@@ -30,7 +30,11 @@ final class PokemonSlot extends Button {
         setTooltipContent(p==null?null:controller.name(p)+"\n"+controller.strings.format(1731,Integer.toString(p.level()))+"   HP "+p.hp()+"/"+p.maxHp());
     }
     @Override protected void layout(){health.setSize(Math.max(0,getWidth()-10),5);health.setPosition(getX()+5,getBottom()-6);}
-    @Override protected void applyTheme(ThemeInfo theme){super.applyTheme(theme);radial=theme.getImage("radial-progress");}
+    @Override protected void applyTheme(ThemeInfo theme){
+        super.applyTheme(theme);
+        // Reference ServerRegionTagLabel only loads this image when radial health is enabled.
+        radial=controller.mobile&&!storage?theme.getImage("radial-progress"):null;
+    }
     @Override protected void paintWidget(GUI gui){
         var p=pokemon();if(p==null)return;var images=controller.images();if(images==null)return;
         if(controller.mobile&&!storage&&radial!=null&&gui.getRenderer() instanceof top.totodile.pokemmo.client.twl.GdxTwlRenderer renderer){

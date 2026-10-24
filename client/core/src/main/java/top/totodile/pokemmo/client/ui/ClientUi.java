@@ -225,6 +225,7 @@ public final class ClientUi implements Disposable {
             @Override protected void paintOverlay(GUI gui){if(pokemon!=null)pokemon.paintDrag(getAnimationState());}
             @Override protected void layout() {
                 if(worldActions!=null) {
+                    loginPanel.layoutNotifications();
                     worldHud.position(getInnerX(),getInnerY(),getInnerWidth(),getInnerHeight());
                     worldActions.position(getInnerX(),getInnerY(),getInnerWidth(),getInnerHeight());
                     fps.adjustSize(); fps.setPosition(mobile?getInnerX():getInnerRight()-fps.getWidth(),mobile?getInnerBottom()-fps.getHeight():getInnerY());
@@ -293,8 +294,8 @@ public final class ClientUi implements Disposable {
                 resources.roms(), resources.romFilePicker(), () -> romInfo.setText(romSummary()),
                 loginPanel::showNotification);
         mods = new ModManagementWindow(root, strings, mobile, restoreFocus, mobileBackground,
-                resources.modImporter(),resources.romFilePicker(),renderer,resources.preferences());
-        settings = new SettingsWindow(root, strings, mobile, restoreFocus, mobileBackground, resources.preferences());
+                resources.modImporter(),resources.romFilePicker(),renderer,resources.preferences(),loginPanel::showNotification);
+        settings = new SettingsWindow(root, strings, mobile, restoreFocus, mobileBackground, resources.preferences(),loginPanel::showNotification);
         pokedex = new PokedexWindow(root,resources,renderer,mobile,mobileBackground,()->{
             if(worldScene!=null)worldScene.setInputBlocked(worldHud.editingChat()||settings.isOpen()||worldLogout.isOpen());
         });
@@ -302,7 +303,7 @@ public final class ClientUi implements Disposable {
         characterCreation = new CharacterCreationWindow(root, strings, mobile, () -> {
             characterPage.setVisible(controller.state() == LoginController.State.SELECTED);
             restoreWindowFocus();
-        }, mobileBackground, new CharacterAppearance(resources.apply("sprites/addons.pak"), strings), renderer, notificationClock);
+        }, mobileBackground, new CharacterAppearance(resources.apply("sprites/addons.pak"), strings), renderer, notificationClock,loginPanel::showNotification);
         inventoryItems=new InventoryItems(resources,renderer);
         inventory=new InventoryWindow(root,strings,mobile,inventoryItems,id->{
             if(resources.apply("sprites/itemicons/"+id+".png").exists())return itemIcon(id);
@@ -367,6 +368,10 @@ public final class ClientUi implements Disposable {
             }
             @Override public boolean touchDown(int x,int y,int pointer,int button){
                 if (pointer != 0) return false;
+                if(button==0&&mods.isOpen()) {
+                    Vector2 p=viewport.unproject(new Vector2(x,y));
+                    mods.pointerDown(Math.round(p.x),renderer.getHeight()-Math.round(p.y));
+                }
                 if(mobile&&button==0){
                     Vector2 point=viewport.unproject(new Vector2(x,y));int px=Math.round(point.x),py=renderer.getHeight()-Math.round(point.y);
                     Widget target=gui.getWidgetAt(px,py);
@@ -386,6 +391,7 @@ public final class ClientUi implements Disposable {
             }
             @Override public boolean touchUp(int x,int y,int pointer,int button){
                 if (pointer != 0) return false;
+                if(button==0&&mods.pointerUp())return true;
                 if(playerTouchScroll!=null){Vector2 p=viewport.unproject(new Vector2(x,y));boolean pan=playerTouchScroll.endTouch(Math.round(p.x),renderer.getHeight()-Math.round(p.y));playerTouchScroll=null;if(pan)return true;}
                 if(worldScene!=null){Vector2 p=viewport.unproject(new Vector2(x,y));if(pokemon.touchUp(Math.round(p.x),renderer.getHeight()-Math.round(p.y))){gui.handleMouse(-1,-1,button,false);return true;}}
                 if(pokedex.isOpen()){Vector2 p=viewport.unproject(new Vector2(x,y));if(pokedex.touchUp(Math.round(p.x),renderer.getHeight()-Math.round(p.y)))return true;}
@@ -395,6 +401,10 @@ public final class ClientUi implements Disposable {
             }
             @Override public boolean touchDragged(int x,int y,int pointer){
                 if (pointer != 0) return false;
+                if(mods.isOpen()) {
+                    Vector2 p=viewport.unproject(new Vector2(x,y));
+                    if(mods.pointerDrag(Math.round(p.x),renderer.getHeight()-Math.round(p.y)))return true;
+                }
                 if(playerTouchScroll!=null&&!pokemon.hasDragCandidate()){Vector2 p=viewport.unproject(new Vector2(x,y));if(playerTouchScroll.drag(Math.round(p.x),renderer.getHeight()-Math.round(p.y)))return true;}
                 if(worldScene!=null){Vector2 p=viewport.unproject(new Vector2(x,y));if(pokemon.touchDragged(Math.round(p.x),renderer.getHeight()-Math.round(p.y)))return true;}
                 if(pokedex.isOpen()){Vector2 p=viewport.unproject(new Vector2(x,y));if(pokedex.touchDragged(Math.round(p.x),renderer.getHeight()-Math.round(p.y)))return true;}
@@ -403,6 +413,7 @@ public final class ClientUi implements Disposable {
                 return pointer(x,y,-1,false);
             }
             @Override public boolean touchCancelled(int x,int y,int pointer,int button){
+                if(pointer==0)mods.pointerUp();
                 if(pointer==0&&playerTouchScroll!=null){playerTouchScroll.cancelTouch();playerTouchScroll=null;gui.handleMouse(-1,-1,button,false);}
                 if(pointer==0)pokemon.cancelDrag();
                 if(pointer==0&&pokedex.isOpen()){pokedex.cancelTouch();return gui.handleMouse(-1,-1,button,false);}
@@ -733,9 +744,13 @@ public final class ClientUi implements Disposable {
     }
     private void worldEntryFailed(top.totodile.pokemmo.server.login.LoginService.Selection selection,Throwable failure) {
         enteringWorld=false;
-        Gdx.app.error("world","Cannot enter local character",failure);
+        Throwable cause=failure;
+        while((cause instanceof java.util.concurrent.CompletionException || cause instanceof java.util.concurrent.ExecutionException)
+                && cause.getCause()!=null)cause=cause.getCause();
+        boolean missingRom=cause instanceof top.totodile.pokemmo.client.rom.MissingRomException;
+        if(!missingRom)Gdx.app.error("world","Cannot enter local character",failure);
         loadCharacters(selection);
-        entryError.show(strings.get(2103));
+        entryError.show(strings.get(missingRom?6805:2103));
     }
     private void createCharacter() {
         var selection = controller.selection();

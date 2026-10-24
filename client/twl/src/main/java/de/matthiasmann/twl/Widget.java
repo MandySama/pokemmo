@@ -110,6 +110,7 @@ public class Widget {
     private Image background;
     private Image overlay;
     private Object tooltipContent;
+    private int tooltipDelay = -1;
     private Object themeTooltipContent;
     private InputMap inputMap;
     private ActionMap actionMap;
@@ -1514,6 +1515,14 @@ public class Widget {
      */
     public Object getTooltipContent() {
         return tooltipContent;
+    }
+
+    /** 单个控件的悬停延迟；-1 沿用 GUI 默认值，对应参考 TwlWidget.GH0/Bb。 */
+    public int getTooltipDelay() { return tooltipDelay; }
+
+    public void setTooltipDelay(int delay) {
+        if(delay < -1)throw new IllegalArgumentException("tooltipDelay");
+        tooltipDelay=delay;
     }
 
     /**

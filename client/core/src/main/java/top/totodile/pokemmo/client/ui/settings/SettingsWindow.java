@@ -18,6 +18,7 @@ public final class SettingsWindow extends ClientWindow {
     private final SettingsTabs tabs;
     private final Button save;
     private final ClientSettings preferences;
+    private final java.util.function.Consumer<String> notification;
     private record Binding(String initial, java.util.function.Supplier<String> read, java.util.function.Consumer<String> write) {}
     private final java.util.Map<String,Binding> bindings = new java.util.LinkedHashMap<>();
     private SettingsButton pendingKey;
@@ -43,7 +44,7 @@ public final class SettingsWindow extends ClientWindow {
 
     public SettingsWindow(Widget owner, ClientStrings strings, boolean mobile, Runnable onClose,
                    java.util.function.Consumer<de.matthiasmann.twl.renderer.Image> mobileBackground,
-                   ClientSettings preferences) {
+                   ClientSettings preferences,java.util.function.Consumer<String> notification) {
         super(owner);
         this.strings = strings;
         this.mobile = mobile;
@@ -51,6 +52,7 @@ public final class SettingsWindow extends ClientWindow {
         this.onClose = onClose;
         this.mobileBackground = mobileBackground;
         this.preferences = preferences;
+        this.notification = notification;
         setTheme("");
         frame.setTheme("/settings-panel");
         frame.setTitle(strings.get(1200));
@@ -102,26 +104,7 @@ public final class SettingsWindow extends ClientWindow {
         try { preferences.save(changes); closePopup(); }
         catch (RuntimeException error) {
             Gdx.app.error("settings","Cannot save client settings",error);
-            showSaveError();
-        }
-    }
-    private ResizableFrame saveError;
-    private long saveErrorUntil;
-    private void showSaveError() {
-        if (saveError == null) {
-            saveError = new ResizableFrame(); saveError.setTheme("/notification");
-            saveError.setDraggable(false); saveError.setResizableAxis(ResizableFrame.ResizableAxis.NONE);
-            var content = new DialogLayout(); var text = new Label(strings.get(2103));
-            content.setHorizontalGroup(content.createParallelGroup(text));content.setVerticalGroup(content.createSequentialGroup(text));
-            saveError.add(content); add(saveError);
-        }
-        saveErrorUntil = System.nanoTime() / 1_000_000 + 5000;
-        saveError.setHardVisible(true);
-    }
-    @Override protected void paintWidget(GUI gui) {
-        if (saveError != null && saveError.isVisible()) {
-            if (System.nanoTime() / 1_000_000 >= saveErrorUntil) saveError.setHardVisible(false);
-            else { saveError.adjustSize(); saveError.setPosition(getX()+(getWidth()-saveError.getWidth())/2,getBottom()-100-saveError.getHeight()); }
+            notification.accept(strings.get(2103));
         }
     }
 
@@ -244,7 +227,7 @@ public final class SettingsWindow extends ClientWindow {
             setAddDefaultGaps(false);
             setHorizontalGroup(columns); setVerticalGroup(rows);
         }
-        void row(String title, Widget control) {
+        Label row(String title, Widget control) {
             prepareControl(control);
             rowControls.add(control);
             Label label = new Label(title) {
@@ -256,6 +239,22 @@ public final class SettingsWindow extends ClientWindow {
             columns.addGroup(createSequentialGroup().addWidget(label).addGap(DialogLayout.DEFAULT_GAP).addWidget(control));
             if (rowCount++ > 0) rows.addGap(DialogLayout.DEFAULT_GAP);
             rows.addGroup(createParallelGroup(label, control));
+            return label;
+        }
+        void row(int title,Widget control) {
+            Label label=row(strings.get(title),control);
+            // GameSettingsWindow 的标签提示；ToggleSettingGroup.yO 使用 100ms。
+            int description=switch(title) {
+                case 1217->1218;case 1241->1242;case 1221->1222;
+                case 1252->1267;case 1257->1268;case 1255->1269;case 1248->1249;
+                case 1243->1244;case 1297->1298;case 1284->1285;case 1213->1214;
+                case 1234->1235;case 1245->1246;case 1293->1294;case 1295->1296;
+                default->0;
+            };
+            if(description!=0) {
+                label.setTooltipContent(strings.get(description));
+                if(title!=1217 && title!=1241 && title!=1221)label.setTooltipDelay(100);
+            }
         }
         @Override protected void layout() {
             super.layout();
@@ -285,7 +284,7 @@ public final class SettingsWindow extends ClientWindow {
                 toggle.getModel().setSelected(value.equals("true") ? true : value.equals("false") ? false : active);
                 toggle.getAnimationState().dontAnimate(Button.STATE_SELECTED);
             });
-            row(strings.get(label), value(toggle));
+            row(label, value(toggle));
         }
         void key(int label, String key) {
             String name = switch (label) {
@@ -313,7 +312,7 @@ public final class SettingsWindow extends ClientWindow {
         void number(int label, String text) {
             NumberDisplay number = new NumberDisplay(label,text);
             bind(ClientSettings.key(label),number::stored,number::restore);
-            row(strings.get(label), number);
+            row(label, number);
         }
         void choice(int label, int... options) {
             choice(label, java.util.Arrays.stream(options).mapToObj(strings::get).toArray(String[]::new));
@@ -359,9 +358,9 @@ public final class SettingsWindow extends ClientWindow {
                     choice.select(index < 0 ? defaultIndex : index);
                 });
             }
-            row(strings.get(label), value(choice));
+            row(label, value(choice));
         }
-        void button(int label, int caption) { row(strings.get(label), value(new SettingsButton(strings.get(caption)))); }
+        void button(int label, int caption) { row(label, value(new SettingsButton(strings.get(caption)))); }
         void button(int caption) {
             Button button = new SettingsButton(strings.get(caption));
             if (caption == 1388) button.addCallback(() -> keyBindings.forEach((control,key) -> bindings.get(key).write().accept(bindings.get(key).initial())));
@@ -606,7 +605,6 @@ public final class SettingsWindow extends ClientWindow {
     public void open() {
         if (isOpen()) { raiseWindow(); return; }
         restoreSaved();
-        if (saveError != null) saveError.setHardVisible(false);
         tabs.select(0);
         tabs.selectedPage().setScrollPositionY(0);
         if (openPopup()) { positionWindow(); frame.setHardVisible(true); }

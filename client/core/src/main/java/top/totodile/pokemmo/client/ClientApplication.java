@@ -49,6 +49,7 @@ public final class ClientApplication extends ApplicationAdapter {
     private StartupBackground startupBackground;
     private top.totodile.pokemmo.client.ui.startup.PcModelPrecacheScreen modelPrecacheScreen;
     private boolean modelPrecacheReported;
+    private boolean startupHasBlackWhiteRom;
     private top.totodile.pokemmo.server.game.GameService gameService;
     private RomFilePicker romFilePicker;
     private Runnable restart=() -> Gdx.app.exit();
@@ -123,6 +124,7 @@ public final class ClientApplication extends ApplicationAdapter {
     @Override
     public void create() {
         resources = new ClientResources(assets, configDirectory.get(), mobile);
+        startupHasBlackWhiteRom=resources.roms().get(RomType.BLACK_WHITE)!=null;
         resources.setRomFilePicker(romFilePicker);
         if(!mobile)resources.modelCaches().start(resources.roms().loaded());
         if (loginSceneFactory!=null) { loginScene=loginSceneFactory.apply(resources); loginScene.setFocused(focused); }
@@ -171,7 +173,7 @@ public final class ClientApplication extends ApplicationAdapter {
         var selection=selectedServer();
         var type=RomType.of(entry.region());
         var rom=resources.roms().get(type);
-        if(rom==null) return java.util.concurrent.CompletableFuture.failedFuture(new IllegalStateException(type+" ROM is not loaded"));
+        if(rom==null) return java.util.concurrent.CompletableFuture.failedFuture(new top.totodile.pokemmo.client.rom.MissingRomException(type));
         var ready=new java.util.concurrent.CompletableFuture<Void>();
         pendingWorldEntries.add(ready);
         ready.whenComplete((ignored,failure)->pendingWorldEntries.remove(ready));
@@ -289,7 +291,7 @@ public final class ClientApplication extends ApplicationAdapter {
         float height = viewport.getWorldHeight();
         if (loginScene!=null && loginScene.draw(Gdx.graphics.getDeltaTime(),viewport.getScreenWidth(),viewport.getScreenHeight())) {
             // PC ROM 场景已绘制，前景继续使用现有 UI 视口。
-        } else if (mobile || loginScene == null || resources.roms().get(RomType.BLACK_WHITE) == null) {
+        } else if (mobile || loginScene == null || !startupHasBlackWhiteRom) {
             // PC 仅在未加载黑白 ROM 时使用滚动背景；3D 准备期间保留清屏底色。
             if (startupBackground != null) startupBackground.draw();
             else {

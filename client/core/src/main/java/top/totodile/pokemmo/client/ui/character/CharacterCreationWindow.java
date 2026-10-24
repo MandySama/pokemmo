@@ -47,8 +47,7 @@ public final class CharacterCreationWindow extends ClientWindow {
     private Runnable submit = () -> {};
     private long version;
     private final LongSupplier clock;
-    private final java.util.List<CreationNotice> notices = new java.util.ArrayList<>();
-    private long nextFade;
+    private final Consumer<String> notification;
     private final ResizableFrame frame = new ResizableFrame() {
         private int headerActionRight;
         @Override protected void applyTheme(ThemeInfo theme) {
@@ -72,7 +71,8 @@ public final class CharacterCreationWindow extends ClientWindow {
 
     public CharacterCreationWindow(Widget owner, ClientStrings strings, boolean mobile, Runnable onClose,
                             Consumer<de.matthiasmann.twl.renderer.Image> mobileBackground,
-                            CharacterAppearance appearanceState, GdxTwlRenderer renderer, LongSupplier clock) {
+                            CharacterAppearance appearanceState, GdxTwlRenderer renderer, LongSupplier clock,
+                            Consumer<String> notification) {
         super(owner);
         this.mobile = mobile;
         this.strings = strings;
@@ -80,6 +80,7 @@ public final class CharacterCreationWindow extends ClientWindow {
         this.mobileBackground = mobileBackground;
         this.appearanceState = appearanceState;
         this.clock = clock;
+        this.notification = notification;
         frame.setTheme("/customize-widget");
         frame.setTitle(strings.get(1050));
         frame.setDraggable(false);
@@ -374,47 +375,8 @@ public final class CharacterCreationWindow extends ClientWindow {
         return appearanceState.restore(value);
     }
     public void creationError(int stringId) {
-        CreationNotice notice = new CreationNotice(strings.get(stringId));
-        notices.add(notice); add(notice);
-        layoutNotices();
+        notification.accept(strings.get(stringId));
         if (!mobile) name.requestKeyboardFocus();
-    }
-    private void layoutNotices() {
-        int bottom = getBottom() - 100;
-        for (var notice : notices) {
-            notice.adjustSize();
-            notice.setPosition(getX() + (getWidth() - notice.getWidth()) / 2, bottom - notice.getHeight());
-            bottom -= notice.getHeight() + 5;
-        }
-    }
-    @Override protected void paintWidget(GUI gui) {
-        long now = clock.getAsLong();
-        var iterator = notices.iterator();
-        while (iterator.hasNext()) {
-            var notice = iterator.next();
-            if (notice.fade > 0 && now >= notice.fade + 300) { removeChild(notice); iterator.remove(); }
-            else if (notice.fade == 0 && now >= notice.expires && now >= nextFade) {
-                notice.fade = now; nextFade = now + 300; notice.getTintAnimator().fadeToHide(250);
-            }
-        }
-        layoutNotices();
-    }
-    private final class CreationNotice extends ResizableFrame {
-        long expires = clock.getAsLong() + 5000, fade;
-        CreationNotice(String text) {
-            setTheme("/notification"); setDraggable(false); setResizableAxis(ResizableAxis.NONE);
-            var content = new DialogLayout();
-            var message = new Button(text);
-            message.setTheme("label"); message.setCanAcceptKeyboardFocus(false);
-            message.addCallback(() -> expires = clock.getAsLong());
-            content.setHorizontalGroup(content.createParallelGroup(message));
-            content.setVerticalGroup(content.createSequentialGroup(message)); add(content);
-            setTintAnimator(new TintAnimator(new TintAnimator.TimeSource() {
-                private long start;
-                public void resetTime() { start = clock.getAsLong(); }
-                public int getTime() { return (int)Math.min(Integer.MAX_VALUE, clock.getAsLong() - start); }
-            }));
-        }
     }
     public void dispose() {
         preview.close();
@@ -432,8 +394,6 @@ public final class CharacterCreationWindow extends ClientWindow {
         for (var choice : appearanceChoices.values()) choice.closeChoices();
         gender.closeChoices(); skin.closeChoices(); region.closeChoices();
         boolean wasOpen = isOpen();
-        for (var notice : notices) removeChild(notice);
-        notices.clear(); nextFade = 0;
         if (wasOpen) version++;
         super.closePopup();
         if (wasOpen) onClose.run();

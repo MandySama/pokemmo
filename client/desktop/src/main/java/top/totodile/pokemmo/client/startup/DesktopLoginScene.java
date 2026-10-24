@@ -22,6 +22,7 @@ public final class DesktopLoginScene implements LoginScene {
     private final ClientResources resources;
     private final Path cache;
     private final int variant;
+    private final RomInfo startupRom;
     private final List<NitroModelRenderer> scenes=new ArrayList<>();
     private final List<AnimationController> animations=new ArrayList<>();
     private final PerspectiveCamera camera=new PerspectiveCamera(80,1024,768);
@@ -42,12 +43,14 @@ public final class DesktopLoginScene implements LoginScene {
     }
     DesktopLoginScene(ClientResources resources,Path cache,int variant) {
         this.resources=resources; this.cache=cache; this.variant=variant;
+        // 本次启动的场景固定使用启动时的 ROM，新导入内容重启后才启用。
+        startupRom=resources.roms().get(RomType.BLACK_WHITE);
         camera.near=0.01f; camera.far=200;
         environment.set(ColorAttribute.createAmbientLight(1,1,1,1));
     }
     @Override public boolean draw(float delta,int width,int height) {
         if (closed) return false;
-        RomInfo selected=resources.roms().get(RomType.BLACK_WHITE);
+        RomInfo selected=startupRom;
         if (selected!=rom) {
             release(); rom=selected;
             if (rom!=null) {

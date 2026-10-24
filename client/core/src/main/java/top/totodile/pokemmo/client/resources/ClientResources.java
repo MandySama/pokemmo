@@ -26,6 +26,7 @@ public final class ClientResources implements Function<String, FileHandle>, Auto
     private final Map<java.nio.file.Path,ZipFile> archives = new LinkedHashMap<>();
     private final Map<java.nio.file.Path,Runnable> packageCleanup = new HashMap<>();
     private final List<ClientStrings.Source> stringSources = new ArrayList<>();
+    private ClientStrings cachedStrings;
     private final Map<String, Theme> themes = new LinkedHashMap<>();
     private final Properties settings = new Properties();
     private final boolean mobile;
@@ -47,6 +48,12 @@ public final class ClientResources implements Function<String, FileHandle>, Auto
             }
             @Override public void selectFile(RomType type, String filename) {
                 preferences.save(Map.of("client.roms." + type.id, filename));
+            }
+            @Override public void romImported(RomType type) {
+                // ClientSettingsWindow.Le0：黑/白和白金成功加载即设置 oN，重复导入也适用。
+                // RegionModelCacheManager 构造时据此令所有 NDS 地区缓存失效，启动完成后清除。
+                if(!mobile && (type==RomType.BLACK_WHITE || type==RomType.PLATINUM))
+                    preferences.save(Map.of("client.cache.model_cache.regenerate","true"));
             }
         });
         modelCaches=new top.totodile.pokemmo.client.rom.nds.model.RegionModelCaches(config.parent().child("cache").file().toPath(),preferences);
@@ -267,10 +274,12 @@ public final class ClientResources implements Function<String, FileHandle>, Auto
             roots.add(0,root);
             for (Theme theme:declaredThemes) themes.put(theme.name(),theme);
             stringSources.addAll(declaredStrings);
+            if (!declaredStrings.isEmpty()) cachedStrings = null;
             if(!builtIn)packageCleanup.put(file.file().toPath().toAbsolutePath().normalize(),() -> {
                 // 其他主题的继承链也可能引用此来源；删除后应继续查找基础资源，不能访问已关闭 ZIP。
                 available[0]=false;
                 roots.remove(root); stringSources.removeAll(declaredStrings);
+                if (!declaredStrings.isEmpty()) cachedStrings = null;
                 for(Theme theme:declaredThemes)themes.remove(theme.name(),theme);
             });
         } catch (Exception error) { LOG.log(Level.WARNING,"Error loading resource package " + file.path(),error); }
@@ -292,8 +301,10 @@ public final class ClientResources implements Function<String, FileHandle>, Auto
         if(cleanup!=null)cleanup.run();
     }
     public ClientStrings strings() {
-        return new ClientStrings(settings.getProperty("client.ui.chat.language.current_language"),
+        if (cachedStrings == null) cachedStrings = new ClientStrings(
+                settings.getProperty("client.ui.chat.language.current_language"),
                 stringSources.toArray(ClientStrings.Source[]::new));
+        return cachedStrings;
     }
     public Theme selectedTheme() {
         Theme selected=themes.get(settings.getProperty("client.ui.theme",mobile?"android":"default"));

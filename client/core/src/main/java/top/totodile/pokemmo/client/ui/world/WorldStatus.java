@@ -25,6 +25,7 @@ final class WorldStatus extends DialogLayout {
         setTheme("/world-status");
         setAddDefaultGaps(false);
         placeIcon.setTheme("location");moneyIcon.setTheme("money");timeIcon.setTheme("day");
+        timeIcon.setTooltipDelay(50); // TrainerHudWindow.Jg0
         setHorizontalGroup(createSequentialGroup()
                 .addGroup(createParallelGroup(placeIcon,moneyIcon,timeIcon))
                 .addGap(DEFAULT_GAP)

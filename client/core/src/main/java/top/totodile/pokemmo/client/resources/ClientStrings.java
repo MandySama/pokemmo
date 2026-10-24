@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 /** 对齐参考项目 XmlDocumentDomSerializer / ThemeXmlLayoutLoader 的语言容器加载流程。 */
@@ -42,14 +43,20 @@ public final class ClientStrings {
     static final class Source {
         final FileHandle file;
         final boolean bundled;
+        private Container parsed;
         Source(FileHandle file, boolean bundled) { this.file = file; this.bundled = bundled; }
+        // 参考 sE0：语言容器解析一次，后续选择和界面读取复用已解析的内容。
+        synchronized Container container() {
+            if (parsed == null) parsed = new Container(file, bundled);
+            return parsed;
+        }
     }
 
-    static void validate(Source source) { new Container(source.file, source.bundled); }
+    static void validate(Source source) { source.container(); }
 
     ClientStrings(String requestedLanguage, Source... sources) {
         for (Source source : sources) {
-            try { containers.add(new Container(source.file, source.bundled)); }
+            try { containers.add(source.container()); }
             catch (RuntimeException error) { LOG.log(Level.WARNING, "Error parsing string container " + source.file.path(), error); }
         }
         select(requestedLanguage == null ? preferredLanguage(Locale.getDefault()) : requestedLanguage);
@@ -222,28 +229,37 @@ public final class ClientStrings {
                     archiveType = Integer.parseInt(parser.getAttributeValue(null, "archive_type"));
                     if (region < 0 || region >= 5 || archiveType < 0 || archiveType > 1) throw new IllegalArgumentException("Invalid string archive region/type");
                 }
-                int event;
-                while ((event = parser.next()) != XmlPullParser.END_DOCUMENT) {
-                    if (event != XmlPullParser.START_TAG || !"string".equals(parser.getName())) continue;
-                    String idText = parser.getAttributeValue(null, "id");
-                    String tableText = parser.getAttributeValue(null, "table_id");
-                    String blockText = parser.getAttributeValue(null, "block_id");
-                    String entryText = parser.getAttributeValue(null, "entry_id");
-                    boolean preload = "1".equals(parser.getAttributeValue(null, "preload"));
-                    Integer id = null, table = null, block = null, entry = null;
-                    try {
-                        if (archive) {
-                            table = Integer.valueOf(tableText); block = Integer.valueOf(blockText); entry = Integer.valueOf(entryText);
-                        } else id = Integer.valueOf(idText);
-                    } catch (NumberFormatException ignored) { }
-                    String value = parser.nextText();
-                    if (!archive && id != null && !value.isEmpty()) {
-                        String converted = text(value, false);
-                        messages.put(id, converted);
-                        if (preload) preloaded.put(id, converted);
+                boolean inString=false,preload=false;
+                Integer id=null,table=null,block=null,entry=null;
+                try {
+                    int event;
+                    // XmlDocumentDomSerializer.pw：逐事件接收 TEXT，不能用 nextText 假定下一事件一定是结束标签。
+                    while ((event = parser.next()) != XmlPullParser.END_DOCUMENT) {
+                        if(event==XmlPullParser.START_TAG && "string".equals(parser.getName())) {
+                            inString=true;id=null;table=null;block=null;entry=null;
+                            preload="1".equals(parser.getAttributeValue(null,"preload"));
+                            try {
+                                if(archive) {
+                                    table=Integer.valueOf(parser.getAttributeValue(null,"table_id"));
+                                    block=Integer.valueOf(parser.getAttributeValue(null,"block_id"));
+                                    entry=Integer.valueOf(parser.getAttributeValue(null,"entry_id"));
+                                }else id=Integer.valueOf(parser.getAttributeValue(null,"id"));
+                            }catch(NumberFormatException ignored) {}
+                        }else if(event==XmlPullParser.END_TAG)inString=false;
+                        else if(event==XmlPullParser.TEXT && inString) {
+                            String value=parser.getText();
+                            if(!archive && id!=null && !value.isEmpty()) {
+                                String converted=text(value,false);messages.put(id,converted);
+                                if(preload)preloaded.put(id,converted);
+                            }else if(archive && table!=null && block!=null && entry!=null && table>=0 && block>=0 && entry>=0)
+                                archiveMessages.put(archiveKey(region,archiveType,table,block,entry),text(value,true));
+                        }
                     }
-                    else if (archive && table != null && block != null && entry != null && table >= 0 && block >= 0 && entry >= 0)
-                        archiveMessages.put(archiveKey(region, archiveType, table, block, entry), text(value, true));
+                }catch(XmlPullParserException malformed) {
+                    // 参考 pw 的异常分支：保留已读条目，不能让一个归档的坏尾部导致整个 MOD 的语言资源失效。
+                    if(messages.isEmpty() && archiveMessages.isEmpty())throw malformed;
+                    LOG.warning("Malformed XML in "+file.name()+" at line "+parser.getLineNumber()
+                            +"; retained "+(messages.size()+archiveMessages.size())+" string entries");
                 }
             } catch (Exception error) { throw new IllegalArgumentException("Error parsing string container " + file.path(), error); }
         }

@@ -1046,12 +1046,12 @@ public final class GUI extends Widget {
         Widget widgetUnderMouse = getWidgetUnderMouse();
         if(widgetUnderMouse != tooltipOwner) {
             if(widgetUnderMouse != null && (
-                    ((curTime-tooltipEventTime) > tooltipDelay) ||
+                    ((curTime-tooltipEventTime) > (widgetUnderMouse.getTooltipDelay()<0?tooltipDelay:widgetUnderMouse.getTooltipDelay())) ||
                     (hadOpenTooltip && (curTime-tooltipClosedTime) < tooltipReappearDelay))) {
                 TooltipPositionAdjuster.TooltipPositionData tpd = new TooltipPositionAdjuster.TooltipPositionData(
-                        event.mouseX + tooltipOffsetX,
-                        event.mouseY + tooltipOffsetY,
-                        Alignment.BOTTOMLEFT);
+                        widgetUnderMouse.getX() + widgetUnderMouse.getWidth()/2 + tooltipOffsetX,
+                        widgetUnderMouse.getY() + tooltipOffsetY,
+                        Alignment.BOTTOM);
                 if(widgetUnderMouse instanceof TooltipPositionAdjuster) {
                     ((TooltipPositionAdjuster)widgetUnderMouse).adjustTooltipPosition(tpd);
                 }

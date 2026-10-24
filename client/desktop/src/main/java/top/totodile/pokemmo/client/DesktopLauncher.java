@@ -14,6 +14,7 @@ public final class DesktopLauncher {
     private static final int FOREGROUND_FPS = 144;
     private static final int UNFOCUSED_FPS = 144;
     public static void main(String[] args) {
+        configureConsoleLogging();
         ClientApplication application=new ClientApplication(
                 path -> com.badlogic.gdx.Gdx.files.absolute(ClientAssets.file(path)),
                 false, System::nanoTime,
@@ -47,5 +48,24 @@ public final class DesktopLauncher {
         // 默认 512-byte 缓冲在 Windows 上容易断流，导致杂音和播放变慢。
         configuration.setAudioConfig(16,1920,6);
         new Lwjgl3Application(application, configuration);
+    }
+
+    static void configureConsoleLogging() {
+        // 参考 logback.xml 的 CONSOLE：标准输出、UTF-8，避免 INFO 被 IDE 当作错误标红。
+        var root=java.util.logging.Logger.getLogger("");
+        for(var handler:root.getHandlers()) {
+            if(handler instanceof java.util.logging.ConsoleHandler)try {
+                var console=new java.util.logging.StreamHandler(System.out,handler.getFormatter()) {
+                    @Override public void publish(java.util.logging.LogRecord record) { super.publish(record);flush(); }
+                    @Override public void close() { flush(); }
+                };
+                console.setEncoding(java.nio.charset.StandardCharsets.UTF_8.name());
+                console.setLevel(handler.getLevel());
+                console.setFilter(handler.getFilter());
+                root.removeHandler(handler);handler.close();root.addHandler(console);
+            }catch(java.io.UnsupportedEncodingException impossible) {
+                throw new AssertionError(impossible);
+            }
+        }
     }
 }

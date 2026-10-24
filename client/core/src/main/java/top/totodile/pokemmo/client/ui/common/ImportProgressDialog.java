@@ -12,6 +12,7 @@ public final class ImportProgressDialog extends PopupWindow {
     private final Progress progress=new Progress();
     private final boolean mobile;
     private final Consumer<Image> screenBackground;
+    private long nextUpdate;
 
     public ImportProgressDialog(Widget owner, boolean mobile, Consumer<Image> screenBackground) {
         super(owner);
@@ -30,12 +31,20 @@ public final class ImportProgressDialog extends PopupWindow {
         message.setText(text);
         progress.value=0;
         progress.setText("0.00%");
+        nextUpdate=0;
         openPopup();
         positionWindow();
     }
     public void update(String text, double value) {
-        if (!message.getText().equals(text)) message.setText(text);
-        float next=value<0 ? progress.value+(1-progress.value)*0.01f : (float)value;
+        boolean changed=!message.getText().equals(text);
+        GUI gui=getGUI();long now=gui==null?0:gui.getCurrentTime();
+        // ModManagerWindow.HP / ClientSettingsWindow.HP：每 100ms 更新，阶段切换立即显示。
+        if(!changed && now<nextUpdate)return;
+        nextUpdate=now+100;
+        if(changed)message.setText(text);
+        // PaymentConfirmDialogWindow.Rs0(-1)：未知进度以当前帧时长缓动，不冒充文件校验比例。
+        float delta=gui==null?0:Math.min(.1f,gui.getCurrentDeltaTime()/1000f);
+        float next=value<0 ? progress.value+(1-progress.value)*delta : (float)value;
         progress.value=Math.max(0,Math.min(0.9999f,next));
         progress.setText(String.format(Locale.ROOT,"%.2f%%",progress.value*100));
         positionWindow();

@@ -324,6 +324,9 @@
           <param name="defaultGap"><dimension>5,5</dimension></param>
           <theme name="dialoglayout" ref="-dialog">
             <param name="defaultGap"><dimension>5,2</dimension></param>
+            <theme name="label-settings-title" ref="label-settings-title">
+              <param name="border"><border>2,6,3,6</border></param>
+            </theme>
             <theme name="label-settings-value-modbuttons" ref="-dialog">
               <param name="defaultGap"><dimension>1,1</dimension></param>
               <param name="background"><image>none</image></param>

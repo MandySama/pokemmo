@@ -35,7 +35,6 @@ public final class LoginPanel extends ResizableFrame implements Disposable {
     private String selectedAccount;
     private final List<LoginNotification> notifications = new ArrayList<>();
     private final LongSupplier notificationClock;
-    private long nextNotificationFadeAt;
     private LoginEditField nativeEditor;
     private Runnable inputRequested = () -> {};
     private boolean disposed;
@@ -202,12 +201,10 @@ public final class LoginPanel extends ResizableFrame implements Disposable {
                     iterator.remove();
                     notificationHost.invalidateLayout();
                 }
-            } else if (now >= notice.expiresAt && now >= nextNotificationFadeAt) {
-                // 密集产生的提示逐条退场，避免同一渲染帧批量消失。
-                // 保留参考客户端的 250ms 淡出和 300ms 移除周期。
+            } else if (now >= notice.expiresAt) {
+                // NotificationWindow.HP：每条提示独立到期，250ms 淡出、300ms 后移除。
                 notice.fading = true;
                 notice.fadeStartedAt = now;
-                nextNotificationFadeAt = now + 300;
                 notice.getTintAnimator().fadeToHide(250);
             }
         }

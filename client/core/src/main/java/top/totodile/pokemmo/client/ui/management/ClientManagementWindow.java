@@ -104,7 +104,7 @@ public final class ClientManagementWindow extends ClientWindow {
         Button first = new Button(strings.get(mobile ? 1162 : 1174));
         Button last = new Button(strings.get(mobile ? 1163 : 65));
         if (!mobile) last.addCallback(this::closePopup);
-        if (!mobile) first.setTooltipContent(strings.get(1173));
+        if (!mobile) { first.setTooltipContent(strings.get(1173));first.setTooltipDelay(150); }
         if (!mobile) first.addCallback(() -> {
             if (picker == null) { showMessage("当前环境不支持打开文件夹"); return; }
             try { java.nio.file.Files.createDirectories(roms.directory());

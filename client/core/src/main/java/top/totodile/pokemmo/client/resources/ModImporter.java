@@ -5,6 +5,7 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Element;
 import top.totodile.pokemmo.client.rom.RomFilePicker;
@@ -25,6 +26,7 @@ public final class ModImporter {
     ModImporter(Path directory,BeforeDelete beforeDelete) {
         this.directory=directory.toAbsolutePath().normalize(); this.beforeDelete=beforeDelete;
     }
+    public Path directory() { return directory; }
 
     /** 删除前释放已加载归档；只允许删除 MOD 目录中的单个文件，不递归。 */
     public void delete(Mod mod) throws IOException {
@@ -75,7 +77,7 @@ public final class ModImporter {
             }
             progress.accept(1095,-1d);
             Mod mod;
-            try { mod=inspect(original,name); }
+            try { mod=validateImport(original,name); }
             catch (Exception error) { throw new Failure(1226,error); }
             if (!original.equals(temporary)) {
                 progress.accept(1139,0d);
@@ -116,33 +118,47 @@ public final class ModImporter {
         try (ZipFile archive=new ZipFile(path.toFile())) {
             var entry=archive.getEntry("info.xml");
             if (entry==null || entry.isDirectory() || entry.getSize()>1024*1024) throw new IOException("Missing mod info.xml");
-            var factory=DocumentBuilderFactory.newInstance();
-            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl",true);
-            factory.setFeature("http://xml.org/sax/features/external-general-entities",false);
-            factory.setFeature("http://xml.org/sax/features/external-parameter-entities",false);
-            factory.setExpandEntityReferences(false);
-            Element resource;
             try (InputStream input=archive.getInputStream(entry)) {
-                ByteArrayOutputStream xml=new ByteArrayOutputStream();
-                byte[] buffer=new byte[4096];
-                for (int count;(count=input.read(buffer))!=-1;) {
-                    if (xml.size()+count>1024*1024) throw new IOException("Mod metadata too large");
-                    xml.write(buffer,0,count);
-                }
-                resource=factory.newDocumentBuilder().parse(new ByteArrayInputStream(xml.toByteArray())).getDocumentElement();
+                return readMetadata(input,filename);
             }
-            if (!resource.getTagName().equals("resource")) throw new IOException("Invalid mod metadata");
-            validateSection(resource,"themes","theme","theme_revision",3);
-            validateSection(resource,"strings","string","string_revision",1);
-            var overlays=resource.getElementsByTagName("overlays");
-            if (overlays.getLength()>1) throw new IOException("Duplicate overlays");
-            if (overlays.getLength()==1) {
-                var entries=((Element)overlays.item(0)).getElementsByTagName("overlay");
-                for (int i=0;i<entries.getLength();i++)
-                    if (!((Element)entries.item(i)).hasAttribute("path")) throw new IOException("Missing overlay path");
-            }
-            return new Mod(filename,resource.getAttribute("name"),resource.getAttribute("author"),resource.getAttribute("version"),resource.getAttribute("description"));
         }
+    }
+
+    /** ModManagerWindow.No：流式扫描根目录 info.xml；校验通过后才开始复制原包。 */
+    private static Mod validateImport(Path path,String filename)throws Exception {
+        try(var archive=new ZipInputStream(new BufferedInputStream(Files.newInputStream(path)))) {
+            for(var entry=archive.getNextEntry();entry!=null;entry=archive.getNextEntry()) {
+                if(!entry.getName().equals("info.xml") || entry.isDirectory())continue;
+                if(entry.getSize()>1024*1024)throw new IOException("Mod metadata too large");
+                return readMetadata(archive,filename);
+            }
+            throw new IOException("Missing mod info.xml");
+        }
+    }
+
+    private static Mod readMetadata(InputStream input,String filename)throws Exception {
+        var factory=DocumentBuilderFactory.newInstance();
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl",true);
+        factory.setFeature("http://xml.org/sax/features/external-general-entities",false);
+        factory.setFeature("http://xml.org/sax/features/external-parameter-entities",false);
+        factory.setExpandEntityReferences(false);
+        var xml=new ByteArrayOutputStream();byte[] buffer=new byte[4096];
+        for(int count;(count=input.read(buffer))!=-1;) {
+            if(xml.size()+count>1024*1024)throw new IOException("Mod metadata too large");
+            xml.write(buffer,0,count);
+        }
+        Element resource=factory.newDocumentBuilder().parse(new ByteArrayInputStream(xml.toByteArray())).getDocumentElement();
+        if(!resource.getTagName().equals("resource"))throw new IOException("Invalid mod metadata");
+        validateSection(resource,"themes","theme","theme_revision",3);
+        validateSection(resource,"strings","string","string_revision",1);
+        var overlays=resource.getElementsByTagName("overlays");
+        if(overlays.getLength()>1)throw new IOException("Duplicate overlays");
+        if(overlays.getLength()==1) {
+            var entries=((Element)overlays.item(0)).getElementsByTagName("overlay");
+            for(int i=0;i<entries.getLength();i++)
+                if(!((Element)entries.item(i)).hasAttribute("path"))throw new IOException("Missing overlay path");
+        }
+        return new Mod(filename,resource.getAttribute("name"),resource.getAttribute("author"),resource.getAttribute("version"),resource.getAttribute("description"));
     }
 
     private static void validateSection(Element root, String sectionName, String entryName, String revisionName, int supported) throws IOException {

@@ -10,6 +10,8 @@ public final class RomManager {
     public interface Configuration {
         String selectedFile(RomType type);
         void selectFile(RomType type, String filename);
+        /** 成功选择 ROM 后通知，包括已加载的同一文件；由平台适配参考缓存失效规则。 */
+        default void romImported(RomType type) {}
     }
 
     private final Path directory;
@@ -60,7 +62,11 @@ public final class RomManager {
     }
     public ImportResult importRom(RomType expected,RomFilePicker.Source source,Progress progress) throws IOException {
         // 复制不能持有 loaded 的监视器，否则渲染线程查询 ROM 时会被阻塞，进度框无法更新。
-        synchronized(importLock) { return importSelected(expected,source,progress); }
+        synchronized(importLock) {
+            ImportResult result=importSelected(expected,source,progress);
+            configuration.romImported(expected);
+            return result;
+        }
     }
     private ImportResult importSelected(RomType expected, RomFilePicker.Source source,
                                        Progress progress) throws IOException {
@@ -74,14 +80,7 @@ public final class RomManager {
             checkArchive(localArchive,header);
             if(Files.size(local)>512L*1024*1024)throw new RomImportFailure(1182,"ROM 文件过大",null);
             if(localArchive==null) {
-                RomInfo rom=validate(expected,local);
-                if(alreadyLoaded(expected,rom.path()))return ImportResult.ALREADY_LOADED;
-                if(directory.equals(local.toAbsolutePath().normalize().getParent())) {
-                    try { configuration.selectFile(expected, rom.path().getFileName().toString()); }
-                    catch (RuntimeException error) { throw new IOException("无法保存 ROM 配置",error); }
-                    refresh();
-                    return ImportResult.IMPORTED;
-                }
+                validate(expected,local);
             }
         }
         Files.createDirectories(directory);
@@ -103,7 +102,7 @@ public final class RomManager {
                     size+=count;
                     if (size>512L*1024*1024) throw new RomImportFailure(1182,"ROM 文件过大",null);
                     output.write(buffer,0,count);
-                    progress.update(archive==null?1142:1091,total>0?Math.min(0.9,size/(double)total*0.9):-1);
+                    progress.update(archive==null?1142:1091,total>0?Math.min(1,size/(double)total):-1);
                 }
             }
             Path candidate=temporary;
@@ -118,10 +117,26 @@ public final class RomManager {
                 catch(IOException | LinkageError error) { throw new RomImportFailure(1090,"1",error); }
                 candidate=extracted;
             }
-            progress.update(1095,.95);
+            // 本地普通 ROM 已在复制前校验；复制结束仍属于文件保存阶段，不冒充解析进度。
+            int finalStage=archive==null && local!=null?1142:1095;
+            progress.update(finalStage,finalStage==1142?1:.95);
             RomInfo rom=validate(expected,candidate);
-            // 内容比较，改名后重复选择也不会再复制一份；旧的外部引用仍需复制到受管目录。
-            if(alreadyLoaded(expected,candidate))return ImportResult.ALREADY_LOADED;
+            // 重复选择也已完整复制到临时文件；替换原受管文件，不再跳过复制或创建重复副本。
+            boolean repeated=alreadyLoaded(expected,candidate);
+            Path replacement=repeated?get(expected).path():null;
+            if(replacement==null && local!=null && archive==null && directory.equals(local.toAbsolutePath().normalize().getParent()))
+                replacement=local.toAbsolutePath().normalize();
+            if(replacement!=null) {
+                // 源输入流已经关闭；选择受管文件本身时也不会边读边覆盖。
+                try { configuration.selectFile(expected,replacement.getFileName().toString()); }
+                catch(RuntimeException error) { throw new IOException("无法保存 ROM 配置",error); }
+                try { Files.move(candidate,replacement,StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING); }
+                catch(AtomicMoveNotSupportedException unsupported) {
+                    Files.move(candidate,replacement,StandardCopyOption.REPLACE_EXISTING);
+                }
+                refresh();progress.update(finalStage,1);
+                return repeated?ImportResult.ALREADY_LOADED:ImportResult.IMPORTED;
+            }
             // 使用独立文件名；配置写入失败时不会覆盖当前正在使用的 ROM。
             Path target;
             if(extractedName!=null || source.path()!=null) {
@@ -147,7 +162,7 @@ public final class RomManager {
             try { configuration.selectFile(expected, target.getFileName().toString()); }
             catch (RuntimeException error) { Files.deleteIfExists(target); throw new IOException("无法保存 ROM 配置", error); }
             refresh();
-            progress.update(1095,1);
+            progress.update(finalStage,1);
             return ImportResult.IMPORTED;
         } finally { Files.deleteIfExists(temporary);if(extracted!=null)Files.deleteIfExists(extracted); }
     }

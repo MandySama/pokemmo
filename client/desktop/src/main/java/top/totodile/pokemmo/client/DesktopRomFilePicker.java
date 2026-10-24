@@ -26,6 +26,8 @@ final class DesktopRomFilePicker implements RomFilePicker {
                 file=TinyFileDialogs.tinyfd_openFileDialog("", "", filters, mod?"mod, zip":"", false);
             }
         } catch (RuntimeException | LinkageError unavailable) {
+            java.util.logging.Logger.getLogger(DesktopRomFilePicker.class.getName()).log(
+                    java.util.logging.Level.WARNING,"Native file dialog unavailable; using Swing fallback",unavailable);
             chooseFallback(mod, selected, failed);
             return;
         }
