@@ -6,6 +6,8 @@ import de.matthiasmann.twl.*;
 import de.matthiasmann.twl.model.SimpleListModel;
 import java.util.List;
 import top.totodile.pokemmo.client.config.ClientSettings;
+import top.totodile.pokemmo.client.config.ScreenModes;
+import top.totodile.pokemmo.client.ui.common.MessageDialog;
 import top.totodile.pokemmo.client.resources.ClientStrings;
 import top.totodile.pokemmo.client.ui.common.ClientWindow;
 
@@ -19,9 +21,15 @@ public final class SettingsWindow extends ClientWindow {
     private final Button save;
     private final ClientSettings preferences;
     private final java.util.function.Consumer<String> notification;
+    private final MessageDialog screenMessage;
+    private long screenDeadline;
+    private int previousScreenMode;
+    private ScreenModes.Resolution previousResolution;
+    private java.util.Map<String,String> pendingScreenSettings;
     private record Binding(String initial, java.util.function.Supplier<String> read, java.util.function.Consumer<String> write) {}
     private final java.util.Map<String,Binding> bindings = new java.util.LinkedHashMap<>();
     private SettingsButton pendingKey;
+    private NumberDisplay fpsControl;
     private final java.util.Map<SettingsButton,String> keyBindings = new java.util.HashMap<>();
     private final ResizableFrame frame = new ResizableFrame() {
         private int headerActionRight;
@@ -53,6 +61,7 @@ public final class SettingsWindow extends ClientWindow {
         this.mobileBackground = mobileBackground;
         this.preferences = preferences;
         this.notification = notification;
+        screenMessage = new MessageDialog(owner, strings, mobile, mobileBackground, onClose);
         setTheme("");
         frame.setTheme("/settings-panel");
         frame.setTitle(strings.get(1200));
@@ -101,14 +110,78 @@ public final class SettingsWindow extends ClientWindow {
     private void saveSettings() {
         java.util.Map<String,String> changes = new java.util.LinkedHashMap<>();
         bindings.forEach((key,binding) -> changes.put(key,binding.read().get()));
-        try { preferences.save(changes); closePopup(); }
+        boolean applied = false;
+        try {
+            int mode = mobile ? 0 : Integer.parseInt(changes.get(ClientSettings.key(1270)));
+            int oldMode = Integer.parseInt(preferences.get(ClientSettings.key(1270), "0"));
+            if (!mobile) {
+                previousScreenMode = oldMode;
+                previousResolution = new ScreenModes.Resolution(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+                var resolution = new ScreenModes.Resolution(Integer.parseInt(changes.get("client.graphics.width")),
+                        Integer.parseInt(changes.get("client.graphics.height")));
+                boolean resized = !changes.get("client.graphics.width").equals(preferences.get("client.graphics.width", "1024"))
+                        || !changes.get("client.graphics.height").equals(preferences.get("client.graphics.height", "768"));
+                if (mode != oldMode || resized) {
+                    applied = true;
+                    if (!ScreenModes.apply(mode, resolution)) throw new IllegalStateException("Cannot apply screen mode");
+                }
+                if (mode != oldMode) {
+                    pendingScreenSettings = java.util.Map.of(ClientSettings.key(1270), Integer.toString(mode),
+                            "client.graphics.width", Integer.toString(resolution.width()),
+                            "client.graphics.height", Integer.toString(resolution.height()),
+                            "client.graphics.maximized", mode == 2 || resolution.width() < previousResolution.width()
+                                    || resolution.height() < previousResolution.height() ? "false"
+                                    : preferences.get("client.graphics.maximized", "true"));
+                    // 确认前保留已保存的显示配置，超时/退出后下次启动仍安全。
+                    changes.put(ClientSettings.key(1270), Integer.toString(oldMode));
+                    changes.put("client.graphics.width", preferences.get("client.graphics.width", "1024"));
+                    changes.put("client.graphics.height", preferences.get("client.graphics.height", "768"));
+                } else if (resized && (resolution.width() < previousResolution.width() || resolution.height() < previousResolution.height())) {
+                    changes.put("client.graphics.maximized", "false");
+                }
+            }
+            preferences.save(changes);
+            closePopup();
+            if (pendingScreenSettings != null) {
+                screenDeadline = System.nanoTime() + 8_000_000_000L;
+                screenMessage.show(strings.get(1398), this::confirmScreenMode);
+            }
+            if (!mobile && (mode == 2 || oldMode == 2)) notification.accept(strings.get(1375));
+        }
         catch (RuntimeException error) {
+            pendingScreenSettings = null;
+            screenDeadline = 0;
+            if (applied) ScreenModes.apply(previousScreenMode, previousResolution);
             Gdx.app.error("settings","Cannot save client settings",error);
             notification.accept(strings.get(2103));
         }
     }
 
+    private void confirmScreenMode() {
+        if (pendingScreenSettings == null) return;
+        if (System.nanoTime() >= screenDeadline) { revertScreenMode(); return; }
+        try {
+            preferences.save(pendingScreenSettings);
+            pendingScreenSettings = null;
+            screenDeadline = 0;
+        } catch (RuntimeException error) {
+            Gdx.app.error("settings", "Cannot save screen mode", error);
+            revertScreenMode();
+        }
+    }
+
+    private void revertScreenMode() {
+        pendingScreenSettings = null;
+        screenDeadline = 0;
+        screenMessage.closePopup();
+        ScreenModes.apply(previousScreenMode, previousResolution);
+        screenMessage.show(strings.get(1399));
+    }
+
     public boolean captureKey(int key) {
+        if (fpsControl != null && fpsControl.editing && (key == com.badlogic.gdx.Input.Keys.ESCAPE || key == com.badlogic.gdx.Input.Keys.BACK)) {
+            fpsControl.finishEdit(false); return true;
+        }
         if (pendingKey == null || !isOpen()) return false;
         if (key != com.badlogic.gdx.Input.Keys.ESCAPE && key != com.badlogic.gdx.Input.Keys.BACK) pendingKey.setText(com.badlogic.gdx.Input.Keys.toString(key));
         pendingKey = null; return true;
@@ -124,7 +197,7 @@ public final class SettingsWindow extends ClientWindow {
             video.toggle(600, false);
             video.toggle(1243, false);
         }
-        video.number(1254, strings.get(1220));
+        video.number(1254, preferences.get("client.graphics.max_fpx", "60"));
         video.number(1221, strings.get(1220));
         video.toggle(1297, true);
         video.number(1264, strings.get(1265));
@@ -311,6 +384,7 @@ public final class SettingsWindow extends ClientWindow {
         }
         void number(int label, String text) {
             NumberDisplay number = new NumberDisplay(label,text);
+            if (label == 1254) fpsControl = number;
             bind(ClientSettings.key(label),number::stored,number::restore);
             row(label, number);
         }
@@ -325,11 +399,19 @@ public final class SettingsWindow extends ClientWindow {
             if (label == 1247) options = new String[]{"50%","75%","100%","125%","150%","175%","200%"};
             if (label == 1250) options = new String[]{preferences.get("client.graphics.width",Integer.toString(Gdx.graphics.getWidth())) + " x "
                     + preferences.get("client.graphics.height",Integer.toString(Gdx.graphics.getHeight()))};
+            java.util.List<ScreenModes.Resolution> resolutions = label == 1250 ? ScreenModes.resolutions(
+                    new ScreenModes.Resolution(Integer.parseInt(preferences.get("client.graphics.width", "1024")),
+                            Integer.parseInt(preferences.get("client.graphics.height", "768")))) : java.util.List.of();
+            if (label == 1250) options = resolutions.stream().map(Object::toString).toArray(String[]::new);
             Choice choice = new Choice(options);
             if (label == 1250) {
-                String[] dimensions=options[0].split(" x ");
-                bind("client.graphics.width",()->dimensions[0], value -> {});
-                bind("client.graphics.height",()->dimensions[1], value -> {});
+                Runnable restoreResolution = () -> {
+                    var saved = new ScreenModes.Resolution(Integer.parseInt(preferences.get("client.graphics.width", "1024")),
+                            Integer.parseInt(preferences.get("client.graphics.height", "768")));
+                    choice.select(Math.max(0, resolutions.indexOf(saved)));
+                };
+                bind("client.graphics.width", () -> Integer.toString(resolutions.get(choice.selected).width()), ignored -> restoreResolution.run());
+                bind("client.graphics.height", () -> Integer.toString(resolutions.get(choice.selected).height()), ignored -> restoreResolution.run());
             } else {
                 String[] values = switch (label) {
                     case 1253 -> new String[]{"1","0"}; case 7701 -> new String[]{"2","0"};
@@ -484,17 +566,25 @@ public final class SettingsWindow extends ClientWindow {
         private final int label, initial;
         private final int[] values;
         private int selected;
+        private boolean editing;
+        private final EditField editor = new EditField() {
+            @Override protected void keyboardFocusLost() {
+                super.keyboardFocusLost();
+                if (editing) finishEdit(true);
+            }
+        };
         NumberDisplay(int label,String text) {
             this.label = label;
-            int min=0,max=100,step=1;
+            int min=0,max=100;
             switch (label) {
-                case 1254 -> { max=1000; step=10; }
+                case 1254 -> { min=10; max=1000; }
                 case 1237,1238 -> { min=1;max=4; }
                 case 1325 -> { min=1;max=6; }
                 default -> {}
             }
-            values = label == 1264 ? new int[]{0,2,4,8,16} : label == 1221 ? (mobile?new int[]{-1,3,4,5,6,7,8}:new int[]{-1,4,5,6,7,8})
-                    : java.util.stream.IntStream.iterate(min,value -> value + stepValue(label)).limit((max-min)/step+1).toArray();
+            values = label == 1254 ? java.util.stream.IntStream.concat(java.util.stream.IntStream.of(0), java.util.stream.IntStream.rangeClosed(10,1000)).toArray()
+                    : label == 1264 ? new int[]{0,2,4,8,16} : label == 1221 ? (mobile?new int[]{-1,3,4,5,6,7,8}:new int[]{-1,4,5,6,7,8})
+                    : java.util.stream.IntStream.rangeClosed(min,max).toArray();
             int parsed;
             try { parsed = Integer.parseInt(text.replaceAll("[^0-9]","")); }
             catch (NumberFormatException error) { parsed = label == 1221 ? -1 : 0; }
@@ -503,13 +593,37 @@ public final class SettingsWindow extends ClientWindow {
             display = new SettingsButton(text);
             minus.setTheme("decButton"); plus.setTheme("incButton"); display.setTheme("valueDisplay");
             add(minus); add(display); add(plus);
+            if (label == 1254) {
+                editor.setTheme("valueEdit"); editor.setMaxTextLength(4); editor.setVisible(false); add(editor);
+                display.addCallback(() -> {
+                    editing = true; editor.setText(Integer.toString(values[selected]));
+                    display.setVisible(false); editor.setVisible(true);
+                    editor.requestKeyboardFocus(); editor.setSelection(0,editor.getTextLength());
+                    if (mobile) Gdx.input.setOnscreenKeyboardVisible(true, com.badlogic.gdx.Input.OnscreenKeyboardType.NumberPad);
+                });
+                editor.addCallback(key -> {
+                    if (key == Event.KEY_RETURN || key == Event.KEY_ESCAPE) {
+                        finishEdit(key == Event.KEY_RETURN); display.requestKeyboardFocus();
+                    }
+                });
+            }
             minus.addCallback(() -> change(-1)); plus.addCallback(() -> change(1));
             restore(label == 1283 ? Double.toString(initial/100.0) : Integer.toString(initial));
         }
-        private int stepValue(int label) { return label == 1254 ? 10 : 1; }
-        private void change(int delta) { selected=Math.max(0,Math.min(values.length-1,selected+delta)); updateText(); }
-        String stored() { return label == 1283 ? Double.toString(values[selected]/100.0) : Integer.toString(values[selected]); }
+        private void change(int delta) { finishEdit(true); selected=Math.max(label == 1254 ? 1 : 0,Math.min(values.length-1,selected+delta)); updateText(); }
+        private void finishEdit(boolean commit) {
+            if (!editing) return;
+            editing = false;
+            if (commit) {
+                try { selected = Math.max(10, Math.min(1000, Integer.parseInt(editor.getText()))) - 9; }
+                catch (NumberFormatException ignored) {}
+            }
+            editor.setVisible(false); display.setVisible(true); updateText();
+            if (mobile) Gdx.input.setOnscreenKeyboardVisible(false);
+        }
+        String stored() { finishEdit(true); return label == 1283 ? Double.toString(values[selected]/100.0) : Integer.toString(values[selected]); }
         void restore(String text) {
+            finishEdit(false);
             int number;
             try { number = label == 1283 ? (int)Math.round(Double.parseDouble(text)*100) : Integer.parseInt(text); }
             catch (NumberFormatException error) { number = initial; }
@@ -541,6 +655,7 @@ public final class SettingsWindow extends ClientWindow {
             minus.setPosition(getInnerX(), getInnerY()); minus.setSize(left, getInnerHeight());
             plus.setPosition(getInnerRight() - right, getInnerY()); plus.setSize(right, getInnerHeight());
             display.setPosition(getInnerX() + left, getInnerY()); display.setSize(Math.max(0, getInnerWidth() - left - right), getInnerHeight());
+            if (label == 1254) { editor.setPosition(display.getX(),display.getY()); editor.setSize(display.getWidth(),display.getHeight()); }
         }
     }
 
@@ -553,7 +668,6 @@ public final class SettingsWindow extends ClientWindow {
         private final PopupWindow popup = new PopupWindow(this);
         private final List<String> options;
         private ListBox<String> list;
-        private int popupHeight;
         private int selected;
         Choice(String[] options) {
             super("");
@@ -563,9 +677,6 @@ public final class SettingsWindow extends ClientWindow {
             popup.setTheme("/comboboxPopup"); addCallback(this::openChoices);
         }
         void select(int index) { selected=index; display.setText(options.get(index)); }
-        @Override protected void applyTheme(ThemeInfo theme) {
-            super.applyTheme(theme); popupHeight = theme.getParameter("popupHeight", 150);
-        }
         @Override protected void paintWidget(GUI gui) { }
         @Override public int getPreferredInnerWidth() { return display.getPreferredWidth() + arrow.getPreferredWidth(); }
         @Override public int getPreferredInnerHeight() { return Math.max(display.getPreferredHeight(), arrow.getPreferredHeight()); }
@@ -582,25 +693,32 @@ public final class SettingsWindow extends ClientWindow {
             });
             list.setTheme("listbox"); list.setSelected(options.indexOf(display.getText()));
             list.addCallback(reason -> {
-                if (reason.actionRequested() && list.getSelected() >= 0) {
+                if ((reason.actionRequested() || reason == ListBox.CallbackReason.MOUSE_CLICK) && list.getSelected() >= 0) {
                     select(list.getSelected()); popup.closePopup();
                 }
             });
             popup.removeAllChildren(); popup.add(list);
             if (popup.openPopup()) {
-                int height = Math.min(popupHeight, options.size() * list.getCellHeight() + list.getBorderVertical());
-                popup.setSize(getWidth(), Math.min(height, getGUI().getHeight()));
+                // 参考 EggIncubationProgressComponent.oJ0：内容首选高度受列表主题 maxHeight 限制。
+                int height = Math.min(getGUI().getHeight(), Widget.computeSize(
+                        popup.getMinHeight(), popup.getPreferredHeight(), popup.getMaxHeight()));
+                popup.setSize(getWidth(), height);
                 popup.setPosition(Math.max(0, Math.min(getX(), getGUI().getWidth() - popup.getWidth())),
-                        getBottom() + height <= getGUI().getHeight() ? getBottom() : Math.max(0, getY() - height));
+                        getBottom() + height <= getGUI().getHeight() ? getBottom()
+                                : getY() >= height ? getY() - height : getGUI().getHeight() - height);
                 list.requestKeyboardFocus();
             }
         }
     }
 
     public void back() {
-        if (hasOpenChoice(this)) getGUI().handleKey(Event.KEY_ESCAPE, '\0', true);
+        if (screenMessage.isOpen()) screenMessage.closePopup();
+        else if (hasOpenChoice(this)) getGUI().handleKey(Event.KEY_ESCAPE, '\0', true);
         else closePopup();
     }
+
+    public boolean blocksInput() { return isOpen() || screenMessage.isOpen(); }
+    public boolean showingMessage() { return screenMessage.isOpen(); }
 
     public void open() {
         if (isOpen()) { raiseWindow(); return; }
@@ -610,6 +728,8 @@ public final class SettingsWindow extends ClientWindow {
         if (openPopup()) { positionWindow(); frame.setHardVisible(true); }
     }
     public void positionWindow() {
+        if (screenDeadline != 0 && System.nanoTime() >= screenDeadline) revertScreenMode();
+        screenMessage.positionWindow();
         if (!isOpen()) return;
         Widget owner = getOwner();
         if (mobile) { setPosition(owner.getInnerX(), owner.getInnerY()); setSize(owner.getInnerWidth(), owner.getInnerHeight()); }

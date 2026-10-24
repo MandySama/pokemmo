@@ -297,7 +297,7 @@ public final class ClientUi implements Disposable {
                 resources.modImporter(),resources.romFilePicker(),renderer,resources.preferences(),loginPanel::showNotification);
         settings = new SettingsWindow(root, strings, mobile, restoreFocus, mobileBackground, resources.preferences(),loginPanel::showNotification);
         pokedex = new PokedexWindow(root,resources,renderer,mobile,mobileBackground,()->{
-            if(worldScene!=null)worldScene.setInputBlocked(worldHud.editingChat()||settings.isOpen()||worldLogout.isOpen());
+            if(worldScene!=null)worldScene.setInputBlocked(worldHud.editingChat()||settings.blocksInput()||worldLogout.isOpen());
         });
         if(gameService!=null)pokedex.setTierData(gameService.pokedexTiers());
         characterCreation = new CharacterCreationWindow(root, strings, mobile, () -> {
@@ -352,14 +352,15 @@ public final class ClientUi implements Disposable {
         if (mobileMenu != null) mobileMenu.onSettings(openSettings);
         theme = loadTheme(resources.selectedTheme());
         gui.applyTheme(theme);
+        if (!mobile) renderer.setFullscreenCursors(theme.getImage("fullscreen.cursor.arrow"), theme.getImage("fullscreen.cursor.text"));
         input = new InputAdapter() {
             private boolean dexKeyHeld,suppressDexCharacter;
             private boolean pointer(int x,int y,int button,boolean pressed) {
                 if(enteringWorld) return true;
                 Vector2 point=viewport.unproject(new Vector2(x,y));
-                if(worldScene!=null&&pressed&&button==0&&!entryError.isOpen()&&!settings.isOpen()&&!pokedex.isOpen()&&!mail.isOpen()&&!inventory.isOpen()&&!trainerCard.isOpen())pokemon.touchDown(Math.round(point.x),renderer.getHeight()-Math.round(point.y),button);
+                if(worldScene!=null&&pressed&&button==0&&!entryError.isOpen()&&!settings.blocksInput()&&!pokedex.isOpen()&&!mail.isOpen()&&!inventory.isOpen()&&!trainerCard.isOpen())pokemon.touchDown(Math.round(point.x),renderer.getHeight()-Math.round(point.y),button);
                 if(pressed&&button==0&&pokedex.isOpen())pokedex.touchDown(Math.round(point.x),renderer.getHeight()-Math.round(point.y));
-                if(worldActions!=null && !pokedex.isOpen() && !playerWindowsOpen() && !pokemon.hasMenu() && !pokedex.showingMessage() && !settings.isOpen() && !worldLogout.isOpen() && (exitConfirmation==null||!exitConfirmation.isOpen())
+                if(worldActions!=null && !pokedex.isOpen() && !playerWindowsOpen() && !pokemon.hasMenu() && !pokedex.showingMessage() && !settings.blocksInput() && !worldLogout.isOpen() && (exitConfirmation==null||!exitConfirmation.isOpen())
                         && !worldActions.isInside(Math.round(point.x),renderer.getHeight()-Math.round(point.y))
                         && !worldHud.ownsPointer(Math.round(point.x),renderer.getHeight()-Math.round(point.y))) {
                     gui.handleMouse(-1,-1,button,false);return false;
@@ -379,11 +380,11 @@ public final class ClientUi implements Disposable {
                     playerTouchScroll=(top.totodile.pokemmo.client.ui.common.TouchScrollPane)target;
                     if(playerTouchScroll!=null)playerTouchScroll.beginTouch(px,py);
                 }
-                if(worldHud!=null&&!pokedex.isOpen()&&!playerWindowsOpen()&&!pokedex.showingMessage()&&!settings.isOpen()&&!worldLogout.isOpen()) {
+                if(worldHud!=null&&!pokedex.isOpen()&&!playerWindowsOpen()&&!pokedex.showingMessage()&&!settings.blocksInput()&&!worldLogout.isOpen()) {
                     Vector2 point=viewport.unproject(new Vector2(x,y));
                     if(worldHud.dismissMenuOutside(Math.round(point.x),renderer.getHeight()-Math.round(point.y)))return true;
                 }
-                if(worldActions!=null && !settings.isOpen()) return pointer(x,y,button,true);
+                if(worldActions!=null && !settings.blocksInput()) return pointer(x,y,button,true);
                 Vector2 point = viewport.unproject(new Vector2(x,y));
                 if ((exitConfirmation == null || !exitConfirmation.isOpen()) && !characterCreation.isAbove(settings))
                     settings.touchDown(Math.round(point.x), renderer.getHeight()-Math.round(point.y), x, y, button);
@@ -395,7 +396,7 @@ public final class ClientUi implements Disposable {
                 if(playerTouchScroll!=null){Vector2 p=viewport.unproject(new Vector2(x,y));boolean pan=playerTouchScroll.endTouch(Math.round(p.x),renderer.getHeight()-Math.round(p.y));playerTouchScroll=null;if(pan)return true;}
                 if(worldScene!=null){Vector2 p=viewport.unproject(new Vector2(x,y));if(pokemon.touchUp(Math.round(p.x),renderer.getHeight()-Math.round(p.y))){gui.handleMouse(-1,-1,button,false);return true;}}
                 if(pokedex.isOpen()){Vector2 p=viewport.unproject(new Vector2(x,y));if(pokedex.touchUp(Math.round(p.x),renderer.getHeight()-Math.round(p.y)))return true;}
-                if(worldActions!=null && !settings.isOpen()) return pointer(x,y,button,false);
+                if(worldActions!=null && !settings.blocksInput()) return pointer(x,y,button,false);
                 if (settings.touchUp(x,y,button)) return true;
                 return pointer(x,y,button,false);
             }
@@ -408,7 +409,7 @@ public final class ClientUi implements Disposable {
                 if(playerTouchScroll!=null&&!pokemon.hasDragCandidate()){Vector2 p=viewport.unproject(new Vector2(x,y));if(playerTouchScroll.drag(Math.round(p.x),renderer.getHeight()-Math.round(p.y)))return true;}
                 if(worldScene!=null){Vector2 p=viewport.unproject(new Vector2(x,y));if(pokemon.touchDragged(Math.round(p.x),renderer.getHeight()-Math.round(p.y)))return true;}
                 if(pokedex.isOpen()){Vector2 p=viewport.unproject(new Vector2(x,y));if(pokedex.touchDragged(Math.round(p.x),renderer.getHeight()-Math.round(p.y)))return true;}
-                if(worldActions!=null && !settings.isOpen()) return pointer(x,y,-1,false);
+                if(worldActions!=null && !settings.blocksInput()) return pointer(x,y,-1,false);
                 if (settings.touchDragged(x,y)) return true;
                 return pointer(x,y,-1,false);
             }
@@ -417,13 +418,16 @@ public final class ClientUi implements Disposable {
                 if(pointer==0&&playerTouchScroll!=null){playerTouchScroll.cancelTouch();playerTouchScroll=null;gui.handleMouse(-1,-1,button,false);}
                 if(pointer==0)pokemon.cancelDrag();
                 if(pointer==0&&pokedex.isOpen()){pokedex.cancelTouch();return gui.handleMouse(-1,-1,button,false);}
-                if (pointer != 0 || !settings.isOpen()) return false;
+                if (pointer != 0 || !settings.blocksInput()) return false;
                 settings.cancelTouch();
                 return gui.handleMouse(-1,-1,button,false);
             }
             @Override public boolean mouseMoved(int x,int y){return pointer(x,y,-1,false);}
             @Override public boolean keyDown(int key){
                 if(enteringWorld)return true;
+                if(settings.showingMessage()) {
+                    int code=keyCode(key);if(code!=0)gui.handleKey(code,'\0',true);return true;
+                }
                 if(worldActions!=null) {
                     if(entryError.isOpen()){
                         if(key==Input.Keys.ESCAPE||key==Input.Keys.BACK||key==Input.Keys.ENTER)entryError.closePopup();return true;
@@ -435,7 +439,7 @@ public final class ClientUi implements Disposable {
                         if(key==Input.Keys.ESCAPE||key==Input.Keys.BACK)exitConfirmation.closePopup();
                         return true;
                     }
-                    if(settings.isOpen()) {
+                    if(settings.blocksInput()) {
                         if(settings.captureKey(key))return true;
                         if(key==Input.Keys.ESCAPE||key==Input.Keys.BACK){settings.back();return true;}
                         int code=keyCode(key);return code!=0&&gui.handleKey(code,'\0',true);
@@ -509,13 +513,13 @@ public final class ClientUi implements Disposable {
             @Override public boolean keyUp(int key){
                 if(playerKeys.remove(key))return true;
                 if(key==Input.Keys.N&&dexKeyHeld){dexKeyHeld=false;suppressDexCharacter=false;return true;}
-                if(worldActions!=null&&!worldHud.editingChat()&&!pokedex.isOpen()&&!playerWindowsOpen()&&!settings.isOpen()&&!worldLogout.isOpen())return false;
+                if(worldActions!=null&&!worldHud.editingChat()&&!pokedex.isOpen()&&!playerWindowsOpen()&&!settings.blocksInput()&&!worldLogout.isOpen())return false;
                 int code=keyCode(key);return code!=0 && gui.handleKey(code,'\0',false);
             }
             @Override public boolean keyTyped(char value){
                 if(suppressedPlayerCharacter!=0){char suppressed=suppressedPlayerCharacter;suppressedPlayerCharacter=0;if(java.lang.Character.toLowerCase(value)==suppressed)return true;}
                 if(suppressDexCharacter&&(value=='n'||value=='N')){suppressDexCharacter=false;return true;}
-                if(worldActions!=null&&!worldHud.editingChat()&&!pokedex.isOpen()&&!playerWindowsOpen()&&!settings.isOpen())return false;
+                if(worldActions!=null&&!worldHud.editingChat()&&!pokedex.isOpen()&&!playerWindowsOpen()&&!settings.blocksInput())return false;
                 if(Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT))return false;
                 if(value<32 || value==127)return false;
                 boolean handled=gui.handleKey(Event.KEY_NONE,value,true);
@@ -524,7 +528,7 @@ public final class ClientUi implements Disposable {
                 return handled;
             }
             @Override public boolean scrolled(float x,float y){
-                if(worldActions!=null&&!pokedex.isOpen()&&!playerWindowsOpen()&&!settings.isOpen())return false;
+                if(worldActions!=null&&!pokedex.isOpen()&&!playerWindowsOpen()&&!settings.blocksInput())return false;
                 return gui.handleMouseWheel(-(int)y);
             }
         };
@@ -540,7 +544,7 @@ public final class ClientUi implements Disposable {
         for(var window:new PlayerWindow[]{inventory,trainerCard,mail,pcMenu,storage,worldTools})if(window.isOpen()&&window.isAbove(pokedex)&&(top==null||window.isAbove(top)))top=window;
         return top;
     }
-    private void restoreWorldInput(){if(worldScene!=null)worldScene.setInputBlocked(enteringWorld||playerWindowsOpen()||pokemon.hasMenu()||entryError.isOpen()||pokedex.isOpen()||worldHud.editingChat()||settings.isOpen()||worldLogout.isOpen());}
+    private void restoreWorldInput(){if(worldScene!=null)worldScene.setInputBlocked(enteringWorld||playerWindowsOpen()||pokemon.hasMenu()||entryError.isOpen()||pokedex.isOpen()||worldHud.editingChat()||settings.blocksInput()||worldLogout.isOpen());}
     private void toggle(PlayerWindow window){if(window.isOpen())window.closePopup();else{while(worldHud.closeOverlay()){}window.open();}restoreWorldInput();}
     private boolean handlePlayerShortcut(int key){
         if(entryError.isOpen()||worldTools.isOpen()||pokedex.showingMessage()||worldHud.editingChat()||pokedex.isOpen()&&pokedex.editingSearch()||inventory.isOpen()&&inventory.editing()||storage.isOpen()&&storage.editing()||mail.isOpen()&&(mail.editing()||mail.hasDialog()))return false;
@@ -801,7 +805,7 @@ public final class ClientUi implements Disposable {
             pokedex.setUnlocked(worldScene.commands().pokedexUnlocked());
             worldActions.update();
             worldHud.update();
-            worldScene.setInputBlocked(enteringWorld||worldHud.menuOpen()||worldHud.editingChat()||playerWindowsOpen()||pokemon.hasMenu()||entryError.isOpen()||pokedex.isOpen()||pokedex.showingMessage()||settings.isOpen()||worldLogout.isOpen()||(exitConfirmation!=null&&exitConfirmation.isOpen()));
+            worldScene.setInputBlocked(enteringWorld||worldHud.menuOpen()||worldHud.editingChat()||playerWindowsOpen()||pokemon.hasMenu()||entryError.isOpen()||pokedex.isOpen()||pokedex.showingMessage()||settings.blocksInput()||worldLogout.isOpen()||(exitConfirmation!=null&&exitConfirmation.isOpen()));
             fps.setVisible(Boolean.parseBoolean(resources.preferences().get("client.graphics.show_fps","true")));
             fps.setText(frameRate.frame());
             if(renderer.updateFontScale()) invalidateFontLayout(gui);

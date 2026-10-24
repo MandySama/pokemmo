@@ -38,6 +38,7 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
     private Cursor.SystemCursor currentSystemCursor;
     private float currentFontScale;
     private ThemeCursor themeCursor;
+    private ThemeCursor fullscreenArrow, fullscreenText;
     private Cursor hiddenCursor;
     private com.badlogic.gdx.graphics.Texture white;
     private com.badlogic.gdx.graphics.Pixmap whitePixels;
@@ -137,6 +138,9 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
     }
     public void endRendering() {
         if(themeCursor!=null && Gdx.app.getType()==ApplicationType.Desktop){
+            // 光标属于屏幕覆盖层，不继承最后一个控件的裁剪区域。
+            batch.flush();
+            Gdx.gl.glDisable(GL20.GL_SCISSOR_TEST);
             var point=viewport.unproject(new com.badlogic.gdx.math.Vector2(Gdx.input.getX(),Gdx.input.getY()));
             themeCursor.image.draw(cursorState,Math.round(point.x)-themeCursor.hotX,
                     getHeight()-Math.round(point.y)-themeCursor.hotY);
@@ -261,6 +265,10 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
     public void setCursor(MouseCursor cursor) {
         if (Gdx.app.getType() != ApplicationType.Desktop) return;
         themeCursor=cursor instanceof ThemeCursor?(ThemeCursor)cursor:null;
+        // 独占全屏下部分系统/驱动不显示原生光标，直接绘制官方主题的对应光标。
+        if (themeCursor == null && Gdx.graphics.isFullscreen()) {
+            themeCursor = cursor == SystemMouseCursor.TEXT ? fullscreenText : fullscreenArrow;
+        }
         if(themeCursor!=null){
             if(hiddenCursor==null){
                 var pixels=new com.badlogic.gdx.graphics.Pixmap(16,16,com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888);
@@ -274,6 +282,10 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
             Gdx.graphics.setSystemCursor(next);
             currentSystemCursor = next;
         }
+    }
+    public void setFullscreenCursors(Image arrow, Image text) {
+        fullscreenArrow = arrow == null ? null : new ThemeCursor(arrow, 1, 1);
+        fullscreenText = text == null ? null : new ThemeCursor(text, 3, 8);
     }
     public void setMousePosition(int x, int y) {}
     public void setMouseButton(int button, boolean state) {}

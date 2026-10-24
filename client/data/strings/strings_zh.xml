@@ -123,6 +123,9 @@
     <string id="1271">窗口化</string>
     <string id="1272">全屏</string>
     <string id="1273">无边框窗口化</string>
+    <string id="1375">某些设置必须在下次登录后才会生效.</string>
+    <string id="1398">影像模式已更新. 请确认是否保留这些设置.</string>
+    <string id="1399">影像模式已还原.</string>
     <string id="1274">对战窗口大小:</string>
     <string id="1276">音乐音量:</string>
     <string id="1277">音效音量:</string>

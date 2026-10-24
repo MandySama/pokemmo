@@ -767,6 +767,11 @@
         <border>0</border>
       </param>
     </theme>
+    <theme name="valueEdit" ref="editfield">
+      <theme name="renderer" ref="renderer">
+        <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+      </theme>
+    </theme>
     <param name="width">
       <int>100</int>
     </param>

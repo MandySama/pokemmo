@@ -56,6 +56,7 @@ public final class ClientApplication extends ApplicationAdapter {
     private Function<ClientResources, top.totodile.pokemmo.client.ui.startup.LoginScene> loginSceneFactory;
     private top.totodile.pokemmo.client.ui.startup.LoginScene loginScene;
     private boolean focused=true;
+    private final top.totodile.pokemmo.client.config.FrameRateLimit frameRateLimit = new top.totodile.pokemmo.client.config.FrameRateLimit();
     private WorldScene world;
     private record LoadedWorld(WorldMaps maps,MapMovement movement) {}
     private volatile boolean disposed;
@@ -72,6 +73,7 @@ public final class ClientApplication extends ApplicationAdapter {
     }
     public void setFocused(boolean focused) {
         this.focused=focused;
+        if (resources != null) frameRateLimit.update(resources.preferences(), focused);
         if (loginScene!=null) loginScene.setFocused(focused);
         if(world!=null) world.setFocused(focused);
     }
@@ -124,6 +126,7 @@ public final class ClientApplication extends ApplicationAdapter {
     @Override
     public void create() {
         resources = new ClientResources(assets, configDirectory.get(), mobile);
+        frameRateLimit.update(resources.preferences(), focused);
         startupHasBlackWhiteRom=resources.roms().get(RomType.BLACK_WHITE)!=null;
         resources.setRomFilePicker(romFilePicker);
         if(!mobile)resources.modelCaches().start(resources.roms().loaded());
@@ -258,6 +261,8 @@ public final class ClientApplication extends ApplicationAdapter {
 
     @Override
     public void render() {
+        frameRateLimit.update(resources.preferences(), focused);
+        frameRateLimit.waitForFrame();
         updateUiViewport();
         ScreenUtils.clear(0f, 0f, 0f, 1f);
         if(!mobile && !resources.modelCaches().done()) {

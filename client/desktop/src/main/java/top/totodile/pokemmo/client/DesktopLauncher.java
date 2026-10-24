@@ -11,8 +11,8 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowAdapter;
 import com.badlogic.gdx.graphics.Color;
 
 public final class DesktopLauncher {
-    private static final int FOREGROUND_FPS = 144;
-    private static final int UNFOCUSED_FPS = 144;
+    private static final int FOREGROUND_FPS = 60;
+    private static final int UNFOCUSED_FPS = 20;
     public static void main(String[] args) {
         configureConsoleLogging();
         ClientApplication application=new ClientApplication(
@@ -34,10 +34,10 @@ public final class DesktopLauncher {
             @Override public void created(Lwjgl3Window window) {
                 new WindowsWindowIcons().created(window);
             }
-            @Override public void focusLost() { Gdx.graphics.setForegroundFPS(UNFOCUSED_FPS); application.setFocused(false); }
-            @Override public void focusGained() { Gdx.graphics.setForegroundFPS(FOREGROUND_FPS); application.setFocused(true); }
+            @Override public void focusLost() { application.setFocused(false); }
+            @Override public void focusGained() { application.setFocused(true); }
         });
-        configuration.setWindowedMode(1024, 768);
+        configureScreenMode(configuration);
         configuration.setWindowSizeLimits(320, 240, -1, -1);
         configuration.setResizable(true);
         configuration.useVsync(false);
@@ -48,6 +48,36 @@ public final class DesktopLauncher {
         // 默认 512-byte 缓冲在 Windows 上容易断流，导致杂音和播放变慢。
         configuration.setAudioConfig(16,1920,6);
         new Lwjgl3Application(application, configuration);
+    }
+
+    /** 对齐参考 Client.main：启动时读取已确认的屏幕模式和分辨率。 */
+    private static void configureScreenMode(Lwjgl3ApplicationConfiguration configuration) {
+        var settings = new java.util.Properties();
+        var file = java.nio.file.Path.of(ClientAssets.configDirectory(), "main.properties");
+        if (java.nio.file.Files.exists(file)) {
+            try (var input = java.nio.file.Files.newInputStream(file)) { settings.load(input); }
+            catch (java.io.IOException error) { throw new IllegalStateException("Cannot read client settings", error); }
+        }
+        int mode = screenValue(settings, "client.graphics.display_mode", 0);
+        int width = Math.max(320, screenValue(settings, "client.graphics.width", 1024));
+        int height = Math.max(240, screenValue(settings, "client.graphics.height", 768));
+        configuration.setWindowedMode(width, height);
+        configuration.setDecorated(mode != 2);
+        if (mode == 1) {
+            var selected = java.util.Arrays.stream(Lwjgl3ApplicationConfiguration.getDisplayModes())
+                    .filter(value -> value.width == width && value.height == height)
+                    .max(java.util.Comparator.comparingInt((com.badlogic.gdx.Graphics.DisplayMode value) -> value.bitsPerPixel)
+                            .thenComparingInt(value -> value.refreshRate))
+                    .orElse(Lwjgl3ApplicationConfiguration.getDisplayMode());
+            configuration.setFullscreenMode(selected);
+        } else {
+            configuration.setMaximized(Boolean.parseBoolean(settings.getProperty("client.graphics.maximized", "true")));
+        }
+    }
+
+    private static int screenValue(java.util.Properties settings, String key, int fallback) {
+        try { return Integer.parseInt(settings.getProperty(key, Integer.toString(fallback))); }
+        catch (NumberFormatException invalid) { return fallback; }
     }
 
     static void configureConsoleLogging() {

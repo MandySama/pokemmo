@@ -1,5 +1,10 @@
 <?xml version='1.0' encoding='utf-8'?>
 <themes>
+  <!-- 对应官方 cursors.xml 的 cursor.default / cursor.text 及热点。 -->
+  <images file="res/cursors.png" filter="nearest">
+    <area name="fullscreen.cursor.arrow" xywh="3,21,15,23" />
+    <area name="fullscreen.cursor.text" xywh="2,1,9,17" />
+  </images>
   <images file="res/user-interface.png" filter="nearest">
     <area name="console.background" xywh="43,100,1,1" tint="#B0000000" />
     <grid name="progressbar.background" weightsX="0,1,0" weightsY="1">
