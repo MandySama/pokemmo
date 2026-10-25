@@ -63,13 +63,17 @@ public final class BwText {
                     if (value == 0xf000) {
                         if (j + 2 >= length) break;
                         int arguments = words[j + 2];
-                        if (formatted && arguments > 0 && j + 3 < length) {
+                        if (formatted) {
                             int control = (short) words[j + 1];
-                            if (control == -16896) text.append("\n");
-                            else if (control == -16895)
-                                text.append(String.format("{DELAY_%02X}", words[j + 3]));
-                            else if (control < -16893 || control > -16887)
-                                text.append(String.format("{%02X}", words[j + 3]));
+                            if (control == -16896 || control == -16895) text.append("\n\n");
+                            else if (arguments > 0 && j + 3 < length) {
+                                if (control == -16894)
+                                    text.append(String.format("{DELAY_%02X}", words[j + 3]));
+                                else if (control != -256
+                                        && (control < -17152 || control > -17146)
+                                        && (control < -16893 || control > -16887))
+                                    text.append(String.format("{%02X}", words[j + 3]));
+                            }
                         }
                         j += 2 + arguments;
                         continue;

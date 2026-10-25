@@ -1,41 +1,41 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <themes>
-  <fontDef name="noto-bold-large-white" filename="res/fonts/NotoSansCJK-Bold.ttc" faces="sc,tc,jp" color="#FFFFFF" hinting="Medium" kerning="false" size="16" shadow_color="#40000000" shadow_offset_x="1" shadow_offset_y="1" border_width="1" border_color="#282828" />
-  <fontDef name="pc-slot-level" filename="res/fonts/NotoSansCJK-Medium.ttc" faces="sc,tc,jp" color="#FFFFFF" size="12" hinting="Full" />
-  <fontDef name="alphabeta" filename="res/fonts/NotoSansCJK-Medium.ttc" faces="sc,tc,jp" color="#FFFFFF" size="12" size_cjk="14" hinting="Full" hinting_cjk="Slight" default="true" unique_atlas="true">
-    <fontParam if="disabled" color="#A9A9A9" />
-    <fontParam if="pressed" offsetX="1" offsetY="1" />
-  </fontDef>
-  <fontDef name="pb-dark" ref="alphabeta" color="#FFFFFF">
-    <fontParam if="disabled" color="#A9A9A9" />
-    <fontParam if="pressed" offsetX="1" offsetY="1" />
-  </fontDef>
-  <fontDef name="title-font" filename="res/fonts/NotoSansCJK-Bold.ttc" faces="sc,tc,jp" color="#FFFFFF" size="12" size_cjk="15" hinting="AutoMedium" hinting_cjk="Slight" shadow_color="#55000000" shadow_offset_x="1" shadow_offset_y="1" />
-  <fontDef name="med-noshadow-18-white" filename="res/fonts/NotoSansCJK-Bold.ttc" faces="sc,tc,jp" font_color="#FFFFFF" size="18" />
-  <fontDef name="xlarge" filename="res/fonts/NotoSansCJK-Medium.ttc" faces="sc,tc,jp" font_color="#FFFFFF" size="22" />
-  <fontDef name="med-noshadow-22-white" filename="../default/res/fonts/NotoSansCJK-Bold.ttc" faces="sc,tc,jp" font_color="#FFFFFF" size="22" />
-  <fontDef name="alphabeta-border" filename="res/fonts/NotoSansCJK-Medium.ttc" faces="sc,tc,jp" kerning="true" color="white" size="12" size_cjk="14" hinting="AutoSlight" hinting_cjk="Full" border_width="1" border_color="#434343">
-    <fontParam if="pressed" offsetX="1" offsetY="1" />
-  </fontDef>
-  <fontDef name="tooltip-font" filename="res/fonts/NotoSansCJK-Medium.ttc" faces="sc,tc,jp" color="#535353" size="12" size_cjk="14" hinting="Full" hinting_cjk="Full" shadow_color="#20FFFFFF" shadow_offset_x="1" shadow_offset_y="1">
-    <fontParam if="disabled" color="#CCC" />
-  </fontDef>
-  <fontDef name="listbox-display" ref="pb-dark" color="#FFFFFF">
-    <fontParam if="disabled" color="#888888" />
-    <fontParam if="hover | keyboardFocus | selected" color="#FFFFFF" />
-  </fontDef>
-  <fontDef name="title-font-black" filename="res/fonts/NotoSansCJK-Bold.ttc" faces="sc,tc,jp" color="#252525" size="12" size_cjk="15" hinting="AutoMedium" hinting_cjk="Slight" />
-  <fontDef name="main" filename="res/fonts/NotoSansCJK-Medium.ttc" faces="sc,tc,jp" color="#FFFFFF" size="12" size_cjk="14" hinting="Full" hinting_cjk="Slight" default="true" unique_atlas="true">
-    <fontParam if="disabled" color="#A9A9A9" />
-    <fontParam if="pressed" offsetX="1" offsetY="1" />
-  </fontDef>
-  <fontDef name="alphabeta-orange-shadow" ref="alphabeta" color="#FF9900" />
-  <fontDef name="pb-tab" ref="pb-dark" color="#999">
-    <fontParam if="selected" color="#FFFFFF" />
-  </fontDef>
-  <fontDef name="symbols-white" filename="res/fonts/DejaVuLGCSans.ttf" color="#FFFFFF" size="14" hinting="AutoFull" incremental="false" characters="┌├└─←→↑↓▸◂↖↗↙↘☒➤↻⇲" />
-  <fontDef name="trainer-name" filename="res/fonts/NotoSans-SemiCondensedBlack.ttf" color="#434343" size="18" incremental="false" characters="AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz" />
-  <fontDef name="main-lightgreen" ref="main" color="#66FF66" />
-  <fontDef name="summary-iv-red" ref="main" color="#f09999" />
-<fontDef name="noto-8pt" filename="res/fonts/NotoSansCJK-Medium.ttc" faces="sc,tc,jp" color="#FFFFFF" border_width="1" border_color="#434343" size="8" incremental="false" characters="0123456789ABCDEF" />
+    <fontDef name="noto-bold-large-white" filename="res/fonts/NotoSansCJK-Bold.ttc" faces="sc,tc,jp" color="#FFFFFF" hinting="Medium" kerning="false" size="16" shadow_color="#40000000" shadow_offset_x="1" shadow_offset_y="1" border_width="1" border_color="#282828"/>
+    <fontDef name="pc-slot-level" filename="res/fonts/NotoSansCJK-Medium.ttc" faces="sc,tc,jp" color="#FFFFFF" size="12" hinting="Full"/>
+    <fontDef name="alphabeta" filename="res/fonts/NotoSansCJK-Medium.ttc" faces="sc,tc,jp" color="#FFFFFF" size="12" size_cjk="14" hinting="Full" hinting_cjk="Slight" default="true" unique_atlas="true">
+        <fontParam if="disabled" color="#A9A9A9"/>
+        <fontParam if="pressed" offsetX="1" offsetY="1"/>
+    </fontDef>
+    <fontDef name="pb-dark" ref="alphabeta" color="#FFFFFF">
+        <fontParam if="disabled" color="#A9A9A9"/>
+        <fontParam if="pressed" offsetX="1" offsetY="1"/>
+    </fontDef>
+    <fontDef name="title-font" filename="res/fonts/NotoSansCJK-Bold.ttc" faces="sc,tc,jp" color="#FFFFFF" size="12" size_cjk="15" hinting="AutoMedium" hinting_cjk="Slight" shadow_color="#55000000" shadow_offset_x="1" shadow_offset_y="1"/>
+    <fontDef name="med-noshadow-18-white" filename="res/fonts/NotoSansCJK-Bold.ttc" faces="sc,tc,jp" font_color="#FFFFFF" size="18"/>
+    <fontDef name="xlarge" filename="res/fonts/NotoSansCJK-Medium.ttc" faces="sc,tc,jp" font_color="#FFFFFF" size="22"/>
+    <fontDef name="med-noshadow-22-white" filename="../default/res/fonts/NotoSansCJK-Bold.ttc" faces="sc,tc,jp" font_color="#FFFFFF" size="22"/>
+    <fontDef name="alphabeta-border" filename="res/fonts/NotoSansCJK-Medium.ttc" faces="sc,tc,jp" kerning="true" color="white" size="12" size_cjk="14" hinting="AutoSlight" hinting_cjk="Full" border_width="1" border_color="#434343">
+        <fontParam if="pressed" offsetX="1" offsetY="1"/>
+    </fontDef>
+    <fontDef name="tooltip-font" filename="res/fonts/NotoSansCJK-Medium.ttc" faces="sc,tc,jp" color="#535353" size="12" size_cjk="14" hinting="Full" hinting_cjk="Full" shadow_color="#20FFFFFF" shadow_offset_x="1" shadow_offset_y="1">
+        <fontParam if="disabled" color="#CCC"/>
+    </fontDef>
+    <fontDef name="listbox-display" ref="pb-dark" color="#FFFFFF">
+        <fontParam if="disabled" color="#888888"/>
+        <fontParam if="hover | keyboardFocus | selected" color="#FFFFFF"/>
+    </fontDef>
+    <fontDef name="title-font-black" filename="res/fonts/NotoSansCJK-Bold.ttc" faces="sc,tc,jp" color="#252525" size="12" size_cjk="15" hinting="AutoMedium" hinting_cjk="Slight"/>
+    <fontDef name="main" filename="res/fonts/NotoSansCJK-Medium.ttc" faces="sc,tc,jp" color="#FFFFFF" size="12" size_cjk="14" hinting="Full" hinting_cjk="Slight" default="true" unique_atlas="true">
+        <fontParam if="disabled" color="#A9A9A9"/>
+        <fontParam if="pressed" offsetX="1" offsetY="1"/>
+    </fontDef>
+    <fontDef name="alphabeta-orange-shadow" ref="alphabeta" color="#FF9900"/>
+    <fontDef name="pb-tab" ref="pb-dark" color="#999">
+        <fontParam if="selected" color="#FFFFFF"/>
+    </fontDef>
+    <fontDef name="symbols-white" filename="res/fonts/DejaVuLGCSans.ttf" color="#FFFFFF" size="14" hinting="AutoFull" incremental="false" characters="┌├└─←→↑↓▸◂↖↗↙↘☒➤↻⇲"/>
+    <fontDef name="trainer-name" filename="res/fonts/NotoSans-SemiCondensedBlack.ttf" color="#434343" size="18" incremental="false" characters="AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz"/>
+    <fontDef name="main-lightgreen" ref="main" color="#66FF66"/>
+    <fontDef name="summary-iv-red" ref="main" color="#f09999"/>
+    <fontDef name="noto-8pt" filename="res/fonts/NotoSansCJK-Medium.ttc" faces="sc,tc,jp" color="#FFFFFF" border_width="1" border_color="#434343" size="8" incremental="false" characters="0123456789ABCDEF"/>
 </themes>

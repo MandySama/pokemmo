@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <style name="ClientTheme" parent="android:style/Theme.Material.NoActionBar.Fullscreen">
         <!-- 保留系统占位色，正常任务预览应使用游戏画面的真实快照。 -->

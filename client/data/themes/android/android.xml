@@ -1,941 +1,941 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <themes>
-  <images file="res/ui-mobile-atlas.png" filter="nearest">
-    <grid name="mobile.progress.overlay" weightsX="0,1,0" weightsY="0,1,0">
-      <area xywh="431,522,15,12" />
-      <area xywh="446,522,1,12" />
-      <area xywh="451,522,15,12" />
-      <area xywh="431,534,15,4" />
-      <area xywh="446,534,1,4" />
-      <area xywh="451,534,15,4" />
-      <area xywh="431,538,15,12" />
-      <area xywh="446,538,1,12" />
-      <area xywh="451,538,15,12" />
-    </grid>
-    <grid name="mobile.progress.background" weightsX="0,1,0" weightsY="0,1,0">
-      <area xywh="431,553,15,12" />
-      <area xywh="446,553,1,12" />
-      <area xywh="451,553,15,12" />
-      <area xywh="431,565,15,4" />
-      <area xywh="446,565,1,4" />
-      <area xywh="451,565,15,4" />
-      <area xywh="431,569,15,12" />
-      <area xywh="446,569,1,12" />
-      <area xywh="451,569,15,12" />
-    </grid>
-    <grid name="-mobile.progress.progressImage" weightsX="1" inset="8,0" weightsY="1">
-      <area xywh="475,522,1,28" splity="T12,B12" />
-    </grid>
-    <alias name="mobile.progress.green.progressImage" ref="-mobile.progress.progressImage" tint="#2ECC71" />
-  </images>
-  <theme name="character-summary-label" ref="label" overwrite="true">
-    <param name="font">
-      <font>med-noshadow-22-white</font>
-    </param>
-  </theme>
-  <theme name="button" ref="-defaults" allowWildcard="true">
-    <param name="font">
-      <font>med-noshadow-18-white</font>
-    </param>
-    <param name="border">
-      <border>10,12</border>
-    </param>
-    <param name="">
-      <image>ui-button.*</image>
-    </param>
-    <param name="textAlignment">
-      <enum type="alignment">CENTER</enum>
-    </param>
-  </theme>
-  <theme name="togglebutton" ref="-defaults" allowWildcard="true">
-    <param name="font">
-      <font>pb-dark</font>
-    </param>
-    <param name="border">
-      <border>24,0</border>
-    </param>
-    <param name="background">
-      <image>ui-checkbox.background</image>
-    </param>
-    <param name="textAlignment">
-      <enum type="alignment">CENTER</enum>
-    </param>
-  </theme>
-  <theme name="editfield" ref="-defaults" allowWildcard="true">
-    <param name="background">
-      <image>ui-inputbox.background</image>
-    </param>
-    <param name="font">
-      <font>pb-dark</font>
-    </param>
-    <param name="border">
-      <border>5,8</border>
-    </param>
-    <param name="passwordChar">
-      <int>35</int>
-    </param>
-    <param name="maxWidth">
-      <int>32767</int>
-    </param>
-    <param name="columns">
-      <int>20</int>
-    </param>
-    <param name="cursor">
-      <image>editfield.cursor</image>
-    </param>
-    <param name="selection">
-      <image>editfield.selection</image>
-    </param>
-    <theme name="renderer" ref="-input">
-      <param name="font">
-        <font>med-noshadow-18-white</font>
-      </param>
-      <param name="border">
-        <border>0</border>
-      </param>
-      <param name="textAlignment">
-        <enum type="alignment">LEFT</enum>
-      </param>
-    </theme>
-    <param name="autocompletion-height">
-      <int>150</int>
-    </param>
-  </theme>
-  <theme name="editfield-search" ref="editfield" overwrite="true">
-    <param name="border">
-      <border>10,15,10,50</border>
-    </param>
-    <param name="background">
-      <image>mobile.search.background</image>
-    </param>
-    <param name="autocompletion-height">
-      <int>150</int>
-    </param>
-    <param name="minHeight">
-      <int>60</int>
-    </param>
-    <param name="minWidth">
-      <int>180</int>
-    </param>
-    <theme name="renderer" ref="renderer">
-      <param name="textAlignment">
-        <enum type="alignment">LEFT</enum>
-      </param>
-    </theme>
-  </theme>
-  <theme name="logingui" ref="logingui">
-    <theme name="login-panel" ref="base-frame" allowWildcard="true">
-      <param name="border">
-        <border>50</border>
-      </param>
-      <param name="defaultGap">
-        <dimension>5,5</dimension>
-      </param>
-      <param name="smallGap">
-        <dimension>8,8</dimension>
-      </param>
-      <param name="mediumGap">
-        <dimension>10,10</dimension>
-      </param>
-      <param name="largeGap">
-        <dimension>15,15</dimension>
-      </param>
-      <param name="namedGaps">
-        <map />
-      </param>
-      <theme name="label" ref="label">
-        <param name="textAlignment">
-          <enum type="alignment">CENTER</enum>
-        </param>
+    <images file="res/ui-mobile-atlas.png" filter="nearest">
+        <grid name="mobile.progress.overlay" weightsX="0,1,0" weightsY="0,1,0">
+            <area xywh="431,522,15,12"/>
+            <area xywh="446,522,1,12"/>
+            <area xywh="451,522,15,12"/>
+            <area xywh="431,534,15,4"/>
+            <area xywh="446,534,1,4"/>
+            <area xywh="451,534,15,4"/>
+            <area xywh="431,538,15,12"/>
+            <area xywh="446,538,1,12"/>
+            <area xywh="451,538,15,12"/>
+        </grid>
+        <grid name="mobile.progress.background" weightsX="0,1,0" weightsY="0,1,0">
+            <area xywh="431,553,15,12"/>
+            <area xywh="446,553,1,12"/>
+            <area xywh="451,553,15,12"/>
+            <area xywh="431,565,15,4"/>
+            <area xywh="446,565,1,4"/>
+            <area xywh="451,565,15,4"/>
+            <area xywh="431,569,15,12"/>
+            <area xywh="446,569,1,12"/>
+            <area xywh="451,569,15,12"/>
+        </grid>
+        <grid name="-mobile.progress.progressImage" weightsX="1" inset="8,0" weightsY="1">
+            <area xywh="475,522,1,28" splity="T12,B12"/>
+        </grid>
+        <alias name="mobile.progress.green.progressImage" ref="-mobile.progress.progressImage" tint="#2ECC71"/>
+    </images>
+    <theme name="character-summary-label" ref="label" overwrite="true">
         <param name="font">
-          <font>med-shadow-22-white</font>
+            <font>med-noshadow-22-white</font>
         </param>
-      </theme>
     </theme>
-    <theme name="login-window" ref="login-window" allowWildcard="true">
-      <theme name="title" ref="-defaults">
-        <param name="textAlignment">
-          <enum type="alignment">CENTER</enum>
-        </param>
+    <theme name="button" ref="-defaults" allowWildcard="true">
         <param name="font">
-          <font>xlarge</font>
-        </param>
-      </theme>
-      <param name="border">
-        <border>30,0,0,0</border>
-      </param>
-      <param name="minWidth">
-        <int>300</int>
-      </param>
-      <param name="minHeight">
-        <int>150</int>
-      </param>
-      <theme name="dialoglayout" ref="dialoglayout">
-        <param name="defaultGap">
-          <dimension>8,8</dimension>
-        </param>
-        <param name="border">
-          <border>20,20,20,20</border>
-        </param>
-        <theme name="label" ref="-defaults">
-          <param name="font">
             <font>med-noshadow-18-white</font>
-          </param>
-        </theme>
-      </theme>
-    </theme>
-    <theme name="serverselect-window" ref="login-window" overwrite="true" allowWildcard="true">
-      <param name="minWidth">
-        <int>400</int>
-      </param>
-      <param name="minHeight">
-        <int>300</int>
-      </param>
-    </theme>
-  </theme>
-  <theme name="characterselectgui" ref="logingui" overwrite="true">
-    <param name="textAlignment">
-      <enum type="alignment">RIGHT</enum>
-    </param>
-    <theme name="login-panel" ref="base-frame" allowWildcard="true">
-      <param name="titleAreaRight">
-        <int>-10</int>
-      </param>
-      <param name="border">
-        <border>40,7,7,7</border>
-      </param>
-      <param name="defaultGap">
-        <dimension>5,5</dimension>
-      </param>
-      <param name="smallGap">
-        <dimension>8,8</dimension>
-      </param>
-      <param name="mediumGap">
-        <dimension>10,10</dimension>
-      </param>
-      <param name="largeGap">
-        <dimension>15,15</dimension>
-      </param>
-      <param name="namedGaps">
-        <map />
-      </param>
-      <theme name="title" ref="-defaults">
-        <param name="textAlignment">
-          <enum type="alignment">CENTER</enum>
         </param>
-        <param name="font">
-          <font>xlarge</font>
-        </param>
-      </theme>
-      <theme name="container" ref="-dialog" allowWildcard="true">
         <param name="border">
-          <border>7,7</border>
+            <border>10,12</border>
+        </param>
+        <param name="">
+            <image>ui-button.*</image>
+        </param>
+        <param name="textAlignment">
+            <enum type="alignment">CENTER</enum>
+        </param>
+    </theme>
+    <theme name="togglebutton" ref="-defaults" allowWildcard="true">
+        <param name="font">
+            <font>pb-dark</font>
+        </param>
+        <param name="border">
+            <border>24,0</border>
         </param>
         <param name="background">
-          <image>none</image>
-        </param>
-        <theme name="character-select-button" ref="-defaults" allowWildcard="true">
-          <param name="background">
-            <image>ui-inputbox-mixed.background</image>
-          </param>
-          <param name="font">
-            <font>alphabeta</font>
-          </param>
-          <param name="border">
-            <border>7,7</border>
-          </param>
-          <param name="minWidth">
-            <int>400</int>
-          </param>
-          <param name="minHeight">
-            <int>240</int>
-          </param>
-          <param name="textAlignment">
-            <enum type="alignment">BOTTOM</enum>
-          </param>
-          <theme name="dialoglayout" ref="-dialog" allowWildcard="true">
-            <theme name="label" ref="label" allowWildcard="true">
-              <param name="font">
-                <font>med-noshadow-22-white</font>
-              </param>
-            </theme>
-            <theme name="spritelabel" ref="-defaults" allowWildcard="true">
-              <param name="font">
-                <font>med-noshadow-22-white</font>
-              </param>
-            </theme>
-          </theme>
-        </theme>
-        <theme name="button" ref="button" allowWildcard="true">
-          <param name="border">
-            <border>7,7</border>
-          </param>
-        </theme>
-      </theme>
-      <theme name="label" ref="label" allowWildcard="true">
-        <param name="border">
-          <border>40</border>
-        </param>
-        <param name="font">
-          <font>med-noshadow-22-white</font>
+            <image>ui-checkbox.background</image>
         </param>
         <param name="textAlignment">
-          <enum type="alignment">TOP</enum>
+            <enum type="alignment">CENTER</enum>
         </param>
-      </theme>
     </theme>
-  </theme>
-  <theme name="combobox" ref="-defaults" allowWildcard="true">
-    <param name="popupHeight">
-      <int>150</int>
-    </param>
-    <theme name="display" ref="label">
-      <param name="font">
-        <font>med-noshadow-18-white</font>
-      </param>
-      <param name="focus">
-        <image>input.background</image>
-      </param>
-      <param name="border">
-        <border>5,5</border>
-      </param>
-    </theme>
-    <param name="font">
-      <font>med-noshadow-18-white</font>
-    </param>
-    <param name="border">
-      <border>0,8,0,8</border>
-    </param>
-    <param name="">
-      <image>ui-button.*</image>
-    </param>
-    <param name="minWidth">
-      <int>150</int>
-    </param>
-    <param name="minHeight">
-      <int>25</int>
-    </param>
-    <param name="textAlignment">
-      <enum type="alignment">BOTTOM</enum>
-    </param>
-    <theme name="button" ref="-defaults">
-      <param name="">
-        <image>ui-button-picker.*</image>
-      </param>
-      <param name="border">
-        <border>0,0,0,5</border>
-      </param>
-    </theme>
-  </theme>
-  <theme name="comboboxPopup" ref="-defaults" allowWildcard="true">
-    <theme name="listbox" ref="-defaults">
-      <param name="minDisplayedRows">
-        <int>1</int>
-      </param>
-      <theme name="display" ref="-defaults">
-        <param name="border">
-          <border>0,0,0,5</border>
+    <theme name="editfield" ref="-defaults" allowWildcard="true">
+        <param name="background">
+            <image>ui-inputbox.background</image>
         </param>
         <param name="font">
-          <font>med-noshadow-18-white</font>
+            <font>pb-dark</font>
         </param>
-        <param name="minHeight">
-          <int>55</int>
-        </param>
-      </theme>
-      <param name="font">
-        <font>med-noshadow-18-white</font>
-      </param>
-      <param name="cellHeight">
-        <int>55</int>
-      </param>
-    </theme>
-    <param name="border">
-      <border>0</border>
-    </param>
-    <param name="background">
-      <image>ui-popup.background</image>
-    </param>
-    <param name="minWidth">
-      <int>250</int>
-    </param>
-    <param name="textAlignment">
-      <enum type="alignment">BOTTOM</enum>
-    </param>
-  </theme>
-  <theme name="notification" ref="-defaults" allowWildcard="true">
-    <theme name="dialoglayout" ref="-defaults">
-      <theme name="label" ref="-defaults">
         <param name="border">
-          <border>5</border>
+            <border>5,8</border>
         </param>
-        <param name="textAlignment">
-          <enum type="alignment">CENTER</enum>
-        </param>
-        <param name="font">
-          <font>xlarge</font>
-        </param>
-      </theme>
-    </theme>
-  </theme>
-  <theme name="hud-panel" ref="-defaults" allowWildcard="true">
-    <param name="border">
-      <border>0,0,0,0</border>
-    </param>
-    <param name="background">
-      <image>mobile.hudmenu.background</image>
-    </param>
-    <param name="defaultGap">
-      <dimension>5,5</dimension>
-    </param>
-    <param name="smallGap">
-      <dimension>8,8</dimension>
-    </param>
-    <param name="mediumGap">
-      <dimension>10,10</dimension>
-    </param>
-    <param name="largeGap">
-      <dimension>15,15</dimension>
-    </param>
-    <param name="namedGaps">
-      <map />
-    </param>
-    <theme name="dialoglayout" ref="-defaults">
-      <param name="defaultGap">
-        <dimension>5,5</dimension>
-      </param>
-      <param name="smallGap">
-        <dimension>8,8</dimension>
-      </param>
-      <param name="mediumGap">
-        <dimension>10,10</dimension>
-      </param>
-      <param name="largeGap">
-        <dimension>15,15</dimension>
-      </param>
-      <param name="background">
-        <image>none</image>
-      </param>
-      <param name="border">
-        <border>0,10,0,0</border>
-      </param>
-      <param name="namedGaps">
-        <map>
-          <param name="menu-header-right">
-            <gap>35,35,35</gap>
-          </param>
-        </map>
-      </param>
-      <theme name="scrollpane" ref="scrollpane">
-        <theme name="hscrollbar" ref="hscrollbar" />
-        <theme name="vscrollbar" ref="vscrollbar" />
-        <param name="minWidth">
-          <int>589</int>
-        </param>
-        <param name="minHeight">
-          <int>600</int>
+        <param name="passwordChar">
+            <int>35</int>
         </param>
         <param name="maxWidth">
-          <int>32767</int>
+            <int>32767</int>
         </param>
-        <param name="maxHeight">
-          <int>32767</int>
+        <param name="columns">
+            <int>20</int>
         </param>
-        <param name="hasDragButton">
-          <bool>false</bool>
+        <param name="cursor">
+            <image>editfield.cursor</image>
         </param>
-        <param name="autoScrollArea">
-          <int>5</int>
+        <param name="selection">
+            <image>editfield.selection</image>
         </param>
-        <param name="autoScrollSpeed">
-          <int>10</int>
-        </param>
-        <param name="scrollbarsAlwaysVisible">
-          <bool>false</bool>
-        </param>
-        <param name="border">
-          <border>50,30,10,0</border>
-        </param>
-        <theme name="dialoglayout" ref="-defaults">
-          <param name="defaultGap">
-            <dimension>5,5</dimension>
-          </param>
-          <param name="smallGap">
-            <dimension>8,8</dimension>
-          </param>
-          <param name="mediumGap">
-            <dimension>10,10</dimension>
-          </param>
-          <param name="largeGap">
-            <dimension>15,15</dimension>
-          </param>
-          <param name="namedGaps">
-            <map />
-          </param>
-          <param name="border">
-            <border>0,0,0,0</border>
-          </param>
-          <theme name="hud-item-button" ref="-defaults" allowWildcard="true">
+        <theme name="renderer" ref="-input">
             <param name="font">
-              <font>med-shadow-22-white</font>
-            </param>
-            <param name="background">
-              <image>label2.background</image>
+                <font>med-noshadow-18-white</font>
             </param>
             <param name="border">
-              <border>0,60,0,0</border>
+                <border>0</border>
             </param>
             <param name="textAlignment">
-              <enum type="alignment">LEFT</enum>
+                <enum type="alignment">LEFT</enum>
             </param>
-          </theme>
         </theme>
-      </theme>
+        <param name="autocompletion-height">
+            <int>150</int>
+        </param>
     </theme>
-  </theme>
-  <theme name="mobile-menu" ref="button" allowWildcard="true">
-    <param name="background">
-      <image>mobile.icons.menu</image>
-    </param>
-    <param name="minWidth">
-      <int>60</int>
-    </param>
-    <param name="minHeight">
-      <int>60</int>
-    </param>
-  </theme>
-  <theme name="mobile-menu-settings" ref="button" allowWildcard="true">
-    <param name="border">
-      <border>0</border>
-    </param>
-    <param name="background">
-      <image>label1.background</image>
-    </param>
-    <param name="overlay">
-      <image>mobile.icons.gear</image>
-    </param>
-    <param name="minWidth">
-      <int>60</int>
-    </param>
-    <param name="minHeight">
-      <int>60</int>
-    </param>
-  </theme>
-  <theme name="mobile-menu-close" ref="button" allowWildcard="true">
-    <param name="border">
-      <border>0</border>
-    </param>
-    <param name="background">
-      <image>label1.background</image>
-    </param>
-    <param name="overlay">
-      <image>mobile.icons.close</image>
-    </param>
-    <param name="minWidth">
-      <int>60</int>
-    </param>
-    <param name="minHeight">
-      <int>60</int>
-    </param>
-  </theme>
-  <theme name="mobile-battery" ref="button" allowWildcard="true">
-    <param name="minWidth">
-      <int>60</int>
-    </param>
-    <param name="minHeight">
-      <int>60</int>
-    </param>
-  </theme>
-  <theme name="mobile-battery-10" ref="mobile-battery" allowWildcard="true">
-    <param name="background">
-      <image>mobile.icons.battery-10</image>
-    </param>
-  </theme>
-  <theme name="mobile-battery-20" ref="mobile-battery" allowWildcard="true">
-    <param name="background">
-      <image>mobile.icons.battery-20</image>
-    </param>
-  </theme>
-  <theme name="mobile-battery-30" ref="mobile-battery" allowWildcard="true">
-    <param name="background">
-      <image>mobile.icons.battery-30</image>
-    </param>
-  </theme>
-  <theme name="mobile-battery-40" ref="mobile-battery" allowWildcard="true">
-    <param name="background">
-      <image>mobile.icons.battery-40</image>
-    </param>
-  </theme>
-  <theme name="mobile-battery-50" ref="mobile-battery" allowWildcard="true">
-    <param name="background">
-      <image>mobile.icons.battery-50</image>
-    </param>
-  </theme>
-  <theme name="mobile-battery-60" ref="mobile-battery" allowWildcard="true">
-    <param name="background">
-      <image>mobile.icons.battery-60</image>
-    </param>
-  </theme>
-  <theme name="mobile-battery-70" ref="mobile-battery" allowWildcard="true">
-    <param name="background">
-      <image>mobile.icons.battery-70</image>
-    </param>
-  </theme>
-  <theme name="mobile-battery-80" ref="mobile-battery" allowWildcard="true">
-    <param name="background">
-      <image>mobile.icons.battery-80</image>
-    </param>
-  </theme>
-  <theme name="mobile-battery-90" ref="mobile-battery" allowWildcard="true">
-    <param name="background">
-      <image>mobile.icons.battery-90</image>
-    </param>
-  </theme>
-  <theme name="mobile-battery-100" ref="mobile-battery" allowWildcard="true">
-    <param name="background">
-      <image>mobile.icons.battery-100</image>
-    </param>
-  </theme>
-  <theme name="mobile-panel" ref="base-frame">
-    <param name="background">
-      <image>mobile.window.bottom.background</image>
-    </param>
-    <param name="fadeDurationShow">
-      <int>200</int>
-    </param>
-    <param name="fadeDurationHide">
-      <int>1</int>
-    </param>
-    <param name="titleAreaTop">
-      <int>15</int>
-    </param>
-    <param name="titleAreaLeft">
-      <int>15</int>
-    </param>
-    <param name="titleAreaRight">
-      <int>-1</int>
-    </param>
-    <param name="titleAreaBottom">
-      <int>50</int>
-    </param>
-    <param name="closeButtonX">
-      <int>-104</int>
-    </param>
-    <param name="closeButtonY">
-      <int>0</int>
-    </param>
-    <theme name="title" ref="label" allowWildcard="true">
-      <param name="font">
-        <font>xlarge</font>
-      </param>
+    <theme name="editfield-search" ref="editfield" overwrite="true">
+        <param name="border">
+            <border>10,15,10,50</border>
+        </param>
+        <param name="background">
+            <image>mobile.search.background</image>
+        </param>
+        <param name="autocompletion-height">
+            <int>150</int>
+        </param>
+        <param name="minHeight">
+            <int>60</int>
+        </param>
+        <param name="minWidth">
+            <int>180</int>
+        </param>
+        <theme name="renderer" ref="renderer">
+            <param name="textAlignment">
+                <enum type="alignment">LEFT</enum>
+            </param>
+        </theme>
     </theme>
-    <theme name="closeButton" ref="-defaults">
-      <param name="background">
-        <image>mobile.icons.close</image>
-      </param>
-      <param name="minWidth">
-        <int>60</int>
-      </param>
-      <param name="minHeight">
-        <int>60</int>
-      </param>
+    <theme name="logingui" ref="logingui">
+        <theme name="login-panel" ref="base-frame" allowWildcard="true">
+            <param name="border">
+                <border>50</border>
+            </param>
+            <param name="defaultGap">
+                <dimension>5,5</dimension>
+            </param>
+            <param name="smallGap">
+                <dimension>8,8</dimension>
+            </param>
+            <param name="mediumGap">
+                <dimension>10,10</dimension>
+            </param>
+            <param name="largeGap">
+                <dimension>15,15</dimension>
+            </param>
+            <param name="namedGaps">
+                <map/>
+            </param>
+            <theme name="label" ref="label">
+                <param name="textAlignment">
+                    <enum type="alignment">CENTER</enum>
+                </param>
+                <param name="font">
+                    <font>med-shadow-22-white</font>
+                </param>
+            </theme>
+        </theme>
+        <theme name="login-window" ref="login-window" allowWildcard="true">
+            <theme name="title" ref="-defaults">
+                <param name="textAlignment">
+                    <enum type="alignment">CENTER</enum>
+                </param>
+                <param name="font">
+                    <font>xlarge</font>
+                </param>
+            </theme>
+            <param name="border">
+                <border>30,0,0,0</border>
+            </param>
+            <param name="minWidth">
+                <int>300</int>
+            </param>
+            <param name="minHeight">
+                <int>150</int>
+            </param>
+            <theme name="dialoglayout" ref="dialoglayout">
+                <param name="defaultGap">
+                    <dimension>8,8</dimension>
+                </param>
+                <param name="border">
+                    <border>20,20,20,20</border>
+                </param>
+                <theme name="label" ref="-defaults">
+                    <param name="font">
+                        <font>med-noshadow-18-white</font>
+                    </param>
+                </theme>
+            </theme>
+        </theme>
+        <theme name="serverselect-window" ref="login-window" overwrite="true" allowWildcard="true">
+            <param name="minWidth">
+                <int>400</int>
+            </param>
+            <param name="minHeight">
+                <int>300</int>
+            </param>
+        </theme>
     </theme>
-    <param name="headerActionRight">
-      <int>116</int>
-    </param>
-  </theme>
-  <theme name="mobile-gear-icon" ref="button" allowWildcard="true">
-    <param name="border">
-      <border>0</border>
-    </param>
-    <param name="background">
-      <image>mobile.icons.gear</image>
-    </param>
-    <param name="minWidth">
-      <int>60</int>
-    </param>
-    <param name="minHeight">
-      <int>60</int>
-    </param>
-  </theme>
-  <theme name="mobile-tabbox" ref="-defaults">
-    <param name="alignment">
-      <enum type="alignment">FILL</enum>
-    </param>
-    <param name="border">
-      <border>0,0,0,0</border>
-    </param>
-    <param name="spacing">
-      <int>0</int>
-    </param>
-    <theme name="tabbutton" ref="button">
-      <param name="minWidth">
-        <int>180</int>
-      </param>
-      <param name="minHeight">
-        <int>50</int>
-      </param>
-      <param name="">
-        <image>mobile.tab.*</image>
-      </param>
-      <param name="textAlignment">
-        <enum type="alignment">CENTER</enum>
-      </param>
+    <theme name="characterselectgui" ref="logingui" overwrite="true">
+        <param name="textAlignment">
+            <enum type="alignment">RIGHT</enum>
+        </param>
+        <theme name="login-panel" ref="base-frame" allowWildcard="true">
+            <param name="titleAreaRight">
+                <int>-10</int>
+            </param>
+            <param name="border">
+                <border>40,7,7,7</border>
+            </param>
+            <param name="defaultGap">
+                <dimension>5,5</dimension>
+            </param>
+            <param name="smallGap">
+                <dimension>8,8</dimension>
+            </param>
+            <param name="mediumGap">
+                <dimension>10,10</dimension>
+            </param>
+            <param name="largeGap">
+                <dimension>15,15</dimension>
+            </param>
+            <param name="namedGaps">
+                <map/>
+            </param>
+            <theme name="title" ref="-defaults">
+                <param name="textAlignment">
+                    <enum type="alignment">CENTER</enum>
+                </param>
+                <param name="font">
+                    <font>xlarge</font>
+                </param>
+            </theme>
+            <theme name="container" ref="-dialog" allowWildcard="true">
+                <param name="border">
+                    <border>7,7</border>
+                </param>
+                <param name="background">
+                    <image>none</image>
+                </param>
+                <theme name="character-select-button" ref="-defaults" allowWildcard="true">
+                    <param name="background">
+                        <image>ui-inputbox-mixed.background</image>
+                    </param>
+                    <param name="font">
+                        <font>alphabeta</font>
+                    </param>
+                    <param name="border">
+                        <border>7,7</border>
+                    </param>
+                    <param name="minWidth">
+                        <int>400</int>
+                    </param>
+                    <param name="minHeight">
+                        <int>240</int>
+                    </param>
+                    <param name="textAlignment">
+                        <enum type="alignment">BOTTOM</enum>
+                    </param>
+                    <theme name="dialoglayout" ref="-dialog" allowWildcard="true">
+                        <theme name="label" ref="label" allowWildcard="true">
+                            <param name="font">
+                                <font>med-noshadow-22-white</font>
+                            </param>
+                        </theme>
+                        <theme name="spritelabel" ref="-defaults" allowWildcard="true">
+                            <param name="font">
+                                <font>med-noshadow-22-white</font>
+                            </param>
+                        </theme>
+                    </theme>
+                </theme>
+                <theme name="button" ref="button" allowWildcard="true">
+                    <param name="border">
+                        <border>7,7</border>
+                    </param>
+                </theme>
+            </theme>
+            <theme name="label" ref="label" allowWildcard="true">
+                <param name="border">
+                    <border>40</border>
+                </param>
+                <param name="font">
+                    <font>med-noshadow-22-white</font>
+                </param>
+                <param name="textAlignment">
+                    <enum type="alignment">TOP</enum>
+                </param>
+            </theme>
+        </theme>
     </theme>
-  </theme>
-  <theme name="mobile-tabbox-inset" ref="mobile-tabbox">
-    <theme name="tabbutton" ref="tabbutton">
-      <param name="">
-        <image>mobile.tab.inset.*</image>
-      </param>
+    <theme name="combobox" ref="-defaults" allowWildcard="true">
+        <param name="popupHeight">
+            <int>150</int>
+        </param>
+        <theme name="display" ref="label">
+            <param name="font">
+                <font>med-noshadow-18-white</font>
+            </param>
+            <param name="focus">
+                <image>input.background</image>
+            </param>
+            <param name="border">
+                <border>5,5</border>
+            </param>
+        </theme>
+        <param name="font">
+            <font>med-noshadow-18-white</font>
+        </param>
+        <param name="border">
+            <border>0,8,0,8</border>
+        </param>
+        <param name="">
+            <image>ui-button.*</image>
+        </param>
+        <param name="minWidth">
+            <int>150</int>
+        </param>
+        <param name="minHeight">
+            <int>25</int>
+        </param>
+        <param name="textAlignment">
+            <enum type="alignment">BOTTOM</enum>
+        </param>
+        <theme name="button" ref="-defaults">
+            <param name="">
+                <image>ui-button-picker.*</image>
+            </param>
+            <param name="border">
+                <border>0,0,0,5</border>
+            </param>
+        </theme>
     </theme>
-  </theme>
-  <theme name="mobile-combobox" ref="combobox" allowWildcard="true">
-    <param name="popupHeight">
-      <int>150</int>
-    </param>
-    <param name="font">
-      <font>med-noshadow-18-white</font>
-    </param>
-    <param name="border">
-      <border>0,8,0,8</border>
-    </param>
-    <param name="">
-      <image>ui-button.*</image>
-    </param>
-    <param name="minWidth">
-      <int>300</int>
-    </param>
-    <param name="minHeight">
-      <int>40</int>
-    </param>
-    <param name="textAlignment">
-      <enum type="alignment">CENTER</enum>
-    </param>
-    <theme name="display" ref="label">
-      <param name="font">
-        <font>med-noshadow-18-white</font>
-      </param>
-      <param name="focus">
-        <image>input.background</image>
-      </param>
-      <param name="border">
-        <border>0</border>
-      </param>
-      <param name="textAlignment">
-        <enum type="alignment">CENTER</enum>
-      </param>
+    <theme name="comboboxPopup" ref="-defaults" allowWildcard="true">
+        <theme name="listbox" ref="-defaults">
+            <param name="minDisplayedRows">
+                <int>1</int>
+            </param>
+            <theme name="display" ref="-defaults">
+                <param name="border">
+                    <border>0,0,0,5</border>
+                </param>
+                <param name="font">
+                    <font>med-noshadow-18-white</font>
+                </param>
+                <param name="minHeight">
+                    <int>55</int>
+                </param>
+            </theme>
+            <param name="font">
+                <font>med-noshadow-18-white</font>
+            </param>
+            <param name="cellHeight">
+                <int>55</int>
+            </param>
+        </theme>
+        <param name="border">
+            <border>0</border>
+        </param>
+        <param name="background">
+            <image>ui-popup.background</image>
+        </param>
+        <param name="minWidth">
+            <int>250</int>
+        </param>
+        <param name="textAlignment">
+            <enum type="alignment">BOTTOM</enum>
+        </param>
     </theme>
-    <theme name="button" ref="-defaults">
-      <param name="">
-        <image>ui-button-picker.*</image>
-      </param>
-      <param name="border">
-        <border>0,0,0,5</border>
-      </param>
+    <theme name="notification" ref="-defaults" allowWildcard="true">
+        <theme name="dialoglayout" ref="-defaults">
+            <theme name="label" ref="-defaults">
+                <param name="border">
+                    <border>5</border>
+                </param>
+                <param name="textAlignment">
+                    <enum type="alignment">CENTER</enum>
+                </param>
+                <param name="font">
+                    <font>xlarge</font>
+                </param>
+            </theme>
+        </theme>
     </theme>
-  </theme>
-  <theme name="mobile-combobox-50" ref="mobile-combobox">
-    <param name="minHeight">
-      <int>50</int>
-    </param>
-  </theme>
-  <theme name="mobile-valueadjuster" ref="valueadjuster" allowWildcard="true">
-    <param name="background">
-      <image>none</image>
-    </param>
-    <param name="textAlignment">
-      <enum type="alignment">left</enum>
-    </param>
-    <param name="border">
-      <border>0</border>
-    </param>
-    <param name="minWidth">
-      <int>300</int>
-    </param>
-    <param name="minHeight">
-      <int>40</int>
-    </param>
-    <param name="font">
-      <font>med-noshadow-18-white</font>
-    </param>
-    <theme name="decButton" ref="button">
-      <param name="">
-        <image>ui-button.*</image>
-      </param>
-      <param name="text">
-        <string>-</string>
-      </param>
-      <param name="border">
-        <border>12,6</border>
-      </param>
-      <param name="minWidth">
-        <int>40</int>
-      </param>
-      <param name="font">
-        <font>med-noshadow-18-white</font>
-      </param>
+    <theme name="hud-panel" ref="-defaults" allowWildcard="true">
+        <param name="border">
+            <border>0,0,0,0</border>
+        </param>
+        <param name="background">
+            <image>mobile.hudmenu.background</image>
+        </param>
+        <param name="defaultGap">
+            <dimension>5,5</dimension>
+        </param>
+        <param name="smallGap">
+            <dimension>8,8</dimension>
+        </param>
+        <param name="mediumGap">
+            <dimension>10,10</dimension>
+        </param>
+        <param name="largeGap">
+            <dimension>15,15</dimension>
+        </param>
+        <param name="namedGaps">
+            <map/>
+        </param>
+        <theme name="dialoglayout" ref="-defaults">
+            <param name="defaultGap">
+                <dimension>5,5</dimension>
+            </param>
+            <param name="smallGap">
+                <dimension>8,8</dimension>
+            </param>
+            <param name="mediumGap">
+                <dimension>10,10</dimension>
+            </param>
+            <param name="largeGap">
+                <dimension>15,15</dimension>
+            </param>
+            <param name="background">
+                <image>none</image>
+            </param>
+            <param name="border">
+                <border>0,10,0,0</border>
+            </param>
+            <param name="namedGaps">
+                <map>
+                    <param name="menu-header-right">
+                        <gap>35,35,35</gap>
+                    </param>
+                </map>
+            </param>
+            <theme name="scrollpane" ref="scrollpane">
+                <theme name="hscrollbar" ref="hscrollbar"/>
+                <theme name="vscrollbar" ref="vscrollbar"/>
+                <param name="minWidth">
+                    <int>589</int>
+                </param>
+                <param name="minHeight">
+                    <int>600</int>
+                </param>
+                <param name="maxWidth">
+                    <int>32767</int>
+                </param>
+                <param name="maxHeight">
+                    <int>32767</int>
+                </param>
+                <param name="hasDragButton">
+                    <bool>false</bool>
+                </param>
+                <param name="autoScrollArea">
+                    <int>5</int>
+                </param>
+                <param name="autoScrollSpeed">
+                    <int>10</int>
+                </param>
+                <param name="scrollbarsAlwaysVisible">
+                    <bool>false</bool>
+                </param>
+                <param name="border">
+                    <border>50,30,10,0</border>
+                </param>
+                <theme name="dialoglayout" ref="-defaults">
+                    <param name="defaultGap">
+                        <dimension>5,5</dimension>
+                    </param>
+                    <param name="smallGap">
+                        <dimension>8,8</dimension>
+                    </param>
+                    <param name="mediumGap">
+                        <dimension>10,10</dimension>
+                    </param>
+                    <param name="largeGap">
+                        <dimension>15,15</dimension>
+                    </param>
+                    <param name="namedGaps">
+                        <map/>
+                    </param>
+                    <param name="border">
+                        <border>0,0,0,0</border>
+                    </param>
+                    <theme name="hud-item-button" ref="-defaults" allowWildcard="true">
+                        <param name="font">
+                            <font>med-shadow-22-white</font>
+                        </param>
+                        <param name="background">
+                            <image>label2.background</image>
+                        </param>
+                        <param name="border">
+                            <border>0,60,0,0</border>
+                        </param>
+                        <param name="textAlignment">
+                            <enum type="alignment">LEFT</enum>
+                        </param>
+                    </theme>
+                </theme>
+            </theme>
+        </theme>
     </theme>
-    <theme name="incButton" ref="button">
-      <param name="">
-        <image>ui-button.*</image>
-      </param>
-      <param name="text">
-        <string>+</string>
-      </param>
-      <param name="border">
-        <border>12,6</border>
-      </param>
-      <param name="minWidth">
-        <int>40</int>
-      </param>
-      <param name="font">
-        <font>med-noshadow-18-white</font>
-      </param>
+    <theme name="mobile-menu" ref="button" allowWildcard="true">
+        <param name="background">
+            <image>mobile.icons.menu</image>
+        </param>
+        <param name="minWidth">
+            <int>60</int>
+        </param>
+        <param name="minHeight">
+            <int>60</int>
+        </param>
     </theme>
-    <theme name="valueDisplay" ref="button">
-      <param name="">
-        <image>ui-button.*</image>
-      </param>
-      <param name="border">
-        <border>0,6</border>
-      </param>
-      <param name="minWidth">
-        <int>200</int>
-      </param>
-      <param name="font">
-        <font>med-noshadow-18-white</font>
-      </param>
+    <theme name="mobile-menu-settings" ref="button" allowWildcard="true">
+        <param name="border">
+            <border>0</border>
+        </param>
+        <param name="background">
+            <image>label1.background</image>
+        </param>
+        <param name="overlay">
+            <image>mobile.icons.gear</image>
+        </param>
+        <param name="minWidth">
+            <int>60</int>
+        </param>
+        <param name="minHeight">
+            <int>60</int>
+        </param>
     </theme>
-  </theme>
-  <theme name="mobile-valueadjuster-50" ref="mobile-valueadjuster">
-    <param name="minHeight">
-      <int>50</int>
-    </param>
-  </theme>
-  <theme name="mobile-save-icon" ref="button" allowWildcard="true">
-    <param name="border">
-      <border>0</border>
-    </param>
-    <param name="background">
-      <image>mobile.icons.save</image>
-    </param>
-    <param name="minWidth">
-      <int>60</int>
-    </param>
-    <param name="minHeight">
-      <int>60</int>
-    </param>
-  </theme>
-  <theme name="confirm-panel" ref="confirm-panel" allowWildcard="true">
-    <theme name="progressbar" ref="-defaults" allowWildcard="true">
-      <param name="progressImage">
-        <image>mobile.progress.green.progressImage</image>
-      </param>
-      <param name="background">
-        <image>mobile.progress.background</image>
-      </param>
-      <param name="overlay">
-        <image>mobile.progress.overlay</image>
-      </param>
-      <param name="border">
-        <border>0,0</border>
-      </param>
-      <param name="minWidth">
-        <int>350</int>
-      </param>
-      <param name="minHeight">
-        <int>80</int>
-      </param>
-      <param name="textAlignment">
-        <enum type="alignment">CENTER</enum>
-      </param>
-      <param name="font">
-        <font>22pt-gray</font>
-      </param>
+    <theme name="mobile-menu-close" ref="button" allowWildcard="true">
+        <param name="border">
+            <border>0</border>
+        </param>
+        <param name="background">
+            <image>label1.background</image>
+        </param>
+        <param name="overlay">
+            <image>mobile.icons.close</image>
+        </param>
+        <param name="minWidth">
+            <int>60</int>
+        </param>
+        <param name="minHeight">
+            <int>60</int>
+        </param>
     </theme>
-    <theme name="label" ref="label" allowWildcard="true">
-      <param name="font">
-        <font>med-noshadow-18-white</font>
-      </param>
-      <param name="textAlignment">
-        <enum type="alignment">CENTER</enum>
-      </param>
+    <theme name="mobile-battery" ref="button" allowWildcard="true">
+        <param name="minWidth">
+            <int>60</int>
+        </param>
+        <param name="minHeight">
+            <int>60</int>
+        </param>
     </theme>
-    <theme name="button" ref="button" allowWildcard="true">
-      <param name="font">
-        <font>med-noshadow-18-white</font>
-      </param>
-      <param name="textAlignment">
-        <enum type="alignment">CENTER</enum>
-      </param>
-      <param name="border">
-        <border>10,10,10,10</border>
-      </param>
-      <param name="minWidth">
-        <int>120</int>
-      </param>
+    <theme name="mobile-battery-10" ref="mobile-battery" allowWildcard="true">
+        <param name="background">
+            <image>mobile.icons.battery-10</image>
+        </param>
     </theme>
-  </theme>
-  <theme name="world-chat-toggle" ref="button" overwrite="true">
-    <param name="background">
-      <image>mobile.icons.chat</image>
-    </param>
-    <param name="minWidth">
-      <int>60</int>
-    </param>
-    <param name="minHeight">
-      <int>60</int>
-    </param>
-  </theme>
-  <theme name="world-status">
-    <theme name="label">
-      <param name="font">
-        <font>med-noshadow-18-white</font>
-      </param>
-      <param name="minWidth">
-        <int>200</int>
-      </param>
+    <theme name="mobile-battery-20" ref="mobile-battery" allowWildcard="true">
+        <param name="background">
+            <image>mobile.icons.battery-20</image>
+        </param>
     </theme>
-    <theme name="location">
-      <param name="minWidth">
-        <int>27</int>
-      </param>
-      <param name="minHeight">
-        <int>27</int>
-      </param>
+    <theme name="mobile-battery-30" ref="mobile-battery" allowWildcard="true">
+        <param name="background">
+            <image>mobile.icons.battery-30</image>
+        </param>
     </theme>
-    <theme name="money">
-      <param name="minWidth">
-        <int>27</int>
-      </param>
-      <param name="minHeight">
-        <int>27</int>
-      </param>
+    <theme name="mobile-battery-40" ref="mobile-battery" allowWildcard="true">
+        <param name="background">
+            <image>mobile.icons.battery-40</image>
+        </param>
     </theme>
-    <theme name="day">
-      <param name="minWidth">
-        <int>27</int>
-      </param>
-      <param name="minHeight">
-        <int>27</int>
-      </param>
+    <theme name="mobile-battery-50" ref="mobile-battery" allowWildcard="true">
+        <param name="background">
+            <image>mobile.icons.battery-50</image>
+        </param>
     </theme>
-    <theme name="night">
-      <param name="minWidth">
-        <int>27</int>
-      </param>
-      <param name="minHeight">
-        <int>27</int>
-      </param>
+    <theme name="mobile-battery-60" ref="mobile-battery" allowWildcard="true">
+        <param name="background">
+            <image>mobile.icons.battery-60</image>
+        </param>
     </theme>
-    <theme name="morning">
-      <param name="minWidth">
-        <int>27</int>
-      </param>
-      <param name="minHeight">
-        <int>27</int>
-      </param>
+    <theme name="mobile-battery-70" ref="mobile-battery" allowWildcard="true">
+        <param name="background">
+            <image>mobile.icons.battery-70</image>
+        </param>
     </theme>
-  </theme>
+    <theme name="mobile-battery-80" ref="mobile-battery" allowWildcard="true">
+        <param name="background">
+            <image>mobile.icons.battery-80</image>
+        </param>
+    </theme>
+    <theme name="mobile-battery-90" ref="mobile-battery" allowWildcard="true">
+        <param name="background">
+            <image>mobile.icons.battery-90</image>
+        </param>
+    </theme>
+    <theme name="mobile-battery-100" ref="mobile-battery" allowWildcard="true">
+        <param name="background">
+            <image>mobile.icons.battery-100</image>
+        </param>
+    </theme>
+    <theme name="mobile-panel" ref="base-frame">
+        <param name="background">
+            <image>mobile.window.bottom.background</image>
+        </param>
+        <param name="fadeDurationShow">
+            <int>200</int>
+        </param>
+        <param name="fadeDurationHide">
+            <int>1</int>
+        </param>
+        <param name="titleAreaTop">
+            <int>15</int>
+        </param>
+        <param name="titleAreaLeft">
+            <int>15</int>
+        </param>
+        <param name="titleAreaRight">
+            <int>-1</int>
+        </param>
+        <param name="titleAreaBottom">
+            <int>50</int>
+        </param>
+        <param name="closeButtonX">
+            <int>-104</int>
+        </param>
+        <param name="closeButtonY">
+            <int>0</int>
+        </param>
+        <theme name="title" ref="label" allowWildcard="true">
+            <param name="font">
+                <font>xlarge</font>
+            </param>
+        </theme>
+        <theme name="closeButton" ref="-defaults">
+            <param name="background">
+                <image>mobile.icons.close</image>
+            </param>
+            <param name="minWidth">
+                <int>60</int>
+            </param>
+            <param name="minHeight">
+                <int>60</int>
+            </param>
+        </theme>
+        <param name="headerActionRight">
+            <int>116</int>
+        </param>
+    </theme>
+    <theme name="mobile-gear-icon" ref="button" allowWildcard="true">
+        <param name="border">
+            <border>0</border>
+        </param>
+        <param name="background">
+            <image>mobile.icons.gear</image>
+        </param>
+        <param name="minWidth">
+            <int>60</int>
+        </param>
+        <param name="minHeight">
+            <int>60</int>
+        </param>
+    </theme>
+    <theme name="mobile-tabbox" ref="-defaults">
+        <param name="alignment">
+            <enum type="alignment">FILL</enum>
+        </param>
+        <param name="border">
+            <border>0,0,0,0</border>
+        </param>
+        <param name="spacing">
+            <int>0</int>
+        </param>
+        <theme name="tabbutton" ref="button">
+            <param name="minWidth">
+                <int>180</int>
+            </param>
+            <param name="minHeight">
+                <int>50</int>
+            </param>
+            <param name="">
+                <image>mobile.tab.*</image>
+            </param>
+            <param name="textAlignment">
+                <enum type="alignment">CENTER</enum>
+            </param>
+        </theme>
+    </theme>
+    <theme name="mobile-tabbox-inset" ref="mobile-tabbox">
+        <theme name="tabbutton" ref="tabbutton">
+            <param name="">
+                <image>mobile.tab.inset.*</image>
+            </param>
+        </theme>
+    </theme>
+    <theme name="mobile-combobox" ref="combobox" allowWildcard="true">
+        <param name="popupHeight">
+            <int>150</int>
+        </param>
+        <param name="font">
+            <font>med-noshadow-18-white</font>
+        </param>
+        <param name="border">
+            <border>0,8,0,8</border>
+        </param>
+        <param name="">
+            <image>ui-button.*</image>
+        </param>
+        <param name="minWidth">
+            <int>300</int>
+        </param>
+        <param name="minHeight">
+            <int>40</int>
+        </param>
+        <param name="textAlignment">
+            <enum type="alignment">CENTER</enum>
+        </param>
+        <theme name="display" ref="label">
+            <param name="font">
+                <font>med-noshadow-18-white</font>
+            </param>
+            <param name="focus">
+                <image>input.background</image>
+            </param>
+            <param name="border">
+                <border>0</border>
+            </param>
+            <param name="textAlignment">
+                <enum type="alignment">CENTER</enum>
+            </param>
+        </theme>
+        <theme name="button" ref="-defaults">
+            <param name="">
+                <image>ui-button-picker.*</image>
+            </param>
+            <param name="border">
+                <border>0,0,0,5</border>
+            </param>
+        </theme>
+    </theme>
+    <theme name="mobile-combobox-50" ref="mobile-combobox">
+        <param name="minHeight">
+            <int>50</int>
+        </param>
+    </theme>
+    <theme name="mobile-valueadjuster" ref="valueadjuster" allowWildcard="true">
+        <param name="background">
+            <image>none</image>
+        </param>
+        <param name="textAlignment">
+            <enum type="alignment">left</enum>
+        </param>
+        <param name="border">
+            <border>0</border>
+        </param>
+        <param name="minWidth">
+            <int>300</int>
+        </param>
+        <param name="minHeight">
+            <int>40</int>
+        </param>
+        <param name="font">
+            <font>med-noshadow-18-white</font>
+        </param>
+        <theme name="decButton" ref="button">
+            <param name="">
+                <image>ui-button.*</image>
+            </param>
+            <param name="text">
+                <string>-</string>
+            </param>
+            <param name="border">
+                <border>12,6</border>
+            </param>
+            <param name="minWidth">
+                <int>40</int>
+            </param>
+            <param name="font">
+                <font>med-noshadow-18-white</font>
+            </param>
+        </theme>
+        <theme name="incButton" ref="button">
+            <param name="">
+                <image>ui-button.*</image>
+            </param>
+            <param name="text">
+                <string>+</string>
+            </param>
+            <param name="border">
+                <border>12,6</border>
+            </param>
+            <param name="minWidth">
+                <int>40</int>
+            </param>
+            <param name="font">
+                <font>med-noshadow-18-white</font>
+            </param>
+        </theme>
+        <theme name="valueDisplay" ref="button">
+            <param name="">
+                <image>ui-button.*</image>
+            </param>
+            <param name="border">
+                <border>0,6</border>
+            </param>
+            <param name="minWidth">
+                <int>200</int>
+            </param>
+            <param name="font">
+                <font>med-noshadow-18-white</font>
+            </param>
+        </theme>
+    </theme>
+    <theme name="mobile-valueadjuster-50" ref="mobile-valueadjuster">
+        <param name="minHeight">
+            <int>50</int>
+        </param>
+    </theme>
+    <theme name="mobile-save-icon" ref="button" allowWildcard="true">
+        <param name="border">
+            <border>0</border>
+        </param>
+        <param name="background">
+            <image>mobile.icons.save</image>
+        </param>
+        <param name="minWidth">
+            <int>60</int>
+        </param>
+        <param name="minHeight">
+            <int>60</int>
+        </param>
+    </theme>
+    <theme name="confirm-panel" ref="confirm-panel" allowWildcard="true">
+        <theme name="progressbar" ref="-defaults" allowWildcard="true">
+            <param name="progressImage">
+                <image>mobile.progress.green.progressImage</image>
+            </param>
+            <param name="background">
+                <image>mobile.progress.background</image>
+            </param>
+            <param name="overlay">
+                <image>mobile.progress.overlay</image>
+            </param>
+            <param name="border">
+                <border>0,0</border>
+            </param>
+            <param name="minWidth">
+                <int>350</int>
+            </param>
+            <param name="minHeight">
+                <int>80</int>
+            </param>
+            <param name="textAlignment">
+                <enum type="alignment">CENTER</enum>
+            </param>
+            <param name="font">
+                <font>22pt-gray</font>
+            </param>
+        </theme>
+        <theme name="label" ref="label" allowWildcard="true">
+            <param name="font">
+                <font>med-noshadow-18-white</font>
+            </param>
+            <param name="textAlignment">
+                <enum type="alignment">CENTER</enum>
+            </param>
+        </theme>
+        <theme name="button" ref="button" allowWildcard="true">
+            <param name="font">
+                <font>med-noshadow-18-white</font>
+            </param>
+            <param name="textAlignment">
+                <enum type="alignment">CENTER</enum>
+            </param>
+            <param name="border">
+                <border>10,10,10,10</border>
+            </param>
+            <param name="minWidth">
+                <int>120</int>
+            </param>
+        </theme>
+    </theme>
+    <theme name="world-chat-toggle" ref="button" overwrite="true">
+        <param name="background">
+            <image>mobile.icons.chat</image>
+        </param>
+        <param name="minWidth">
+            <int>60</int>
+        </param>
+        <param name="minHeight">
+            <int>60</int>
+        </param>
+    </theme>
+    <theme name="world-status">
+        <theme name="label">
+            <param name="font">
+                <font>med-noshadow-18-white</font>
+            </param>
+            <param name="minWidth">
+                <int>200</int>
+            </param>
+        </theme>
+        <theme name="location">
+            <param name="minWidth">
+                <int>27</int>
+            </param>
+            <param name="minHeight">
+                <int>27</int>
+            </param>
+        </theme>
+        <theme name="money">
+            <param name="minWidth">
+                <int>27</int>
+            </param>
+            <param name="minHeight">
+                <int>27</int>
+            </param>
+        </theme>
+        <theme name="day">
+            <param name="minWidth">
+                <int>27</int>
+            </param>
+            <param name="minHeight">
+                <int>27</int>
+            </param>
+        </theme>
+        <theme name="night">
+            <param name="minWidth">
+                <int>27</int>
+            </param>
+            <param name="minHeight">
+                <int>27</int>
+            </param>
+        </theme>
+        <theme name="morning">
+            <param name="minWidth">
+                <int>27</int>
+            </param>
+            <param name="minHeight">
+                <int>27</int>
+            </param>
+        </theme>
+    </theme>
 </themes>

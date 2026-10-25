@@ -1,178 +1,180 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <themes>
-  <images file="res/ui-mobile-atlas.png" filter="nearest">
-    <area name="mobile.hudmenu.background" xywh="423,450,61,40" splitx="L15,R0" />
-    <area name="mobile.icons.menu" xywh="628,888,60,60" />
-    <area name="mobile.icons.close" xywh="803,888,60,60" />
-    <area name="mobile.icons.gear" xywh="716,960,60,60" />
-    <area name="mobile.icons.battery-10" xywh="0,904,60,60" />
-    <area name="mobile.icons.battery-20" xywh="60,904,60,60" />
-    <area name="mobile.icons.battery-30" xywh="120,904,60,60" />
-    <area name="mobile.icons.battery-40" xywh="180,904,60,60" />
-    <area name="mobile.icons.battery-50" xywh="240,904,60,60" />
-    <area name="mobile.icons.battery-60" xywh="0,964,60,60" />
-    <area name="mobile.icons.battery-70" xywh="60,964,60,60" />
-    <area name="mobile.icons.battery-80" xywh="120,964,60,60" />
-    <area name="mobile.icons.battery-90" xywh="180,964,60,60" />
-    <area name="mobile.icons.battery-100" xywh="240,964,60,60" />
-    <grid name="mobile.frame.background" weightsX="0,1,0" weightsY="0,0,1,0">
-      <area xywh="33,0,14,9" />
-      <area xywh="60,0,14,9" />
-      <area xywh="122,0,14,9" />
-      <area xywh="33,9,14,60" />
-      <area xywh="60,9,14,60" />
-      <area xywh="122,9,14,60" />
-      <area xywh="33,69,14,7" />
-      <area xywh="60,69,14,7" />
-      <area xywh="122,69,14,7" />
-      <area xywh="33,76,14,50" />
-      <area xywh="80,76,14,50" />
-      <area xywh="122,76,14,50" />
-    </grid>
-    <area name="mobile.icons.save" xywh="560,960,60,60" />
-    <area name="mobile.tab.button" xywh="418,223,-201,4" />
-    <select name="mobile.tab.activeonly.background">
-      <alias ref="mobile.tab.button" if="active | selected" />
-    </select>
-    <area name="mobile.box.light1" xywh="778,27,20,20" />
-    <area name="mobile.box.dark3" xywh="743,28,20,20" />
-    <alias name="mobile.box.dark3.50" ref="mobile.box.dark3" tint="#60FFFFFF" />
-    <alias name="mobile.box.dark3.50.table" ref="mobile.box.dark3" inset="1" tint="#80FFFFFF" />
-    <select name="mobile.tab.background">
-      <alias ref="mobile.tab.button" if="active | selected" />
-      <alias ref="mobile.box.dark3.50" />
-    </select>
-    <select name="mobile.tab.inset.background">
-      <alias ref="mobile.tab.button" if="active | selected" inset="0,-10,0,0" />
-      <alias ref="mobile.box.dark3.50" inset="0,-10,0,0" />
-    </select>
-    <area name="mobile.tab.selected" xywh="435,328,10,9" sizeOverwriteH="60" sizeOverwriteV="60" />
-    <grid name="mobile.window.onebar.background" weightsX="1" weightsY="0,1">
-      <area xywh="372,9,15,60" sizeOverwriteV="60" />
-      <area xywh="372,69,15,600" sizeOverwriteV="660" tint="#FFFFFFFF" />
-    </grid>
-  </images>
-  <images file="res/ui-bottom-background.png" filter="linear">
-    <grid name="mobile.window.bottom.background" weightsX="1" weightsY="0,1,0">
-      <area xywh="0,0,1024,60" />
-      <area xywh="0,60,1024,600" />
-      <area xywh="0,660,1024,60" />
-    </grid>
-  </images>
-  <images file="res/android_ui.png" filter="nearest">
-    <animation name="mobile.tab.animation" timeSource="selected" count="1">
-      <frame duration="250" ref="mobile.tab.background" tint="#00FFFFFF" />
-      <frame duration="1" ref="mobile.tab.background" tint="#FFFFFFFF" />
-    </animation>
-    <area name="mobile.tab.backgrounddd" xywh="213,60,5,5" splitx="L1,R1" />
-    <animation name="mobile.tab.hover" timeSource="hover" count="1">
-      <frame duration="100" ref="mobile.tab.background" tint="#00FFFFFF" />
-      <frame duration="1" ref="mobile.tab.background" tint="#A0FFFFFF" />
-    </animation>
-  </images>
-  <images file="res/pc_slots.png" filter="nearest">
-    <area name="pcslot.bg.active" xywh="86,1,80,80" />
-  </images>
-  <images file="res/pc_slots.png" filter="nearest">
-    <area name="pcslot.bg.default" xywh="3,1,80,80" />
-  </images>
-  <images file="res/pc_slots.png" filter="nearest">
-    <area name="pcslot.bg.overlay.disabled" xywh="3,164,80,80" />
-  </images>
-  <images file="res/pc_slots.png" filter="nearest">
-    <area name="pcslot.bg.overlay.battlebox" xywh="169,164,80,80" />
-  </images>
-  <images file="res/pc_slots.png" filter="nearest">
-    <area name="pcslot.inner.filtered" xywh="169,83,80,80" />
-  </images>
-  <images file="res/pc_slots.png" filter="nearest">
-    <area name="pcslot.inner.active" xywh="86,83,80,80" />
-  </images>
-  <images file="res/pc_slots.png" filter="nearest">
-    <area name="pcslot.inner.default" xywh="3,83,80,80" />
-  </images>
-  <images file="res/pc_slots.png" filter="nearest">
-    <area name="pcslot.border.filtered" xywh="169,247,80,80" />
-  </images>
-  <images file="res/pc_slots.png" filter="nearest">
-    <area name="pcslot.border.filtered2" xywh="169,247,80,80" inset="-1" />
-  </images>
-  <images file="res/pc_slots.png" filter="nearest">
-    <area name="pcslot.border.selected2" xywh="86,247,80,80" inset="-1" />
-  </images>
-  <images file="res/pc_slots.png" filter="nearest">
-    <area name="pcslot.border.selected" xywh="86,247,80,80" />
-  </images>
-  <images file="res/pc_slots.png" filter="nearest">
-    <area name="pcslot.border.default" xywh="3,247,80,80" />
-  </images>
-  <images file="res/pc_slots.png" filter="nearest">
-    <composed name="pc-slot.background">
-      <select center="false">
-        <alias ref="pcslot.bg.active" if="filtered" />
-        <alias ref="pcslot.bg.default" />
-      </select>
-      <select center="false">
-        <alias ref="pcslot.bg.overlay.disabled" if="obey" />
-        <alias ref="pcslot.bg.overlay.battlebox" if="battlebox" />
-      </select>
-      <select center="false">
-        <alias ref="pcslot.inner.filtered" if="selected + filtered" />
-        <alias ref="pcslot.inner.active" if="selected" />
-        <alias ref="pcslot.inner.default" />
-      </select>
-      <select center="false">
-        <alias if="multiselectActive" ref="pcslot.border.filtered" />
-        <animation if="multiselect" timeSource="keyboardFocus">
-          <frame duration="400" ref="pcslot.border.filtered2" tint="#FFFFFFFF" />
-          <frame duration="400" ref="pcslot.border.filtered" tint="#FFFFFFFF" />
+    <images file="res/ui-mobile-atlas.png" filter="nearest">
+        <area name="mobile.hudmenu.background" xywh="423,450,61,40" splitx="L15,R0"/>
+        <area name="mobile.icons.menu" xywh="628,888,60,60"/>
+        <area name="mobile.icons.close" xywh="803,888,60,60"/>
+        <area name="mobile.icons.gear" xywh="716,960,60,60"/>
+        <area name="mobile.icons.battery-10" xywh="0,904,60,60"/>
+        <area name="mobile.icons.battery-20" xywh="60,904,60,60"/>
+        <area name="mobile.icons.battery-30" xywh="120,904,60,60"/>
+        <area name="mobile.icons.battery-40" xywh="180,904,60,60"/>
+        <area name="mobile.icons.battery-50" xywh="240,904,60,60"/>
+        <area name="mobile.icons.battery-60" xywh="0,964,60,60"/>
+        <area name="mobile.icons.battery-70" xywh="60,964,60,60"/>
+        <area name="mobile.icons.battery-80" xywh="120,964,60,60"/>
+        <area name="mobile.icons.battery-90" xywh="180,964,60,60"/>
+        <area name="mobile.icons.battery-100" xywh="240,964,60,60"/>
+        <grid name="mobile.frame.background" weightsX="0,1,0" weightsY="0,0,1,0">
+            <area xywh="33,0,14,9"/>
+            <area xywh="60,0,14,9"/>
+            <area xywh="122,0,14,9"/>
+            <area xywh="33,9,14,60"/>
+            <area xywh="60,9,14,60"/>
+            <area xywh="122,9,14,60"/>
+            <area xywh="33,69,14,7"/>
+            <area xywh="60,69,14,7"/>
+            <area xywh="122,69,14,7"/>
+            <area xywh="33,76,14,50"/>
+            <area xywh="80,76,14,50"/>
+            <area xywh="122,76,14,50"/>
+        </grid>
+        <area name="mobile.icons.save" xywh="560,960,60,60"/>
+        <area name="mobile.tab.button" xywh="418,223,-201,4"/>
+        <select name="mobile.tab.activeonly.background">
+            <alias ref="mobile.tab.button" if="active | selected"/>
+        </select>
+        <area name="mobile.box.light1" xywh="778,27,20,20"/>
+        <area name="mobile.box.dark3" xywh="743,28,20,20"/>
+        <alias name="mobile.box.dark3.50" ref="mobile.box.dark3" tint="#60FFFFFF"/>
+        <alias name="mobile.box.dark3.50.table" ref="mobile.box.dark3" inset="1" tint="#80FFFFFF"/>
+        <select name="mobile.tab.background">
+            <alias ref="mobile.tab.button" if="active | selected"/>
+            <alias ref="mobile.box.dark3.50"/>
+        </select>
+        <select name="mobile.tab.inset.background">
+            <alias ref="mobile.tab.button" if="active | selected" inset="0,-10,0,0"/>
+            <alias ref="mobile.box.dark3.50" inset="0,-10,0,0"/>
+        </select>
+        <area name="mobile.tab.selected" xywh="435,328,10,9" sizeOverwriteH="60" sizeOverwriteV="60"/>
+        <grid name="mobile.window.onebar.background" weightsX="1" weightsY="0,1">
+            <area xywh="372,9,15,60" sizeOverwriteV="60"/>
+            <area xywh="372,69,15,600" sizeOverwriteV="660" tint="#FFFFFFFF"/>
+        </grid>
+    </images>
+    <images file="res/ui-bottom-background.png" filter="linear">
+        <grid name="mobile.window.bottom.background" weightsX="1" weightsY="0,1,0">
+            <area xywh="0,0,1024,60"/>
+            <area xywh="0,60,1024,600"/>
+            <area xywh="0,660,1024,60"/>
+        </grid>
+    </images>
+    <images file="res/android_ui.png" filter="nearest">
+        <animation name="mobile.tab.animation" timeSource="selected" count="1">
+            <frame duration="250" ref="mobile.tab.background" tint="#00FFFFFF"/>
+            <frame duration="1" ref="mobile.tab.background" tint="#FFFFFFFF"/>
         </animation>
-        <animation if="keyboardFocus" timeSource="keyboardFocus">
-          <frame duration="400" ref="pcslot.border.selected2" tint="#FFFFFFFF" />
-          <frame duration="400" ref="pcslot.border.selected" tint="#FFFFFFFF" />
+        <area name="mobile.tab.backgrounddd" xywh="213,60,5,5" splitx="L1,R1"/>
+        <animation name="mobile.tab.hover" timeSource="hover" count="1">
+            <frame duration="100" ref="mobile.tab.background" tint="#00FFFFFF"/>
+            <frame duration="1" ref="mobile.tab.background" tint="#A0FFFFFF"/>
         </animation>
-        <alias ref="pcslot.border.default" />
-      </select>
-      <select center="false">
-        <alias ref="pcslot.border.filtered" inset="2" if="filtered" />
-      </select>
-    </composed>
-  </images>
-  <images file="res/ui-mobile-atlas.png" filter="nearest">
-    <area name="mobile.circle.disabled" xywh="551,318,100,100" center="true" sizeOverwriteH="100" sizeOverwriteV="100" tint="#ffcccc" />
-  </images>
-  <images file="res/ui-mobile-atlas.png" filter="nearest">
-    <area name="mobile.circle.white" xywh="551,318,100,100" center="true" sizeOverwriteH="100" sizeOverwriteV="100" tint="#B0FFFFFF" />
-  </images>
-  <images file="res/ui-mobile-atlas.png" filter="nearest">
-    <select name="mobile.circle.plain">
-      <composed if="disabled">
-        <alias ref="mobile.circle.disabled" />
-      </composed>
-      <alias ref="mobile.circle.white" />
-    </select>
-  </images>
-  <images file="res/ui-mobile-atlas.png" filter="nearest">
-    <area name="mobile.circle.purple" xywh="551,318,100,100" sizeOverwriteH="100" sizeOverwriteV="100" tint="#B09B59B6" />
-  </images>
-  <images file="res/ui-mobile-atlas.png" filter="nearest">
-    <area name="mobile.box.dark2" xywh="706,28,20,20" />
-    <alias name="mobile.box.dark2.50" ref="mobile.box.dark2" tint="#60FFFFFF" />
-    <select name="mobile.button.50.background">
-      <alias ref="mobile.tab.button" if="active | selected | keyboardFocus" />
-      <alias ref="mobile.box.dark2.50" />
-    </select>
-    <area name="mobile.icons.chat" xywh="628,960,60,60" />
-  </images>
-  <images file="res/ui-bottom-background.png" filter="linear">
-    <grid name="mobile.full.background" weightsX="1" weightsY="0,1">
-      <area xywh="0,0,1024,60" />
-      <area xywh="0,60,1024,600" />
-    </grid>
-    <alias name="mobile.window.background.lightblue" ref="mobile.full.background" tint="#A0F6FA" />
-  </images>
-  <images file="res/ui-mobile-atlas.png" filter="nearest">
-    <area name="mobile.search.background" xywh="415,72,77,44" splitx="L28,R43" inset="8,0,8,0" />
-  </images>
-<images file="res/ui-mobile-atlas.png" filter="nearest"><area name="mobile.circle.red" xywh="661,316,100,100"/></images>
+    </images>
+    <images file="res/pc_slots.png" filter="nearest">
+        <area name="pcslot.bg.active" xywh="86,1,80,80"/>
+    </images>
+    <images file="res/pc_slots.png" filter="nearest">
+        <area name="pcslot.bg.default" xywh="3,1,80,80"/>
+    </images>
+    <images file="res/pc_slots.png" filter="nearest">
+        <area name="pcslot.bg.overlay.disabled" xywh="3,164,80,80"/>
+    </images>
+    <images file="res/pc_slots.png" filter="nearest">
+        <area name="pcslot.bg.overlay.battlebox" xywh="169,164,80,80"/>
+    </images>
+    <images file="res/pc_slots.png" filter="nearest">
+        <area name="pcslot.inner.filtered" xywh="169,83,80,80"/>
+    </images>
+    <images file="res/pc_slots.png" filter="nearest">
+        <area name="pcslot.inner.active" xywh="86,83,80,80"/>
+    </images>
+    <images file="res/pc_slots.png" filter="nearest">
+        <area name="pcslot.inner.default" xywh="3,83,80,80"/>
+    </images>
+    <images file="res/pc_slots.png" filter="nearest">
+        <area name="pcslot.border.filtered" xywh="169,247,80,80"/>
+    </images>
+    <images file="res/pc_slots.png" filter="nearest">
+        <area name="pcslot.border.filtered2" xywh="169,247,80,80" inset="-1"/>
+    </images>
+    <images file="res/pc_slots.png" filter="nearest">
+        <area name="pcslot.border.selected2" xywh="86,247,80,80" inset="-1"/>
+    </images>
+    <images file="res/pc_slots.png" filter="nearest">
+        <area name="pcslot.border.selected" xywh="86,247,80,80"/>
+    </images>
+    <images file="res/pc_slots.png" filter="nearest">
+        <area name="pcslot.border.default" xywh="3,247,80,80"/>
+    </images>
+    <images file="res/pc_slots.png" filter="nearest">
+        <composed name="pc-slot.background">
+            <select center="false">
+                <alias ref="pcslot.bg.active" if="filtered"/>
+                <alias ref="pcslot.bg.default"/>
+            </select>
+            <select center="false">
+                <alias ref="pcslot.bg.overlay.disabled" if="obey"/>
+                <alias ref="pcslot.bg.overlay.battlebox" if="battlebox"/>
+            </select>
+            <select center="false">
+                <alias ref="pcslot.inner.filtered" if="selected + filtered"/>
+                <alias ref="pcslot.inner.active" if="selected"/>
+                <alias ref="pcslot.inner.default"/>
+            </select>
+            <select center="false">
+                <alias if="multiselectActive" ref="pcslot.border.filtered"/>
+                <animation if="multiselect" timeSource="keyboardFocus">
+                    <frame duration="400" ref="pcslot.border.filtered2" tint="#FFFFFFFF"/>
+                    <frame duration="400" ref="pcslot.border.filtered" tint="#FFFFFFFF"/>
+                </animation>
+                <animation if="keyboardFocus" timeSource="keyboardFocus">
+                    <frame duration="400" ref="pcslot.border.selected2" tint="#FFFFFFFF"/>
+                    <frame duration="400" ref="pcslot.border.selected" tint="#FFFFFFFF"/>
+                </animation>
+                <alias ref="pcslot.border.default"/>
+            </select>
+            <select center="false">
+                <alias ref="pcslot.border.filtered" inset="2" if="filtered"/>
+            </select>
+        </composed>
+    </images>
+    <images file="res/ui-mobile-atlas.png" filter="nearest">
+        <area name="mobile.circle.disabled" xywh="551,318,100,100" center="true" sizeOverwriteH="100" sizeOverwriteV="100" tint="#ffcccc"/>
+    </images>
+    <images file="res/ui-mobile-atlas.png" filter="nearest">
+        <area name="mobile.circle.white" xywh="551,318,100,100" center="true" sizeOverwriteH="100" sizeOverwriteV="100" tint="#B0FFFFFF"/>
+    </images>
+    <images file="res/ui-mobile-atlas.png" filter="nearest">
+        <select name="mobile.circle.plain">
+            <composed if="disabled">
+                <alias ref="mobile.circle.disabled"/>
+            </composed>
+            <alias ref="mobile.circle.white"/>
+        </select>
+    </images>
+    <images file="res/ui-mobile-atlas.png" filter="nearest">
+        <area name="mobile.circle.purple" xywh="551,318,100,100" sizeOverwriteH="100" sizeOverwriteV="100" tint="#B09B59B6"/>
+    </images>
+    <images file="res/ui-mobile-atlas.png" filter="nearest">
+        <area name="mobile.box.dark2" xywh="706,28,20,20"/>
+        <alias name="mobile.box.dark2.50" ref="mobile.box.dark2" tint="#60FFFFFF"/>
+        <select name="mobile.button.50.background">
+            <alias ref="mobile.tab.button" if="active | selected | keyboardFocus"/>
+            <alias ref="mobile.box.dark2.50"/>
+        </select>
+        <area name="mobile.icons.chat" xywh="628,960,60,60"/>
+    </images>
+    <images file="res/ui-bottom-background.png" filter="linear">
+        <grid name="mobile.full.background" weightsX="1" weightsY="0,1">
+            <area xywh="0,0,1024,60"/>
+            <area xywh="0,60,1024,600"/>
+        </grid>
+        <alias name="mobile.window.background.lightblue" ref="mobile.full.background" tint="#A0F6FA"/>
+    </images>
+    <images file="res/ui-mobile-atlas.png" filter="nearest">
+        <area name="mobile.search.background" xywh="415,72,77,44" splitx="L28,R43" inset="8,0,8,0"/>
+    </images>
+    <images file="res/ui-mobile-atlas.png" filter="nearest">
+        <area name="mobile.circle.red" xywh="661,316,100,100"/>
+    </images>
 </themes>

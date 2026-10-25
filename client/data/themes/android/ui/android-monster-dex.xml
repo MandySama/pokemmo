@@ -1,407 +1,407 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <themes>
-  <theme name="pokedex-list-frame" ref="mobile-panel" overwrite="true" />
-  <theme name="monsterdex-button" ref="monsterdex-button" overwrite="true">
-    <param name="font">
-      <font>med-noshadow-18-white</font>
-    </param>
-  </theme>
-  <theme name="pokedex-plain" ref="pokedex-plain" overwrite="true">
-    <param name="font">
-      <font>med-noshadow-18-white</font>
-    </param>
-  </theme>
-  <theme name="pokedex-table-value" ref="pokedex-table-value" overwrite="true">
-    <param name="font">
-      <font>med-noshadow-18-white</font>
-    </param>
-  </theme>
-  <theme name="pokedex-column-header" ref="pokedex-column-header" overwrite="true">
-    <param name="font">
-      <font>med-noshadow-18-white</font>
-    </param>
-  </theme>
-  <theme name="pokedex-move-type" ref="pokedex-move-type" overwrite="true">
-    <param name="background">
-      <image>mobile.box.dark3.50.table</image>
-    </param>
-  </theme>
-  <theme name="pokedex-table-center" ref="pokedex-table-center" overwrite="true">
-    <param name="font">
-      <font>med-noshadow-18-white</font>
-    </param>
-  </theme>
-  <theme name="pokedex-value-centered" ref="pokedex-value-centered" overwrite="true">
-    <param name="font">
-      <font>med-noshadow-18-white</font>
-    </param>
-  </theme>
-  <theme name="pokedex-tab" ref="button" overwrite="true">
-    <param name="font">
-      <font>med-noshadow-22-white</font>
-    </param>
-  </theme>
-  <theme name="pokedex-evolution-name" ref="pokedex-evolution-name" overwrite="true">
-    <param name="font">
-      <font>med-noshadow-18-white</font>
-    </param>
-  </theme>
-  <theme name="label-title-dex" ref="label-title-dex" overwrite="true">
-    <param name="font">
-      <font>med-noshadow-18-white</font>
-    </param>
-    <param name="border">
-      <border>8</border>
-    </param>
-    <param name="minWidth">
-      <int>110</int>
-    </param>
-    <param name="maxWidth">
-      <int>110</int>
-    </param>
-  </theme>
-  <theme name="label-value-dex2" ref="label-value-dex2" overwrite="true">
-    <param name="font">
-      <font>med-noshadow-18-white</font>
-    </param>
-    <param name="border">
-      <border>8</border>
-    </param>
-    <param name="wrapWidth">
-      <int>315</int>
-    </param>
-  </theme>
-  <theme name="label-value-dex" ref="label-value-dex" overwrite="true">
-    <param name="font">
-      <font>med-noshadow-18-white</font>
-    </param>
-    <param name="border">
-      <border>8</border>
-    </param>
-  </theme>
-  <theme name="label-title-dex-long" ref="label-title-dex-long" overwrite="true">
-    <param name="font">
-      <font>med-noshadow-18-white</font>
-    </param>
-    <param name="border">
-      <border>8</border>
-    </param>
-  </theme>
-  <theme name="dex-move-table" ref="-defaults">
-    <theme name="box-layout-row" ref="-defaults">
-      <theme name="label" ref="dex-move-table.box-layout-row.label" overwrite="true">
+    <theme name="pokedex-list-frame" ref="mobile-panel" overwrite="true"/>
+    <theme name="monsterdex-button" ref="monsterdex-button" overwrite="true">
         <param name="font">
-          <font>med-noshadow-18-white</font>
-        </param>
-        <param name="border">
-          <border>10</border>
-        </param>
-        <param name="background">
-          <image>mobile.box.dark3.50.table</image>
-        </param>
-      </theme>
-    </theme>
-    <theme name="columnHeader" ref="dex-move-table.columnHeader" overwrite="true">
-      <param name="font">
-        <font>med-noshadow-18-white</font>
-      </param>
-      <param name="border">
-        <border>15</border>
-      </param>
-    </theme>
-    <param name="columnWidths">
-      <map>
-        <param name="0">
-          <int>200</int>
-        </param>
-        <param name="1">
-          <int>280</int>
-        </param>
-        <param name="2">
-          <int>130</int>
-        </param>
-        <param name="3">
-          <int>65</int>
-        </param>
-        <param name="4">
-          <int>65</int>
-        </param>
-        <param name="5">
-          <int>65</int>
-        </param>
-      </map>
-    </param>
-    <param name="columnHeaderHeight">
-      <int>40</int>
-    </param>
-    <param name="rowHeight">
-      <int>50</int>
-    </param>
-  </theme>
-  <theme name="dex-move-table-name-label" ref="dex-move-table-name-label" overwrite="true">
-    <param name="font">
-      <font>med-noshadow-18-white</font>
-    </param>
-    <param name="background">
-      <image>mobile.box.dark3.50.table</image>
-    </param>
-    <param name="border">
-      <border>0,10,0,0</border>
-    </param>
-  </theme>
-  <theme name="label-value-dex-small" ref="label-value-dex-small" overwrite="true">
-    <param name="font">
-      <font>med-noshadow-18-white</font>
-    </param>
-    <param name="border">
-      <border>8</border>
-    </param>
-    <param name="minWidth">
-      <int>128</int>
-    </param>
-    <param name="minHeight">
-      <int>44</int>
-    </param>
-  </theme>
-  <theme name="monsterdex-button-evo-tree" ref="monsterdex-button-caught-ot" />
-  <theme name="label-area-monsterdex" ref="-defaults">
-    <theme name="stat-widget" ref="label" />
-    <theme name="label" ref="label-title-dex-long" />
-  </theme>
-  <theme name="label-title-dex-small" ref="label-value-dex-small" overwrite="true">
-    <param name="background">
-      <image>ui-header.background</image>
-    </param>
-  </theme>
-  <theme name="label-value-dex-smallest" ref="label-value-dex-small" overwrite="true" />
-  <theme name="label-value-dex-medium" ref="label-value-dex-small" overwrite="true">
-    <param name="minWidth">
-      <int>200</int>
-    </param>
-  </theme>
-  <theme name="label-value-dex-name" ref="label-value-dex-small" overwrite="true">
-    <param name="minWidth">
-      <int>300</int>
-    </param>
-  </theme>
-  <theme name="label-title-dex-smallest" ref="label-title-dex-small" overwrite="true" />
-  <theme name="label-title-dex-medium" ref="label-value-dex-medium" overwrite="true">
-    <param name="background">
-      <image>ui-header.background</image>
-    </param>
-  </theme>
-  <theme name="label-title-dex-name" ref="label-value-dex-name" overwrite="true">
-    <param name="background">
-      <image>ui-header.background</image>
-    </param>
-  </theme>
-  <theme name="wildlocations" ref="-defaults">
-    <theme name="tabbedpane" ref="-defaults">
-      <theme name="tabbox" ref="-defaults">
-        <theme name="tabbutton" ref="wildlocations.tabbedpane.tabbox.tabbutton" overwrite="true">
-          <param name="font">
             <font>med-noshadow-18-white</font>
-          </param>
-          <param name="minHeight">
-            <int>40</int>
-          </param>
-        </theme>
-      </theme>
-      <theme name="container" ref="-defaults">
-        <theme name="scrollpane" ref="monsterdex-frame.tabbedpane.container.scrollpane" />
-      </theme>
+        </param>
     </theme>
-  </theme>
-  <theme name="monsterdex-frame" ref="mobile-panel" allowWildcard="true" overwrite="true">
-    <param name="background">
-      <image>ui-frame-red.background</image>
-    </param>
-    <param name="titleAreaBottom">
-      <int>30</int>
-    </param>
-    <param name="border">
-      <border>0</border>
-    </param>
-    <theme name="tabbedpane" ref="-defaults">
-      <theme name="container" ref="-defaults">
-        <theme name="dialoglayout" ref="dialoglayout" allowWildcard="true">
-          <param name="border">
-            <border>10,0,0,0</border>
-          </param>
-          <param name="defaultGap">
-            <dimension>5,5</dimension>
-          </param>
-          <theme name="button" ref="button" allowWildcard="true">
-            <param name="border">
-              <border>1,3</border>
+    <theme name="pokedex-plain" ref="pokedex-plain" overwrite="true">
+        <param name="font">
+            <font>med-noshadow-18-white</font>
+        </param>
+    </theme>
+    <theme name="pokedex-table-value" ref="pokedex-table-value" overwrite="true">
+        <param name="font">
+            <font>med-noshadow-18-white</font>
+        </param>
+    </theme>
+    <theme name="pokedex-column-header" ref="pokedex-column-header" overwrite="true">
+        <param name="font">
+            <font>med-noshadow-18-white</font>
+        </param>
+    </theme>
+    <theme name="pokedex-move-type" ref="pokedex-move-type" overwrite="true">
+        <param name="background">
+            <image>mobile.box.dark3.50.table</image>
+        </param>
+    </theme>
+    <theme name="pokedex-table-center" ref="pokedex-table-center" overwrite="true">
+        <param name="font">
+            <font>med-noshadow-18-white</font>
+        </param>
+    </theme>
+    <theme name="pokedex-value-centered" ref="pokedex-value-centered" overwrite="true">
+        <param name="font">
+            <font>med-noshadow-18-white</font>
+        </param>
+    </theme>
+    <theme name="pokedex-tab" ref="button" overwrite="true">
+        <param name="font">
+            <font>med-noshadow-22-white</font>
+        </param>
+    </theme>
+    <theme name="pokedex-evolution-name" ref="pokedex-evolution-name" overwrite="true">
+        <param name="font">
+            <font>med-noshadow-18-white</font>
+        </param>
+    </theme>
+    <theme name="label-title-dex" ref="label-title-dex" overwrite="true">
+        <param name="font">
+            <font>med-noshadow-18-white</font>
+        </param>
+        <param name="border">
+            <border>8</border>
+        </param>
+        <param name="minWidth">
+            <int>110</int>
+        </param>
+        <param name="maxWidth">
+            <int>110</int>
+        </param>
+    </theme>
+    <theme name="label-value-dex2" ref="label-value-dex2" overwrite="true">
+        <param name="font">
+            <font>med-noshadow-18-white</font>
+        </param>
+        <param name="border">
+            <border>8</border>
+        </param>
+        <param name="wrapWidth">
+            <int>315</int>
+        </param>
+    </theme>
+    <theme name="label-value-dex" ref="label-value-dex" overwrite="true">
+        <param name="font">
+            <font>med-noshadow-18-white</font>
+        </param>
+        <param name="border">
+            <border>8</border>
+        </param>
+    </theme>
+    <theme name="label-title-dex-long" ref="label-title-dex-long" overwrite="true">
+        <param name="font">
+            <font>med-noshadow-18-white</font>
+        </param>
+        <param name="border">
+            <border>8</border>
+        </param>
+    </theme>
+    <theme name="dex-move-table" ref="-defaults">
+        <theme name="box-layout-row" ref="-defaults">
+            <theme name="label" ref="dex-move-table.box-layout-row.label" overwrite="true">
+                <param name="font">
+                    <font>med-noshadow-18-white</font>
+                </param>
+                <param name="border">
+                    <border>10</border>
+                </param>
+                <param name="background">
+                    <image>mobile.box.dark3.50.table</image>
+                </param>
+            </theme>
+        </theme>
+        <theme name="columnHeader" ref="dex-move-table.columnHeader" overwrite="true">
+            <param name="font">
+                <font>med-noshadow-18-white</font>
             </param>
-          </theme>
+            <param name="border">
+                <border>15</border>
+            </param>
         </theme>
-        <theme name="scrollpane" ref="scrollpane" allowWildcard="true">
-          <param name="background">
-            <image>ui-inner-frame.background</image>
-          </param>
-          <param name="border">
-            <border>10,14,8,5</border>
-          </param>
-          <theme name="vscrollbar" ref="vscrollbar-white" />
-        </theme>
-      </theme>
-      <theme name="tabbox" ref="-defaults">
-        <param name="border">
-          <border>0,10,0,0</border>
+        <param name="columnWidths">
+            <map>
+                <param name="0">
+                    <int>200</int>
+                </param>
+                <param name="1">
+                    <int>280</int>
+                </param>
+                <param name="2">
+                    <int>130</int>
+                </param>
+                <param name="3">
+                    <int>65</int>
+                </param>
+                <param name="4">
+                    <int>65</int>
+                </param>
+                <param name="5">
+                    <int>65</int>
+                </param>
+            </map>
         </param>
-        <param name="spacing">
-          <int>2</int>
+        <param name="columnHeaderHeight">
+            <int>40</int>
         </param>
-        <param name="alignment">
-          <enum type="alignment">FILL</enum>
+        <param name="rowHeight">
+            <int>50</int>
         </param>
-        <theme name="tabbutton" ref="pokedex-tab" allowWildcard="true">
-          <param name="border">
-            <border>0,20,0,20</border>
-          </param>
-        </theme>
-      </theme>
     </theme>
-    <theme name="dialoglayout" ref="-defaults">
-      <param name="background">
-        <image>ui-inner-tab.background</image>
-      </param>
-      <theme name="scrollpane" ref="scrollpane" allowWildcard="true">
-        <param name="background">
-          <image>none</image>
-        </param>
-        <param name="border">
-          <border>0</border>
-        </param>
-        <theme name="vscrollbar" ref="vscrollbar-white" />
-      </theme>
-      <theme name="combobox" ref="combobox" allowWildcard="true">
-        <param name="minWidth">
-          <int>10</int>
-        </param>
-      </theme>
-      <theme name="progressbar-white" ref="label">
-        <param name="border">
-          <border>0,0,8,0</border>
-        </param>
-        <param name="minWidth">
-          <int>150</int>
-        </param>
-        <param name="maxWidth">
-          <int>32767</int>
-        </param>
-        <param name="background">
-          <image>progressbar-white.background</image>
-        </param>
-        <param name="progressImage">
-          <image>progressbar-white.progressImage</image>
-        </param>
+    <theme name="dex-move-table-name-label" ref="dex-move-table-name-label" overwrite="true">
         <param name="font">
-          <font>med-noshadow-18-white</font>
-        </param>
-      </theme>
-      <theme name="progressbar-blue" ref="label">
-        <param name="border">
-          <border>0,0,8,0</border>
-        </param>
-        <param name="minWidth">
-          <int>150</int>
-        </param>
-        <param name="maxWidth">
-          <int>32767</int>
+            <font>med-noshadow-18-white</font>
         </param>
         <param name="background">
-          <image>progressbar-white.background</image>
+            <image>mobile.box.dark3.50.table</image>
         </param>
-        <param name="progressImage">
-          <image>mi-xpbar.progressImage</image>
-        </param>
-        <param name="font">
-          <font>med-noshadow-18-white</font>
-        </param>
-      </theme>
-      <theme name="progressbar-green" ref="label">
         <param name="border">
-          <border>0,0,8,0</border>
+            <border>0,10,0,0</border>
         </param>
-        <param name="minWidth">
-          <int>150</int>
-        </param>
-        <param name="maxWidth">
-          <int>32767</int>
-        </param>
-        <param name="background">
-          <image>progressbar-white.background</image>
-        </param>
-        <param name="progressImage">
-          <image>mi-hpbar-green.progressImage</image>
-        </param>
-        <param name="font">
-          <font>med-noshadow-18-white</font>
-        </param>
-      </theme>
-      <theme name="progressbar-pink" ref="label">
-        <param name="border">
-          <border>0,0,8,0</border>
-        </param>
-        <param name="minWidth">
-          <int>150</int>
-        </param>
-        <param name="maxWidth">
-          <int>32767</int>
-        </param>
-        <param name="background">
-          <image>progressbar-white.background</image>
-        </param>
-        <param name="progressImage">
-          <image>mi-hpbar.progressImage</image>
-        </param>
-        <param name="font">
-          <font>med-noshadow-18-white</font>
-        </param>
-      </theme>
-      <theme name="progressbar-gold" ref="label">
-        <param name="border">
-          <border>0,0,8,0</border>
-        </param>
-        <param name="minWidth">
-          <int>150</int>
-        </param>
-        <param name="maxWidth">
-          <int>32767</int>
-        </param>
-        <param name="background">
-          <image>progressbar-white.background</image>
-        </param>
-        <param name="progressImage">
-          <image>progressbar-gold.progressImage</image>
-        </param>
-        <param name="font">
-          <font>med-noshadow-18-white</font>
-        </param>
-      </theme>
-      <theme name="progressbar-orange" ref="label">
-        <param name="border">
-          <border>0,0,8,0</border>
-        </param>
-        <param name="minWidth">
-          <int>150</int>
-        </param>
-        <param name="maxWidth">
-          <int>32767</int>
-        </param>
-        <param name="background">
-          <image>progressbar-white.background</image>
-        </param>
-        <param name="progressImage">
-          <image>progressbar-orange.progressImage</image>
-        </param>
-        <param name="font">
-          <font>med-noshadow-18-white</font>
-        </param>
-      </theme>
     </theme>
-  </theme>
+    <theme name="label-value-dex-small" ref="label-value-dex-small" overwrite="true">
+        <param name="font">
+            <font>med-noshadow-18-white</font>
+        </param>
+        <param name="border">
+            <border>8</border>
+        </param>
+        <param name="minWidth">
+            <int>128</int>
+        </param>
+        <param name="minHeight">
+            <int>44</int>
+        </param>
+    </theme>
+    <theme name="monsterdex-button-evo-tree" ref="monsterdex-button-caught-ot"/>
+    <theme name="label-area-monsterdex" ref="-defaults">
+        <theme name="stat-widget" ref="label"/>
+        <theme name="label" ref="label-title-dex-long"/>
+    </theme>
+    <theme name="label-title-dex-small" ref="label-value-dex-small" overwrite="true">
+        <param name="background">
+            <image>ui-header.background</image>
+        </param>
+    </theme>
+    <theme name="label-value-dex-smallest" ref="label-value-dex-small" overwrite="true"/>
+    <theme name="label-value-dex-medium" ref="label-value-dex-small" overwrite="true">
+        <param name="minWidth">
+            <int>200</int>
+        </param>
+    </theme>
+    <theme name="label-value-dex-name" ref="label-value-dex-small" overwrite="true">
+        <param name="minWidth">
+            <int>300</int>
+        </param>
+    </theme>
+    <theme name="label-title-dex-smallest" ref="label-title-dex-small" overwrite="true"/>
+    <theme name="label-title-dex-medium" ref="label-value-dex-medium" overwrite="true">
+        <param name="background">
+            <image>ui-header.background</image>
+        </param>
+    </theme>
+    <theme name="label-title-dex-name" ref="label-value-dex-name" overwrite="true">
+        <param name="background">
+            <image>ui-header.background</image>
+        </param>
+    </theme>
+    <theme name="wildlocations" ref="-defaults">
+        <theme name="tabbedpane" ref="-defaults">
+            <theme name="tabbox" ref="-defaults">
+                <theme name="tabbutton" ref="wildlocations.tabbedpane.tabbox.tabbutton" overwrite="true">
+                    <param name="font">
+                        <font>med-noshadow-18-white</font>
+                    </param>
+                    <param name="minHeight">
+                        <int>40</int>
+                    </param>
+                </theme>
+            </theme>
+            <theme name="container" ref="-defaults">
+                <theme name="scrollpane" ref="monsterdex-frame.tabbedpane.container.scrollpane"/>
+            </theme>
+        </theme>
+    </theme>
+    <theme name="monsterdex-frame" ref="mobile-panel" allowWildcard="true" overwrite="true">
+        <param name="background">
+            <image>ui-frame-red.background</image>
+        </param>
+        <param name="titleAreaBottom">
+            <int>30</int>
+        </param>
+        <param name="border">
+            <border>0</border>
+        </param>
+        <theme name="tabbedpane" ref="-defaults">
+            <theme name="container" ref="-defaults">
+                <theme name="dialoglayout" ref="dialoglayout" allowWildcard="true">
+                    <param name="border">
+                        <border>10,0,0,0</border>
+                    </param>
+                    <param name="defaultGap">
+                        <dimension>5,5</dimension>
+                    </param>
+                    <theme name="button" ref="button" allowWildcard="true">
+                        <param name="border">
+                            <border>1,3</border>
+                        </param>
+                    </theme>
+                </theme>
+                <theme name="scrollpane" ref="scrollpane" allowWildcard="true">
+                    <param name="background">
+                        <image>ui-inner-frame.background</image>
+                    </param>
+                    <param name="border">
+                        <border>10,14,8,5</border>
+                    </param>
+                    <theme name="vscrollbar" ref="vscrollbar-white"/>
+                </theme>
+            </theme>
+            <theme name="tabbox" ref="-defaults">
+                <param name="border">
+                    <border>0,10,0,0</border>
+                </param>
+                <param name="spacing">
+                    <int>2</int>
+                </param>
+                <param name="alignment">
+                    <enum type="alignment">FILL</enum>
+                </param>
+                <theme name="tabbutton" ref="pokedex-tab" allowWildcard="true">
+                    <param name="border">
+                        <border>0,20,0,20</border>
+                    </param>
+                </theme>
+            </theme>
+        </theme>
+        <theme name="dialoglayout" ref="-defaults">
+            <param name="background">
+                <image>ui-inner-tab.background</image>
+            </param>
+            <theme name="scrollpane" ref="scrollpane" allowWildcard="true">
+                <param name="background">
+                    <image>none</image>
+                </param>
+                <param name="border">
+                    <border>0</border>
+                </param>
+                <theme name="vscrollbar" ref="vscrollbar-white"/>
+            </theme>
+            <theme name="combobox" ref="combobox" allowWildcard="true">
+                <param name="minWidth">
+                    <int>10</int>
+                </param>
+            </theme>
+            <theme name="progressbar-white" ref="label">
+                <param name="border">
+                    <border>0,0,8,0</border>
+                </param>
+                <param name="minWidth">
+                    <int>150</int>
+                </param>
+                <param name="maxWidth">
+                    <int>32767</int>
+                </param>
+                <param name="background">
+                    <image>progressbar-white.background</image>
+                </param>
+                <param name="progressImage">
+                    <image>progressbar-white.progressImage</image>
+                </param>
+                <param name="font">
+                    <font>med-noshadow-18-white</font>
+                </param>
+            </theme>
+            <theme name="progressbar-blue" ref="label">
+                <param name="border">
+                    <border>0,0,8,0</border>
+                </param>
+                <param name="minWidth">
+                    <int>150</int>
+                </param>
+                <param name="maxWidth">
+                    <int>32767</int>
+                </param>
+                <param name="background">
+                    <image>progressbar-white.background</image>
+                </param>
+                <param name="progressImage">
+                    <image>mi-xpbar.progressImage</image>
+                </param>
+                <param name="font">
+                    <font>med-noshadow-18-white</font>
+                </param>
+            </theme>
+            <theme name="progressbar-green" ref="label">
+                <param name="border">
+                    <border>0,0,8,0</border>
+                </param>
+                <param name="minWidth">
+                    <int>150</int>
+                </param>
+                <param name="maxWidth">
+                    <int>32767</int>
+                </param>
+                <param name="background">
+                    <image>progressbar-white.background</image>
+                </param>
+                <param name="progressImage">
+                    <image>mi-hpbar-green.progressImage</image>
+                </param>
+                <param name="font">
+                    <font>med-noshadow-18-white</font>
+                </param>
+            </theme>
+            <theme name="progressbar-pink" ref="label">
+                <param name="border">
+                    <border>0,0,8,0</border>
+                </param>
+                <param name="minWidth">
+                    <int>150</int>
+                </param>
+                <param name="maxWidth">
+                    <int>32767</int>
+                </param>
+                <param name="background">
+                    <image>progressbar-white.background</image>
+                </param>
+                <param name="progressImage">
+                    <image>mi-hpbar.progressImage</image>
+                </param>
+                <param name="font">
+                    <font>med-noshadow-18-white</font>
+                </param>
+            </theme>
+            <theme name="progressbar-gold" ref="label">
+                <param name="border">
+                    <border>0,0,8,0</border>
+                </param>
+                <param name="minWidth">
+                    <int>150</int>
+                </param>
+                <param name="maxWidth">
+                    <int>32767</int>
+                </param>
+                <param name="background">
+                    <image>progressbar-white.background</image>
+                </param>
+                <param name="progressImage">
+                    <image>progressbar-gold.progressImage</image>
+                </param>
+                <param name="font">
+                    <font>med-noshadow-18-white</font>
+                </param>
+            </theme>
+            <theme name="progressbar-orange" ref="label">
+                <param name="border">
+                    <border>0,0,8,0</border>
+                </param>
+                <param name="minWidth">
+                    <int>150</int>
+                </param>
+                <param name="maxWidth">
+                    <int>32767</int>
+                </param>
+                <param name="background">
+                    <image>progressbar-white.background</image>
+                </param>
+                <param name="progressImage">
+                    <image>progressbar-orange.progressImage</image>
+                </param>
+                <param name="font">
+                    <font>med-noshadow-18-white</font>
+                </param>
+            </theme>
+        </theme>
+    </theme>
 </themes>

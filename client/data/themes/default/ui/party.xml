@@ -1,50 +1,58 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <themes>
-  <theme name="monster-slot-empty" ref="-defaults">
-    <param name="background">
-      <image>ui-button.background</image>
-    </param>
-  </theme>
-  <theme name="monster-slot" ref="monster-slot-empty" />
-  <theme name="monster-slot-orange" ref="monster-slot" />
-  <theme name="monster-slot-red" ref="monster-slot" />
-  <theme name="monster-slot-purple" ref="monster-slot">
-    <param name="background">
-      <image>monster-slot-purple</image>
-    </param>
-  </theme>
-  <theme name="pokemon-health" ref="-defaults">
-    <param name="">
-      <image>mi-hpbar-green.*</image>
-    </param>
-    <param name="border">
-      <border>0</border>
-    </param>
-  </theme>
-  <theme name="pokemon-health-orange" ref="pokemon-health">
-    <param name="">
-      <image>mi-hpbar-orange.*</image>
-    </param>
-  </theme>
-  <theme name="pokemon-health-red" ref="pokemon-health">
-    <param name="">
-      <image>mi-hpbar.*</image>
-    </param>
-  </theme>
-  <theme name="pokemon-menu" ref="-defaults">
-    <param name="background"><image>ui-popup.background</image></param>
-    <param name="border">
-      <border>4</border>
-    </param>
-  </theme>
-  <theme name="pokemon-menu-button" ref="button">
-    <param name="background"><image>ui-popup-button.background</image></param>
-    <param name="border">
-      <border>2,8</border>
-    </param>
-  </theme>
-  <theme name="pokemon-ball-menu-button" ref="pokemon-menu-button">
-    <param name="border"><border>2,30,2,8</border></param>
-    <param name="textAlignment"><enum type="alignment">LEFT</enum></param>
-  </theme>
+    <theme name="monster-slot-empty" ref="-defaults">
+        <param name="background">
+            <image>ui-button.background</image>
+        </param>
+    </theme>
+    <theme name="monster-slot" ref="monster-slot-empty"/>
+    <theme name="monster-slot-orange" ref="monster-slot"/>
+    <theme name="monster-slot-red" ref="monster-slot"/>
+    <theme name="monster-slot-purple" ref="monster-slot">
+        <param name="background">
+            <image>monster-slot-purple</image>
+        </param>
+    </theme>
+    <theme name="pokemon-health" ref="-defaults">
+        <param name="">
+            <image>mi-hpbar-green.*</image>
+        </param>
+        <param name="border">
+            <border>0</border>
+        </param>
+    </theme>
+    <theme name="pokemon-health-orange" ref="pokemon-health">
+        <param name="">
+            <image>mi-hpbar-orange.*</image>
+        </param>
+    </theme>
+    <theme name="pokemon-health-red" ref="pokemon-health">
+        <param name="">
+            <image>mi-hpbar.*</image>
+        </param>
+    </theme>
+    <theme name="pokemon-menu" ref="-defaults">
+        <param name="background">
+            <image>ui-popup.background</image>
+        </param>
+        <param name="border">
+            <border>4</border>
+        </param>
+    </theme>
+    <theme name="pokemon-menu-button" ref="button">
+        <param name="background">
+            <image>ui-popup-button.background</image>
+        </param>
+        <param name="border">
+            <border>2,8</border>
+        </param>
+    </theme>
+    <theme name="pokemon-ball-menu-button" ref="pokemon-menu-button">
+        <param name="border">
+            <border>2,30,2,8</border>
+        </param>
+        <param name="textAlignment">
+            <enum type="alignment">LEFT</enum>
+        </param>
+    </theme>
 </themes>

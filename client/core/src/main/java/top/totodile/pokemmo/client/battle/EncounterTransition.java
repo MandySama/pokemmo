@@ -3,8 +3,8 @@ package top.totodile.pokemmo.client.battle;
 /** PC timings ported from LinearTimelineSequence.nr, TwlGui and Gdx3DModelBatch.aQ. */
 final class EncounterTransition {
     static final long INTRO = 1300, EXPAND = 500, MESSAGE = 1250, REVEAL = 100;
-    // Gdx3DModelBatch: finish the 1.5s wild entrance, then wait for the text task.
-    static final long WILD_MESSAGE_AT = 1500;
+    // Gdx3DModelBatch: finish the 1s camera + 1.5s wild entrance, then wait for the text task.
+    static final long WILD_MESSAGE_AT = 2500;
     private long started, escaped;
     private long encounterMessageDuration = MESSAGE;
     private boolean flash, exiting;

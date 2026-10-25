@@ -19,7 +19,7 @@ import java.util.zip.ZipInputStream;
 
 /** PC subset of Gdx3DModelBatch.w9 and BattleJ40Animation.Px. No synthetic sprite frames. */
 final class EncounterEntrance implements AutoCloseable {
-    static final long WILD = 2500, THROW = 1000, RELEASE = 1410, DURATION = 5810;
+    static final long WILD = 3500, THROW = 1000, RELEASE = 1410, DURATION = 6810;
     private final CharacterAppearance appearance;
     private final CharacterPreview trainer;
     private final java.util.List<com.badlogic.gdx.graphics.Texture> textures = new ArrayList<>();

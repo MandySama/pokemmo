@@ -1,27 +1,27 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <themes>
-  <theme name="tp-menu" ref="mobile-panel" overwrite="true">
-    <param name="background">
-      <image>mobile.window.onebar.background</image>
-    </param>
-    <param name="border">
-      <border>0</border>
-    </param>
-  </theme>
-  <theme name="teleport-tab" ref="togglebutton" overwrite="true">
-    <param name="">
-      <image>mobile.tab.inset.*</image>
-    </param>
-    <param name="font">
-      <font>med-shadow-22-white</font>
-    </param>
-    <param name="border">
-      <border>10</border>
-    </param>
-  </theme>
-  <theme name="teleport-destination" ref="button" overwrite="true">
-    <param name="minWidth">
-      <int>210</int>
-    </param>
-  </theme>
+    <theme name="tp-menu" ref="mobile-panel" overwrite="true">
+        <param name="background">
+            <image>mobile.window.onebar.background</image>
+        </param>
+        <param name="border">
+            <border>0</border>
+        </param>
+    </theme>
+    <theme name="teleport-tab" ref="togglebutton" overwrite="true">
+        <param name="">
+            <image>mobile.tab.inset.*</image>
+        </param>
+        <param name="font">
+            <font>med-shadow-22-white</font>
+        </param>
+        <param name="border">
+            <border>10</border>
+        </param>
+    </theme>
+    <theme name="teleport-destination" ref="button" overwrite="true">
+        <param name="minWidth">
+            <int>210</int>
+        </param>
+    </theme>
 </themes>

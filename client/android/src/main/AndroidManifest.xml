@@ -1,17 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <uses-feature android:glEsVersion="0x00020000" android:required="true" />
-    <application android:label="PokeMMO" android:icon="@mipmap/ic_launcher"
-                 android:appCategory="game" android:isGame="true"
-                 android:roundIcon="@mipmap/ic_launcher"
-                 android:allowBackup="false" android:theme="@style/ClientTheme">
-        <activity android:name=".AndroidLauncher" android:exported="true"
-                  android:windowSoftInputMode="adjustNothing"
-                  android:screenOrientation="sensorLandscape"
-                  android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|screenLayout|uiMode">
+    <uses-feature android:glEsVersion="0x00020000" android:required="true"/>
+    <application android:label="PokeMMO" android:icon="@mipmap/ic_launcher" android:appCategory="game" android:isGame="true" android:roundIcon="@mipmap/ic_launcher" android:allowBackup="false" android:theme="@style/ClientTheme">
+        <activity android:name=".AndroidLauncher" android:exported="true" android:windowSoftInputMode="adjustNothing" android:screenOrientation="sensorLandscape" android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|screenLayout|uiMode">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
     </application>

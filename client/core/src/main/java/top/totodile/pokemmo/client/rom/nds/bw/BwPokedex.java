@@ -363,7 +363,9 @@ public final class BwPokedex {
     public String encounterMessage(int species) throws IOException {
         String template = strings.archive(2, 0, 15, 0, 1);
         if (template == null) template = BwText.decodeFormatted(text.readRaw(15))[1];
-        return template.replace("{00}", name(species));
+        // The supplied official PC capture displays this announcement on one line.
+        // Some language MODs retain the handheld line break before the species slot.
+        return template.replace("\n", "").replace("{00}", name(species));
     }
 
     /** BattleItemBagModifier: NORMAL_SUCCESS uses BW message bank 15, entry 72. */

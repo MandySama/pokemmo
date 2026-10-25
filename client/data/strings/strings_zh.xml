@@ -27,7 +27,7 @@
     <string id="1050">新角色</string>
     <string id="1065">删除角色</string>
     <string id="1066">请输入要删除的角色名.</string>
-    <string id="1067">即将删除角色"{00}".\n请在下方输入"{01}"以确认.</string>
+    <string id="1067">即将删除角色&quot;{00}&quot;.\n请在下方输入&quot;{01}&quot;以确认.</string>
     <string id="1068">确认删除</string>
     <string id="2100">您的账户已满, 无法再创建新角色.</string>
     <string id="6015">无法找到指定玩家.</string>
@@ -2987,7 +2987,6 @@
     <string id="5585">性格</string>
     <string id="8101">公</string>
     <string id="8102">母</string>
-
     <string id="1871">来自 </string>
     <string id="1872">野生</string>
     <string id="1873">孵蛋</string>
@@ -3011,19 +3010,15 @@
     <string id="1887">头目{00}</string>
     <string id="1888"> 来自{00}</string>
     <string id="1889"> 在{00}的巢穴对战</string>
-
     <string id="1860">该{STRING_0}可以回忆特殊技能:\n\n{00}</string>
     <string id="101775">神秘{STRING_245012}</string>
-
     <string id="1890">质子:</string>
     <string id="1891">这只{STRING_0}没有质子.</string>
-
     <string id="310418">帅气</string>
     <string id="310419">美丽</string>
     <string id="310420">可爱</string>
     <string id="310421">聪明</string>
     <string id="310422">强壮</string>
-
     <string id="1847">奖章:</string>
     <string id="3057">质子</string>
     <string id="10806">欢乐南瓜王</string>
@@ -3064,7 +3059,6 @@
     <string id="10837">暗晶</string>
     <string id="10838">闪光黑晶</string>
     <string id="2">精灵球</string>
-
     <string id="11000">闪光质子(Shiny Particle Effect)</string>
     <string id="11002">鬼火质子(Hitodama Particle Effect)</string>
     <string id="11003">蝙蝠质子(Bats Particle Effect)</string>
@@ -3186,13 +3180,13 @@
     <string id="8043">在交易行出售</string>
     <string id="2302">放生</string>
     <string id="2310">确定放生这些{STRING_0}？</string>
-<string id="5100">战斗</string>
-<string id="5101">选择战斗技能.</string>
-<string id="5103">换下当前{STRING_0}.</string>
-<string id="5104">背包</string>
-<string id="5105">使用道具.</string>
-<string id="5106">逃跑</string>
-<string id="5107">从战斗中逃走.</string>
+    <string id="5100">战斗</string>
+    <string id="5101">选择战斗技能.</string>
+    <string id="5103">换下当前{STRING_0}.</string>
+    <string id="5104">背包</string>
+    <string id="5105">使用道具.</string>
+    <string id="5106">逃跑</string>
+    <string id="5107">从战斗中逃走.</string>
     <string id="5211">濒死</string>
     <string id="5220">沉睡</string>
     <string id="5221">中毒</string>

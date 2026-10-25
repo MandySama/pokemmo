@@ -43,7 +43,15 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
 
     private EncounterMoveAnimation moveAnimation;
 
-    private final Label message = new Label();
+    private final Label message =
+            new Label() {
+                @Override
+                protected int computeTextY() {
+                    // TwlFont uses flipped glyph metrics; our SpriteBatch font needs the cap
+                    // baseline.
+                    return super.computeTextY() - (getFont() == null ? 0 : getFont().getBaseLine());
+                }
+            };
     private String encounterText = "", escapeText = "";
     private int messageCharacterDelay;
 

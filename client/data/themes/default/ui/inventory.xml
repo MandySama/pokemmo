@@ -1,137 +1,244 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <themes>
-  <!-- Keep the item's quantity anchored while the button changes pressed/menu state. -->
-  <fontDef name="inventory-quantity" ref="pb-dark" color="#FFFFFF">
-    <fontParam if="disabled" color="#A9A9A9" />
-    <fontParam if="pressed" offsetX="0" offsetY="0" />
-  </fontDef>
-  <theme name="inventory-fashion-tooltip" ref="dialoglayout" allowWildcard="true">
-    <param name="minWidth"><int>350</int></param>
-    <param name="border"><border>5</border></param>
-    <theme name="label" ref="label"><param name="font"><font>tooltip-font</font></param></theme>
-  </theme>
-  <!-- Adapted from D:/PokeMMO/data/themes/default/ui/inventory.xml. -->
-  <theme name="inventory-tabbedframe" ref="resizableframe">
-    <param name="background"><image>ui-inner-frame-tab2.background</image></param>
-    <param name="titleAreaTop"><int>33</int></param>
-    <param name="titleAreaLeft"><int>11</int></param>
-    <param name="titleAreaRight"><int>-1</int></param>
-    <param name="titleAreaBottom"><int>75</int></param>
-    <param name="closeButtonX"><int>-24</int></param>
-    <param name="closeButtonY"><int>47</int></param>
-    <param name="border"><border>10,0,0,0</border></param>
-    <param name="fadeColorInactive"><color>#FFFFFFFF</color></param>
-  </theme>
-  <theme name="inventory-tab-empty" ref="togglebutton">
-    <param name="background"><image>ui-tab-color.background</image></param>
-    <param name="border"><border>20,0</border></param>
-    <param name="textAlignment"><enum type="alignment">BOTTOM</enum></param>
-  </theme>
-  <theme name="inventory-button" ref="button">
-    <param name="font"><font>inventory-quantity</font></param>
-    <param name="background"><image>ui-inputbox-mixed.background</image></param>
-    <param name="border"><border>1,1,1,0</border></param>
-    <param name="textAlignment"><enum type="alignment">BOTTOM</enum></param>
-    <param name="minWidth"><int>0</int></param>
-    <param name="minHeight"><int>0</int></param>
-  </theme>
-  <!-- ItemSlotRenderContext / official tm-button: two 196x36 columns. -->
-  <theme name="tm-button" ref="button">
-    <param name="background"><image>ui-button.background</image></param>
-    <param name="font"><font>pb-dark</font></param>
-    <param name="border"><border>5,34,8,0</border></param>
-    <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
-    <param name="minWidth"><int>196</int></param>
-    <param name="maxWidth"><int>196</int></param>
-    <param name="minHeight"><int>36</int></param>
-    <param name="maxHeight"><int>36</int></param>
-  </theme>
-  <theme name="player-inventory-search" ref="editfield"/>
-  <theme name="player-inventory-tabbox" ref="-defaults">
-    <param name="border"><border>0,0,15,0</border></param>
-    <param name="spacing"><int>0</int></param>
-    <param name="alignment"><enum type="alignment">FILL</enum></param>
-  </theme>
-  <theme name="player-inventory-grid" ref="-dialog">
-    <param name="defaultGap"><dimension>5,5</dimension></param>
-    <param name="border"><border>0</border></param>
-  </theme>
-  <theme name="player-inventory-scroll" ref="scrollpane">
-    <theme name="vscrollbar" ref="vscrollbar-white"/>
-  </theme>
-  <!-- Official native menu themes, shared with the TWL MenuManager. -->
-<theme name="popup-button" ref="-defaults" allowWildcard="true">
-		<param name="font"><font>listbox-display</font></param>
-		<param name="border"><border>2,2</border></param>
-		<param name=""><image>ui-popup-button.*</image></param>
-		<param name="textAlignment"><enum type="alignment">CENTER</enum></param>
-	</theme>
-<theme name="menumanager" ref="-defaults">
-		<param name="border"><border>5</border></param>
-		<theme name="scrollpane" ref="scrollpane">
-			<param name="border"><border>0</border></param>
-			<param name="background"><image>none</image></param>
-			<param name="minHeight"><int>0</int></param>
-			<param name="maxHeight"><int>450</int></param>
-		</theme>
-	</theme>
-<theme name="menupopup" ref="-dialog">
-      <param name="border">
-        <border>5</border>
-      </param>
-      <param name="background">
-        <image>ui-popup.background</image>
-      </param>
-      <theme name="button" ref="popup-button">
+    <!-- Keep the item's quantity anchored while the button changes pressed/menu state. -->
+    <fontDef name="inventory-quantity" ref="pb-dark" color="#FFFFFF">
+        <fontParam if="disabled" color="#A9A9A9"/>
+        <fontParam if="pressed" offsetX="0" offsetY="0"/>
+    </fontDef>
+    <theme name="inventory-fashion-tooltip" ref="dialoglayout" allowWildcard="true">
+        <param name="minWidth">
+            <int>350</int>
+        </param>
         <param name="border">
-          <border>5</border>
+            <border>5</border>
+        </param>
+        <theme name="label" ref="label">
+            <param name="font">
+                <font>tooltip-font</font>
+            </param>
+        </theme>
+    </theme>
+    <!-- Adapted from D:/PokeMMO/data/themes/default/ui/inventory.xml. -->
+    <theme name="inventory-tabbedframe" ref="resizableframe">
+        <param name="background">
+            <image>ui-inner-frame-tab2.background</image>
+        </param>
+        <param name="titleAreaTop">
+            <int>33</int>
+        </param>
+        <param name="titleAreaLeft">
+            <int>11</int>
+        </param>
+        <param name="titleAreaRight">
+            <int>-1</int>
+        </param>
+        <param name="titleAreaBottom">
+            <int>75</int>
+        </param>
+        <param name="closeButtonX">
+            <int>-24</int>
+        </param>
+        <param name="closeButtonY">
+            <int>47</int>
+        </param>
+        <param name="border">
+            <border>10,0,0,0</border>
+        </param>
+        <param name="fadeColorInactive">
+            <color>#FFFFFFFF</color>
+        </param>
+    </theme>
+    <theme name="inventory-tab-empty" ref="togglebutton">
+        <param name="background">
+            <image>ui-tab-color.background</image>
+        </param>
+        <param name="border">
+            <border>20,0</border>
+        </param>
+        <param name="textAlignment">
+            <enum type="alignment">BOTTOM</enum>
+        </param>
+    </theme>
+    <theme name="inventory-button" ref="button">
+        <param name="font">
+            <font>inventory-quantity</font>
+        </param>
+        <param name="background">
+            <image>ui-inputbox-mixed.background</image>
+        </param>
+        <param name="border">
+            <border>1,1,1,0</border>
+        </param>
+        <param name="textAlignment">
+            <enum type="alignment">BOTTOM</enum>
         </param>
         <param name="minWidth">
-          <int>80</int>
+            <int>0</int>
         </param>
-      </theme>
-      <theme name="checkbox" ref="popup-button">
+        <param name="minHeight">
+            <int>0</int>
+        </param>
+    </theme>
+    <!-- ItemSlotRenderContext / official tm-button: two 196x36 columns. -->
+    <theme name="tm-button" ref="button">
+        <param name="background">
+            <image>ui-button.background</image>
+        </param>
+        <param name="font">
+            <font>pb-dark</font>
+        </param>
         <param name="border">
-          <border>5</border>
+            <border>5,34,8,0</border>
+        </param>
+        <param name="textAlignment">
+            <enum type="alignment">CENTER</enum>
         </param>
         <param name="minWidth">
-          <int>80</int>
+            <int>196</int>
         </param>
-      </theme>
-      <theme name="submenu" ref="popup-button">
+        <param name="maxWidth">
+            <int>196</int>
+        </param>
+        <param name="minHeight">
+            <int>36</int>
+        </param>
+        <param name="maxHeight">
+            <int>36</int>
+        </param>
+    </theme>
+    <theme name="player-inventory-search" ref="editfield"/>
+    <theme name="player-inventory-tabbox" ref="-defaults">
         <param name="border">
-          <border>5</border>
+            <border>0,0,15,0</border>
         </param>
-      </theme>
-
-      <param name="namedGaps">
-        <map>
-          <param name="menuitem">
-            <gap>0</gap>
-          </param>
-        </map>
-      </param>
+        <param name="spacing">
+            <int>0</int>
+        </param>
+        <param name="alignment">
+            <enum type="alignment">FILL</enum>
+        </param>
     </theme>
-  <!-- Align the desktop key glyphs with the reference slot's upper-left corner. -->
-  <fontDef name="hotbar-key" ref="inventory-quantity" offsetY="-8">
-    <fontParam if="pressed" offsetX="0" offsetY="-8" />
-  </fontDef>
-  <!-- Official hotkeybar-frame/hotkeybar/item-slot dimensions and typography. -->
-  <theme name="hotkeybar" ref="-defaults">
-    <theme name="item-slot" ref="button">
-      <param name="background"><image>ui-button.background</image></param>
-      <param name="border"><border>5,5,14,5</border></param>
-      <param name="font"><font>hotbar-key</font></param>
-      <param name="textAlignment"><enum type="alignment">TOPLEFT</enum></param>
-      <theme name="quantity" ref="label"><param name="font"><font>noto-8pt</font></param></theme>
+    <theme name="player-inventory-grid" ref="-dialog">
+        <param name="defaultGap">
+            <dimension>5,5</dimension>
+        </param>
+        <param name="border">
+            <border>0</border>
+        </param>
     </theme>
-  </theme>
-  <fontDef name="hotbar-mobile" filename="../res/fonts/NotoSansCJK-Bold.ttc" faces="sc,tc,jp" color="#FFFFFF" shadow_color="#A0000000" shadow_offset_x="2" shadow_offset_y="2" size="16"/>
-  <theme name="mobile-hotkeybar" ref="hotkeybar">
-    <theme name="item-slot" ref="hotkeybar.item-slot">
-      <param name="background"><image>label1.background</image></param>
-      <param name="border"><border>5</border></param>
-      <theme name="quantity" ref="label"><param name="font"><font>hotbar-mobile</font></param></theme>
+    <theme name="player-inventory-scroll" ref="scrollpane">
+        <theme name="vscrollbar" ref="vscrollbar-white"/>
     </theme>
-  </theme>
+    <!-- Official native menu themes, shared with the TWL MenuManager. -->
+    <theme name="popup-button" ref="-defaults" allowWildcard="true">
+        <param name="font">
+            <font>listbox-display</font>
+        </param>
+        <param name="border">
+            <border>2,2</border>
+        </param>
+        <param name="">
+            <image>ui-popup-button.*</image>
+        </param>
+        <param name="textAlignment">
+            <enum type="alignment">CENTER</enum>
+        </param>
+    </theme>
+    <theme name="menumanager" ref="-defaults">
+        <param name="border">
+            <border>5</border>
+        </param>
+        <theme name="scrollpane" ref="scrollpane">
+            <param name="border">
+                <border>0</border>
+            </param>
+            <param name="background">
+                <image>none</image>
+            </param>
+            <param name="minHeight">
+                <int>0</int>
+            </param>
+            <param name="maxHeight">
+                <int>450</int>
+            </param>
+        </theme>
+    </theme>
+    <theme name="menupopup" ref="-dialog">
+        <param name="border">
+            <border>5</border>
+        </param>
+        <param name="background">
+            <image>ui-popup.background</image>
+        </param>
+        <theme name="button" ref="popup-button">
+            <param name="border">
+                <border>5</border>
+            </param>
+            <param name="minWidth">
+                <int>80</int>
+            </param>
+        </theme>
+        <theme name="checkbox" ref="popup-button">
+            <param name="border">
+                <border>5</border>
+            </param>
+            <param name="minWidth">
+                <int>80</int>
+            </param>
+        </theme>
+        <theme name="submenu" ref="popup-button">
+            <param name="border">
+                <border>5</border>
+            </param>
+        </theme>
+        <param name="namedGaps">
+            <map>
+                <param name="menuitem">
+                    <gap>0</gap>
+                </param>
+            </map>
+        </param>
+    </theme>
+    <!-- Align the desktop key glyphs with the reference slot's upper-left corner. -->
+    <fontDef name="hotbar-key" ref="inventory-quantity" offsetY="-8">
+        <fontParam if="pressed" offsetX="0" offsetY="-8"/>
+    </fontDef>
+    <!-- Official hotkeybar-frame/hotkeybar/item-slot dimensions and typography. -->
+    <theme name="hotkeybar" ref="-defaults">
+        <theme name="item-slot" ref="button">
+            <param name="background">
+                <image>ui-button.background</image>
+            </param>
+            <param name="border">
+                <border>5,5,14,5</border>
+            </param>
+            <param name="font">
+                <font>hotbar-key</font>
+            </param>
+            <param name="textAlignment">
+                <enum type="alignment">TOPLEFT</enum>
+            </param>
+            <theme name="quantity" ref="label">
+                <param name="font">
+                    <font>noto-8pt</font>
+                </param>
+            </theme>
+        </theme>
+    </theme>
+    <fontDef name="hotbar-mobile" filename="../res/fonts/NotoSansCJK-Bold.ttc" faces="sc,tc,jp" color="#FFFFFF" shadow_color="#A0000000" shadow_offset_x="2" shadow_offset_y="2" size="16"/>
+    <theme name="mobile-hotkeybar" ref="hotkeybar">
+        <theme name="item-slot" ref="hotkeybar.item-slot">
+            <param name="background">
+                <image>label1.background</image>
+            </param>
+            <param name="border">
+                <border>5</border>
+            </param>
+            <theme name="quantity" ref="label">
+                <param name="font">
+                    <font>hotbar-mobile</font>
+                </param>
+            </theme>
+        </theme>
+    </theme>
 </themes>

@@ -173,11 +173,11 @@ final class EncounterScene implements AutoCloseable {
                     camera.lookAt(target);
                     // w9 case 6 frames the trainer for 1s; case 7 returns the camera during the
                     // throw.
-                    if (entranceTime >= 1500 && entranceTime < 3500) {
+                    if (entranceTime >= 2500 && entranceTime < 4500) {
                         float pan =
-                                entranceTime < 2500
-                                        ? (entranceTime - 1500) / 1000f
-                                        : 1 - (entranceTime - 2500) / 1000f;
+                                entranceTime < 3500
+                                        ? (entranceTime - 2500) / 1000f
+                                        : 1 - (entranceTime - 3500) / 1000f;
                         pan = pan < .5f ? 2 * pan * pan : 1 - 2 * (1 - pan) * (1 - pan);
                         target.set(3.5f, 3.25f, 4).lerp(new Vector3(2.75f, 3, 3), pan);
                         camera.position

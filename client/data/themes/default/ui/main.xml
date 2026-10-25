@@ -1,32 +1,32 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <themes>
-  <theme name="world-bar" ref="-defaults">
-    <theme name="shortcut" ref="button">
-      <param name="background">
-        <image>none</image>
-      </param>
-      <param name="border">
-        <border>0</border>
-      </param>
+    <theme name="world-bar" ref="-defaults">
+        <theme name="shortcut" ref="button">
+            <param name="background">
+                <image>none</image>
+            </param>
+            <param name="border">
+                <border>0</border>
+            </param>
+        </theme>
     </theme>
-  </theme>
-  <theme name="world-menu" ref="-defaults">
-    <param name="background">
-      <image>ui-popup.background</image>
-    </param>
-    <param name="border">
-      <border>4</border>
-    </param>
-    <theme name="button" ref="button">
-      <param name="background">
-        <image>ui-popup-button.background</image>
-      </param>
-      <param name="textAlignment">
-        <enum type="alignment">CENTER</enum>
-      </param>
-      <param name="border">
-        <border>0</border>
-      </param>
+    <theme name="world-menu" ref="-defaults">
+        <param name="background">
+            <image>ui-popup.background</image>
+        </param>
+        <param name="border">
+            <border>4</border>
+        </param>
+        <theme name="button" ref="button">
+            <param name="background">
+                <image>ui-popup-button.background</image>
+            </param>
+            <param name="textAlignment">
+                <enum type="alignment">CENTER</enum>
+            </param>
+            <param name="border">
+                <border>0</border>
+            </param>
+        </theme>
     </theme>
-  </theme>
 </themes>

@@ -1,26 +1,65 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <themes>
-  <!-- InventoryWindow.K8 / android-inventory.xml: header, left pockets, 400x60 item rows. -->
-  <theme name="mobile-inventory-tabbedframe" ref="mobile-panel">
-    <param name="background"><image>mobile.window.background.lightblue</image></param>
-    <param name="border"><border>0</border></param>
-    <param name="closeButtonX"><int>-64</int></param>
-  </theme>
-  <theme name="inventory-tab-empty" ref="-defaults" overwrite="true">
-    <param name=""><image>mobile.tab.inset.*</image></param>
-    <param name="minWidth"><int>160</int></param>
-    <param name="border"><border>15,64,15,10</border></param>
-    <param name="font"><font>med-shadow-22-white</font></param>
-    <param name="textAlignment"><enum type="alignment">LEFT</enum></param>
-  </theme>
-  <theme name="mobile-inventory-button" ref="inventory-button">
-    <param name=""><image>mobile.button.50.*</image></param>
-    <param name="font"><font>normal</font></param>
-    <param name="border"><border>0,48,0,0</border></param>
-    <param name="textAlignment"><enum type="alignment">LEFT</enum></param>
-  </theme>
-  <theme name="mobile-inventory-name" ref="label"><param name="font"><font>med-shadow-22-white</font></param></theme>
-  <theme name="mobile-inventory-description" ref="label"><param name="font"><font>med-shadow-18-white</font></param><param name="textAlignment"><enum type="alignment">TOPLEFT</enum></param></theme>
-  <theme name="mobile-inventory-wallet" ref="label"><param name="font"><font>med-shadow-22-white</font></param></theme>
-  <theme name="player-inventory-search" ref="editfield-search" overwrite="true"/>
+    <!-- InventoryWindow.K8 / android-inventory.xml: header, left pockets, 400x60 item rows. -->
+    <theme name="mobile-inventory-tabbedframe" ref="mobile-panel">
+        <param name="background">
+            <image>mobile.window.background.lightblue</image>
+        </param>
+        <param name="border">
+            <border>0</border>
+        </param>
+        <param name="closeButtonX">
+            <int>-64</int>
+        </param>
+    </theme>
+    <theme name="inventory-tab-empty" ref="-defaults" overwrite="true">
+        <param name="">
+            <image>mobile.tab.inset.*</image>
+        </param>
+        <param name="minWidth">
+            <int>160</int>
+        </param>
+        <param name="border">
+            <border>15,64,15,10</border>
+        </param>
+        <param name="font">
+            <font>med-shadow-22-white</font>
+        </param>
+        <param name="textAlignment">
+            <enum type="alignment">LEFT</enum>
+        </param>
+    </theme>
+    <theme name="mobile-inventory-button" ref="inventory-button">
+        <param name="">
+            <image>mobile.button.50.*</image>
+        </param>
+        <param name="font">
+            <font>normal</font>
+        </param>
+        <param name="border">
+            <border>0,48,0,0</border>
+        </param>
+        <param name="textAlignment">
+            <enum type="alignment">LEFT</enum>
+        </param>
+    </theme>
+    <theme name="mobile-inventory-name" ref="label">
+        <param name="font">
+            <font>med-shadow-22-white</font>
+        </param>
+    </theme>
+    <theme name="mobile-inventory-description" ref="label">
+        <param name="font">
+            <font>med-shadow-18-white</font>
+        </param>
+        <param name="textAlignment">
+            <enum type="alignment">TOPLEFT</enum>
+        </param>
+    </theme>
+    <theme name="mobile-inventory-wallet" ref="label">
+        <param name="font">
+            <font>med-shadow-22-white</font>
+        </param>
+    </theme>
+    <theme name="player-inventory-search" ref="editfield-search" overwrite="true"/>
 </themes>
