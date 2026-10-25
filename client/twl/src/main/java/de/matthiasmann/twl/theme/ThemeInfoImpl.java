@@ -64,14 +64,14 @@ class ThemeInfoImpl extends ParameterMapImpl implements ThemeInfo {
     public ThemeInfo getChildTheme(String theme) {
         return getChildThemeImpl(theme, true);
     }
-    
+
     ThemeInfo getChildThemeImpl(String theme, boolean useFallback) {
         ThemeInfo info = children.get(theme);
-        if(info == null) {
-            if(wildcardImportPath != null) {
+        if (info == null) {
+            if (wildcardImportPath != null) {
                 info = manager.resolveWildcard(wildcardImportPath, theme, useFallback);
             }
-            if(info == null && useFallback) {
+            if (info == null && useFallback) {
                 DebugHook.getDebugHook().missingChildTheme(this, theme);
             }
         }
@@ -81,11 +81,11 @@ class ThemeInfoImpl extends ParameterMapImpl implements ThemeInfo {
     final ThemeInfoImpl getTheme(String name) {
         return children.get(name);
     }
-    
+
     void putTheme(String name, ThemeInfoImpl child) {
         children.put(name, child);
     }
-    
+
     public String getThemePath() {
         return getThemePath(0).toString();
     }
@@ -93,7 +93,7 @@ class ThemeInfoImpl extends ParameterMapImpl implements ThemeInfo {
     private StringBuilder getThemePath(int length) {
         StringBuilder sb;
         length += getName().length();
-        if(parent != null) {
+        if (parent != null) {
             sb = parent.getThemePath(length + 1);
             sb.append('.');
         } else {

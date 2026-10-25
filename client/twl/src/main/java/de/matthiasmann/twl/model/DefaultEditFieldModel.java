@@ -33,7 +33,7 @@ import de.matthiasmann.twl.utils.CallbackSupport;
 
 /**
  * An {@code EditFieldModel} based on a {@link StringBuilder}
- * 
+ *
  * @author Matthias Mann
  */
 public class DefaultEditFieldModel implements EditFieldModel {
@@ -73,8 +73,8 @@ public class DefaultEditFieldModel implements EditFieldModel {
     public int replace(int start, int count, String replacement) {
         checkRange(start, count);
         int replacementLength = replacement.length();
-        if(count > 0 || replacementLength > 0) {
-            sb.replace(start, start+count, replacement);
+        if (count > 0 || replacementLength > 0) {
+            sb.replace(start, start + count, replacement);
             fireCallback(start, count, replacementLength);
         }
         return replacementLength;
@@ -82,10 +82,10 @@ public class DefaultEditFieldModel implements EditFieldModel {
 
     public boolean replace(int start, int count, char replacement) {
         checkRange(start, count);
-        if(count == 0) {
+        if (count == 0) {
             sb.insert(start, replacement);
         } else {
-            sb.delete(start, start+count-1);
+            sb.delete(start, start + count - 1);
             sb.setCharAt(start, replacement);
         }
         fireCallback(start, count, 1);
@@ -98,18 +98,18 @@ public class DefaultEditFieldModel implements EditFieldModel {
 
     private void checkRange(int start, int count) {
         int len = sb.length();
-        if(start < 0 || start > len) {
+        if (start < 0 || start > len) {
             throw new StringIndexOutOfBoundsException(start);
         }
-        if(count < 0 || count > len - start) {
+        if (count < 0 || count > len - start) {
             throw new StringIndexOutOfBoundsException();
         }
     }
 
     private void fireCallback(int start, int oldCount, int newCount) {
         Callback[] cbs = this.callbacks;
-        if(cbs != null) {
-            for(Callback cb : cbs) {
+        if (cbs != null) {
+            for (Callback cb : cbs) {
                 cb.charactersChanged(start, oldCount, newCount);
             }
         }

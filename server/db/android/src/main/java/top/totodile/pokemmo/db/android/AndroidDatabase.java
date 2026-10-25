@@ -1,19 +1,29 @@
 package top.totodile.pokemmo.db.android;
 
 import android.database.sqlite.SQLiteDatabase;
+
+import top.totodile.pokemmo.db.Database;
+
 import java.io.File;
 import java.util.*;
-import top.totodile.pokemmo.db.Database;
 
 public final class AndroidDatabase implements Database {
     private final SQLiteDatabase database;
+
     public AndroidDatabase(File file) {
         File parent = file.getParentFile();
-        if (!parent.isDirectory() && !parent.mkdirs()) throw new IllegalStateException("Cannot create game directory");
+        if (!parent.isDirectory() && !parent.mkdirs())
+            throw new IllegalStateException("Cannot create game directory");
         database = SQLiteDatabase.openOrCreateDatabase(file, null);
     }
-    @Override public void execute(String sql, Object... values) { database.execSQL(sql, values); }
-    @Override public List<String[]> query(String sql, String... values) {
+
+    @Override
+    public void execute(String sql, Object... values) {
+        database.execSQL(sql, values);
+    }
+
+    @Override
+    public List<String[]> query(String sql, String... values) {
         try (var rows = database.rawQuery(sql, values)) {
             List<String[]> result = new ArrayList<>();
             while (rows.moveToNext()) {
@@ -24,10 +34,20 @@ public final class AndroidDatabase implements Database {
             return result;
         }
     }
-    @Override public void transaction(Runnable operation) {
+
+    @Override
+    public void transaction(Runnable operation) {
         database.beginTransaction();
-        try { operation.run(); database.setTransactionSuccessful(); }
-        finally { database.endTransaction(); }
+        try {
+            operation.run();
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+        }
     }
-    @Override public void close() { database.close(); }
+
+    @Override
+    public void close() {
+        database.close();
+    }
 }

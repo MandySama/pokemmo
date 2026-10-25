@@ -2,6 +2,7 @@ package top.totodile.pokemmo.client.config;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.stream.Collectors;
+
 import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -34,7 +36,9 @@ public final class SavedAccounts {
     private final LinkedHashMap<String, String> committedAccounts = new LinkedHashMap<>();
 
     @FunctionalInterface
-    interface OutputFactory { FileOutputStream open(java.io.File file) throws IOException; }
+    interface OutputFactory {
+        FileOutputStream open(java.io.File file) throws IOException;
+    }
 
     public static SavedAccounts open() {
         return open(Gdx.files.local("config"));
@@ -43,7 +47,10 @@ public final class SavedAccounts {
     public static SavedAccounts open(FileHandle directory) {
         return new SavedAccounts(directory.child("savedcredentials.properties"));
     }
-    public FileHandle directory() { return file.parent(); }
+
+    public FileHandle directory() {
+        return file.parent();
+    }
 
     public SavedAccounts(FileHandle file) {
         this(file, FileOutputStream::new);
@@ -55,36 +62,56 @@ public final class SavedAccounts {
         if (file.exists()) {
             try (InputStream input = file.read()) {
                 preferences.load(input);
-            } catch (IOException error) { throw new IllegalStateException("读取已存账号失败", error); }
+            } catch (IOException error) {
+                throw new IllegalStateException("读取已存账号失败", error);
+            }
         }
         for (String key : preferences.getProperty("order", "").split(",")) {
             if (!key.startsWith(PREFIX)) continue;
             if (!preferences.containsKey(key)) continue;
             try {
-                String name = new String(Base64.getUrlDecoder().decode(key.substring(PREFIX.length())), StandardCharsets.UTF_8);
+                String name =
+                        new String(
+                                Base64.getUrlDecoder().decode(key.substring(PREFIX.length())),
+                                StandardCharsets.UTF_8);
                 String encrypted = preferences.getProperty(key);
                 // 损坏的记录不进入下拉列表，也不将其当成有效的已存密码。
-                if (!name.isBlank() && !decrypt(encrypted, name).isEmpty()) accounts.put(name, encrypted);
-            } catch (RuntimeException | GeneralSecurityException ignored) { }
+                if (!name.isBlank() && !decrypt(encrypted, name).isEmpty())
+                    accounts.put(name, encrypted);
+            } catch (RuntimeException | GeneralSecurityException ignored) {
+            }
         }
         rememberCommittedState();
     }
 
-    public List<String> names() { return new ArrayList<>(accounts.keySet()); }
+    public List<String> names() {
+        return new ArrayList<>(accounts.keySet());
+    }
+
     public String selected() {
         String selected = find(preferences.getProperty("selected", ""));
         return selected != null ? selected : accounts.keySet().stream().findFirst().orElse(null);
     }
+
     private String find(String name) {
-        return accounts.keySet().stream().filter(value -> value.equalsIgnoreCase(name)).findFirst().orElse(null);
+        return accounts.keySet().stream()
+                .filter(value -> value.equalsIgnoreCase(name))
+                .findFirst()
+                .orElse(null);
     }
-    public boolean contains(String name) { return find(name) != null; }
+
+    public boolean contains(String name) {
+        return find(name) != null;
+    }
 
     public String password(String name) {
         String stored = find(name);
         if (stored == null) return null;
-        try { return decrypt(accounts.get(stored), stored); }
-        catch (GeneralSecurityException | RuntimeException error) { throw new IllegalStateException("读取已存密码失败", error); }
+        try {
+            return decrypt(accounts.get(stored), stored);
+        } catch (GeneralSecurityException | RuntimeException error) {
+            throw new IllegalStateException("读取已存密码失败", error);
+        }
     }
 
     public void save(String name, String password) {
@@ -100,10 +127,18 @@ public final class SavedAccounts {
             byte[] iv = new byte[12];
             random.nextBytes(iv);
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-            cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key, "AES"), new GCMParameterSpec(128, iv));
+            cipher.init(
+                    Cipher.ENCRYPT_MODE,
+                    new SecretKeySpec(key, "AES"),
+                    new GCMParameterSpec(128, iv));
             cipher.updateAAD(name.toLowerCase(Locale.ROOT).getBytes(StandardCharsets.UTF_8));
-            String encrypted = Base64.getEncoder().encodeToString(iv) + ":"
-                    + Base64.getEncoder().encodeToString(cipher.doFinal(password.getBytes(StandardCharsets.UTF_8)));
+            String encrypted =
+                    Base64.getEncoder().encodeToString(iv)
+                            + ":"
+                            + Base64.getEncoder()
+                                    .encodeToString(
+                                            cipher.doFinal(
+                                                    password.getBytes(StandardCharsets.UTF_8)));
             String previous = find(name);
             if (previous != null) {
                 accounts.remove(previous);
@@ -140,34 +175,48 @@ public final class SavedAccounts {
         String[] parts = encrypted.split(":", -1);
         if (parts.length != 2) throw new IllegalArgumentException("无效的账号记录");
         Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-        cipher.init(Cipher.DECRYPT_MODE,
-                new SecretKeySpec(Base64.getDecoder().decode(preferences.getProperty("key")), "AES"),
+        cipher.init(
+                Cipher.DECRYPT_MODE,
+                new SecretKeySpec(
+                        Base64.getDecoder().decode(preferences.getProperty("key")), "AES"),
                 new GCMParameterSpec(128, Base64.getDecoder().decode(parts[0])));
         cipher.updateAAD(name.toLowerCase(Locale.ROOT).getBytes(StandardCharsets.UTF_8));
-        return new String(cipher.doFinal(Base64.getDecoder().decode(parts[1])), StandardCharsets.UTF_8);
+        return new String(
+                cipher.doFinal(Base64.getDecoder().decode(parts[1])), StandardCharsets.UTF_8);
     }
 
     private void flush() {
-        preferences.setProperty("order", accounts.keySet().stream().map(SavedAccounts::key).collect(Collectors.joining(",")));
+        preferences.setProperty(
+                "order",
+                accounts.keySet().stream()
+                        .map(SavedAccounts::key)
+                        .collect(Collectors.joining(",")));
         Path temporary = null;
         try {
             Path target = file.file().toPath().toAbsolutePath();
             Files.createDirectories(target.getParent());
-            temporary = Files.createTempFile(target.getParent(), target.getFileName() + ".", ".tmp");
+            temporary =
+                    Files.createTempFile(target.getParent(), target.getFileName() + ".", ".tmp");
             try (FileOutputStream output = outputFactory.open(temporary.toFile())) {
                 preferences.store(output, null);
                 output.getFD().sync();
             }
             // 同目录原子替换；写入、同步或替换失败时始终保留原文件。
-            Files.move(temporary, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+            Files.move(
+                    temporary,
+                    target,
+                    StandardCopyOption.ATOMIC_MOVE,
+                    StandardCopyOption.REPLACE_EXISTING);
             rememberCommittedState();
         } catch (IOException | RuntimeException error) {
             restoreCommittedState();
             throw new IllegalStateException("保存账号失败", error);
         } finally {
             if (temporary != null) {
-                try { Files.deleteIfExists(temporary); }
-                catch (IOException ignored) { }
+                try {
+                    Files.deleteIfExists(temporary);
+                } catch (IOException ignored) {
+                }
             }
         }
     }
@@ -187,6 +236,9 @@ public final class SavedAccounts {
     }
 
     private static String key(String name) {
-        return PREFIX + Base64.getUrlEncoder().withoutPadding().encodeToString(name.getBytes(StandardCharsets.UTF_8));
+        return PREFIX
+                + Base64.getUrlEncoder()
+                        .withoutPadding()
+                        .encodeToString(name.getBytes(StandardCharsets.UTF_8));
     }
 }

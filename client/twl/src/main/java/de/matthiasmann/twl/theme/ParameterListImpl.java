@@ -36,10 +36,10 @@ import de.matthiasmann.twl.ParameterMap;
 import de.matthiasmann.twl.renderer.Font;
 import de.matthiasmann.twl.renderer.Image;
 import de.matthiasmann.twl.renderer.MouseCursor;
+
 import java.util.ArrayList;
 
 /**
- *
  * @author Matthias Mann
  */
 public class ParameterListImpl extends ThemeChildImpl implements ParameterList {
@@ -57,7 +57,7 @@ public class ParameterListImpl extends ThemeChildImpl implements ParameterList {
 
     public Font getFont(int idx) {
         Font value = getParameterValue(idx, Font.class);
-        if(value != null) {
+        if (value != null) {
             return value;
         }
         return manager.getDefaultFont();
@@ -65,7 +65,7 @@ public class ParameterListImpl extends ThemeChildImpl implements ParameterList {
 
     public Image getImage(int idx) {
         Image img = getParameterValue(idx, Image.class);
-        if(img == ImageManager.NONE) {
+        if (img == ImageManager.NONE) {
             return null;
         }
         return img;
@@ -78,7 +78,7 @@ public class ParameterListImpl extends ThemeChildImpl implements ParameterList {
 
     public ParameterMap getParameterMap(int idx) {
         ParameterMap value = getParameterValue(idx, ParameterMap.class);
-        if(value == null) {
+        if (value == null) {
             return manager.emptyMap;
         }
         return value;
@@ -86,7 +86,7 @@ public class ParameterListImpl extends ThemeChildImpl implements ParameterList {
 
     public ParameterList getParameterList(int idx) {
         ParameterList value = getParameterValue(idx, ParameterList.class);
-        if(value == null) {
+        if (value == null) {
             return manager.emptyList;
         }
         return value;
@@ -94,7 +94,7 @@ public class ParameterListImpl extends ThemeChildImpl implements ParameterList {
 
     public boolean getParameter(int idx, boolean defaultValue) {
         Boolean value = getParameterValue(idx, Boolean.class);
-        if(value != null) {
+        if (value != null) {
             return value.booleanValue();
         }
         return defaultValue;
@@ -102,7 +102,7 @@ public class ParameterListImpl extends ThemeChildImpl implements ParameterList {
 
     public int getParameter(int idx, int defaultValue) {
         Integer value = getParameterValue(idx, Integer.class);
-        if(value != null) {
+        if (value != null) {
             return value.intValue();
         }
         return defaultValue;
@@ -110,7 +110,7 @@ public class ParameterListImpl extends ThemeChildImpl implements ParameterList {
 
     public float getParameter(int idx, float defaultValue) {
         Float value = getParameterValue(idx, Float.class);
-        if(value != null) {
+        if (value != null) {
             return value.floatValue();
         }
         return defaultValue;
@@ -118,7 +118,7 @@ public class ParameterListImpl extends ThemeChildImpl implements ParameterList {
 
     public String getParameter(int idx, String defaultValue) {
         String value = getParameterValue(idx, String.class);
-        if(value != null) {
+        if (value != null) {
             return value;
         }
         return defaultValue;
@@ -126,7 +126,7 @@ public class ParameterListImpl extends ThemeChildImpl implements ParameterList {
 
     public Color getParameter(int idx, Color defaultValue) {
         Color value = getParameterValue(idx, Color.class);
-        if(value != null) {
+        if (value != null) {
             return value;
         }
         return defaultValue;
@@ -135,7 +135,7 @@ public class ParameterListImpl extends ThemeChildImpl implements ParameterList {
     public <E extends Enum<E>> E getParameter(int idx, E defaultValue) {
         Class<E> enumType = defaultValue.getDeclaringClass();
         E value = getParameterValue(idx, enumType);
-        if(value != null) {
+        if (value != null) {
             return value;
         }
         return defaultValue;
@@ -147,7 +147,7 @@ public class ParameterListImpl extends ThemeChildImpl implements ParameterList {
 
     public <T> T getParameterValue(int idx, Class<T> clazz) {
         Object value = getParameterValue(idx);
-        if(value != null && !clazz.isInstance(value)) {
+        if (value != null && !clazz.isInstance(value)) {
             wrongParameterType(idx, clazz, value.getClass());
             return null;
         }
@@ -155,6 +155,7 @@ public class ParameterListImpl extends ThemeChildImpl implements ParameterList {
     }
 
     protected void wrongParameterType(int idx, Class<?> expectedType, Class<?> foundType) {
-        DebugHook.getDebugHook().wrongParameterType(this, idx, expectedType, foundType, getParentDescription());
+        DebugHook.getDebugHook()
+                .wrongParameterType(this, idx, expectedType, foundType, getParentDescription());
     }
 }

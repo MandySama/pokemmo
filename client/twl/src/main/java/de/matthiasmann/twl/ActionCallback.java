@@ -30,31 +30,31 @@
 package de.matthiasmann.twl;
 
 /**
- * A callback to invoke an action on either a Widget's actionMap or
- * on an directly passed action map.
- * 
+ * A callback to invoke an action on either a Widget's actionMap or on an directly passed action
+ * map.
+ *
  * @author Matthias Mann
  */
 public final class ActionCallback implements Runnable {
-    
+
     private final Widget widget;
     private final ActionMap actionMap;
     private final String action;
 
     /**
-     * Creates a callback invoking an action on the widget's actionMap.
-     * If the widget has no actionMap then no action is performed.
-     * 
+     * Creates a callback invoking an action on the widget's actionMap. If the widget has no
+     * actionMap then no action is performed.
+     *
      * @param widget the widget
      * @param action the action
      * @throws NullPointerException if either widget or action is null
-     * @see Widget#getActionMap() 
+     * @see Widget#getActionMap()
      */
     public ActionCallback(Widget widget, String action) {
-        if(widget == null) {
+        if (widget == null) {
             throw new NullPointerException("widget");
         }
-        if(action == null) {
+        if (action == null) {
             throw new NullPointerException("action");
         }
         this.widget = widget;
@@ -64,16 +64,16 @@ public final class ActionCallback implements Runnable {
 
     /**
      * Creates a callback invoking an action on actionMap.
-     * 
+     *
      * @param actionMap the actionMap to use
      * @param action the action
      * @throws NullPointerException if either actionMap or action is null
      */
     public ActionCallback(ActionMap actionMap, String action) {
-        if(actionMap == null) {
+        if (actionMap == null) {
             throw new NullPointerException("actionMap");
         }
-        if(action == null) {
+        if (action == null) {
             throw new NullPointerException("action");
         }
         this.widget = null;
@@ -83,9 +83,9 @@ public final class ActionCallback implements Runnable {
 
     public void run() {
         ActionMap am = actionMap;
-        if(am == null) {
+        if (am == null) {
             am = widget.getActionMap();
-            if(am == null) {
+            if (am == null) {
                 return;
             }
         }

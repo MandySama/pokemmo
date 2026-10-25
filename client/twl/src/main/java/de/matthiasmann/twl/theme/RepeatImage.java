@@ -36,7 +36,6 @@ import de.matthiasmann.twl.renderer.Image;
 import de.matthiasmann.twl.renderer.SupportsDrawRepeat;
 
 /**
- *
  * @author Matthias Mann
  */
 class RepeatImage implements Image, HasBorder, SupportsDrawRepeat {
@@ -54,8 +53,8 @@ class RepeatImage implements Image, HasBorder, SupportsDrawRepeat {
         this.repeatX = repeatX;
         this.repeatY = repeatY;
 
-        if(base instanceof SupportsDrawRepeat) {
-            sdr = (SupportsDrawRepeat)base;
+        if (base instanceof SupportsDrawRepeat) {
+            sdr = (SupportsDrawRepeat) base;
         } else {
             sdr = this;
         }
@@ -79,14 +78,21 @@ class RepeatImage implements Image, HasBorder, SupportsDrawRepeat {
         sdr.draw(as, x, y, width, height, countX, countY);
     }
 
-    public void draw(AnimationState as, int x, int y, int width, int height, int repeatCountX, int repeatCountY) {
-        while(repeatCountY > 0) {
+    public void draw(
+            AnimationState as,
+            int x,
+            int y,
+            int width,
+            int height,
+            int repeatCountX,
+            int repeatCountY) {
+        while (repeatCountY > 0) {
             int rowHeight = height / repeatCountY;
 
             int cx = 0;
-            for(int xi=0 ; xi<repeatCountX ;) {
+            for (int xi = 0; xi < repeatCountX; ) {
                 int nx = ++xi * width / repeatCountX;
-                base.draw(as, x+cx, y, nx-cx, rowHeight);
+                base.draw(as, x + cx, y, nx - cx, rowHeight);
                 cx = nx;
             }
 
@@ -96,7 +102,6 @@ class RepeatImage implements Image, HasBorder, SupportsDrawRepeat {
         }
     }
 
-
     public Border getBorder() {
         return border;
     }
@@ -104,5 +109,4 @@ class RepeatImage implements Image, HasBorder, SupportsDrawRepeat {
     public Image createTintedVersion(Color color) {
         return new RepeatImage(base.createTintedVersion(color), border, repeatX, repeatY);
     }
-
 }

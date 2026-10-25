@@ -1,6 +1,7 @@
 package top.totodile.pokemmo.client.config;
 
 import com.badlogic.gdx.files.FileHandle;
+
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
@@ -9,32 +10,65 @@ import java.util.*;
 public final class ClientSettings {
     private final FileHandle file;
     private final Properties values = new Properties();
+
     public ClientSettings(FileHandle directory) {
         file = directory.child("main.properties");
         read(values);
     }
+
     private void read(Properties target) {
         if (!file.exists()) return;
-        try (var input = file.read()) { target.load(input); }
-        catch (IOException error) { throw new IllegalStateException("Cannot read client settings",error); }
+        try (var input = file.read()) {
+            target.load(input);
+        } catch (IOException error) {
+            throw new IllegalStateException("Cannot read client settings", error);
+        }
     }
-    public synchronized String get(String key,String fallback) { return values.getProperty(key,fallback); }
-    public synchronized Properties snapshot() { var result = new Properties(); result.putAll(values); return result; }
-    public synchronized void save(Map<String,String> changes) {
-        Properties next = new Properties(); read(next); next.putAll(changes);
+
+    public synchronized String get(String key, String fallback) {
+        return values.getProperty(key, fallback);
+    }
+
+    public synchronized Properties snapshot() {
+        var result = new Properties();
+        result.putAll(values);
+        return result;
+    }
+
+    public synchronized void save(Map<String, String> changes) {
+        Properties next = new Properties();
+        read(next);
+        next.putAll(changes);
         Path destination = file.file().toPath().toAbsolutePath(), temporary = null;
         try {
             Files.createDirectories(destination.getParent());
-            temporary = Files.createTempFile(destination.getParent(),"settings-",".tmp");
+            temporary = Files.createTempFile(destination.getParent(), "settings-", ".tmp");
             try (var output = new FileOutputStream(temporary.toFile())) {
-                next.store(output,null); output.getFD().sync();
+                next.store(output, null);
+                output.getFD().sync();
             }
-            try { Files.move(temporary,destination,StandardCopyOption.REPLACE_EXISTING,StandardCopyOption.ATOMIC_MOVE); }
-            catch (AtomicMoveNotSupportedException error) { Files.move(temporary,destination,StandardCopyOption.REPLACE_EXISTING); }
-            values.clear(); values.putAll(next);
-        } catch (IOException error) { throw new IllegalStateException("Cannot save client settings",error); }
-        finally { if (temporary != null) try { Files.deleteIfExists(temporary); } catch (IOException ignored) {} }
+            try {
+                Files.move(
+                        temporary,
+                        destination,
+                        StandardCopyOption.REPLACE_EXISTING,
+                        StandardCopyOption.ATOMIC_MOVE);
+            } catch (AtomicMoveNotSupportedException error) {
+                Files.move(temporary, destination, StandardCopyOption.REPLACE_EXISTING);
+            }
+            values.clear();
+            values.putAll(next);
+        } catch (IOException error) {
+            throw new IllegalStateException("Cannot save client settings", error);
+        } finally {
+            if (temporary != null)
+                try {
+                    Files.deleteIfExists(temporary);
+                } catch (IOException ignored) {
+                }
+        }
     }
+
     public static String key(int id) {
         return switch (id) {
             case 600 -> "client.mobile.notch";

@@ -3185,4 +3185,20 @@
     <string id="1432">销毁多少个{00}?</string>
     <string id="8043">在交易行出售</string>
     <string id="2302">放生</string>
+    <string id="2310">确定放生这些{STRING_0}？</string>
+<string id="5100">战斗</string>
+<string id="5101">选择战斗技能.</string>
+<string id="5103">换下当前{STRING_0}.</string>
+<string id="5104">背包</string>
+<string id="5105">使用道具.</string>
+<string id="5106">逃跑</string>
+<string id="5107">从战斗中逃走.</string>
+    <string id="5211">濒死</string>
+    <string id="5220">沉睡</string>
+    <string id="5221">中毒</string>
+    <string id="5222">灼伤</string>
+    <string id="5223">冰冻</string>
+    <string id="5224">麻痹</string>
+    <string id="5225">中剧毒</string>
+    <string id="1852">PP:</string>
 </strings>

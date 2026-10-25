@@ -30,25 +30,27 @@
 package de.matthiasmann.twl.renderer;
 
 /**
- *
  * @author Matthias Mann
  */
 public interface AttributedStringFontCache extends Resource {
 
     /**
      * Returns the width in pixels of the cached text block
+     *
      * @return the width in pixels of the cached text block
      */
     public int getWidth();
-    
+
     /**
      * Returns the height in pixels of the cached text block
+     *
      * @return the height in pixels of the cached text block
      */
     public int getHeight();
-    
+
     /**
      * Draw the cached text block at the given coordinates
+     *
      * @param x the left coordinate
      * @param y the top coordinate
      */

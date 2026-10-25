@@ -13,19 +13,28 @@ import de.matthiasmann.twl.renderer.Image;
 import de.matthiasmann.twl.renderer.Renderer;
 
 /**
- *
  * @author mam
  */
 public class AnimatedImage implements Image, HasBorder {
 
-    static abstract class Element {
+    abstract static class Element {
         int duration;
 
         abstract int getWidth();
+
         abstract int getHeight();
+
         abstract Img getFirstImg();
-        abstract void render(int time, Img next, int x, int y,
-                int width, int height, AnimatedImage ai, AnimationState as);
+
+        abstract void render(
+                int time,
+                Img next,
+                int x,
+                int y,
+                int width,
+                int height,
+                AnimatedImage ai,
+                AnimationState as);
     }
 
     static class Img extends Element {
@@ -39,8 +48,15 @@ public class AnimatedImage implements Image, HasBorder {
         final float zoomCenterX;
         final float zoomCenterY;
 
-        Img(int duration, Image image, Color tintColor, float zoomX, float zoomY, float zoomCenterX, float zoomCenterY) {
-            if(duration < 0) {
+        Img(
+                int duration,
+                Image image,
+                Color tintColor,
+                float zoomX,
+                float zoomY,
+                float zoomCenterX,
+                float zoomCenterY) {
+            if (duration < 0) {
                 throw new IllegalArgumentException("duration");
             }
             this.duration = duration;
@@ -67,11 +83,19 @@ public class AnimatedImage implements Image, HasBorder {
             return this;
         }
 
-        void render(int time, Img next, int x, int y, int width, int height, AnimatedImage ai, AnimationState as) {
-            float rr=r, gg=g, bb=b, aa=a;
-            float zx=zoomX, zy=zoomY, cx=zoomCenterX, cy=zoomCenterY;
-            if(next != null) {
-                float t = time / (float)duration;
+        void render(
+                int time,
+                Img next,
+                int x,
+                int y,
+                int width,
+                int height,
+                AnimatedImage ai,
+                AnimationState as) {
+            float rr = r, gg = g, bb = b, aa = a;
+            float zx = zoomX, zy = zoomY, cx = zoomCenterX, cy = zoomCenterY;
+            if (next != null) {
+                float t = time / (float) duration;
                 rr = blend(rr, next.r, t);
                 gg = blend(gg, next.g, t);
                 bb = blend(bb, next.b, t);
@@ -81,21 +105,23 @@ public class AnimatedImage implements Image, HasBorder {
                 cx = blend(cx, next.zoomCenterX, t);
                 cy = blend(cy, next.zoomCenterY, t);
             }
-            ai.renderer.pushGlobalTintColor(rr*ai.r, gg*ai.g, bb*ai.b, aa*ai.a);
+            ai.renderer.pushGlobalTintColor(rr * ai.r, gg * ai.g, bb * ai.b, aa * ai.a);
             try {
-                int zWidth = (int)(width * zx);
-                int zHeight = (int)(height * zy);
-                image.draw(as,
-                        x + (int)((width - zWidth) * cx),
-                        y + (int)((height - zHeight) * cy),
-                        zWidth, zHeight);
+                int zWidth = (int) (width * zx);
+                int zHeight = (int) (height * zy);
+                image.draw(
+                        as,
+                        x + (int) ((width - zWidth) * cx),
+                        y + (int) ((height - zHeight) * cy),
+                        zWidth,
+                        zHeight);
             } finally {
                 ai.renderer.popGlobalTintColor();
             }
         }
 
         private static float blend(float a, float b, float t) {
-            return a + (b-a) * t;
+            return a + (b - a) * t;
         }
     }
 
@@ -110,11 +136,11 @@ public class AnimatedImage implements Image, HasBorder {
             assert repeatCount >= 0;
             assert children.length > 0;
 
-            for(Element e : children) {
+            for (Element e : children) {
                 duration += e.duration;
             }
             singleDuration = duration;
-            if(repeatCount == 0) {
+            if (repeatCount == 0) {
                 duration = Integer.MAX_VALUE;
             } else {
                 duration *= repeatCount;
@@ -124,7 +150,7 @@ public class AnimatedImage implements Image, HasBorder {
         @Override
         int getHeight() {
             int tmp = 0;
-            for(Element e : children) {
+            for (Element e : children) {
                 tmp = Math.max(tmp, e.getHeight());
             }
             return tmp;
@@ -133,7 +159,7 @@ public class AnimatedImage implements Image, HasBorder {
         @Override
         int getWidth() {
             int tmp = 0;
-            for(Element e : children) {
+            for (Element e : children) {
                 tmp = Math.max(tmp, e.getWidth());
             }
             return tmp;
@@ -143,27 +169,35 @@ public class AnimatedImage implements Image, HasBorder {
             return children[0].getFirstImg();
         }
 
-        void render(int time, Img next, int x, int y, int width, int height, AnimatedImage ai, AnimationState as) {
-            if(singleDuration == 0) {
+        void render(
+                int time,
+                Img next,
+                int x,
+                int y,
+                int width,
+                int height,
+                AnimatedImage ai,
+                AnimationState as) {
+            if (singleDuration == 0) {
                 // animation data is invalid - don't crash
                 return;
             }
-            
+
             int iteration = 0;
-            if(repeatCount == 0) {
+            if (repeatCount == 0) {
                 time %= singleDuration;
             } else {
                 iteration = time / singleDuration;
-                time -= Math.min(iteration, repeatCount-1) * singleDuration;
+                time -= Math.min(iteration, repeatCount - 1) * singleDuration;
             }
 
             Element e = null;
-            for(int i=0 ; i<children.length ; i++) {
+            for (int i = 0; i < children.length; i++) {
                 e = children[i];
-                if(time < e.duration && e.duration > 0) {
-                    if(i+1 < children.length) {
-                        next = children[i+1].getFirstImg();
-                    } else if(repeatCount == 0 || iteration+1 < repeatCount) {
+                if (time < e.duration && e.duration > 0) {
+                    if (i + 1 < children.length) {
+                        next = children[i + 1].getFirstImg();
+                    } else if (repeatCount == 0 || iteration + 1 < repeatCount) {
                         next = getFirstImg();
                     }
                     break;
@@ -172,7 +206,7 @@ public class AnimatedImage implements Image, HasBorder {
                 time -= e.duration;
             }
 
-            if(e != null) {
+            if (e != null) {
                 e.render(time, next, x, y, width, height, ai, as);
             }
         }
@@ -190,7 +224,13 @@ public class AnimatedImage implements Image, HasBorder {
     final int height;
     final int frozenTime;
 
-    AnimatedImage(Renderer renderer, Element root, String timeSource, Border border, Color tintColor,int frozenTime) {
+    AnimatedImage(
+            Renderer renderer,
+            Element root,
+            String timeSource,
+            Border border,
+            Color tintColor,
+            int frozenTime) {
         this.renderer = renderer;
         this.root = root;
         this.timeSource = StateKey.get(timeSource);
@@ -232,8 +272,8 @@ public class AnimatedImage implements Image, HasBorder {
 
     public void draw(AnimationState as, int x, int y, int width, int height) {
         int time = 0;
-        if(as != null) {
-            if(frozenTime < 0 || as.getShouldAnimateState(timeSource)) {
+        if (as != null) {
+            if (frozenTime < 0 || as.getShouldAnimateState(timeSource)) {
                 time = as.getAnimationTime(timeSource);
             } else {
                 time = frozenTime;
@@ -249,5 +289,4 @@ public class AnimatedImage implements Image, HasBorder {
     public Image createTintedVersion(Color color) {
         return new AnimatedImage(this, color);
     }
-
 }

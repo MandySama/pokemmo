@@ -6,14 +6,17 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.input.NativeInputConfiguration;
 import com.badlogic.gdx.input.TextInputWrapper;
 import com.badlogic.gdx.utils.Disposable;
+
 import de.matthiasmann.twl.*;
 import de.matthiasmann.twl.utils.TintAnimator;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.LongSupplier;
+
 import top.totodile.pokemmo.client.config.SavedAccounts;
 import top.totodile.pokemmo.client.resources.ClientStrings;
 import top.totodile.pokemmo.client.twl.GdxTwlRenderer;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.LongSupplier;
 
 /** 登录表单、账号记忆、原生输入栏及登录错误提示。 */
 public final class LoginPanel extends ResizableFrame implements Disposable {
@@ -39,8 +42,13 @@ public final class LoginPanel extends ResizableFrame implements Disposable {
     private Runnable inputRequested = () -> {};
     private boolean disposed;
 
-    public LoginPanel(Widget notificationHost, ClientStrings strings, boolean mobile,
-               SavedAccounts savedAccounts, LongSupplier notificationClock, LoginController controller) {
+    public LoginPanel(
+            Widget notificationHost,
+            ClientStrings strings,
+            boolean mobile,
+            SavedAccounts savedAccounts,
+            LongSupplier notificationClock,
+            LoginController controller) {
         this.notificationHost = notificationHost;
         this.strings = strings;
         this.mobile = mobile;
@@ -52,8 +60,14 @@ public final class LoginPanel extends ResizableFrame implements Disposable {
         username.setMaxTextLength(64);
         password.setMaxTextLength(128);
         password.setPasswordMasking(true);
-        username.addCallback(key -> { if (key == Event.KEY_RETURN) submit(); });
-        password.addCallback(key -> { if (key == Event.KEY_RETURN) submit(); });
+        username.addCallback(
+                key -> {
+                    if (key == Event.KEY_RETURN) submit();
+                });
+        password.addCallback(
+                key -> {
+                    if (key == Event.KEY_RETURN) submit();
+                });
         userLabel = new Label(strings.get(1001));
         passwordLabel = new Label(strings.get(1002));
         userLabel.setLabelFor(username);
@@ -72,14 +86,17 @@ public final class LoginPanel extends ResizableFrame implements Disposable {
         setResizableAxis(ResizableFrame.ResizableAxis.NONE);
         add(form);
     }
+
     private void submit() {
         if (controller.state() != LoginController.State.LOGIN) return;
         if (nativeEditor != null) {
             // 原生输入栏先回写最新文本，再提交登录服务。
-            Gdx.input.closeTextInputField(false, confirm -> {
-                if (!disposed) submit();
-                return false;
-            });
+            Gdx.input.closeTextInputField(
+                    false,
+                    confirm -> {
+                        if (!disposed) submit();
+                        return false;
+                    });
             return;
         }
         hideKeyboard();
@@ -88,22 +105,29 @@ public final class LoginPanel extends ResizableFrame implements Disposable {
             password.giveupKeyboardFocus();
         }
         String name = selectedAccount != null ? selectedAccount : username.getText();
-        String secret = selectedAccount != null ? savedAccounts.password(selectedAccount) : password.getText();
+        String secret =
+                selectedAccount != null
+                        ? savedAccounts.password(selectedAccount)
+                        : password.getText();
         boolean existing = selectedAccount != null;
         boolean save = remember.isActive();
-        controller.login(name, secret, session -> {
-            if (existing) savedAccounts.select(name);
-            else if (save) {
-                savedAccounts.save(name, secret);
-                selectAccount(name);
-            }
-        });
+        controller.login(
+                name,
+                secret,
+                session -> {
+                    if (existing) savedAccounts.select(name);
+                    else if (save) {
+                        savedAccounts.save(name, secret);
+                        selectAccount(name);
+                    }
+                });
     }
 
     public void refreshLoginState() {
         if (disposed) return;
-        boolean loginPage = controller.state() == LoginController.State.LOGIN
-                || controller.state() == LoginController.State.LOGGING_IN;
+        boolean loginPage =
+                controller.state() == LoginController.State.LOGIN
+                        || controller.state() == LoginController.State.LOGGING_IN;
         boolean enteringLogin = loginPage && !isVisible();
         if (enteringLogin || !loginPage && isVisible()) {
             // 隐藏父窗口不会调用 Button.setVisible(false)，旧点击的后续事件还可能到达。
@@ -149,7 +173,10 @@ public final class LoginPanel extends ResizableFrame implements Disposable {
         password.setEnabled(!saved);
         password.setPasswordMasking(!saved);
         password.setText(saved ? strings.get(1027) : "");
-        if (!saved) { username.setText(""); remember.setActive(false); }
+        if (!saved) {
+            username.setText("");
+            remember.setActive(false);
+        }
         rebuildForm();
     }
 
@@ -161,18 +188,25 @@ public final class LoginPanel extends ResizableFrame implements Disposable {
         Widget action = selectedAccount != null ? clearPassword : remember;
         DialogLayout.Group buttons = form.createSequentialGroup().addWidget(action);
         DialogLayout.Group buttonRow = form.createParallelGroup().addWidget(action);
-        if (selectedAccount == null) { buttons.addWidget(rememberLabel); buttonRow.addWidget(rememberLabel); }
+        if (selectedAccount == null) {
+            buttons.addWidget(rememberLabel);
+            buttonRow.addWidget(rememberLabel);
+        }
         buttons.addGap(0, 0, Short.MAX_VALUE).addWidget(login);
         buttonRow.addWidget(login);
-        form.setHorizontalGroup(form.createParallelGroup()
-                .addGroup(form.createSequentialGroup()
-                        .addGroup(form.createParallelGroup(userLabel, passwordLabel))
-                        .addGroup(form.createParallelGroup(account, password)))
-                .addGroup(buttons));
-        form.setVerticalGroup(form.createSequentialGroup()
-                .addGroup(form.createParallelGroup(userLabel, account))
-                .addGroup(form.createParallelGroup(passwordLabel, password))
-                .addGroup(buttonRow));
+        form.setHorizontalGroup(
+                form.createParallelGroup()
+                        .addGroup(
+                                form.createSequentialGroup()
+                                        .addGroup(
+                                                form.createParallelGroup(userLabel, passwordLabel))
+                                        .addGroup(form.createParallelGroup(account, password)))
+                        .addGroup(buttons));
+        form.setVerticalGroup(
+                form.createSequentialGroup()
+                        .addGroup(form.createParallelGroup(userLabel, account))
+                        .addGroup(form.createParallelGroup(passwordLabel, password))
+                        .addGroup(buttonRow));
         if (notificationHost != null) notificationHost.invalidateLayout();
     }
 
@@ -219,118 +253,193 @@ public final class LoginPanel extends ResizableFrame implements Disposable {
             setDraggable(false);
             setResizableAxis(ResizableAxis.NONE);
             DialogLayout content = new DialogLayout();
-            message = new Button(text.trim()) {
-                @Override public boolean handleEvent(Event event) {
-                    expireOnClick(event);
-                    return super.handleEvent(event);
-                }
-            };
+            message =
+                    new Button(text.trim()) {
+                        @Override
+                        public boolean handleEvent(Event event) {
+                            expireOnClick(event);
+                            return super.handleEvent(event);
+                        }
+                    };
             message.setTheme("label");
             message.setCanAcceptKeyboardFocus(false);
             content.setHorizontalGroup(content.createParallelGroup(message));
             content.setVerticalGroup(content.createSequentialGroup(message));
             add(content);
-            setTintAnimator(new TintAnimator(new TintAnimator.TimeSource() {
-                private long startedAt;
-                public void resetTime() { startedAt = notificationClock.getAsLong(); }
-                public int getTime() { return (int) Math.min(Integer.MAX_VALUE, notificationClock.getAsLong() - startedAt); }
-            }));
+            setTintAnimator(
+                    new TintAnimator(
+                            new TintAnimator.TimeSource() {
+                                private long startedAt;
+
+                                public void resetTime() {
+                                    startedAt = notificationClock.getAsLong();
+                                }
+
+                                public int getTime() {
+                                    return (int)
+                                            Math.min(
+                                                    Integer.MAX_VALUE,
+                                                    notificationClock.getAsLong() - startedAt);
+                                }
+                            }));
         }
 
         private void expireOnClick(Event event) {
             if (event.getType() == Event.Type.MOUSE_BTNDOWN
-                    && (event.getMouseButton() == Event.MOUSE_LBUTTON || event.getMouseButton() == Event.MOUSE_RBUTTON))
+                    && (event.getMouseButton() == Event.MOUSE_LBUTTON
+                            || event.getMouseButton() == Event.MOUSE_RBUTTON))
                 expiresAt = notificationClock.getAsLong();
         }
 
-        @Override public boolean handleEvent(Event event) {
+        @Override
+        public boolean handleEvent(Event event) {
             expireOnClick(event);
             return super.handleEvent(event);
         }
     }
-    private void focusAndEdit(EditField field){
+
+    private void focusAndEdit(EditField field) {
         field.requestKeyboardFocus();
-        ((LoginEditField)field).showNativeInput();
+        ((LoginEditField) field).showNativeInput();
     }
-    public void hideKeyboard(){
-        if(nativeEditor!=null)Gdx.input.closeTextInputField(false);
+
+    public void hideKeyboard() {
+        if (nativeEditor != null) Gdx.input.closeTextInputField(false);
         else Gdx.input.setOnscreenKeyboardVisible(false);
     }
+
     public void layoutNotifications() {
         int bottomOffset = 100;
         for (LoginNotification notice : notifications) {
             notice.adjustSize();
-            notice.setPosition(notificationHost.getInnerX() + (notificationHost.getInnerWidth() - notice.getWidth()) / 2,
+            notice.setPosition(
+                    notificationHost.getInnerX()
+                            + (notificationHost.getInnerWidth() - notice.getWidth()) / 2,
                     notificationHost.getInnerBottom() - bottomOffset - notice.getHeight());
             bottomOffset += notice.getHeight() + 5;
         }
     }
 
-    public void onInputRequested(Runnable action) { inputRequested=java.util.Objects.requireNonNull(action); }
-    public boolean hasNativeEditor() { return nativeEditor != null; }
+    public void onInputRequested(Runnable action) {
+        inputRequested = java.util.Objects.requireNonNull(action);
+    }
 
-    @Override public void dispose() {
+    public boolean hasNativeEditor() {
+        return nativeEditor != null;
+    }
+
+    @Override
+    public void dispose() {
         disposed = true;
         hideKeyboard();
         for (LoginNotification notice : notifications) notificationHost.removeChild(notice);
         notifications.clear();
     }
+
     private final class LoginEditField extends EditField {
         private final boolean mobile, username;
-        LoginEditField(boolean mobile,boolean username){
-            this.mobile=mobile;this.username=username;setTheme("editfield");
+
+        LoginEditField(boolean mobile, boolean username) {
+            this.mobile = mobile;
+            this.username = username;
+            setTheme("editfield");
         }
-        @Override public de.matthiasmann.twl.renderer.MouseCursor getMouseCursor(Event event) {
+
+        @Override
+        public de.matthiasmann.twl.renderer.MouseCursor getMouseCursor(Event event) {
             var cursor = super.getMouseCursor(event);
             return mobile || cursor != null ? cursor : GdxTwlRenderer.SystemMouseCursor.TEXT;
         }
-        @Override public void insertText(String text){
-            if(username){
+
+        @Override
+        public void insertText(String text) {
+            if (username) {
                 // 与参考客户端的 Character.isWhitespace 过滤一致，覆盖中文全角空白。
-                StringBuilder filtered=new StringBuilder(text.length());
-                text.codePoints().filter(value->!Character.isWhitespace(value)).forEach(filtered::appendCodePoint);
-                text=filtered.toString();
+                StringBuilder filtered = new StringBuilder(text.length());
+                text.codePoints()
+                        .filter(value -> !Character.isWhitespace(value))
+                        .forEach(filtered::appendCodePoint);
+                text = filtered.toString();
             }
             super.insertText(text);
         }
-        @Override public boolean handleEvent(Event event){
-            boolean handled=super.handleEvent(event);
-            if(event.getType()==Event.Type.MOUSE_BTNDOWN)showNativeInput();
+
+        @Override
+        public boolean handleEvent(Event event) {
+            boolean handled = super.handleEvent(event);
+            if (event.getType() == Event.Type.MOUSE_BTNDOWN) showNativeInput();
             return handled;
         }
-        private void showNativeInput(){
-            if(!mobile || disposed)return;
+
+        private void showNativeInput() {
+            if (!mobile || disposed) return;
             inputRequested.run();
-            if(isReadOnly() || !isEnabled() || Gdx.app.getType()!=ApplicationType.Android || nativeEditor==this)return;
-            if(nativeEditor!=null){
-                Gdx.input.closeTextInputField(false,confirm->{showNativeInput();return true;});
+            if (isReadOnly()
+                    || !isEnabled()
+                    || Gdx.app.getType() != ApplicationType.Android
+                    || nativeEditor == this) return;
+            if (nativeEditor != null) {
+                Gdx.input.closeTextInputField(
+                        false,
+                        confirm -> {
+                            showNativeInput();
+                            return true;
+                        });
                 return;
             }
-            nativeEditor=this;
+            nativeEditor = this;
             // 原生输入栏支持输入法组合文本；用户名为普通文本，密码使用独立的密码类型。
-            String initialText=getText();
-            int initialCursor=Math.min(getCursorPos(),initialText.length());
-            var config=new NativeInputConfiguration()
-                .setType(username?Input.OnscreenKeyboardType.Default:Input.OnscreenKeyboardType.Password)
-                .setPreventCorrection(true).setMultiLine(false).setMaskInput(!username)
-                .setShowUnmaskButton(!username)
-                .setMaxLength(getMaxTextLength()).setPlaceholder(strings.get(username?1001:1002))
-                .setValidator(text->!username || text.codePoints().noneMatch(Character::isWhitespace))
-                .setTextInputWrapper(new TextInputWrapper(){
-                    public String getText(){return initialText;}
-                    public int getSelectionStart(){return initialCursor;}
-                    public int getSelectionEnd(){return initialCursor;}
-                    public void writeResults(String text,int start,int end){
-                        if(disposed)return;
-                        setText(text);
-                        setSelection(Math.min(start,text.length()),Math.min(end,text.length()));
-                    }
-                }).setCloseCallback(confirm->{
-                    nativeEditor=null;
-                    if(disposed)return false;
-                    if(confirm && username){focusAndEdit(password);return true;}
-                    return false;
-                });
+            String initialText = getText();
+            int initialCursor = Math.min(getCursorPos(), initialText.length());
+            var config =
+                    new NativeInputConfiguration()
+                            .setType(
+                                    username
+                                            ? Input.OnscreenKeyboardType.Default
+                                            : Input.OnscreenKeyboardType.Password)
+                            .setPreventCorrection(true)
+                            .setMultiLine(false)
+                            .setMaskInput(!username)
+                            .setShowUnmaskButton(!username)
+                            .setMaxLength(getMaxTextLength())
+                            .setPlaceholder(strings.get(username ? 1001 : 1002))
+                            .setValidator(
+                                    text ->
+                                            !username
+                                                    || text.codePoints()
+                                                            .noneMatch(Character::isWhitespace))
+                            .setTextInputWrapper(
+                                    new TextInputWrapper() {
+                                        public String getText() {
+                                            return initialText;
+                                        }
+
+                                        public int getSelectionStart() {
+                                            return initialCursor;
+                                        }
+
+                                        public int getSelectionEnd() {
+                                            return initialCursor;
+                                        }
+
+                                        public void writeResults(String text, int start, int end) {
+                                            if (disposed) return;
+                                            setText(text);
+                                            setSelection(
+                                                    Math.min(start, text.length()),
+                                                    Math.min(end, text.length()));
+                                        }
+                                    })
+                            .setCloseCallback(
+                                    confirm -> {
+                                        nativeEditor = null;
+                                        if (disposed) return false;
+                                        if (confirm && username) {
+                                            focusAndEdit(password);
+                                            return true;
+                                        }
+                                        return false;
+                                    });
             Gdx.input.openTextInputField(config);
         }
     }

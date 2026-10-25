@@ -32,9 +32,8 @@ package de.matthiasmann.twl.input;
 import de.matthiasmann.twl.GUI;
 
 /**
- * Abstracted input polling.
- * Allows to use {@link GUI#update() } with generic polled input devices.
- * 
+ * Abstracted input polling. Allows to use {@link GUI#update() } with generic polled input devices.
+ *
  * @author Matthias Mann
  */
 public interface Input {
@@ -43,11 +42,11 @@ public interface Input {
      * Poll input events.
      *
      * @param gui the GUI object which should receive the input
-     * @return true if input events have been processed, false if the input system is currently inactive.
-     *
+     * @return true if input events have been processed, false if the input system is currently
+     *     inactive.
      * @see GUI#handleKey(int, char, boolean)
      * @see GUI#handleMouse(int, int, int, boolean)
-     * @see GUI#handleMouseWheel(int) 
+     * @see GUI#handleMouseWheel(int)
      */
     public boolean pollInput(GUI gui);
 }

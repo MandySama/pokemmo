@@ -36,7 +36,6 @@ import de.matthiasmann.twl.renderer.Image;
 import de.matthiasmann.twl.utils.StateSelect;
 
 /**
- *
  * @author Matthias Mann
  */
 public class StateSelectImage implements Image, HasBorder {
@@ -45,10 +44,10 @@ public class StateSelectImage implements Image, HasBorder {
     final StateSelect select;
     final Border border;
 
-    public StateSelectImage(StateSelect select, Border border, Image ... images) {
+    public StateSelectImage(StateSelect select, Border border, Image... images) {
         assert images.length >= select.getNumExpressions();
         assert images.length <= select.getNumExpressions() + 1;
-        
+
         this.images = images;
         this.select = select;
         this.border = border;
@@ -68,7 +67,7 @@ public class StateSelectImage implements Image, HasBorder {
 
     public void draw(AnimationState as, int x, int y, int width, int height) {
         int idx = select.evaluate(as);
-        if(idx < images.length) {
+        if (idx < images.length) {
             images[idx].draw(as, x, y, width, height);
         }
     }
@@ -79,10 +78,9 @@ public class StateSelectImage implements Image, HasBorder {
 
     public Image createTintedVersion(Color color) {
         Image[] newImages = new Image[images.length];
-        for(int i=0 ; i<newImages.length ; i++) {
+        for (int i = 0; i < newImages.length; i++) {
             newImages[i] = images[i].createTintedVersion(color);
         }
         return new StateSelectImage(select, border, newImages);
     }
-
 }

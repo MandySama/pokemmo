@@ -32,6 +32,12 @@ package de.matthiasmann.twl;
 /** 使用跨平台剪贴板，避免 Android 引入 AWT。 */
 public final class Clipboard {
     private Clipboard() {}
-    public static String getClipboard() { return com.badlogic.gdx.Gdx.app.getClipboard().getContents(); }
-    public static void setClipboard(String value) { com.badlogic.gdx.Gdx.app.getClipboard().setContents(value); }
+
+    public static String getClipboard() {
+        return com.badlogic.gdx.Gdx.app.getClipboard().getContents();
+    }
+
+    public static void setClipboard(String value) {
+        com.badlogic.gdx.Gdx.app.getClipboard().setContents(value);
+    }
 }

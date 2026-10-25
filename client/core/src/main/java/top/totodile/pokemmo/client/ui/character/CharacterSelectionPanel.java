@@ -1,14 +1,16 @@
 package top.totodile.pokemmo.client.ui.character;
 
 import de.matthiasmann.twl.*;
-import java.util.*;
-import java.util.function.Function;
+import de.matthiasmann.twl.renderer.Image;
+
 import top.totodile.pokemmo.client.resources.ClientStrings;
 import top.totodile.pokemmo.client.twl.GdxTwlRenderer;
 import top.totodile.pokemmo.client.ui.login.LoginController;
 import top.totodile.pokemmo.server.game.GameService;
 import top.totodile.pokemmo.server.game.PokemonData;
-import de.matthiasmann.twl.renderer.Image;
+
+import java.util.*;
+import java.util.function.Function;
 
 /** 无角色时沿用参考的纵向按钮布局。 */
 public final class CharacterSelectionPanel extends Widget {
@@ -56,51 +58,90 @@ public final class CharacterSelectionPanel extends Widget {
         else if (cards.isEmpty()) newCharacter.requestKeyboardFocus();
         else cards.get(0).requestKeyboardFocus();
     }
-    boolean isLoading() { return loading; }
+
+    boolean isLoading() {
+        return loading;
+    }
+
     public void beginLoading() {
         releaseCards();
         loading = true;
         status = null;
         rebuild();
     }
+
     public void loadFailed() {
         loading = false;
         status = strings.get(2103);
         rebuild();
     }
-    public void onNewCharacter(Runnable action) { newCharacter.addCallback(action); }
-    public void onDeleteCharacter(Runnable action) { deleteCharacter.addCallback(action); }
-    public void onEnter(java.util.function.Consumer<GameService.Character> action) { enter=Objects.requireNonNull(action); }
-    public java.util.List<GameService.Character> characters() { return cards.stream().map(card -> card.character).toList(); }
-    public void party(String characterId,PokemonData.Containers state,Function<PokemonData.Pokemon,Image> icons,Function<PokemonData.Pokemon,String> names){
-        for(var card:cards)if(card.character.id().equals(characterId))card.party(state,icons,names);
+
+    public void onNewCharacter(Runnable action) {
+        newCharacter.addCallback(action);
     }
 
-    public void characters(java.util.List<GameService.Character> values, ClientStrings strings, boolean mobile,
-                    GdxTwlRenderer renderer, Function<GameService.Appearance,CharacterAppearance> appearances) {
+    public void onDeleteCharacter(Runnable action) {
+        deleteCharacter.addCallback(action);
+    }
+
+    public void onEnter(java.util.function.Consumer<GameService.Character> action) {
+        enter = Objects.requireNonNull(action);
+    }
+
+    public java.util.List<GameService.Character> characters() {
+        return cards.stream().map(card -> card.character).toList();
+    }
+
+    public void party(
+            String characterId,
+            PokemonData.Containers state,
+            Function<PokemonData.Pokemon, Image> icons,
+            Function<PokemonData.Pokemon, String> names) {
+        for (var card : cards)
+            if (card.character.id().equals(characterId)) card.party(state, icons, names);
+    }
+
+    public void characters(
+            java.util.List<GameService.Character> values,
+            ClientStrings strings,
+            boolean mobile,
+            GdxTwlRenderer renderer,
+            Function<GameService.Appearance, CharacterAppearance> appearances) {
         releaseCards();
         loading = false;
         status = null;
         for (var value : values) {
-            Card card=new Card(value, strings, mobile, renderer, appearances.apply(value.appearance()));
-            card.addCallback(() -> enter.accept(value)); cards.add(card);
+            Card card =
+                    new Card(
+                            value,
+                            strings,
+                            mobile,
+                            renderer,
+                            appearances.apply(value.appearance()));
+            card.addCallback(() -> enter.accept(value));
+            cards.add(card);
         }
         rebuild();
     }
+
     public void clearCards() {
         releaseCards();
         loading = false;
         status = null;
         rebuild();
     }
+
     private void releaseCards() {
         for (var card : cards) card.close();
         cards.clear();
     }
+
     private void rebuild() {
-        content.setHorizontalGroup(null); content.setVerticalGroup(null); content.removeAllChildren();
+        content.setHorizontalGroup(null);
+        content.setVerticalGroup(null);
+        content.removeAllChildren();
         // 按钮实例会复用；移出控件树时不一定收到 MOUSE_EXITED，不能保留上一页的悬停。
-        for (Button button : new Button[]{newCharacter, deleteCharacter, logout}) {
+        for (Button button : new Button[] {newCharacter, deleteCharacter, logout}) {
             button.getModel().setArmed(false);
             button.getModel().setPressed(false);
             button.getModel().setHover(false);
@@ -118,7 +159,10 @@ public final class CharacterSelectionPanel extends Widget {
             statusLabel.setText(status);
             var column = content.createParallelGroup(statusLabel);
             var rows = content.createSequentialGroup(statusLabel);
-            if (!loading) { column.addWidget(logout); rows.addWidget(logout); }
+            if (!loading) {
+                column.addWidget(logout);
+                rows.addWidget(logout);
+            }
             content.setHorizontalGroup(column);
             content.setVerticalGroup(rows);
             invalidateLayout();
@@ -126,59 +170,124 @@ public final class CharacterSelectionPanel extends Widget {
         }
         var row = content.createSequentialGroup();
         var height = content.createParallelGroup();
-        for (var card : cards) { row.addWidget(card); height.addWidget(card); }
+        for (var card : cards) {
+            row.addWidget(card);
+            height.addWidget(card);
+        }
         deleteCharacter.setVisible(!cards.isEmpty());
         var buttonsX = content.createParallelGroup(newCharacter, logout);
         var buttonsY = content.createSequentialGroup().addWidget(newCharacter);
-        if (!cards.isEmpty()) { buttonsX.addWidget(deleteCharacter); buttonsY.addWidget(deleteCharacter); }
+        if (!cards.isEmpty()) {
+            buttonsX.addWidget(deleteCharacter);
+            buttonsY.addWidget(deleteCharacter);
+        }
         buttonsY.addWidget(logout);
-        content.setHorizontalGroup(content.createParallelGroup().addGroup(row)
-                .addGroup(buttonsX));
-        content.setVerticalGroup(content.createSequentialGroup().addGroup(height)
-                .addGroup(buttonsY));
+        content.setHorizontalGroup(content.createParallelGroup().addGroup(row).addGroup(buttonsX));
+        content.setVerticalGroup(
+                content.createSequentialGroup().addGroup(height).addGroup(buttonsY));
         invalidateLayout();
     }
+
     private static final class Card extends Button implements AutoCloseable {
         private final CharacterAppearance appearance;
         private final CharacterPreview preview;
         private final Label name;
         private final int scale;
         private final GameService.Character character;
-        private final Widget[] party=new Widget[PokemonData.PARTY_SIZE];
-        Card(GameService.Character character, ClientStrings strings, boolean mobile, GdxTwlRenderer renderer, CharacterAppearance appearance) {
-            this.appearance = appearance; scale = mobile ? 2 : 1;
+        private final Widget[] party = new Widget[PokemonData.PARTY_SIZE];
+
+        Card(
+                GameService.Character character,
+                ClientStrings strings,
+                boolean mobile,
+                GdxTwlRenderer renderer,
+                CharacterAppearance appearance) {
+            this.appearance = appearance;
+            scale = mobile ? 2 : 1;
             this.character = character;
             setTheme("character-select-button");
             name = new Label(character.name());
-            name.setTheme("/character-summary-label"); add(name);
-            preview = new CharacterPreview(appearance, renderer, mobile, () -> character.appearance().skin(), () -> character.appearance().gender(), () -> 0);
-            preview.portrait(); add(preview);
+            name.setTheme("/character-summary-label");
+            add(name);
+            preview =
+                    new CharacterPreview(
+                            appearance,
+                            renderer,
+                            mobile,
+                            () -> character.appearance().skin(),
+                            () -> character.appearance().gender(),
+                            () -> 0);
+            preview.portrait();
+            add(preview);
         }
-        void party(PokemonData.Containers state,Function<PokemonData.Pokemon,Image> icons,Function<PokemonData.Pokemon,String> names){
-            for(int i=0;i<party.length;i++){
-                if(party[i]!=null){removeChild(party[i]);party[i]=null;}
-                var pokemon=state.at(PokemonData.PARTY,i);if(pokemon==null)continue;
-                Image image=icons.apply(pokemon);
-                Widget slot=new Widget(){
-                    @Override protected void paintWidget(GUI gui){if(image!=null)image.draw(getAnimationState(),getX(),getY(),36*scale,36*scale);}
-                    @Override protected boolean handleEvent(Event event){return false;}
-                };
-                slot.setTheme("");slot.setTooltipContent(names.apply(pokemon));slot.setTooltipDelay(0);party[i]=slot;add(slot);
+
+        void party(
+                PokemonData.Containers state,
+                Function<PokemonData.Pokemon, Image> icons,
+                Function<PokemonData.Pokemon, String> names) {
+            for (int i = 0; i < party.length; i++) {
+                if (party[i] != null) {
+                    removeChild(party[i]);
+                    party[i] = null;
+                }
+                var pokemon = state.at(PokemonData.PARTY, i);
+                if (pokemon == null) continue;
+                Image image = icons.apply(pokemon);
+                Widget slot =
+                        new Widget() {
+                            @Override
+                            protected void paintWidget(GUI gui) {
+                                if (image != null)
+                                    image.draw(
+                                            getAnimationState(),
+                                            getX(),
+                                            getY(),
+                                            36 * scale,
+                                            36 * scale);
+                            }
+
+                            @Override
+                            protected boolean handleEvent(Event event) {
+                                return false;
+                            }
+                        };
+                slot.setTheme("");
+                slot.setTooltipContent(names.apply(pokemon));
+                slot.setTooltipDelay(0);
+                party[i] = slot;
+                add(slot);
             }
             invalidateLayout();
         }
-        @Override protected void layout() {
-            name.adjustSize(); name.setPosition(getX() + (getWidth() - name.getWidth()) / 2, getY() + 5);
-            preview.setPosition(getX(), getY() + 16 * scale + 11); preview.setSize(80 * scale, 80 * scale);
-            for(int i=0;i<party.length;i++)if(party[i]!=null){party[i].setPosition(getX()+(70+i%3*32)*scale,name.getY()+(25+i/3*32)*scale);party[i].setSize(16*scale,16*scale);}
+
+        @Override
+        protected void layout() {
+            name.adjustSize();
+            name.setPosition(getX() + (getWidth() - name.getWidth()) / 2, getY() + 5);
+            preview.setPosition(getX(), getY() + 16 * scale + 11);
+            preview.setSize(80 * scale, 80 * scale);
+            for (int i = 0; i < party.length; i++)
+                if (party[i] != null) {
+                    party[i].setPosition(
+                            getX() + (70 + i % 3 * 32) * scale,
+                            name.getY() + (25 + i / 3 * 32) * scale);
+                    party[i].setSize(16 * scale, 16 * scale);
+                }
         }
-        @Override public void close() { preview.close(); appearance.dispose(); }
+
+        @Override
+        public void close() {
+            preview.close();
+            appearance.dispose();
+        }
     }
 
-    @Override protected void layout() {
+    @Override
+    protected void layout() {
         Widget visiblePanel = loading ? loadingPanel : frame;
         visiblePanel.adjustSize();
-        visiblePanel.setPosition(getInnerX() + (getInnerWidth() - visiblePanel.getWidth()) / 2,
+        visiblePanel.setPosition(
+                getInnerX() + (getInnerWidth() - visiblePanel.getWidth()) / 2,
                 getInnerY() + (getInnerHeight() - visiblePanel.getHeight()) / 2);
     }
 }

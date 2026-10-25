@@ -809,4 +809,5 @@
       <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
     </theme>
     </theme>
+<theme name="release-confirm-title" ref="label"><param name="textAlignment"><enum type="alignment">CENTER</enum></param></theme>
 </themes>

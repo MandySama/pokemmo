@@ -1,11 +1,11 @@
 /*
  * Copyright (c) 2008, Matthias Mann
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright notice,
  *       this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright
@@ -14,7 +14,7 @@
  *     * Neither the name of Matthias Mann nor the names of its contributors may
  *       be used to endorse or promote products derived from this software
  *       without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -35,13 +35,12 @@ import de.matthiasmann.twl.utils.CallbackSupport;
  * Abstract base class to simplify implementating ListModels.
  *
  * @param <T> the type of a list entry
- *
  * @author Matthias Mann
  */
 public abstract class AbstractListModel<T> implements ListModel<T> {
 
     private ChangeListener[] listeners;
-    
+
     public void addChangeListener(ChangeListener listener) {
         listeners = CallbackSupport.addCallbackToList(listeners, listener, ChangeListener.class);
     }
@@ -51,32 +50,32 @@ public abstract class AbstractListModel<T> implements ListModel<T> {
     }
 
     protected void fireEntriesInserted(int first, int last) {
-        if(listeners != null) {
-            for(ChangeListener cl : listeners) {
+        if (listeners != null) {
+            for (ChangeListener cl : listeners) {
                 cl.entriesInserted(first, last);
             }
         }
     }
 
     protected void fireEntriesDeleted(int first, int last) {
-        if(listeners != null) {
-            for(ChangeListener cl : listeners) {
+        if (listeners != null) {
+            for (ChangeListener cl : listeners) {
                 cl.entriesDeleted(first, last);
             }
         }
     }
 
     protected void fireEntriesChanged(int first, int last) {
-        if(listeners != null) {
-            for(ChangeListener cl : listeners) {
+        if (listeners != null) {
+            for (ChangeListener cl : listeners) {
                 cl.entriesChanged(first, last);
             }
         }
     }
 
     protected void fireAllChanged() {
-        if(listeners != null) {
-            for(ChangeListener cl : listeners) {
+        if (listeners != null) {
+            for (ChangeListener cl : listeners) {
                 cl.allChanged();
             }
         }

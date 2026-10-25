@@ -43,16 +43,14 @@ import de.matthiasmann.twl.renderer.Renderer;
  */
 public class TintAnimator {
 
-    /**
-     * A time source for the fade animation
-     */
+    /** A time source for the fade animation */
     public interface TimeSource {
-        /**
-         * Restarts the time from 0 for a new fade animation
-         */
+        /** Restarts the time from 0 for a new fade animation */
         public void resetTime();
+
         /**
          * Returns the current time (since last reset) in milliseconds.
+         *
          * @return current time in ms
          */
         public int getTime();
@@ -76,10 +74,10 @@ public class TintAnimator {
      */
     @SuppressWarnings("OverridableMethodCallInConstructor")
     public TintAnimator(TimeSource timeSource, Color color) {
-        if(timeSource == null) {
+        if (timeSource == null) {
             throw new NullPointerException("timeSource");
         }
-        if(color == null) {
+        if (color == null) {
             throw new NullPointerException("color");
         }
         this.timeSource = timeSource;
@@ -88,9 +86,9 @@ public class TintAnimator {
     }
 
     /**
-     * Creates a new TintAnimator which starts in the specified color
-     * and uses the specified GUI as time source.
-     * 
+     * Creates a new TintAnimator which starts in the specified color and uses the specified GUI as
+     * time source.
+     *
      * @param gui the GUI instance - must not be null
      * @param color the starting color
      */
@@ -99,9 +97,9 @@ public class TintAnimator {
     }
 
     /**
-     * Creates a new TintAnimator which starts in the specified color
-     * and uses the specified Widget as time source.
-     * 
+     * Creates a new TintAnimator which starts in the specified color and uses the specified Widget
+     * as time source.
+     *
      * @param owner the Widget instance - must not be null
      * @param color the starting color
      */
@@ -119,31 +117,31 @@ public class TintAnimator {
     }
 
     /**
-     * Creates a new TintAnimator which starts with Color.WHITE
-     * and uses the specified GUI as time source.
-     * 
+     * Creates a new TintAnimator which starts with Color.WHITE and uses the specified GUI as time
+     * source.
+     *
      * @param gui the GUI instance - must not be null
-     * @see GUITimeSource#GUITimeSource(de.matthiasmann.twl.GUI) 
+     * @see GUITimeSource#GUITimeSource(de.matthiasmann.twl.GUI)
      */
     public TintAnimator(GUI gui) {
         this(new GUITimeSource(gui));
     }
 
     /**
-     * Creates a new TintAnimator which starts with Color.WHITE
-     * and uses the specified Widget as time source.
-     * 
+     * Creates a new TintAnimator which starts with Color.WHITE and uses the specified Widget as
+     * time source.
+     *
      * @param owner the Widget instance - must not be null
-     * @see GUITimeSource#GUITimeSource(de.matthiasmann.twl.GUI) 
+     * @see GUITimeSource#GUITimeSource(de.matthiasmann.twl.GUI)
      */
     public TintAnimator(Widget owner) {
         this(new GUITimeSource(owner));
     }
 
     /**
-     * Sets the current color without a fade. Any active fade is stopped.
-     * The time source is also reset even so no animation is started.
-     * 
+     * Sets the current color without a fade. Any active fade is stopped. The time source is also
+     * reset even so no animation is started.
+     *
      * @param color the new color
      */
     public void setColor(Color color) {
@@ -156,36 +154,35 @@ public class TintAnimator {
     }
 
     /**
-     * Registers a callback to be executed when the fade animation is finished.
-     * NOTE: the callback is only fired if the fade finishes via timeout and not
-     * when it is stopped through a call to {@link #fadeTo(de.matthiasmann.twl.Color, int) }
-     * or {@link #fadeToHide(int) }.
-     * 
+     * Registers a callback to be executed when the fade animation is finished. NOTE: the callback
+     * is only fired if the fade finishes via timeout and not when it is stopped through a call to
+     * {@link #fadeTo(de.matthiasmann.twl.Color, int) } or {@link #fadeToHide(int) }.
+     *
      * @param cb the callback
      */
     public void addFadeDoneCallback(Runnable cb) {
-        fadeDoneCallbacks = CallbackSupport.addCallbackToList(fadeDoneCallbacks, cb, Runnable.class);
+        fadeDoneCallbacks =
+                CallbackSupport.addCallbackToList(fadeDoneCallbacks, cb, Runnable.class);
     }
-    
+
     public void removeFadeDoneCallback(Runnable cb) {
         fadeDoneCallbacks = CallbackSupport.removeCallbackFromList(fadeDoneCallbacks, cb);
     }
-    
+
     /**
      * Fade the current color to the specified color.
-     * 
-     * <p>Any active fade is stopped.</p>
-     * 
-     * <p>A zero or negative fadeDuration will set the new color
-     * directly and does not start a fade. So no callbacks are fired as a
-     * result of this.</p>
+     *
+     * <p>Any active fade is stopped.
+     *
+     * <p>A zero or negative fadeDuration will set the new color directly and does not start a fade.
+     * So no callbacks are fired as a result of this.
      *
      * @param color the destination color of the fade
      * @param fadeDuration the fade time in miliseconds
-     * @see #addFadeDoneCallback(java.lang.Runnable) 
+     * @see #addFadeDoneCallback(java.lang.Runnable)
      */
     public void fadeTo(Color color, int fadeDuration) {
-        if(fadeDuration <= 0) {
+        if (fadeDuration <= 0) {
             setColor(color);
         } else {
             color.getFloats(currentTint, 8);
@@ -200,21 +197,19 @@ public class TintAnimator {
     /**
      * Fade the current color to alpha 0.0f. Any active fade is stopped.
      *
-     * <p>This method uses the current color (which may be a mix if a fade was
-     * active) as a base to fade the alpha value. Because of that the only
-     * defined part of the target color is the alpha channel. This is
-     * the reason why no fadeToShow method exists. Use fadeTo with the
-     * desired color to make the widget visible again.</p>
-     * 
-     * <p>A zero or negative fadeDuration will set the alpha value
-     * directly and does not start a fade. So no callbacks are fired as a
-     * result of this.</p>
+     * <p>This method uses the current color (which may be a mix if a fade was active) as a base to
+     * fade the alpha value. Because of that the only defined part of the target color is the alpha
+     * channel. This is the reason why no fadeToShow method exists. Use fadeTo with the desired
+     * color to make the widget visible again.
+     *
+     * <p>A zero or negative fadeDuration will set the alpha value directly and does not start a
+     * fade. So no callbacks are fired as a result of this.
      *
      * @param fadeDuration the fade time in miliseconds
-     * @see #addFadeDoneCallback(java.lang.Runnable) 
+     * @see #addFadeDoneCallback(java.lang.Runnable)
      */
     public void fadeToHide(int fadeDuration) {
-        if(fadeDuration <= 0) {
+        if (fadeDuration <= 0) {
             currentTint[3] = 0.0f;
             this.fadeActive = false;
             this.fadeDuration = 0;
@@ -229,26 +224,24 @@ public class TintAnimator {
         }
     }
 
-    /**
-     * Updates the fade animation. Does not need to be called when no fade is active.
-     */
+    /** Updates the fade animation. Does not need to be called when no fade is active. */
     public void update() {
-        if(fadeActive) {
+        if (fadeActive) {
             int time = timeSource.getTime();
-            float t = Math.min(time, fadeDuration) / (float)fadeDuration;
+            float t = Math.min(time, fadeDuration) / (float) fadeDuration;
             float tm1 = 1.0f - t;
             float[] tint = currentTint;
-            for(int i=0 ; i<4 ; i++) {
-                tint[i] = tm1 * tint[i+4] + t * tint[i+8];
+            for (int i = 0; i < 4; i++) {
+                tint[i] = tm1 * tint[i + 4] + t * tint[i + 8];
             }
-            if(time >= fadeDuration) {
+            if (time >= fadeDuration) {
                 fadeActive = false;
                 // disable tinted rendering if we have full WHITE as tint
                 hasTint =
-                        (currentTint[0] < ONE_EPSILON) ||
-                        (currentTint[1] < ONE_EPSILON) ||
-                        (currentTint[2] < ONE_EPSILON) ||
-                        (currentTint[3] < ONE_EPSILON);
+                        (currentTint[0] < ONE_EPSILON)
+                                || (currentTint[1] < ONE_EPSILON)
+                                || (currentTint[2] < ONE_EPSILON)
+                                || (currentTint[3] < ONE_EPSILON);
                 // fire callbacks
                 CallbackSupport.fireCallbacks(fadeDoneCallbacks);
             }
@@ -257,6 +250,7 @@ public class TintAnimator {
 
     /**
      * Returns true when a fade is active
+     *
      * @return true when a fade is active
      */
     public boolean isFadeActive() {
@@ -265,6 +259,7 @@ public class TintAnimator {
 
     /**
      * Returns true when the current tint color is not Color.WHITE
+     *
      * @return true when the current tint color is not Color.WHITE
      */
     public boolean hasTint() {
@@ -273,19 +268,18 @@ public class TintAnimator {
 
     /**
      * Returns true is the current alpha value is 0.0f
+     *
      * @return true is the current alpha value is 0.0f
      */
     public boolean isZeroAlpha() {
         return currentTint[3] <= ZERO_EPSILON;
     }
-    
+
     /**
-     * Calls {@code renderer.pushGlobalTintColor} with the current tint color.
-     * It is important to call {@code renderer.popGlobalTintColor} after this
-     * method.
+     * Calls {@code renderer.pushGlobalTintColor} with the current tint color. It is important to
+     * call {@code renderer.popGlobalTintColor} after this method.
      *
      * @param renderer The renderer
-     *
      * @see Renderer#pushGlobalTintColor(float, float, float, float)
      * @see Renderer#popGlobalTintColor()
      */
@@ -295,12 +289,11 @@ public class TintAnimator {
     }
 
     /**
-     * A time source which uses the GUI object of the specified widget
-     * or a directly specified GUI instance.
-     * 
-     * <p>If using a Widget which is not part of a GUI tree then the time is
-     * frozen at 0, and starts ticking as soon as the widget is added to a
-     * GUI tree.</p>
+     * A time source which uses the GUI object of the specified widget or a directly specified GUI
+     * instance.
+     *
+     * <p>If using a Widget which is not part of a GUI tree then the time is frozen at 0, and starts
+     * ticking as soon as the widget is added to a GUI tree.
      */
     public static final class GUITimeSource implements TimeSource {
         private final Widget owner;
@@ -309,7 +302,7 @@ public class TintAnimator {
         private boolean pendingReset;
 
         public GUITimeSource(Widget owner) {
-            if(owner == null) {
+            if (owner == null) {
                 throw new NullPointerException("owner");
             }
             this.owner = owner;
@@ -318,29 +311,28 @@ public class TintAnimator {
         }
 
         public GUITimeSource(GUI gui) {
-            if(gui == null) {
+            if (gui == null) {
                 throw new NullPointerException("gui");
             }
             this.owner = null;
             this.gui = gui;
         }
-        
 
         public int getTime() {
             GUI g = getGUI();
-            if(g != null) {
-                if(pendingReset) {
+            if (g != null) {
+                if (pendingReset) {
                     pendingReset = false;
                     startTime = g.getCurrentTime();
                 }
-                return (int)(g.getCurrentTime() - startTime) & Integer.MAX_VALUE;
+                return (int) (g.getCurrentTime() - startTime) & Integer.MAX_VALUE;
             }
             return 0;
         }
 
         public void resetTime() {
             GUI g = getGUI();
-            if(g != null) {
+            if (g != null) {
                 startTime = g.getCurrentTime();
                 pendingReset = false;
             } else {
@@ -353,9 +345,7 @@ public class TintAnimator {
         }
     }
 
-    /**
-     * A time source which uses a specified animation state as time source.
-     */
+    /** A time source which uses a specified animation state as time source. */
     public static class AnimationStateTimeSource implements TimeSource {
         private final AnimationState animState;
         private final StateKey animStateKey;
@@ -363,12 +353,12 @@ public class TintAnimator {
         public AnimationStateTimeSource(AnimationState animState, String animStateName) {
             this(animState, StateKey.get(animStateName));
         }
-        
+
         public AnimationStateTimeSource(AnimationState animState, StateKey animStateKey) {
-            if(animState == null) {
+            if (animState == null) {
                 throw new NullPointerException("animState");
             }
-            if(animStateKey == null) {
+            if (animStateKey == null) {
                 throw new NullPointerException("animStateKey");
             }
             this.animState = animState;
@@ -381,6 +371,7 @@ public class TintAnimator {
 
         /**
          * Calls resetAnimationTime on the animation state
+         *
          * @see AnimationState#resetAnimationTime(java.lang.String)
          */
         public void resetTime() {

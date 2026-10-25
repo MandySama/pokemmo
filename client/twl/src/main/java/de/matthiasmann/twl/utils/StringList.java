@@ -34,7 +34,7 @@ import java.util.NoSuchElementException;
 
 /**
  * An immutable single linked list of strings.
- * 
+ *
  * @author Matthias Mann
  */
 public final class StringList implements Iterable<String> {
@@ -42,9 +42,9 @@ public final class StringList implements Iterable<String> {
     private final StringList next;
 
     /**
-     * Constructs a string list with a single entry.
-     * This is equivalent to {@code new StringList(value, null); }
-     * 
+     * Constructs a string list with a single entry. This is equivalent to {@code new
+     * StringList(value, null); }
+     *
      * @param value the string value
      * @throws NullPointerException if value is null
      */
@@ -54,13 +54,13 @@ public final class StringList implements Iterable<String> {
 
     /**
      * Constructs a new head of a string list.
-     * 
+     *
      * @param value the string value
      * @param next the rest/tail of the string list, can be null
      * @throws NullPointerException if value is null
      */
     public StringList(String value, StringList next) {
-        if(value == null) {
+        if (value == null) {
             throw new NullPointerException("value");
         }
         this.value = value;
@@ -69,6 +69,7 @@ public final class StringList implements Iterable<String> {
 
     /**
      * Returns the next element in the string list, or null if this is the last
+     *
      * @return the next element in the string list, or null if this is the last
      */
     public StringList getNext() {
@@ -77,6 +78,7 @@ public final class StringList implements Iterable<String> {
 
     /**
      * Returns the string value of this element, never null
+     *
      * @return the string value of this element, never null
      */
     public String getValue() {
@@ -85,18 +87,18 @@ public final class StringList implements Iterable<String> {
 
     @Override
     public boolean equals(Object obj) {
-        if(!(obj instanceof StringList)) {
+        if (!(obj instanceof StringList)) {
             return false;
         }
-        final StringList that = (StringList)obj;
-        return this.value.equals(that.value) &&
-                (this.next == that.next || (this.next != null && this.next.equals(that.next)));
+        final StringList that = (StringList) obj;
+        return this.value.equals(that.value)
+                && (this.next == that.next || (this.next != null && this.next.equals(that.next)));
     }
 
     @Override
     public int hashCode() {
         int hash = value.hashCode();
-        if(next != null) {
+        if (next != null) {
             hash = 67 * hash + next.hashCode();
         }
         return hash;
@@ -104,22 +106,22 @@ public final class StringList implements Iterable<String> {
 
     @Override
     public String toString() {
-        if(next == null) {
+        if (next == null) {
             return value;
         } else {
             StringBuilder sb = new StringBuilder();
             sb.append(value);
-            for(StringList list=next ; list!=null ; list=list.next) {
+            for (StringList list = next; list != null; list = list.next) {
                 sb.append(", ").append(list.value);
             }
             return sb.toString();
         }
     }
-    
+
     public Iterator<String> iterator() {
         return new I(this);
     }
-    
+
     static class I implements Iterator<String> {
         private StringList list;
 
@@ -132,7 +134,7 @@ public final class StringList implements Iterable<String> {
         }
 
         public String next() {
-            if(list == null) {
+            if (list == null) {
                 throw new NoSuchElementException();
             }
             String value = list.getValue();

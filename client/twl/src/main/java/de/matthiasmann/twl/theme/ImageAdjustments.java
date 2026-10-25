@@ -36,7 +36,6 @@ import de.matthiasmann.twl.renderer.Image;
 import de.matthiasmann.twl.utils.StateExpression;
 
 /**
- *
  * @author Matthias Mann
  */
 class ImageAdjustments implements Image, HasBorder {
@@ -49,9 +48,14 @@ class ImageAdjustments implements Image, HasBorder {
     final boolean center;
     final StateExpression condition;
 
-    ImageAdjustments(Image image, Border border, Border inset,
-            int sizeOverwriteH, int sizeOverwriteV,
-            boolean center, StateExpression condition) {
+    ImageAdjustments(
+            Image image,
+            Border border,
+            Border inset,
+            int sizeOverwriteH,
+            int sizeOverwriteV,
+            boolean center,
+            StateExpression condition) {
         this.image = image;
         this.border = border;
         this.inset = inset;
@@ -62,9 +66,9 @@ class ImageAdjustments implements Image, HasBorder {
     }
 
     public int getWidth() {
-        if(sizeOverwriteH >= 0) {
+        if (sizeOverwriteH >= 0) {
             return sizeOverwriteH;
-        } else if(inset != null) {
+        } else if (inset != null) {
             return image.getWidth() + inset.getBorderLeft() + inset.getBorderRight();
         } else {
             return image.getWidth();
@@ -72,9 +76,9 @@ class ImageAdjustments implements Image, HasBorder {
     }
 
     public int getHeight() {
-        if(sizeOverwriteV >= 0) {
+        if (sizeOverwriteV >= 0) {
             return sizeOverwriteV;
-        } else if(inset != null) {
+        } else if (inset != null) {
             return image.getHeight() + inset.getBorderTop() + inset.getBorderBottom();
         } else {
             return image.getHeight();
@@ -82,14 +86,14 @@ class ImageAdjustments implements Image, HasBorder {
     }
 
     public void draw(AnimationState as, int x, int y, int width, int height) {
-        if(condition == null || condition.evaluate(as)) {
-            if(inset != null) {
+        if (condition == null || condition.evaluate(as)) {
+            if (inset != null) {
                 x += inset.getBorderLeft();
                 y += inset.getBorderTop();
                 width = Math.max(0, width - inset.getBorderLeft() - inset.getBorderRight());
                 height = Math.max(0, height - inset.getBorderTop() - inset.getBorderBottom());
             }
-            if(center) {
+            if (center) {
                 final int w = Math.min(width, image.getWidth());
                 final int h = Math.min(height, image.getHeight());
                 x += (width - w) / 2;
@@ -110,10 +114,16 @@ class ImageAdjustments implements Image, HasBorder {
     }
 
     public Image createTintedVersion(Color color) {
-        return new ImageAdjustments(image.createTintedVersion(color), border,
-                inset, sizeOverwriteH, sizeOverwriteV, center, condition);
+        return new ImageAdjustments(
+                image.createTintedVersion(color),
+                border,
+                inset,
+                sizeOverwriteH,
+                sizeOverwriteV,
+                center,
+                condition);
     }
-    
+
     boolean isSimple() {
         // used for ImageManager.parseStateSelect
         // only check parameters affecting rendering (except condition)

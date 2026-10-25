@@ -9,11 +9,24 @@ import java.util.function.Consumer;
 public interface RomFilePicker {
     interface Source {
         InputStream open() throws IOException;
+
         /** 可用的本地源路径，用于保留导入文件名；Android 文档流通常没有本地路径。 */
-        default Path path() { return null; }
-        default String name() { return path()==null ? null : path().getFileName().toString(); }
+        default Path path() {
+            return null;
+        }
+
+        default String name() {
+            return path() == null ? null : path().getFileName().toString();
+        }
     }
+
     void choose(String extension, Consumer<Source> selected, Consumer<String> failed);
-    default void chooseMod(Consumer<Source> selected, Consumer<String> failed) { choose("mod,zip",selected,failed); }
-    default void openDirectory(String path, Consumer<String> failed) { failed.accept("无法打开 ROM 文件夹"); }
+
+    default void chooseMod(Consumer<Source> selected, Consumer<String> failed) {
+        choose("mod,zip", selected, failed);
+    }
+
+    default void openDirectory(String path, Consumer<String> failed) {
+        failed.accept("无法打开 ROM 文件夹");
+    }
 }

@@ -33,7 +33,7 @@ import de.matthiasmann.twl.utils.WithRunnableCallback;
 
 /**
  * A generic model for integer values.
- * 
+ *
  * @author Matthias Mann
  */
 public interface IntegerModel extends WithRunnableCallback {
@@ -41,9 +41,8 @@ public interface IntegerModel extends WithRunnableCallback {
     public int getValue();
 
     public int getMinValue();
-    
+
     public int getMaxValue();
-    
+
     public void setValue(int value);
-    
 }

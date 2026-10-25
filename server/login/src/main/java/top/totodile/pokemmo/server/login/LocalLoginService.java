@@ -11,24 +11,33 @@ public final class LocalLoginService implements LoginService {
     private static final List<Server> SERVERS = List.of(new Server("local", "Live"));
     private final ConcurrentHashMap<String, Session> sessions = new ConcurrentHashMap<>();
 
-    @Override public CompletionStage<Session> login(String username, String password) {
+    @Override
+    public CompletionStage<Session> login(String username, String password) {
         if (username == null || username.isBlank() || password == null || password.isEmpty())
-            return CompletableFuture.failedFuture(new IllegalArgumentException("Invalid credentials"));
+            return CompletableFuture.failedFuture(
+                    new IllegalArgumentException("Invalid credentials"));
         Session session = new Session(UUID.randomUUID().toString(), username, SERVERS);
         sessions.put(session.id(), session);
         return CompletableFuture.completedFuture(session);
     }
 
-    @Override public CompletionStage<Selection> selectServer(Session session, String serverId) {
+    @Override
+    public CompletionStage<Selection> selectServer(Session session, String serverId) {
         if (session == null || !session.equals(sessions.get(session.id())))
             return CompletableFuture.failedFuture(new IllegalArgumentException("Invalid session"));
-        return session.servers().stream().filter(server -> server.id().equals(serverId))
-                .findFirst().<CompletionStage<Selection>>map(server ->
-                        CompletableFuture.completedFuture(new Selection(session, server)))
-                .orElseGet(() -> CompletableFuture.failedFuture(new IllegalArgumentException("Invalid server ID")));
+        return session.servers().stream()
+                .filter(server -> server.id().equals(serverId))
+                .findFirst()
+                .<CompletionStage<Selection>>map(
+                        server -> CompletableFuture.completedFuture(new Selection(session, server)))
+                .orElseGet(
+                        () ->
+                                CompletableFuture.failedFuture(
+                                        new IllegalArgumentException("Invalid server ID")));
     }
 
-    @Override public CompletionStage<Void> logout(Session session) {
+    @Override
+    public CompletionStage<Void> logout(Session session) {
         if (session != null) sessions.remove(session.id(), session);
         return CompletableFuture.completedFuture(null);
     }

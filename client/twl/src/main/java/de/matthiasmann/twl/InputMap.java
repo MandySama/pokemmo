@@ -30,6 +30,12 @@
 package de.matthiasmann.twl;
 
 import de.matthiasmann.twl.utils.XMLParser;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+import org.xmlpull.v1.XmlSerializer;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
@@ -38,10 +44,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
-import org.xmlpull.v1.XmlSerializer;
 
 /**
  * A immutable InputMap class. It maps key strokes to action names.
@@ -51,7 +53,7 @@ import org.xmlpull.v1.XmlSerializer;
 public final class InputMap {
 
     private static final InputMap EMPTY_MAP = new InputMap(new KeyStroke[0]);
-    
+
     private final KeyStroke[] keyStrokes;
 
     private InputMap(KeyStroke[] keyStrokes) {
@@ -60,14 +62,15 @@ public final class InputMap {
 
     /**
      * Maps the given key event to an action.
+     *
      * @param event the key event
      * @return the action or null if no mapping was found
      */
     public String mapEvent(Event event) {
-        if(event.isKeyEvent()) {
+        if (event.isKeyEvent()) {
             int mappedEventModifiers = KeyStroke.convertModifier(event);
-            for(KeyStroke ks : keyStrokes) {
-                if(ks.match(event, mappedEventModifiers)) {
+            for (KeyStroke ks : keyStrokes) {
+                if (ks.match(event, mappedEventModifiers)) {
                     return ks.getAction();
                 }
             }
@@ -76,50 +79,51 @@ public final class InputMap {
     }
 
     /**
-     * Creates a new InputMap containing both the current and the new KeyStrokes.
-     * If the new key strokes contain already mapped key strokes then the new mappings will replace the old mappings.
+     * Creates a new InputMap containing both the current and the new KeyStrokes. If the new key
+     * strokes contain already mapped key strokes then the new mappings will replace the old
+     * mappings.
      *
      * @param newKeyStrokes the new key strokes.
      * @return the InputMap containing the resulting mapping
      */
     public InputMap addKeyStrokes(LinkedHashSet<KeyStroke> newKeyStrokes) {
         int size = newKeyStrokes.size();
-        if(size == 0) {
+        if (size == 0) {
             return this;
         }
-        
+
         KeyStroke[] combined = new KeyStroke[keyStrokes.length + size];
-        newKeyStrokes.toArray(combined);   // copy new key strokes
-        for(KeyStroke ks : keyStrokes) {
-            if(!newKeyStrokes.contains(ks)) {  // append old ones if they have not been replaced
+        newKeyStrokes.toArray(combined); // copy new key strokes
+        for (KeyStroke ks : keyStrokes) {
+            if (!newKeyStrokes.contains(ks)) { // append old ones if they have not been replaced
                 combined[size++] = ks;
             }
         }
-        
+
         return new InputMap(shrink(combined, size));
     }
 
     /**
-     * Creates a new InputMap containing both the current and the new KeyStrokes from another InputMap.
-     * If the new key strokes contain already mapped key strokes then the new mappings will replace the old mappings.
+     * Creates a new InputMap containing both the current and the new KeyStrokes from another
+     * InputMap. If the new key strokes contain already mapped key strokes then the new mappings
+     * will replace the old mappings.
      *
      * @param map the other InputMap containing the new key strokes.
      * @return the InputMap containing the resulting mapping
      */
     public InputMap addKeyStrokes(InputMap map) {
-        if(map == this || map.keyStrokes.length == 0) {
+        if (map == this || map.keyStrokes.length == 0) {
             return this;
         }
-        if(keyStrokes.length == 0) {
+        if (keyStrokes.length == 0) {
             return map;
         }
         return addKeyStrokes(new LinkedHashSet<KeyStroke>(Arrays.asList(map.keyStrokes)));
     }
 
     /**
-     *
-     * Creates a new InputMap containing both the current and the new KeyStroke.
-     * If the specified key stroke is already mapped then the new mapping will replace the old mapping.
+     * Creates a new InputMap containing both the current and the new KeyStroke. If the specified
+     * key stroke is already mapped then the new mapping will replace the old mapping.
      *
      * @param keyStroke the new key stroke.
      * @return the InputMap containing the resulting mapping
@@ -137,14 +141,14 @@ public final class InputMap {
      * @return the InputMap containing the resulting mapping
      */
     public InputMap removeKeyStrokes(Set<KeyStroke> keyStrokes) {
-        if(keyStrokes.isEmpty()) {
+        if (keyStrokes.isEmpty()) {
             return this;
         }
 
         int size = 0;
         KeyStroke[] result = new KeyStroke[this.keyStrokes.length];
-        for(KeyStroke ks : this.keyStrokes) {
-            if(!keyStrokes.contains(ks)) {  // append old ones if it has not been removed
+        for (KeyStroke ks : this.keyStrokes) {
+            if (!keyStrokes.contains(ks)) { // append old ones if it has not been removed
                 result[size++] = ks;
             }
         }
@@ -154,6 +158,7 @@ public final class InputMap {
 
     /**
      * Returns all key strokes in this InputMap.
+     *
      * @return all key strokes in this InputMap.
      */
     public KeyStroke[] getKeyStrokes() {
@@ -162,12 +167,13 @@ public final class InputMap {
 
     /**
      * Returns an empty input mapping
+     *
      * @return an empty input mapping
      */
     public static InputMap empty() {
         return EMPTY_MAP;
     }
-    
+
     /**
      * Parses a stand alone &lt;inputMapDef&gt; XML file
      *
@@ -189,8 +195,8 @@ public final class InputMap {
             } finally {
                 xmlp.close();
             }
-        } catch(XmlPullParserException ex) {
-            throw (IOException)(new IOException("Can't parse XML").initCause(ex));
+        } catch (XmlPullParserException ex) {
+            throw (IOException) (new IOException("Can't parse XML").initCause(ex));
         }
     }
 
@@ -200,7 +206,7 @@ public final class InputMap {
      *
      * @param os the output where the XML will be written to
      * @throws IOException if an IO error occured
-     * @see #parse(java.net.URL) 
+     * @see #parse(java.net.URL)
      */
     public void writeXML(OutputStream os) throws IOException {
         try {
@@ -210,7 +216,7 @@ public final class InputMap {
             serializer.startDocument("UTF8", Boolean.TRUE);
             serializer.text("\n");
             serializer.startTag(null, "inputMapDef");
-            for(KeyStroke ks : keyStrokes) {
+            for (KeyStroke ks : keyStrokes) {
                 serializer.text("\n    ");
                 serializer.startTag(null, "action");
                 serializer.attribute(null, "name", ks.getAction());
@@ -220,30 +226,32 @@ public final class InputMap {
             serializer.text("\n");
             serializer.endTag(null, "inputMapDef");
             serializer.endDocument();
-        } catch(XmlPullParserException ex) {
-            throw (IOException)(new IOException("Can't generate XML").initCause(ex));
+        } catch (XmlPullParserException ex) {
+            throw (IOException) (new IOException("Can't generate XML").initCause(ex));
         }
     }
 
     /**
-     * Parses the child elemets of the current XML tag as input map.
-     * This method is only public so that it can be called from ThemeManager.
+     * Parses the child elemets of the current XML tag as input map. This method is only public so
+     * that it can be called from ThemeManager.
      *
      * @param xmlp the XML parser
      * @return the found key strokes
      * @throws XmlPullParserException if a parser error occured
      * @throws IOException if an IO error occured
      */
-    public static LinkedHashSet<KeyStroke> parseBody(XMLParser xmlp) throws XmlPullParserException, IOException {
+    public static LinkedHashSet<KeyStroke> parseBody(XMLParser xmlp)
+            throws XmlPullParserException, IOException {
         LinkedHashSet<KeyStroke> newStrokes = new LinkedHashSet<KeyStroke>();
-        while(!xmlp.isEndTag()) {
+        while (!xmlp.isEndTag()) {
             xmlp.require(XmlPullParser.START_TAG, null, "action");
             String name = xmlp.getAttributeNotNull("name");
             String key = xmlp.nextText();
             try {
                 KeyStroke ks = KeyStroke.parse(key, name);
-                if(!newStrokes.add(ks)) {
-                    Logger.getLogger(InputMap.class.getName()).log(Level.WARNING, "Duplicate key stroke: {0}", ks.getStroke());
+                if (!newStrokes.add(ks)) {
+                    Logger.getLogger(InputMap.class.getName())
+                            .log(Level.WARNING, "Duplicate key stroke: {0}", ks.getStroke());
                 }
             } catch (IllegalArgumentException ex) {
                 throw xmlp.error("can't parse Keystroke", ex);
@@ -253,9 +261,9 @@ public final class InputMap {
         }
         return newStrokes;
     }
-    
+
     private static KeyStroke[] shrink(KeyStroke[] keyStrokes, int size) {
-        if(size != keyStrokes.length) {
+        if (size != keyStrokes.length) {
             KeyStroke[] tmp = new KeyStroke[size];
             System.arraycopy(keyStrokes, 0, tmp, 0, size);
             keyStrokes = tmp;

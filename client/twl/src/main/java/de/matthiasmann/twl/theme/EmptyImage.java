@@ -39,7 +39,7 @@ import de.matthiasmann.twl.renderer.Image;
  * @author Matthias Mann
  */
 public class EmptyImage implements Image {
-    
+
     private final int width;
     private final int height;
 
@@ -48,11 +48,9 @@ public class EmptyImage implements Image {
         this.height = height;
     }
 
-    public void draw(AnimationState as, int x, int y) {
-    }
+    public void draw(AnimationState as, int x, int y) {}
 
-    public void draw(AnimationState as, int x, int y, int width, int height) {
-    }
+    public void draw(AnimationState as, int x, int y, int width, int height) {}
 
     public int getWidth() {
         return width;
@@ -65,5 +63,4 @@ public class EmptyImage implements Image {
     public Image createTintedVersion(Color color) {
         return this;
     }
-
 }

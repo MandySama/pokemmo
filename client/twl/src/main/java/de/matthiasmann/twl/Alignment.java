@@ -30,30 +30,28 @@
 package de.matthiasmann.twl;
 
 /**
- *
  * @author Matthias Mann
  */
 public enum Alignment {
+    LEFT(HAlignment.LEFT, 0, 1),
+    CENTER(HAlignment.CENTER, 1, 1),
+    RIGHT(HAlignment.RIGHT, 2, 1),
+    TOP(HAlignment.CENTER, 1, 0),
+    BOTTOM(HAlignment.CENTER, 1, 2),
+    TOPLEFT(HAlignment.LEFT, 0, 0),
+    TOPRIGHT(HAlignment.RIGHT, 2, 0),
+    BOTTOMLEFT(HAlignment.LEFT, 0, 2),
+    BOTTOMRIGHT(HAlignment.RIGHT, 2, 2),
+    FILL(HAlignment.CENTER, 1, 1);
 
-    LEFT(HAlignment.LEFT,0,1),
-    CENTER(HAlignment.CENTER,1,1),
-    RIGHT(HAlignment.RIGHT,2,1),
-    TOP(HAlignment.CENTER,1,0),
-    BOTTOM(HAlignment.CENTER,1,2),
-    TOPLEFT(HAlignment.LEFT,0,0),
-    TOPRIGHT(HAlignment.RIGHT,2,0),
-    BOTTOMLEFT(HAlignment.LEFT,0,2),
-    BOTTOMRIGHT(HAlignment.RIGHT,2,2),
-    FILL(HAlignment.CENTER,1,1);
-    
     final HAlignment fontHAlignment;
     final byte hpos;
     final byte vpos;
-    
+
     private Alignment(HAlignment fontHAlignment, int hpos, int vpos) {
         this.fontHAlignment = fontHAlignment;
-        this.hpos = (byte)hpos;
-        this.vpos = (byte)vpos;
+        this.hpos = (byte) hpos;
+        this.vpos = (byte) vpos;
     }
 
     public HAlignment getFontHAlignment() {
@@ -62,6 +60,7 @@ public enum Alignment {
 
     /**
      * Returns the horizontal position for this alignment.
+     *
      * @return 0 for left, 1 for center and 2 for right
      */
     public int getHPosition() {
@@ -70,12 +69,12 @@ public enum Alignment {
 
     /**
      * Returns the vertical position for this alignment.
+     *
      * @return 0 for top, 1 for center and 2 for bottom
      */
     public int getVPosition() {
         return vpos;
     }
-    
 
     public int computePositionX(int containerWidth, int objectWidth) {
         return Math.max(0, containerWidth - objectWidth) * hpos / 2;

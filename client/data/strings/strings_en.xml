@@ -17,4 +17,20 @@
     <string id="11001">Dummy Particle Effect</string>
     <string id="11034">PLAYER_PARTICLE_TEST</string>
     <string id="11234">--</string>
+    <string id="2310">Are you sure you want to release these {STRING_0}?</string>
+<string id="5100">FIGHT</string>
+<string id="5101">Select your attack move.</string>
+<string id="5103">Switch current {STRING_0}.</string>
+<string id="5104">BAG</string>
+<string id="5105">Use an item.</string>
+<string id="5106">RUN</string>
+<string id="5107">Escape from battle.</string>
+    <string id="5211">Fainted</string>
+    <string id="5220">Asleep</string>
+    <string id="5221">Poisoned</string>
+    <string id="5222">Burned</string>
+    <string id="5223">Frozen</string>
+    <string id="5224">Paralyzed</string>
+    <string id="5225">Badly Poisoned</string>
+    <string id="1852">PP:</string>
 </strings>

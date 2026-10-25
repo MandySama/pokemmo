@@ -31,10 +31,11 @@ package de.matthiasmann.twl;
 
 /**
  * Horizontal text alignment within a line.
- * 
+ *
  * @author Matthias Mann
  */
 public enum HAlignment {
-
-    LEFT, CENTER, RIGHT
+    LEFT,
+    CENTER,
+    RIGHT
 }

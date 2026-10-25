@@ -32,6 +32,7 @@ package de.matthiasmann.twl;
 import de.matthiasmann.twl.model.AutoCompletionDataSource;
 import de.matthiasmann.twl.model.AutoCompletionResult;
 import de.matthiasmann.twl.model.SimpleListModel;
+
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -40,7 +41,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author Matthias Mann
  */
 public class EditFieldAutoCompletionWindow extends InfoWindow {
@@ -55,10 +55,9 @@ public class EditFieldAutoCompletionWindow extends InfoWindow {
     private Future<AutoCompletionResult> future;
 
     /**
-     * Creates an EditFieldAutoCompletionWindow associated with the specified
-     * EditField.
+     * Creates an EditFieldAutoCompletionWindow associated with the specified EditField.
      *
-     * Auto completion will start to work once a data source is set
+     * <p>Auto completion will start to work once a data source is set
      *
      * @param editField the EditField to which auto completion should be applied
      */
@@ -67,7 +66,7 @@ public class EditFieldAutoCompletionWindow extends InfoWindow {
 
         this.listModel = new ResultListModel();
         this.listBox = new ListBox<String>(listModel);
-        
+
         add(listBox);
 
         Callbacks cb = new Callbacks();
@@ -75,10 +74,9 @@ public class EditFieldAutoCompletionWindow extends InfoWindow {
     }
 
     /**
-     * Creates an EditFieldAutoCompletionWindow associated with the specified
-     * EditField.
+     * Creates an EditFieldAutoCompletionWindow associated with the specified EditField.
      *
-     * Auto completion is operational with the given data source (when it's not null)
+     * <p>Auto completion is operational with the given data source (when it's not null)
      *
      * @param editField the EditField to which auto completion should be applied
      * @param dataSource the data source used for auto completion - can be null
@@ -89,18 +87,17 @@ public class EditFieldAutoCompletionWindow extends InfoWindow {
     }
 
     /**
-     * Creates an EditFieldAutoCompletionWindow associated with the specified
-     * EditField.
+     * Creates an EditFieldAutoCompletionWindow associated with the specified EditField.
      *
-     * Auto completion is operational with the given data source (when it's not null)
+     * <p>Auto completion is operational with the given data source (when it's not null)
      *
-     * @see #setExecutorService(java.util.concurrent.ExecutorService) 
-     *
+     * @see #setExecutorService(java.util.concurrent.ExecutorService)
      * @param editField the EditField to which auto completion should be applied
      * @param dataSource the data source used for auto completion - can be null
      * @param executorService the executorService used to execute the data source queries
      */
-    public EditFieldAutoCompletionWindow(EditField editField,
+    public EditFieldAutoCompletionWindow(
+            EditField editField,
             AutoCompletionDataSource dataSource,
             ExecutorService executorService) {
         this(editField);
@@ -110,14 +107,16 @@ public class EditFieldAutoCompletionWindow extends InfoWindow {
 
     /**
      * Returns the EditField to which this EditFieldAutoCompletionWindow is attached
+     *
      * @return the EditField
      */
     public final EditField getEditField() {
-        return (EditField)getOwner();
+        return (EditField) getOwner();
     }
 
     /**
      * Returns the current ExecutorService
+     *
      * @return the current ExecutorService
      */
     public ExecutorService getExecutorService() {
@@ -126,6 +125,7 @@ public class EditFieldAutoCompletionWindow extends InfoWindow {
 
     /**
      * Returns true if {@link GUI#invokeAsync} is used
+     *
      * @return true if {@code GUI.invokeAsync} is used
      */
     public boolean isUseInvokeAsync() {
@@ -136,15 +136,14 @@ public class EditFieldAutoCompletionWindow extends InfoWindow {
      * Sets the ExecutorService which is used to perform async queries on the
      * AutoCompletionDataSource.
      *
-     * This will disable the use of {@link GUI#invokeAsync}
+     * <p>This will disable the use of {@link GUI#invokeAsync}
      *
-     * If it is null then all queries are done synchronously from the EditField
-     * callback. This is good as long as data source is very fast (eg small in
-     * memory tables).
+     * <p>If it is null then all queries are done synchronously from the EditField callback. This is
+     * good as long as data source is very fast (eg small in memory tables).
      *
-     * When the data source quries take too long they will impact the UI
-     * responsiveness. To prevent that the queries can be executed in another
-     * thread. This requires the data source and results to be thread save.
+     * <p>When the data source quries take too long they will impact the UI responsiveness. To
+     * prevent that the queries can be executed in another thread. This requires the data source and
+     * results to be thread save.
      *
      * @param executorService the ExecutorService or null
      * @see #setUseInvokeAsync(boolean)
@@ -158,15 +157,14 @@ public class EditFieldAutoCompletionWindow extends InfoWindow {
     /**
      * Perform async queries on the AutoCompletionDataSource using {@link GUI#invokeAsync}
      *
-     * This will set executorService to null.
+     * <p>This will set executorService to null.
      *
-     * If it is false then all queries are done synchronously from the EditField
-     * callback. This is good as long as data source is very fast (eg small in
-     * memory tables).
+     * <p>If it is false then all queries are done synchronously from the EditField callback. This
+     * is good as long as data source is very fast (eg small in memory tables).
      *
-     * When the data source quries take too long they will impact the UI
-     * responsiveness. To prevent that the queries can be executed in another
-     * thread. This requires the data source and results to be thread save.
+     * <p>When the data source quries take too long they will impact the UI responsiveness. To
+     * prevent that the queries can be executed in another thread. This requires the data source and
+     * results to be thread save.
      *
      * @param useInvokeAsync true if invokeAsync should be used
      * @see #setExecutorService(java.util.concurrent.ExecutorService)
@@ -179,6 +177,7 @@ public class EditFieldAutoCompletionWindow extends InfoWindow {
 
     /**
      * Returns the current data source
+     *
      * @return the current data source
      */
     public AutoCompletionDataSource getDataSource() {
@@ -188,43 +187,49 @@ public class EditFieldAutoCompletionWindow extends InfoWindow {
     /**
      * Sets a new data source.
      *
-     * If the info window is currently open, then the displayed auto completion
-     * will be refreshed. If you also need to change the ExecutorService then
-     * it's adviced to do that first.
+     * <p>If the info window is currently open, then the displayed auto completion will be
+     * refreshed. If you also need to change the ExecutorService then it's adviced to do that first.
      *
      * @param dataSource the new AutoCompletionDataSource - can be null
      */
     public void setDataSource(AutoCompletionDataSource dataSource) {
         this.dataSource = dataSource;
         cancelFuture();
-        if(isOpen()) {
+        if (isOpen()) {
             updateAutoCompletion();
         }
     }
 
-    /**
-     * This will update the auto completion and open the info window when results
-     * are available
-     */
+    /** This will update the auto completion and open the info window when results are available */
     public void updateAutoCompletion() {
         cancelFuture();
         AutoCompletionResult result = null;
-        if(dataSource != null) {
+        if (dataSource != null) {
             EditField ef = getEditField();
             int cursorPos = ef.getCursorPos();
-            if(cursorPos > 0) {
+            if (cursorPos > 0) {
                 String text = ef.getText();
                 GUI gui = ef.getGUI();
-                if(listModel.result != null) {
+                if (listModel.result != null) {
                     result = listModel.result.refine(text, cursorPos);
                 }
-                if(result == null) {
-                    if(gui != null && (useInvokeAsync || executorService != null)) {
-                        future = (useInvokeAsync ? gui.executorService : executorService).submit(
-                                (Callable<AutoCompletionResult>)new AsyncQuery(gui, dataSource, text, cursorPos, listModel.result));
+                if (result == null) {
+                    if (gui != null && (useInvokeAsync || executorService != null)) {
+                        future =
+                                (useInvokeAsync ? gui.executorService : executorService)
+                                        .submit(
+                                                (Callable<AutoCompletionResult>)
+                                                        new AsyncQuery(
+                                                                gui,
+                                                                dataSource,
+                                                                text,
+                                                                cursorPos,
+                                                                listModel.result));
                     } else {
                         try {
-                            result = dataSource.collectSuggestions(text, cursorPos, listModel.result);
+                            result =
+                                    dataSource.collectSuggestions(
+                                            text, cursorPos, listModel.result);
                         } catch (Exception ex) {
                             reportQueryException(ex);
                         }
@@ -237,8 +242,8 @@ public class EditFieldAutoCompletionWindow extends InfoWindow {
 
     /**
      * Stops the auto completion.
-     * 
-     * Closes the infow window and discards the collected results.
+     *
+     * <p>Closes the infow window and discards the collected results.
      */
     public void stopAutoCompletion() {
         listModel.setResult(null);
@@ -257,8 +262,8 @@ public class EditFieldAutoCompletionWindow extends InfoWindow {
     }
 
     void checkFuture() {
-        if(future != null) {
-            if(future.isDone()) {
+        if (future != null) {
+            if (future.isDone()) {
                 AutoCompletionResult result = null;
                 try {
                     result = future.get();
@@ -275,22 +280,22 @@ public class EditFieldAutoCompletionWindow extends InfoWindow {
     }
 
     void cancelFuture() {
-        if(future != null) {
+        if (future != null) {
             future.cancel(true);
             future = null;
         }
     }
 
     protected void reportQueryException(Throwable ex) {
-        Logger.getLogger(EditFieldAutoCompletionWindow.class.getName()).log(
-                Level.SEVERE, "Exception while collecting auto completion results", ex);
+        Logger.getLogger(EditFieldAutoCompletionWindow.class.getName())
+                .log(Level.SEVERE, "Exception while collecting auto completion results", ex);
     }
 
     @Override
     protected boolean handleEvent(Event evt) {
-        if(evt.isKeyEvent()) {
-            if(captureKeys) {
-                if(evt.isKeyPressedEvent()) {
+        if (evt.isKeyEvent()) {
+            if (captureKeys) {
+                if (evt.isKeyPressedEvent()) {
                     switch (evt.getKeyCode()) {
                         case Event.KEY_RETURN:
                         case Event.KEY_NUMPADENTER:
@@ -314,8 +319,8 @@ public class EditFieldAutoCompletionWindow extends InfoWindow {
                             return false;
 
                         default:
-                            if(evt.hasKeyChar() || evt.getKeyCode() == Event.KEY_BACK) {
-                                if(!acceptAutoCompletion()) {
+                            if (evt.hasKeyChar() || evt.getKeyCode() == Event.KEY_BACK) {
+                                if (!acceptAutoCompletion()) {
                                     stopAutoCompletion();
                                 }
                                 return false;
@@ -336,7 +341,7 @@ public class EditFieldAutoCompletionWindow extends InfoWindow {
                         stopAutoCompletion();
                         return false;
                     case Event.KEY_SPACE:
-                        if((evt.getModifiers() & Event.MODIFIER_CTRL) != 0) {
+                        if ((evt.getModifiers() & Event.MODIFIER_CTRL) != 0) {
                             updateAutoCompletion();
                             return true;
                         }
@@ -346,35 +351,35 @@ public class EditFieldAutoCompletionWindow extends InfoWindow {
                 }
             }
         }
-        
+
         return super.handleEvent(evt);
     }
 
     boolean acceptAutoCompletion() {
         int selected = listBox.getSelected();
-        if(selected >= 0) {
+        if (selected >= 0) {
             EditField editField = getEditField();
             String text = listModel.getEntry(selected);
             int pos = listModel.getCursorPosForEntry(selected);
 
             editField.setText(text);
-            if(pos >= 0 && pos < text.length()) {
+            if (pos >= 0 && pos < text.length()) {
                 editField.setCursorPos(pos);
             }
-            
+
             stopAutoCompletion();
             return true;
         }
         return false;
     }
-    
+
     private void startCapture() {
         captureKeys = true;
         installAutoCompletion();
     }
 
     private void installAutoCompletion() {
-        if(listModel.getNumEntries() > 0) {
+        if (listModel.getNumEntries() > 0) {
             openInfo();
         } else {
             captureKeys = false;
@@ -405,7 +410,7 @@ public class EditFieldAutoCompletionWindow extends InfoWindow {
 
     class Callbacks implements CallbackWithReason<ListBox.CallbackReason> {
         public void callback(ListBox.CallbackReason reason) {
-            switch(reason) {
+            switch (reason) {
                 case MOUSE_DOUBLE_CLICK:
                     acceptAutoCompletion();
                     break;
@@ -420,7 +425,12 @@ public class EditFieldAutoCompletionWindow extends InfoWindow {
         private final int cursorPos;
         private final AutoCompletionResult prevResult;
 
-        public AsyncQuery(GUI gui, AutoCompletionDataSource dataSource, String text, int cursorPos, AutoCompletionResult prevResult) {
+        public AsyncQuery(
+                GUI gui,
+                AutoCompletionDataSource dataSource,
+                String text,
+                int cursorPos,
+                AutoCompletionResult prevResult) {
             this.gui = gui;
             this.dataSource = dataSource;
             this.text = text;

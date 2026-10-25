@@ -1,7 +1,5 @@
 package top.totodile.pokemmo.client.ui.character;
 
-
-
 /** 参考 yb_1 / Q2 的48种染色按钮颜色，按列排列，每列三色。 */
 final class AppearancePalette {
     private static final int[][] SOURCES = {
@@ -55,19 +53,22 @@ final class AppearancePalette {
         {54, 4, 200, 116}
     };
     static final int[] COLORS = new int[SOURCES.length];
+
     static {
         for (int i = 0; i < SOURCES.length; i++) {
             int[] source = SOURCES[i];
             // TH 保存的是一半强度；与预览的 Py0 一样恢复完整强度后混合。
             float amount = (source[3] / 2 * 2) / 255f;
             float white = (1f - amount) * 255f;
-            int r = (int)(amount * source[0] + white);
-            int g = (int)(amount * source[1] + white);
-            int b = (int)(amount * source[2] + white);
+            int r = (int) (amount * source[0] + white);
+            int g = (int) (amount * source[1] + white);
+            int b = (int) (amount * source[2] + white);
             COLORS[i] = r << 16 | g << 8 | b;
         }
     }
+
     private AppearancePalette() {}
+
     static int tint(int index) {
         int[] color = SOURCES[index];
         return (color[3] / 2 * 2) << 24 | color[0] << 16 | color[1] << 8 | color[2];

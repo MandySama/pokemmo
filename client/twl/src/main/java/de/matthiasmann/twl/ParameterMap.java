@@ -29,19 +29,18 @@
  */
 package de.matthiasmann.twl;
 
-import de.matthiasmann.twl.renderer.MouseCursor;
 import de.matthiasmann.twl.renderer.Font;
 import de.matthiasmann.twl.renderer.Image;
+import de.matthiasmann.twl.renderer.MouseCursor;
 
 /**
- *
  * @author Matthias Mann
  */
 public interface ParameterMap {
 
     /**
-     * Returns the font with the given name.
-     * If no font with that name was found then the default font is returned.
+     * Returns the font with the given name. If no font with that name was found then the default
+     * font is returned.
      *
      * @param name The name of the font
      * @return A font object
@@ -49,8 +48,8 @@ public interface ParameterMap {
     public Font getFont(String name);
 
     /**
-     * Returns the image with the given name.
-     * If no image with that name was found then null is returned.
+     * Returns the image with the given name. If no image with that name was found then null is
+     * returned.
      *
      * @param name The name of the image.
      * @return A image object or null.
@@ -58,8 +57,8 @@ public interface ParameterMap {
     public Image getImage(String name);
 
     /**
-     * Returns the mouse cursor with the given name.
-     * If no mouse cursor with that name was found then null is returned.
+     * Returns the mouse cursor with the given name. If no mouse cursor with that name was found
+     * then null is returned.
      *
      * @param name The name of the mouse cursor.
      * @return A mouse cursor object or null.
@@ -67,8 +66,8 @@ public interface ParameterMap {
     public MouseCursor getMouseCursor(String name);
 
     /**
-     * Returns a parameter map with the given name.
-     * If no parameter map with that name was found then an empty map is returned.
+     * Returns a parameter map with the given name. If no parameter map with that name was found
+     * then an empty map is returned.
      *
      * @param name The name of the parameter map.
      * @return A parameter map object.
@@ -76,8 +75,8 @@ public interface ParameterMap {
     public ParameterMap getParameterMap(String name);
 
     /**
-     * Returns a parameter list with the given name.
-     * If no parameter map with that name was found then an empty list is returned.
+     * Returns a parameter list with the given name. If no parameter map with that name was found
+     * then an empty list is returned.
      *
      * @param name The name of the parameter list.
      * @return A parameter list object.
@@ -98,6 +97,7 @@ public interface ParameterMap {
 
     /**
      * Retrives a parameter.
+     *
      * @param name the parameter name
      * @param warnIfNotPresent if true and the parameter was not set then a warning is issued
      * @return the parameter value
@@ -106,9 +106,11 @@ public interface ParameterMap {
 
     /**
      * Retrieves a parameter and ensures that it has the desired type.
+     *
      * @param <T> The desired return type generic
      * @param name the parameter name
-     * @param warnIfNotPresent if true a warning is generated if the parameter was not found or has wrong type
+     * @param warnIfNotPresent if true a warning is generated if the parameter was not found or has
+     *     wrong type
      * @param clazz the required data type
      * @return the parameter value or null if the type does not match
      */
@@ -116,12 +118,15 @@ public interface ParameterMap {
 
     /**
      * Retrieves a parameter and ensures that it has the desired type.
+     *
      * @param <T> The desired return type generic
      * @param name the parameter name
-     * @param warnIfNotPresent if true a warning is generated if the parameter was not found or has wrong type
+     * @param warnIfNotPresent if true a warning is generated if the parameter was not found or has
+     *     wrong type
      * @param clazz the required data type
      * @param defaultValue the default value
      * @return the parameter value or the defaultValue if the type does not match
      */
-    public <T> T getParameterValue(String name, boolean warnIfNotPresent, Class<T> clazz, T defaultValue);
+    public <T> T getParameterValue(
+            String name, boolean warnIfNotPresent, Class<T> clazz, T defaultValue);
 }

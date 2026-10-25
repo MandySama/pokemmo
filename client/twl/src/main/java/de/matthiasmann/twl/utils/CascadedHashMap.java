@@ -31,100 +31,99 @@ package de.matthiasmann.twl.utils;
 
 /**
  * An add only hash map which support for a fallback hash map.
- * <p>The primary use for this class is to store hierarchic data structures.</p>
+ *
+ * <p>The primary use for this class is to store hierarchic data structures.
  *
  * @param <K> the key type
  * @param <V> the value type
  * @author Matthias Mann
  */
 public class CascadedHashMap<K, V> {
-    
-    private Entry<K,V> table[];
+
+    private Entry<K, V> table[];
     private int size;
     private CascadedHashMap<K, V> fallback;
 
-    public CascadedHashMap() {
-    }
-    
+    public CascadedHashMap() {}
+
     /**
      * Retrieves a value from this map or it's fallback map when present.
-     * 
+     *
      * @param key the key to lookup
      * @return the value or null when not found
      */
     public V get(K key) {
-        Entry<K,V> entry = getEntry(this, key);
-        if(entry != null) {
+        Entry<K, V> entry = getEntry(this, key);
+        if (entry != null) {
             return entry.value;
         }
         return null;
     }
-    
+
     /**
      * Puts an entry into this map
-     * 
+     *
      * @param key the key
      * @param value the value
      * @return the old (replaced) value or null if no entry was replaced
      * @throws NullPointerException when key is null
      */
     public V put(K key, V value) {
-        if(key == null) {
+        if (key == null) {
             throw new NullPointerException("key");
         }
-        
+
         V oldValue = null;
-        if(table != null) {
-            Entry<K,V> entry = HashEntry.get(table, key);
-            if(entry != null) {
+        if (table != null) {
+            Entry<K, V> entry = HashEntry.get(table, key);
+            if (entry != null) {
                 oldValue = entry.value;
                 entry.value = value;
                 return oldValue;
             }
-            if(fallback != null) {
+            if (fallback != null) {
                 oldValue = fallback.get(key);
             }
         }
-        
+
         insertEntry(key, value);
         return oldValue;
     }
-    
+
     /**
-     * Collapses the existing fallback (by copying it into this map) and
-     * sets a new fallback map.
-     * 
-     * @param map 
+     * Collapses the existing fallback (by copying it into this map) and sets a new fallback map.
+     *
+     * @param map
      */
-    public void collapseAndSetFallback(CascadedHashMap<K,V> map) {
-        if(fallback != null) {
+    public void collapseAndSetFallback(CascadedHashMap<K, V> map) {
+        if (fallback != null) {
             collapsePutAll(fallback);
             fallback = null;
         }
         fallback = map;
     }
-    
-    protected static<K,V> Entry<K,V> getEntry(CascadedHashMap<K,V> map, K key) {
+
+    protected static <K, V> Entry<K, V> getEntry(CascadedHashMap<K, V> map, K key) {
         do {
-            if(map.table != null) {
-                Entry<K,V> entry = HashEntry.get(map.table, key);
-                if(entry != null) {
+            if (map.table != null) {
+                Entry<K, V> entry = HashEntry.get(map.table, key);
+                if (entry != null) {
                     return entry;
                 }
             }
             map = map.fallback;
-        } while(map != null);
+        } while (map != null);
         return null;
     }
-    
-    private void collapsePutAll(CascadedHashMap<K,V> map) {
+
+    private void collapsePutAll(CascadedHashMap<K, V> map) {
         do {
-            Entry<K,V> tab[] = map.table;
-            if(tab != null) {
-                for(int i=0,n=tab.length ; i<n ; i++) {
-                    Entry<K,V> e = tab[i];
-                    while(e != null) {
-                        if(table == null || HashEntry.get(table, e.key) == null) {
+            Entry<K, V> tab[] = map.table;
+            if (tab != null) {
+                for (int i = 0, n = tab.length; i < n; i++) {
+                    Entry<K, V> e = tab[i];
+                    while (e != null) {
+                        if (table == null || HashEntry.get(table, e.key) == null) {
                             insertEntry(e.key, e.value);
                         }
                         e = e.next;
@@ -132,16 +131,16 @@ public class CascadedHashMap<K, V> {
                 }
             }
             map = map.fallback;
-        } while(map != null);
+        } while (map != null);
     }
 
     @SuppressWarnings("unchecked")
     private void insertEntry(K key, V value) {
-        if(table == null) {
-            table = (Entry<K, V>[])new Entry<?,?>[16];
+        if (table == null) {
+            table = (Entry<K, V>[]) new Entry<?, ?>[16];
         }
         table = HashEntry.maybeResizeTable(table, ++size);
-        Entry<K,V> entry = new Entry<K, V>(key, value);
+        Entry<K, V> entry = new Entry<K, V>(key, value);
         HashEntry.insertEntry(table, entry);
     }
 

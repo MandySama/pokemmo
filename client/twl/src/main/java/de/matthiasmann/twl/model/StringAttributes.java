@@ -32,11 +32,11 @@ package de.matthiasmann.twl.model;
 import de.matthiasmann.twl.renderer.AnimationState;
 import de.matthiasmann.twl.renderer.AnimationState.StateKey;
 import de.matthiasmann.twl.renderer.AttributedString;
+
 import java.util.ArrayList;
 import java.util.BitSet;
 
 /**
- *
  * @author Matthias Mann
  */
 public class StringAttributes implements AttributedString {
@@ -47,12 +47,12 @@ public class StringAttributes implements AttributedString {
 
     private int position;
     private int markerIdx;
-    
+
     private StringAttributes(AnimationState baseAnimState, CharSequence seq) {
-        if(seq == null) {
+        if (seq == null) {
             throw new NullPointerException("seq");
         }
-        
+
         this.seq = seq;
         this.baseAnimState = baseAnimState;
         this.markers = new ArrayList<Marker>();
@@ -69,19 +69,20 @@ public class StringAttributes implements AttributedString {
     public StringAttributes(ObservableCharSequence cs, AnimationState baseAnimState) {
         this(baseAnimState, cs);
 
-        cs.addCallback(new ObservableCharSequence.Callback() {
-            public void charactersChanged(int start, int oldCount, int newCount) {
-                if(start < 0) {
-                    throw new IllegalArgumentException("start");
-                }
-                if(oldCount > 0) {
-                    delete(start, oldCount);
-                }
-                if(newCount > 0) {
-                    insert(start, newCount);
-                }
-            }
-        });
+        cs.addCallback(
+                new ObservableCharSequence.Callback() {
+                    public void charactersChanged(int start, int oldCount, int newCount) {
+                        if (start < 0) {
+                            throw new IllegalArgumentException("start");
+                        }
+                        if (oldCount > 0) {
+                            delete(start, oldCount);
+                        }
+                        if (newCount > 0) {
+                            insert(start, newCount);
+                        }
+                    }
+                });
     }
 
     public StringAttributes(ObservableCharSequence cs) {
@@ -110,15 +111,15 @@ public class StringAttributes implements AttributedString {
     }
 
     public void setPosition(int pos) {
-        if(pos < 0 || pos > seq.length()) {
+        if (pos < 0 || pos > seq.length()) {
             throw new IllegalArgumentException("pos");
         }
         this.position = pos;
-        
+
         int idx = find(pos);
-        if(idx >= 0) {
+        if (idx >= 0) {
             this.markerIdx = idx;
-        } else if(pos > lastMarkerPos()) {
+        } else if (pos > lastMarkerPos()) {
             this.markerIdx = markers.size();
         } else {
             // select the marker to the left
@@ -127,7 +128,7 @@ public class StringAttributes implements AttributedString {
     }
 
     public int advance() {
-        if(markerIdx+1 < markers.size()) {
+        if (markerIdx + 1 < markers.size()) {
             markerIdx++;
             position = markers.get(markerIdx).position;
         } else {
@@ -137,67 +138,67 @@ public class StringAttributes implements AttributedString {
     }
 
     public boolean getAnimationState(StateKey state) {
-        if(markerIdx >= 0 && markerIdx < markers.size()) {
+        if (markerIdx >= 0 && markerIdx < markers.size()) {
             Marker marker = markers.get(markerIdx);
             int bitIdx = state.getID() << 1;
-            if(marker.get(bitIdx)) {
-                return marker.get(bitIdx+1);
+            if (marker.get(bitIdx)) {
+                return marker.get(bitIdx + 1);
             }
         }
-        if(baseAnimState != null) {
+        if (baseAnimState != null) {
             return baseAnimState.getAnimationState(state);
         }
         return false;
     }
 
     public int getAnimationTime(StateKey state) {
-        if(baseAnimState != null) {
+        if (baseAnimState != null) {
             return baseAnimState.getAnimationTime(state);
         }
         return 0;
     }
 
     public boolean getShouldAnimateState(StateKey state) {
-        if(baseAnimState != null) {
+        if (baseAnimState != null) {
             return baseAnimState.getShouldAnimateState(state);
         }
         return false;
     }
 
     public void setAnimationState(StateKey key, int from, int end, boolean active) {
-        if(key == null) {
+        if (key == null) {
             throw new NullPointerException("key");
         }
-        if(from > end) {
+        if (from > end) {
             throw new IllegalArgumentException("negative range");
         }
-        if(from < 0 || end > seq.length()) {
+        if (from < 0 || end > seq.length()) {
             throw new IllegalArgumentException("range outside of sequence");
         }
-        if(from == end) {
+        if (from == end) {
             return;
         }
         int fromIdx = markerIndexAt(from);
         int endIdx = markerIndexAt(end);
         int bitIdx = key.getID() << 1;
-        for(int i=fromIdx ; i<endIdx ; i++) {
+        for (int i = fromIdx; i < endIdx; i++) {
             Marker m = markers.get(i);
             m.set(bitIdx);
-            m.set(bitIdx+1, active);
+            m.set(bitIdx + 1, active);
         }
     }
 
     public void removeAnimationState(StateKey key, int from, int end) {
-        if(key == null) {
+        if (key == null) {
             throw new NullPointerException("key");
         }
-        if(from > end) {
+        if (from > end) {
             throw new IllegalArgumentException("negative range");
         }
-        if(from < 0 || end > seq.length()) {
+        if (from < 0 || end > seq.length()) {
             throw new IllegalArgumentException("range outside of sequence");
         }
-        if(from == end) {
+        if (from == end) {
             return;
         }
         int fromIdx = markerIndexAt(from);
@@ -206,7 +207,7 @@ public class StringAttributes implements AttributedString {
     }
 
     public void removeAnimationState(StateKey key) {
-        if(key == null) {
+        if (key == null) {
             throw new NullPointerException("key");
         }
         removeRange(0, markers.size(), key);
@@ -214,26 +215,23 @@ public class StringAttributes implements AttributedString {
 
     private void removeRange(int start, int end, StateKey key) {
         int bitIdx = key.getID() << 1;
-        for(int i=start ; i<end ; i++) {
+        for (int i = start; i < end; i++) {
             markers.get(i).clear(bitIdx);
-            markers.get(i).clear(bitIdx+1); // also clear the active bit for optimize
+            markers.get(i).clear(bitIdx + 1); // also clear the active bit for optimize
         }
     }
 
     public void clearAnimationStates() {
         markers.clear();
     }
-    
-    /**
-     * Optimizes the internal representation.
-     * This need O(n) time.
-     */
+
+    /** Optimizes the internal representation. This need O(n) time. */
     public void optimize() {
-        if(markers.size() > 1) {
+        if (markers.size() > 1) {
             Marker prev = markers.get(0);
-            for(int i=1 ; i<markers.size() ;) {
+            for (int i = 1; i < markers.size(); ) {
                 Marker cur = markers.get(i);
-                if(prev.equals(cur)) {
+                if (prev.equals(cur)) {
                     markers.remove(i);
                 } else {
                     prev = cur;
@@ -245,7 +243,7 @@ public class StringAttributes implements AttributedString {
 
     void insert(int pos, int count) {
         int idx = find(pos) & IDX_MASK;
-        for(int end=markers.size() ; idx<end ; idx++) {
+        for (int end = markers.size(); idx < end; idx++) {
             markers.get(idx).position += count;
         }
     }
@@ -254,32 +252,32 @@ public class StringAttributes implements AttributedString {
         int startIdx = find(pos) & IDX_MASK;
         int removeIdx = startIdx;
         int end = markers.size();
-        for(int idx=startIdx ; idx<end ; idx++) {
+        for (int idx = startIdx; idx < end; idx++) {
             Marker m = markers.get(idx);
             int newPos = m.position - count;
-            if(newPos <= pos) {
+            if (newPos <= pos) {
                 newPos = pos;
                 removeIdx = idx;
             }
             m.position = newPos;
         }
-        for(int idx=removeIdx ; idx>startIdx ;) {
+        for (int idx = removeIdx; idx > startIdx; ) {
             markers.remove(--idx);
         }
     }
 
     private int lastMarkerPos() {
         int numMarkers = markers.size();
-        if(numMarkers > 0) {
-            return markers.get(numMarkers-1).position;
+        if (numMarkers > 0) {
+            return markers.get(numMarkers - 1).position;
         } else {
             return 0;
         }
     }
-    
+
     private int markerIndexAt(int pos) {
         int idx = find(pos);
-        if(idx < 0) {
+        if (idx < 0) {
             idx &= IDX_MASK;
             insertMarker(idx, pos);
         }
@@ -288,7 +286,7 @@ public class StringAttributes implements AttributedString {
 
     private void insertMarker(int idx, int pos) {
         Marker newMarker = new Marker();
-        if(idx > 0) {
+        if (idx > 0) {
             Marker leftMarker = markers.get(idx - 1);
             assert leftMarker.position < pos;
             newMarker.or(leftMarker);
@@ -298,17 +296,17 @@ public class StringAttributes implements AttributedString {
     }
 
     private static final int NOT_FOUND = Integer.MIN_VALUE;
-    private static final int IDX_MASK  = Integer.MAX_VALUE;
+    private static final int IDX_MASK = Integer.MAX_VALUE;
 
     private int find(int pos) {
         int lo = 0;
         int hi = markers.size();
-        while(lo < hi) {
+        while (lo < hi) {
             int mid = (lo + hi) >>> 1;
             int markerPos = markers.get(mid).position;
-            if(pos < markerPos) {
+            if (pos < markerPos) {
                 hi = mid;
-            } else if(pos > markerPos) {
+            } else if (pos > markerPos) {
                 lo = mid + 1;
             } else {
                 return mid;

@@ -2,6 +2,7 @@ package top.totodile.pokemmo.client.ui.menu;
 
 import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.Widget;
+
 import java.util.function.IntSupplier;
 
 /** 移动端右上角的电量和菜单入口。 */
@@ -23,7 +24,9 @@ public final class MobileStatusIcons extends Widget {
         add(menu);
     }
 
-    public void onMenu(Runnable action) { menu.addCallback(action); }
+    public void onMenu(Runnable action) {
+        menu.addCallback(action);
+    }
 
     public void update(long now) {
         if (now < nextCheck) return;
@@ -42,10 +45,18 @@ public final class MobileStatusIcons extends Widget {
         battery.setVisible(true);
     }
 
-    @Override public int getPreferredInnerWidth() { return 120; }
-    @Override public int getPreferredInnerHeight() { return 60; }
+    @Override
+    public int getPreferredInnerWidth() {
+        return 120;
+    }
 
-    @Override protected void layout() {
+    @Override
+    public int getPreferredInnerHeight() {
+        return 60;
+    }
+
+    @Override
+    protected void layout() {
         battery.setPosition(getInnerX(), getInnerY());
         battery.setSize(60, 60);
         menu.setPosition(getInnerX() + 60, getInnerY());

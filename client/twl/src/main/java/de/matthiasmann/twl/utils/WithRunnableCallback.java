@@ -31,13 +31,12 @@ package de.matthiasmann.twl.utils;
 
 /**
  * An interface to add/remove callbacks of type Runnable
- * 
+ *
  * @author Matthias Mann
  */
 public interface WithRunnableCallback {
-    
+
     public void addCallback(Runnable cb);
-    
+
     public void removeCallback(Runnable cb);
-    
 }

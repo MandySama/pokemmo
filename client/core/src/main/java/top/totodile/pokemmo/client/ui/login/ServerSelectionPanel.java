@@ -1,10 +1,12 @@
 package top.totodile.pokemmo.client.ui.login;
 
 import de.matthiasmann.twl.*;
-import java.util.ArrayList;
-import java.util.List;
+
 import top.totodile.pokemmo.client.resources.ClientStrings;
 import top.totodile.pokemmo.server.login.LoginService.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /** 参考客户端的三列表格：服务器名称、服务器状态、逐行登录按钮。 */
 public final class ServerSelectionPanel extends ResizableFrame {
@@ -53,18 +55,28 @@ public final class ServerSelectionPanel extends ResizableFrame {
         var names = content.createParallelGroup(nameHeader);
         var states = content.createParallelGroup(stateHeader);
         var actions = content.createParallelGroup(loginHeader);
-        var rows = content.createSequentialGroup().addGroup(content.createParallelGroup(nameHeader, stateHeader, loginHeader));
+        var rows =
+                content.createSequentialGroup()
+                        .addGroup(
+                                content.createParallelGroup(nameHeader, stateHeader, loginHeader));
         for (Server server : session.servers()) {
             Label name = new Label(server.name());
             Label state = new Label(strings.get(1020));
             Button login = new Button(strings.get(1000));
             login.addCallback(() -> controller.select(server.id()));
             serverButtons.add(login);
-            names.addWidget(name); states.addWidget(state); actions.addWidget(login);
+            names.addWidget(name);
+            states.addWidget(state);
+            actions.addWidget(login);
             rows.addGroup(content.createParallelGroup(name, state, login));
         }
-        content.setHorizontalGroup(content.createSequentialGroup().addGap(0, 0, Short.MAX_VALUE)
-                .addGroup(names).addGroup(states).addGroup(actions).addGap(0, 0, Short.MAX_VALUE));
+        content.setHorizontalGroup(
+                content.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addGroup(names)
+                        .addGroup(states)
+                        .addGroup(actions)
+                        .addGap(0, 0, Short.MAX_VALUE));
         content.setVerticalGroup(rows);
     }
 }

@@ -38,12 +38,14 @@ public interface AttributedString extends CharSequence, AnimationState {
 
     /**
      * Returns the current position of the attribute iterator
+     *
      * @return the current position
      */
     public int getPosition();
 
     /**
      * Changes the current position.
+     *
      * @param pos the new position
      * @throws IllegalArgumentException when {@code pos} is &lt; 0 or &gt; length()
      */
@@ -51,6 +53,7 @@ public interface AttributedString extends CharSequence, AnimationState {
 
     /**
      * Moves the current position forward to the next segment.
+     *
      * @return the new position
      */
     public int advance();

@@ -30,28 +30,21 @@
 package de.matthiasmann.twl;
 
 /**
- * A button which generates drag events.
- * It's used in the ValueAdjuster and Scrollbar.
+ * A button which generates drag events. It's used in the ValueAdjuster and Scrollbar.
  *
- * This widget itself is mostly not usable, it's a building block for
- * other components.
+ * <p>This widget itself is mostly not usable, it's a building block for other components.
  *
- * This class is called DraggableButton, but it will not move itself when
- * you start to drag on it, it fill forward the drag events to a listener
- * which can then decide what to do with these.
+ * <p>This class is called DraggableButton, but it will not move itself when you start to drag on
+ * it, it fill forward the drag events to a listener which can then decide what to do with these.
  *
  * @author Matthias Mann
  * @see Scrollbar
  */
 public class DraggableButton extends Button {
 
-    /**
-     * The listener interface which receives all drag related events
-     */
+    /** The listener interface which receives all drag related events */
     public interface DragListener {
-        /**
-         * Called when the user starts dragging the button
-         */
+        /** Called when the user starts dragging the button */
         public void dragStarted();
 
         /**
@@ -62,20 +55,17 @@ public class DraggableButton extends Button {
          */
         public void dragged(int deltaX, int deltaY);
 
-        /**
-         * The user has stopped dragging the button
-         */
+        /** The user has stopped dragging the button */
         public void dragStopped();
     }
-    
+
     private int dragStartX;
     private int dragStartY;
     private boolean dragging;
-    
+
     private DragListener listener;
-    
-    public DraggableButton() {
-    }
+
+    public DraggableButton() {}
 
     /**
      * Creates a DraggableButton with a shared animation state
@@ -105,12 +95,12 @@ public class DraggableButton extends Button {
     }
 
     /**
-     * Sets the DragListener. Only one listener can be set. Setting a new one
-     * will replace the previous one.
+     * Sets the DragListener. Only one listener can be set. Setting a new one will replace the
+     * previous one.
      *
-     * Changing the listener while a drag is active will result in incomplete
-     * events for both listeners (previous and new one).
-     * 
+     * <p>Changing the listener while a drag is active will result in incomplete events for both
+     * listeners (previous and new one).
+     *
      * @param listener the new listener or null
      */
     public void setListener(DragListener listener) {
@@ -119,39 +109,39 @@ public class DraggableButton extends Button {
 
     @Override
     public boolean handleEvent(Event evt) {
-        if(evt.isMouseEvent() && dragging) {
-            if(evt.getType() == Event.Type.MOUSE_DRAGGED) {
-                if(listener != null) {
-                    listener.dragged(evt.getMouseX()-dragStartX, evt.getMouseY()-dragStartY);
+        if (evt.isMouseEvent() && dragging) {
+            if (evt.getType() == Event.Type.MOUSE_DRAGGED) {
+                if (listener != null) {
+                    listener.dragged(evt.getMouseX() - dragStartX, evt.getMouseY() - dragStartY);
                 }
             }
-            if(evt.isMouseDragEnd()) {
+            if (evt.isMouseDragEnd()) {
                 stopDragging(evt);
             }
             return true;
         }
 
         switch (evt.getType()) {
-        case MOUSE_BTNDOWN:
-            dragStartX = evt.getMouseX();
-            dragStartY = evt.getMouseY();
-            break;
-        case MOUSE_DRAGGED:
-            assert !dragging;
-            dragging = true;
-            getModel().setArmed(false);
-            getModel().setPressed(true);
-            if(listener != null) {
-                listener.dragStarted();
-            }
-            return true;
+            case MOUSE_BTNDOWN:
+                dragStartX = evt.getMouseX();
+                dragStartY = evt.getMouseY();
+                break;
+            case MOUSE_DRAGGED:
+                assert !dragging;
+                dragging = true;
+                getModel().setArmed(false);
+                getModel().setPressed(true);
+                if (listener != null) {
+                    listener.dragStarted();
+                }
+                return true;
         }
-        
+
         return super.handleEvent(evt);
     }
 
     private void stopDragging(Event evt) {
-        if(listener != null) {
+        if (listener != null) {
             listener.dragStopped();
         }
         dragging = false;

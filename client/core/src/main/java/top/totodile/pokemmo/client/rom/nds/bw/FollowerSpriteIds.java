@@ -214,5 +214,4 @@ public final class FollowerSpriteIds {
         }
         return 0;
     }
-
 }

@@ -1,19 +1,22 @@
 package top.totodile.pokemmo.client.ui.login;
 
 import de.matthiasmann.twl.*;
-import java.util.List;
+
 import top.totodile.pokemmo.client.resources.ClientStrings;
+
+import java.util.List;
 
 /** 登录页公告；当前使用静态标题，不请求公告源。 */
 public final class AnnouncementsPanel extends ResizableFrame {
     private final DialogLayout content = new DialogLayout();
-    private static final List<String> TITLES = List.of(
-            "PokeMMO B2/W2",
-            "Changelog: Shiny Wars 2026",
-            "Changelog: Lunar New Year 2026",
-            "Changelog: Xmas 2025",
-            "Changelog: 01/12/2025",
-            "Changelog: Halloween 2025");
+    private static final List<String> TITLES =
+            List.of(
+                    "PokeMMO B2/W2",
+                    "Changelog: Shiny Wars 2026",
+                    "Changelog: Lunar New Year 2026",
+                    "Changelog: Xmas 2025",
+                    "Changelog: 01/12/2025",
+                    "Changelog: Halloween 2025");
 
     public AnnouncementsPanel(ClientStrings strings, boolean mobile) {
         setTheme("/changelog-frame");

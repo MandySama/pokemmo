@@ -55,7 +55,7 @@ class ComposedImage implements Image, HasBorder {
     }
 
     public void draw(AnimationState as, int x, int y, int width, int height) {
-        for(Image layer : layers) {
+        for (Image layer : layers) {
             layer.draw(as, x, y, width, height);
         }
     }
@@ -74,10 +74,9 @@ class ComposedImage implements Image, HasBorder {
 
     public Image createTintedVersion(Color color) {
         Image[] newLayers = new Image[layers.length];
-        for(int i=0 ; i<newLayers.length ; i++) {
+        for (int i = 0; i < newLayers.length; i++) {
             newLayers[i] = layers[i].createTintedVersion(color);
         }
         return new ComposedImage(newLayers, border);
     }
-
 }

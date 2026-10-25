@@ -30,22 +30,21 @@
 package de.matthiasmann.twl.model;
 
 /**
- * A toggle button model based on SimpleButtonModel.
- * Adds selected state bit. Can be backed by a BooleanModel.
- * 
+ * A toggle button model based on SimpleButtonModel. Adds selected state bit. Can be backed by a
+ * BooleanModel.
+ *
  * @author Matthias Mann
  */
 public class ToggleButtonModel extends SimpleButtonModel {
 
     protected static final int STATE_MASK_SELECTED = 256;
-    
+
     private BooleanModel model;
     private Runnable modelCallback;
     private boolean invertModelState;
     private boolean isConnected;
-    
-    public ToggleButtonModel() {
-    }
+
+    public ToggleButtonModel() {}
 
     public ToggleButtonModel(BooleanModel model) {
         this(model, false);
@@ -62,7 +61,7 @@ public class ToggleButtonModel extends SimpleButtonModel {
 
     @Override
     public void setSelected(boolean selected) {
-        if(model != null) {
+        if (model != null) {
             model.setValue(selected ^ invertModelState);
         } else {
             setSelectedState(selected);
@@ -74,7 +73,7 @@ public class ToggleButtonModel extends SimpleButtonModel {
         setSelected(!isSelected());
         super.buttonAction();
     }
-    
+
     public BooleanModel getModel() {
         return model;
     }
@@ -82,15 +81,15 @@ public class ToggleButtonModel extends SimpleButtonModel {
     public void setModel(BooleanModel model) {
         setModel(model, false);
     }
-    
+
     public void setModel(BooleanModel model, boolean invertModelState) {
         this.invertModelState = invertModelState;
-        if(this.model != model) {
+        if (this.model != model) {
             removeModelCallback();
             this.model = model;
             addModelCallback();
         }
-        if(model != null) {
+        if (model != null) {
             syncWithModel();
         }
     }
@@ -116,8 +115,8 @@ public class ToggleButtonModel extends SimpleButtonModel {
     }
 
     private void addModelCallback() {
-        if(model != null && isConnected) {
-            if(modelCallback == null) {
+        if (model != null && isConnected) {
+            if (modelCallback == null) {
                 modelCallback = new ModelCallback();
             }
             model.addCallback(modelCallback);
@@ -126,21 +125,21 @@ public class ToggleButtonModel extends SimpleButtonModel {
     }
 
     private void removeModelCallback() {
-        if(model != null && modelCallback != null) {
+        if (model != null && modelCallback != null) {
             model.removeCallback(modelCallback);
         }
     }
 
     private void setSelectedState(boolean selected) {
-        if(selected != isSelected()) {
+        if (selected != isSelected()) {
             setStateBit(STATE_MASK_SELECTED, selected);
             fireStateCallback();
         }
     }
-    
+
     class ModelCallback implements Runnable {
-        ModelCallback() {
-        }
+        ModelCallback() {}
+
         public void run() {
             syncWithModel();
         }

@@ -30,7 +30,6 @@
 package de.matthiasmann.twl.theme;
 
 /**
- *
  * @author Matthias Mann
  */
 class ThemeChildImpl {
@@ -44,7 +43,7 @@ class ThemeChildImpl {
     }
 
     protected String getParentDescription() {
-        if(parent != null) {
+        if (parent != null) {
             return ", defined in " + parent.getThemePath();
         } else {
             return "";

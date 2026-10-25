@@ -2,9 +2,11 @@ package top.totodile.pokemmo.client.ui.menu;
 
 import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.Widget;
+
+import top.totodile.pokemmo.client.resources.ClientStrings;
+
 import java.util.ArrayList;
 import java.util.List;
-import top.totodile.pokemmo.client.resources.ClientStrings;
 
 /** PC 端右下角菜单，按钮顺序及固定尺寸与参考客户端相同。 */
 public final class DesktopMenu extends Widget {
@@ -24,17 +26,34 @@ public final class DesktopMenu extends Widget {
         }
     }
 
-    public void onClientManagement(Runnable action) { buttons.get(1).addCallback(action); }
-    public void onMods(Runnable action) { buttons.get(2).addCallback(action); }
+    public void onClientManagement(Runnable action) {
+        buttons.get(1).addCallback(action);
+    }
 
-    public void onExit(Runnable action) { buttons.get(8).addCallback(action); }
+    public void onMods(Runnable action) {
+        buttons.get(2).addCallback(action);
+    }
 
-    public void onSettings(Runnable action) { buttons.get(7).addCallback(action); }
+    public void onExit(Runnable action) {
+        buttons.get(8).addCallback(action);
+    }
 
-    @Override public int getPreferredInnerWidth() { return 200; }
-    @Override public int getPreferredInnerHeight() { return buttons.size() * 26; }
+    public void onSettings(Runnable action) {
+        buttons.get(7).addCallback(action);
+    }
 
-    @Override protected void layout() {
+    @Override
+    public int getPreferredInnerWidth() {
+        return 200;
+    }
+
+    @Override
+    public int getPreferredInnerHeight() {
+        return buttons.size() * 26;
+    }
+
+    @Override
+    protected void layout() {
         for (int index = 0; index < buttons.size(); index++) {
             Button button = buttons.get(index);
             button.setPosition(getInnerX(), getInnerY() + index * 26);

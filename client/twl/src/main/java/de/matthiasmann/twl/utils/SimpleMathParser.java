@@ -32,21 +32,29 @@ package de.matthiasmann.twl.utils;
 import java.text.ParseException;
 
 /**
- *
  * @author Matthias Mann
  */
 public class SimpleMathParser {
 
     public interface Interpreter {
         public void accessVariable(String name);
+
         public void accessField(String field);
+
         public void accessArray();
+
         public void loadConst(Number n);
+
         public void add();
+
         public void sub();
+
         public void mul();
+
         public void div();
+
         public void callFunction(String name, int args);
+
         public void negate();
     }
 
@@ -69,21 +77,21 @@ public class SimpleMathParser {
 
     private int parse(boolean allowArray) throws ParseException {
         try {
-            if(peek() == -1) {
-                if(allowArray) {
+            if (peek() == -1) {
+                if (allowArray) {
                     return 0;
                 }
                 unexpected(-1);
             }
             int count = 0;
-            for(;;) {
+            for (; ; ) {
                 count++;
                 parseAddSub();
                 int ch = peek();
-                if(ch == -1) {
+                if (ch == -1) {
                     return count;
                 }
-                if(ch != ',' || !allowArray) {
+                if (ch != ',' || !allowArray) {
                     unexpected(ch);
                 }
                 pos++;
@@ -91,13 +99,13 @@ public class SimpleMathParser {
         } catch (ParseException ex) {
             throw ex;
         } catch (Exception ex) {
-            throw (ParseException)(new ParseException("Unable to execute", pos).initCause(ex));
+            throw (ParseException) (new ParseException("Unable to execute", pos).initCause(ex));
         }
     }
-    
+
     private void parseAddSub() throws ParseException {
         parseMulDiv();
-        for(;;) {
+        for (; ; ) {
             int ch = peek();
             switch (ch) {
                 case '+':
@@ -118,7 +126,7 @@ public class SimpleMathParser {
 
     private void parseMulDiv() throws ParseException {
         parseIdentOrConst();
-        for(;;) {
+        for (; ; ) {
             int ch = peek();
             switch (ch) {
                 case '*':
@@ -139,18 +147,18 @@ public class SimpleMathParser {
 
     private void parseIdentOrConst() throws ParseException {
         int ch = peek();
-        if(ch == '\'' || Character.isJavaIdentifierStart((char)ch)) {
+        if (ch == '\'' || Character.isJavaIdentifierStart((char) ch)) {
             String ident = parseIdent();
             ch = peek();
-            if(ch == '(') {
+            if (ch == '(') {
                 pos++;
                 parseCall(ident);
                 return;
             }
             interpreter.accessVariable(ident);
-            while(ch == '.' || ch == '[') {
+            while (ch == '.' || ch == '[') {
                 pos++;
-                if(ch == '.') {
+                if (ch == '.') {
                     String field = parseIdent();
                     interpreter.accessField(field);
                 } else {
@@ -160,13 +168,13 @@ public class SimpleMathParser {
                 }
                 ch = peek();
             }
-        } else if(ch == '-') {
+        } else if (ch == '-') {
             pos++;
             parseIdentOrConst();
             interpreter.negate();
-        } else if(ch == '.' || ch == '+' || Character.isDigit((char)ch)) {
+        } else if (ch == '.' || ch == '+' || Character.isDigit((char) ch)) {
             parseConst();
-        } else if(ch == '(') {
+        } else if (ch == '(') {
             pos++;
             parseAddSub();
             expect(')');
@@ -176,14 +184,14 @@ public class SimpleMathParser {
     private void parseCall(String name) throws ParseException {
         int count = 1;
         parseAddSub();
-        for(;;) {
+        for (; ; ) {
             int ch = peek();
-            if(ch == ')') {
+            if (ch == ')') {
                 pos++;
                 interpreter.callFunction(name, count);
                 return;
             }
-            if(ch == ',') {
+            if (ch == ',') {
                 pos++;
                 count++;
                 parseAddSub();
@@ -197,28 +205,28 @@ public class SimpleMathParser {
         final int len = str.length();
         int start = pos;
         Number n;
-        switch(str.charAt(pos)) {
-        case '+':
-            // skip
-            start = ++pos;
-            break;
-        case '0':
-            if(pos+1 < len && str.charAt(pos+1) == 'x') {
-                pos += 2;
-                parseHexInt();
-                return;
-            }
-            break;
+        switch (str.charAt(pos)) {
+            case '+':
+                // skip
+                start = ++pos;
+                break;
+            case '0':
+                if (pos + 1 < len && str.charAt(pos + 1) == 'x') {
+                    pos += 2;
+                    parseHexInt();
+                    return;
+                }
+                break;
         }
-        while(pos < len && Character.isDigit(str.charAt(pos))) {
+        while (pos < len && Character.isDigit(str.charAt(pos))) {
             pos++;
         }
-        if(pos < len && str.charAt(pos) == '.') {
+        if (pos < len && str.charAt(pos) == '.') {
             pos++;
-            while(pos < len && Character.isDigit(str.charAt(pos))) {
+            while (pos < len && Character.isDigit(str.charAt(pos))) {
                 pos++;
             }
-            if(pos - start <= 1) {
+            if (pos - start <= 1) {
                 unexpected(-1);
             }
             n = Float.valueOf(str.substring(start, pos));
@@ -231,24 +239,24 @@ public class SimpleMathParser {
     private void parseHexInt() throws ParseException {
         final int len = str.length();
         int start = pos;
-        while(pos < len && "0123456789abcdefABCDEF".indexOf(str.charAt(pos)) >= 0) {
+        while (pos < len && "0123456789abcdefABCDEF".indexOf(str.charAt(pos)) >= 0) {
             pos++;
         }
-        if(pos - start > 8) {
+        if (pos - start > 8) {
             throw new ParseException("Number to large at " + pos, pos);
         }
-        if(pos == start) {
+        if (pos == start) {
             unexpected((pos < len) ? str.charAt(pos) : -1);
         }
-        interpreter.loadConst((int)Long.parseLong(str.substring(start, pos), 16));
+        interpreter.loadConst((int) Long.parseLong(str.substring(start, pos), 16));
     }
-    
+
     private boolean skipSpaces() {
-        for(;;) {
-            if(pos == str.length()) {
+        for (; ; ) {
+            if (pos == str.length()) {
                 return false;
             }
-            if(!Character.isWhitespace(str.charAt(pos))) {
+            if (!Character.isWhitespace(str.charAt(pos))) {
                 return true;
             }
             pos++;
@@ -256,14 +264,14 @@ public class SimpleMathParser {
     }
 
     private int peek() {
-        if(skipSpaces()) {
+        if (skipSpaces()) {
             return str.charAt(pos);
         }
         return -1;
     }
 
     private String parseIdent() throws ParseException {
-        if(str.charAt(pos) == '\'') {
+        if (str.charAt(pos) == '\'') {
             int start = ++pos;
             pos = TextUtil.indexOf(str, '\'', pos);
             String ident = str.substring(start, pos);
@@ -271,7 +279,7 @@ public class SimpleMathParser {
             return ident;
         }
         int start = pos;
-        while(pos < str.length() && Character.isJavaIdentifierPart(str.charAt(pos))) {
+        while (pos < str.length() && Character.isJavaIdentifierPart(str.charAt(pos))) {
             pos++;
         }
         return str.substring(start, pos);
@@ -279,17 +287,17 @@ public class SimpleMathParser {
 
     private void expect(int what) throws ParseException {
         int ch = peek();
-        if(ch != what) {
+        if (ch != what) {
             unexpected(ch);
         } else {
             pos++;
         }
     }
-    
+
     private void unexpected(int ch) throws ParseException {
-        if(ch < 0) {
+        if (ch < 0) {
             throw new ParseException("Unexpected end of string", pos);
         }
-        throw new ParseException("Unexpected character '"+(char)ch+"' at " + pos, pos);
+        throw new ParseException("Unexpected character '" + (char) ch + "' at " + pos, pos);
     }
 }

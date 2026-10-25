@@ -33,13 +33,12 @@ import de.matthiasmann.twl.utils.WithRunnableCallback;
 
 /**
  * A string data model.
- * 
+ *
  * @author Matthias Mann
  */
 public interface StringModel extends WithRunnableCallback {
-    
+
     String getValue();
 
     void setValue(String value);
-    
 }

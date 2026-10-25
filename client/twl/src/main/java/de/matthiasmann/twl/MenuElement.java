@@ -34,7 +34,6 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
 /**
- *
  * @author Matthias Mann
  */
 public abstract class MenuElement {
@@ -46,8 +45,7 @@ public abstract class MenuElement {
     private PropertyChangeSupport pcs;
     private Alignment alignment;
 
-    public MenuElement() {
-    }
+    public MenuElement() {}
 
     public MenuElement(String name) {
         this.name = name;
@@ -102,14 +100,13 @@ public abstract class MenuElement {
     }
 
     /**
-     * Sets the alignment used for this element in the menubar.
-     * The default value is {@code null} which means that the class based
-     * default is used.
-     * 
+     * Sets the alignment used for this element in the menubar. The default value is {@code null}
+     * which means that the class based default is used.
+     *
      * @param alignment the alignment or null.
      * @return this
-     * @see Menu#setClassAlignment(java.lang.Class, de.matthiasmann.twl.Alignment) 
-     * @see Menu#getClassAlignment(java.lang.Class) 
+     * @see Menu#setClassAlignment(java.lang.Class, de.matthiasmann.twl.Alignment)
+     * @see Menu#getClassAlignment(java.lang.Class)
      */
     public MenuElement setAlignment(Alignment alignment) {
         Alignment oldAlignment = this.alignment;
@@ -121,57 +118,58 @@ public abstract class MenuElement {
     protected abstract Widget createMenuWidget(MenuManager mm, int level);
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
-        if(pcs == null) {
+        if (pcs == null) {
             pcs = new PropertyChangeSupport(this);
         }
         pcs.addPropertyChangeListener(listener);
     }
 
     public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
-        if(pcs == null) {
+        if (pcs == null) {
             pcs = new PropertyChangeSupport(this);
         }
         pcs.addPropertyChangeListener(propertyName, listener);
     }
 
     public void removePropertyChangeListener(String propertyName, PropertyChangeListener listener) {
-        if(pcs != null) {
+        if (pcs != null) {
             pcs.removePropertyChangeListener(propertyName, listener);
         }
     }
 
     public void removePropertyChangeListener(PropertyChangeListener listener) {
-        if(pcs != null) {
+        if (pcs != null) {
             pcs.removePropertyChangeListener(listener);
         }
     }
 
     protected void firePropertyChange(String propertyName, boolean oldValue, boolean newValue) {
-        if(pcs != null) {
+        if (pcs != null) {
             pcs.firePropertyChange(propertyName, oldValue, newValue);
         }
     }
 
     protected void firePropertyChange(String propertyName, int oldValue, int newValue) {
-        if(pcs != null) {
+        if (pcs != null) {
             pcs.firePropertyChange(propertyName, oldValue, newValue);
         }
     }
 
     protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
-        if(pcs != null) {
+        if (pcs != null) {
             pcs.firePropertyChange(propertyName, oldValue, newValue);
         }
     }
 
     /**
-     * Helper method to apply the theme from the menu element to the widget
-     * if it was set, otherwise the defaultTheme is used.
+     * Helper method to apply the theme from the menu element to the widget if it was set, otherwise
+     * the defaultTheme is used.
+     *
      * @param w the Widget to which the theme should be applied
-     * @param defaultTheme the defaultTheme when none was set 
+     * @param defaultTheme the defaultTheme when none was set
      */
     protected void setWidgetTheme(Widget w, String defaultTheme) {
-        if(theme != null) {
+        if (theme != null) {
             w.setTheme(theme);
         } else {
             w.setTheme(defaultTheme);
@@ -205,5 +203,4 @@ public abstract class MenuElement {
             setText(MenuElement.this.getName());
         }
     }
-
 }

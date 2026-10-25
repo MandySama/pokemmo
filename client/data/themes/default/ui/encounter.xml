@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<themes>
+  <!-- BattleCombatLayout.WU: default battle-panel, PC border/gap. -->
+  <theme name="encounter-panel" ref="-defaults">
+    <param name="background"><image>label1.background</image></param>
+    <param name="border"><border>7</border></param>
+  </theme>
+  <!-- BattleCombatLayout.th / default init.xml rbattle. -->
+  <theme name="encounter-action" ref="button">
+    <param name="background"><image>button.background</image></param>
+    <param name="font"><font>encounter-title</font></param>
+    <param name="border"><border>0,0,16,0</border></param>
+    <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+    <param name="minWidth"><int>209</int></param>
+    <param name="minHeight"><int>52</int></param>
+  </theme>
+  <theme name="encounter-caption" ref="label">
+    <param name="font"><font>encounter-caption</font></param>
+    <param name="border"><border>0</border></param>
+    <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+  </theme>
+  <theme name="encounter-label" ref="label">
+    <param name="font"><font>encounter-title</font></param>
+    <param name="border"><border>0</border></param>
+  </theme>
+  <theme name="encounter-health" ref="encounter-label">
+    <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+  </theme>
+  <theme name="encounter-move" ref="encounter-action">
+    <param name="border"><border>7,10,26,10</border></param>
+    <param name="textAlignment"><enum type="alignment">TOPLEFT</enum></param>
+  </theme>
+  <theme name="encounter-pp" ref="encounter-caption">
+    <param name="textAlignment"><enum type="alignment">RIGHT</enum></param>
+  </theme>
+  <theme name="encounter-return" ref="button">
+    <param name="font"><font>encounter-caption</font></param>
+    <param name="background"><image>battle-button-return.background</image></param>
+    <param name="border"><border>2,0,4,10</border></param>
+    <param name="textAlignment"><enum type="alignment">RIGHT</enum></param>
+  </theme>
+<theme name="encounter-eff-zh-status" ref="label"><param name="background"><image>encounter-eff-zh-status.background</image></param><param name="border"><border>0</border></param></theme>
+<theme name="encounter-eff-zh-immune" ref="label"><param name="background"><image>encounter-eff-zh-immune.background</image></param><param name="border"><border>0</border></param></theme>
+<theme name="encounter-eff-zh-se" ref="label"><param name="background"><image>encounter-eff-zh-se.background</image></param><param name="border"><border>0</border></param></theme>
+<theme name="encounter-eff-zh-e" ref="label"><param name="background"><image>encounter-eff-zh-e.background</image></param><param name="border"><border>0</border></param></theme>
+<theme name="encounter-eff-zh-nve" ref="label"><param name="background"><image>encounter-eff-zh-nve.background</image></param><param name="border"><border>0</border></param></theme>
+<theme name="encounter-eff-en-status" ref="label"><param name="background"><image>encounter-eff-en-status.background</image></param><param name="border"><border>0</border></param></theme>
+<theme name="encounter-eff-en-immune" ref="label"><param name="background"><image>encounter-eff-en-immune.background</image></param><param name="border"><border>0</border></param></theme>
+<theme name="encounter-eff-en-se" ref="label"><param name="background"><image>encounter-eff-en-se.background</image></param><param name="border"><border>0</border></param></theme>
+<theme name="encounter-eff-en-e" ref="label"><param name="background"><image>encounter-eff-en-e.background</image></param><param name="border"><border>0</border></param></theme>
+<theme name="encounter-eff-en-nve" ref="label"><param name="background"><image>encounter-eff-en-nve.background</image></param><param name="border"><border>0</border></param></theme>
+<theme name="encounter-eff-es-status" ref="label"><param name="background"><image>encounter-eff-es-status.background</image></param><param name="border"><border>0</border></param></theme>
+<theme name="encounter-eff-es-immune" ref="label"><param name="background"><image>encounter-eff-es-immune.background</image></param><param name="border"><border>0</border></param></theme>
+<theme name="encounter-eff-es-se" ref="label"><param name="background"><image>encounter-eff-es-se.background</image></param><param name="border"><border>0</border></param></theme>
+<theme name="encounter-eff-es-e" ref="label"><param name="background"><image>encounter-eff-es-e.background</image></param><param name="border"><border>0</border></param></theme>
+<theme name="encounter-eff-es-nve" ref="label"><param name="background"><image>encounter-eff-es-nve.background</image></param><param name="border"><border>0</border></param></theme>
+<theme name="encounter-eff-fr-status" ref="label"><param name="background"><image>encounter-eff-fr-status.background</image></param><param name="border"><border>0</border></param></theme>
+<theme name="encounter-eff-fr-immune" ref="label"><param name="background"><image>encounter-eff-fr-immune.background</image></param><param name="border"><border>0</border></param></theme>
+<theme name="encounter-eff-fr-se" ref="label"><param name="background"><image>encounter-eff-fr-se.background</image></param><param name="border"><border>0</border></param></theme>
+<theme name="encounter-eff-fr-e" ref="label"><param name="background"><image>encounter-eff-fr-e.background</image></param><param name="border"><border>0</border></param></theme>
+<theme name="encounter-eff-fr-nve" ref="label"><param name="background"><image>encounter-eff-fr-nve.background</image></param><param name="border"><border>0</border></param></theme>
+  <!-- Official battle-panel/battle-text PC insets and top-left alignment. -->
+  <theme name="encounter-message" ref="label">
+    <param name="font"><font>encounter-message</font></param>
+    <param name="border"><border>17,17,0,7</border></param>
+    <param name="textAlignment"><enum type="alignment">TOPLEFT</enum></param>
+  </theme>
+</themes>

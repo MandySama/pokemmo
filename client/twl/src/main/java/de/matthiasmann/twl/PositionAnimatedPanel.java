@@ -39,19 +39,20 @@ import de.matthiasmann.twl.model.BooleanModel;
 public class PositionAnimatedPanel extends Widget {
 
     public enum Direction {
-        TOP(0,-1),
-        LEFT(-1,0),
-        BOTTOM(0,1),
-        RIGHT(1,0);
-        
+        TOP(0, -1),
+        LEFT(-1, 0),
+        BOTTOM(0, 1),
+        RIGHT(1, 0);
+
         final int x;
         final int y;
+
         Direction(int x, int y) {
             this.x = x;
             this.y = y;
         }
     };
-    
+
     private final Widget animatedWidget;
     private MouseSensitiveRectangle rect;
     private Direction direction = Direction.TOP;
@@ -64,14 +65,14 @@ public class PositionAnimatedPanel extends Widget {
 
     private BooleanModel forceVisibleModel;
     private Runnable forceVisibleModelCallback;
-    
+
     public PositionAnimatedPanel(Widget animatedWidget) {
-        if(animatedWidget == null) {
+        if (animatedWidget == null) {
             throw new NullPointerException("animatedWidget");
         }
-        
+
         this.animatedWidget = animatedWidget;
-        
+
         setClip(true);
         add(animatedWidget);
     }
@@ -81,12 +82,12 @@ public class PositionAnimatedPanel extends Widget {
     }
 
     public void setHideDirection(Direction direction) {
-        if(direction == null) {
+        if (direction == null) {
             throw new NullPointerException("direction");
         }
         this.direction = direction;
     }
-    
+
     public int getMoveSpeedIn() {
         return moveSpeedIn;
     }
@@ -125,7 +126,7 @@ public class PositionAnimatedPanel extends Widget {
 
     public void setForceVisible(boolean forceVisible) {
         this.forceVisible = forceVisible;
-        if(forceVisibleModel != null) {
+        if (forceVisibleModel != null) {
             forceVisibleModel.setValue(forceVisible);
         }
     }
@@ -143,13 +144,13 @@ public class PositionAnimatedPanel extends Widget {
     }
 
     public void setForceVisibleModel(BooleanModel forceVisibleModel) {
-        if(this.forceVisibleModel != forceVisibleModel) {
-            if(this.forceVisibleModel != null) {
+        if (this.forceVisibleModel != forceVisibleModel) {
+            if (this.forceVisibleModel != null) {
                 this.forceVisibleModel.removeCallback(forceVisibleModelCallback);
             }
             this.forceVisibleModel = forceVisibleModel;
-            if(forceVisibleModel != null) {
-                if(forceVisibleModelCallback == null) {
+            if (forceVisibleModel != null) {
+                if (forceVisibleModelCallback == null) {
                     forceVisibleModelCallback = new ForceVisibleModelCallback();
                 }
                 forceVisibleModel.addCallback(forceVisibleModelCallback);
@@ -161,8 +162,8 @@ public class PositionAnimatedPanel extends Widget {
     public boolean isHidden() {
         final int x = animatedWidget.getX();
         final int y = animatedWidget.getY();
-        return x == getInnerX() + direction.x*animatedWidget.getWidth() &&
-                y == getInnerY() + direction.y*animatedWidget.getHeight();
+        return x == getInnerX() + direction.x * animatedWidget.getWidth()
+                && y == getInnerY() + direction.y * animatedWidget.getHeight();
     }
 
     @Override
@@ -184,7 +185,7 @@ public class PositionAnimatedPanel extends Widget {
     public int getPreferredInnerHeight() {
         return animatedWidget.getPreferredHeight();
     }
-    
+
     @Override
     protected void applyTheme(ThemeInfo themeInfo) {
         super.applyTheme(themeInfo);
@@ -222,13 +223,13 @@ public class PositionAnimatedPanel extends Widget {
 
     @Override
     protected void paint(GUI gui) {
-        if(rect != null) {
+        if (rect != null) {
             int x = getInnerX();
             int y = getInnerY();
             boolean forceOpen = forceVisible || hasOpenPopups();
-            if(forceOpen && forceJumps) {
+            if (forceOpen && forceJumps) {
                 animatedWidget.setPosition(x, y);
-            } else if(forceOpen || rect.isMouseOver()) {
+            } else if (forceOpen || rect.isMouseOver()) {
                 // in only needs the direction - not the distance
                 animatedWidget.setPosition(
                         calcPosIn(animatedWidget.getX(), x, direction.x),
@@ -236,43 +237,50 @@ public class PositionAnimatedPanel extends Widget {
             } else {
                 // out needs the exact distance
                 animatedWidget.setPosition(
-                        calcPosOut(animatedWidget.getX(), x, direction.x*animatedWidget.getWidth()),
-                        calcPosOut(animatedWidget.getY(), y, direction.y*animatedWidget.getHeight()));
+                        calcPosOut(
+                                animatedWidget.getX(), x, direction.x * animatedWidget.getWidth()),
+                        calcPosOut(
+                                animatedWidget.getY(),
+                                y,
+                                direction.y * animatedWidget.getHeight()));
             }
         }
         super.paint(gui);
     }
-    
+
     private void setRectSize() {
-        if(rect != null) {
-            rect.setXYWH(getX() - auraSizeX, getY() - auraSizeY,
-                    getWidth() + 2*auraSizeX, getHeight() + 2*auraSizeY);
+        if (rect != null) {
+            rect.setXYWH(
+                    getX() - auraSizeX,
+                    getY() - auraSizeY,
+                    getWidth() + 2 * auraSizeX,
+                    getHeight() + 2 * auraSizeY);
         }
     }
-    
+
     private int calcPosIn(int cur, int org, int dir) {
-        if(dir < 0) {
+        if (dir < 0) {
             return Math.min(org, cur + moveSpeedIn);
         } else {
             return Math.max(org, cur - moveSpeedIn);
         }
     }
-    
+
     private int calcPosOut(int cur, int org, int dist) {
-        if(dist < 0) {
-            return Math.max(org+dist, cur - moveSpeedIn);
+        if (dist < 0) {
+            return Math.max(org + dist, cur - moveSpeedIn);
         } else {
-            return Math.min(org+dist, cur + moveSpeedIn);
+            return Math.min(org + dist, cur + moveSpeedIn);
         }
     }
-    
+
     void syncWithForceVisibleModel() {
         setForceVisible(forceVisibleModel.getValue());
     }
-    
+
     class ForceVisibleModelCallback implements Runnable {
-        ForceVisibleModelCallback() {
-        }
+        ForceVisibleModelCallback() {}
+
         public void run() {
             syncWithForceVisibleModel();
         }

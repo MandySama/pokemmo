@@ -10,25 +10,26 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import java.util.function.Function;
-import java.util.function.LongSupplier;
-import java.util.function.Supplier;
+
 import top.totodile.pokemmo.client.config.SavedAccounts;
 import top.totodile.pokemmo.client.resources.ClientResources;
 import top.totodile.pokemmo.client.rom.RomFilePicker;
 import top.totodile.pokemmo.client.rom.RomManager;
 import top.totodile.pokemmo.client.rom.RomType;
-import top.totodile.pokemmo.client.ui.character.CharacterAppearance;
-import top.totodile.pokemmo.client.ui.character.OverworldCharacter;
-import top.totodile.pokemmo.client.world.MapMovement;
-import top.totodile.pokemmo.client.world.MobileMapControls;
-import top.totodile.pokemmo.client.world.WorldScene;
-import top.totodile.pokemmo.client.world.WorldMaps;
-import top.totodile.pokemmo.client.world.WorldMapLoader;
 import top.totodile.pokemmo.client.ui.ClientUi;
+import top.totodile.pokemmo.client.ui.character.OverworldCharacter;
 import top.totodile.pokemmo.client.ui.login.LoginController;
 import top.totodile.pokemmo.client.ui.startup.ScrollingBackground;
 import top.totodile.pokemmo.client.ui.startup.StartupBackground;
+import top.totodile.pokemmo.client.world.MapMovement;
+import top.totodile.pokemmo.client.world.MobileMapControls;
+import top.totodile.pokemmo.client.world.WorldMapLoader;
+import top.totodile.pokemmo.client.world.WorldMaps;
+import top.totodile.pokemmo.client.world.WorldScene;
+
+import java.util.function.Function;
+import java.util.function.LongSupplier;
+import java.util.function.Supplier;
 
 /** 组装平台登录场景、回退背景及客户端界面。 */
 public final class ClientApplication extends ApplicationAdapter {
@@ -52,67 +53,101 @@ public final class ClientApplication extends ApplicationAdapter {
     private boolean startupHasBlackWhiteRom;
     private top.totodile.pokemmo.server.game.GameService gameService;
     private RomFilePicker romFilePicker;
-    private Runnable restart=() -> Gdx.app.exit();
-    private Function<ClientResources, top.totodile.pokemmo.client.ui.startup.LoginScene> loginSceneFactory;
+    private Runnable restart = () -> Gdx.app.exit();
+    private Function<ClientResources, top.totodile.pokemmo.client.ui.startup.LoginScene>
+            loginSceneFactory;
     private top.totodile.pokemmo.client.ui.startup.LoginScene loginScene;
-    private boolean focused=true;
-    private final top.totodile.pokemmo.client.config.FrameRateLimit frameRateLimit = new top.totodile.pokemmo.client.config.FrameRateLimit();
+    private boolean focused = true;
+    private final top.totodile.pokemmo.client.config.FrameRateLimit frameRateLimit =
+            new top.totodile.pokemmo.client.config.FrameRateLimit();
     private WorldScene world;
     private top.totodile.pokemmo.client.world.WorldTransition worldTransition;
-    private record LoadedWorld(WorldMaps maps,MapMovement movement) {}
+
+    private record LoadedWorld(WorldMaps maps, MapMovement movement) {}
+
     private volatile boolean disposed;
-    private final java.util.Set<java.util.concurrent.CompletableFuture<Void>> pendingWorldEntries=
+    private final java.util.Set<java.util.concurrent.CompletableFuture<Void>> pendingWorldEntries =
             java.util.concurrent.ConcurrentHashMap.newKeySet();
     // Destination scenes own GL resources while a teleport waits for its database commit.
-    private final java.util.Set<WorldScene> preparedWorlds=new java.util.HashSet<>();
-    private final java.util.concurrent.ExecutorService worldLoader=java.util.concurrent.Executors.newSingleThreadExecutor(r -> {
-        Thread thread=new Thread(r,"world-maps"); thread.setDaemon(true); return thread;
-    });
+    private final java.util.Set<WorldScene> preparedWorlds = new java.util.HashSet<>();
+    private final java.util.concurrent.ExecutorService worldLoader =
+            java.util.concurrent.Executors.newSingleThreadExecutor(
+                    r -> {
+                        Thread thread = new Thread(r, "world-maps");
+                        thread.setDaemon(true);
+                        return thread;
+                    });
 
-    public ClientApplication withLoginScene(Function<ClientResources, top.totodile.pokemmo.client.ui.startup.LoginScene> factory) {
-        loginSceneFactory=java.util.Objects.requireNonNull(factory); return this;
+    public ClientApplication withLoginScene(
+            Function<ClientResources, top.totodile.pokemmo.client.ui.startup.LoginScene> factory) {
+        loginSceneFactory = java.util.Objects.requireNonNull(factory);
+        return this;
     }
+
     public void setFocused(boolean focused) {
-        this.focused=focused;
+        this.focused = focused;
         if (resources != null) frameRateLimit.update(resources.preferences(), focused);
-        if (loginScene!=null) loginScene.setFocused(focused);
-        if(world!=null) world.setFocused(focused);
+        if (loginScene != null) loginScene.setFocused(focused);
+        if (world != null) world.setFocused(focused);
     }
 
-    public ClientApplication withRomFilePicker(RomFilePicker picker) { romFilePicker=picker; return this; }
-    public ClientApplication withRestart(Runnable action) { restart=java.util.Objects.requireNonNull(action); return this; }
+    public ClientApplication withRomFilePicker(RomFilePicker picker) {
+        romFilePicker = picker;
+        return this;
+    }
+
+    public ClientApplication withRestart(Runnable action) {
+        restart = java.util.Objects.requireNonNull(action);
+        return this;
+    }
+
     public ClientApplication withStartupBackground(StartupBackground background) {
         startupBackground = java.util.Objects.requireNonNull(background);
         return this;
     }
-    public RomManager romResources() { return resources == null ? null : resources.roms(); }
+
+    public RomManager romResources() {
+        return resources == null ? null : resources.roms();
+    }
 
     public ClientApplication withGameService(top.totodile.pokemmo.server.game.GameService service) {
         gameService = java.util.Objects.requireNonNull(service);
         return this;
     }
 
-    public ClientApplication(Function<String, FileHandle> assets, boolean mobile, LongSupplier clock,
-                             top.totodile.pokemmo.server.login.LoginService loginService) {
+    public ClientApplication(
+            Function<String, FileHandle> assets,
+            boolean mobile,
+            LongSupplier clock,
+            top.totodile.pokemmo.server.login.LoginService loginService) {
         this(assets, mobile, clock, () -> Gdx.files.local("config"), loginService);
     }
 
-    public ClientApplication(Function<String, FileHandle> assets, boolean mobile, LongSupplier clock,
-                             Supplier<FileHandle> configDirectory,
-                             top.totodile.pokemmo.server.login.LoginService loginService) {
+    public ClientApplication(
+            Function<String, FileHandle> assets,
+            boolean mobile,
+            LongSupplier clock,
+            Supplier<FileHandle> configDirectory,
+            top.totodile.pokemmo.server.login.LoginService loginService) {
         this(assets, mobile, clock, configDirectory, loginService, () -> -1);
     }
 
-    public ClientApplication(Function<String, FileHandle> assets, boolean mobile, LongSupplier clock,
-                             top.totodile.pokemmo.server.login.LoginService loginService,
-                             java.util.function.IntSupplier batteryPercent) {
+    public ClientApplication(
+            Function<String, FileHandle> assets,
+            boolean mobile,
+            LongSupplier clock,
+            top.totodile.pokemmo.server.login.LoginService loginService,
+            java.util.function.IntSupplier batteryPercent) {
         this(assets, mobile, clock, () -> Gdx.files.local("config"), loginService, batteryPercent);
     }
 
-    public ClientApplication(Function<String, FileHandle> assets, boolean mobile, LongSupplier clock,
-                             Supplier<FileHandle> configDirectory,
-                             top.totodile.pokemmo.server.login.LoginService loginService,
-                             java.util.function.IntSupplier batteryPercent) {
+    public ClientApplication(
+            Function<String, FileHandle> assets,
+            boolean mobile,
+            LongSupplier clock,
+            Supplier<FileHandle> configDirectory,
+            top.totodile.pokemmo.server.login.LoginService loginService,
+            java.util.function.IntSupplier batteryPercent) {
         this.loginService = java.util.Objects.requireNonNull(loginService);
         this.batteryPercent = java.util.Objects.requireNonNull(batteryPercent);
         this.assets = assets;
@@ -128,10 +163,13 @@ public final class ClientApplication extends ApplicationAdapter {
     public void create() {
         resources = new ClientResources(assets, configDirectory.get(), mobile);
         frameRateLimit.update(resources.preferences(), focused);
-        startupHasBlackWhiteRom=resources.roms().get(RomType.BLACK_WHITE)!=null;
+        startupHasBlackWhiteRom = resources.roms().get(RomType.BLACK_WHITE) != null;
         resources.setRomFilePicker(romFilePicker);
-        if(!mobile)resources.modelCaches().start(resources.roms().loaded());
-        if (loginSceneFactory!=null) { loginScene=loginSceneFactory.apply(resources); loginScene.setFocused(focused); }
+        if (!mobile) resources.modelCaches().start(resources.roms().loaded());
+        if (loginSceneFactory != null) {
+            loginScene = loginSceneFactory.apply(resources);
+            loginScene.setFocused(focused);
+        }
         if (startupBackground == null) {
             sceneAssets = new AssetManager(resources::apply);
             for (int i = 0; i < 3; i++) {
@@ -149,8 +187,17 @@ public final class ClientApplication extends ApplicationAdapter {
             background = new ScrollingBackground(tiles, clock);
         }
         loginController = new LoginController(loginService, Gdx.app::postRunnable);
-        clientUi = new ClientUi(uiViewport, resources, mobile, SavedAccounts.open(configDirectory.get()),
-                () -> System.nanoTime() / 1_000_000L, loginController, batteryPercent, () -> Gdx.app.exit(), gameService);
+        clientUi =
+                new ClientUi(
+                        uiViewport,
+                        resources,
+                        mobile,
+                        SavedAccounts.open(configDirectory.get()),
+                        () -> System.nanoTime() / 1_000_000L,
+                        loginController,
+                        batteryPercent,
+                        () -> Gdx.app.exit(),
+                        gameService);
         clientUi.onEnterWorld(this::enterWorld);
         clientUi.onTeleport(this::relocateWorld);
         clientUi.onLeaveWorld(this::leaveWorld);
@@ -158,110 +205,322 @@ public final class ClientApplication extends ApplicationAdapter {
     }
 
     private void leaveWorld() {
-        if(world==null)return;
-        if(worldTransition!=null)worldTransition.reset();
+        if (world == null) return;
+        if (worldTransition != null) worldTransition.reset();
         world.setFocused(false);
-        world.close();world=null;
+        world.close();
+        world = null;
         clientUi.showCharacters();
-        if(loginSceneFactory!=null) {
-            loginScene=loginSceneFactory.apply(resources);
+        if (loginSceneFactory != null) {
+            loginScene = loginSceneFactory.apply(resources);
             loginScene.setFocused(focused);
         }
     }
 
-    private java.util.concurrent.CompletionStage<Void> enterWorld(top.totodile.pokemmo.server.game.GameService.Entry entry) {
-        return enterWorld(entry,false);
+    private java.util.concurrent.CompletionStage<Void> enterWorld(
+            top.totodile.pokemmo.server.game.GameService.Entry entry) {
+        return enterWorld(entry, false);
     }
-    private java.util.concurrent.CompletionStage<Void> relocateWorld(top.totodile.pokemmo.server.game.GameService.Entry entry){return enterWorld(entry,true);}
-    private java.util.concurrent.CompletionStage<Void> enterWorld(top.totodile.pokemmo.server.game.GameService.Entry entry,boolean relocate) {
-        if(disposed)return java.util.concurrent.CompletableFuture.failedFuture(new java.util.concurrent.CancellationException());
-        var selection=selectedServer();
-        var type=RomType.of(entry.region());
-        var rom=resources.roms().get(type);
-        if(rom==null) return java.util.concurrent.CompletableFuture.failedFuture(new top.totodile.pokemmo.client.rom.MissingRomException(type));
-        var ready=new java.util.concurrent.CompletableFuture<Void>();
-        var covered=relocate&&world!=null?worldTransition().cover():java.util.concurrent.CompletableFuture.<Void>completedFuture(null);
+
+    private java.util.concurrent.CompletionStage<Void> relocateWorld(
+            top.totodile.pokemmo.server.game.GameService.Entry entry) {
+        return enterWorld(entry, true);
+    }
+
+    private java.util.concurrent.CompletionStage<Void> enterWorld(
+            top.totodile.pokemmo.server.game.GameService.Entry entry, boolean relocate) {
+        if (disposed)
+            return java.util.concurrent.CompletableFuture.failedFuture(
+                    new java.util.concurrent.CancellationException());
+        var selection = selectedServer();
+        var type = RomType.of(entry.region());
+        var rom = resources.roms().get(type);
+        if (rom == null)
+            return java.util.concurrent.CompletableFuture.failedFuture(
+                    new top.totodile.pokemmo.client.rom.MissingRomException(type));
+        var ready = new java.util.concurrent.CompletableFuture<Void>();
+        var covered =
+                relocate && world != null
+                        ? worldTransition().cover()
+                        : java.util.concurrent.CompletableFuture.<Void>completedFuture(null);
         pendingWorldEntries.add(ready);
-        ready.whenComplete((ignored,failure)->pendingWorldEntries.remove(ready));
-        if(relocate)ready.whenComplete((ignored,failure)->{
-            if(failure!=null&&!disposed)Gdx.app.postRunnable(()->{if(!disposed&&world!=null&&selection==selectedServer())worldTransition().restore(covered);});
-        });
-        if(disposed) {ready.cancel(false);return ready;}
-        try {
-            java.util.concurrent.CompletableFuture.supplyAsync(() -> {
-                if(disposed || ready.isDone())throw new java.util.concurrent.CancellationException();
-                try {
-                    if(clientUi!=null)clientUi.prepareWorldData();
-                    var maps=WorldMapLoader.load(rom,mobile?null:resources.modelCaches().cache(type));
-                    var movement=new MapMovement(maps,entry.position());
-                    maps.tiles(movement.map());
-                    if(!mobile&&!maps.is3d())for(var connection:movement.map().connections())if(connection.direction()>=1&&connection.direction()<=4)maps.tiles(maps.map(connection.target()));
-                    if(maps.is3d())maps.geometry(movement.map().id());
-                    return new LoadedWorld(maps,movement);
-                } catch(java.io.IOException error) { throw new java.util.concurrent.CompletionException(error); }
-            },worldLoader).whenComplete((loaded,error) -> covered.whenComplete((coveredResult,fadeError) -> {
-                // The render queue may stop permanently during dispose; finish cancellation on this worker instead.
-                if(disposed || ready.isDone()) {ready.cancel(false);return;}
-                try {
-                    Gdx.app.postRunnable(() -> {
-                        if(disposed || ready.isDone() || selection!=selectedServer()) { ready.cancel(false); return; }
-                        if(fadeError!=null) { ready.completeExceptionally(fadeError); return; }
-                        if(error!=null) { ready.completeExceptionally(error); return; }
-                        OverworldCharacter sprite=null;
-                        WorldScene scene=null;
-                        try {
-                            var catalog=resources.newAppearance();
-                            try { sprite=new OverworldCharacter(catalog,entry.character().appearance(),resources.apply("sprites/game.pak")); }
-                            finally { catalog.dispose(); }
-                            scene=new WorldScene(loaded.maps(),loaded.movement(),sprite,resources.preferences(),mobile,
-                                    position -> gameService.savePosition(selection,entry.character().id(),position)
-                                        .exceptionally(failure -> { Gdx.app.error("world","Cannot save character position",failure); return null; }),
-                                    entry.travelState(),state -> gameService.saveTravelState(selection,entry.character().id(),state)
-                                        .exceptionally(failure -> { Gdx.app.error("world","Cannot save character travel state",failure); return null; }),
-                                    entry.pokedexState(),state -> gameService.savePokedexState(selection,entry.character().id(),state)
-                                        .exceptionally(failure -> { Gdx.app.error("world","Cannot save character Pokédex",failure); return null; }));
-                            scene.setWorldInfo(entry.worldInfo());
-                            if(mobile) scene.setControls(new MobileMapControls(resources.apply("buttons/controller.png"),resources.preferences()));
-                            scene.setFocused(focused);
-                            if(!mobile){
-                                clientUi.prepareWorldIcons();
-                                // Finish initial neighbor/character uploads before starting the reference map fade.
-                                scene.draw(0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
-                            }
-                            installWorld(scene,entry,selection,ready,relocate);
-                        } catch(RuntimeException | java.io.IOException failure) {
-                            if(scene!=null) scene.close(); else if(sprite!=null) sprite.close();
-                            ready.completeExceptionally(failure);
-                        }
+        ready.whenComplete((ignored, failure) -> pendingWorldEntries.remove(ready));
+        if (relocate)
+            ready.whenComplete(
+                    (ignored, failure) -> {
+                        if (failure != null && !disposed)
+                            Gdx.app.postRunnable(
+                                    () -> {
+                                        if (!disposed
+                                                && world != null
+                                                && selection == selectedServer())
+                                            worldTransition().restore(covered);
+                                    });
                     });
-                } catch(RuntimeException failure) {ready.completeExceptionally(failure);}
-            }));
-        } catch(java.util.concurrent.RejectedExecutionException failure) {
-            if(disposed)ready.cancel(false);else ready.completeExceptionally(failure);
+        if (disposed) {
+            ready.cancel(false);
+            return ready;
+        }
+        try {
+            java.util.concurrent.CompletableFuture.supplyAsync(
+                            () -> {
+                                if (disposed || ready.isDone())
+                                    throw new java.util.concurrent.CancellationException();
+                                try {
+                                    if (clientUi != null) clientUi.prepareWorldData();
+                                    var maps =
+                                            WorldMapLoader.load(
+                                                    rom,
+                                                    mobile
+                                                            ? null
+                                                            : resources.modelCaches().cache(type));
+                                    var movement = new MapMovement(maps, entry.position());
+                                    maps.tiles(movement.map());
+                                    if (!mobile && !maps.is3d())
+                                        for (var connection : movement.map().connections())
+                                            if (connection.direction() >= 1
+                                                    && connection.direction() <= 4)
+                                                maps.tiles(maps.map(connection.target()));
+                                    if (maps.is3d()) maps.geometry(movement.map().id());
+                                    return new LoadedWorld(maps, movement);
+                                } catch (java.io.IOException error) {
+                                    throw new java.util.concurrent.CompletionException(error);
+                                }
+                            },
+                            worldLoader)
+                    .whenComplete(
+                            (loaded, error) ->
+                                    covered.whenComplete(
+                                            (coveredResult, fadeError) -> {
+                                                // The render queue may stop permanently during
+                                                // dispose; finish cancellation on this worker
+                                                // instead.
+                                                if (disposed || ready.isDone()) {
+                                                    ready.cancel(false);
+                                                    return;
+                                                }
+                                                try {
+                                                    Gdx.app.postRunnable(
+                                                            () -> {
+                                                                if (disposed
+                                                                        || ready.isDone()
+                                                                        || selection
+                                                                                != selectedServer()) {
+                                                                    ready.cancel(false);
+                                                                    return;
+                                                                }
+                                                                if (fadeError != null) {
+                                                                    ready.completeExceptionally(
+                                                                            fadeError);
+                                                                    return;
+                                                                }
+                                                                if (error != null) {
+                                                                    ready.completeExceptionally(
+                                                                            error);
+                                                                    return;
+                                                                }
+                                                                OverworldCharacter sprite = null;
+                                                                WorldScene scene = null;
+                                                                try {
+                                                                    var catalog =
+                                                                            resources
+                                                                                    .newAppearance();
+                                                                    try {
+                                                                        sprite =
+                                                                                new OverworldCharacter(
+                                                                                        catalog,
+                                                                                        entry.character()
+                                                                                                .appearance(),
+                                                                                        resources
+                                                                                                .apply(
+                                                                                                        "sprites/game.pak"));
+                                                                    } finally {
+                                                                        catalog.dispose();
+                                                                    }
+                                                                    scene =
+                                                                            new WorldScene(
+                                                                                    loaded.maps(),
+                                                                                    loaded
+                                                                                            .movement(),
+                                                                                    sprite,
+                                                                                    resources
+                                                                                            .preferences(),
+                                                                                    mobile,
+                                                                                    position ->
+                                                                                            gameService
+                                                                                                    .savePosition(
+                                                                                                            selection,
+                                                                                                            entry.character()
+                                                                                                                    .id(),
+                                                                                                            position)
+                                                                                                    .exceptionally(
+                                                                                                            failure -> {
+                                                                                                                Gdx
+                                                                                                                        .app
+                                                                                                                        .error(
+                                                                                                                                "world",
+                                                                                                                                "Cannot"
+                                                                                                                                    + " save"
+                                                                                                                                    + " character"
+                                                                                                                                    + " position",
+                                                                                                                                failure);
+                                                                                                                return null;
+                                                                                                            }),
+                                                                                    entry
+                                                                                            .travelState(),
+                                                                                    state ->
+                                                                                            gameService
+                                                                                                    .saveTravelState(
+                                                                                                            selection,
+                                                                                                            entry.character()
+                                                                                                                    .id(),
+                                                                                                            state)
+                                                                                                    .exceptionally(
+                                                                                                            failure -> {
+                                                                                                                Gdx
+                                                                                                                        .app
+                                                                                                                        .error(
+                                                                                                                                "world",
+                                                                                                                                "Cannot"
+                                                                                                                                    + " save"
+                                                                                                                                    + " character"
+                                                                                                                                    + " travel"
+                                                                                                                                    + " state",
+                                                                                                                                failure);
+                                                                                                                return null;
+                                                                                                            }),
+                                                                                    entry
+                                                                                            .pokedexState(),
+                                                                                    state ->
+                                                                                            gameService
+                                                                                                    .savePokedexState(
+                                                                                                            selection,
+                                                                                                            entry.character()
+                                                                                                                    .id(),
+                                                                                                            state)
+                                                                                                    .exceptionally(
+                                                                                                            failure -> {
+                                                                                                                Gdx
+                                                                                                                        .app
+                                                                                                                        .error(
+                                                                                                                                "world",
+                                                                                                                                "Cannot"
+                                                                                                                                    + " save"
+                                                                                                                                    + " character"
+                                                                                                                                    + " Pokédex",
+                                                                                                                                failure);
+                                                                                                                return null;
+                                                                                                            }));
+                                                                    scene.setWorldInfo(
+                                                                            entry.worldInfo());
+                                                                    scene.transition(
+                                                                            worldTransition());
+                                                                    if (mobile)
+                                                                        scene.setControls(
+                                                                                new MobileMapControls(
+                                                                                        resources
+                                                                                                .apply(
+                                                                                                        "buttons/controller.png"),
+                                                                                        resources
+                                                                                                .preferences()));
+                                                                    scene.setFocused(focused);
+                                                                    if (!mobile) {
+                                                                        clientUi
+                                                                                .prepareWorldIcons();
+                                                                        // Finish initial
+                                                                        // neighbor/character
+                                                                        // uploads before starting
+                                                                        // the reference map fade.
+                                                                        scene.draw(
+                                                                                0,
+                                                                                Gdx.graphics
+                                                                                        .getWidth(),
+                                                                                Gdx.graphics
+                                                                                        .getHeight());
+                                                                    }
+                                                                    installWorld(
+                                                                            scene, entry, selection,
+                                                                            ready, relocate);
+                                                                } catch (RuntimeException
+                                                                        | java.io.IOException
+                                                                                failure) {
+                                                                    if (scene != null)
+                                                                        scene.close();
+                                                                    else if (sprite != null)
+                                                                        sprite.close();
+                                                                    ready.completeExceptionally(
+                                                                            failure);
+                                                                }
+                                                            });
+                                                } catch (RuntimeException failure) {
+                                                    ready.completeExceptionally(failure);
+                                                }
+                                            }));
+        } catch (java.util.concurrent.RejectedExecutionException failure) {
+            if (disposed) ready.cancel(false);
+            else ready.completeExceptionally(failure);
         }
         return ready;
     }
-    private void installWorld(WorldScene prepared,top.totodile.pokemmo.server.game.GameService.Entry entry,
-                              top.totodile.pokemmo.server.login.LoginService.Selection selection,
-                              java.util.concurrent.CompletableFuture<Void> ready,boolean relocate){
+
+    private void installWorld(
+            WorldScene prepared,
+            top.totodile.pokemmo.server.game.GameService.Entry entry,
+            top.totodile.pokemmo.server.login.LoginService.Selection selection,
+            java.util.concurrent.CompletableFuture<Void> ready,
+            boolean relocate) {
         preparedWorlds.add(prepared);
-        Runnable discard=()->{if(preparedWorlds.remove(prepared))prepared.close();};
-        Runnable install=()->{
-            if(disposed||ready.isDone()||selection!=selectedServer()){discard.run();ready.cancel(false);return;}
-            try{
-                var previous=world;
-                if(loginScene!=null){loginScene.close();loginScene=null;}
-                var worldInput=clientUi.showWorld(prepared,entry);world=prepared;preparedWorlds.remove(prepared);Gdx.input.setInputProcessor(worldInput);
-                worldTransition().reveal();
-                if(previous!=null)previous.close();ready.complete(null);
-            }catch(RuntimeException failure){discard.run();ready.completeExceptionally(failure);}
-        };
-        if(!relocate){install.run();return;}
-        // Decode the ROM and upload the destination scene before saving its region/position atomically.
-        gameService.teleport(selection,entry.character().id(),entry.region(),entry.position()).whenComplete((ignored,failure)->{
-            if(disposed){ready.cancel(false);return;}
-            Gdx.app.postRunnable(()->{if(failure!=null){discard.run();ready.completeExceptionally(failure);}else install.run();});
-        });
+        Runnable discard =
+                () -> {
+                    if (preparedWorlds.remove(prepared)) prepared.close();
+                };
+        Runnable install =
+                () -> {
+                    if (disposed || ready.isDone() || selection != selectedServer()) {
+                        discard.run();
+                        ready.cancel(false);
+                        return;
+                    }
+                    try {
+                        var previous = world;
+                        if (loginScene != null) {
+                            loginScene.close();
+                            loginScene = null;
+                        }
+                        var worldInput = clientUi.showWorld(prepared, entry);
+                        world = prepared;
+                        preparedWorlds.remove(prepared);
+                        Gdx.input.setInputProcessor(worldInput);
+                        worldTransition().reveal();
+                        if (previous != null) previous.close();
+                        ready.complete(null);
+                    } catch (RuntimeException failure) {
+                        discard.run();
+                        ready.completeExceptionally(failure);
+                    }
+                };
+        if (!relocate) {
+            install.run();
+            return;
+        }
+        // Decode the ROM and upload the destination scene before saving its region/position
+        // atomically.
+        gameService
+                .teleport(selection, entry.character().id(), entry.region(), entry.position())
+                .whenComplete(
+                        (ignored, failure) -> {
+                            if (disposed) {
+                                ready.cancel(false);
+                                return;
+                            }
+                            Gdx.app.postRunnable(
+                                    () -> {
+                                        if (failure != null) {
+                                            discard.run();
+                                            ready.completeExceptionally(failure);
+                                        } else install.run();
+                                    });
+                        });
     }
 
     /** 后续角色/世界入口从此取得选择结果，不需要访问登录界面或密码。 */
@@ -269,8 +528,11 @@ public final class ClientApplication extends ApplicationAdapter {
         return loginController == null ? null : loginController.selection();
     }
 
-    private top.totodile.pokemmo.client.world.WorldTransition worldTransition(){
-        if(worldTransition==null)worldTransition=new top.totodile.pokemmo.client.world.WorldTransition(()->clock.getAsLong()/1_000_000L);
+    private top.totodile.pokemmo.client.world.WorldTransition worldTransition() {
+        if (worldTransition == null)
+            worldTransition =
+                    new top.totodile.pokemmo.client.world.WorldTransition(
+                            () -> clock.getAsLong() / 1_000_000L);
         return worldTransition;
     }
 
@@ -285,37 +547,55 @@ public final class ClientApplication extends ApplicationAdapter {
         frameRateLimit.waitForFrame();
         updateUiViewport();
         ScreenUtils.clear(0f, 0f, 0f, 1f);
-        if(!mobile && !resources.modelCaches().done()) {
-            if(resources.modelCaches().building()) {
-                if(modelPrecacheScreen==null)modelPrecacheScreen=new top.totodile.pokemmo.client.ui.startup.PcModelPrecacheScreen(resources);
+        if (!mobile && !resources.modelCaches().done()) {
+            if (resources.modelCaches().building()) {
+                if (modelPrecacheScreen == null)
+                    modelPrecacheScreen =
+                            new top.totodile.pokemmo.client.ui.startup.PcModelPrecacheScreen(
+                                    resources);
                 modelPrecacheScreen.draw(resources.modelCaches().progress());
             }
             return;
         }
-        if(modelPrecacheScreen!=null){modelPrecacheScreen.close();modelPrecacheScreen=null;}
+        if (modelPrecacheScreen != null) {
+            modelPrecacheScreen.close();
+            modelPrecacheScreen = null;
+        }
         // 以资源实际加载状态决定画面，不规定 Logo 或背景出现在哪一帧。
         // AssetManager 在后台解码图片，在渲染线程上传纹理。
-        if (clientUi == null && (startupBackground != null ? startupBackground.update() : sceneAssets.update())) {
+        if (clientUi == null
+                && (startupBackground != null
+                        ? startupBackground.update()
+                        : sceneAssets.update())) {
             if (startupBackground == null && batch == null) batch = new SpriteBatch();
             loadScene();
         }
         // 普通启动等待资源就绪；移动端已加载的启动背景由外层保留并交接。
         if (clientUi == null) return;
-        if(!mobile && !modelPrecacheReported) {
-            modelPrecacheReported=true;
-            if(resources.modelCaches().failure()!=null)clientUi.showNotification(resources.strings().get(926));
+        if (!mobile && !modelPrecacheReported) {
+            modelPrecacheReported = true;
+            if (resources.modelCaches().failure() != null)
+                clientUi.showNotification(resources.strings().get(926));
         }
-        if(world!=null) {
-            world.draw(Math.min(.1f,Gdx.graphics.getDeltaTime()),Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
-            if(worldTransition!=null)worldTransition.draw(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+        if (world != null) {
+            world.draw(
+                    Math.min(.1f, Gdx.graphics.getDeltaTime()),
+                    Gdx.graphics.getWidth(),
+                    Gdx.graphics.getHeight());
+            if (worldTransition != null)
+                worldTransition.draw(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
             uiViewport.apply();
-            clientUi.draw(uiViewport.getWorldWidth(),uiViewport.getWorldHeight(),0,0);
+            clientUi.draw(uiViewport.getWorldWidth(), uiViewport.getWorldHeight(), 0, 0);
             return;
         }
         viewport.apply();
         float width = viewport.getWorldWidth();
         float height = viewport.getWorldHeight();
-        if (loginScene!=null && loginScene.draw(Gdx.graphics.getDeltaTime(),viewport.getScreenWidth(),viewport.getScreenHeight())) {
+        if (loginScene != null
+                && loginScene.draw(
+                        Gdx.graphics.getDeltaTime(),
+                        viewport.getScreenWidth(),
+                        viewport.getScreenHeight())) {
             // PC ROM 场景已绘制，前景继续使用现有 UI 视口。
         } else if (mobile || loginScene == null || !startupHasBlackWhiteRom) {
             // PC 仅在未加载黑白 ROM 时使用滚动背景；3D 准备期间保留清屏底色。
@@ -343,8 +623,11 @@ public final class ClientApplication extends ApplicationAdapter {
         int safeHeight = Math.max(1, viewport.getScreenHeight() - top - bottom);
         ScreenViewport safe = (ScreenViewport) uiViewport;
         float units = viewport.getWorldWidth() / viewport.getScreenWidth();
-        if (safe.getScreenWidth() != safeWidth || safe.getScreenHeight() != safeHeight
-                || safe.getScreenX() != left || safe.getScreenY() != bottom || safe.getUnitsPerPixel() != units) {
+        if (safe.getScreenWidth() != safeWidth
+                || safe.getScreenHeight() != safeHeight
+                || safe.getScreenX() != left
+                || safe.getScreenY() != bottom
+                || safe.getUnitsPerPixel() != units) {
             safe.setUnitsPerPixel(units);
             safe.update(safeWidth, safeHeight, true);
             safe.setScreenPosition(left, bottom);
@@ -352,27 +635,35 @@ public final class ClientApplication extends ApplicationAdapter {
     }
 
     @Override
-    public void pause() { setFocused(false); }
+    public void pause() {
+        setFocused(false);
+    }
 
     @Override
-    public void resume() { setFocused(true); }
+    public void resume() {
+        setFocused(true);
+    }
 
     @Override
     public void dispose() {
-        if(modelPrecacheScreen!=null){modelPrecacheScreen.close();modelPrecacheScreen=null;}
-        if(disposed)return;
-        disposed=true;
-        if(worldTransition!=null)worldTransition.close();
-        // shutdownNow also removes queued loader jobs, so their dependent futures must be completed here.
-        for(var pending:pendingWorldEntries)pending.cancel(false);
+        if (modelPrecacheScreen != null) {
+            modelPrecacheScreen.close();
+            modelPrecacheScreen = null;
+        }
+        if (disposed) return;
+        disposed = true;
+        if (worldTransition != null) worldTransition.close();
+        // shutdownNow also removes queued loader jobs, so their dependent futures must be completed
+        // here.
+        for (var pending : pendingWorldEntries) pending.cancel(false);
         worldLoader.shutdownNow();
-        for(var prepared:preparedWorlds)prepared.close();
+        for (var prepared : preparedWorlds) prepared.close();
         preparedWorlds.clear();
-        if(world!=null) {
+        if (world != null) {
             Gdx.input.setInputProcessor(null);
             world.close();
         }
-        if (loginScene!=null) loginScene.close();
+        if (loginScene != null) loginScene.close();
         if (clientUi != null) clientUi.dispose();
         if (gameService != null) gameService.close();
         // 背景纹理由 AssetManager 统一释放。

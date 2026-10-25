@@ -30,44 +30,46 @@
 package de.matthiasmann.twl.model;
 
 /**
- *
  * @author Matthias Mann
  */
 public interface EditFieldModel extends ObservableCharSequence {
 
     /**
-     * Replace {@code count} characters starting at {@code start} with the
-     * specified {@code replacement} text.
+     * Replace {@code count} characters starting at {@code start} with the specified {@code
+     * replacement} text.
+     *
      * @param start the start index
      * @param count the number of characters to replace, can be 0.
      * @param replacement the replacement text, can be empty.
-     * @return the number of characters which have been inserted, or -1 if
-     *         no replacement has been performed.
-     * @throws StringIndexOutOfBoundsException if {@code start} or {@code count}
-     *         are outside the sequence
+     * @return the number of characters which have been inserted, or -1 if no replacement has been
+     *     performed.
+     * @throws StringIndexOutOfBoundsException if {@code start} or {@code count} are outside the
+     *     sequence
      * @throws NullPointerException when replacement is {@code null}
      */
     public int replace(int start, int count, String replacement);
 
     /**
-     * Replace {@code count} characters starting at {@code start} with the
-     * specified {@code replacement} character.
+     * Replace {@code count} characters starting at {@code start} with the specified {@code
+     * replacement} character.
+     *
      * @param start the start index
      * @param count the number of characters to replace, can be 0.
      * @param replacement the replacement character
      * @return true if the sequence was changed, false otherwise.
-     * @throws StringIndexOutOfBoundsException if {@code start} or {@code count}
-     *         are outside the sequence
+     * @throws StringIndexOutOfBoundsException if {@code start} or {@code count} are outside the
+     *     sequence
      */
     public boolean replace(int start, int count, char replacement);
 
     /**
      * Returns a String containing the specified range from this sequence.
+     *
      * @param start the start index
      * @param end the end index
      * @return the String object
-     * @throws StringIndexOutOfBoundsException if {@code start} or {@code count}
-     *         are outside the sequence
+     * @throws StringIndexOutOfBoundsException if {@code start} or {@code count} are outside the
+     *     sequence
      * @see #subSequence(int, int)
      */
     public String substring(int start, int end);

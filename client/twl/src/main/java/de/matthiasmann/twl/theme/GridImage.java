@@ -35,7 +35,6 @@ import de.matthiasmann.twl.renderer.AnimationState;
 import de.matthiasmann.twl.renderer.Image;
 
 /**
- *
  * @author Matthias Mann
  */
 public class GridImage implements Image, HasBorder {
@@ -52,7 +51,7 @@ public class GridImage implements Image, HasBorder {
     private final int weightSumY;
 
     GridImage(Image[] images, int[] weightX, int[] weightY, Border border) {
-        if(weightX.length == 0 || weightY.length == 0) {
+        if (weightX.length == 0 || weightY.length == 0) {
             throw new IllegalArgumentException("zero dimension size not allowed");
         }
         assert weightX.length * weightY.length == images.length;
@@ -64,9 +63,9 @@ public class GridImage implements Image, HasBorder {
         this.rowHeight = new int[weightY.length];
 
         int widthTmp = 0;
-        for(int x=0 ; x<weightX.length ; x++) {
+        for (int x = 0; x < weightX.length; x++) {
             int widthColumn = 0;
-            for(int y=0 ; y<weightY.length ; y++) {
+            for (int y = 0; y < weightY.length; y++) {
                 widthColumn = Math.max(widthColumn, getImage(x, y).getWidth());
             }
             widthTmp += widthColumn;
@@ -75,9 +74,9 @@ public class GridImage implements Image, HasBorder {
         this.width = widthTmp;
 
         int heightTmp = 0;
-        for(int y=0 ; y<weightY.length ; y++) {
+        for (int y = 0; y < weightY.length; y++) {
             int heightRow = 0;
-            for(int x=0 ; x<weightX.length ; x++) {
+            for (int x = 0; x < weightX.length; x++) {
                 heightRow = Math.max(heightRow, getImage(x, y).getHeight());
             }
             heightTmp += heightRow;
@@ -86,8 +85,8 @@ public class GridImage implements Image, HasBorder {
         this.height = heightTmp;
 
         int tmpSumX = 0;
-        for(int weight : weightX) {
-            if(weight < 0) {
+        for (int weight : weightX) {
+            if (weight < 0) {
                 throw new IllegalArgumentException("negative weight in weightX");
             }
             tmpSumX += weight;
@@ -95,18 +94,18 @@ public class GridImage implements Image, HasBorder {
         weightSumX = tmpSumX;
 
         int tmpSumY = 0;
-        for(int weight : weightY) {
-            if(weight < 0) {
+        for (int weight : weightY) {
+            if (weight < 0) {
                 throw new IllegalArgumentException("negative weight in weightY");
             }
             tmpSumY += weight;
         }
         weightSumY = tmpSumY;
 
-        if(weightSumX <= 0) {
+        if (weightSumX <= 0) {
             throw new IllegalArgumentException("zero weightX not allowed");
         }
-        if(weightSumY <= 0) {
+        if (weightSumY <= 0) {
             throw new IllegalArgumentException("zero weightX not allowed");
         }
     }
@@ -124,7 +123,6 @@ public class GridImage implements Image, HasBorder {
         this.height = src.height;
     }
 
-
     public int getWidth() {
         return width;
     }
@@ -140,9 +138,9 @@ public class GridImage implements Image, HasBorder {
     public void draw(AnimationState as, int x, int y, int width, int height) {
         int deltaY = height - this.height;
         int remWeightY = weightSumY;
-        for(int yi=0,idx=0 ; yi<weightY.length ; yi++) {
+        for (int yi = 0, idx = 0; yi < weightY.length; yi++) {
             int heightRow = rowHeight[yi];
-            if(remWeightY > 0) {
+            if (remWeightY > 0) {
                 int partY = deltaY * weightY[yi] / remWeightY;
                 remWeightY -= weightY[yi];
                 heightRow += partY;
@@ -152,9 +150,9 @@ public class GridImage implements Image, HasBorder {
             int tmpX = x;
             int deltaX = width - this.width;
             int remWeightX = weightSumX;
-            for(int xi=0 ; xi<weightX.length ; xi++,idx++) {
+            for (int xi = 0; xi < weightX.length; xi++, idx++) {
                 int widthColumn = columnWidth[xi];
-                if(remWeightX > 0) {
+                if (remWeightX > 0) {
                     int partX = deltaX * weightX[xi] / remWeightX;
                     remWeightX -= weightX[xi];
                     widthColumn += partX;
@@ -175,7 +173,7 @@ public class GridImage implements Image, HasBorder {
 
     public Image createTintedVersion(Color color) {
         Image[] newImages = new Image[images.length];
-        for(int i=0 ; i<newImages.length ; i++) {
+        for (int i = 0; i < newImages.length; i++) {
             newImages[i] = images[i].createTintedVersion(color);
         }
         return new GridImage(newImages, this);

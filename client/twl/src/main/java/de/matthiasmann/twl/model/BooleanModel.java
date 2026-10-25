@@ -33,7 +33,7 @@ import de.matthiasmann.twl.utils.WithRunnableCallback;
 
 /**
  * A generic boolean model.
- * 
+ *
  * @author Matthias Mann
  */
 public interface BooleanModel extends WithRunnableCallback {
@@ -41,5 +41,4 @@ public interface BooleanModel extends WithRunnableCallback {
     public boolean getValue();
 
     public void setValue(boolean value);
-    
 }

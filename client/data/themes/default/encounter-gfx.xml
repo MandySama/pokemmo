@@ -1,0 +1,153 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<themes>
+  <images file="res/battle-hud.png" filter="nearest">
+    <area name="battle-button-return.default" xywh="218,145,96,30" />
+    <area name="battle-button-return.hover" xywh="218,176,96,30" />
+    <area name="battle-button-return.disabled" xywh="218,207,96,30" />
+    <select name="battle-button-return.background">
+      <alias ref="battle-button-return.hover" if="hover | keyboardFocus" />
+      <alias ref="battle-button-return.disabled" if="disabled" />
+      <alias ref="battle-button-return.hover" if="selected" />
+      <alias ref="battle-button-return.default" />
+    </select>
+  </images>
+  <images file="res/main-hud.png" filter="nearest">
+    <area name="button.default" xywh="7,7,52,52" splitx="L8,R8" splity="T8,B8" />
+    <area name="button.hover1" xywh="8,62,52,52" splitx="L8,R8" splity="T8,B8" />
+    <area name="button.hover2" xywh="61,62,52,52" splitx="L8,R8" splity="T8,B8" />
+    <area name="button.hover3" xywh="114,62,52,52" splitx="L8,R8" splity="T8,B8" />
+    <area name="button.hover4" xywh="169,62,52,52" splitx="L8,R8" splity="T8,B8" />
+    <animation name="button.hover" timeSource="hover" count="1">
+      <frame duration="50" ref="button.hover1" tint="#FFFFFFFF" />
+      <frame duration="50" ref="button.hover2" tint="#FFFFFFFF" />
+      <frame duration="50" ref="button.hover3" tint="#FFFFFFFF" />
+      <frame duration="50" ref="button.hover4" tint="#FFFFFFFF" />
+    </animation>
+    <area name="button.disabled" xywh="61,7,52,52" splitx="L8,R8" splity="T8,B8" />
+    <area name="button.selected1" xywh="114,7,52,52" splitx="L8,R8" splity="T8,B8" />
+    <area name="button.selected2" xywh="169,7,52,52" splitx="L8,R8" splity="T8,B8" />
+    <animation name="button.selected" timeSource="selected">
+      <frame duration="400" ref="button.selected1" tint="#FFFFFFFF" />
+      <frame duration="400" ref="button.selected2" tint="#FFFFFFFF" />
+    </animation>
+    <select name="button.background">
+      <alias ref="button.hover" if="hover" />
+      <alias ref="button.selected" if="hover | keyboardFocus" />
+      <alias ref="button.disabled" if="disabled" />
+      <alias ref="button.hover" if="selected" />
+      <alias ref="button.default" />
+    </select>
+  </images>
+  <images file="res/effectivity_buttons_zh.png" filter="nearest">
+    <area name="encounter-eff-zh-status" xywh="12,107,104,18" />
+    <area name="encounter-eff-zh-immune" xywh="12,59,104,18" />
+    <area name="encounter-eff-zh-se" xywh="12,2,104,18" />
+    <area name="encounter-eff-zh-e" xywh="12,21,104,18" />
+    <area name="encounter-eff-zh-nve" xywh="12,39,104,18" />
+    <area name="encounter-eff-zh-bg" xywh="12,83,104,18" />
+    <composed name="encounter-eff-zh-status.background">
+      <alias ref="encounter-eff-zh-bg" />
+      <alias ref="encounter-eff-zh-status" />
+    </composed>
+    <composed name="encounter-eff-zh-immune.background">
+      <alias ref="encounter-eff-zh-bg" />
+      <alias ref="encounter-eff-zh-immune" />
+    </composed>
+    <composed name="encounter-eff-zh-se.background">
+      <alias ref="encounter-eff-zh-bg" />
+      <alias ref="encounter-eff-zh-se" />
+    </composed>
+    <composed name="encounter-eff-zh-e.background">
+      <alias ref="encounter-eff-zh-bg" />
+      <alias ref="encounter-eff-zh-e" />
+    </composed>
+    <composed name="encounter-eff-zh-nve.background">
+      <alias ref="encounter-eff-zh-bg" />
+      <alias ref="encounter-eff-zh-nve" />
+    </composed>
+  </images>
+  <images file="res/effectivity_buttons_en.png" filter="nearest">
+    <area name="encounter-eff-en-status" xywh="12,107,104,18" />
+    <area name="encounter-eff-en-immune" xywh="12,59,104,18" />
+    <area name="encounter-eff-en-se" xywh="12,2,104,18" />
+    <area name="encounter-eff-en-e" xywh="12,21,104,18" />
+    <area name="encounter-eff-en-nve" xywh="12,39,104,18" />
+    <area name="encounter-eff-en-bg" xywh="12,83,104,18" />
+    <composed name="encounter-eff-en-status.background">
+      <alias ref="encounter-eff-en-bg" />
+      <alias ref="encounter-eff-en-status" />
+    </composed>
+    <composed name="encounter-eff-en-immune.background">
+      <alias ref="encounter-eff-en-bg" />
+      <alias ref="encounter-eff-en-immune" />
+    </composed>
+    <composed name="encounter-eff-en-se.background">
+      <alias ref="encounter-eff-en-bg" />
+      <alias ref="encounter-eff-en-se" />
+    </composed>
+    <composed name="encounter-eff-en-e.background">
+      <alias ref="encounter-eff-en-bg" />
+      <alias ref="encounter-eff-en-e" />
+    </composed>
+    <composed name="encounter-eff-en-nve.background">
+      <alias ref="encounter-eff-en-bg" />
+      <alias ref="encounter-eff-en-nve" />
+    </composed>
+  </images>
+  <images file="res/effectivity_buttons_es.png" filter="nearest">
+    <area name="encounter-eff-es-status" xywh="12,107,104,18" />
+    <area name="encounter-eff-es-immune" xywh="12,59,104,18" />
+    <area name="encounter-eff-es-se" xywh="12,2,104,18" />
+    <area name="encounter-eff-es-e" xywh="12,21,104,18" />
+    <area name="encounter-eff-es-nve" xywh="12,39,104,18" />
+    <area name="encounter-eff-es-bg" xywh="12,83,104,18" />
+    <composed name="encounter-eff-es-status.background">
+      <alias ref="encounter-eff-es-bg" />
+      <alias ref="encounter-eff-es-status" />
+    </composed>
+    <composed name="encounter-eff-es-immune.background">
+      <alias ref="encounter-eff-es-bg" />
+      <alias ref="encounter-eff-es-immune" />
+    </composed>
+    <composed name="encounter-eff-es-se.background">
+      <alias ref="encounter-eff-es-bg" />
+      <alias ref="encounter-eff-es-se" />
+    </composed>
+    <composed name="encounter-eff-es-e.background">
+      <alias ref="encounter-eff-es-bg" />
+      <alias ref="encounter-eff-es-e" />
+    </composed>
+    <composed name="encounter-eff-es-nve.background">
+      <alias ref="encounter-eff-es-bg" />
+      <alias ref="encounter-eff-es-nve" />
+    </composed>
+  </images>
+  <images file="res/effectivity_buttons_fr.png" filter="nearest">
+    <area name="encounter-eff-fr-status" xywh="12,107,104,18" />
+    <area name="encounter-eff-fr-immune" xywh="12,59,104,18" />
+    <area name="encounter-eff-fr-se" xywh="12,2,104,18" />
+    <area name="encounter-eff-fr-e" xywh="12,21,104,18" />
+    <area name="encounter-eff-fr-nve" xywh="12,39,104,18" />
+    <area name="encounter-eff-fr-bg" xywh="12,83,104,18" />
+    <composed name="encounter-eff-fr-status.background">
+      <alias ref="encounter-eff-fr-bg" />
+      <alias ref="encounter-eff-fr-status" />
+    </composed>
+    <composed name="encounter-eff-fr-immune.background">
+      <alias ref="encounter-eff-fr-bg" />
+      <alias ref="encounter-eff-fr-immune" />
+    </composed>
+    <composed name="encounter-eff-fr-se.background">
+      <alias ref="encounter-eff-fr-bg" />
+      <alias ref="encounter-eff-fr-se" />
+    </composed>
+    <composed name="encounter-eff-fr-e.background">
+      <alias ref="encounter-eff-fr-bg" />
+      <alias ref="encounter-eff-fr-e" />
+    </composed>
+    <composed name="encounter-eff-fr-nve.background">
+      <alias ref="encounter-eff-fr-bg" />
+      <alias ref="encounter-eff-fr-nve" />
+    </composed>
+  </images>
+</themes>

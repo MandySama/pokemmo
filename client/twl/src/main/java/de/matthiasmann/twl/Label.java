@@ -1,11 +1,11 @@
 /*
  * Copyright (c) 2008-2010, Matthias Mann
- * 
+ *
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright notice,
  *       this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright
@@ -14,7 +14,7 @@
  *     * Neither the name of Matthias Mann nor the names of its contributors may
  *       be used to endorse or promote products derived from this software
  *       without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -29,13 +29,13 @@
  */
 package de.matthiasmann.twl;
 
-import de.matthiasmann.twl.utils.TextUtil;
-import de.matthiasmann.twl.utils.CallbackSupport;
 import de.matthiasmann.twl.renderer.Font;
+import de.matthiasmann.twl.utils.CallbackSupport;
+import de.matthiasmann.twl.utils.TextUtil;
 
 /**
  * A label widget.
- * 
+ *
  * @author Matthias Mann
  */
 public class Label extends TextWidget {
@@ -44,13 +44,13 @@ public class Label extends TextWidget {
         CLICK,
         DOUBLE_CLICK
     };
-    
+
     private boolean autoSize = true;
     private Widget labelFor;
     private CallbackWithReason<?>[] callbacks;
-    
+
     public Label() {
-        this((AnimationState)null, false);
+        this((AnimationState) null, false);
     }
 
     /**
@@ -101,7 +101,7 @@ public class Label extends TextWidget {
     @Override
     public void setFont(Font font) {
         super.setFont(font);
-        if(autoSize) {
+        if (autoSize) {
             invalidateLayout();
         }
     }
@@ -109,12 +109,12 @@ public class Label extends TextWidget {
     public String getText() {
         return super.getCharSequence().toString();
     }
-    
+
     public void setText(String text) {
         text = TextUtil.notNull(text);
-        if(!text.equals(getText())) {
+        if (!text.equals(getText())) {
             super.setCharSequence(text);
-            if(autoSize) {
+            if (autoSize) {
                 invalidateLayout();
             }
         }
@@ -123,7 +123,7 @@ public class Label extends TextWidget {
     @Override
     public Object getTooltipContent() {
         Object toolTipContent = super.getTooltipContent();
-        if(toolTipContent == null && labelFor != null) {
+        if (toolTipContent == null && labelFor != null) {
             return labelFor.getTooltipContent();
         }
         return toolTipContent;
@@ -134,14 +134,13 @@ public class Label extends TextWidget {
     }
 
     /**
-     * Sets the associated widget for this label. This will cause the label to
-     * get it's tooltip content from the associated widget and also forward the
-     * keyboard focus to it.
+     * Sets the associated widget for this label. This will cause the label to get it's tooltip
+     * content from the associated widget and also forward the keyboard focus to it.
      *
      * @param labelFor the associated widget. Can be {@code null}.
      */
     public void setLabelFor(Widget labelFor) {
-        if(labelFor == this) {
+        if (labelFor == this) {
             throw new IllegalArgumentException("labelFor == this");
         }
         this.labelFor = labelFor;
@@ -149,7 +148,7 @@ public class Label extends TextWidget {
 
     protected void applyThemeLabel(ThemeInfo themeInfo) {
         String themeText = themeInfo.getParameterValue("text", false, String.class);
-        if(themeText != null) {
+        if (themeText != null) {
             setText(themeText);
         }
     }
@@ -162,7 +161,7 @@ public class Label extends TextWidget {
 
     @Override
     public boolean requestKeyboardFocus() {
-        if(labelFor != null) {
+        if (labelFor != null) {
             return labelFor.requestKeyboardFocus();
         } else {
             return super.requestKeyboardFocus();
@@ -182,9 +181,9 @@ public class Label extends TextWidget {
     @Override
     protected boolean handleEvent(Event evt) {
         handleMouseHover(evt);
-        if(evt.isMouseEvent()) {
-            if(evt.getType() == Event.Type.MOUSE_CLICKED) {
-                switch(evt.getMouseClickCount()) {
+        if (evt.isMouseEvent()) {
+            if (evt.getType() == Event.Type.MOUSE_CLICKED) {
+                switch (evt.getMouseClickCount()) {
                     case 1:
                         handleClick(false);
                         break;
@@ -195,9 +194,9 @@ public class Label extends TextWidget {
             }
             return evt.getType() != Event.Type.MOUSE_WHEEL;
         }
-        return false;  
+        return false;
     }
-    
+
     protected void handleClick(boolean doubleClick) {
         doCallback(doubleClick ? CallbackReason.DOUBLE_CLICK : CallbackReason.CLICK);
     }

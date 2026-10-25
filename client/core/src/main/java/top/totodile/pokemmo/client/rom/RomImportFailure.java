@@ -6,9 +6,10 @@ import java.io.IOException;
 public final class RomImportFailure extends IOException {
     public final int stringId;
     public final String detail;
-    public RomImportFailure(int stringId,String detail,Throwable cause) {
-        super(detail,cause);
-        this.stringId=stringId;
-        this.detail=detail;
+
+    public RomImportFailure(int stringId, String detail, Throwable cause) {
+        super(detail, cause);
+        this.stringId = stringId;
+        this.detail = detail;
     }
 }

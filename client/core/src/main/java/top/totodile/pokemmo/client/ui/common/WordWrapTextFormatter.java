@@ -1,7 +1,5 @@
 package top.totodile.pokemmo.client.ui.common;
 
-
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,10 +30,11 @@ public abstract class WordWrapTextFormatter {
             }
             StringBuilder stringBuilder3 = new StringBuilder(string.length() + 8);
             StringBuilder stringBuilder4 = new StringBuilder(string.length());
-            int n3 = (int)((double)n * d);
+            int n3 = (int) ((double) n * d);
             String[] stringArray = string.split(string2);
             int n4 = 0;
-            block0: for (int j = 0; j < stringArray.length; ++j) {
+            block0:
+            for (int j = 0; j < stringArray.length; ++j) {
                 String string3 = stringArray[j];
                 if (WordWrapTextFormatter.yk(string3)) {
                     if (n2 >= 1 && n4 >= n2) {
@@ -88,7 +87,9 @@ public abstract class WordWrapTextFormatter {
                     }
                     if (n6 < 1 || n6 < n3) {
                         if (stringBuilder4.length() > n3) {
-                            String string4 = stringBuilder4.substring(0, Math.min(n, stringBuilder4.length()));
+                            String string4 =
+                                    stringBuilder4.substring(
+                                            0, Math.min(n, stringBuilder4.length()));
                             for (n5 = string4.length() - 1; n5 >= 0; --n5) {
                                 Matcher matcher = lp0;
                                 matcher.reset(Character.toString(string4.charAt(n5)));
@@ -137,4 +138,3 @@ public abstract class WordWrapTextFormatter {
         return true;
     }
 }
-

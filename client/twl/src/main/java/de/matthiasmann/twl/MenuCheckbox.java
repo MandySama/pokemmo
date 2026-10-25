@@ -31,18 +31,17 @@ package de.matthiasmann.twl;
 
 import de.matthiasmann.twl.model.BooleanModel;
 import de.matthiasmann.twl.model.ToggleButtonModel;
+
 import java.beans.PropertyChangeEvent;
 
 /**
- *
  * @author Matthias Mann
  */
 public class MenuCheckbox extends MenuElement {
 
     private BooleanModel model;
 
-    public MenuCheckbox() {
-    }
+    public MenuCheckbox() {}
 
     public MenuCheckbox(BooleanModel model) {
         this.model = model;
@@ -65,17 +64,17 @@ public class MenuCheckbox extends MenuElement {
 
     @Override
     protected Widget createMenuWidget(MenuManager mm, int level) {
-        MenuBtn btn = new MenuBtn() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                super.propertyChange(evt);
-                ((ToggleButtonModel)getModel()).setModel(MenuCheckbox.this.getModel());
-            }
-        };
+        MenuBtn btn =
+                new MenuBtn() {
+                    @Override
+                    public void propertyChange(PropertyChangeEvent evt) {
+                        super.propertyChange(evt);
+                        ((ToggleButtonModel) getModel()).setModel(MenuCheckbox.this.getModel());
+                    }
+                };
         btn.setModel(new ToggleButtonModel(getModel()));
         setWidgetTheme(btn, "checkbox");
         btn.addCallback(mm.getCloseCallback());
         return btn;
     }
-
 }

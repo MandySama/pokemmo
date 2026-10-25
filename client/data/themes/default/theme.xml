@@ -13,10 +13,12 @@
     <color>#FF565D63</color>
   </constantDef>
   <include filename="fonts.xml" />
+  <include filename="battle-fonts.xml" />
   <fontGen />
   <include filename="gfx.xml" />
   <include filename="gfx_ui.xml" />
   <include filename="summary-gfx.xml" />
+  <include filename="encounter-gfx.xml" />
   <include filename="init.xml" />
   <include filename="main-widgets.xml" />
   <include filename="ui/settings.xml" />
@@ -30,4 +32,5 @@
   <include filename="ui/pc.xml" />
   <include filename="ui/party.xml" />
   <include filename="ui/monster-frame.xml" />
+  <include filename="ui/encounter.xml" />
 </themes>

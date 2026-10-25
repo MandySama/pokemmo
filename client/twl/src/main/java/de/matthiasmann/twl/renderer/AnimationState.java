@@ -34,14 +34,15 @@ import java.util.HashMap;
 
 /**
  * Time source for animations.
+ *
  * @author Matthias Mann
  */
 public interface AnimationState {
 
     /**
-     * Returns the time since the specified state has changed in ms.
-     * If the specified state was never changed then a free running time is returned.
-     * 
+     * Returns the time since the specified state has changed in ms. If the specified state was
+     * never changed then a free running time is returned.
+     *
      * @param state the state key.
      * @return time since last state change is ms.
      */
@@ -49,16 +50,15 @@ public interface AnimationState {
 
     /**
      * Checks if the given state is active.
-     * 
+     *
      * @param state the state key.
      * @return true if the state is set
      */
     public boolean getAnimationState(StateKey state);
 
     /**
-     * Checks if this state was changed based on user interaction or not.
-     * If this method returns false then the animation time should not be used
-     * for single shot animations.
+     * Checks if this state was changed based on user interaction or not. If this method returns
+     * false then the animation time should not be used for single shot animations.
      *
      * @param state the state key.
      * @return true if single shot animations should run or not.
@@ -66,9 +66,8 @@ public interface AnimationState {
     public boolean getShouldAnimateState(StateKey state);
 
     /**
-     * An animation state key which maps each animation state name to
-     * an unique ID. This allows to implement faster lookups based on
-     * the unique ID instead of performing a string lookup.
+     * An animation state key which maps each animation state name to an unique ID. This allows to
+     * implement faster lookups based on the unique ID instead of performing a string lookup.
      */
     public static final class StateKey {
         private final String name;
@@ -76,8 +75,7 @@ public interface AnimationState {
 
         private static final HashMap<String, StateKey> keys =
                 new HashMap<String, AnimationState.StateKey>();
-        private static final ArrayList<StateKey> keysByID =
-                new ArrayList<StateKey>();
+        private static final ArrayList<StateKey> keysByID = new ArrayList<StateKey>();
 
         private StateKey(String name, int id) {
             this.name = name;
@@ -94,8 +92,7 @@ public interface AnimationState {
         }
 
         /**
-         * The unique ID of this StateKey.
-         * The first StateKey has ID 0.
+         * The unique ID of this StateKey. The first StateKey has ID 0.
          *
          * @return the unique ID
          */
@@ -105,8 +102,8 @@ public interface AnimationState {
 
         @Override
         public boolean equals(Object obj) {
-            if(obj instanceof StateKey) {
-                final StateKey other = (StateKey)obj;
+            if (obj instanceof StateKey) {
+                final StateKey other = (StateKey) obj;
                 return this.id == other.id;
             }
             return false;
@@ -118,38 +115,38 @@ public interface AnimationState {
         }
 
         /**
-         * Returns the StateKey for the specified name.
-         * The StateKey is created if it didn't exist.
+         * Returns the StateKey for the specified name. The StateKey is created if it didn't exist.
          *
          * @param name the name to look up
          * @return the StateKey - never null.
          * @throws IllegalArgumentException if name is empty
          * @throws NullPointerException if name is {@code null}
          */
-        public synchronized static StateKey get(String name) {
-            if(name.length() == 0) {
+        public static synchronized StateKey get(String name) {
+            if (name.length() == 0) {
                 throw new IllegalArgumentException("name");
             }
             StateKey key = keys.get(name);
-            if(key == null) {
+            if (key == null) {
                 key = new StateKey(name, keys.size());
                 keys.put(name, key);
                 keysByID.add(key);
             }
             return key;
         }
-        
+
         /**
          * Returns the StateKey for the specified id.
+         *
          * @param id the ID to lookup
          * @return the StateKey
          * @throws IndexOutOfBoundsException if the ID is invalid
          */
-        public synchronized static StateKey get(int id) {
+        public static synchronized StateKey get(int id) {
             return keysByID.get(id);
         }
 
-        public synchronized static int getNumStateKeys() {
+        public static synchronized int getNumStateKeys() {
             return keys.size();
         }
     }

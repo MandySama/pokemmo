@@ -30,27 +30,25 @@
 package de.matthiasmann.twl;
 
 /**
- *
  * @author Matthias Mann
  */
 public class MenuAction extends MenuElement {
 
     private Runnable cb;
 
-    public MenuAction() {
-    }
+    public MenuAction() {}
 
     public MenuAction(Runnable cb) {
         this.cb = cb;
     }
 
     /**
-     * Creates a menu action which displays the given name and invokes the
-     * specified callback when activated.
-     * 
+     * Creates a menu action which displays the given name and invokes the specified callback when
+     * activated.
+     *
      * @param name the name/text of the menu action
      * @param cb the callback to invoke
-     * @see #setCallback(java.lang.Runnable) 
+     * @see #setCallback(java.lang.Runnable)
      */
     public MenuAction(String name, Runnable cb) {
         super(name);
@@ -63,9 +61,9 @@ public class MenuAction extends MenuElement {
 
     /**
      * Sets the callback to invoke when the menu action is triggered.
-     * 
-     * <p>this callback is invoked after the menu is closed.</p>
-     * 
+     *
+     * <p>this callback is invoked after the menu is closed.
+     *
      * @param cb the callback (can be null)
      */
     public void setCallback(Runnable cb) {
@@ -78,12 +76,11 @@ public class MenuAction extends MenuElement {
         setWidgetTheme(b, "button");
 
         b.addCallback(mm.getCloseCallback());
-        
-        if(cb != null) {
+
+        if (cb != null) {
             b.addCallback(cb);
         }
-        
+
         return b;
     }
-
 }

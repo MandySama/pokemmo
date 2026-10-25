@@ -8,8 +8,7 @@ import java.nio.file.Path;
 public final class ClientAssets {
     private static final Path DATA_DIRECTORY = locateDataDirectory();
 
-    private ClientAssets() {
-    }
+    private ClientAssets() {}
 
     public static String configDirectory() {
         return DATA_DIRECTORY.getParent().resolve("config").toString();
@@ -25,8 +24,15 @@ public final class ClientAssets {
 
     private static Path locateDataDirectory() {
         try {
-            Path location = Path.of(ClientAssets.class.getProtectionDomain()
-                    .getCodeSource().getLocation().toURI()).toAbsolutePath().normalize();
+            Path location =
+                    Path.of(
+                                    ClientAssets.class
+                                            .getProtectionDomain()
+                                            .getCodeSource()
+                                            .getLocation()
+                                            .toURI())
+                            .toAbsolutePath()
+                            .normalize();
             if (Files.isRegularFile(location)) {
                 // 可执行 JAR 包的 data 与 JAR 位于同一目录。
                 Path siblingData = location.getParent().resolve("data");
@@ -44,13 +50,14 @@ public final class ClientAssets {
     }
 
     static Path locateDataDirectory(Path workingDirectory) {
-        for (String relative : new String[]{"data", "client/data", "../data"}) {
+        for (String relative : new String[] {"data", "client/data", "../data"}) {
             Path data = workingDirectory.resolve(relative).normalize();
             if (isDataDirectory(data)) {
                 return data;
             }
         }
-        throw new IllegalStateException("Cannot locate client data directory from " + workingDirectory);
+        throw new IllegalStateException(
+                "Cannot locate client data directory from " + workingDirectory);
     }
 
     private static boolean isDataDirectory(Path directory) {

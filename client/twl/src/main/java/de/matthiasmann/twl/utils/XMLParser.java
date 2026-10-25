@@ -29,6 +29,10 @@
  */
 package de.matthiasmann.twl.utils;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+
 import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -41,15 +45,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
 
 /**
  * A helper class to make parsing of XML files easier
  *
- * It will also warn if a XML tag contains attributes which are not
- * consumed.
+ * <p>It will also warn if a XML tag contains attributes which are not consumed.
  *
  * @author Matthias Mann
  */
@@ -58,31 +58,31 @@ public class XMLParser implements Closeable {
     private static final Class<?>[] XPP_CLASS = {XmlPullParser.class};
 
     private static boolean hasXMP1 = true;
-    
+
     private final XmlPullParser xpp;
     private final String source;
     private final InputStream inputStream;
     private final BitSet unusedAttributes = new BitSet();
     private String loggerName = XMLParser.class.getName();
-    
+
     public static XmlPullParser createParser() throws XmlPullParserException {
-        if(hasXMP1) {
+        if (hasXMP1) {
             try {
                 XmlPullParser xpp = new org.xmlpull.mxp1.MXParserCachingStrings();
                 xpp.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
                 // doesn't support FEATURE_VALIDATION
                 return xpp;
-            } catch(Throwable ex) {
+            } catch (Throwable ex) {
                 hasXMP1 = false;
-                Logger.getLogger(XMLParser.class.getName()).log(
-                        Level.WARNING, "Failed direct instantation", ex);
+                Logger.getLogger(XMLParser.class.getName())
+                        .log(Level.WARNING, "Failed direct instantation", ex);
             }
         }
         return XPPF.newPullParser();
     }
-    
+
     public XMLParser(XmlPullParser xpp, String source) {
-        if(xpp == null) {
+        if (xpp == null) {
             throw new NullPointerException("xpp");
         }
         this.xpp = xpp;
@@ -93,7 +93,7 @@ public class XMLParser implements Closeable {
     /**
      * Creates a XMLParser for the given URL.
      *
-     * The resource stream is owned by this parser and released by {@link #close()}.
+     * <p>The resource stream is owned by this parser and released by {@link #close()}.
      *
      * @param url the URL to parse
      * @throws XmlPullParserException if the resource is not a valid XML file
@@ -102,14 +102,16 @@ public class XMLParser implements Closeable {
      * @see org.xmlpull.v1.XmlPullParser
      */
     public XMLParser(URL url) throws XmlPullParserException, IOException {
-        if(url == null) {
+        if (url == null) {
             throw new NullPointerException("url");
         }
-        
+
         this.source = url.toString();
         XmlPullParser xpp_ = null;
-        try { xpp_ = (XmlPullParser) url.getContent(XPP_CLASS); }
-        catch (IOException ignored) { }
+        try {
+            xpp_ = (XmlPullParser) url.getContent(XPP_CLASS);
+        } catch (IOException ignored) {
+        }
         if (xpp_ != null) {
             this.xpp = xpp_;
             this.inputStream = null;
@@ -117,7 +119,7 @@ public class XMLParser implements Closeable {
         }
         xpp_ = createParser();
         InputStream is = url.openStream();
-        if(is == null) {
+        if (is == null) {
             throw new FileNotFoundException(source);
         }
         try {
@@ -136,7 +138,7 @@ public class XMLParser implements Closeable {
     }
 
     public void close() throws IOException {
-        if(inputStream != null) {
+        if (inputStream != null) {
             inputStream.close();
         }
     }
@@ -146,7 +148,7 @@ public class XMLParser implements Closeable {
     }
 
     /**
-     * @see XmlPullParser#next() 
+     * @see XmlPullParser#next()
      */
     public int next() throws XmlPullParserException, IOException {
         warnUnusedAttributes();
@@ -156,7 +158,7 @@ public class XMLParser implements Closeable {
     }
 
     /**
-     * @see XmlPullParser#nextTag() 
+     * @see XmlPullParser#nextTag()
      */
     public int nextTag() throws XmlPullParserException, IOException {
         warnUnusedAttributes();
@@ -175,17 +177,18 @@ public class XMLParser implements Closeable {
 
     public char[] nextText(int[] startAndLength) throws XmlPullParserException, IOException {
         warnUnusedAttributes();
-        for(;;) {
+        for (; ; ) {
             int token = xpp.nextToken();
             switch (token) {
                 case XmlPullParser.TEXT:
                     return xpp.getTextCharacters(startAndLength);
-                case XmlPullParser.ENTITY_REF: {
-                    String replaced = xpp.getText();
-                    startAndLength[0] = 0;
-                    startAndLength[1] = replaced.length();
-                    return replaced.toCharArray();
-                }
+                case XmlPullParser.ENTITY_REF:
+                    {
+                        String replaced = xpp.getText();
+                        startAndLength[0] = 0;
+                        startAndLength[1] = replaced.length();
+                        return replaced.toCharArray();
+                    }
                 case XmlPullParser.COMMENT:
                     break;
                 default:
@@ -197,11 +200,13 @@ public class XMLParser implements Closeable {
 
     public void skipText() throws XmlPullParserException, IOException {
         int token = xpp.getEventType();
-        while(token == XmlPullParser.TEXT || token == XmlPullParser.ENTITY_REF || token == XmlPullParser.COMMENT) {
+        while (token == XmlPullParser.TEXT
+                || token == XmlPullParser.ENTITY_REF
+                || token == XmlPullParser.COMMENT) {
             token = xpp.nextToken();
         }
     }
-    
+
     public boolean isStartTag() throws XmlPullParserException {
         return xpp.getEventType() == XmlPullParser.START_TAG;
     }
@@ -212,7 +217,7 @@ public class XMLParser implements Closeable {
 
     public String getPositionDescription() {
         String desc = xpp.getPositionDescription();
-        if(source != null) {
+        if (source != null) {
             return desc + " in " + source;
         }
         return desc;
@@ -225,10 +230,10 @@ public class XMLParser implements Closeable {
     public int getColumnNumber() {
         return xpp.getColumnNumber();
     }
-    
+
     public String getFilePosition() {
-        if(source != null) {
-            return source+":"+getLineNumber();
+        if (source != null) {
+            return source + ":" + getLineNumber();
         }
         return xpp.getPositionDescription();
     }
@@ -238,9 +243,10 @@ public class XMLParser implements Closeable {
     }
 
     /**
-     * @see XmlPullParser#require(int, java.lang.String, java.lang.String) 
+     * @see XmlPullParser#require(int, java.lang.String, java.lang.String)
      */
-    public void require(int type, String namespace, String name) throws XmlPullParserException, IOException {
+    public void require(int type, String namespace, String name)
+            throws XmlPullParserException, IOException {
         xpp.require(type, namespace, name);
     }
 
@@ -262,19 +268,18 @@ public class XMLParser implements Closeable {
     }
 
     public String getAttributeValue(String namespace, String name) {
-        for(int i=0,n=xpp.getAttributeCount() ; i<n ; i++) {
-            if((namespace == null || namespace.equals(xpp.getAttributeNamespace(i))) &&
-                    name.equals(xpp.getAttributeName(i))) {
+        for (int i = 0, n = xpp.getAttributeCount(); i < n; i++) {
+            if ((namespace == null || namespace.equals(xpp.getAttributeNamespace(i)))
+                    && name.equals(xpp.getAttributeName(i))) {
                 return getAttributeValue(i);
             }
         }
         return null;
     }
 
-
     public String getAttributeNotNull(String attribute) throws XmlPullParserException {
         String value = getAttributeValue(null, attribute);
-        if(value == null) {
+        if (value == null) {
             missingAttribute(attribute);
         }
         return value;
@@ -288,9 +293,10 @@ public class XMLParser implements Closeable {
         return parseBool(nextText());
     }
 
-    public boolean parseBoolFromAttribute(String attribName, boolean defaultValue) throws XmlPullParserException {
+    public boolean parseBoolFromAttribute(String attribName, boolean defaultValue)
+            throws XmlPullParserException {
         String value = getAttributeValue(null, attribName);
-        if(value == null) {
+        if (value == null) {
             return defaultValue;
         }
         return parseBool(value);
@@ -300,9 +306,10 @@ public class XMLParser implements Closeable {
         return parseInt(getAttributeNotNull(attribName));
     }
 
-    public int parseIntFromAttribute(String attribName, int defaultValue) throws XmlPullParserException {
+    public int parseIntFromAttribute(String attribName, int defaultValue)
+            throws XmlPullParserException {
         String value = getAttributeValue(null, attribName);
-        if(value == null) {
+        if (value == null) {
             return defaultValue;
         }
         return parseInt(value);
@@ -312,36 +319,40 @@ public class XMLParser implements Closeable {
         return parseFloat(getAttributeNotNull(attribName));
     }
 
-    public float parseFloatFromAttribute(String attribName, float defaultValue) throws XmlPullParserException {
+    public float parseFloatFromAttribute(String attribName, float defaultValue)
+            throws XmlPullParserException {
         String value = getAttributeValue(null, attribName);
-        if(value == null) {
+        if (value == null) {
             return defaultValue;
         }
         return parseFloat(value);
     }
 
-    public <E extends Enum<E>> E parseEnumFromAttribute(String attribName, Class<E> enumClazz) throws XmlPullParserException {
+    public <E extends Enum<E>> E parseEnumFromAttribute(String attribName, Class<E> enumClazz)
+            throws XmlPullParserException {
         return parseEnum(enumClazz, getAttributeNotNull(attribName));
     }
 
-    public <E extends Enum<E>> E parseEnumFromAttribute(String attribName, Class<E> enumClazz, E defaultValue) throws XmlPullParserException {
+    public <E extends Enum<E>> E parseEnumFromAttribute(
+            String attribName, Class<E> enumClazz, E defaultValue) throws XmlPullParserException {
         String value = getAttributeValue(null, attribName);
-        if(value == null) {
+        if (value == null) {
             return defaultValue;
         }
         return parseEnum(enumClazz, value);
     }
-    
-    public <E extends Enum<E>> E parseEnumFromText(Class<E> enumClazz) throws XmlPullParserException, IOException {
+
+    public <E extends Enum<E>> E parseEnumFromText(Class<E> enumClazz)
+            throws XmlPullParserException, IOException {
         return parseEnum(enumClazz, nextText());
     }
 
     public Map<String, String> getUnusedAttributes() {
-        if(unusedAttributes.isEmpty()) {
+        if (unusedAttributes.isEmpty()) {
             return Collections.<String, String>emptyMap();
         }
         LinkedHashMap<String, String> result = new LinkedHashMap<String, String>();
-        for(int i=-1 ; (i=unusedAttributes.nextSetBit(i+1))>=0 ;) {
+        for (int i = -1; (i = unusedAttributes.nextSetBit(i + 1)) >= 0; ) {
             result.put(xpp.getAttributeName(i), xpp.getAttributeValue(i));
         }
         unusedAttributes.clear();
@@ -351,24 +362,26 @@ public class XMLParser implements Closeable {
     public void ignoreOtherAttributes() {
         unusedAttributes.clear();
     }
-    
+
     public boolean isAttributeUnused(int idx) {
         return unusedAttributes.get(idx);
     }
-    
+
     public XmlPullParserException error(String msg) {
         return new XmlPullParserException(msg, xpp, null);
     }
-    
+
     public XmlPullParserException error(String msg, Throwable cause) {
-        return (XmlPullParserException)new XmlPullParserException(msg, xpp, cause).initCause(cause);
+        return (XmlPullParserException)
+                new XmlPullParserException(msg, xpp, cause).initCause(cause);
     }
 
     public XmlPullParserException unexpected() {
-        return new XmlPullParserException("Unexpected '"+xpp.getName()+"'", xpp, null);
+        return new XmlPullParserException("Unexpected '" + xpp.getName() + "'", xpp, null);
     }
 
-    protected <E extends Enum<E>> E parseEnum(Class<E> enumClazz, String value) throws XmlPullParserException {
+    protected <E extends Enum<E>> E parseEnum(Class<E> enumClazz, String value)
+            throws XmlPullParserException {
         try {
             return Enum.valueOf(enumClazz, value.toUpperCase(Locale.ENGLISH));
         } catch (IllegalArgumentException unused) {
@@ -377,14 +390,14 @@ public class XMLParser implements Closeable {
             return Enum.valueOf(enumClazz, value);
         } catch (IllegalArgumentException unused) {
         }
-        throw new XmlPullParserException("Unknown enum value \"" + value
-                + "\" for enum class " + enumClazz, xpp, null);
+        throw new XmlPullParserException(
+                "Unknown enum value \"" + value + "\" for enum class " + enumClazz, xpp, null);
     }
 
     public boolean parseBool(String value) throws XmlPullParserException {
-        if("true".equals(value)) {
+        if ("true".equals(value)) {
             return true;
-        } else if("false".equals(value)) {
+        } else if ("false".equals(value)) {
             return false;
         } else {
             throw new XmlPullParserException("boolean value must be 'true' or 'false'", xpp, null);
@@ -394,23 +407,24 @@ public class XMLParser implements Closeable {
     protected int parseInt(String value) throws XmlPullParserException {
         try {
             return Integer.parseInt(value);
-        } catch(NumberFormatException ex) {
-            throw (XmlPullParserException)(new XmlPullParserException(
-                    "Unable to parse integer", xpp, ex).initCause(ex));
+        } catch (NumberFormatException ex) {
+            throw (XmlPullParserException)
+                    (new XmlPullParserException("Unable to parse integer", xpp, ex).initCause(ex));
         }
     }
 
     protected float parseFloat(String value) throws XmlPullParserException {
         try {
             return Float.parseFloat(value);
-        } catch(NumberFormatException ex) {
-            throw (XmlPullParserException)(new XmlPullParserException(
-                    "Unable to parse float", xpp, ex).initCause(ex));
+        } catch (NumberFormatException ex) {
+            throw (XmlPullParserException)
+                    (new XmlPullParserException("Unable to parse float", xpp, ex).initCause(ex));
         }
     }
 
     protected void missingAttribute(String attribute) throws XmlPullParserException {
-        throw new XmlPullParserException("missing '" + attribute + "' on '" + xpp.getName() + "'", xpp, null);
+        throw new XmlPullParserException(
+                "missing '" + attribute + "' on '" + xpp.getName() + "'", xpp, null);
     }
 
     protected void handleType(int type) {
@@ -423,11 +437,16 @@ public class XMLParser implements Closeable {
     }
 
     protected void warnUnusedAttributes() {
-        if(!unusedAttributes.isEmpty()) {
+        if (!unusedAttributes.isEmpty()) {
             String positionDescription = getPositionDescription();
-            for(int i=-1 ; (i=unusedAttributes.nextSetBit(i+1))>=0 ;) {
-                getLogger().log(Level.WARNING, "Unused attribute ''{0}'' on ''{1}'' at {2}",
-                        new Object[]{xpp.getAttributeName(i), xpp.getName(), positionDescription});
+            for (int i = -1; (i = unusedAttributes.nextSetBit(i + 1)) >= 0; ) {
+                getLogger()
+                        .log(
+                                Level.WARNING,
+                                "Unused attribute ''{0}'' on ''{1}'' at {2}",
+                                new Object[] {
+                                    xpp.getAttributeName(i), xpp.getName(), positionDescription
+                                });
             }
         }
     }
@@ -438,7 +457,7 @@ public class XMLParser implements Closeable {
 
     static class XPPF {
         private static final XmlPullParserFactory xppf;
-        private static       XmlPullParserException xppfex;
+        private static XmlPullParserException xppfex;
 
         static {
             XmlPullParserFactory f = null;
@@ -446,22 +465,21 @@ public class XMLParser implements Closeable {
                 f = XmlPullParserFactory.newInstance();
                 f.setNamespaceAware(false);
                 f.setValidating(false);
-            } catch(XmlPullParserException ex) {
-                 Logger.getLogger(XMLParser.class.getName()).log(
-                         Level.SEVERE, "Unable to construct XmlPullParserFactory", ex);
-                 xppfex = ex;
+            } catch (XmlPullParserException ex) {
+                Logger.getLogger(XMLParser.class.getName())
+                        .log(Level.SEVERE, "Unable to construct XmlPullParserFactory", ex);
+                xppfex = ex;
             }
             xppf = f;
         }
 
         static XmlPullParser newPullParser() throws XmlPullParserException {
-            if(xppf != null) {
+            if (xppf != null) {
                 return xppf.newPullParser();
             }
             throw xppfex;
         }
 
-        private XPPF() {
-        }
+        private XPPF() {}
     }
 }

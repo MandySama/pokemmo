@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<themes>
+  <!-- Official default/fonts.xml mechabold and main-border. -->
+  <fontDef name="encounter-title" filename="res/fonts/NotoSansCJK-Bold.ttc" faces="sc,tc,jp" color="#FFFFFF" hinting="Medium" kerning="false" size="14" border_width="1" border_color="#484848"/>
+  <fontDef name="encounter-caption" filename="res/fonts/NotoSansCJK-Medium.ttc" faces="sc,tc,jp" kerning="true" color="white" size="12" size_cjk="14" hinting="AutoSlight" hinting_cjk="Full" border_width="1" border_color="#434343"/>
+  <!-- Official fonts.xml battle: the custom font has compact glyphs within its 48px em. -->
+  <fontDef name="encounter-message" filename="res/fonts/battle.ttf" color="#FFFFFF" shadow_offset_x="1" shadow_offset_y="1" shadow_color="#CC000000" size="48" hinting="Full"/>
+</themes>

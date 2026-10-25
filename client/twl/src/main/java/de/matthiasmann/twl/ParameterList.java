@@ -34,16 +34,15 @@ import de.matthiasmann.twl.renderer.Image;
 import de.matthiasmann.twl.renderer.MouseCursor;
 
 /**
- *
  * @author Matthias Mann
  */
 public interface ParameterList {
 
     public int getSize();
-    
+
     /**
-     * Returns the font at the given list index.
-     * If no font with that name was found then the default font is returned.
+     * Returns the font at the given list index. If no font with that name was found then the
+     * default font is returned.
      *
      * @param idx The index in the list
      * @return A font object
@@ -51,8 +50,8 @@ public interface ParameterList {
     public Font getFont(int idx);
 
     /**
-     * Returns the image at the given list index.
-     * If no image with that name was found then null is returned.
+     * Returns the image at the given list index. If no image with that name was found then null is
+     * returned.
      *
      * @param idx The index in the list
      * @return A image object or null.
@@ -60,8 +59,8 @@ public interface ParameterList {
     public Image getImage(int idx);
 
     /**
-     * Returns the mouse cursor at the given list index.
-     * If no mouse cursor with that name was found then null is returned.
+     * Returns the mouse cursor at the given list index. If no mouse cursor with that name was found
+     * then null is returned.
      *
      * @param idx The index in the list
      * @return A mouse cursor object or null.
@@ -69,8 +68,8 @@ public interface ParameterList {
     public MouseCursor getMouseCursor(int idx);
 
     /**
-     * Returns a parameter map at the given list index.
-     * If no parameter map with that name was found then an empty map is returned.
+     * Returns a parameter map at the given list index. If no parameter map with that name was found
+     * then an empty map is returned.
      *
      * @param idx The index in the list
      * @return A parameter map object.
@@ -78,8 +77,8 @@ public interface ParameterList {
     public ParameterMap getParameterMap(int idx);
 
     /**
-     * Returns a parameter list at the given list index.
-     * If no parameter map with that name was found then an empty list is returned.
+     * Returns a parameter list at the given list index. If no parameter map with that name was
+     * found then an empty list is returned.
      *
      * @param idx The index in the list
      * @return A parameter list object.
@@ -100,6 +99,7 @@ public interface ParameterList {
 
     /**
      * Retrives a parameter.
+     *
      * @param idx The index in the list
      * @return the parameter value
      */
@@ -107,11 +107,11 @@ public interface ParameterList {
 
     /**
      * Retrieves a parameter and ensures that it has the desired type.
+     *
      * @param <T> The desired return type generic
      * @param idx The index in the list
      * @param clazz the required data type
      * @return the parameter value or null if the type does not match
      */
     public <T> T getParameterValue(int idx, Class<T> clazz);
-
 }

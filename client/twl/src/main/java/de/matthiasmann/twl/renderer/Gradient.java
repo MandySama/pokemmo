@@ -30,16 +30,17 @@
 package de.matthiasmann.twl.renderer;
 
 import de.matthiasmann.twl.Color;
+
 import java.util.ArrayList;
 
 /**
  * Info class used to construct a gradient image
- * 
+ *
  * @author Matthias Mann
- * @see Renderer#createGradient(de.matthiasmann.twl.renderer.Gradient) 
+ * @see Renderer#createGradient(de.matthiasmann.twl.renderer.Gradient)
  */
 public class Gradient {
-    
+
     public enum Type {
         HORIZONTAL,
         VERTICAL
@@ -51,13 +52,13 @@ public class Gradient {
         REPEAT,
         MIRROR
     }
-    
+
     private final Type type;
     private Wrap wrap;
     private final ArrayList<Stop> stops;
 
     public Gradient(Type type) {
-        if(type == null) {
+        if (type == null) {
             throw new NullPointerException("type");
         }
         this.type = type;
@@ -70,7 +71,7 @@ public class Gradient {
     }
 
     public void setWrap(Wrap wrap) {
-        if(wrap == null) {
+        if (wrap == null) {
             throw new NullPointerException("wrap");
         }
         this.wrap = wrap;
@@ -87,30 +88,30 @@ public class Gradient {
     public Stop getStop(int index) {
         return stops.get(index);
     }
-    
+
     public Stop[] getStops() {
         return stops.toArray(new Stop[stops.size()]);
     }
-    
+
     public void addStop(float pos, Color color) {
-        if(color == null) {
+        if (color == null) {
             throw new NullPointerException("color");
         }
         int numStops = stops.size();
-        if(numStops == 0) {
-            if(!(pos >= 0)) {
+        if (numStops == 0) {
+            if (!(pos >= 0)) {
                 throw new IllegalArgumentException("first stop must be >= 0.0f");
             }
-            if(pos > 0) {
+            if (pos > 0) {
                 stops.add(new Stop(0.0f, color));
             }
         }
-        if(numStops > 0 && !(pos > stops.get(numStops-1).pos)) {
+        if (numStops > 0 && !(pos > stops.get(numStops - 1).pos)) {
             throw new IllegalArgumentException("pos must be monotone increasing");
         }
         stops.add(new Stop(pos, color));
     }
-    
+
     public static class Stop {
         final float pos;
         final Color color;
@@ -127,5 +128,5 @@ public class Gradient {
         public Color getColor() {
             return color;
         }
-    }   
+    }
 }

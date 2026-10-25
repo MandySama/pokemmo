@@ -2,16 +2,18 @@ package top.totodile.pokemmo.client.config;
 
 import com.badlogic.gdx.Gdx;
 
-/** 对齐参考 Client.main / GameSettingsWindow.hD0 的即时限帧配置。 */
+/** 沿用参考即时限帧配置；前后台统一使用用户设置的帧率上限。 */
 public final class FrameRateLimit {
     private int applied = -1;
     private long nextFrame;
 
     public void update(ClientSettings settings, boolean focused) {
-        int foreground = value(settings.get(ClientSettings.key(1254),
-                settings.get("client.graphics.max_fpx", "60")), 60);
-        int background = value(settings.get("client.graphics.max_fpx_unfocused", "20"), 20);
-        int target = focused ? foreground : background;
+        int target =
+                value(
+                        settings.get(
+                                ClientSettings.key(1254),
+                                settings.get("client.graphics.max_fpx", "60")),
+                        60);
         if (target != applied) {
             Gdx.graphics.setForegroundFPS(target);
             applied = target;
@@ -21,7 +23,8 @@ public final class FrameRateLimit {
 
     /** Android 后端的 setForegroundFPS 是空实现；沿用参考主循环的纳秒帧间隔。 */
     public void waitForFrame() {
-        if (Gdx.app.getType() != com.badlogic.gdx.Application.ApplicationType.Android || applied <= 0) return;
+        if (Gdx.app.getType() != com.badlogic.gdx.Application.ApplicationType.Android
+                || applied <= 0) return;
         long now = System.nanoTime();
         if (nextFrame == 0) nextFrame = now;
         while (now < nextFrame) {
@@ -36,6 +39,8 @@ public final class FrameRateLimit {
         try {
             int value = Integer.parseInt(text);
             return value == 0 || value >= 10 && value <= 1000 ? value : fallback;
-        } catch (NumberFormatException error) { return fallback; }
+        } catch (NumberFormatException error) {
+            return fallback;
+        }
     }
 }

@@ -2,6 +2,7 @@ package top.totodile.pokemmo.client.ui.startup;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+
 import java.util.function.LongSupplier;
 
 /** 按屏幕高度缩放背景分片，向左连续循环滚动。 */
@@ -30,7 +31,8 @@ public final class ScrollingBackground {
         }
         float unitsPerPixel = width / screenWidth;
         double elapsedSeconds = (clock.getAsLong() - startedAt) / 1_000_000_000.0;
-        float offsetPixels = (float) ((elapsedSeconds * PIXELS_PER_SECOND) % (cycleWidth / unitsPerPixel));
+        float offsetPixels =
+                (float) ((elapsedSeconds * PIXELS_PER_SECOND) % (cycleWidth / unitsPerPixel));
         float x = -offsetPixels * unitsPerPixel;
         // 最后一片之后立即接第一片，宽屏和窗口缩放时也不会露出空白。
         while (x < width) {
@@ -41,5 +43,4 @@ public final class ScrollingBackground {
             }
         }
     }
-
 }

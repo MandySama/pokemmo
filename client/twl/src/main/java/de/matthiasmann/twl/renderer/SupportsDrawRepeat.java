@@ -30,14 +30,19 @@
 package de.matthiasmann.twl.renderer;
 
 /**
- * Additional drawing routine for Image objects.
- * Will be used by RepeatImage class if the base image supports this.
+ * Additional drawing routine for Image objects. Will be used by RepeatImage class if the base image
+ * supports this.
  *
  * @author Matthias Mann
  */
 public interface SupportsDrawRepeat {
 
-    public void draw(AnimationState as, int x, int y, int width, int height,
-            int repeatCountX, int repeatCountY);
-
+    public void draw(
+            AnimationState as,
+            int x,
+            int y,
+            int width,
+            int height,
+            int repeatCountX,
+            int repeatCountY);
 }

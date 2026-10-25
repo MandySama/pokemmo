@@ -1,7 +1,5 @@
 package top.totodile.pokemmo.client.ui.world;
 
-import java.io.*;
-import java.util.*;
 import top.totodile.pokemmo.client.resources.*;
 import top.totodile.pokemmo.client.rom.*;
 import top.totodile.pokemmo.client.rom.gba.FireRedMaps.Id;
@@ -9,36 +7,103 @@ import top.totodile.pokemmo.client.rom.nds.bw.BwMaps;
 import top.totodile.pokemmo.client.world.*;
 import top.totodile.pokemmo.server.game.GameService.Position;
 
-/** Ported literal destinations from reference TeleportMenuWindow.sL; no extracted or curated catalogue. */
+import java.io.*;
+import java.util.*;
+
+/**
+ * Ported literal destinations from reference TeleportMenuWindow.sL; no extracted or curated
+ * catalogue.
+ */
 final class ReferenceTeleportEntries {
-    record Entry(String name,int region,int bank,int map,int x,int y,int height,boolean noGrid) {
-        boolean heading(){return region<0;}
+    record Entry(
+            String name, int region, int bank, int map, int x, int y, int height, boolean noGrid) {
+        boolean heading() {
+            return region < 0;
+        }
     }
+
     private final ClientResources resources;
     private final ClientStrings strings;
-    private final Map<Integer,WorldMaps> cached=new LinkedHashMap<>(4,.75f,true){protected boolean removeEldestEntry(Map.Entry<Integer,WorldMaps> e){return size()>2;}};
-    ReferenceTeleportEntries(ClientResources resources){this.resources=resources;strings=resources.strings();}
-    String regionName(int region){return strings.get(250000+region);}
-    boolean available(int region){return region!=10&&resources.roms().get(RomType.of(region))!=null;}
-    private WorldMaps maps(int region){return cached.computeIfAbsent(region,id->{try{return WorldMapLoader.load(resources.roms().get(RomType.of(id)));}catch(IOException e){throw new UncheckedIOException(e);}});}
-    synchronized List<Entry> load(int region){return entries(region).stream().filter(Objects::nonNull).toList();}
-    synchronized Position resolve(Entry entry,int direction){
-        // MoveToNdsCommand rejects the Gen5 no-grid targets; do not turn free coordinates into tile (0,0).
-        if(entry.noGrid())throw new IllegalArgumentException("moveto2 only supports Sinnoh region 3.");
-        var id=new Id(entry.region()==1?entry.bank()-50:entry.bank(),entry.map());
-        if(entry.region()<2)return new Position(id.bank(),id.map(),entry.x(),entry.y(),direction);
-        return maps(entry.region()).teleportPosition(id,entry.x(),entry.y(),direction);
+    private final Map<Integer, WorldMaps> cached =
+            new LinkedHashMap<>(4, .75f, true) {
+                protected boolean removeEldestEntry(Map.Entry<Integer, WorldMaps> e) {
+                    return size() > 2;
+                }
+            };
+
+    ReferenceTeleportEntries(ClientResources resources) {
+        this.resources = resources;
+        strings = resources.strings();
     }
-    private Entry heading(String title){return new Entry(title,-1,0,0,0,0,0,false);}
-    private Entry gba(int region,int bank,int map,int x,int y,int name){return new Entry(strings.get(name),region,bank,map,x,y,0,false);}
-    private Entry nds(int region,int header,int x,int y,int height,boolean noGrid){
-        if(!available(region))return null;var maps=maps(region);var id=new Id(header>>>8,header&255);
-        if(!maps.ids().contains(id))return null;
-        String name=strings.getOrDefault(maps.locationStringId(id),maps.locationName(id));
-        return new Entry(name==null?Integer.toString(header):name,region,id.bank(),id.map(),x,y,height,noGrid);
+
+    String regionName(int region) {
+        return strings.get(250000 + region);
     }
-    private Entry contest(){return new Entry("华丽大赛会场",1,63,4,14,6,0,false);}
-    private Entry arena(){return new Entry("锦标赛竞技场",10,0,1,28,64,0,false);}
+
+    boolean available(int region) {
+        return region != 10 && resources.roms().get(RomType.of(region)) != null;
+    }
+
+    private WorldMaps maps(int region) {
+        return cached.computeIfAbsent(
+                region,
+                id -> {
+                    try {
+                        return WorldMapLoader.load(resources.roms().get(RomType.of(id)));
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                });
+    }
+
+    synchronized List<Entry> load(int region) {
+        return entries(region).stream().filter(Objects::nonNull).toList();
+    }
+
+    synchronized Position resolve(Entry entry, int direction) {
+        // MoveToNdsCommand rejects the Gen5 no-grid targets; do not turn free coordinates into tile
+        // (0,0).
+        if (entry.noGrid())
+            throw new IllegalArgumentException("moveto2 only supports Sinnoh region 3.");
+        var id = new Id(entry.region() == 1 ? entry.bank() - 50 : entry.bank(), entry.map());
+        if (entry.region() < 2)
+            return new Position(id.bank(), id.map(), entry.x(), entry.y(), direction);
+        return maps(entry.region()).teleportPosition(id, entry.x(), entry.y(), direction);
+    }
+
+    private Entry heading(String title) {
+        return new Entry(title, -1, 0, 0, 0, 0, 0, false);
+    }
+
+    private Entry gba(int region, int bank, int map, int x, int y, int name) {
+        return new Entry(strings.get(name), region, bank, map, x, y, 0, false);
+    }
+
+    private Entry nds(int region, int header, int x, int y, int height, boolean noGrid) {
+        if (!available(region)) return null;
+        var maps = maps(region);
+        var id = new Id(header >>> 8, header & 255);
+        if (!maps.ids().contains(id)) return null;
+        String name = strings.getOrDefault(maps.locationStringId(id), maps.locationName(id));
+        return new Entry(
+                name == null ? Integer.toString(header) : name,
+                region,
+                id.bank(),
+                id.map(),
+                x,
+                y,
+                height,
+                noGrid);
+    }
+
+    private Entry contest() {
+        return new Entry("华丽大赛会场", 1, 63, 4, 14, 6, 0, false);
+    }
+
+    private Entry arena() {
+        return new Entry("锦标赛竞技场", 10, 0, 1, 28, 64, 0, false);
+    }
+
     private List<Entry> entries(int region) {
         if (!available(region)) {
             return Collections.emptyList();
@@ -47,7 +112,7 @@ final class ReferenceTeleportEntries {
             List<Entry> entries = new ArrayList<>();
             String title = new StringBuilder().append(regionName(0)).append(" 第一部分").toString();
             Entry label;
-            label=heading(title);
+            label = heading(title);
             entries.add(label);
             entries.add(gba((byte) 0, (byte) 3, (byte) 0, (short) 11, (short) 9, 140000));
             entries.add(gba((byte) 0, (byte) 3, (byte) 1, (short) 26, (short) 27, 140001));
@@ -62,8 +127,8 @@ final class ReferenceTeleportEntries {
             entries.add(gba((byte) 0, (byte) 3, (byte) 8, (short) 14, (short) 12, 140008));
             entries.add(gba((byte) 0, (byte) 3, (byte) 9, (short) 11, (short) 7, 140009));
             title = new StringBuilder().append(regionName(0)).append(" 第二部分").toString();
-            
-            label=heading(title);
+
+            label = heading(title);
             entries.add(label);
             entries.add(gba((byte) 0, (byte) 3, (byte) 12, (short) 14, (short) 6, 140055));
             entries.add(gba((byte) 0, (byte) 3, (byte) 13, (short) 21, (short) 8, 140056));
@@ -81,7 +146,7 @@ final class ReferenceTeleportEntries {
             List<Entry> entries = new ArrayList<>();
             String title = regionName(1);
             Entry label;
-            label=heading(title);
+            label = heading(title);
             entries.add(label);
             entries.add(gba((byte) 1, (byte) 50, (byte) 9, (short) 9, (short) 10, 141000));
             entries.add(gba((byte) 1, (byte) 50, (byte) 0, (short) 20, (short) 17, 141007));
@@ -100,32 +165,43 @@ final class ReferenceTeleportEntries {
             entries.add(gba((byte) 1, (byte) 50, (byte) 14, (short) 16, (short) 4, 141005));
             entries.add(gba((byte) 1, (byte) 50, (byte) 15, (short) 8, (short) 16, 141006));
             entries.add(gba((byte) 1, (byte) 74, (byte) 78, (short) 14, (short) 6, 141085));
-            
-            label=heading("副本");
+
+            label = heading("副本");
             entries.add(label);
             entries.add(gba((byte) 1, (byte) 76, (byte) 4, (short) 26, (short) 43, 141058));
             entries.add(gba((byte) 1, (byte) 76, (byte) 60, (short) 9, (short) 13, 141212));
             entries.add(contest());
-            
-            label=heading("岛屿");
+
+            label = heading("岛屿");
             entries.add(label);
             entries.add(gba((byte) 1, (byte) 76, (byte) 56, (short) 13, (short) 38, 141201));
             entries.add(gba((byte) 1, (byte) 76, (byte) 9, (short) 13, (short) 22, 141073));
             entries.add(gba((byte) 1, (byte) 76, (byte) 58, (short) 15, (short) 12, 141200));
             entries.add(gba((byte) 1, (byte) 76, (byte) 66, (short) 10, (short) 11, 141211));
-            
-            label=heading("树果");
+
+            label = heading("树果");
             entries.add(label);
             entries.add(gba((byte) 1, (byte) 50, (byte) 19, (short) 8, (short) 22, 141019));
             entries.add(gba((byte) 1, (byte) 50, (byte) 38, (short) 14, (short) 7, 141038));
             return entries;
         }
         if (region == 2) {
-            var entries=new ArrayList<Entry>();entries.add(heading(regionName(2)));
-            boolean noGrid=false;
-            for(var point:((BwMaps)maps(2)).teleportPoints()){
-                if(point.noGrid()&&!noGrid){entries.add(heading(regionName(2)+" 非网格地图"));noGrid=true;}
-                entries.add(nds(2,point.header(),point.x(),point.y(),point.header()==28?2:0,point.noGrid()));
+            var entries = new ArrayList<Entry>();
+            entries.add(heading(regionName(2)));
+            boolean noGrid = false;
+            for (var point : ((BwMaps) maps(2)).teleportPoints()) {
+                if (point.noGrid() && !noGrid) {
+                    entries.add(heading(regionName(2) + " 非网格地图"));
+                    noGrid = true;
+                }
+                entries.add(
+                        nds(
+                                2,
+                                point.header(),
+                                point.x(),
+                                point.y(),
+                                point.header() == 28 ? 2 : 0,
+                                point.noGrid()));
             }
             return entries;
         }
@@ -133,7 +209,7 @@ final class ReferenceTeleportEntries {
             List<Entry> entries = new ArrayList<>();
             String title = regionName(3);
             Entry label;
-            label=heading(title);
+            label = heading(title);
             entries.add(label);
             entries.add(nds((byte) 3, (short) 411, (short) 116, (short) 886, (byte) 0, false));
             entries.add(nds((byte) 3, (short) 418, (short) 177, (short) 843, (byte) 0, false));
@@ -153,8 +229,8 @@ final class ReferenceTeleportEntries {
             entries.add(nds((byte) 3, (short) 172, (short) 847, (short) 560, (byte) 0, false));
             entries.add(nds((byte) 3, (short) 573, (short) 55, (short) 40, (byte) 0, false));
             title = strings.get(143112);
-            
-            label=heading(title);
+
+            label = heading(title);
             entries.add(label);
             entries.add(nds((byte) 3, (short) 188, (short) 647, (short) 430, (byte) 0, false));
             entries.add(nds((byte) 3, (short) 450, (short) 659, (short) 339, (byte) 0, false));
@@ -166,7 +242,7 @@ final class ReferenceTeleportEntries {
             List<Entry> entries = new ArrayList<>();
             String title = regionName(4);
             Entry label;
-            label=heading(title);
+            label = heading(title);
             entries.add(label);
             entries.add(nds((byte) 4, (short) 60, (short) 695, (short) 397, (byte) 0, false));
             entries.add(nds((byte) 4, (short) 67, (short) 564, (short) 392, (byte) 0, false));
@@ -186,8 +262,8 @@ final class ReferenceTeleportEntries {
             entries.add(nds((byte) 4, (short) 30, (short) 909, (short) 297, (byte) 0, false));
             entries.add(nds((byte) 4, (short) 36, (short) 468, (short) 419, (byte) 0, false));
             title = new StringBuilder().append(regionName(4)).append("2").toString();
-            
-            label=heading(title);
+
+            label = heading(title);
             entries.add(label);
             entries.add(nds((byte) 4, (short) 49, (short) 1033, (short) 364, (byte) 0, false));
             entries.add(nds((byte) 4, (short) 50, (short) 1032, (short) 263, (byte) 0, false));
@@ -202,8 +278,8 @@ final class ReferenceTeleportEntries {
             entries.add(nds((byte) 4, (short) 59, (short) 1294, (short) 243, (byte) 0, false));
             entries.add(nds((byte) 4, (short) 11, (short) 1167, (short) 107, (byte) 0, false));
             entries.add(nds((byte) 4, (short) 18, (short) 1426, (short) 164, (byte) 0, false));
-            
-            label=heading("副本");
+
+            label = heading("副本");
             entries.add(label);
             entries.add(nds((byte) 4, (short) 340, (short) 15, (short) 19, (byte) 0, false));
             entries.add(nds((byte) 4, (short) 465, (short) 30, (short) 16, (byte) 0, false));
@@ -215,7 +291,7 @@ final class ReferenceTeleportEntries {
             if (available((byte) 0)) {
                 String title = regionName(0);
                 Entry label;
-                label=heading(title);
+                label = heading(title);
                 entries.add(label);
                 entries.add(gba((byte) 0, (byte) 3, (byte) 23, (short) 24, (short) 2, 140017));
                 entries.add(gba((byte) 0, (byte) 1, (byte) 63, (short) 36, (short) 17, 140048));
@@ -224,14 +300,14 @@ final class ReferenceTeleportEntries {
             if (available((byte) 4)) {
                 String title = regionName(4);
                 Entry label;
-                label=heading(title);
+                label = heading(title);
                 entries.add(label);
                 entries.add(nds((byte) 4, (short) 151, (short) 131, (short) 369, (byte) 0, false));
             }
             if (available((byte) 1)) {
                 String title = regionName(1);
                 Entry label;
-                label=heading(title);
+                label = heading(title);
                 entries.add(label);
                 entries.add(gba((byte) 1, (byte) 74, (byte) 11, (short) 11, (short) 35, 141059));
                 entries.add(gba((byte) 1, (byte) 74, (byte) 98, (short) 16, (short) 9, 141209));
@@ -240,13 +316,13 @@ final class ReferenceTeleportEntries {
             if (available((byte) 3)) {
                 String title = regionName(3);
                 Entry label;
-                label=heading(title);
+                label = heading(title);
                 entries.add(label);
                 entries.add(nds((byte) 3, (short) 356, (short) 563, (short) 688, (byte) 0, false));
             }
             String title = regionName(2);
             Entry label;
-            label=heading(title);
+            label = heading(title);
             entries.add(label);
             entries.add(nds((byte) 2, (short) 240, (short) 773, (short) 302, (byte) 0, false));
             entries.add(nds((byte) 2, (short) 368, (short) 624, (short) 185, (byte) 0, false));
@@ -256,13 +332,12 @@ final class ReferenceTeleportEntries {
             entries.add(nds((byte) 2, (short) 215, (short) 10, (short) 38, (byte) 0, false));
             entries.add(nds((byte) 2, (short) 182, (short) 16, (short) 12, (byte) 0, false));
             entries.add(nds((byte) 2, (short) 354, (short) 10, (short) 23, (byte) 0, false));
-            
-            label=heading("自定义地图");
+
+            label = heading("自定义地图");
             entries.add(label);
             entries.add(arena());
             return entries;
         }
         return Collections.emptyList();
     }
-
 }

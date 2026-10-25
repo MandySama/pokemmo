@@ -2,6 +2,7 @@ package top.totodile.pokemmo.android;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -18,14 +19,21 @@ import java.util.zip.ZipInputStream;
 
 /** Installs bundled data only; account settings and saves are outside this list. */
 public final class BundledResourceInstaller {
-    public interface Source { InputStream open(String name) throws IOException; }
-    public interface Progress { void update(int percent); }
+    public interface Source {
+        InputStream open(String name) throws IOException;
+    }
+
+    public interface Progress {
+        void update(int percent);
+    }
+
     private static final String MARKER = ".bundled-resources-version";
 
     private BundledResourceInstaller() {}
 
     // Multiple Activity instances may overlap during rotation; never extract concurrently.
-    public static synchronized void install(Source source, File root, Progress progress) throws Exception {
+    public static synchronized void install(Source source, File root, Progress progress)
+            throws Exception {
         JSONObject manifest = readManifest(source);
         if (!root.isDirectory() && !root.mkdirs()) throw new IOException("无法创建资源目录");
         JSONArray entries = manifest.getJSONArray("files");
@@ -88,7 +96,9 @@ public final class BundledResourceInstaller {
                     }
                     if (count != size || !hex(digest.digest()).equals(entry.getString("sha256")))
                         throw new IOException("资源校验失败: " + path);
-                    java.nio.file.Files.move(temporary.toPath(), target.toPath(),
+                    java.nio.file.Files.move(
+                            temporary.toPath(),
+                            target.toPath(),
                             java.nio.file.StandardCopyOption.REPLACE_EXISTING,
                             java.nio.file.StandardCopyOption.ATOMIC_MOVE);
                 } finally {
@@ -103,7 +113,9 @@ public final class BundledResourceInstaller {
             out.write(revision.getBytes(StandardCharsets.UTF_8));
             out.getFD().sync();
         }
-        java.nio.file.Files.move(temporaryMarker.toPath(), marker.toPath(),
+        java.nio.file.Files.move(
+                temporaryMarker.toPath(),
+                marker.toPath(),
                 java.nio.file.StandardCopyOption.REPLACE_EXISTING,
                 java.nio.file.StandardCopyOption.ATOMIC_MOVE);
         progress.update(100);
@@ -136,12 +148,12 @@ public final class BundledResourceInstaller {
             if (size < 0 || !paths.add(path)) throw new IOException("Invalid resource manifest");
             existing &= target.isFile() && target.length() == size;
         }
-        return existing && manifest.getString("revision").equals(readMarker(new File(root, MARKER)));
+        return existing
+                && manifest.getString("revision").equals(readMarker(new File(root, MARKER)));
     }
 
     private static File checkedTarget(File root, String path) throws IOException {
-        if (!path.startsWith("data/") || path.contains("\\"))
-            throw new IOException("非法资源路径");
+        if (!path.startsWith("data/") || path.contains("\\")) throw new IOException("非法资源路径");
         for (String segment : path.split("/"))
             if (segment.equals(".") || segment.equals("..")) throw new IOException("资源路径越界");
         File target = new File(root, path);
@@ -155,14 +167,16 @@ public final class BundledResourceInstaller {
         try (FileInputStream in = new FileInputStream(marker)) {
             byte[] bytes = new byte[(int) marker.length()];
             int count = 0, read;
-            while (count < bytes.length && (read = in.read(bytes, count, bytes.length - count)) != -1) count += read;
+            while (count < bytes.length
+                    && (read = in.read(bytes, count, bytes.length - count)) != -1) count += read;
             return new String(bytes, 0, count, StandardCharsets.UTF_8);
         }
     }
 
     private static String hex(byte[] bytes) {
         StringBuilder result = new StringBuilder();
-        for (byte value : bytes) result.append(String.format(java.util.Locale.ROOT, "%02x", value & 255));
+        for (byte value : bytes)
+            result.append(String.format(java.util.Locale.ROOT, "%02x", value & 255));
         return result.toString();
     }
 }

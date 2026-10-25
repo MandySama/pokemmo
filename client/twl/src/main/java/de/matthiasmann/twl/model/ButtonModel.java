@@ -30,56 +30,55 @@
 package de.matthiasmann.twl.model;
 
 /**
- * A generic button model.
- * Allows to separate button behavior from the button Widget.
+ * A generic button model. Allows to separate button behavior from the button Widget.
  *
- * A ButtonModel should not be shared between Button instances.
- * 
+ * <p>A ButtonModel should not be shared between Button instances.
+ *
  * @author Matthias Mann
  */
 public interface ButtonModel {
 
     public boolean isSelected();
-    
+
     public boolean isPressed();
-    
+
     public boolean isArmed();
-    
+
     public boolean isHover();
 
     public boolean isEnabled();
-    
+
     public void setSelected(boolean selected);
-    
+
     public void setPressed(boolean pressed);
-    
+
     public void setArmed(boolean armed);
-    
+
     public void setHover(boolean hover);
 
     public void setEnabled(boolean enabled);
 
     public void addActionCallback(Runnable callback);
-    
+
     public void removeActionCallback(Runnable callback);
 
     public void fireActionCallback();
 
     public boolean hasActionCallbacks();
-    
+
     public void addStateCallback(Runnable callback);
-    
+
     public void removeStateCallback(Runnable callback);
 
     /**
-     * Called when the Button is placed in the GUI tree.
-     * Callbacks to other models should only be installed after this call.
+     * Called when the Button is placed in the GUI tree. Callbacks to other models should only be
+     * installed after this call.
      */
     public void connect();
 
     /**
-     * Called when the Button is no longer part of the GUI tree.
-     * Callbacks to other models should be removed.
+     * Called when the Button is no longer part of the GUI tree. Callbacks to other models should be
+     * removed.
      */
     public void disconnect();
 }

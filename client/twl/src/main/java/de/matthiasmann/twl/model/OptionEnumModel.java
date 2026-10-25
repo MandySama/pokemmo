@@ -30,12 +30,12 @@
 package de.matthiasmann.twl.model;
 
 /**
- * A BooleanModel which is true when the underlying EnumModel has the specified
- * option code. This can be used for radio/option buttons.
+ * A BooleanModel which is true when the underlying EnumModel has the specified option code. This
+ * can be used for radio/option buttons.
  *
- * It is not possible to set this BooleanModel to false. It can only be set to
- * false by setting the underlying EnumModel to another value. Eg by setting
- * another OptionEnumModel working on the same EnumModel to true.
+ * <p>It is not possible to set this BooleanModel to false. It can only be set to false by setting
+ * the underlying EnumModel to another value. Eg by setting another OptionEnumModel working on the
+ * same EnumModel to true.
  *
  * @author Matthias Mann
  * @param <T> The enum class
@@ -46,10 +46,10 @@ public class OptionEnumModel<T extends Enum<T>> extends AbstractOptionModel {
     protected final T optionCode;
 
     public OptionEnumModel(EnumModel<T> optionState, T optionCode) {
-        if(optionState == null) {
+        if (optionState == null) {
             throw new NullPointerException("optionState");
         }
-        if(optionCode == null) {
+        if (optionCode == null) {
             throw new NullPointerException("optionCode");
         }
 
@@ -62,15 +62,15 @@ public class OptionEnumModel<T extends Enum<T>> extends AbstractOptionModel {
     }
 
     /**
-     * If value is true, then the underlying EnumModel is set to the
-     * option code of this OptionEnumModel.
+     * If value is true, then the underlying EnumModel is set to the option code of this
+     * OptionEnumModel.
      *
-     * if value if false then nothing happens.
+     * <p>if value if false then nothing happens.
      *
      * @param value the new value of this BooleanModel
      */
     public void setValue(boolean value) {
-        if(value) {
+        if (value) {
             optionState.setValue(optionCode);
         }
     }
@@ -84,5 +84,4 @@ public class OptionEnumModel<T extends Enum<T>> extends AbstractOptionModel {
     protected void removeSrcCallback(Runnable cb) {
         optionState.removeCallback(cb);
     }
-    
 }

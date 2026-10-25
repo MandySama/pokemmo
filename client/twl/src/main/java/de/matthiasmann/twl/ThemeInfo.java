@@ -39,5 +39,4 @@ public interface ThemeInfo extends ParameterMap {
     public ThemeInfo getChildTheme(String theme);
 
     public String getThemePath();
-    
 }

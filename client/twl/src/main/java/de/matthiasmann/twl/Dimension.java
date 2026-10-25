@@ -30,13 +30,12 @@
 package de.matthiasmann.twl;
 
 /**
- *
  * @author Matthias Mann
  */
 public class Dimension {
 
     public static final Dimension ZERO = new Dimension(0, 0);
-    
+
     private final int x;
     private final int y;
 
@@ -55,10 +54,10 @@ public class Dimension {
 
     @Override
     public boolean equals(Object obj) {
-        if(obj == null || getClass() != obj.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        final Dimension other = (Dimension)obj;
+        final Dimension other = (Dimension) obj;
         return (this.x == other.x) && (this.y == other.y);
     }
 
@@ -72,6 +71,6 @@ public class Dimension {
 
     @Override
     public String toString() {
-        return "Dimension[x="+x+", y="+y+"]";
+        return "Dimension[x=" + x + ", y=" + y + "]";
     }
 }

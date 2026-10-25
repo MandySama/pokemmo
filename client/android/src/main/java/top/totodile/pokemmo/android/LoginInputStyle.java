@@ -5,8 +5,8 @@ import android.graphics.drawable.GradientDrawable;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
-import android.widget.RelativeLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 /** 登录原生输入栏的外观。 */
 final class LoginInputStyle {
@@ -26,14 +26,15 @@ final class LoginInputStyle {
         // 禁用回退字体额外行距，让文字与光标使用同一行高度量。
         if (android.os.Build.VERSION.SDK_INT >= 28) editor.setFallbackLineSpacing(false);
         // Android 15 默认按系统语言预留最小行高，中文环境下会扩大行框并使字形偏上。
-        if (android.os.Build.VERSION.SDK_INT >= 35) editor.setLocalePreferredLineHeightForMinimumUsed(false);
+        if (android.os.Build.VERSION.SDK_INT >= 35)
+            editor.setLocalePreferredLineHeightForMinimumUsed(false);
         if (editor.getId() == View.NO_ID) editor.setId(View.generateViewId());
         int padding = Math.round(10 * density);
         editor.setPadding(padding, padding, padding, padding);
         View parent = (View) editor.getParent();
         // 键盘后端随后会修改安全区边距，布局完成后再扣除父容器的偏移。
         if (editor.getTag() == null) {
-            parent.addOnLayoutChangeListener((v,l,t,r,b,ol,ot,or,ob) -> layout(editor));
+            parent.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> layout(editor));
             editor.setTag(LoginInputStyle.class);
         }
         layout(editor);
@@ -56,17 +57,28 @@ final class LoginInputStyle {
             }
         }
         int left = Math.max(0, Math.max(side, safeLeft) - position[0]);
-        int right = Math.max(0, Math.max(side, safeRight) - (root.getWidth() - position[0] - parent.getWidth()));
+        int right =
+                Math.max(
+                        0,
+                        Math.max(side, safeRight)
+                                - (root.getWidth() - position[0] - parent.getWidth()));
         // 密码键盘上方保留 10dp 间距；用户名悬浮键盘沿用已核对的位置。
-        boolean password = (editor.getInputType() & android.text.InputType.TYPE_MASK_VARIATION)
-                == android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD;
-        int bottom = password ? Math.round(10 * editor.getResources().getDisplayMetrics().density) : 0;
-        bottom = Math.max(bottom, safeBottom - (root.getHeight() - position[1] - parent.getHeight()));
+        boolean password =
+                (editor.getInputType() & android.text.InputType.TYPE_MASK_VARIATION)
+                        == android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD;
+        int bottom =
+                password ? Math.round(10 * editor.getResources().getDisplayMetrics().density) : 0;
+        bottom =
+                Math.max(
+                        bottom, safeBottom - (root.getHeight() - position[1] - parent.getHeight()));
         // 手机沿用横屏比例；平板限制高度，避免输入栏随大屏幕过度放大。
         float density = editor.getResources().getDisplayMetrics().density;
         int height = Math.min(Math.round(root.getHeight() * 2f / 15f), Math.round(56 * density));
         RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) editor.getLayoutParams();
-        if (params.leftMargin != left || params.rightMargin != right || params.bottomMargin != bottom || params.height != height) {
+        if (params.leftMargin != left
+                || params.rightMargin != right
+                || params.bottomMargin != bottom
+                || params.height != height) {
             params.setMargins(left, 0, right, bottom);
             params.height = height;
             editor.setLayoutParams(params);
@@ -91,4 +103,3 @@ final class LoginInputStyle {
         editor.setPadding(padding, padding, hasEye ? height : padding, padding);
     }
 }
-

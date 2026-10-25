@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.LifecycleListener;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowAdapter;
+
 import org.lwjgl.glfw.GLFWNativeWin32;
 import org.lwjgl.system.JNI;
 import org.lwjgl.system.Platform;
@@ -15,7 +16,8 @@ final class WindowsWindowIcons extends Lwjgl3WindowAdapter implements LifecycleL
     private long hwnd;
     private long previousBig, previousSmall;
 
-    @Override public void created(Lwjgl3Window window) {
+    @Override
+    public void created(Lwjgl3Window window) {
         if (Platform.get() != Platform.WINDOWS) return;
         hwnd = GLFWNativeWin32.glfwGetWin32Window(window.getWindowHandle());
         try (WindowsLibrary user32 = new WindowsLibrary("user32.dll")) {
@@ -29,10 +31,14 @@ final class WindowsWindowIcons extends Lwjgl3WindowAdapter implements LifecycleL
         Gdx.app.addLifecycleListener(this);
     }
 
-    @Override public void pause() {}
-    @Override public void resume() {}
+    @Override
+    public void pause() {}
 
-    @Override public void dispose() {
+    @Override
+    public void resume() {}
+
+    @Override
+    public void dispose() {
         if (hwnd == 0) return;
         // GLFW 销毁窗口时会释放窗口图标，须先恢复类图标以免留下失效句柄。
         User32.SetClassLongPtr(null, hwnd, User32.GCL_HICON, previousBig);

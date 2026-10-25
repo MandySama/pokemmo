@@ -12,8 +12,13 @@ public abstract class ClientWindow extends Container {
         setCanAcceptKeyboardFocus(true);
     }
 
-    protected final Widget getOwner() { return owner; }
-    public final boolean isOpen() { return getParent() != null; }
+    protected final Widget getOwner() {
+        return owner;
+    }
+
+    public final boolean isOpen() {
+        return getParent() != null;
+    }
 
     protected final boolean openPopup() {
         if (owner.getGUI() == null) return false;
@@ -33,33 +38,40 @@ public abstract class ClientWindow extends Container {
     }
 
     public final boolean isAbove(ClientWindow other) {
-        return isOpen() && (!other.isOpen() || owner.getChildIndex(this) > owner.getChildIndex(other));
+        return isOpen()
+                && (!other.isOpen() || owner.getChildIndex(this) > owner.getChildIndex(other));
     }
 
     public void closePopup() {
         if (isOpen()) owner.removeChild(this);
     }
 
-    @Override public int getPreferredWidth() {
+    @Override
+    public int getPreferredWidth() {
         return Math.min(owner.getInnerWidth(), super.getPreferredWidth());
     }
 
-    @Override public int getPreferredHeight() {
+    @Override
+    public int getPreferredHeight() {
         return Math.min(owner.getInnerHeight(), super.getPreferredHeight());
     }
 
-    public boolean ownsPointer(int x,int y) {
+    public boolean ownsPointer(int x, int y) {
         // 参考客户端按各个窗口的边界命中；承载多个窗口的全屏容器不能挡住外部控件。
         for (int i = 0; i < getNumChildren(); i++) {
             Widget child = getChild(i);
-            if (child.isVisible() && child.isInside(x,y)) return true;
+            if (child.isVisible() && child.isInside(x, y)) return true;
         }
         return false;
     }
 
-    @Override protected boolean isMouseInside(Event event){return ownsPointer(event.getMouseX(),event.getMouseY());}
+    @Override
+    protected boolean isMouseInside(Event event) {
+        return ownsPointer(event.getMouseX(), event.getMouseY());
+    }
 
-    @Override protected boolean handleEvent(Event event) {
+    @Override
+    protected boolean handleEvent(Event event) {
         if (super.handleEvent(event)) return true;
         if (event.isKeyPressedEvent() && event.getKeyCode() == Event.KEY_ESCAPE) {
             closePopup();
