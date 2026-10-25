@@ -36,7 +36,7 @@ public final class ResourceProgressScreen implements AutoCloseable {
 
     public ResourceProgressScreen(Function<String, FileHandle> files, String message) {
         updateViewport();
-        renderer = new GdxTwlRenderer(viewport, "sc");
+        renderer = new GdxTwlRenderer(viewport, "sc", files);
         try {
             URL url =
                     new URL(

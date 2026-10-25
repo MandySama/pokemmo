@@ -29,7 +29,7 @@ public final class PcModelPrecacheScreen implements AutoCloseable {
         var strings = resources.strings();
         text = strings.get(925);
         viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
-        renderer = new GdxTwlRenderer(viewport, strings.typeface());
+        renderer = new GdxTwlRenderer(viewport, strings.typeface(), resources::apply);
         root =
                 new Widget() {
                     @Override

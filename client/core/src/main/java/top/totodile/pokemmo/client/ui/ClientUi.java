@@ -448,7 +448,7 @@ public final class ClientUi implements Disposable {
                         ? (ClientResources) assets
                         : new ClientResources(assets, savedAccounts.directory(), mobile);
         strings = resources.strings();
-        renderer = new GdxTwlRenderer(viewport, strings.typeface());
+        renderer = new GdxTwlRenderer(viewport, strings.typeface(), resources::apply);
         serverFrame = new ServerSelectionPanel(strings, controller);
         characterPage = new CharacterSelectionPanel(strings, controller);
         romInfo = new Label(romSummary());

@@ -19,6 +19,7 @@ import de.matthiasmann.twl.utils.StateSelect;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.function.Function;
 
 /** 将 TWL 的左上角坐标、裁剪和主题图片绘制到 LibGDX。 */
 public final class GdxTwlRenderer implements Renderer, AutoCloseable {
@@ -68,11 +69,19 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
                 }
             };
 
+    private final Function<String, FileHandle> resources;
+
     public GdxTwlRenderer(Viewport viewport) {
         this(viewport, null);
     }
 
     public GdxTwlRenderer(Viewport viewport, String typeface) {
+        this(viewport, typeface, path -> Gdx.files.internal("data/" + path));
+    }
+
+    public GdxTwlRenderer(
+            Viewport viewport, String typeface, Function<String, FileHandle> resources) {
+        this.resources = resources;
         ThemeFontParameters.register();
         this.typeface = typeface;
         this.viewport = viewport;
@@ -639,14 +648,14 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
                             var program =
                                     new com.badlogic.gdx.graphics.glutils.ShaderProgram(
                                             prefix
-                                                    + Gdx.files
-                                                            .classpath(
-                                                                    "particles/particles_ex.vertex.glsl")
+                                                    + resources
+                                                            .apply(
+                                                                    "shaders/particles_ex.vertex.glsl")
                                                             .readString("UTF-8"),
                                             prefix
-                                                    + Gdx.files
-                                                            .classpath(
-                                                                    "particles/particles_ex.fragment.glsl")
+                                                    + resources
+                                                            .apply(
+                                                                    "shaders/particles_ex.fragment.glsl")
                                                             .readString("UTF-8"));
                             if (!program.isCompiled())
                                 throw new IllegalStateException(program.getLog());

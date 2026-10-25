@@ -39,6 +39,13 @@ dependencies {
     runtimeOnly "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
 }
 
+// Development inventory belongs to tooling; expose only the catalog to tests.
+tasks.named('processTestResources') {
+    from(project(':client').file('tools/battle/reference-animation-inventory.json')) {
+        into 'battle'
+    }
+}
+
 tasks.named('test') {
     workingDir = project(':client').projectDir
     inputs.dir(project(':client').file('data/themes'))

@@ -5,9 +5,12 @@ local.properties
 !/client/android/signing/pokemmo.keystore
 **/config/savedcredentials.properties
 **/config/savedcredentials.properties.*.tmp
-**/src/test/
-**/src/androidTest/
-/tools/
+# 开发工具与测试目录（任意层级，精确匹配目录名）
+tool/
+tools/
+test/
+tests/
+androidTest/
 client/android/build-emulator*.log
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
