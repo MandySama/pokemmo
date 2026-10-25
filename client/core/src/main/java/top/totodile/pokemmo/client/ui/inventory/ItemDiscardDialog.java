@@ -4,6 +4,7 @@ import de.matthiasmann.twl.*;
 
 import top.totodile.pokemmo.client.resources.ClientStrings;
 import top.totodile.pokemmo.client.ui.common.*;
+import top.totodile.pokemmo.client.ui.common.ClientDialog;
 import top.totodile.pokemmo.server.game.PlayerData;
 
 import java.util.function.BiConsumer;
@@ -75,7 +76,7 @@ final class ItemDiscardDialog {
         confirmation.positionWindow();
     }
 
-    private static final class Quantity extends PopupWindow {
+    private static final class Quantity extends ClientDialog {
         private final DialogLayout panel = new DialogLayout();
         private final Label message = new Label();
         private final EditField input;
@@ -90,7 +91,7 @@ final class ItemDiscardDialog {
         private java.util.function.IntConsumer confirmed;
 
         Quantity(Widget owner, ClientStrings strings, boolean mobile, Runnable onClose) {
-            super(owner);
+            super(owner, mobile);
             this.onClose = onClose;
             setTheme("/confirm-widget");
             setCloseOnClickedOutside(false);

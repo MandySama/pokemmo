@@ -3195,4 +3195,24 @@
     <string id="5224">麻痹</string>
     <string id="5225">中剧毒</string>
     <string id="1852">PP:</string>
+    <string id="5021">野生怪群出现了!</string>
+    <string id="1435">确定使用{00}吗?</string>
+    <string id="1408">注册对战</string>
+    <string id="5029">确认</string>
+    <string id="5230">HP: {00}%</string>
+    <string id="5231">HP: {00} / {01} - {02}%</string>
+<string id="1500">正常</string>
+<string id="1501">大喊</string>
+<string id="1502">私聊</string>
+<string id="1503">交易</string>
+<string id="1504">全服</string>
+<string id="1505">频道</string>
+<string id="1506">系统公告</string>
+<string id="1507">公会</string>
+<string id="1508">战斗</string>
+<string id="1509">系统消息</string>
+<string id="1510">组队</string>
+<string id="1514">正在连接聊天服务器...</string>
+<string id="1524">请指定私聊对象.</string>
+<string id="1525">发送</string>
 </strings>

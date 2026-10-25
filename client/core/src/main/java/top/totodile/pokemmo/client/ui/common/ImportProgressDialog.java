@@ -7,7 +7,7 @@ import java.util.Locale;
 import java.util.function.Consumer;
 
 /** 参考 qj0_2：验证/复制时的模态进度弹窗，不提供取消或确认按钮。 */
-public final class ImportProgressDialog extends PopupWindow {
+public final class ImportProgressDialog extends ClientDialog {
     private final DialogLayout panel = new DialogLayout();
     private final Label message = new Label();
     private final Progress progress = new Progress();
@@ -16,7 +16,7 @@ public final class ImportProgressDialog extends PopupWindow {
     private long nextUpdate;
 
     public ImportProgressDialog(Widget owner, boolean mobile, Consumer<Image> screenBackground) {
-        super(owner);
+        super(owner, mobile);
         this.mobile = mobile;
         this.screenBackground = screenBackground;
         setTheme("/confirm-widget");

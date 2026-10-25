@@ -35,7 +35,8 @@ public final class BwMaps implements WorldMaps {
             int kind,
             int camera,
             int teleportX,
-            int teleportY) {}
+            int teleportY,
+            int flags) {}
 
     private record Matrix(int width, int height, int[] land, int[] headers) {}
 
@@ -102,7 +103,8 @@ public final class BwMaps implements WorldMaps {
                             table[p] & 255,
                             table[p + 29] & 254,
                             i32(table, p + 36),
-                            i32(table, p + 44));
+                            i32(table, p + 44),
+                            u16(table, p + 30));
         }
         var available = new LinkedHashSet<Id>();
         for (int i = 0; i < headers.length; i++) if (bounds(i) != null) available.add(id(i));
@@ -261,6 +263,20 @@ public final class BwMaps implements WorldMaps {
     @Override
     public boolean isDoor(int behavior) {
         return behavior == 2;
+    }
+
+    @Override
+    public int battleBackground(Id id) {
+        // Gdx3DModelBatch.Wi0 reads bits 5..9 of BwMapHeaderEntry.mr0, plus one.
+        return ((header(id).flags >>> 5) & 31) + 1;
+    }
+
+    @Override
+    public top.totodile.pokemmo.client.world.BattleTerrain battleTerrain(Id id, int x, int y) {
+        // BwMapHeaderEntry.IU uses flag 0x1000 for underground.
+        return (header(id).flags & 4096) != 0
+                ? top.totodile.pokemmo.client.world.BattleTerrain.CAVE
+                : WorldMaps.super.battleTerrain(id, x, y);
     }
 
     @Override

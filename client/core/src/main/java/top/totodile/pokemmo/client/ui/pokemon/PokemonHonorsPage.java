@@ -171,7 +171,7 @@ final class PokemonHonorsPage extends Widget {
 
                     @Override
                     protected boolean handleEvent(Event event) {
-                        return event.isMouseEvent() || super.handleEvent(event);
+                        return event.isMouseEventNoWheel() || super.handleEvent(event);
                     }
                 };
         widget.setTheme("");

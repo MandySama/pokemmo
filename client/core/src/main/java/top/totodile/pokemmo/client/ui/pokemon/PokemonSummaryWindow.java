@@ -183,7 +183,7 @@ public final class PokemonSummaryWindow extends PlayerWindow {
                     return pokemon != null
                             && !pokemon.egg()
                             && pokemon.honors().selectedParticle() > 0
-                            && event.isMouseEvent();
+                            && event.isMouseEventNoWheel();
                 }
 
                 @Override
@@ -420,7 +420,7 @@ public final class PokemonSummaryWindow extends PlayerWindow {
 
                         @Override
                         protected boolean handleEvent(Event event) {
-                            return event.isMouseEvent();
+                            return event.isMouseEventNoWheel();
                         }
 
                         @Override
@@ -1328,6 +1328,28 @@ public final class PokemonSummaryWindow extends PlayerWindow {
                     button.setTooltipContent(dex.abilityDescription(value));
                     buttons.add(button);
                 }
+                var any = menuButton("任意特性（测试）", () -> {});
+                submenuHover.put(
+                        any,
+                        () -> {
+                            var options = new ArrayList<Button>();
+                            for (int abilityId : dex.allAbilities()) {
+                                var option =
+                                        menuButton(
+                                                abilityId + "  " + dex.ability(abilityId),
+                                                () ->
+                                                        applySetting(
+                                                                GameService.PokemonSetting
+                                                                        .TEST_ABILITY,
+                                                                -1,
+                                                                abilityId));
+                                option.setEnabled(abilityId != pokemon.ability());
+                                option.setTooltipContent(dex.abilityDescription(abilityId));
+                                options.add(option);
+                            }
+                            showOptions(any, options, 210);
+                        });
+                buttons.add(any);
             }
             case EV -> {
                 buttons.add(menuButton("Max", () -> applySetting(setting, -1, 85)));

@@ -35,6 +35,7 @@ final class EncounterEntrance implements AutoCloseable {
                     },
                     false);
     private final AttributeParticleScene particles;
+    private Image recallBall;
     private float particleTime;
     private final boolean floating, burrowing;
     // BattleJ40Animation.zh0 selects fv for these species, coM9 for Diglett/Dugtrio, Px otherwise.
@@ -69,10 +70,25 @@ final class EncounterEntrance implements AutoCloseable {
                         || pokemon.species() == 648 && pokemon.form() == 0;
         burrowing = pokemon.species() == 50 || pokemon.species() == 51;
         trainer =
-                new CharacterPreview(
-                        appearance, renderer, false, () -> skin, () -> gender, () -> 0L);
+                appearance == null
+                        ? null
+                        : new CharacterPreview(
+                                appearance, renderer, false, () -> skin, () -> gender, () -> 0L);
         AttributeParticleScene loaded = null;
         try {
+            var recall = sprites.recallBall(ball);
+            var recallPixmap = new Pixmap(recall.width(), recall.height(), Pixmap.Format.RGBA8888);
+            try {
+                recallPixmap.setBlending(Pixmap.Blending.None);
+                for (int y = 0; y < recall.height(); y++)
+                    for (int x = 0; x < recall.width(); x++)
+                        recallPixmap.drawPixel(x, y, recall.rgba()[y * recall.width() + x]);
+                var texture = new com.badlogic.gdx.graphics.Texture(recallPixmap);
+                textures.add(texture);
+                recallBall = renderer.image(texture);
+            } finally {
+                recallPixmap.dispose();
+            }
             for (var pixels : sprites.thrownBall(ball)) {
                 var pixmap = new Pixmap(pixels.width(), pixels.height(), Pixmap.Format.RGBA8888);
                 try {
@@ -105,12 +121,23 @@ final class EncounterEntrance implements AutoCloseable {
             }
             if (loaded == null) throw new IOException("Missing reference release effect " + name);
         } catch (IOException | RuntimeException error) {
-            trainer.close();
-            appearance.dispose();
+            if (trainer != null) trainer.close();
+            if (appearance != null) appearance.dispose();
             textures.forEach(com.badlogic.gdx.graphics.Texture::dispose);
             throw error;
         }
         particles = loaded;
+    }
+
+    /** J40's ball fade/move (.20 + .01), actor raise (.01), then growth delay (.40). */
+    private long releaseAt() {
+        return trainer == null ? 1620 : RELEASE;
+    }
+
+    long sendOutDuration() {
+        return trainer == null
+                ? releaseAt() + growth() + (floating ? 1000 : burrowing ? 400 : 500)
+                : DURATION - WILD;
     }
 
     private int growth() {
@@ -119,20 +146,20 @@ final class EncounterEntrance implements AutoCloseable {
 
     float pokemonScale(long elapsed) {
         float t = elapsed - WILD;
-        if (t < RELEASE) return 0;
-        if (t < RELEASE + growth()) return 1.1f * ease((t - RELEASE) / growth());
-        return 1.1f - .1f * ease((t - RELEASE - growth()) / 400);
+        if (t < releaseAt()) return 0;
+        if (t < releaseAt() + growth()) return 1.1f * ease((t - releaseAt()) / growth());
+        return 1.1f - .1f * ease((t - releaseAt() - growth()) / 400);
     }
 
     float white(long elapsed) {
-        return 1 - ease((elapsed - WILD - RELEASE - growth()) / 250f);
+        return 1 - ease((elapsed - WILD - releaseAt() - growth()) / 250f);
     }
 
     float height(long elapsed) {
-        float t = elapsed - WILD - RELEASE;
+        float t = elapsed - WILD - releaseAt();
         if (burrowing) return -.4f * (1 - ease(t / 500));
         if (floating) return (.55f + .35f * ease(t / 800)) * (1 - ease((t - 1200) / 600));
-        return .55f * (1 - ease((t - 1400) / 500));
+        return .55f * (1 - ease((t - (trainer == null ? 1000 : 1400)) / 500));
     }
 
     float wildShade(long elapsed) {
@@ -140,12 +167,16 @@ final class EncounterEntrance implements AutoCloseable {
     }
 
     void drawTrainer(long elapsed, int x, int y, int width, int height) {
+        if (trainer == null) return;
         long time = elapsed - WILD;
-        if (time >= 625) return;
-        int scale = Math.max(1, Math.round(height / 133f));
+        // GdxMaterialPart keeps the idle sprite below the viewport (tX=159).
+        // Cq0 starts the visible frame sequence at tX=0 when the throw begins.
+        if (time < 0 || time >= 625) return;
+        float scale = height / 133f;
         // KeyframeTimelineSequence: 5 frames at 125 ms; Modern_Col_Kv2 moves left each 10 ms.
         int frame = (int) Math.max(0, time / 125), left = 45 - (int) Math.max(0, time / 10);
-        trainer.drawBattleBack(frame, x + left * scale, y + 80 * scale, scale);
+        // Ka0's camera translation anchors 80 logical pixels above the viewport bottom.
+        trainer.drawBattleBack(frame, x + left * scale, y + height - 80 * scale, scale);
     }
 
     void drawBall(
@@ -192,11 +223,41 @@ final class EncounterEntrance implements AutoCloseable {
             int y,
             int width,
             int height) {
-        float time = (elapsed - WILD - 1010) / 1000f;
+        float time = (elapsed - WILD - (trainer == null ? 1220 : 1010)) / 1000f;
         if (time < 0 || time > 2) return;
         particles.draw(
                 renderer, Math.max(0, time - particleTime), x, y, width, height, scene.camera());
         particleTime = time;
+    }
+
+    /** BattleBv00Animation: stationary ball at actor center minus (.1, .45, .05). */
+    void drawRecall(
+            long elapsed,
+            EncounterScene scene,
+            GdxTwlRenderer renderer,
+            AnimationState state,
+            int x,
+            int y,
+            int width,
+            int height) {
+        if (elapsed < 250 || elapsed >= 1450) return;
+        var point = new Vector3(2.9f, 2.65f, 3.95f);
+        var projected = scene.project(point);
+        int size =
+                Math.max(
+                        1,
+                        Math.round(
+                                .16f
+                                        * height
+                                        / (2
+                                                * (float) Math.tan(Math.toRadians(25))
+                                                * scene.camera().position.dst(point))));
+        recallBall.draw(
+                state,
+                x + Math.round(projected.x) - size / 2,
+                y + height - Math.round(projected.y) - size / 2,
+                size,
+                size);
     }
 
     private static float ease(float t) {
@@ -206,8 +267,8 @@ final class EncounterEntrance implements AutoCloseable {
 
     public void close() {
         particles.close();
-        trainer.close();
-        appearance.dispose();
+        if (trainer != null) trainer.close();
+        if (appearance != null) appearance.dispose();
         textures.forEach(com.badlogic.gdx.graphics.Texture::dispose);
     }
 }

@@ -23,6 +23,16 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
         character.appearance(saved);
     }
 
+    private final WorldAtmosphere atmosphere = new WorldAtmosphere();
+
+    public WorldAtmosphere atmosphere() {
+        return atmosphere;
+    }
+
+    public boolean supportsAtmosphere() {
+        return !mobile && maps.supportsAtmosphere();
+    }
+
     private final WorldMaps maps;
     private final NdsWorldRenderer nds;
     private final MapMovement movement;
@@ -160,6 +170,18 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
             batch.dispose();
             throw error;
         }
+    }
+
+    /** Freeze the encounter's scenery from the current physical map/tile and UTC season. */
+    public top.totodile.pokemmo.client.battle.EncounterEnvironment battleEnvironment() {
+        var position = movement.position();
+        var id = movement.map().id();
+        int season =
+                (java.time.ZonedDateTime.now(java.time.ZoneOffset.UTC).getMonthValue() - 1) % 4;
+        return top.totodile.pokemmo.client.battle.EncounterEnvironment.resolve(
+                maps.battleTerrain(id, position.x(), position.y()),
+                maps.battleBackground(id),
+                season);
     }
 
     public MapMovement movement() {
@@ -306,7 +328,33 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
         drawActors(px, py, position.direction(), true);
         drawMap(2, px, py);
         batch.end();
+        drawAtmosphere(delta, width, height);
         if (controls != null) controls.draw(batch, width, height);
+    }
+
+    /** Live state shared with battle rendering; only Kanto PC participates. */
+    public top.totodile.pokemmo.client.battle.EncounterAtmosphere.State battleAtmosphere() {
+        if (!supportsAtmosphere()) return null;
+        var id = movement.map().id();
+        return new top.totodile.pokemmo.client.battle.EncounterAtmosphere.State(
+                atmosphere.seconds(System.currentTimeMillis(), worldInfo.timeOrigin()),
+                maps.outside(id),
+                atmosphere.resolvedWeather(maps.weather(id)));
+    }
+
+    private void drawAtmosphere(float delta, int width, int height) {
+        if (!supportsAtmosphere()) return;
+        var id = movement.map().id();
+        atmosphere.draw(
+                batch,
+                delta,
+                width,
+                height,
+                atmosphere.seconds(System.currentTimeMillis(), worldInfo.timeOrigin()),
+                maps.outside(id),
+                maps.weather(id),
+                motion.x(),
+                motion.y());
     }
 
     private int directionForKey(int value) {
@@ -516,6 +564,7 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
 
     @Override
     public void close() {
+        atmosphere.close();
         if (nds != null) nds.close();
         if (follower != null) follower.close();
         for (Texture[] textures : atlases.values())

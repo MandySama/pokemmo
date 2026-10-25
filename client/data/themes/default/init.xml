@@ -11,6 +11,10 @@
         <action name="paste">cmd V</action>
     </inputMapDef>
     <theme name="-defaults">
+        <!-- Restricted buttons keep their normal appearance and ignore activation. -->
+        <param name="showDisabledState">
+            <bool>false</bool>
+        </param>
         <param name="background">
             <image>none</image>
         </param>

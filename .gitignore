@@ -55,3 +55,6 @@ save/
 mods/
 roms/
 /client/cache/
+
+# Node dependencies for the embedded Showdown simulator
+**/node_modules/

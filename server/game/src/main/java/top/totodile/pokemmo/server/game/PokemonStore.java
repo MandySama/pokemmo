@@ -458,6 +458,13 @@ final class PokemonStore {
                                     || ratio == 254 && value != 1) reject();
                             gender = value;
                         }
+                        case TEST_ABILITY -> {
+                            // Explicit test override: reference ability identifiers are positive
+                            // shorts.
+                            if (index != -1 || value <= 0 || value > Short.MAX_VALUE) reject();
+                            ability = value;
+                            hidden = false;
+                        }
                         case ABILITY -> {
                             if (value <= 0
                                     || index < 0
@@ -723,6 +730,78 @@ final class PokemonStore {
         return added[0];
     }
 
+    /**
+     * PokemonCaptureService: preserve the encountered individual; party first, then absolute PC
+     * slots.
+     */
+    Pokemon capture(String owner, Pokemon wild, int ball) {
+        var current = load(owner);
+        int container = PARTY, position = 0;
+        while (position < PARTY_SIZE && current.at(PARTY, position) != null) position++;
+        if (position == PARTY_SIZE) {
+            container = PC;
+            position = 0;
+            while (position < current.boxes() * BOX_SIZE && current.at(PC, position) != null)
+                position++;
+            if (position == current.boxes() * BOX_SIZE)
+                throw new IllegalStateException("No free Pokemon slot");
+        }
+        var captured =
+                new Pokemon(
+                        wild.id(),
+                        container,
+                        position,
+                        wild.species(),
+                        wild.form(),
+                        wild.gender(),
+                        wild.shiny(),
+                        false,
+                        wild.name(),
+                        wild.level(),
+                        ball == 13 ? wild.maxHp() : wild.hp(),
+                        0,
+                        -1,
+                        wild.nature(),
+                        wild.ability(),
+                        wild.stats(),
+                        wild.ivs(),
+                        wild.evs(),
+                        wild.moves(),
+                        ball == 21 ? 200 : wild.friendship(),
+                        wild.hiddenAbility(),
+                        wild.alpha(),
+                        wild.marks(),
+                        wild.pp(),
+                        wild.ppUps(),
+                        wild.origin(),
+                        wild.honors(),
+                        ball,
+                        wild.secretShiny(),
+                        wild.experience());
+        insert(owner, captured);
+        db.execute(
+                "UPDATE pokemon SET"
+                    + " friend_value=?,has_hidden_ability=?,is_alpha=?,mark_status=?,moves_pp=?,pp_up_times=?,normal_ribbon=?,contest_ribbon=?,particle_effects=?,selected_particle=?,ball_type=?,is_secret=?"
+                    + " WHERE id=?",
+                captured.friendship(),
+                captured.hiddenAbility() ? 1 : 0,
+                captured.alpha() ? 1 : 0,
+                captured.marks(),
+                encoded(captured.pp()),
+                encoded(captured.ppUps()),
+                encoded(captured.honors().ribbons()),
+                encoded(captured.honors().contestRibbons()),
+                encoded(captured.honors().particles()),
+                captured.honors().selectedParticle(),
+                ball,
+                captured.secretShiny() ? 1 : 0,
+                captured.id());
+        return load(owner).pokemons().stream()
+                .filter(p -> p.id().equals(captured.id()))
+                .findFirst()
+                .orElseThrow();
+    }
+
     private void insert(String id, Pokemon p) {
         int level = p.level();
         db.execute(
@@ -833,6 +912,38 @@ final class PokemonStore {
             int container,
             int position,
             Random random) {
+        return createWildPokemon(species, level, container, position, random, false);
+    }
+
+    static PokemonData.Pokemon createWildPokemon(
+            GameService.SpeciesTemplate species,
+            int level,
+            int container,
+            int position,
+            Random random,
+            boolean randomMoves) {
+        return createWildPokemon(species, level, container, position, random, randomMoves, 1, 0);
+    }
+
+    /** Requested encounter rates: shiny 1/2, secret shiny 1/2 conditional on shiny. */
+    static PokemonData.Pokemon createEncounterPokemon(
+            GameService.SpeciesTemplate species,
+            int level,
+            int container,
+            int position,
+            Random random) {
+        return createWildPokemon(species, level, container, position, random, true, 2, 2);
+    }
+
+    private static PokemonData.Pokemon createWildPokemon(
+            GameService.SpeciesTemplate species,
+            int level,
+            int container,
+            int position,
+            Random random,
+            boolean randomMoves,
+            int shinyDenominator,
+            int secretDenominator) {
         int[] rawIvs = new int[6];
         for (int i = 0; i < 6; i++) rawIvs[i] = random.nextInt(31);
         int personality = random.nextInt(Integer.MAX_VALUE),
@@ -847,16 +958,19 @@ final class PokemonStore {
             double multiplier = up == down ? 1 : i == up ? 1.1 : i == down ? .9 : 1;
             stats.add((int) (value * multiplier));
         }
-        var moves =
+        var availableMoves =
                 new ArrayList<>(
                         species.moves().stream()
                                 .filter(m -> m.level() <= level)
                                 .sorted(
                                         Comparator.comparingInt(GameService.LearnedMove::level)
                                                 .reversed())
-                                .limit(4)
                                 .map(GameService.LearnedMove::id)
+                                .filter(id -> id > 0)
+                                .distinct()
                                 .toList());
+        if (randomMoves) Collections.shuffle(availableMoves, random);
+        var moves = new ArrayList<>(availableMoves.subList(0, Math.min(4, availableMoves.size())));
         while (moves.size() < 4) moves.add(0);
         int ratio = species.genderRatio();
         // ActivePokemon.Dg0 handles the male/female-only and genderless species sent by the server.
@@ -864,9 +978,10 @@ final class PokemonStore {
                 ratio == 255
                         ? -1
                         : ratio == 254 ? 1 : ratio == 0 ? 0 : (personality & 255) >= ratio ? 0 : 1;
-        // The supplied reference server is explicitly in its wild-rarity test mode (denominator 1).
-        boolean shiny = random.nextInt(1) == 0;
-        if (shiny) random.nextInt(2);
+        // PokemonManager.applyWildRarityAndParticle: secret rarity is conditional on shiny.
+        boolean shiny = random.nextInt(shinyDenominator) == 0;
+        boolean secretShiny =
+                shiny && secretDenominator > 0 && random.nextInt(secretDenominator) == 0;
         return new PokemonData.Pokemon(
                 UUID.randomUUID().toString(),
                 container,
@@ -896,7 +1011,7 @@ final class PokemonStore {
                 new Origin(Integer.MIN_VALUE, 0, -1, 0, "", personality, false, false),
                 Honors.empty(),
                 3,
-                false,
+                secretShiny,
                 PokemonExperience.atLevel(species.growthRate(), level));
     }
 }

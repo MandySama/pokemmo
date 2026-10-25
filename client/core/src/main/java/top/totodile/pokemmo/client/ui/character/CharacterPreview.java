@@ -125,9 +125,18 @@ public final class CharacterPreview extends Widget implements AutoCloseable {
         portrait = true;
     }
 
+    private float battleScale, battleX, battleY;
+
     /** GdxAddonSpriteManager.Rc0: the five saved-outfit backsprite throwing poses. */
-    public void drawBattleBack(int frame, int x, int y, int scale) {
-        drawCharacter(1, Math.max(0, Math.min(4, frame)), x, y, scale);
+    public void drawBattleBack(int frame, float x, float y, float scale) {
+        battleScale = scale;
+        battleX = x;
+        battleY = y;
+        try {
+            drawCharacter(1, Math.max(0, Math.min(4, frame)), 0, 0, 1);
+        } finally {
+            battleScale = 0;
+        }
     }
 
     public void tooltipRow() {
@@ -449,6 +458,12 @@ public final class CharacterPreview extends Widget implements AutoCloseable {
             return;
         }
         int width = sprite.image.getWidth() * scale, height = sprite.image.getHeight() * scale;
+        if (battleScale > 0) {
+            x = Math.round(battleX + x * battleScale);
+            y = Math.round(battleY + y * battleScale);
+            width = Math.round(width * battleScale);
+            height = Math.round(height * battleScale);
+        }
         sprite.image.draw(getAnimationState(), x, y, width, height);
         if (key.slot >= 0 && key.layer % 3 != 2) {
             Image colored =

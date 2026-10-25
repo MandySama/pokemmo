@@ -7,8 +7,8 @@ import top.totodile.pokemmo.client.resources.ClientStrings;
 
 import java.util.function.Consumer;
 
-/** 对齐参考 SimpleConfirmDialogWindow：居中文案、单个“好的”按钮和模态遮罩。 */
-public final class MessageDialog extends PopupWindow {
+/** 对齐参考 SimpleConfirmDialogWindow：居中文案和单个“好的”按钮；PC 使用非模态窗口。 */
+public final class MessageDialog extends ClientDialog {
     private final DialogLayout panel = new DialogLayout();
     private final Label message = new Label();
     private final Button okay;
@@ -23,7 +23,7 @@ public final class MessageDialog extends PopupWindow {
             boolean mobile,
             Consumer<Image> screenBackground,
             Runnable onClose) {
-        super(owner);
+        super(owner, mobile);
         this.mobile = mobile;
         this.screenBackground = screenBackground;
         this.onClose = onClose;

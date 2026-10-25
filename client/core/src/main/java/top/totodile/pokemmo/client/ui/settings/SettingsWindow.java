@@ -1201,7 +1201,7 @@ public final class SettingsWindow extends ClientWindow {
     }
 
     public boolean blocksInput() {
-        return isOpen() || screenMessage.isOpen();
+        return mobile && (isOpen() || screenMessage.isOpen());
     }
 
     public boolean showingMessage() {

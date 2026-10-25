@@ -2,12 +2,13 @@ package top.totodile.pokemmo.client.ui.pokemon;
 
 import de.matthiasmann.twl.*;
 
+import top.totodile.pokemmo.client.ui.common.ClientDialog;
 import top.totodile.pokemmo.server.game.PokemonData.Pokemon;
 
 import java.util.*;
 
 /** DesktopClientRootHost.pF0: three-column release preview and yes/no confirmation. */
-final class PokemonReleaseDialog extends PopupWindow {
+final class PokemonReleaseDialog extends ClientDialog {
     private final PokemonController controller;
     private final Widget panel =
             new Widget() {
@@ -40,7 +41,7 @@ final class PokemonReleaseDialog extends PopupWindow {
     private List<Pokemon> values = List.of();
 
     PokemonReleaseDialog(Widget owner, PokemonController controller) {
-        super(owner);
+        super(owner, controller.mobile);
         this.controller = controller;
         setTheme("/confirm-widget");
         setCloseOnClickedOutside(false);

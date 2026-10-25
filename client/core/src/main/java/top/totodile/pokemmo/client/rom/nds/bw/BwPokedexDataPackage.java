@@ -143,7 +143,8 @@ public final class BwPokedexDataPackage {
             int accuracy = old == null ? 0 : old.accuracy(),
                     power = old == null ? 0 : old.power(),
                     pp = old == null ? 0 : old.pp(),
-                    type = old == null ? 17 : old.type();
+                    type = old == null ? 17 : old.type(),
+                    target = old == null ? 0 : old.target();
             if ((flags & 1) != 0) accuracy = u8(b);
             if ((flags & 2) != 0) power = u16(b);
             if ((flags & 4) != 0) pp = u8(b);
@@ -153,7 +154,7 @@ public final class BwPokedexDataPackage {
             }
             if ((flags & 16) != 0) b.getInt();
             if ((flags & 32) != 0) b.get();
-            if ((flags & 64) != 0) b.get();
+            if ((flags & 64) != 0) target = u8(b);
             if ((flags & 256) != 0) b.get();
             if ((flags & 512) != 0) {
                 skip(b, u8(b));
@@ -181,7 +182,8 @@ public final class BwPokedexDataPackage {
                                 },
                                 power,
                                 accuracy,
-                                pp));
+                                pp,
+                                target));
         }
     }
 

@@ -52,6 +52,7 @@ public class Button extends TextWidget {
     private String themeText;
     private String text;
     private int mouseButton;
+    private boolean showDisabledState = true;
 
     public Button() {
         this(null, false, null);
@@ -203,8 +204,22 @@ public class Button extends TextWidget {
     }
 
     protected void applyThemeButton(ThemeInfo themeInfo) {
+        showDisabledState = themeInfo.getParameter("showDisabledState", true);
         themeText = themeInfo.getParameterValue("text", false, String.class);
         updateText();
+    }
+
+    @Override
+    protected void paint(GUI gui) {
+        AnimationState state = getAnimationState();
+        boolean suppressDisabled = !showDisabledState && state.getAnimationState(STATE_DISABLED);
+        // Visual policy only: widget/model state still rejects mouse and keyboard activation.
+        if (suppressDisabled) state.setAnimationState(STATE_DISABLED, false);
+        try {
+            super.paint(gui);
+        } finally {
+            if (suppressDisabled) state.setAnimationState(STATE_DISABLED, true);
+        }
     }
 
     @Override

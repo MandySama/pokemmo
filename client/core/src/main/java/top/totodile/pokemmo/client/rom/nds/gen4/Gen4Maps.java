@@ -255,6 +255,18 @@ public final class Gen4Maps implements WorldMaps {
     }
 
     @Override
+    public top.totodile.pokemmo.client.world.BattleTerrain battleTerrain(Id id, int x, int y) {
+        // DpptMapHeaderEntry maps native 3/6 to underground, 4 to inside (both DPPt/HGSS).
+        var zone =
+                switch (headers[index(id)].type) {
+                    case 3, 6 -> top.totodile.pokemmo.client.world.BattleTerrain.CAVE;
+                    case 4 -> top.totodile.pokemmo.client.world.BattleTerrain.INSIDE;
+                    default -> null;
+                };
+        return zone != null ? zone : WorldMaps.super.battleTerrain(id, x, y);
+    }
+
+    @Override
     public boolean isWater(int behavior) {
         return behavior == 16 || behavior == 17 || behavior == 19 || behavior == 21;
     }

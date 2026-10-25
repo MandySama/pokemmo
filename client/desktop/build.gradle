@@ -67,6 +67,35 @@ tasks.withType(JavaCompile).configureEach {
 // 包括 IDE 临时生成的 DesktopLauncher.main() 任务，统一工作目录。
 tasks.withType(JavaExec).configureEach {
     workingDir = project(':client').projectDir
+
+    // 开发运行期间，其他 Gradle / IDE 构建可能重写项目依赖 JAR。
+    // JVM 会延迟加载类，已打开的 JAR 索引不能与重写后的内容混用。
+    // 每次运行保留独立快照；只复制工作区产物，外部依赖仍使用 Gradle 缓存。
+    def snapshotRoot = rootProject.layout.projectDirectory.dir('.gradle/desktop-runtime').asFile
+    def workspace = rootProject.projectDir.canonicalFile.toPath()
+    File runtimeSnapshot = null
+    doFirst {
+        runtimeSnapshot = new File(snapshotRoot, UUID.randomUUID().toString())
+        int index = 0
+        def runtimeFiles = classpath.files.collect { File entry ->
+            if (!entry.exists() || !entry.canonicalFile.toPath().startsWith(workspace)) {
+                return entry
+            }
+            def destination = new File(runtimeSnapshot, Integer.toString(index++))
+            project.copy {
+                from entry
+                into destination
+            }
+            return entry.isDirectory() ? destination : new File(destination, entry.name)
+        }
+        classpath = project.files(runtimeFiles)
+    }
+    doLast {
+        if (runtimeSnapshot != null && runtimeSnapshot.canonicalPath.startsWith(
+                snapshotRoot.canonicalPath + File.separator)) {
+            project.delete(runtimeSnapshot)
+        }
+    }
 }
 
 tasks.named('jar', Jar) {

@@ -99,6 +99,31 @@ public interface WorldMaps {
         return 0;
     }
 
+    default boolean supportsAtmosphere() {
+        return false;
+    }
+
+    default boolean outside(Id id) {
+        return true;
+    }
+
+    default WorldAtmosphere.Weather weather(Id id) {
+        return WorldAtmosphere.Weather.CLEAR;
+    }
+
+    /** Encounter location, resolved from native map metadata and the physical tile. */
+    default BattleTerrain battleTerrain(Id id, int x, int y) {
+        var map = map(id);
+        return isWater(tiles(map).behavior(map.block(x, y) & 1023))
+                ? BattleTerrain.WATER
+                : BattleTerrain.ROUTE;
+    }
+
+    /** Only BW supplies I4's background number in map-header flags; zero uses the facility. */
+    default int battleBackground(Id id) {
+        return 0;
+    }
+
     default boolean isWater(int behavior) {
         return behavior >= 0x10 && behavior <= 0x15 || behavior == 0x1a || behavior == 0x1b;
     }

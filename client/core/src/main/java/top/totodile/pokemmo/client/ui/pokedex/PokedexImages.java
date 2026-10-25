@@ -29,6 +29,12 @@ public final class PokedexImages implements AutoCloseable {
     private String language = "zh";
     private ClientResources resources;
     private String glowFragment;
+    private int animationCapacity = 4;
+
+    /** A battle frame must retain all simultaneously visible combatants until it is drawn. */
+    public void reserveAnimations(int count) {
+        animationCapacity = Math.max(animationCapacity, count);
+    }
 
     PokedexImages(BwPokemonSprites source, GdxTwlRenderer renderer) {
         this.source = source;
@@ -302,6 +308,46 @@ public final class PokedexImages implements AutoCloseable {
 
     private final Map<String, Entry> particleTextures = new HashMap<>();
 
+    /** ParticleManager.RY CUSTOM reads sprites/<id>.png from the particle resolver, not the ROM. */
+    public Image customParticle(
+            int id, boolean repeatX, boolean repeatY, boolean flipX, boolean flipY) {
+        String key = "custom:" + id + ":" + repeatX + ":" + repeatY + ":" + flipX + ":" + flipY;
+        var cached = particleTextures.get(key);
+        if (cached != null) return cached.image;
+        try {
+            byte[] bytes =
+                    top.totodile.pokemmo.client.resources.ParticleResources.read(
+                            resources, "sprites/" + id + ".png");
+            var original = new Pixmap(bytes, 0, bytes.length);
+            try {
+                int sourceWidth = original.getWidth(), sourceHeight = original.getHeight();
+                int width = sourceWidth * (repeatX ? 2 : 1),
+                        height = sourceHeight * (repeatY ? 2 : 1);
+                var output = new Pixmap(width, height, Pixmap.Format.RGBA8888);
+                try {
+                    output.setBlending(Pixmap.Blending.None);
+                    for (int y = 0; y < height; y++)
+                        for (int x = 0; x < width; x++) {
+                            int sx = flipX ? width - 1 - x : x, sy = flipY ? height - 1 - y : y;
+                            if (sx >= sourceWidth) sx = width - 1 - sx;
+                            if (sy >= sourceHeight) sy = height - 1 - sy;
+                            output.drawPixel(x, y, original.getPixel(sx, sy));
+                        }
+                    var texture = new Texture(output);
+                    var entry = new Entry(texture, renderer.image(texture));
+                    particleTextures.put(key, entry);
+                    return entry.image;
+                } finally {
+                    output.dispose();
+                }
+            } finally {
+                original.dispose();
+            }
+        } catch (IOException failure) {
+            throw new UncheckedIOException(failure);
+        }
+    }
+
     public Image particle(int id) {
         return particle(id, 0, 0, false);
     }
@@ -329,9 +375,22 @@ public final class PokedexImages implements AutoCloseable {
             boolean repeatY,
             boolean flipX,
             boolean flipY) {
+        return particle(id, low, high, mix, repeatX, repeatY, flipX, flipY, false);
+    }
+
+    public Image particle(
+            int id,
+            int low,
+            int high,
+            boolean mix,
+            boolean repeatX,
+            boolean repeatY,
+            boolean flipX,
+            boolean flipY,
+            boolean average) {
         String key =
                 id + ":" + low + ":" + high + ":" + mix + ":" + repeatX + ":" + repeatY + ":"
-                        + flipX + ":" + flipY;
+                        + flipX + ":" + flipY + ":" + average;
         var entry = particleTextures.get(key);
         if (entry != null) return entry.image;
         try {
@@ -343,6 +402,19 @@ public final class PokedexImages implements AutoCloseable {
                     mix
                             ? (first.width() >= last.width() ? first.height() : last.height())
                             : first.height();
+            int cellWidth = first.width();
+            if (average && !mix && low != high) {
+                int frameWidth = 0, frameHeight = 0;
+                for (int frame = low; frame <= high; frame++) {
+                    var pixels = source.particle(id, frame);
+                    frameWidth = Math.max(frameWidth, pixels.width());
+                    // ParticleManager uses the frame width when increasing this height.
+                    if (frameHeight < pixels.height()) frameHeight = pixels.width();
+                }
+                cellWidth = frameWidth;
+                width = frameWidth * (high - low + 1);
+                height = frameHeight;
+            }
             var pixmap = new Pixmap(width, height, Pixmap.Format.RGBA8888);
             try {
                 pixmap.setBlending(Pixmap.Blending.None);
@@ -358,14 +430,33 @@ public final class PokedexImages implements AutoCloseable {
                             (width - overlay.width()) / 2,
                             (height - overlay.height()) / 2);
                 } else
-                    for (int f = low; f <= high; f++)
-                        copyParticle(
-                                pixmap,
-                                particlePixels(id, f, repeatX, repeatY),
-                                (f - low) * first.width(),
-                                0);
+                    for (int frame = low; frame <= high; frame++) {
+                        var pixels = particlePixels(id, frame, repeatX, repeatY);
+                        if (average && pixels.width() != cellWidth) {
+                            var original =
+                                    new Pixmap(
+                                            pixels.width(),
+                                            pixels.height(),
+                                            Pixmap.Format.RGBA8888);
+                            try {
+                                original.setBlending(Pixmap.Blending.None);
+                                copyParticle(original, pixels, 0, 0);
+                                pixmap.drawPixmap(
+                                        original,
+                                        0,
+                                        0,
+                                        pixels.width(),
+                                        pixels.height(),
+                                        (frame - low) * cellWidth,
+                                        0,
+                                        cellWidth,
+                                        height);
+                            } finally {
+                                original.dispose();
+                            }
+                        } else copyParticle(pixmap, pixels, (frame - low) * cellWidth, 0);
+                    }
                 if (flipX || flipY) {
-                    int cellWidth = mix ? width : first.width();
                     int[] original = new int[width * height];
                     for (int y = 0; y < height; y++)
                         for (int x = 0; x < width; x++)
@@ -373,13 +464,8 @@ public final class PokedexImages implements AutoCloseable {
                     for (int y = 0; y < height; y++)
                         for (int x = 0; x < width; x++) {
                             int
-                                    sourceX =
-                                            flipX
-                                                    ? x / cellWidth * cellWidth
-                                                            + cellWidth
-                                                            - 1
-                                                            - x % cellWidth
-                                                    : x,
+                                    // ParticleManager flips the assembled atlas, not each cell.
+                                    sourceX = flipX ? width - 1 - x : x,
                                     sourceY = flipY ? height - 1 - y : y;
                             pixmap.drawPixel(x, y, original[sourceY * width + sourceX]);
                         }
@@ -476,7 +562,7 @@ public final class PokedexImages implements AutoCloseable {
                         new PokedexSpriteAnimation(
                                 source.animation(id, form, shiny, back), renderer);
                 animations.put(key, animation);
-                if (animations.size() > 4) {
+                if (animations.size() > animationCapacity) {
                     var entries = animations.values().iterator();
                     entries.next().close();
                     entries.remove();

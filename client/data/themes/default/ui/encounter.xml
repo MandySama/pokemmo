@@ -253,4 +253,65 @@
             <enum type="alignment">TOPLEFT</enum>
         </param>
     </theme>
+    <theme name="encounter-party-slot" ref="button">
+        <param name="background">
+            <image>encounter-party.background</image>
+        </param>
+        <param name="border">
+            <border>0</border>
+        </param>
+    </theme>
+    <theme name="encounter-caption-left" ref="encounter-caption">
+        <param name="textAlignment">
+            <enum type="alignment">LEFT</enum>
+        </param>
+    </theme>
+    <theme name="encounter-choice-move" ref="encounter-action">
+        <param name="border">
+            <border>0,0,20,0</border>
+        </param>
+    </theme>
+    <theme name="encounter-bag-entry" ref="button">
+        <param name="background">
+            <image>encounter-small.background</image>
+        </param>
+        <param name="border">
+            <border>2,0,4,10</border>
+        </param>
+        <param name="textAlignment">
+            <enum type="alignment">RIGHT</enum>
+        </param>
+    </theme>
+    <theme name="encounter-confirm" ref="encounter-return">
+        <param name="background">
+            <image>encounter-confirm.background</image>
+        </param>
+    </theme>
+    <theme name="encounter-register" ref="encounter-return">
+        <param name="background">
+            <image>encounter-register.background</image>
+        </param>
+        <param name="border">
+            <border>2,4,4,4</border>
+        </param>
+        <param name="textAlignment">
+            <enum type="alignment">CENTER</enum>
+        </param>
+    </theme>
+    <theme name="encounter-bag-arrow" ref="button">
+        <param name="background">
+            <image>encounter-small.background</image>
+        </param>
+    </theme>
+    <theme name="encounter-bag-pocket" ref="encounter-label">
+        <param name="textAlignment">
+            <enum type="alignment">CENTER</enum>
+        </param>
+    </theme>
+    <theme name="encounter-item-picture" ref="editfield"/>
+    <theme name="encounter-bag-detail" ref="encounter-caption-left">
+        <param name="textAlignment">
+            <enum type="alignment">TOPLEFT</enum>
+        </param>
+    </theme>
 </themes>

@@ -517,6 +517,24 @@ public final class PokemonData {
                     -1);
         }
 
+        /**
+         * Reference PokemonData.getCurrentSelectParticleEffectTypeForBattle; never changes the
+         * saved selection.
+         */
+        public int battleParticle() {
+            int selected = honors.selectedParticle();
+            if (selected == -3) {
+                var candidates = honors.particles().stream().filter(id -> id >= 4).toList();
+                selected =
+                        candidates.isEmpty()
+                                ? -1
+                                : candidates.get(
+                                        java.util.concurrent.ThreadLocalRandom.current()
+                                                .nextInt(candidates.size()));
+            }
+            return selected < 0 && (shiny || secretShiny) ? 0 : selected;
+        }
+
         public List<Integer> availableParticles() {
             var result = new java.util.TreeSet<>(honors.particles());
             if (shiny()) result.add(0);

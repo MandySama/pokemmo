@@ -86,6 +86,8 @@ public final class EncounterMoveAnimation implements AutoCloseable {
 
     private float stageStarted;
 
+    private boolean playerSide = true;
+    private java.util.List<Vector3> targetPositions = java.util.List.of(new Vector3(5, 3.08f, 1));
     private int particleDirection = 8;
 
     private boolean particleTargetSpawn = true;
@@ -105,6 +107,45 @@ public final class EncounterMoveAnimation implements AutoCloseable {
             top.totodile.pokemmo.server.game.PokemonData.Pokemon caster,
             top.totodile.pokemmo.client.rom.nds.bw.BwPokedex dex)
             throws IOException {
+        this(resources, images, move, now, caster, dex, new Vector3(5, 3.08f, 1));
+    }
+
+    EncounterMoveAnimation(
+            ClientResources resources,
+            PokedexImages images,
+            int move,
+            long now,
+            top.totodile.pokemmo.server.game.PokemonData.Pokemon caster,
+            top.totodile.pokemmo.client.rom.nds.bw.BwPokedex dex,
+            Vector3 targetPosition)
+            throws IOException {
+        this(
+                resources,
+                images,
+                move,
+                now,
+                caster,
+                dex,
+                new Vector3(3, 3.1f, 4),
+                java.util.List.of(targetPosition),
+                true);
+    }
+
+    EncounterMoveAnimation(
+            ClientResources resources,
+            PokedexImages images,
+            int move,
+            long now,
+            top.totodile.pokemmo.server.game.PokemonData.Pokemon caster,
+            top.totodile.pokemmo.client.rom.nds.bw.BwPokedex dex,
+            Vector3 casterPosition,
+            java.util.List<Vector3> targets,
+            boolean playerSide)
+            throws IOException {
+        this.playerSide = playerSide;
+        this.targetPositions = targets.stream().map(Vector3::cpy).toList();
+        own.center.set(casterPosition);
+        enemy.center.set(targets.get(0));
         if (!supports(move))
             throw new IllegalArgumentException("No reference animation adapter for move " + move);
         this.images = images;
@@ -137,6 +178,56 @@ public final class EncounterMoveAnimation implements AutoCloseable {
                         ? ExtendedMoveScripts.buildCharge(this, move)
                         : buildMoveAnimation(move);
         if (timeline == null) timeline = ReferenceMoveTimeline.sequence();
+    }
+
+    /** ShinyParticleEffect: the six original controller emissions run in parallel. */
+    static EncounterMoveAnimation shinyEntrance(
+            ClientResources resources, PokedexImages images, Vector3 origin) throws IOException {
+        Map<String, String> sources = new HashMap<>();
+        for (int id : new int[] {152, 422})
+            sources.put(effectPath(id), EncounterVanityEffect.read(resources, effectPath(id)));
+        var animation = new EncounterMoveAnimation(images, sources);
+        animation.own.center.set(origin);
+        animation.enemy.center.set(origin);
+        animation.timeline = ReferenceMoveTimeline.parallel();
+        for (int spawn : new int[] {9, 13}) {
+            animation.timeline.append(animation.emitParticles(-1, 152, 0, spawn, 8, .4f));
+            animation.timeline.append(animation.emitParticles(-1, 152, 1, spawn, 8, .4f));
+            animation.timeline.append(animation.emitParticles(-1, 422, 2, spawn, 8, .4f));
+        }
+        return animation;
+    }
+
+    /** BattleKs0Animation.us, played on HP restoration by BattleMultiHitSequenceTask. */
+    static EncounterMoveAnimation healing(
+            ClientResources resources, PokedexImages images, Vector3 origin) throws IOException {
+        var animation =
+                new EncounterMoveAnimation(
+                        images,
+                        Map.of(
+                                effectPath(155),
+                                EncounterVanityEffect.read(resources, effectPath(155))));
+        animation.own.center.set(origin);
+        animation.enemy.center.set(origin);
+        animation.timeline =
+                ReferenceMoveTimeline.sequence()
+                        .waitSeconds(.6f)
+                        .beginParallel()
+                        .append(animation.emitParticles(-1, 155, 1, 9, 8, .4f))
+                        .append(
+                                ReferenceMoveTimeline.sequence()
+                                        .waitSeconds(.6f)
+                                        .append(animation.emitParticles(-1, 155, 0, 9, 8, .4f)))
+                        .endGroup()
+                        .waitSeconds(.6f);
+        return animation;
+    }
+
+    private EncounterMoveAnimation(PokedexImages images, Map<String, String> sources) {
+        this.images = images;
+        started = 0;
+        heldItem = casterType1 = casterType2 = 0;
+        particleConfigurations.putAll(sources);
     }
 
     /** Data-only construction for validating every imported recipe without a GL context. */
@@ -303,7 +394,7 @@ public final class EncounterMoveAnimation implements AutoCloseable {
     }
 
     public boolean isPlayerSide() {
-        return true;
+        return playerSide;
     }
 
     public void resetSpriteState() {
@@ -417,7 +508,7 @@ public final class EncounterMoveAnimation implements AutoCloseable {
             int direction,
             float heightOffset,
             float travelMillis) {
-        if (targetIndex > 0 || !Set.of(0, 1, 8, 9, 11).contains(direction))
+        if (targetIndex >= targetPositions.size() || !Set.of(0, 1, 8, 9, 11).contains(direction))
             throw new IllegalArgumentException("Unsupported reference particle target");
         // The source preserves the previous spawn side for unknown target codes
         // (including SunnyDayAnimation's literal -4096), rather than resetting it.
@@ -482,25 +573,41 @@ public final class EncounterMoveAnimation implements AutoCloseable {
                                 }
                             if (travelMillis > 0)
                                 injectTravel(selectedController, travelMillis, resolvedDirection);
-                            var origin = (targetSpawn ? enemy : own).center.cpy();
-                            if (targetIndex == 0) origin.set(enemy.center);
-                            else if (spawnType == 3) origin.set(3, 3.02f, 4);
-                            else if (spawnType == 4) origin.set(5, 3.02f, 1);
-                            effects.add(
-                                    new Effect(
-                                            new AttributeParticleScene(
-                                                    images,
-                                                    effect,
-                                                    origin,
-                                                    own.center,
-                                                    enemy.center,
-                                                    targetSpawn,
-                                                    resolvedDirection),
-                                            stageStarted + timeline.time(),
-                                            duration
-                                                    + (trailController == null
-                                                            ? 0
-                                                            : duration(trailController))));
+                            boolean multiple =
+                                    targetIndex < 0
+                                            && (targetSpawn || travelMillis > 0)
+                                            && spawnType != 3
+                                            && spawnType != 4;
+                            var positions =
+                                    multiple
+                                            ? targetPositions
+                                            : java.util.List.of(
+                                                    targetPositions.get(Math.max(0, targetIndex)));
+                            for (var position : positions) {
+                                var actualTarget =
+                                        enemy.center
+                                                .cpy()
+                                                .add(position.cpy().sub(targetPositions.get(0)));
+                                var origin = (targetSpawn ? actualTarget : own.center).cpy();
+                                if (targetIndex >= 0) origin.set(actualTarget);
+                                else if (spawnType == 3) origin.set(3, 3.02f, 4);
+                                else if (spawnType == 4) origin.set(5, 3.02f, 1);
+                                effects.add(
+                                        new Effect(
+                                                new AttributeParticleScene(
+                                                        images,
+                                                        effect,
+                                                        origin,
+                                                        own.center,
+                                                        actualTarget,
+                                                        targetSpawn,
+                                                        resolvedDirection),
+                                                stageStarted + timeline.time(),
+                                                duration
+                                                        + (trailController == null
+                                                                ? 0
+                                                                : duration(trailController))));
+                            }
                         })
                 .waitSeconds(duration);
     }

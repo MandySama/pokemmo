@@ -3,6 +3,7 @@ package top.totodile.pokemmo.client.ui.world;
 import de.matthiasmann.twl.*;
 
 import top.totodile.pokemmo.client.resources.ClientStrings;
+import top.totodile.pokemmo.client.ui.common.ClientDialog;
 import top.totodile.pokemmo.client.ui.common.PlayerTextInput;
 
 import java.util.function.IntConsumer;
@@ -10,7 +11,7 @@ import java.util.function.IntConsumer;
 /**
  * InputConfirmDialogWindow used by AdminDatabaseSearchWindow.aB / Qd0: 3 characters, default 100.
  */
-final class AdminValueDialog extends PopupWindow {
+final class AdminValueDialog extends ClientDialog {
     private final DialogLayout panel = new DialogLayout();
     private final Label message = new Label();
     private final PlayerTextInput keyboard;
@@ -20,7 +21,7 @@ final class AdminValueDialog extends PopupWindow {
     private IntConsumer accept;
 
     AdminValueDialog(Widget owner, ClientStrings strings, boolean mobile, Runnable onClose) {
-        super(owner);
+        super(owner, mobile);
         this.onClose = onClose;
         setTheme("/confirm-widget");
         setCloseOnClickedOutside(false);

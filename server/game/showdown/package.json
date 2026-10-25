@@ -1,0 +1,7 @@
+{
+  "name": "pokemmo-showdown-adapter",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {"test": "node --test bridge.test.cjs"},
+  "dependencies": {"pokemon-showdown": "0.11.10"}
+}

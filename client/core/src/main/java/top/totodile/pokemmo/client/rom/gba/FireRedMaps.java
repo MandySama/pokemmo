@@ -134,6 +134,42 @@ public final class FireRedMaps implements WorldMaps {
         return WorldMaps.super.blocked(behavior, dx, dy);
     }
 
+    @Override
+    public boolean supportsAtmosphere() {
+        return !emerald;
+    }
+
+    @Override
+    public boolean outside(Id id) {
+        int zone = u8(headers.get(id) + 23);
+        return zone == 1 || zone == 2 || zone == 3 || zone == 6;
+    }
+
+    @Override
+    public top.totodile.pokemmo.client.world.WorldAtmosphere.Weather weather(Id id) {
+        return switch (u8(headers.get(id) + 22)) {
+            case 3 -> top.totodile.pokemmo.client.world.WorldAtmosphere.Weather.RAIN;
+            case 5 -> top.totodile.pokemmo.client.world.WorldAtmosphere.Weather.THUNDER;
+            case 13 -> top.totodile.pokemmo.client.world.WorldAtmosphere.Weather.HEAVY_RAIN;
+            case 7, 32 -> top.totodile.pokemmo.client.world.WorldAtmosphere.Weather.SNOW;
+            case 8 -> top.totodile.pokemmo.client.world.WorldAtmosphere.Weather.SANDSTORM;
+            default -> top.totodile.pokemmo.client.world.WorldAtmosphere.Weather.CLEAR;
+        };
+    }
+
+    @Override
+    public top.totodile.pokemmo.client.world.BattleTerrain battleTerrain(Id id, int x, int y) {
+        // GbaMapHeader: native map zone byte at header+23; BattleCaptureService prioritizes zone.
+        var zone =
+                switch (u8(headers.get(id) + 23)) {
+                    case 4 -> top.totodile.pokemmo.client.world.BattleTerrain.CAVE;
+                    case 5 -> top.totodile.pokemmo.client.world.BattleTerrain.UNDERWATER;
+                    case 8 -> top.totodile.pokemmo.client.world.BattleTerrain.INSIDE;
+                    default -> null;
+                };
+        return zone != null ? zone : WorldMaps.super.battleTerrain(id, x, y);
+    }
+
     public MapData map(Id id) {
         return maps.computeIfAbsent(id, this::readMap);
     }

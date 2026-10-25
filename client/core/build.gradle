@@ -17,6 +17,7 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     api project(':server:login')
     api project(':server:game')
+    api project(':server:chat')
     api project(':client:twl')
     api "com.badlogicgames.gdx:gdx:${rootProject.gdxVersion}"
     implementation "com.badlogicgames.gdx:gdx-freetype:${rootProject.gdxVersion}"

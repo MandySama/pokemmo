@@ -19,6 +19,7 @@ final class WorldStatus extends DialogLayout {
     private final LongSupplier clock;
     private final DecimalFormat moneyFormat;
     private long lastSecond = Long.MIN_VALUE, lastOrigin = Long.MIN_VALUE;
+    private int lastHour = Integer.MIN_VALUE;
     private final Label location = new Label(), money = new Label("$0"), time = new Label();
     private final Label placeIcon = new Label(), moneyIcon = new Label(), timeIcon = new Label();
 
@@ -59,10 +60,13 @@ final class WorldStatus extends DialogLayout {
         // clock origin.
         long millis = clock.getAsLong();
         long second = Math.floorDiv(millis, 1000);
-        if (second == lastSecond && info.timeOrigin() == lastOrigin) return;
+        if (second == lastSecond
+                && info.timeOrigin() == lastOrigin
+                && lastHour == world.atmosphere().forcedHour()) return;
+        lastHour = world.atmosphere().forcedHour();
         lastSecond = second;
         lastOrigin = info.timeOrigin();
-        long seconds = (second - info.timeOrigin()) * 4;
+        long seconds = world.atmosphere().seconds(millis, info.timeOrigin());
         int minute = (int) Math.floorMod(Math.floorDiv(seconds, 60), 1440);
         int hour = minute / 60;
         int weekday = (int) Math.floorMod(Math.floorDiv(seconds, 86400), 7);

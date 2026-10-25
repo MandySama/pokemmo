@@ -47,7 +47,29 @@ public final class BwPokedex {
             Map<Integer, Integer> regional,
             boolean obtainable) {}
 
-    public record Move(int id, int type, int category, int power, int accuracy, int pp) {}
+    public record Move(
+            int id, int type, int category, int power, int accuracy, int pp, int target) {
+        public Move(int id, int type, int category, int power, int accuracy, int pp) {
+            this(id, type, category, power, accuracy, pp, 0);
+        }
+
+        /** Native MoveTargetType: all adjacent combatants, all enemies, or all debut combatants. */
+        public boolean spread() {
+            return target == 4 || target == 5 || target == 8;
+        }
+
+        public boolean automaticTarget() {
+            return target == 1
+                    || target == 2
+                    || target == 17
+                    || target == 6
+                    || target == 7
+                    || target == 9
+                    || target == 10
+                    || target == 11
+                    || target == 12;
+        }
+    }
 
     public record Species(
             int id,
@@ -156,7 +178,7 @@ public final class BwPokedex {
         for (int id = 0; id < moveData.size(); id++) {
             byte[] p = moveData.readRaw(id);
             if (p.length < 6) throw new IOException("Truncated move " + id);
-            moves.add(new Move(id, u8(p, 0), u8(p, 2), u8(p, 3), u8(p, 4), u8(p, 5)));
+            moves.add(new Move(id, u8(p, 0), u8(p, 2), u8(p, 3), u8(p, 4), u8(p, 5), u8(p, 20)));
         }
     }
 
@@ -230,6 +252,14 @@ public final class BwPokedex {
     Move moveOrNull(int id) {
         Move override = moveOverrides.get(id);
         return override != null ? override : id >= 0 && id < moves.size() ? moves.get(id) : null;
+    }
+
+    /** Loaded ROM and reference move-table entries, without species learnset filtering. */
+    public List<Move> allMoves() {
+        var result = new java.util.TreeMap<Integer, Move>();
+        for (var move : moves) if (move.id() > 0) result.put(move.id(), move);
+        for (var move : moveOverrides.values()) if (move.id() > 0) result.put(move.id(), move);
+        return List.copyOf(result.values());
     }
 
     public Move move(int id) {
@@ -350,8 +380,26 @@ public final class BwPokedex {
         return strings.getOrDefault(110000 + id, "#" + id);
     }
 
+    /** LocalizationMessageFormatter registers BW ability names from bank 182; slot zero is None. */
+    public List<Integer> allAbilities() {
+        String[] names =
+                textTables.computeIfAbsent(
+                        182,
+                        bank -> {
+                            try {
+                                return BwText.decode(text.readRaw(bank));
+                            } catch (IOException e) {
+                                throw new IllegalStateException("Cannot read ability names", e);
+                            }
+                        });
+        return java.util.stream.IntStream.range(1, names.length)
+                .filter(id -> !names[id].isBlank())
+                .boxed()
+                .toList();
+    }
+
     public String ability(int id) {
-        return strings.getOrDefault(210000 + id, "—");
+        return strings.getOrDefault(210000 + id, text(182, id));
     }
 
     /** LocalizationMessageFormatter maps nature names to the original BW text bank 24. */
@@ -368,7 +416,119 @@ public final class BwPokedex {
         return template.replace("\n", "").replace("{00}", name(species));
     }
 
+    /** AudioStreamSource.T8: one party member, BW bank 15 entry 17. */
+    public String sendOutMessage(String trainer, String pokemon) throws IOException {
+        String template = strings.archive(2, 0, 15, 0, 17);
+        if (template == null) template = BwText.decodeFormatted(text.readRaw(15))[17];
+        return template.replace("\n", "").replace("{00}", trainer).replace("{01}", pokemon);
+    }
+
+    private String[] formattedBattleText;
+
+    private String battleText(int entry) {
+        String translated = strings.archive(2, 0, 15, 0, entry);
+        if (translated != null) return translated;
+        if (formattedBattleText == null)
+            try {
+                formattedBattleText = BwText.decodeFormatted(text.readRaw(15));
+            } catch (IOException error) {
+                throw new IllegalStateException("Cannot read formatted battle text", error);
+            }
+        return formattedBattleText[entry];
+    }
+
+    /** BattleActiveSlotModifier: one of the five native recall lines (inclusive 25..29). */
+    public String recallMessage(String pokemon) {
+        return battleText(java.util.concurrent.ThreadLocalRandom.current().nextInt(25, 30))
+                .replace("\n", "")
+                .replace("{00}", pokemon);
+    }
+
+    /** BattleSoundEffectTask: encouragement depends on the opposing active slot's HP. */
+    public String switchMessage(String pokemon, int hp, int maxHp) {
+        int entry = hp >= maxHp * .75 ? 11 : hp >= maxHp * .5 ? 21 : hp >= maxHp * .25 ? 22 : 24;
+        return battleText(entry).replace("\n", "").replace("{00}", pokemon);
+    }
+
+    /** BattleMegaButtonModifier: failure lines 61..64, success line 65. */
+    public String captureMessage(int result, String pokemon) {
+        return battleText(result == 4 ? 65 : 61 + result)
+                .replace("\n", "")
+                .replace("{00}", pokemon);
+    }
+
     /** BattleItemBagModifier: NORMAL_SUCCESS uses BW message bank 15, entry 72. */
+    /** BattleActionPromptModifier.QC: BW bank 15, entry 33. */
+    public String moveUsedMessage(String pokemon, int move) {
+        return battleText(33).replace("{00}", pokemon).replace("{01}", moveName(move));
+    }
+
+    private String[] formattedResultText;
+
+    /** StatAction001Packet.qv / AudioMixerChannelDispatcher.QX: BW bank 14, wild variant +1. */
+    public String statChangeMessage(String pokemon, boolean wild, String stat, int amount) {
+        int order =
+                switch (stat) {
+                    case "atk" -> 1;
+                    case "def" -> 2;
+                    case "spa" -> 3;
+                    case "spd" -> 4;
+                    case "spe" -> 5;
+                    case "accuracy" -> 6;
+                    case "evasion" -> 7;
+                    default -> 0;
+                };
+        if (order == 0 || amount == 0) return "";
+        int index =
+                27
+                        + (order - 1) * 3
+                        + (Math.min(3, Math.abs(amount)) - 1) * 21
+                        + (amount < 0 ? 63 : 0)
+                        + (wild ? 1 : 0);
+        return resultText(index).replace("{00}", pokemon).replace("\n", " ");
+    }
+
+    /** BattleFaintSlotModifier.Dz: failure 15/71; immune 14/210; miss 14/213; protect 14/517. */
+    public String moveRejectedMessage(String pokemon, boolean wild, String result) {
+        if (result.equals("FAIL")) return battleText(71).replace("\n", " ");
+        int index =
+                switch (result) {
+                    case "IMMUNE" -> 210;
+                    case "MISS" -> 213;
+                    case "BLOCK" -> 517;
+                    default -> throw new IllegalArgumentException(result);
+                };
+        return resultText(index + (wild ? 1 : 0)).replace("{00}", pokemon).replace("\n", " ");
+    }
+
+    /** BattleAction046Packet / BattleCombatLayout: Disable start, blocked choice, and expiry. */
+    public String disableMessage(String pokemon, boolean wild, int move, String type) {
+        int index =
+                switch (type) {
+                    case "DISABLE_START" -> 592;
+                    case "DISABLE_END" -> 598;
+                    default -> 595;
+                };
+        return resultText(index + (wild ? 1 : 0))
+                .replace("{00}", pokemon)
+                .replace("{01}", moveName(move))
+                .replace("\n", " ");
+    }
+
+    private String resultText(int index) {
+        String template = strings.archive(2, 0, 14, 0, index);
+        if (template == null) {
+            if (formattedResultText == null)
+                try {
+                    formattedResultText = BwText.decodeFormatted(text.readRaw(14));
+                } catch (IOException error) {
+                    throw new IllegalStateException("Cannot read battle result text", error);
+                }
+            template = formattedResultText[index];
+        }
+        return template;
+    }
+
     public String escapedMessage() {
         return text(15, 72);
     }

@@ -6,12 +6,133 @@
         </param>
     </theme>
     <theme name="world-chat" ref="-defaults">
+        <!-- Explicit ResizableFrame defaults keep the existing appearance and disable fades. -->
+        <param name="titleAreaTop"><int>0</int></param>
+        <param name="titleAreaLeft"><int>0</int></param>
+        <param name="titleAreaRight"><int>0</int></param>
+        <param name="titleAreaBottom"><int>0</int></param>
+        <param name="closeButtonX"><int>0</int></param>
+        <param name="closeButtonY"><int>0</int></param>
+        <param name="resizeHandleX"><int>0</int></param>
+        <param name="resizeHandleY"><int>0</int></param>
+        <param name="fadeDurationActivate"><int>0</int></param>
+        <param name="fadeDurationDeactivate"><int>0</int></param>
+        <param name="fadeDurationShow"><int>0</int></param>
+        <param name="fadeDurationHide"><int>0</int></param>
+        <param name="fadeColorInactive"><color>white</color></param>
+        <param name="mouseCursor"><cursor>mouseCursor.*</cursor></param>
+        <param name="hasCloseButton"><bool>false</bool></param>
+        <param name="hasResizeHandle"><bool>false</bool></param>
         <param name="background">
-            <image>console.background</image>
+            <image>chat.content.background</image>
         </param>
         <param name="border">
             <border>5</border>
         </param>
-        <theme name="editfield" ref="editfield"/>
+        <theme name="editfield" ref="editfield" />
+        <theme name="button" ref="button" />
+        <theme name="tab" ref="togglebutton">
+            <param name="background">
+                <image>chat-tab.background</image>
+            </param>
+            <param name="border">
+                <border>5</border>
+            </param>
+        </theme>
+        <theme name="hide" ref="button">
+            <param name="background">
+                <image>chat.hide</image>
+            </param>
+            <param name="border">
+                <border>0</border>
+            </param>
+        </theme>
+        <theme name="scrollpane" ref="scrollpane">
+            <param name="border">
+                <border>0</border>
+            </param>
+        </theme>
+        <theme name="lines" ref="-defaults">
+            <theme name="message-normal" ref="label">
+                <param name="font">
+                    <font>main</font>
+                </param>
+                <param name="textAlignment">
+                    <enum type="alignment">TOPLEFT</enum>
+                </param>
+            </theme>
+            <theme name="message-shout" ref="label">
+                <param name="font">
+                    <font>main-orange</font>
+                </param>
+                <param name="textAlignment">
+                    <enum type="alignment">TOPLEFT</enum>
+                </param>
+            </theme>
+            <theme name="message-whisper" ref="label">
+                <param name="font">
+                    <font>main-lightgreen</font>
+                </param>
+                <param name="textAlignment">
+                    <enum type="alignment">TOPLEFT</enum>
+                </param>
+            </theme>
+            <theme name="message-trade" ref="label">
+                <param name="font">
+                    <font>main-purple</font>
+                </param>
+                <param name="textAlignment">
+                    <enum type="alignment">TOPLEFT</enum>
+                </param>
+            </theme>
+            <theme name="message-global" ref="label">
+                <param name="font">
+                    <font>main-teal</font>
+                </param>
+                <param name="textAlignment">
+                    <enum type="alignment">TOPLEFT</enum>
+                </param>
+            </theme>
+            <theme name="message-channel" ref="label">
+                <param name="font">
+                    <font>main-yellow</font>
+                </param>
+                <param name="textAlignment">
+                    <enum type="alignment">TOPLEFT</enum>
+                </param>
+            </theme>
+            <theme name="message-team" ref="label">
+                <param name="font">
+                    <font>main</font>
+                </param>
+                <param name="textAlignment">
+                    <enum type="alignment">TOPLEFT</enum>
+                </param>
+            </theme>
+            <theme name="message-link" ref="label">
+                <param name="font">
+                    <font>main</font>
+                </param>
+                <param name="textAlignment">
+                    <enum type="alignment">TOPLEFT</enum>
+                </param>
+            </theme>
+            <theme name="message-system" ref="label">
+                <param name="font">
+                    <font>main-blue</font>
+                </param>
+                <param name="textAlignment">
+                    <enum type="alignment">TOPLEFT</enum>
+                </param>
+            </theme>
+            <theme name="message-battle" ref="label">
+                <param name="font">
+                    <font>main-battle</font>
+                </param>
+                <param name="textAlignment">
+                    <enum type="alignment">TOPLEFT</enum>
+                </param>
+            </theme>
+        </theme>
     </theme>
 </themes>

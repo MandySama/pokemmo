@@ -27,6 +27,21 @@ public final class AttributeParticleScene implements AutoCloseable {
     private final List<Layer> layers = new ArrayList<>();
     private final PerspectiveCamera camera = new PerspectiveCamera(67, 224, 227);
     private final List<Billboard> drawList = new ArrayList<>();
+
+    /**
+     * Reference NDSRegionInfluencer and custom animated region replacements. Null keeps the atlas.
+     */
+    @FunctionalInterface
+    public interface ParticleImageProvider {
+        Image image(String controller, int controllerIndex, float seconds, float lifePercent);
+    }
+
+    private ParticleImageProvider particleImages;
+
+    public void particleImages(ParticleImageProvider provider) {
+        particleImages = provider;
+    }
+
     private float accumulated;
     private float absoluteTime;
     private PerspectiveCamera simulationCamera = camera;
@@ -172,8 +187,12 @@ public final class AttributeParticleScene implements AutoCloseable {
                             velocity = new HomingForce(controllerTargetSpawn ? caster : target);
                         else if (name.endsWith("$ProjectedDirection"))
                             velocity = new ProjectedDirection();
+                        else if (name.endsWith("$Rotational2DStatic"))
+                            velocity = new StaticRotation();
                         else if (name.endsWith("$RandomInitialRotation"))
                             velocity = new InitialRotation();
+                        else if (name.endsWith("$CircularAcceleration"))
+                            velocity = new CircularAcceleration();
                         else if (name.endsWith("$CircuralMotion"))
                             velocity = new CircularMotion(modifier.getInt("type", 0));
                         // Reference CentripetalAccelerationExt allocates a zero-valued private
@@ -235,33 +254,37 @@ public final class AttributeParticleScene implements AutoCloseable {
                             .get("data")
                             .get("cfg");
             var range = config.get("aps_texture_range");
-            for (String flag : new String[] {"flip_x", "flip_y", "avg"})
-                if (config.getBoolean(flag, false))
-                    throw new IllegalArgumentException(
-                            "Unsupported attribute texture flag " + flag);
             layers.add(
                     new Layer(
                             controller,
-                            images.particle(
-                                    config.getInt("aps"),
-                                    (int) range.getFloat("lowMin", 0),
-                                    (int) range.getFloat("lowMax", 0),
-                                    config.getBoolean("mix", false),
-                                    config.getBoolean("repeat_x", false),
-                                    config.getBoolean("repeat_y", false),
-                                    config.getBoolean("flip_x", false),
-                                    config.getBoolean("flip_y", false)),
+                            config.getString("type", "DEFAULT").equals("CUSTOM")
+                                    ? images.customParticle(
+                                            config.getInt("aps"),
+                                            config.getBoolean("repeat_x", false),
+                                            config.getBoolean("repeat_y", false),
+                                            config.getBoolean("flip_x", false),
+                                            config.getBoolean("flip_y", false))
+                                    : images.particle(
+                                            config.getInt("aps"),
+                                            (int) range.getFloat("lowMin", 0),
+                                            (int) range.getFloat("lowMax", 0),
+                                            config.getBoolean("mix", false),
+                                            config.getBoolean("repeat_x", false),
+                                            config.getBoolean("repeat_y", false),
+                                            config.getBoolean("flip_x", false),
+                                            config.getBoolean("flip_y", false),
+                                            config.getBoolean("avg", false)),
                             renderer,
                             batchConfig.getString("mode", "Screen"),
                             batchConfig.getString("origin", "Middle")));
             trailTargets.add(config.getInt("trailController", -1));
         }
         for (int i = 0; i < layers.size(); i++)
-            if (trailTargets.get(i) >= 0) {
+            if (trailTargets.get(i) >= 0 && trailTargets.get(i) < layers.size()) {
                 var child = layers.get(trailTargets.get(i)).controller;
                 for (var influence : layers.get(i).controller.influencers)
-                    if (influence instanceof TrailSource source)
-                        source.emitter = (TrailEmitter) child.emitter;
+                    if (influence instanceof TrailSource source
+                            && child.emitter instanceof TrailEmitter trail) source.emitter = trail;
             }
     }
 
@@ -360,16 +383,35 @@ public final class AttributeParticleScene implements AutoCloseable {
                                 c.position.data[pos],
                                 c.position.data[pos + 1],
                                 c.position.data[pos + 2]);
+                Image image = layer.image;
+                float[] region = Arrays.copyOfRange(c.region.data, uv, uv + 6);
+                if (particleImages != null) {
+                    ParallelArray.FloatChannel life =
+                            layer.controller.particles.getChannel(ParticleChannels.Life);
+                    Image replacement =
+                            particleImages.image(
+                                    layer.controller.name,
+                                    layers.indexOf(layer),
+                                    absoluteTime,
+                                    life.data[i * life.strideSize + 2]);
+                    if (replacement != null) {
+                        image = replacement;
+                        region =
+                                new float[] {
+                                    0, 0, 1, 1, .5f, .5f * image.getHeight() / image.getWidth()
+                                };
+                    }
+                }
                 drawList.add(
                         new Billboard(
-                                layer.image,
+                                image,
                                 center,
                                 c.size.data[sz],
                                 c.size.data[sz + 1],
                                 c.rotation.data[rot],
                                 c.rotation.data[rot + 1],
                                 Arrays.copyOfRange(c.color.data, col, col + 4),
-                                Arrays.copyOfRange(c.region.data, uv, uv + 6),
+                                region,
                                 layer.mode,
                                 layer.origin,
                                 layers.indexOf(layer)));
@@ -437,6 +479,11 @@ public final class AttributeParticleScene implements AutoCloseable {
         float delta = Math.max(0, time - absoluteTime);
         absoluteTime = Math.max(absoluteTime, time);
         draw(renderer, delta, x, y, width, height, camera);
+    }
+
+    /** Map weather follows the camera without moving particles that were already emitted. */
+    public void origin(Vector3 position) {
+        for (var layer : layers) layer.controller.transform.setTranslation(position);
     }
 
     public boolean isComplete() {
@@ -921,6 +968,49 @@ public final class AttributeParticleScene implements AutoCloseable {
         }
     }
 
+    /** DynamicsModifierExt.Rotational2DStatic: fixed angle and life-dependent UV repetition. */
+    private static final class StaticRotation extends DynamicsModifier.Strength {
+        ParallelArray.FloatChannel angularVelocity, rotation, region;
+        boolean flipX, flipY;
+        float angle;
+
+        public void allocateChannels() {
+            super.allocateChannels();
+            angularVelocity = controller.particles.addChannel(ParticleChannels.AngularVelocity2D);
+            rotation = controller.particles.addChannel(ParticleChannels.Rotation2D);
+            region = controller.particles.addChannel(ParticleChannels.TextureRegion);
+        }
+
+        public void read(Json json, JsonValue data) {
+            super.read(json, data);
+            flipX = data.getBoolean("flip_x", false);
+            flipY = data.getBoolean("flip_y", false);
+            angle = data.getFloat("angle", 0);
+        }
+
+        public void update() {
+            for (int i = 0; i < controller.particles.size; i++) {
+                int strength = i * strengthChannel.strideSize,
+                        life = i * lifeChannel.strideSize + 2;
+                float scale = strengthValue.getScale(lifeChannel.data[life]);
+                angularVelocity.data[i * angularVelocity.strideSize] +=
+                        strengthChannel.data[strength] + strengthChannel.data[strength + 1] * scale;
+                int at = i * rotation.strideSize;
+                rotation.data[at] = MathUtils.cosDeg(angle);
+                rotation.data[at + 1] = MathUtils.sinDeg(angle);
+                int uv = i * region.strideSize;
+                region.data[uv] = flipX ? 1 : 0;
+                region.data[uv + 2] = flipX ? 0 : 1;
+                region.data[uv + 1] = flipY ? 1 / scale : 0;
+                region.data[uv + 3] = flipY ? 0 : 1 / scale;
+            }
+        }
+
+        public StaticRotation copy() {
+            throw new UnsupportedOperationException();
+        }
+    }
+
     /** Reference DynamicsModifierExt.RandomInitialRotation, degrees sampled once at birth. */
     private static final class InitialRotation extends DynamicsModifier.Strength {
         ParallelArray.FloatChannel rotation;
@@ -950,6 +1040,83 @@ public final class AttributeParticleScene implements AutoCloseable {
     /**
      * DynamicsModifierExt.CircuralMotion: birth angle/radius, life-based angle and radial offset.
      */
+    /** DynamicsModifierExt.CircularAcceleration, including its initial Verlet velocity. */
+    private static final class CircularAcceleration extends DynamicsModifier.Angular {
+        ParallelArray.FloatChannel position, previous, acceleration;
+
+        public void allocateChannels() {
+            super.allocateChannels();
+            position = controller.particles.addChannel(ParticleChannels.Position);
+            previous = controller.particles.addChannel(ParticleChannels.PreviousPosition);
+            acceleration = controller.particles.addChannel(ParticleChannels.Acceleration);
+        }
+
+        private void apply(int particle, boolean initial) {
+            int p = particle * position.strideSize;
+            int s = particle * strengthChannel.strideSize;
+            int a = particle * angularChannel.strideSize;
+            float life = lifeChannel.data[particle * lifeChannel.strideSize + 2];
+            float speed =
+                    strengthChannel.data[s]
+                            + strengthChannel.data[s + 1] * strengthValue.getScale(life);
+            float theta =
+                    angularChannel.data[a] + angularChannel.data[a + 1] * thetaValue.getScale(life);
+            float phi =
+                    angularChannel.data[a + 2]
+                            + angularChannel.data[a + 3] * phiValue.getScale(life);
+            var axis =
+                    new Vector3(
+                            MathUtils.cosDeg(theta) * MathUtils.sinDeg(phi),
+                            MathUtils.cosDeg(phi),
+                            MathUtils.sinDeg(theta) * MathUtils.sinDeg(phi));
+            var relative =
+                    new Vector3(position.data[p], position.data[p + 1], position.data[p + 2]);
+            if (!isGlobal) {
+                var rotation = controller.transform.getRotation(new Quaternion(), true).conjugate();
+                var translation = controller.transform.getTranslation(new Vector3());
+                if (initial) {
+                    rotation.transform(relative);
+                    relative.sub(translation);
+                } else {
+                    relative.sub(translation);
+                    rotation.transform(relative);
+                }
+            }
+            var tangent = relative.crs(axis);
+            var inward = axis.cpy().scl(tangent.dot(axis)).sub(tangent);
+            float radius = inward.len();
+            if (radius <= 0) return;
+            float force = speed * speed / radius;
+            if (initial) {
+                tangent.nor().scl(speed * controller.deltaTime);
+                inward.nor().scl(.5f * force * controller.deltaTimeSqr);
+                int offset = particle * previous.strideSize;
+                previous.data[offset] -= tangent.x + inward.x;
+                previous.data[offset + 1] -= tangent.y + inward.y;
+                previous.data[offset + 2] -= tangent.z + inward.z;
+            } else {
+                inward.nor().scl(force);
+                int offset = particle * acceleration.strideSize;
+                acceleration.data[offset] += inward.x;
+                acceleration.data[offset + 1] += inward.y;
+                acceleration.data[offset + 2] += inward.z;
+            }
+        }
+
+        public void activateParticles(int start, int count) {
+            super.activateParticles(start, count);
+            for (int i = start; i < start + count; i++) apply(i, true);
+        }
+
+        public void update() {
+            for (int i = 0; i < controller.particles.size; i++) apply(i, false);
+        }
+
+        public CircularAcceleration copy() {
+            return new CircularAcceleration();
+        }
+    }
+
     private static final class CircularMotion extends DynamicsModifier.Angular {
         final int type;
         ParallelArray.FloatChannel position, previous, angles;

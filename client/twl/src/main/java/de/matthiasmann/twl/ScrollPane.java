@@ -833,8 +833,11 @@ public class ScrollPane extends Widget {
                     break;
                 }
             case MOUSE_WHEEL:
-                if (scrollbarV.isVisible()) {
+                if (scrollbarV.isVisible() && scrollbarV.getMaxValue() > scrollbarV.getMinValue()) {
                     return scrollbarV.handleEvent(evt);
+                }
+                if (scrollbarH.isVisible()) {
+                    return scrollbarH.handleEvent(evt);
                 }
                 return false;
         }

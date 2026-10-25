@@ -9,6 +9,62 @@ import java.util.function.Supplier;
 
 /** 单机角色服务；所有数据库操作在同一后台线程执行。 */
 public final class LocalGameService implements GameService {
+    private final Map<String, top.totodile.pokemmo.server.game.battle.BattleEngine.Session>
+            battles = new HashMap<>();
+
+    private void closeBattle(String id) {
+        var battle = battles.remove(id);
+        if (battle != null) battle.close();
+    }
+
+    @Override
+    public CompletionStage<top.totodile.pokemmo.server.game.battle.BattleState> startBattle(
+            Selection selection,
+            String id,
+            top.totodile.pokemmo.server.game.battle.BattleEngine.Kind kind) {
+        return CompletableFuture.supplyAsync(
+                () -> {
+                    playerData(selection, id);
+                    var encounter = encounters.get(id);
+                    if (encounter == null)
+                        throw new IllegalStateException("No generated encounter");
+                    closeBattle(id);
+                    var session =
+                            top.totodile.pokemmo.server.game.battle.BattleEngine.create(kind)
+                                    .start(encounter);
+                    battles.put(id, session);
+                    return session.state();
+                },
+                worker);
+    }
+
+    @Override
+    public CompletionStage<top.totodile.pokemmo.server.game.battle.BattleState> chooseBattle(
+            Selection selection,
+            String id,
+            top.totodile.pokemmo.server.game.battle.BattleEngine.Action action) {
+        return CompletableFuture.supplyAsync(
+                () -> {
+                    playerData(selection, id);
+                    var session = battles.get(id);
+                    if (session == null) throw new IllegalStateException("No active battle engine");
+                    var state = session.choose(action);
+                    encounters.put(id, state.apply(encounters.get(id)));
+                    return state;
+                },
+                worker);
+    }
+
+    @Override
+    public CompletionStage<Void> endBattle(Selection selection, String id) {
+        return CompletableFuture.runAsync(
+                () -> {
+                    playerData(selection, id);
+                    closeBattle(id);
+                },
+                worker);
+    }
+
     private final Supplier<Database> factory;
     private final ExecutorService worker =
             Executors.newSingleThreadExecutor(
@@ -18,6 +74,8 @@ public final class LocalGameService implements GameService {
                         return t;
                     });
     private Database database;
+    private final Map<String, EncounterData> encounters = new HashMap<>();
+    private final Random captureRandom = new Random();
     private final Map<String, Position> mailboxes = new HashMap<>();
     private final Map<String, Long> playStarted = new HashMap<>();
     private final java.util.concurrent.atomic.AtomicBoolean closed =
@@ -530,6 +588,21 @@ public final class LocalGameService implements GameService {
 
     @Override
     public CompletionStage<EncounterData> randomEncounter(Selection selection, String id) {
+        return randomEncounter(selection, id, 1);
+    }
+
+    @Override
+    public CompletionStage<EncounterData> randomEncounter(
+            Selection selection, String id, int count) {
+        return randomEncounter(selection, id, count, false);
+    }
+
+    @Override
+    public CompletionStage<EncounterData> randomEncounter(
+            Selection selection, String id, int count, boolean pure) {
+        if (count != 1 && count != 3 && count != 5)
+            return CompletableFuture.failedFuture(
+                    new IllegalArgumentException("Encounter size must be 1, 3 or 5"));
         return CompletableFuture.supplyAsync(
                 () -> {
                     playerData(selection, id);
@@ -561,14 +634,27 @@ public final class LocalGameService implements GameService {
                     // generator.
                     // PokemonContainerType.EVENT=9: never insert the encounter into PARTY/PC or the
                     // database.
-                    var wild =
-                            PokemonStore.createWildPokemon(
-                                    candidates.get(random.nextInt(candidates.size())),
-                                    random.nextInt(100) + 1,
-                                    9,
-                                    0,
-                                    random);
-                    return new EncounterData(lead, wild, party);
+                    var wilds = new ArrayList<PokemonData.Pokemon>();
+                    var pureSpecies = candidates.get(random.nextInt(candidates.size()));
+                    var mixedSpecies = new ArrayList<>(candidates);
+                    java.util.Collections.shuffle(mixedSpecies, random);
+                    for (int index = 0; index < count; index++) {
+                        // HORDE_BATTLE has five debut slots. Three-member hordes occupy 1..3.
+                        int slot = count == 3 ? index + 1 : index;
+                        wilds.add(
+                                PokemonStore.createEncounterPokemon(
+                                        pure
+                                                ? pureSpecies
+                                                : mixedSpecies.get(index % mixedSpecies.size()),
+                                        random.nextInt(100) + 1,
+                                        9,
+                                        slot,
+                                        random));
+                    }
+                    closeBattle(id);
+                    var encounter = new EncounterData(lead, wilds, party);
+                    encounters.put(id, encounter);
+                    return encounter;
                 },
                 worker);
     }
@@ -581,6 +667,116 @@ public final class LocalGameService implements GameService {
                     playerData(selection, id);
                     return new PokemonStore(db(), speciesTemplates)
                             .add(id, speciesTemplates.get(species), level, new Random());
+                },
+                worker);
+    }
+
+    @Override
+    public CompletionStage<CaptureResult> capturePokemon(
+            Selection selection, String id, String targetId, String ballObjectId) {
+        return CompletableFuture.supplyAsync(
+                () -> {
+                    playerData(selection, id);
+                    if (battles.containsKey(id))
+                        throw new UnsupportedOperationException(
+                                "Capture is not yet available with the Showdown engine");
+                    var encounter = encounters.get(id);
+                    if (encounter == null
+                            || encounter.wilds().stream().noneMatch(p -> p.id().equals(targetId)))
+                        throw new IllegalArgumentException("No eligible wild capture target");
+                    var target =
+                            encounter.wilds().stream()
+                                    .filter(p -> p.id().equals(targetId))
+                                    .findFirst()
+                                    .orElseThrow();
+                    CaptureResult[] result = new CaptureResult[1];
+                    db().transaction(
+                                    () -> {
+                                        var rows =
+                                                db().query(
+                                                                "SELECT"
+                                                                    + " item_index_id,item_amount,region"
+                                                                    + " FROM owned_item WHERE"
+                                                                    + " owner_id=? AND item_id=?"
+                                                                    + " AND inventory_id=1",
+                                                                id,
+                                                                ballObjectId);
+                                        if (rows.size() != 1
+                                                || Integer.parseInt(rows.get(0)[1]) < 1)
+                                            throw new IllegalArgumentException(
+                                                    "No owned capture ball");
+                                        int region =
+                                                currentRegion(
+                                                        id,
+                                                        Integer.parseInt(
+                                                                db().query(
+                                                                                "SELECT region FROM"
+                                                                                    + " characters"
+                                                                                    + " WHERE id=?",
+                                                                                id)
+                                                                        .get(0)[0]));
+                                        int ballRegion = Integer.parseInt(rows.get(0)[2]);
+                                        if (ballRegion >= 0 && ballRegion != region)
+                                            throw new IllegalArgumentException(
+                                                    "Ball belongs to another region");
+                                        var item =
+                                                itemTemplates.get(Integer.parseInt(rows.get(0)[0]));
+                                        if (item == null || item.ballType() < 0)
+                                            throw new IllegalArgumentException(
+                                                    "Item is not a capture ball");
+                                        // Explicit user-requested simulation, not a replacement
+                                        // catch-rate formula.
+                                        int code = new int[] {0, 1, 3, 4}[captureRandom.nextInt(4)];
+                                        var store = new PokemonStore(db(), speciesTemplates);
+                                        PokemonData.Pokemon caught =
+                                                code == 4
+                                                        ? store.capture(id, target, item.ballType())
+                                                        : null;
+                                        int quantity = Integer.parseInt(rows.get(0)[1]);
+                                        if (quantity == 1)
+                                            db().execute(
+                                                            "DELETE FROM owned_item WHERE"
+                                                                    + " owner_id=? AND item_id=?",
+                                                            id,
+                                                            ballObjectId);
+                                        else
+                                            db().execute(
+                                                            "UPDATE owned_item SET"
+                                                                + " item_amount=item_amount-1 WHERE"
+                                                                + " owner_id=? AND item_id=?",
+                                                            id,
+                                                            ballObjectId);
+                                        var dex = new PokedexStore(db());
+                                        var state = dex.load(id);
+                                        if (caught != null) {
+                                            var entries = new HashMap<>(state.entries());
+                                            entries.merge(
+                                                    caught.species(),
+                                                    7 | (caught.alpha() ? 8 : 0),
+                                                    (a, c) -> a | c);
+                                            // Stay in the same transaction as the ball decrement
+                                            // and Pokemon insertion.
+                                            db().execute(
+                                                            "INSERT INTO character_pokedex_entry"
+                                                                + " VALUES (?,?,?) ON"
+                                                                + " CONFLICT(character_id,species)"
+                                                                + " DO UPDATE SET"
+                                                                + " flags=excluded.flags",
+                                                            id,
+                                                            caught.species(),
+                                                            entries.get(caught.species()));
+                                            state = new PokedexState(entries);
+                                        }
+                                        result[0] =
+                                                new CaptureResult(
+                                                        code,
+                                                        caught,
+                                                        store.load(id),
+                                                        new PlayerDataStore(db()).inventory(id),
+                                                        state);
+                                    });
+                    if (result[0].captured() != null) encounters.remove(id);
+                    return result[0];
                 },
                 worker);
     }
@@ -889,6 +1085,8 @@ public final class LocalGameService implements GameService {
                 () -> {
                     playerData(selection, id);
                     checkpointPlaytime(id);
+                    closeBattle(id);
+                    encounters.remove(id);
                     playStarted.remove(id);
                     mailboxes.remove(id);
                 },
@@ -900,6 +1098,7 @@ public final class LocalGameService implements GameService {
         if (!closed.compareAndSet(false, true)) return;
         worker.execute(
                 () -> {
+                    for (String id : new ArrayList<>(battles.keySet())) closeBattle(id);
                     if (database != null) {
                         for (String id : new ArrayList<>(playStarted.keySet()))
                             checkpointPlaytime(id);

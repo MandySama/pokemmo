@@ -25,21 +25,42 @@ final class EncounterScene implements AutoCloseable {
     private Image image;
     private final PerspectiveCamera camera = new PerspectiveCamera(50, 760, 400);
     private EncounterMoveAnimation renderingMove;
+    EncounterCaptureAnimation capture;
+    private final com.badlogic.gdx.graphics.g3d.Environment lighting =
+            new com.badlogic.gdx.graphics.g3d.Environment();
+    private final com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute ambientLight =
+            com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute.createAmbientLight(Color.WHITE);
 
-    EncounterScene(BwPokedex dex, GdxTwlRenderer renderer) throws IOException {
+    void ambient(Color color) {
+        ambientLight.color.set(color);
+        lighting.set(ambientLight);
+    }
+
+    final Color environmentTint = new Color(Color.CLEAR);
+
+    EncounterScene(BwPokedex dex, GdxTwlRenderer renderer, EncounterEnvironment environment)
+            throws IOException {
         this.renderer = renderer;
         try {
             var archive = dex.archive("a/0/1/1");
-            byte[] model = archive.read(34);
+            byte[] model = archive.read(environment.backgroundModel());
             var parsed =
-                    NdsNitroModelParser.readAll(model, model, java.util.List.of(archive.read(35)))
+                    NdsNitroModelParser.readAll(
+                                    model,
+                                    model,
+                                    java.util.List.of(
+                                            archive.read(environment.backgroundAnimation())))
                             .get(0);
             scenery = new NitroModelRenderer(parsed);
             animation =
                     new com.badlogic.gdx.graphics.g3d.utils.AnimationController(scenery.instance);
             animation.setAnimation(scenery.instance.animations.first().id, -1, 2, null);
-            playerBase = new NitroModelRenderer(NdsNitroModelParser.read(archive.read(0)));
-            enemyBase = new NitroModelRenderer(NdsNitroModelParser.read(archive.read(0)));
+            playerBase =
+                    new NitroModelRenderer(
+                            NdsNitroModelParser.read(archive.read(environment.platformModel())));
+            enemyBase =
+                    new NitroModelRenderer(
+                            NdsNitroModelParser.read(archive.read(environment.platformModel())));
             scenery.instance.transform.setToTranslation(3, 2.5f, 3).scale(8, 8, 8);
             playerBase.instance.transform.setToTranslation(3, 2.5f, 4).scale(16, 16, 16);
             enemyBase.instance.transform.setToTranslation(5.25f, 2.5f, 1).scale(16, 16, 16);
@@ -126,7 +147,15 @@ final class EncounterScene implements AutoCloseable {
                                             target.set(
                                                     input,
                                                     renderingMove == null
-                                                            ? Color.CLEAR
+                                                                    || renderingMove
+                                                                                    .modelTints[
+                                                                                    groups
+                                                                                            .getOrDefault(
+                                                                                                    value.material,
+                                                                                                    0)]
+                                                                                    .a
+                                                                            == 0
+                                                            ? environmentTint
                                                             : renderingMove
                                                                     .modelTints[
                                                                     groups.getOrDefault(
@@ -191,6 +220,7 @@ final class EncounterScene implements AutoCloseable {
                     camera.rotateAround(target, camera.direction.cpy().crs(camera.up).nor(), -10);
                     camera.update();
                     if (move != null) move.camera(camera);
+                    if (capture != null) capture.camera(camera);
                     buffer.begin();
                     try {
                         // Gdx3DModelBatch.bL0 clears ordinary battle viewports to opaque black.
@@ -205,10 +235,11 @@ final class EncounterScene implements AutoCloseable {
                         animation.update(Math.min(.1f, Gdx.graphics.getDeltaTime()));
                         renderingMove = move;
                         batch.begin(camera);
-                        if (move == null || !move.useBackground) batch.render(scenery.instance);
+                        if (move == null || !move.useBackground)
+                            batch.render(scenery.instance, lighting);
                         if (move == null || !move.hidePlatforms) {
-                            batch.render(playerBase.instance);
-                            batch.render(enemyBase.instance);
+                            batch.render(playerBase.instance, lighting);
+                            batch.render(enemyBase.instance, lighting);
                         }
                         batch.end();
                         renderingMove = null;

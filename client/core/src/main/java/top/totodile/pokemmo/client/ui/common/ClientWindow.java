@@ -66,6 +66,11 @@ public abstract class ClientWindow extends Container {
     }
 
     @Override
+    public boolean isInside(int x, int y) {
+        return ownsPointer(x, y);
+    }
+
+    @Override
     protected boolean isMouseInside(Event event) {
         return ownsPointer(event.getMouseX(), event.getMouseY());
     }

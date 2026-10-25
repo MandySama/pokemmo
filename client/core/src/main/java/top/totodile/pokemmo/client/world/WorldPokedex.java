@@ -14,6 +14,11 @@ public final class WorldPokedex {
         this.savePokedex = savePokedex;
     }
 
+    /** Apply authoritative capture state without saving a stale client snapshot back. */
+    public void restore(PokedexState state) {
+        pokedexState = state;
+    }
+
     public void setUnlocked(boolean unlocked) {
         if (unlocked != pokedexState.unlocked()) {
             var state = new PokedexState(unlocked);

@@ -341,6 +341,7 @@ public final class WorldToolsWindow extends PlayerWindow {
                 add.setTheme("/database-add");
                 add.addCallback(
                         () -> {
+                            if (busy) return;
                             if (item.maximumStack() > 1 && items.template(item.id()).pocket() != 2)
                                 amount.show("请输入添加数量", value -> add(item.id(), value));
                             else add(item.id(), 1);
@@ -367,7 +368,11 @@ public final class WorldToolsWindow extends PlayerWindow {
                 final int species = id;
                 var add = new Button("添加");
                 add.setTheme("/database-add");
-                add.addCallback(() -> amount.show("请输入宝可梦等级", value -> add(species, value)));
+                add.addCallback(
+                        () -> {
+                            if (busy) return;
+                            amount.show("请输入宝可梦等级", value -> add(species, value));
+                        });
                 addRow(
                         false,
                         label(strings.get(0), false),
@@ -438,7 +443,6 @@ public final class WorldToolsWindow extends PlayerWindow {
     private void perform(Tool tool, int[] values) {
         long request = version;
         busy = true;
-        if (tool != Tool.TELEPORT) content.setEnabled(false);
         keyboard.close();
         CompletionStage<String> operation;
         try {
@@ -454,7 +458,6 @@ public final class WorldToolsWindow extends PlayerWindow {
     private void finish(long request, String result, Throwable error) {
         if (request != version) return;
         busy = false;
-        content.setEnabled(true);
         if (error != null) report(error);
         else {
             if (tool == Tool.TELEPORT && mobile) closePopup();

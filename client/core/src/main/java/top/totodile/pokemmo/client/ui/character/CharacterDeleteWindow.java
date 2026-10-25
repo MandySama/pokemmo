@@ -9,13 +9,14 @@ import com.badlogic.gdx.input.TextInputWrapper;
 import de.matthiasmann.twl.*;
 
 import top.totodile.pokemmo.client.resources.ClientStrings;
+import top.totodile.pokemmo.client.ui.common.ClientDialog;
 import top.totodile.pokemmo.server.game.GameService;
 
 import java.util.List;
 import java.util.function.Consumer;
 
 /** 参考流程：输入角色名，再输入本地化的确认短语。 */
-public final class CharacterDeleteWindow extends PopupWindow {
+public final class CharacterDeleteWindow extends ClientDialog {
     private final DialogLayout panel = new DialogLayout();
     private final Label message = new Label();
     private final EditField input =
@@ -56,7 +57,7 @@ public final class CharacterDeleteWindow extends PopupWindow {
             Runnable restoreFocus,
             Consumer<de.matthiasmann.twl.renderer.Image> background,
             Consumer<GameService.Character> delete) {
-        super(owner);
+        super(owner, mobile);
         this.strings = strings;
         this.mobile = mobile;
         this.restoreFocus = restoreFocus;

@@ -174,6 +174,33 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
             float g,
             float b,
             float overlay) {
+        drawBattleQuad(image, center, width, height, camera, r, g, b, overlay, false, 1);
+    }
+
+    /**
+     * Gdx3DModelBatch: same sprite silhouette, rotated -90 degrees onto the ground at 25% alpha.
+     */
+    public void drawBattleShadow(
+            Image image,
+            com.badlogic.gdx.math.Vector3 center,
+            float width,
+            float height,
+            com.badlogic.gdx.graphics.PerspectiveCamera camera) {
+        drawBattleQuad(image, center, width, height, camera, 0, 0, 0, 1, true, .25f);
+    }
+
+    private void drawBattleQuad(
+            Image image,
+            com.badlogic.gdx.math.Vector3 center,
+            float width,
+            float height,
+            com.badlogic.gdx.graphics.PerspectiveCamera camera,
+            float r,
+            float g,
+            float b,
+            float overlay,
+            boolean ground,
+            float opacity) {
         if (!(image instanceof AtlasImage atlas) || width <= 0 || height <= 0) return;
         if (battleCombatantMesh == null) {
             battleCombatantMesh =
@@ -199,8 +226,14 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
                 throw new IllegalStateException(battleCombatantShader.getLog());
         }
         var look = camera.position.cpy().sub(center).nor();
-        var right = camera.up.cpy().crs(look).nor().scl(width / 2);
-        var up = look.cpy().crs(right).nor().scl(height / 2);
+        var right =
+                ground
+                        ? new com.badlogic.gdx.math.Vector3(width / 2, 0, 0)
+                        : camera.up.cpy().crs(look).nor().scl(width / 2);
+        var up =
+                ground
+                        ? new com.badlogic.gdx.math.Vector3(0, 0, -height / 2)
+                        : look.cpy().crs(right).nor().scl(height / 2);
         var region = atlas.region;
         float[] vertices = new float[20];
         for (int corner = 0; corner < 4; corner++) {
@@ -224,7 +257,9 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
             battleCombatantShader.bind();
             battleCombatantShader.setUniformMatrix("u_projViewTrans", camera.combined);
             battleCombatantShader.setUniformi("u_texture", 0);
-            battleCombatantShader.setUniformf("u_tint", batch.getColor());
+            var color = batch.getColor();
+            battleCombatantShader.setUniformf(
+                    "u_tint", color.r, color.g, color.b, color.a * opacity);
             battleCombatantShader.setUniformf("u_overlay", r, g, b, overlay);
             region.getTexture().bind(0);
             battleCombatantMesh.setVertices(vertices);

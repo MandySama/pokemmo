@@ -292,7 +292,11 @@ public final class InventoryItems implements AutoCloseable {
                 .map(
                         t ->
                                 new GameService.ItemTemplate(
-                                        t.id(), t.region(), t.maximumStack(), destroyable(t.id())))
+                                        t.id(),
+                                        t.region(),
+                                        t.maximumStack(),
+                                        destroyable(t.id()),
+                                        attributes(t.id()).ball))
                 .toList();
     }
 
@@ -647,6 +651,21 @@ public final class InventoryItems implements AutoCloseable {
                     : strings.format(
                             10799, strings.get(230000 + dex.move(attributes(id).move).type()));
         return group < 800 ? strings.getOrDefault(10000 + group, "") : "";
+    }
+
+    public int ballType(int id) {
+        return attributes(id).ball;
+    }
+
+    /** CompositeViewContainerLayout.U90: rare ball confirmation uses the canonical item id. */
+    public boolean confirmBattleUse(int id) {
+        int canonical = aliases.getOrDefault(id, id);
+        return canonical == 1 || canonical == 5001 || canonical == 5016 || canonical == 5044;
+    }
+
+    /** ItemData.dB0(true): reference battle-use target action (zero means unusable in battle). */
+    public int battleAction(int id) {
+        return attributes(id).battleAction;
     }
 
     public boolean destroyable(int id) {

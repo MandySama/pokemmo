@@ -104,7 +104,8 @@ public final class BwPokemonSprites {
     }
 
     public Pixels icon(int id) throws IOException {
-        dex.get(id);
+        // PokemonSpriteManager.Ed preserves icon 0: the empty-species box used by the counter.
+        if (id != 0) dex.get(id);
         return compose(
                 icons.read(id * 2 + 7), iconColors, iconCells, 0, 36, iconPaletteIds[id] & 15);
     }
@@ -308,13 +309,33 @@ public final class BwPokemonSprites {
         return particle(id, 0);
     }
 
+    /** NdsCellAnimationSpriteLoader.Qn: cell 10 is the stationary recall ball. */
+    public Pixels recallBall(int type) throws IOException {
+        if (type >= 16 && type < 24) return new Pixels(32, 32, new int[1024]);
+        var archive = dex.archive("a/0/9/5");
+        int group = type == 24 ? 16 : type;
+        return compose(
+                archive.read(131 + group * 2),
+                archive.read(132 + group * 2),
+                archive.read(129),
+                10,
+                32,
+                -1,
+                true);
+    }
+
     /**
      * NdsCellAnimationSpriteLoader.LP(4, ball): throwing sequence sampled every three ROM ticks.
      */
     public java.util.List<Pixels> thrownBall(int type) throws IOException {
+        return ballAnimation(type, 4);
+    }
+
+    /** NdsCellAnimationSpriteLoader.LP: stop=0, shake=1..3, spin=4. */
+    public java.util.List<Pixels> ballAnimation(int type, int animation) throws IOException {
         var archive = dex.archive("a/0/9/5");
         var b = java.nio.ByteBuffer.wrap(archive.read(130)).order(java.nio.ByteOrder.LITTLE_ENDIAN);
-        int sequence = 48 + 4 * 16,
+        int sequence = 48 + animation * 16,
                 count = b.getInt(sequence),
                 frames = b.getInt(32) + 24 + b.getInt(sequence + 12),
                 data = b.getInt(36) + 24,
@@ -387,6 +408,8 @@ public final class BwPokemonSprites {
             result.add(pixels);
         }
         if (result.isEmpty()) throw new IOException("Missing throwing ball animation");
+        // NdsCellAnimationSpriteLoader.LP appends the resting cell to shake1.
+        if (animation == 1) result.add(ballAnimation(type, 0).get(0));
         return java.util.List.copyOf(result);
     }
 

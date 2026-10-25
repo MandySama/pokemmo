@@ -1,6 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <themes>
     <images file="res/battle-hud.png" filter="nearest">
+        <area name="encounter-party.default" xywh="2,145,209,52"/>
+        <area name="encounter-party.hover" xywh="2,200,209,52"/>
+        <area name="encounter-party.unavailable" xywh="2,257,209,52"/>
+        <area name="encounter-party.unavailable-hover" xywh="218,257,209,52"/>
+        <select name="encounter-party.background">
+            <alias ref="encounter-party.unavailable-hover" if="unavailable + (hover | keyboardFocus)"/>
+            <alias ref="encounter-party.unavailable" if="unavailable"/>
+            <alias ref="encounter-party.hover" if="hover | keyboardFocus | selected"/>
+            <alias ref="encounter-party.default"/>
+        </select>
+        <area name="encounter-confirm.default" xywh="424,145,96,30"/>
+        <area name="encounter-confirm.hover" xywh="424,176,96,30"/>
+        <select name="encounter-confirm.background">
+            <alias ref="encounter-confirm.hover" if="hover | keyboardFocus"/>
+            <alias ref="encounter-confirm.default"/>
+        </select>
+        <area name="encounter-register.default" xywh="321,145,96,30"/>
+        <area name="encounter-register.hover" xywh="321,176,96,30"/>
+        <select name="encounter-register.background">
+            <alias ref="encounter-register.hover" if="hover | keyboardFocus"/>
+            <alias ref="encounter-register.default"/>
+        </select>
         <area name="battle-button-return.default" xywh="218,145,96,30"/>
         <area name="battle-button-return.hover" xywh="218,176,96,30"/>
         <area name="battle-button-return.disabled" xywh="218,207,96,30"/>
@@ -12,6 +34,12 @@
         </select>
     </images>
     <images file="res/main-hud.png" filter="nearest">
+        <area name="encounter-small.default" xywh="227,9,66,30" splitx="L25,R25" splity="T6,B8"/>
+        <area name="encounter-small.hover" xywh="227,40,66,30" splitx="L25,R25" splity="T6,B8"/>
+        <select name="encounter-small.background">
+            <alias ref="encounter-small.hover" if="hover | keyboardFocus | selected"/>
+            <alias ref="encounter-small.default"/>
+        </select>
         <area name="button.default" xywh="7,7,52,52" splitx="L8,R8" splity="T8,B8"/>
         <area name="button.hover1" xywh="8,62,52,52" splitx="L8,R8" splity="T8,B8"/>
         <area name="button.hover2" xywh="61,62,52,52" splitx="L8,R8" splity="T8,B8"/>

@@ -16,18 +16,52 @@ import java.util.function.IntFunction;
 /** Basic overworld HUD. Window bodies and online game services are supplied separately. */
 public final class WorldHud extends Widget {
     private final WorldScene world;
+    private top.totodile.pokemmo.client.ui.pokemon.EncounterCounterWindow encounterCounter;
+
+    public void encounterCounter(
+            top.totodile.pokemmo.client.ui.pokemon.EncounterCounterWindow counter) {
+        encounterCounter = counter;
+        add(counter);
+        invalidateLayout();
+    }
+
+    public void randomizeEncounterCounter() {
+        if (encounterCounter != null) encounterCounter.randomize();
+    }
+
     private top.totodile.pokemmo.client.ui.inventory.HotkeyBar hotkeyBar;
 
     public void hotkeyBar(top.totodile.pokemmo.client.ui.inventory.HotkeyBar value) {
         hotkeyBar = value;
         add(value);
+        if (mobile) {
+            removeChild(chatToggle);
+            add(chatToggle);
+        }
         invalidateLayout();
     }
 
     private final WorldStatus status;
-    private final Widget bar = new Widget(), menu = new Widget(), chat = new Widget();
+    private final Widget bar = new Widget(), menu = new Widget();
+    private final WorldChat chat;
+    private int battleBottom;
+
+    public void battleBottom(int value) {
+        if (battleBottom != value) {
+            battleBottom = value;
+            invalidateLayout();
+        }
+    }
+
+    public boolean blockingChat() {
+        return chat.editing() || mobile && chat.isVisible();
+    }
+
+    public WorldChat chat() {
+        return chat;
+    }
+
     private final Button chatToggle = new Button();
-    private final EditField chatInput = new EditField();
     private final Button[] shortcuts = new Button[9];
     private final Button[] entries = new Button[8];
     private final boolean mobile;
@@ -74,7 +108,9 @@ public final class WorldHud extends Widget {
         add(status);
         bar.setTheme("/world-bar");
         menu.setTheme("/world-menu");
-        chat.setTheme("/world-chat");
+        chat = new WorldChat(strings, preferences, mobile);
+        chat.onFocusChanged(() -> world.setInputBlocked(blockingChat()));
+        chat.setVisible(false);
         int[] texts = {1100, 1101, 1126, 1161, 1, 8000, 2353, 1116, 1102};
         int[] ids = {5436, 5432, 5437, 5001, 5431, 5471, 5452, 5459, 5626};
         String[] bindings = {
@@ -171,18 +207,14 @@ public final class WorldHud extends Widget {
         chatToggle.addCallback(
                 () -> {
                     chat.setVisible(!chat.isVisible());
-                    world.setInputBlocked(chat.isVisible());
+                    if (!chat.isVisible()) chat.blur();
                     invalidateLayout();
-                    if (chat.isVisible()) chatInput.requestKeyboardFocus();
+                    if (chat.isVisible()) chat.focusInput();
                 });
-        chatInput.setTheme("editfield");
-        chat.add(chatInput);
         add(bar);
         add(chatToggle);
-        add(chat);
         add(menu);
         menu.setVisible(false);
-        chat.setVisible(false);
         shortcuts[0].addCallback(
                 () -> {
                     closeMenu();
@@ -252,15 +284,11 @@ public final class WorldHud extends Widget {
     }
 
     public void openChat() {
-        chat.setVisible(true);
-        world.setInputBlocked(true);
-        invalidateLayout();
-        chatInput.requestKeyboardFocus();
+        chat.focusInput();
     }
 
     public void submitChat() {
-        chatInput.setText("");
-        closeOverlay();
+        chat.submit();
     }
 
     public void onBag(Runnable open) {
@@ -313,21 +341,22 @@ public final class WorldHud extends Widget {
             closeMenu();
             return true;
         }
-        if (chat.isVisible()) {
+        if (mobile && chat.isVisible()) {
+            chat.blur();
             chat.setVisible(false);
-            world.setInputBlocked(false);
-            invalidateLayout();
             return true;
         }
+        if (chat.blur()) return true;
         return false;
     }
 
     public boolean editingChat() {
-        return chat.isVisible();
+        return chat.editing();
     }
 
     public boolean ownsPointer(int x, int y) {
-        return hotkeyBar != null && hotkeyBar.isInside(x, y)
+        return encounterCounter != null && encounterCounter.ownsPointer(x, y)
+                || hotkeyBar != null && hotkeyBar.isInside(x, y)
                 || !mobile && bar.isInside(x, y)
                 || chatToggle.isInside(x, y)
                 || mobileStatus != null && mobileStatus.isVisible() && mobileStatus.isInside(x, y)
@@ -344,6 +373,9 @@ public final class WorldHud extends Widget {
 
     @Override
     protected void layout() {
+        if (encounterCounter != null)
+            encounterCounter.positionInHud(
+                    getInnerX(), getInnerY(), getInnerWidth(), getInnerHeight());
         if (party != null) {
             int w = Math.min(party.getPreferredWidth(), getInnerWidth()),
                     h = Math.max(0, Math.min(party.getPreferredHeight(), getInnerHeight() - 90));
@@ -371,14 +403,8 @@ public final class WorldHud extends Widget {
         chatToggle.setPosition(
                 getInnerX() + (mobile ? 5 : 0),
                 mobile ? getInnerY() + 5 : getInnerBottom() - chatToggle.getHeight());
-        chat.setSize(
-                Math.max(0, Math.min(500, getInnerWidth() - 10)),
-                Math.min(220, getInnerHeight() / 2));
-        chat.setPosition(
-                getInnerX() + 5,
-                mobile ? chatToggle.getBottom() : chatToggle.getY() - chat.getHeight());
-        chatInput.setSize(chat.getInnerWidth(), chatInput.getPreferredHeight());
-        chatInput.setPosition(chat.getInnerX(), chat.getInnerBottom() - chatInput.getHeight());
+        chat.positionInHud(
+                getInnerX(), getInnerY(), getInnerWidth(), getInnerHeight(), battleBottom);
         int row = mobile ? 40 : 32;
         menu.setSize(148, row * entries.length + 8);
         menu.setPosition(getInnerRight() - menu.getWidth() - 4, bar.getY() - menu.getHeight());

@@ -38,4 +38,10 @@
     <fontDef name="main-lightgreen" ref="main" color="#66FF66"/>
     <fontDef name="summary-iv-red" ref="main" color="#f09999"/>
     <fontDef name="noto-8pt" filename="res/fonts/NotoSansCJK-Medium.ttc" faces="sc,tc,jp" color="#FFFFFF" border_width="1" border_color="#434343" size="8" incremental="false" characters="0123456789ABCDEF"/>
+<fontDef name="main-battle" ref="main" color="#FFFF00"/>
+<fontDef name="main-orange" ref="main" color="#FF9900"/>
+<fontDef name="main-purple" ref="main" color="#FF99FF"/>
+<fontDef name="main-teal" ref="main" color="#81ddf1"/>
+<fontDef name="main-yellow" ref="main" color="#e2c57e"/>
+<fontDef name="main-blue" ref="main" color="#AACFFF"/>
 </themes>

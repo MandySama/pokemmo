@@ -8,7 +8,7 @@ import top.totodile.pokemmo.client.resources.ClientStrings;
 import java.util.function.Consumer;
 
 /** 参考 ActionConfirmDialogWindow：居中文案，下方纵向排列“是 / 否”。 */
-public final class ActionConfirmDialog extends PopupWindow {
+public final class ActionConfirmDialog extends ClientDialog {
     private final DialogLayout panel = new DialogLayout();
     private final Label message = new Label();
     private final Button yes, no;
@@ -23,7 +23,7 @@ public final class ActionConfirmDialog extends PopupWindow {
             boolean mobile,
             Consumer<Image> background,
             Runnable onClose) {
-        super(owner);
+        super(owner, mobile);
         this.mobile = mobile;
         this.background = background;
         this.onClose = onClose;

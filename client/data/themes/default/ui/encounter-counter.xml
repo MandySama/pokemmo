@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<themes>
+  <images file="../res/main-hud.png" filter="nearest">
+<grid name="encounter-counter.background" weightsX="0,1,0" weightsY="0,0,1,0">
+			<area xywh="101,181,5,5" />
+			<area xywh="108,181,8,5" />
+			<area xywh="185,181,5,5" />
+			<area xywh="101,184,5,19" />
+			<area xywh="108,184,8,19" />
+			<area xywh="185,184,5,19" />
+			<area xywh="101,210,5,8" />
+			<area xywh="111,213,8,8" repeatX="true" repeatY="true" tint="#99FFFFFF" />
+			<area xywh="185,208,5,8" />
+			<area xywh="101,223,5,3" />
+			<area xywh="104,223,3,3" />
+			<area xywh="185,223,5,3" />
+		</grid>
+
+		
+  </images>
+  <theme name="encounter-counter" ref="resizableframe">
+    <param name="background"><image>encounter-counter.background</image></param>
+    <param name="border"><border>20,0,0,0</border></param>
+    <param name="titleAreaTop"><int>8</int></param>
+    <param name="titleAreaBottom"><int>20</int></param>
+    <param name="closeButtonX"><int>-24</int></param>
+    <param name="closeButtonY"><int>6</int></param>
+    <param name="fadeDurationShow"><int>0</int></param>
+    <param name="fadeDurationHide"><int>0</int></param>
+  </theme>
+  <theme name="encounter-counter-minimize" ref="-defaults">
+    <param name="background"><image>frame.minimizebutton.background</image></param>
+  </theme>
+  <theme name="encounter-counter-expand" ref="label">
+    <param name="border"><border>0</border></param>
+    <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+  </theme>
+  <theme name="encounter-counter-name" ref="label">
+    <param name="font"><font>alphabeta-border</font></param>
+    <param name="border"><border>0</border></param>
+    <param name="textAlignment"><enum type="alignment">LEFT</enum></param>
+  </theme>
+  <theme name="encounter-counter-count" ref="encounter-counter-name">
+    <param name="textAlignment"><enum type="alignment">RIGHT</enum></param>
+  </theme>
+  <!-- Official encounter-counter-frame: tabbed frame, fixed table header and input-box cells. -->
+  <theme name="encounter-recorder-frame" ref="resizableframe">
+    <param name="background"><image>ui-frame-red.background</image></param>
+    <param name="border"><border>20,0,0,0</border></param>
+    <param name="titleAreaTop"><int>8</int></param>
+    <param name="titleAreaBottom"><int>20</int></param>
+    <param name="fadeDurationShow"><int>0</int></param>
+    <param name="fadeDurationHide"><int>0</int></param>
+  </theme>
+  <theme name="encounter-recorder-content" ref="base-tabbed-pane">
+    <param name="border"><border>6,7,6,7</border></param>
+  </theme>
+  <theme name="encounter-recorder-tab" ref="button">
+    <param name="background"><image>ui-tab-shop.background</image></param>
+    <param name="border"><border>0,14</border></param>
+  </theme>
+  <theme name="encounter-recorder-value" ref="label">
+    <param name="background"><image>ui-inputbox.background</image></param>
+    <param name="textAlignment"><enum type="alignment">RIGHT</enum></param>
+    <param name="border"><border>5</border></param>
+  </theme>
+  <theme name="encounter-recorder-hud-label" ref="label">
+    <param name="border"><border>0</border></param>
+  </theme>
+  <theme name="encounter-recorder-header" ref="button">
+    <param name="background"><image>ui-table-header.background</image></param>
+    <param name="border"><border>0</border></param>
+  </theme>
+  <theme name="encounter-recorder-header-label" ref="label">
+    <param name="background"><image>ui-table-header.background</image></param>
+    <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+  </theme>
+  <theme name="encounter-recorder-cell" ref="-defaults">
+    <param name="background"><image>ui-inputbox.background</image></param>
+  </theme>
+  <theme name="encounter-recorder-cell-name" ref="label">
+    <param name="background"><image>ui-inputbox.background</image></param>
+    <param name="border"><border>5,7,3,0</border></param>
+  </theme>
+  <theme name="encounter-recorder-cell-count" ref="encounter-recorder-cell-name">
+    <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+  </theme>
+  <theme name="encounter-recorder-pin" ref="button">
+    <param name="border"><border>0</border></param>
+  </theme>
+</themes>

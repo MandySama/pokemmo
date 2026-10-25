@@ -33,4 +33,5 @@
     <include filename="ui/party.xml"/>
     <include filename="ui/monster-frame.xml"/>
     <include filename="ui/encounter.xml"/>
+    <include filename="ui/encounter-counter.xml"/>
 </themes>

@@ -26,6 +26,7 @@ public interface GameService extends AutoCloseable {
         NATURE,
         GENDER,
         ABILITY,
+        TEST_ABILITY,
         IV,
         FRIENDSHIP,
         PARTICLE,
@@ -105,7 +106,11 @@ public interface GameService extends AutoCloseable {
                 new UnsupportedOperationException());
     }
 
-    record ItemTemplate(int id, int region, int maximumStack, boolean destroyable) {
+    record ItemTemplate(int id, int region, int maximumStack, boolean destroyable, int ballType) {
+        public ItemTemplate(int id, int region, int maximumStack, boolean destroyable) {
+            this(id, region, maximumStack, destroyable, -1);
+        }
+
         public ItemTemplate(int id, int region, int maximumStack) {
             this(id, region, maximumStack, false);
         }
@@ -323,6 +328,20 @@ public interface GameService extends AutoCloseable {
                 new UnsupportedOperationException());
     }
 
+    /** Simulated outcomes use the reference result codes 0, 1, 3, 4; storage is transactional. */
+    record CaptureResult(
+            int animationResult,
+            PokemonData.Pokemon captured,
+            PokemonData.Containers pokemon,
+            List<PlayerData.Item> inventory,
+            PokedexState pokedex) {}
+
+    default CompletionStage<CaptureResult> capturePokemon(
+            Selection selection, String characterId, String targetId, String ballObjectId) {
+        return java.util.concurrent.CompletableFuture.failedFuture(
+                new UnsupportedOperationException());
+    }
+
     default CompletionStage<PlayerData.Item> createItem(
             Selection selection, String characterId, int itemId, int amount) {
         return java.util.concurrent.CompletableFuture.failedFuture(
@@ -364,6 +383,18 @@ public interface GameService extends AutoCloseable {
             Selection selection, String characterId) {
         return java.util.concurrent.CompletableFuture.failedFuture(
                 new UnsupportedOperationException());
+    }
+
+    default CompletionStage<EncounterData> randomEncounter(
+            Selection selection, String characterId, int count) {
+        if (count == 1) return randomEncounter(selection, characterId);
+        return java.util.concurrent.CompletableFuture.failedFuture(
+                new UnsupportedOperationException());
+    }
+
+    default CompletionStage<EncounterData> randomEncounter(
+            Selection selection, String characterId, int count, boolean pure) {
+        return randomEncounter(selection, characterId, count);
     }
 
     CompletionStage<Void> saveTravelState(
@@ -445,6 +476,26 @@ public interface GameService extends AutoCloseable {
             String body) {
         return java.util.concurrent.CompletableFuture.completedFuture(
                 PlayerData.MailResult.ACCESS_DENIED);
+    }
+
+    default CompletionStage<top.totodile.pokemmo.server.game.battle.BattleState> startBattle(
+            Selection selection,
+            String characterId,
+            top.totodile.pokemmo.server.game.battle.BattleEngine.Kind kind) {
+        return java.util.concurrent.CompletableFuture.failedFuture(
+                new UnsupportedOperationException("Battle engine not available"));
+    }
+
+    default CompletionStage<top.totodile.pokemmo.server.game.battle.BattleState> chooseBattle(
+            Selection selection,
+            String characterId,
+            top.totodile.pokemmo.server.game.battle.BattleEngine.Action action) {
+        return java.util.concurrent.CompletableFuture.failedFuture(
+                new UnsupportedOperationException("Battle engine not available"));
+    }
+
+    default CompletionStage<Void> endBattle(Selection selection, String characterId) {
+        return java.util.concurrent.CompletableFuture.completedFuture(null);
     }
 
     @Override
