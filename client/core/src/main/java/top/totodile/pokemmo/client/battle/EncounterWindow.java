@@ -29,6 +29,161 @@ import java.util.function.LongSupplier;
  */
 public final class EncounterWindow extends Widget implements AutoCloseable {
 
+    private boolean animationPreview, previewPaused;
+    private long previewPausedAt, previewPauseTotal;
+    private int previewMoveId = -1;
+    private String previewStatus = "尚未播放";
+
+    /**
+     * Reference TestAnimationSlashCommand: play against current combatants without a turn request.
+     */
+    public String previewMove(int move, boolean enemySide, int targetSlot) {
+        if (!isOpen() || !transition.ready(clock.getAsLong())) return "请先触发遭遇并等待出场结束";
+        if (enginePending
+                || pendingEngineState != null
+                || settlementEvent != null
+                || capturing()
+                || switchTarget != null
+                || escaping
+                || activeAction != null && !animationPreview) return "请等待当前战斗操作结束";
+        if (!EncounterMoveAnimation.supports(move)) return "没有对应参考动画：" + move;
+        stopAnimationPreview();
+        var caster = enemySide ? encounter.wild() : encounter.player();
+        java.util.List<Pokemon> targets;
+        BwPokedex.Move metadata = null;
+        try {
+            metadata = dex.move(move);
+        } catch (IllegalArgumentException ignored) {
+        }
+        int targetType = metadata == null ? 0 : metadata.target();
+        if (targetType == 1 || targetType == 6 || targetType == 7 || targetType == 12)
+            targets = java.util.List.of(caster);
+        else if (enemySide) targets = java.util.List.of(encounter.player());
+        else if (targetSlot >= 0 && targetSlot < encounter.wilds().size())
+            targets = java.util.List.of(encounter.wilds().get(targetSlot));
+        else
+            targets =
+                    metadata != null && metadata.spread()
+                            ? encounter.wilds()
+                            : java.util.List.of(encounter.wild());
+        animationPreview = true;
+        previewPaused = false;
+        previewPauseTotal = 0;
+        previewMoveId = move;
+        previewStatus = "播放中";
+        hideCommandButtons();
+        if (choices != null) choices.close();
+        actionQueue.add(new BattleAction(caster, targets, move, !enemySide));
+        startNextAction();
+        return previewStatus;
+    }
+
+    public void pauseAnimationPreview() {
+        if (!animationPreview) return;
+        if (previewPaused) previewPauseTotal += clock.getAsLong() - previewPausedAt;
+        else previewPausedAt = clock.getAsLong();
+        previewPaused = !previewPaused;
+        previewStatus = previewPaused ? "已暂停" : "播放中";
+    }
+
+    public void stopAnimationPreview() {
+        if (!animationPreview) return;
+        animationPreview = false;
+        previewPaused = false;
+        stopMove();
+        actionQueue.clear();
+        activeAction = null;
+        previewStatus = "已停止";
+        if (isOpen()) mainMenu();
+    }
+
+    public boolean animationPreviewPlaying() {
+        return animationPreview;
+    }
+
+    public boolean animationPreviewPaused() {
+        return previewPaused;
+    }
+
+    public long animationPreviewElapsed() {
+        return Math.max(0, moveClock(clock.getAsLong()) - moveTextAt);
+    }
+
+    public String animationPreviewStatus() {
+        return previewStatus;
+    }
+
+    public int animationPreviewMove() {
+        return previewMoveId;
+    }
+
+    public int animationPreviewTargets() {
+        return encounter == null ? 0 : encounter.wilds().size();
+    }
+
+    public String animationPreviewContext() {
+        return environment + " / " + animationPreviewTargets() + "只敌方 / " + atmosphereSource.get();
+    }
+
+    private long moveClock(long now) {
+        return animationPreview ? (previewPaused ? previewPausedAt : now) - previewPauseTotal : now;
+    }
+
+    private boolean effectTestActive, effectTestingSession, skipEffectTestAnimations;
+    private String effectTestStatus = "尚未使用招式";
+    private long effectTestStartedAt;
+
+    public long effectTestElapsed() {
+        return Math.max(0, clock.getAsLong() - effectTestStartedAt);
+    }
+
+    public void effectTestingSession(boolean enabled) {
+        effectTestingSession = enabled;
+    }
+
+    public boolean effectTestPlaying() {
+        return effectTestActive;
+    }
+
+    public String effectTestStatus() {
+        return effectTestStatus;
+    }
+
+    public String testMoveEffect(int move, int targetSlot) {
+        return testMoveEffect(move, targetSlot, false);
+    }
+
+    public String testMoveEffect(int move, int targetSlot, boolean skipAnimations) {
+        if (!isOpen() || !transition.ready(clock.getAsLong())) return "请等待测试战斗出场结束";
+        if (engineState == null) return "需要实际战斗引擎，请重新发起招式测试";
+        if (engineState.ended()) return "战斗已结束，请生成新的随机怪";
+        if (engineState.forceSwitch()) return "我方已濒死，请先在战斗中换宠";
+        if (enginePending
+                || pendingEngineState != null
+                || activeAction != null
+                || settlementEvent != null
+                || switchTarget != null) return "请等待当前回合结束";
+        BwPokedex.Move metadata;
+        try {
+            metadata = dex.move(move);
+        } catch (IllegalArgumentException error) {
+            return "此编号没有可结算的招式数据";
+        }
+        stopAnimationPreview();
+        var action = BattleEngine.Action.testMove(move);
+        if (!metadata.automaticTarget()
+                && !metadata.spread()
+                && targetSlot >= 0
+                && targetSlot < encounter.wilds().size())
+            action = action.withTarget(encounter.wilds().get(targetSlot).id());
+        skipEffectTestAnimations = skipAnimations;
+        effectTestActive = true;
+        effectTestStartedAt = clock.getAsLong();
+        effectTestStatus = "回合结算中";
+        submitEngine(action, null);
+        return effectTestStatus;
+    }
+
     private final Widget owner;
 
     private final ClientResources resources;
@@ -82,13 +237,6 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
             parent.add(this);
         }
         requestKeyboardFocus();
-    }
-
-    private java.util.function.IntSupplier environmentControlEdge = () -> 0;
-
-    public void environmentControlEdge(java.util.function.IntSupplier edge) {
-        environmentControlEdge = edge;
-        invalidateLayout();
     }
 
     public void environmentControls(java.util.function.BiPredicate<Integer, Integer> controls) {
@@ -146,11 +294,43 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
             new java.util.ArrayDeque<>();
     private BattleState.Event settlementEvent;
     private BattleSettlementEffect settlementEffect;
+    private boolean settlementHealthPending;
     private long settlementStarted, settlementUntil;
     private String settlementText = "";
     private boolean settlementLogged;
     private final java.util.Map<String, java.util.Map<String, Integer>> presentedBoosts =
             new java.util.HashMap<>();
+    private final java.util.Map<String, Integer> presentedStatuses = new java.util.HashMap<>();
+
+    private static int statusIcon(String status) {
+        return switch (status) {
+            case "frz" -> 0;
+            case "par" -> 1;
+            case "brn" -> 2;
+            case "psn" -> 3;
+            case "slp" -> 4;
+            case "tox" -> 6;
+            default -> -1;
+        };
+    }
+
+    private void updateStatusHuds() {
+        if (playerHud != null) playerHud.updateStatus();
+        for (var hud : enemyHuds) hud.updateStatus();
+    }
+
+    /** Authoritative engine stages also cover entry abilities, Haze, Baton Pass and switches. */
+    private void syncBoosts(BattleState state) {
+        presentedBoosts.clear();
+        presentedStatuses.clear();
+        for (var pokemon : state.pokemon()) {
+            presentedBoosts.put(pokemon.id(), new java.util.HashMap<>(pokemon.boosts()));
+            presentedStatuses.put(pokemon.id(), statusIcon(pokemon.status()));
+        }
+        updateStatusHuds();
+        if (playerHud != null) playerHud.updateBoostTooltip();
+        for (var hud : enemyHuds) hud.updateBoostTooltip();
+    }
 
     private boolean testMode;
 
@@ -165,6 +345,13 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
         invalidateLayout();
     }
 
+    private final java.util.Set<String> faintedParticipants = new java.util.HashSet<>();
+
+    private void syncFainted(BattleState state) {
+        faintedParticipants.clear();
+        for (var p : state.pokemon()) if (p.hp() <= 0) faintedParticipants.add(p.id());
+    }
+
     private HealthHud healthHud(String id) {
         if (playerHud != null && playerHud.pokemon.id().equals(id)) return playerHud;
         return enemyHuds.stream().filter(h -> h.pokemon.id().equals(id)).findFirst().orElse(null);
@@ -173,6 +360,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
     private void stopSettlement() {
         if (settlementEffect != null) settlementEffect.close();
         settlementEffect = null;
+        settlementHealthPending = false;
         settlementEvent = null;
         settlementText = "";
     }
@@ -182,20 +370,38 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
         while (!engineEvents.isEmpty()) {
             var event = engineEvents.remove();
             var target = battlePokemon(event.targetId());
-            if (event.type().equals("MOVE")) {
+            if (event.type().equals("MOVE") || event.type().equals("CHARGE")) {
+                chargingMoveAnimation = event.type().equals("CHARGE");
                 suppressMoveAnimation = event.animationSuppressed();
                 var caster = battlePokemon(event.casterId());
                 if (caster != null && target != null)
                     actionQueue.add(
                             new BattleAction(
                                     caster,
-                                    java.util.List.of(target),
+                                    event.targetIds().isEmpty()
+                                            ? java.util.List.of(target)
+                                            : event.targetIds().stream()
+                                                    .map(this::battlePokemon)
+                                                    .filter(java.util.Objects::nonNull)
+                                                    .toList(),
                                     event.move(),
                                     encounter.party().stream()
                                             .anyMatch(p -> p.id().equals(caster.id()))));
                 return false;
             }
             if (target == null) continue;
+            if (event.type().equals("STATUS") || event.type().equals("CURE_STATUS")) {
+                presentedStatuses.put(
+                        target.id(),
+                        event.type().equals("STATUS") ? statusIcon(event.status()) : -1);
+                updateStatusHuds();
+                continue;
+            }
+            if (event.type().equals("FAINT")) {
+                faintedParticipants.add(target.id());
+                invalidateLayout();
+                continue;
+            }
             var hud = healthHud(target.id());
             long now = clock.getAsLong();
             settlementText = "";
@@ -217,9 +423,35 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
                                                 (long) settlementText.length()
                                                         * messageCharacterDelay);
                     }
-                    hud.healthAnimation.target(event.hp(), event.maxHp());
+                    boolean trapping =
+                            event.type().equals("DAMAGE") && !event.direct() && event.move() > 0;
+                    if (trapping) {
+                        boolean wild =
+                                encounter.wilds().stream()
+                                        .anyMatch(p -> p.id().equals(target.id()));
+                        settlementText =
+                                dex.trappingDamageMessage(name(target), wild, event.move());
+                        settlementUntil =
+                                now
+                                        + Math.max(
+                                                1250L,
+                                                (long) settlementText.length()
+                                                        * messageCharacterDelay);
+                        if (!skipEffectTestAnimations) {
+                            settlementEffect =
+                                    BattleSettlementEffect.trapping(
+                                            resources,
+                                            images,
+                                            combatPosition(target),
+                                            settlementUntil,
+                                            event.move());
+                            settlementHealthPending = true;
+                        }
+                    }
+                    if (!settlementHealthPending)
+                        hud.healthAnimation.target(event.hp(), event.maxHp());
                     hud.updateHealth(now);
-                    if (healing)
+                    if (healing && !skipEffectTestAnimations)
                         settlementEffect =
                                 BattleSettlementEffect.healing(
                                         resources, images, combatPosition(target), now);
@@ -247,13 +479,14 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
                                     + Math.max(
                                             1250L,
                                             (long) settlementText.length() * messageCharacterDelay);
-                    settlementEffect =
-                            BattleSettlementEffect.stat(
-                                    resources,
-                                    images,
-                                    combatPosition(target),
-                                    settlementUntil,
-                                    amount > 0);
+                    if (!skipEffectTestAnimations)
+                        settlementEffect =
+                                BattleSettlementEffect.stat(
+                                        resources,
+                                        images,
+                                        combatPosition(target),
+                                        settlementUntil,
+                                        amount > 0);
                 } else if (event.type().equals("DISABLE_START")
                         || event.type().equals("DISABLE_END")
                         || event.type().equals("MOVE_DISABLED")) {
@@ -261,6 +494,17 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
                             encounter.wilds().stream().anyMatch(p -> p.id().equals(target.id()));
                     settlementText =
                             dex.disableMessage(name(target), wild, event.move(), event.type());
+                    settlementUntil =
+                            now
+                                    + Math.max(
+                                            1250L,
+                                            (long) settlementText.length() * messageCharacterDelay);
+                } else if (event.type().equals("CRIT")) {
+                    boolean wild =
+                            encounter.wilds().stream().anyMatch(p -> p.id().equals(target.id()));
+                    settlementText =
+                            dex.criticalHitMessage(
+                                    name(target), wild, encounter.wilds().size() > 1);
                     settlementUntil =
                             now
                                     + Math.max(
@@ -283,6 +527,17 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
                 com.badlogic.gdx.Gdx.app.error(
                         "battle", "Cannot load reference settlement animation", error);
             }
+            if (skipEffectTestAnimations) {
+                if (hud != null
+                        && (event.type().equals("DAMAGE")
+                                || event.type().equals("HEAL")
+                                || event.type().equals("SET_HP"))) {
+                    hud.healthAnimation.snap(event.hp(), event.maxHp());
+                    hud.updateHealth(now);
+                }
+                if (!settlementText.isEmpty()) battleMessages.accept(settlementText);
+                continue;
+            }
             settlementEvent = event;
             settlementStarted = now;
             activeAction = null;
@@ -294,11 +549,23 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
 
     private void updateSettlement(long now) {
         if (settlementEvent == null) return;
+        if (now >= settlementUntil + 750
+                && (settlementEvent.type().equals("BOOST")
+                        || settlementEvent.type().equals("UNBOOST")
+                        || settlementEvent.type().equals("SET_BOOST"))) {
+            var targetHud = healthHud(settlementEvent.targetId());
+            if (targetHud != null) targetHud.updateBoostTooltip();
+        }
         if (!settlementLogged && now >= settlementUntil) {
             settlementLogged = true;
             if (!settlementText.isEmpty()) battleMessages.accept(settlementText);
         }
         var hud = healthHud(settlementEvent.targetId());
+        if (settlementHealthPending && settlementEffect != null && settlementEffect.complete(now)) {
+            settlementHealthPending = false;
+            if (hud != null)
+                hud.healthAnimation.target(settlementEvent.hp(), settlementEvent.maxHp());
+        }
         if ((hud == null || hud.healthAnimation.complete())
                 && now >= settlementUntil
                 && (settlementEffect == null || settlementEffect.complete(now))) {
@@ -310,6 +577,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
     private BattleState engineState, pendingEngineState;
     private boolean enginePending, engineVisualSwitch;
     private int engineVersion;
+    private int loggedEngineTurn;
     private String battleTrainer = "";
     private java.util.function.Function<
                     BattleEngine.Action, java.util.concurrent.CompletionStage<BattleState>>
@@ -327,13 +595,15 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
             java.util.function.Consumer<Throwable> error) {
         engineVersion++;
         engineState = state;
+        loggedEngineTurn = 0;
         engineChoose = choose;
         engineClose = close;
         engineError = error;
         pendingEngineState = null;
         enginePending = false;
         engineEvents.clear();
-        presentedBoosts.clear();
+        syncBoosts(state);
+        syncFainted(state);
         stopSettlement();
     }
 
@@ -360,8 +630,25 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
                                             enginePending = false;
                                             if (error != null) {
                                                 mainMenu();
-                                                engineError.accept(error);
+                                                if (effectTestActive) {
+                                                    effectTestActive = false;
+                                                    effectTestStatus = "结算失败：" + error.getMessage();
+                                                } else engineError.accept(error);
                                                 return;
+                                            }
+                                            if (engineState.turn() > loggedEngineTurn
+                                                    && action.type() != BattleEngine.Type.FORFEIT) {
+                                                loggedEngineTurn = engineState.turn();
+                                                if (battleTurns != null)
+                                                    battleTurns.accept(loggedEngineTurn);
+                                                else
+                                                    battleMessages.accept(
+                                                            resources
+                                                                    .strings()
+                                                                    .format(
+                                                                            5075,
+                                                                            Integer.toString(
+                                                                                    loggedEngineTurn)));
                                             }
                                             pendingEngineState = state;
                                             actionQueue.clear();
@@ -380,9 +667,16 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
     }
 
     private void finishEngineTurn() {
+        skipEffectTestAnimations = false;
+        if (effectTestActive) {
+            effectTestActive = false;
+            effectTestStatus = "回合完成";
+        }
         var state = pendingEngineState;
         pendingEngineState = null;
         engineState = state;
+        syncBoosts(state);
+        syncFainted(state);
         encounter = state.apply(encounter);
         removeChild(playerHud);
         playerHud = new HealthHud(encounter.player(), true);
@@ -429,6 +723,12 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
     }
 
     private EncounterMoveAnimation.Combatant animationActor(Pokemon pokemon) {
+        if (settlementEffect != null
+                && settlementEvent != null
+                && settlementEvent.targetId().equals(pokemon.id())) {
+            var animation = settlementEffect.animation(clock.getAsLong());
+            if (animation != null) return animation.enemy;
+        }
         if (moveAnimation == null || activeAction == null) return null;
         if (pokemon.id().equals(activeAction.caster().id())) return moveAnimation.own;
         return activeAction.targets().stream().anyMatch(p -> p.id().equals(pokemon.id()))
@@ -542,6 +842,21 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
         return panel.getBottom();
     }
 
+    private java.util.function.IntConsumer battleTurns;
+
+    public void onBattleTurn(java.util.function.IntConsumer listener) {
+        battleTurns = listener;
+    }
+
+    public java.util.List<String> battleNames() {
+        if (encounter == null) return java.util.List.of();
+        return java.util.stream.Stream.concat(
+                        encounter.party().stream(), encounter.wilds().stream())
+                .map(this::name)
+                .distinct()
+                .toList();
+    }
+
     public void onBattleMessage(java.util.function.Consumer<String> listener) {
         battleMessages = java.util.Objects.requireNonNull(listener);
     }
@@ -552,6 +867,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
     private long moveTextAt, moveAnimationAt;
     private boolean moveTextLogged;
     private boolean suppressMoveAnimation;
+    private boolean chargingMoveAnimation;
 
     private final Widget field =
             new Widget() {
@@ -790,6 +1106,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
         stopCapture();
         stopMove();
         actionQueue.clear();
+        faintedParticipants.clear();
         activeAction = null;
         stopSwitch();
         activeSpawnAt = -1;
@@ -968,6 +1285,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
     }
 
     private void capturePokemon(Selection choice) {
+        if (effectTestingSession) return;
         if (capturing()) return;
         if (encounter.horde() && choice.pokemonId().isEmpty()) {
             chooseTarget(
@@ -1182,16 +1500,31 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
             stopCapture();
             mainMenu();
         }
-        if (activeAction != null && now >= moveAnimationAt) {
+        long moveNow = moveClock(now);
+        if (activeAction != null && moveNow >= moveAnimationAt) {
             // BattleCombatLayout.wJ completes its text task before the animation task.
             if (!moveTextLogged) {
                 moveTextLogged = true;
-                battleMessages.accept(moveText);
+                battleMessages.accept(moveLogText());
             }
-            if (moveAnimation != null) moveAnimation.update(now);
-            else startNextAction();
+            if (moveAnimation != null) {
+                try {
+                    moveAnimation.update(moveNow);
+                } catch (RuntimeException failure) {
+                    if (!animationPreview) throw failure;
+                    stopAnimationPreview();
+                    previewStatus =
+                            "播放失败："
+                                    + failure.getClass().getSimpleName()
+                                    + ": "
+                                    + failure.getMessage();
+                    com.badlogic.gdx.Gdx.app.error("Animation test", previewStatus, failure);
+                }
+            } else startNextAction();
         }
-        if (moveAnimation != null && now >= moveAnimationAt && moveAnimation.complete(now)) {
+        if (moveAnimation != null
+                && moveNow >= moveAnimationAt
+                && moveAnimation.complete(moveNow)) {
             stopMove();
             startNextAction();
         }
@@ -1247,7 +1580,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
                             : escaping
                                     ? now - escapedAt
                                     : usingMove
-                                            ? now
+                                            ? (settlementEvent != null ? now : moveNow)
                                                     - (settlementEvent != null
                                                             ? settlementStarted
                                                             : moveTextAt)
@@ -1280,6 +1613,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
         for (var hud : enemyHuds)
             hud.setVisible(
                     visible
+                            && !faintedParticipants.contains(hud.pokemon.id())
                             && (ready
                                     || escaping
                                     || !encounterMessage
@@ -1478,7 +1812,8 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
                             settlementStarted
                                     + Math.max(1250L, (long) text.length() * messageCharacterDelay);
                     settlementLogged = false;
-                } else submitEngine(BattleEngine.Action.move(slot), null);
+                } else
+                    chooseEngineMove(BattleEngine.Action.move(slot), selected == null ? 165 : move);
             }
             return;
         }
@@ -1489,8 +1824,17 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
     private void playSpecifiedMove(int id) {
         if (!choosingMove || enginePending || pendingEngineState != null || moveAnimation != null)
             return;
-        if (engineState != null) submitEngine(BattleEngine.Action.testMove(id), null);
+        if (engineState != null) chooseEngineMove(BattleEngine.Action.testMove(id), id);
         else queueSelectedMove(id);
+    }
+
+    private void chooseEngineMove(BattleEngine.Action action, int move) {
+        var data = dex.move(move);
+        if (encounter.horde() && !data.spread() && !data.automaticTarget()) {
+            chooseTarget(
+                    target -> submitEngine(action.withTarget(target.id()), null),
+                    this::chooseMoves);
+        } else submitEngine(action, null);
     }
 
     private void queueSelectedMove(int id) {
@@ -1557,19 +1901,30 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
         if (pendingEngineState != null && actionQueue.isEmpty() && nextEngineEvent()) return;
         activeAction = actionQueue.poll();
         if (activeAction == null) {
+            if (animationPreview) {
+                animationPreview = false;
+                previewPaused = false;
+                previewStatus = "播放完成";
+            }
             if (pendingEngineState != null) finishEngineTurn();
             else mainMenu();
             return;
         }
         moveText = dex.moveUsedMessage(name(activeAction.caster()), activeAction.move());
-        moveTextAt = clock.getAsLong();
+        moveTextAt = moveClock(clock.getAsLong());
         // RichTextBuffer defaults to 1250 ms, or longer if typing has not finished.
         moveAnimationAt =
-                moveTextAt + Math.max(1250L, (long) moveText.length() * messageCharacterDelay);
+                moveTextAt
+                        + (skipEffectTestAnimations
+                                ? 0
+                                : Math.max(
+                                        1250L, (long) moveText.length() * messageCharacterDelay));
         moveTextLogged = false;
-        if (engineState != null
-                && (suppressMoveAnimation || !EncounterMoveAnimation.supports(activeAction.move())))
-            return;
+        if (!animationPreview
+                && engineState != null
+                && (skipEffectTestAnimations
+                        || suppressMoveAnimation
+                        || !EncounterMoveAnimation.supports(activeAction.move()))) return;
         try {
             moveAnimation =
                     new EncounterMoveAnimation(
@@ -1582,11 +1937,58 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
                             combatPosition(activeAction.caster()),
                             activeAction.targets().stream().map(this::combatPosition).toList(),
                             activeAction.playerSide());
+            if (!animationPreview && engineState != null)
+                moveAnimation.enginePhase(chargingMoveAnimation);
         } catch (IOException | RuntimeException error) {
             com.badlogic.gdx.Gdx.app.error(
                     "Encounter", "Unable to load reference move animation", error);
+            if (animationPreview) {
+                previewStatus = "加载失败：" + error.getMessage();
+                animationPreview = false;
+                previewPaused = false;
+                actionQueue.clear();
+            }
             startNextAction();
         }
+    }
+
+    /** BattleFaintSlotModifier: append authoritative direct HP loss percentages to chat details. */
+    private String moveLogText() {
+        if (pendingEngineState == null) return moveText;
+        var hp = new java.util.HashMap<String, Integer>();
+        var losses = new java.util.LinkedHashMap<String, Double>();
+        for (var event : engineEvents) {
+            if (event.type().equals("MOVE") || event.type().equals("CHARGE")) break;
+            if (!java.util.Set.of("DAMAGE", "HEAL", "SET_HP").contains(event.type())) continue;
+            var pokemon = battlePokemon(event.targetId());
+            if (pokemon == null) continue;
+            int before =
+                    hp.computeIfAbsent(
+                            pokemon.id(),
+                            id -> {
+                                var hud = healthHud(id);
+                                return hud == null ? pokemon.hp() : hud.healthAnimation.hp();
+                            });
+            hp.put(pokemon.id(), event.hp());
+            if (event.type().equals("DAMAGE")
+                    && event.direct()
+                    && event.maxHp() > 0
+                    && before > event.hp())
+                losses.merge(
+                        pokemon.id(), (before - event.hp()) * 100d / event.maxHp(), Double::sum);
+        }
+        if (losses.isEmpty()) return moveText;
+        var details = new StringBuilder(moveText).append(" ( ");
+        var number = java.text.NumberFormat.getNumberInstance();
+        number.setMaximumFractionDigits(3);
+        for (var entry : losses.entrySet()) {
+            if (details.charAt(details.length() - 1) != ' ') details.append(" / ");
+            details.append(name(battlePokemon(entry.getKey())))
+                    .append(" -")
+                    .append(number.format(entry.getValue()))
+                    .append('%');
+        }
+        return details.append(" )").toString();
     }
 
     private void stopMove() {
@@ -1613,8 +2015,12 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
     }
 
     public void dismiss() {
+        skipEffectTestAnimations = false;
+        effectTestActive = false;
+        stopAnimationPreview();
         engineEvents.clear();
         presentedBoosts.clear();
+        presentedStatuses.clear();
         stopSettlement();
         if (testMovePicker != null) testMovePicker.closePopup();
         engineVersion++;
@@ -1669,8 +2075,6 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
                                 Math.max(400, (int) Math.ceil(getHeight() * ratio))));
         int x = getX() + (getWidth() - w) / 2,
                 y = getY() + Math.min(50, Math.max(0, getHeight() - h - 115));
-        int edge = environmentControlEdge.getAsInt();
-        if (edge > 0 && getRight() - edge >= w) x = Math.max(x, edge);
         fieldWidth = w;
         fieldHeight = h;
         float expansion = transition.expansion(clock.getAsLong());
@@ -1707,6 +2111,8 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
         specifiedMove.setSize(140, 30);
         // BattlePokemonHealthHud.V6 applies an additional -55 for the normal PC self HUD.
         playerHud.setPosition(x + w - playerHud.getWidth(), y + h - 184 - 55);
+        int groupBoostHeight =
+                enemyHuds.stream().mapToInt(HealthHud::boostRowsHeight).max().orElse(0);
         for (var hud : enemyHuds) {
             if (encounter.horde()) {
                 int slot = hud.pokemon.position();
@@ -1714,7 +2120,10 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
                 // Official PC capture: three headers above, two below; native compact HUD width.
                 hud.setPosition(
                         x + w / 2 - 130 - 10 + EncounterFormation.hudColumn(slot) * 280,
-                        y + 60 + EncounterFormation.hudRow(slot) * 50);
+                        y
+                                + Math.max(60, groupBoostHeight + 26)
+                                + EncounterFormation.hudRow(slot)
+                                        * Math.max(50, groupBoostHeight + 63));
             } else hud.setPosition(x, getY() + 140);
         }
         party.setPosition(x + w - 212, getY() + h - 100);
@@ -1725,6 +2134,12 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
 
     private void paintField() {
         if (encounter == null) return;
+        var fieldAnimation =
+                moveAnimation != null
+                        ? moveAnimation
+                        : settlementEffect == null
+                                ? null
+                                : settlementEffect.animation(clock.getAsLong());
         long elapsed = transition.entranceTime(clock.getAsLong());
         // Sprite composition uses its own FBO. Finish it before entering the battle FBO.
         var wildImages = encounter.wilds().stream().map(p -> pokemonImage(p, false)).toList();
@@ -1737,7 +2152,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
                         fieldWidth,
                         fieldHeight,
                         elapsed,
-                        moveAnimation,
+                        fieldAnimation,
                         () -> {
                             var order = new java.util.ArrayList<Integer>();
                             for (int i = 0; i < encounter.wilds().size(); i++) order.add(i);
@@ -1871,6 +2286,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
     }
 
     private void drawPokemon(Pokemon pokemon, boolean own, Image image) {
+        if (engineState != null && faintedParticipants.contains(pokemon.id())) return;
         var actor = animationActor(pokemon);
         if (actor != null && actor.opacity == 0) return;
         long elapsed = transition.entranceTime(clock.getAsLong());
@@ -1970,6 +2386,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
 
         private void updateHealth(long now) {
             healthAnimation.update(now);
+            updateStatus();
             health.setText(
                     own || testMode ? healthAnimation.hp() + " / " + healthAnimation.maxHp() : "");
         }
@@ -1977,6 +2394,95 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
         private final boolean own;
 
         private final Label title = new Label(), health = new Label();
+        private final Label[] boostLabels = new Label[7];
+        private final Widget statusIcon =
+                new Widget() {
+                    @Override
+                    protected void paintWidget(GUI gui) {
+                        int index = presentedStatuses.getOrDefault(pokemon.id(), -1);
+                        if (index >= 0) {
+                            var icon = images.atlas("status_ailment_large", index);
+                            if (icon != null)
+                                icon.draw(getAnimationState(), getX(), getY(), 16, 16);
+                        }
+                    }
+                };
+
+        /** BattlePokemonHealthHud.z2 / up: native icon and localized hover text, left of name. */
+        private void updateStatus() {
+            int index = presentedStatuses.getOrDefault(pokemon.id(), -1);
+            int textId =
+                    switch (index) {
+                        case 0 -> 5223;
+                        case 1 -> 5224;
+                        case 2 -> 5222;
+                        case 3 -> 5221;
+                        case 4 -> 5220;
+                        case 6 -> 5225;
+                        default -> 0;
+                    };
+            statusIcon.setVisible(textId != 0 && healthAnimation.hp() > 0);
+            statusIcon.setTooltipContent(textId == 0 ? null : resources.strings().get(textId));
+        }
+
+        @Override
+        public boolean isInside(int x, int y) {
+            return super.isInside(x, y)
+                    || title.isInside(x, y)
+                    || health.isInside(x, y)
+                    || statusIcon.isVisible() && statusIcon.isInside(x, y)
+                    || java.util.Arrays.stream(boostLabels)
+                            .anyMatch(
+                                    label ->
+                                            label != null
+                                                    && label.isVisible()
+                                                    && label.isInside(x, y));
+        }
+
+        /** PokemonStatTextFormatter.vq / gc_2.mi: signed nonzero stages in native order. */
+        private void updateBoostTooltip() {
+            String[] keys = {"atk", "def", "spa", "spd", "spe", "evasion", "accuracy"};
+            int[] labels = {501, 502, 504, 505, 503, 507, 506};
+            String[] fallback = {
+                "ATTACK", "DEFENSE", "SP. ATTACK", "SP. DEFENSE", "SPEED", "EVASION", "ACCURACY"
+            };
+            var boosts = presentedBoosts.getOrDefault(pokemon.id(), java.util.Map.of());
+            var text = new StringBuilder(title.getText());
+            boolean first = true;
+            for (int i = 0; i < keys.length; i++) {
+                int value = boosts.getOrDefault(keys[i], 0);
+                var label = boostLabels[i];
+                String statName = resources.strings().getOrDefault(labels[i], fallback[i]);
+                if (label != null) {
+                    label.setVisible(value != 0);
+                    if (value != 0) {
+                        String theme = value > 0 ? "/encounter-stat-boost" : "/encounter-stat-drop";
+                        if (!theme.equals(label.getTheme())) {
+                            label.setTheme(theme);
+                            label.reapplyTheme();
+                        }
+                        label.setText((value > 0 ? "+" : "") + value + " " + statName);
+                    }
+                }
+                if (value == 0) continue;
+                if (first) {
+                    text.append("\n");
+                    first = false;
+                }
+                text.append("\n")
+                        .append(resources.strings().getOrDefault(labels[i], fallback[i]))
+                        .append(": ")
+                        .append(value > 0 ? "+" : "")
+                        .append(value);
+            }
+            String tooltip = text.toString();
+            if (!tooltip.equals(title.getTooltipContent())) {
+                title.setTooltipContent(tooltip);
+                setTooltipContent(tooltip);
+                invalidateLayout();
+                EncounterWindow.this.invalidateLayout();
+            }
+        }
 
         HealthHud(Pokemon p, boolean own) {
             this.pokemon = p;
@@ -1993,6 +2499,62 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
                 add(label);
             }
             health.setTheme("/encounter-health");
+            statusIcon.setTheme("");
+            statusIcon.setCanAcceptKeyboardFocus(false);
+            statusIcon.setTooltipDelay(100);
+            add(statusIcon);
+            updateStatus();
+            for (int i = 0; i < boostLabels.length; i++) {
+                var label = new Label();
+                label.setTheme("/encounter-stat-boost");
+                label.setCanAcceptKeyboardFocus(false);
+                label.setVisible(false);
+                boostLabels[i] = label;
+                add(label);
+            }
+            title.setTooltipDelay(100);
+            setTooltipDelay(100);
+            updateBoostTooltip();
+        }
+
+        private int boostRowsHeight() {
+            int width =
+                    own || encounter.horde()
+                            ? getWidth() - 40
+                            : Math.max(40, EncounterWindow.this.getRight() - getRight() - 16);
+            int x = 0, total = 0, row = 0;
+            for (var label : boostLabels)
+                if (label.isVisible()) {
+                    int w = label.getPreferredWidth(), h = label.getPreferredHeight();
+                    if (x > 0 && x + w > width) {
+                        total += row + 3;
+                        x = 0;
+                        row = 0;
+                    }
+                    row = Math.max(row, h);
+                    x += w + 3;
+                }
+            return total + row;
+        }
+
+        private void layoutBoostLabels(boolean floating) {
+            boolean above = own || floating;
+            int left = above ? title.getX() : getRight() + 8;
+            int limit = above ? getX() + getWidth() : EncounterWindow.this.getRight() - 8;
+            int x = left, y = above ? title.getY() - boostRowsHeight() - 4 : getY() - 4, row = 0;
+            for (var label : boostLabels)
+                if (label.isVisible()) {
+                    int width = label.getPreferredWidth(), height = label.getPreferredHeight();
+                    if (x > left && x + width > limit) {
+                        x = left;
+                        y += row + 3;
+                        row = 0;
+                    }
+                    label.setPosition(x, y);
+                    label.setSize(width, height);
+                    x += width + 3;
+                    row = Math.max(row, height);
+                }
         }
 
         @Override
@@ -2005,9 +2567,12 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
                                     : own ? 40 : 45),
                     getY() - 22);
             title.setSize(title.getPreferredWidth(), 20);
+            statusIcon.setPosition(title.getX() - 24, getY() - 15);
+            statusIcon.setSize(16, 16);
             health.setPosition(
                     getX() + (floating ? 22 : own ? 40 : 45), getY() + (floating ? 19 : 13));
             health.setSize(floating ? getWidth() - 44 : 220, 20);
+            layoutBoostLabels(floating);
         }
 
         @Override

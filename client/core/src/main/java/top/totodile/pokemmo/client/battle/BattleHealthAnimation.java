@@ -17,6 +17,11 @@ final class BattleHealthAnimation {
         started = false;
     }
 
+    void snap(int hp, int maxHp) {
+        target(hp, maxHp);
+        current = target;
+    }
+
     void update(long now) {
         if (current == target) return;
         int steps;

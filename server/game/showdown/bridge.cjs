@@ -2,6 +2,7 @@
 'use strict';
 const {BattleStream, Dex, Teams} = require('pokemon-showdown');
 const readline = require('node:readline');
+const {HordeBattleStream} = require('./horde.cjs');
 const natureIds=['hardy','lonely','brave','adamant','naughty','bold','docile','relaxed','impish','lax','timid','hasty','serious','jolly','naive','modest','mild','quiet','bashful','rash','calm','gentle','sassy','careful','quirky'];
 const statKeys = ['hp','atk','def','spa','spd','spe'];
 const nextTick = () => new Promise(resolve => setImmediate(resolve));
@@ -33,13 +34,14 @@ class ShowdownSession {
   async write(text) { await this.stream.write(text);await nextTick(); }
   async start(input) {
     if (this.stream) throw new Error('Battle already started');
-    if(input.wilds.length !== 1) throw new Error('Showdown pilot supports singles only');
+    if(![1,3,5].includes(input.wilds.length)) throw new Error('Showdown supports 1, 3 or 5 wild Pokemon');
     const party=input.party.filter(p=>!p.egg);
     const lead=party.find(p=>p.id===input.player.id);
     if(!lead || lead.hp<=0) throw new Error('No living lead Pokemon');
     this.inputTeams=[[lead,...party.filter(p=>p.id!==lead.id)],input.wilds];
     const sets=this.inputTeams.map(team=>team.map((p,i)=>({...toSet(p),name:`slot${i}`})));
-    this.stream=new BattleStream({keepAlive:true,noCatch:true});
+    this.stream=input.wilds.length===1 ? new BattleStream({keepAlive:true,noCatch:true})
+      : new HordeBattleStream(input.wilds.length,{keepAlive:true,noCatch:true});
     this.reader=(async()=>{for await(const block of this.stream)this.output.push(block);})();
     await this.write('>start '+JSON.stringify({formatid:'gen5customgame@@@!Team Preview',seed:input.seed}));
     // Player data is encoded with Teams.pack, never inserted as user-controlled stream commands.
@@ -50,7 +52,9 @@ class ShowdownSession {
       for(let i=0;i<s.pokemon.length;i++){
         const pokemon=s.pokemon[i], original=this.inputTeams[side][i];
         pokemon.adapterId=original.id;
-        pokemon.hp=Math.min(original.hp,pokemon.maxhp);pokemon.fainted=pokemon.hp===0;
+        // Explicit development fixture only; ordinary encounter stats remain simulator-derived.
+        if(side===1 && input.testEnemyHp===999999){pokemon.maxhp=999999;pokemon.baseMaxhp=999999;}
+        pokemon.hp=side===1 && input.testEnemyHp===999999 ? 999999 : Math.min(original.hp,pokemon.maxhp);pokemon.fainted=pokemon.hp===0;
         const condition=statusName(original.status);
         if(condition) pokemon.setStatus(condition,pokemon,undefined,true);
         for(let slot=0;slot<pokemon.moveSlots.length;slot++){
@@ -63,13 +67,20 @@ class ShowdownSession {
       }
       s.pokemonLeft=s.pokemon.filter(p=>!p.fainted).length;
     }
+    if(input.testEnemyHp===999999){
+      // Test fixture: cancel chosen opponent actions using the simulator's own queue API.
+      // Status, weather, abilities and residual events still resolve normally.
+      this.stream.battle.onEvent('BeforeTurn',this.stream.battle.format,function(){
+        for(const pokemon of this.sides[1].active)if(pokemon)this.queue.cancelAction(pokemon);
+      });
+    }
     this.stream.battle.makeRequest('move');await nextTick();
     return this.result();
   }
   async choose(action) {
     if(!this.stream || this.stream.battle.ended)throw new Error('No active battle');
     const side=this.stream.battle.sides[0];
-    if(action.type==='TEST_MOVE')return this.testMove(action.index);
+    if(action.type==='TEST_MOVE')return this.testMove(action.index,action.targetId);
     if(action.type==='MOVE'){
       if(!Number.isInteger(action.index)||action.index<0||action.index>3)throw new Error('Invalid move slot');
       const struggle=side.activeRequest?.active?.[0]?.moves?.[0]?.id==='struggle';
@@ -77,7 +88,7 @@ class ShowdownSession {
       const id=original.moves[action.index];
       const slot=side.active[0].moveSlots.findIndex(m=>Dex.moves.get(m.id).num===id);
       if(slot<0&&!struggle)throw new Error('Empty move slot');
-      await this.write('>p1 move '+(struggle?1:slot+1));
+      await this.write('>p1 move '+(struggle?1:slot+1)+this.targetChoice(struggle?165:id,action.targetId));
     }else if(action.type==='SWAP'){
       const slot=side.pokemon.findIndex(p=>p.adapterId===action.pokemonId);
       if(slot<0)throw new Error('Unknown party member');
@@ -95,6 +106,17 @@ class ShowdownSession {
     }
     return this.result();
   }
+  targetChoice(moveId,targetId){
+    if(!targetId)return '';
+    const battle=this.stream.battle,source=battle.sides[0].active[0];
+    const target=battle.getAllActive().find(p=>p.adapterId===targetId);
+    if(!target||target.fainted||!target.hp)throw new Error('Target is not a living active Pokemon');
+    const move=lookup(Dex.moves,moveId,'move');
+    if(!battle.actions.targetTypeChoices(move.target))throw new Error('This move does not accept a selected target');
+    const loc=source.getLocOf(target);
+    if(!battle.validTargetLoc(loc,source,move.target))throw new Error('Illegal move target');
+    return ' '+loc;
+  }
   // Restore availability through Showdown's own DisableMove events (Battle.nextTurn),
   // including move-local restrictions, after swapping the test-only slot array.
   refreshMoveAvailability(pokemon){
@@ -109,7 +131,7 @@ class ShowdownSession {
     }
   }
   // A temporary extra move slot uses normal Showdown choices/turn resolution, not direct runMove.
-  async testMove(id){
+  async testMove(id,targetId){
     const battle=this.stream.battle,side=battle.sides[0],pokemon=side.active[0];
     if(side.requestState!=='move'||!pokemon||pokemon.fainted)throw new Error('A living active Pokemon must be choosing a move');
     if(!Number.isInteger(id)||id<=0)throw new Error('Invalid test move ID');
@@ -123,7 +145,13 @@ class ShowdownSession {
     this.refreshMoveAvailability(pokemon);
     this.stream.battle.makeRequest('move');await nextTick();
     try{
-      await this.write('>p1 move '+pokemon.moveSlots.length);
+      // Two-turn/recharge requests expose a single forced move, not the temporary slot array.
+      // Choose from the engine request so a fifth transient slot never leaks into a locked turn.
+      const requestMoves=side.activeRequest?.active?.[0]?.moves||[];
+      const locked=!!pokemon.getLockedMove();
+      const requestedIndex=locked?0:requestMoves.findIndex(entry=>entry.id===move.id);
+      if(requestedIndex<0)throw new Error('Test move is not available in the current engine request');
+      await this.write('>p1 move '+(requestedIndex+1)+(locked?'':this.targetChoice(id,targetId)));
       const errors=this.output.flatMap(x=>x.split('\n')).filter(x=>x.startsWith('|error|'));
       if(errors.length){this.output=[];throw new Error(errors.join('\n'));}
       for(let guard=0;guard<8&&!battle.ended;guard++){
@@ -145,7 +173,7 @@ class ShowdownSession {
     const battle=this.stream.battle;
     const pokemon=battle.sides.flatMap((side,sideIndex)=>side.pokemon.map(p=>({
       id:p.adapterId,side:sideIndex,active:side.active.includes(p),hp:p.hp,maxHp:p.maxhp,
-      status:p.status,stats:statKeys.map(k=>k==='hp'?p.maxhp:p.storedStats[k]),
+      status:p.status,boosts:{...p.boosts},stats:statKeys.map(k=>k==='hp'?p.maxhp:p.storedStats[k]),
       moves:side.active.includes(p)&&side.activeRequest?.active?.[0]?.moves?.[0]?.id==='struggle'
         ? [{id:165,pp:1,maxPp:1,disabled:false,disabledSource:''}]
         : p.moveSlots.map(m=>({id:Dex.moves.get(m.id).num,pp:m.pp,maxPp:m.maxpp,
@@ -164,17 +192,26 @@ class ShowdownSession {
     const identify=ident=>{
       const side=ident?.startsWith('p1')?0:ident?.startsWith('p2')?1:-1;
       if(side<0)return '';
+      if(!ident.includes(': '))return battle.sides[side].active[ident.charCodeAt(2)-97]?.adapterId||'';
       return battle.sides[side].pokemon.find(p=>p.name===ident.split(': ').slice(1).join(': '))?.adapterId||'';
     };
     const events=[];
     for(const line of logs){
       const f=line.split('|'),kind=f[1],targetId=identify(f[2]);
-      if(kind==='move')events.push({type:'MOVE',casterId:targetId,targetId:identify(f[4])||targetId,move:Dex.moves.get(f[3]).num});
+      if(kind==='move'){
+        const target=identify(f[4])||targetId;
+        const spread=f.find(value=>value.startsWith('[spread] '));
+        const targetIds=spread?spread.slice(9).split(',').map(identify).filter(Boolean):[target];
+        events.push({type:'MOVE',casterId:targetId,targetId:target,targetIds,move:Dex.moves.get(f[3]).num});
+      }
       else if(['-damage','-heal','-sethp'].includes(kind)){
         const addHp=(ident,condition)=>{
           const id=identify(ident),p=pokemon.find(p=>p.id===id);if(!p)return;
           const health=condition.split(' ')[0].split('/');
+          const trappingMove=f.includes('[partiallytrapped]')
+            ?Dex.moves.get((f.find(value=>value.startsWith('[from] move: '))||'').slice(13)).num||0:0;
           events.push({type:kind==='-heal'?'HEAL':kind==='-sethp'?'SET_HP':'DAMAGE',targetId:id,
+            move:trappingMove,
             hp:Number(health[0]),maxHp:health.length>1?Number(health[1]):p.maxHp,
             direct:kind==='-damage'&&!f.slice(4).some(v=>v.startsWith('[from]'))});
         };
@@ -189,12 +226,21 @@ class ShowdownSession {
         targetId:kind==='-miss'?(identify(f[3])||targetId):targetId});
       else if((kind==='-start'||kind==='-end'||kind==='cant')&&(f[3]||'').replace(/^move: /,'')==='Disable')
         events.push({type:kind==='-start'?'DISABLE_START':kind==='-end'?'DISABLE_END':'MOVE_DISABLED',targetId,move:Dex.moves.get(f[4]||'').num||0});
+      else if(kind==='-crit')events.push({type:'CRIT',targetId});
+      else if(kind==='-prepare'){
+        const action=events.findLast(event=>event.type==='MOVE'&&event.casterId===targetId);
+        if(action)action.type='CHARGE';
+      }else if(kind==='-anim'){
+        // Power Herb and native ChargeMove exceptions release within this turn.
+        const action=events.findLast(event=>event.type==='CHARGE'&&event.casterId===targetId);
+        if(action)action.type='MOVE';
+      }
       else if(kind==='faint')events.push({type:'FAINT',targetId});
     }
     // Failure flags suppress the release animation, but one immune target must not
     // suppress a spread move which actually affected another target.
-    for(let i=0;i<events.length;i++)if(events[i].type==='MOVE'){
-      let end=i+1;while(end<events.length&&events[end].type!=='MOVE')end++;
+    for(let i=0;i<events.length;i++)if(['MOVE','CHARGE'].includes(events[i].type)){
+      let end=i+1;while(end<events.length&&!['MOVE','CHARGE'].includes(events[end].type))end++;
       const results=events.slice(i+1,end);
       const rejected=results.some(e=>['FAIL','IMMUNE','MISS','BLOCK'].includes(e.type));
       const immune=results.some(e=>e.type==='IMMUNE'||e.type==='BLOCK');
@@ -202,7 +248,7 @@ class ShowdownSession {
         ||!immune&&['HEAL','SET_HP','BOOST','UNBOOST','SET_BOOST','STATUS','CURE_STATUS'].includes(e.type));
       events[i].animationSuppressed=rejected&&!affected;
     }
-    const actions=events.filter(e=>e.type==='MOVE').map(e=>({casterId:e.casterId,targetId:e.targetId,move:e.move}));
+    const actions=events.filter(e=>['MOVE','CHARGE'].includes(e.type)).map(e=>({casterId:e.casterId,targetId:e.targetId,move:e.move}));
     return {events,actions,engine:'SHOWDOWN',turn:battle.turn,ended:battle.ended,winner:battle.winner||'',
       forceSwitch:!!battle.sides[0].activeRequest?.forceSwitch?.some(Boolean),pokemon,logs};
   }
@@ -216,7 +262,7 @@ if(require.main===module){
       try{
         const request=JSON.parse(line);
         if(request.op==='close'){await engine.close();process.stdout.write(JSON.stringify({ok:true})+'\n');break;}
-        const result=request.op==='start'?await engine.start(request.encounter):request.op==='choose'?await engine.choose(request.action):(()=>{throw new Error('Unknown operation')})();
+        const result=request.op==='start'?await engine.start({...request.encounter,testEnemyHp:request.testEnemyHp}):request.op==='choose'?await engine.choose(request.action):(()=>{throw new Error('Unknown operation')})();
         process.stdout.write(JSON.stringify({ok:true,result})+'\n');
       }catch(error){process.stdout.write(JSON.stringify({ok:false,error:String(error.message)})+'\n');}
     }

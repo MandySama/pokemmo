@@ -601,10 +601,12 @@ final class EncounterChoices extends Widget {
                                         java.text.NumberFormat.getInstance().format(percent)));
             boolean unavailable =
                     pokemon == null
+                            || view == View.ENEMY_TARGET && (pokemon.egg() || pokemon.hp() <= 0)
                             || view == View.SWITCH
                                     && (pokemon.egg()
                                             || pokemon.hp() <= 0
                                             || pokemon.id().equals(encounter.player().id()));
+            setEnabled(view != View.ENEMY_TARGET || !unavailable);
             getAnimationState()
                     .setAnimationState(
                             de.matthiasmann.twl.renderer.AnimationState.StateKey.get("unavailable"),

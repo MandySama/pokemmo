@@ -488,6 +488,21 @@ public final class BwPokedex {
         return resultText(index).replace("{00}", pokemon).replace("\n", " ");
     }
 
+    /** BattleFaintSlotModifier.Dz: critical hits use 15/81, or target-specific 14/384 in hordes. */
+    public String criticalHitMessage(String pokemon, boolean wild, boolean horde) {
+        return (horde ? resultText(384 + (wild ? 1 : 0)) : battleText(81))
+                .replace("{00}", pokemon)
+                .replace("\n", " ");
+    }
+
+    /** BattleAction024Packet mode 1: localized recurring trapping damage text, bank 14/372. */
+    public String trappingDamageMessage(String pokemon, boolean wild, int move) {
+        return resultText(372 + (wild ? 1 : 0))
+                .replace("{00}", pokemon)
+                .replace("{01}", moveName(move))
+                .replace("\n", " ");
+    }
+
     /** BattleFaintSlotModifier.Dz: failure 15/71; immune 14/210; miss 14/213; protect 14/517. */
     public String moveRejectedMessage(String pokemon, boolean wild, String result) {
         if (result.equals("FAIL")) return battleText(71).replace("\n", " ");

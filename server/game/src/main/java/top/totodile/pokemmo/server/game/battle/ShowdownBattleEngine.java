@@ -27,7 +27,11 @@ public final class ShowdownBattleEngine implements BattleEngine {
 
     @Override
     public Session start(EncounterData encounter) {
-        return new ProcessSession(bridge(), encounter);
+        return new ProcessSession(bridge(), encounter, false);
+    }
+
+    public Session startMoveTest(EncounterData encounter) {
+        return new ProcessSession(bridge(), encounter, true);
     }
 
     private static final class ProcessSession implements Session {
@@ -38,7 +42,7 @@ public final class ShowdownBattleEngine implements BattleEngine {
         private BattleState state;
         private boolean closed;
 
-        ProcessSession(Path bridge, EncounterData encounter) {
+        ProcessSession(Path bridge, EncounterData encounter, boolean moveTest) {
             try {
                 var builder =
                         new ProcessBuilder(
@@ -76,7 +80,15 @@ public final class ShowdownBattleEngine implements BattleEngine {
                 thread.setDaemon(true);
                 thread.start();
                 try {
-                    state = request(Map.of("op", "start", "encounter", encounter));
+                    state =
+                            request(
+                                    Map.of(
+                                            "op",
+                                            "start",
+                                            "encounter",
+                                            encounter,
+                                            "testEnemyHp",
+                                            moveTest ? 999999 : 0));
                 } catch (RuntimeException error) {
                     close();
                     throw error;

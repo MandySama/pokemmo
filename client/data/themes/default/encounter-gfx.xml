@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <themes>
     <images file="res/battle-hud.png" filter="nearest">
+        <!-- Official gfx.xml stat-boost/stat-drop atlas regions. -->
+        <area name="encounter-stat-boost.background" xywh="53,8,18,18"/>
+        <area name="encounter-stat-drop.background" xywh="73,8,18,18"/>
         <area name="encounter-party.default" xywh="2,145,209,52"/>
         <area name="encounter-party.hover" xywh="2,200,209,52"/>
         <area name="encounter-party.unavailable" xywh="2,257,209,52"/>

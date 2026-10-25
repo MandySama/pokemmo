@@ -12,7 +12,31 @@ public final class LocalGameService implements GameService {
     private final Map<String, top.totodile.pokemmo.server.game.battle.BattleEngine.Session>
             battles = new HashMap<>();
 
+    private final Set<String> moveTestBattles = new HashSet<>();
+
+    @Override
+    public CompletionStage<top.totodile.pokemmo.server.game.battle.BattleState> startMoveTestBattle(
+            Selection selection, String id) {
+        return CompletableFuture.supplyAsync(
+                () -> {
+                    playerData(selection, id);
+                    var encounter = encounters.get(id);
+                    if (encounter == null)
+                        throw new IllegalStateException("No generated encounter");
+                    closeBattle(id);
+                    var session =
+                            new top.totodile.pokemmo.server.game.battle.ShowdownBattleEngine()
+                                    .startMoveTest(encounter);
+                    battles.put(id, session);
+                    moveTestBattles.add(id);
+                    encounters.put(id, session.state().apply(encounter));
+                    return session.state();
+                },
+                worker);
+    }
+
     private void closeBattle(String id) {
+        if (moveTestBattles.remove(id)) encounters.remove(id);
         var battle = battles.remove(id);
         if (battle != null) battle.close();
     }
@@ -680,6 +704,9 @@ public final class LocalGameService implements GameService {
                     if (battles.containsKey(id))
                         throw new UnsupportedOperationException(
                                 "Capture is not yet available with the Showdown engine");
+                    if (moveTestBattles.contains(id))
+                        throw new IllegalStateException(
+                                "Effect-test encounters cannot be captured");
                     var encounter = encounters.get(id);
                     if (encounter == null
                             || encounter.wilds().stream().noneMatch(p -> p.id().equals(targetId)))

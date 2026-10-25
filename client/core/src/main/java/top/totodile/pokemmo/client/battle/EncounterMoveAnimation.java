@@ -92,6 +92,14 @@ public final class EncounterMoveAnimation implements AutoCloseable {
 
     private boolean particleTargetSpawn = true;
 
+    /** The runtime registry is the catalogue authority, including custom event IDs. */
+    public static java.util.List<Integer> registeredMoves() {
+        return java.util.stream.IntStream.rangeClosed(0, Short.MAX_VALUE)
+                .filter(EncounterMoveAnimation::supports)
+                .boxed()
+                .toList();
+    }
+
     static boolean supports(int move) {
         return ReferenceMoveScripts.effects(move) != null
                 || ExtendedMoveScripts.effects(move) != null;
@@ -230,6 +238,24 @@ public final class EncounterMoveAnimation implements AutoCloseable {
         particleConfigurations.putAll(sources);
     }
 
+    /** BattleAction024Packet mode 1: use the special recurring effect, never the move animation. */
+    static EncounterMoveAnimation trappingResidual(
+            ClientResources resources, PokedexImages images, Vector3 origin, int move)
+            throws IOException {
+        var sources = new java.util.HashMap<String, String>();
+        for (int effect :
+                top.totodile.pokemmo.client.battle.programs.TrappingResidualPrograms.effects(move))
+            sources.put(
+                    effectPath(effect), EncounterVanityEffect.read(resources, effectPath(effect)));
+        var animation = new EncounterMoveAnimation(images, sources);
+        animation.own.center.set(origin);
+        animation.enemy.center.set(origin);
+        animation.timeline =
+                top.totodile.pokemmo.client.battle.programs.TrappingResidualPrograms.build(
+                        animation, move);
+        return animation;
+    }
+
     /** Data-only construction for validating every imported recipe without a GL context. */
     EncounterMoveAnimation(Map<String, String> particleSources, int item, int type1, int type2) {
         images = null;
@@ -238,6 +264,16 @@ public final class EncounterMoveAnimation implements AutoCloseable {
         casterType1 = type1;
         casterType2 = type2;
         particleConfigurations.putAll(particleSources);
+    }
+
+    /** Live battle phases are separate turns; only legacy animation previews concatenate them. */
+    void enginePhase(boolean charging) {
+        pendingAttack = false;
+        timeline =
+                charging
+                        ? ExtendedMoveScripts.buildCharge(this, moveId)
+                        : buildMoveAnimation(moveId);
+        if (timeline == null) timeline = ReferenceMoveTimeline.sequence();
     }
 
     void update(long now) {

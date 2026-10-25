@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <strings lang="zh" lang_full="简体中文 (Simplified Chinese)" typeface="sc" is_primary="0">
+    <!-- Official battle stat names (gc_2 / BattleStat). -->
+    <string id="501">攻击</string>
+    <string id="502">防御</string>
+    <string id="504">特攻</string>
+    <string id="505">特防</string>
+    <string id="506">命中</string>
+    <string id="507">闪避</string>
     <string id="12">宝可梦中心</string>
     <!-- 登录界面沿用参考客户端的文本 ID。 -->
     <string id="74">加载中... 请稍候.</string>
@@ -3201,18 +3208,19 @@
     <string id="5029">确认</string>
     <string id="5230">HP: {00}%</string>
     <string id="5231">HP: {00} / {01} - {02}%</string>
-<string id="1500">正常</string>
-<string id="1501">大喊</string>
-<string id="1502">私聊</string>
-<string id="1503">交易</string>
-<string id="1504">全服</string>
-<string id="1505">频道</string>
-<string id="1506">系统公告</string>
-<string id="1507">公会</string>
-<string id="1508">战斗</string>
-<string id="1509">系统消息</string>
-<string id="1510">组队</string>
-<string id="1514">正在连接聊天服务器...</string>
-<string id="1524">请指定私聊对象.</string>
-<string id="1525">发送</string>
+    <string id="1500">正常</string>
+    <string id="1501">大喊</string>
+    <string id="1502">私聊</string>
+    <string id="1503">交易</string>
+    <string id="1504">全服</string>
+    <string id="1505">频道</string>
+    <string id="1506">系统公告</string>
+    <string id="1507">公会</string>
+    <string id="1508">战斗</string>
+    <string id="1509">系统消息</string>
+    <string id="1510">组队</string>
+    <string id="1514">正在连接聊天服务器...</string>
+    <string id="1524">请指定私聊对象.</string>
+    <string id="1525">发送</string>
+    <string id="5075">第{00}回合开始！</string>
 </strings>

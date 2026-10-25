@@ -486,6 +486,13 @@ public interface GameService extends AutoCloseable {
                 new UnsupportedOperationException("Battle engine not available"));
     }
 
+    /** Ephemeral effect-test session: random encounter opponent starts at 999999 / 999999 HP. */
+    default CompletionStage<top.totodile.pokemmo.server.game.battle.BattleState>
+            startMoveTestBattle(Selection selection, String characterId) {
+        return java.util.concurrent.CompletableFuture.failedFuture(
+                new UnsupportedOperationException("Move test battle not available"));
+    }
+
     default CompletionStage<top.totodile.pokemmo.server.game.battle.BattleState> chooseBattle(
             Selection selection,
             String characterId,

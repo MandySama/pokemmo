@@ -31,7 +31,39 @@ public record BattleState(
             int amount,
             String status,
             boolean direct,
-            boolean animationSuppressed) {}
+            boolean animationSuppressed,
+            List<String> targetIds) {
+        public Event {
+            targetIds = targetIds == null ? List.of() : List.copyOf(targetIds);
+        }
+
+        public Event(
+                String type,
+                String casterId,
+                String targetId,
+                int move,
+                int hp,
+                int maxHp,
+                String stat,
+                int amount,
+                String status,
+                boolean direct,
+                boolean animationSuppressed) {
+            this(
+                    type,
+                    casterId,
+                    targetId,
+                    move,
+                    hp,
+                    maxHp,
+                    stat,
+                    amount,
+                    status,
+                    direct,
+                    animationSuppressed,
+                    List.of());
+        }
+    }
 
     public record TurnMove(String casterId, String targetId, int move) {}
 
@@ -45,7 +77,12 @@ public record BattleState(
             int maxHp,
             String status,
             List<Integer> stats,
-            List<Move> moves) {}
+            List<Move> moves,
+            Map<String, Integer> boosts) {
+        public Combatant {
+            boosts = boosts == null ? Map.of() : Map.copyOf(boosts);
+        }
+    }
 
     public BattleState {
         pokemon = List.copyOf(pokemon);

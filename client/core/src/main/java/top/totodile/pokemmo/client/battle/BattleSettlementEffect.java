@@ -13,7 +13,7 @@ import java.io.IOException;
 /** Original StatChangeParticleEffect / BattleKs0Animation resources and timelines. */
 final class BattleSettlementEffect implements AutoCloseable {
     private AttributeParticleScene particles;
-    private EncounterMoveAnimation healing;
+    private EncounterMoveAnimation effectAnimation;
     private final long started, delay;
     private boolean drawn;
 
@@ -37,8 +37,26 @@ final class BattleSettlementEffect implements AutoCloseable {
             ClientResources resources, PokedexImages images, Vector3 origin, long now)
             throws IOException {
         var result = new BattleSettlementEffect(now, 0);
-        result.healing = EncounterMoveAnimation.healing(resources, images, origin);
+        result.effectAnimation = EncounterMoveAnimation.healing(resources, images, origin);
         return result;
+    }
+
+    static BattleSettlementEffect trapping(
+            ClientResources resources, PokedexImages images, Vector3 origin, long now, int move)
+            throws IOException {
+        var result = new BattleSettlementEffect(now, 0);
+        result.effectAnimation =
+                EncounterMoveAnimation.trappingResidual(resources, images, origin, move);
+        result.trapping = true;
+        return result;
+    }
+
+    private boolean trapping;
+
+    EncounterMoveAnimation animation(long now) {
+        if (!trapping || now < started) return null;
+        effectAnimation.update(now - started);
+        return effectAnimation;
     }
 
     private BattleSettlementEffect(long started, long delay) {
@@ -60,9 +78,9 @@ final class BattleSettlementEffect implements AutoCloseable {
         if (particles != null)
             particles.drawAt(
                     renderer, (elapsed - delay) / 1000f, x, y, width, height, scene.camera());
-        if (healing != null) {
-            healing.update(elapsed);
-            healing.draw(renderer, scene, elapsed, x, y, width, height);
+        if (effectAnimation != null) {
+            effectAnimation.update(elapsed);
+            effectAnimation.draw(renderer, scene, elapsed, x, y, width, height);
         }
     }
 
@@ -70,12 +88,12 @@ final class BattleSettlementEffect implements AutoCloseable {
         return drawn
                 && now >= started + delay
                 && (particles == null || particles.isComplete())
-                && (healing == null || healing.complete(now - started));
+                && (effectAnimation == null || effectAnimation.complete(now - started));
     }
 
     @Override
     public void close() {
         if (particles != null) particles.close();
-        if (healing != null) healing.close();
+        if (effectAnimation != null) effectAnimation.close();
     }
 }

@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <strings lang="en" lang_full="English" is_primary="1">
+    <!-- Official battle stat names (gc_2 / BattleStat). -->
+    <string id="501">Attack</string>
+    <string id="502">Defense</string>
+    <string id="503">Speed</string>
+    <string id="504">Sp. Attack</string>
+    <string id="505">Sp. Defense</string>
+    <string id="506">Accuracy</string>
+    <string id="507">Evasiveness</string>
     <string id="1705">No.</string>
     <string id="1715">PP</string>
     <string id="1720">HP:</string>

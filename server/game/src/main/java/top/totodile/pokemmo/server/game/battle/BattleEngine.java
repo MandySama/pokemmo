@@ -16,7 +16,15 @@ public interface BattleEngine {
         FORFEIT
     }
 
-    record Action(Type type, int index, String pokemonId) {
+    record Action(Type type, int index, String pokemonId, String targetId) {
+        public Action(Type type, int index, String pokemonId) {
+            this(type, index, pokemonId, "");
+        }
+
+        public Action withTarget(String id) {
+            return new Action(type, index, pokemonId, id);
+        }
+
         public static Action move(int slot) {
             return new Action(Type.MOVE, slot, "");
         }

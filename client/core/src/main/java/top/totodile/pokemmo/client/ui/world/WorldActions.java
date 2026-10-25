@@ -26,6 +26,12 @@ public final class WorldActions extends Widget {
     private final Button time = new Button(), weather = new Button();
     private int buttonWidth;
     private final Button testMode = new Button();
+    private final Button animationTests = new Button("招式测试");
+
+    public void onAnimationTests(Runnable action) {
+        animationTests.addCallback(action);
+    }
+
     private boolean testing;
     private java.util.function.Consumer<Boolean> testModeChanged = enabled -> {};
 
@@ -119,6 +125,11 @@ public final class WorldActions extends Widget {
                 add(button);
             }
         }
+        if (!mobile) {
+            animationTests.setTheme("/button");
+            animationTests.setCanAcceptKeyboardFocus(false);
+            add(animationTests);
+        }
         testMode.setTheme("/button");
         testMode.setCanAcceptKeyboardFocus(false);
         testMode.addCallback(
@@ -137,7 +148,8 @@ public final class WorldActions extends Widget {
     /** Keep only the requested environment controls reachable through the battle input layer. */
     public boolean environmentButtonAt(int x, int y) {
         return isVisible()
-                && (testMode.isInside(x, y)
+                && (animationTests.isInside(x, y)
+                        || testMode.isInside(x, y)
                         || world.supportsAtmosphere()
                                 && (time.isInside(x, y) || weather.isInside(x, y)));
     }
@@ -226,6 +238,7 @@ public final class WorldActions extends Widget {
                             portablePc
                         }
                         : new Button[] {
+                            animationTests,
                             testMode,
                             noClip,
                             speed,

@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <themes>
+    <!-- Official default/ui/battle.xml stat-boost / stat-drop. -->
+    <theme name="encounter-stat-boost" ref="label">
+        <param name="background"><image>encounter-stat-boost.background</image></param>
+        <param name="font"><font>tooltip-font</font></param>
+        <param name="border"><border>5,5</border></param>
+        <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+        <param name="minWidth"><int>40</int></param>
+        <param name="minHeight"><int>18</int></param>
+    </theme>
+    <theme name="encounter-stat-drop" ref="encounter-stat-boost">
+        <param name="background"><image>encounter-stat-drop.background</image></param>
+    </theme>
     <!-- BattleCombatLayout.WU: default battle-panel, PC border/gap. -->
     <theme name="encounter-panel" ref="-defaults">
         <param name="background">

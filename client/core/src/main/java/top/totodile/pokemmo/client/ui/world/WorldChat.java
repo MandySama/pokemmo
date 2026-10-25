@@ -40,6 +40,7 @@ public final class WorldChat extends ResizableFrame implements AutoCloseable {
         ChatChannel.CHANNEL
     };
     private final List<LocalChatService.Message> messages = new ArrayList<>();
+    private final Map<LocalChatService.Message, List<String>> battleNames = new IdentityHashMap<>();
     private final List<String> sent = new ArrayList<>();
     private final List<ToggleButton> tabs = new ArrayList<>();
     private final List<Set<Integer>> hidden = new ArrayList<>();
@@ -54,9 +55,15 @@ public final class WorldChat extends ResizableFrame implements AutoCloseable {
                 protected void layout() {
                     lineHeight(getInnerWidth(), true);
                 }
+
+                @Override
+                protected boolean handleEvent(Event event) {
+                    return handleBattleContext(event) || super.handleEvent(event);
+                }
             };
     private final ScrollPane scroll =
             new top.totodile.pokemmo.client.ui.common.TouchScrollPane(lines);
+    private MenuManager battleMenu;
     private LocalChatService.Session session;
     private int sessionVersion;
     private Runnable focusChanged = () -> {};
@@ -308,11 +315,48 @@ public final class WorldChat extends ResizableFrame implements AutoCloseable {
     }
 
     public void battle(String text) {
-        receive(new LocalChatService.Message(ChatChannel.BATTLE, "", text));
+        battle(text, List.of());
+    }
+
+    /** Requested battle-history action, using the existing PC popup-menu widget. */
+    private boolean handleBattleContext(Event event) {
+        if (mobile
+                || event.getType() != Event.Type.MOUSE_BTNDOWN
+                || event.getMouseButton() != Event.MOUSE_RBUTTON
+                || hidden.get(selected).contains(ChatChannel.BATTLE.id)) return false;
+        openBattleMenu(event.getMouseX(), event.getMouseY());
+        return true;
+    }
+
+    private void openBattleMenu(int x, int y) {
+        if (battleMenu != null) battleMenu.closePopup();
+        var menu = new Menu();
+        menu.add(new MenuAction(strings.get(8008), this::clearBattleHistory));
+        battleMenu = menu.openPopupMenu(this, x, y);
+    }
+
+    private void clearBattleHistory() {
+        messages.removeIf(message -> message.channel() == ChatChannel.BATTLE);
+        battleNames.clear();
+        rebuild();
+        scrollBottom = true;
+    }
+
+    public void battle(String text, List<String> names) {
+        var message = new LocalChatService.Message(ChatChannel.BATTLE, "", text);
+        battleNames.put(message, List.copyOf(names));
+        receive(message);
+    }
+
+    /** BattleStatStageModifier: a channel-prefixed empty row followed by the turn heading. */
+    public void battleTurn(int turn) {
+        battle("");
+        battle(strings.format(5075, Integer.toString(turn)));
     }
 
     public void receive(LocalChatService.Message message) {
-        if (message.text() == null || message.text().isBlank()) return;
+        if (message.text() == null
+                || message.text().isBlank() && message.channel() != ChatChannel.BATTLE) return;
         boolean bottom = scroll.getScrollPositionY() >= scroll.getMaxScrollPosY();
         messages.add(message);
         rebuild();
@@ -343,7 +387,15 @@ public final class WorldChat extends ResizableFrame implements AutoCloseable {
                                     + message.sender()
                                     + ": "
                                     + text;
-                var label = new MessageLine(text);
+                String prefix =
+                        message.channel() == ChatChannel.BATTLE
+                                ? "[" + strings.get(ChatChannel.BATTLE.stringId) + "]"
+                                : "";
+                var label =
+                        new MessageLine(
+                                prefix + text,
+                                prefix.length(),
+                                battleNames.getOrDefault(message, List.of()));
                 label.setTheme("message-" + message.channel().style);
                 lines.add(label);
             }
@@ -392,13 +444,77 @@ public final class WorldChat extends ResizableFrame implements AutoCloseable {
         return y;
     }
 
-    private static final class MessageLine extends Label {
-        final String raw;
+    private final class MessageLine extends Label {
+        @Override
+        protected boolean handleEvent(Event event) {
+            return handleBattleContext(event) || super.handleEvent(event);
+        }
 
-        MessageLine(String text) {
+        final String raw;
+        final byte[] roles;
+        final int prefixLength;
+        private de.matthiasmann.twl.renderer.Font prefixFont, nameFont;
+
+        MessageLine(String text, int prefixLength, List<String> names) {
             super(text);
             raw = text;
+            this.prefixLength = prefixLength;
+            roles = new byte[text.length()];
+            if (prefixLength > 0) {
+                for (String name :
+                        names.stream()
+                                .filter(n -> !n.isBlank())
+                                .distinct()
+                                .sorted(Comparator.comparingInt(String::length).reversed())
+                                .toList()) {
+                    for (int at = text.indexOf(name, prefixLength);
+                            at >= 0;
+                            at = text.indexOf(name, at + name.length()))
+                        Arrays.fill(roles, at, at + name.length(), (byte) 2);
+                }
+                Arrays.fill(roles, 0, prefixLength, (byte) 1);
+            }
             setAutoSize(false);
+        }
+
+        @Override
+        protected void applyTheme(ThemeInfo theme) {
+            super.applyTheme(theme);
+            if (prefixLength > 0) {
+                prefixFont = theme.getFont("prefixFont");
+                nameFont = theme.getFont("nameFont");
+            }
+        }
+
+        @Override
+        protected void paintWidget(GUI gui) {
+            if (prefixLength == 0) {
+                super.paintWidget(gui);
+                return;
+            }
+            String value = getText();
+            int x = computeTextX(), startX = x, y = computeTextY(), rawIndex = 0;
+            for (int at = 0; at < value.length(); ) {
+                if (value.charAt(at) == '\n') {
+                    x = startX;
+                    y += getFont().getLineHeight();
+                    at++;
+                    continue;
+                }
+                byte role = roles[rawIndex];
+                int end = at + 1, rawEnd = rawIndex + 1;
+                while (end < value.length()
+                        && value.charAt(end) != '\n'
+                        && rawEnd < roles.length
+                        && roles[rawEnd] == role) {
+                    end++;
+                    rawEnd++;
+                }
+                var font = role == 1 ? prefixFont : role == 2 ? nameFont : getFont();
+                x += font.drawText(getAnimationState(), x, y, value, at, end);
+                at = end;
+                rawIndex = rawEnd;
+            }
         }
     }
 
@@ -439,6 +555,10 @@ public final class WorldChat extends ResizableFrame implements AutoCloseable {
 
     @Override
     public void close() {
+        if (battleMenu != null) {
+            battleMenu.closePopup();
+            battleMenu = null;
+        }
         sessionVersion++;
         if (session != null) {
             session.close();
