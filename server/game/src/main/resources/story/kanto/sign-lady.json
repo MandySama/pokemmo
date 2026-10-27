@@ -1,0 +1,244 @@
+{
+  "id": "kanto.pallet_town.sign_lady",
+  "source": {
+    "map": "map/kanto/pallet_town/PalletTown.json",
+    "npcScript": "PalletTown_EventScript_SignLady",
+    "romCode": "BPRE",
+    "romRevision": 1,
+    "romSha256": "729041b940afe031302d630fdbe57c0c145f3f7b6d9b8eca5e98678d0ca4d059",
+    "commands": "https://github.com/pret/pokefirered/blob/master/data/maps/PalletTown/scripts.inc",
+    "nativeScriptActualOffset": 1464276
+  },
+  "actors": {
+    "girl": {
+      "entityIdx": 0
+    }
+  },
+  "text": {
+    "hmm": 1776779,
+    "look": 1776799,
+    "read": 1776815,
+    "useful": 1776876,
+    "copyIntro": 1776907,
+    "copy": 1776977,
+    "tips": 1776833,
+    "raising": 1562568
+  },
+  "nodes": {
+    "first_right": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "hmm",
+          "facePlayer": false
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "girl",
+          "toward": "PLAYER"
+        },
+        {
+          "type": "NPC_REACTION",
+          "actor": "girl",
+          "duration": 750
+        },
+        {
+          "type": "WAIT",
+          "duration": 800
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "look",
+          "facePlayer": false
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "girl",
+          "target": {
+            "x": 6,
+            "y": 15
+          }
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "girl",
+          "toward": 2
+        },
+        {
+          "type": "SIGN_LADY_ASIDE"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "first_left": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "hmm",
+          "facePlayer": false
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "girl",
+          "toward": "PLAYER"
+        },
+        {
+          "type": "NPC_REACTION",
+          "actor": "girl",
+          "duration": 750
+        },
+        {
+          "type": "WAIT",
+          "duration": 800
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "look",
+          "facePlayer": false
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "girl",
+          "target": {
+            "x": 4,
+            "y": 15
+          }
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "girl",
+          "toward": 3
+        },
+        {
+          "type": "SIGN_LADY_ASIDE"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "read": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "read",
+          "facePlayer": true
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "useful": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "useful",
+          "facePlayer": true
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "done": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "raising",
+          "facePlayer": true
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "tips": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "tips",
+          "signpost": true
+        },
+        {
+          "type": "SIGN_LADY_READ"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "show": {
+      "actions": [
+        {
+          "type": "FACE_NPC",
+          "actor": "girl",
+          "toward": "PLAYER"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "copyIntro",
+          "facePlayer": false
+        },
+        {
+          "type": "WAIT",
+          "duration": 334
+        },
+        {
+          "type": "SIGN_LADY_READ"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "copy",
+          "signpost": true
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "trigger": {
+      "actions": [
+        {
+          "type": "FACE_NPC",
+          "actor": "girl",
+          "toward": 3
+        },
+        {
+          "type": "FACE_PLAYER",
+          "toward": 2
+        },
+        {
+          "type": "GOTO",
+          "node": "show_trigger"
+        }
+      ]
+    },
+    "show_trigger": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "copyIntro",
+          "facePlayer": false
+        },
+        {
+          "type": "WAIT",
+          "duration": 334
+        },
+        {
+          "type": "SIGN_LADY_READ"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "copy",
+          "signpost": true
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    }
+  }
+}

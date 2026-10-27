@@ -15,6 +15,20 @@ import java.util.function.Consumer;
 
 /** Shared world input and motion, with GBA metatiles or the ROM's NDS field geometry. */
 public final class WorldScene extends InputAdapter implements AutoCloseable {
+    public int encounterBehavior() {
+        var map=movement.map(); var p=movement.position();
+        return maps.tiles(map).behavior(map.block(p.x(),p.y()) & 1023);
+    }
+    public boolean encounterLand() {
+        int behavior=encounterBehavior();
+        return behavior==2 || maps.battleTerrain(movement.map().id(),movement.position().x(),
+                movement.position().y())==BattleTerrain.CAVE && !maps.isWater(behavior);
+    }
+    public boolean supportsWildEncounters() {
+        return maps instanceof top.totodile.pokemmo.client.rom.gba.FireRedMaps gba
+                && gba.rom().type()==top.totodile.pokemmo.client.rom.RomType.FIRE_RED;
+    }
+
     public void surfSprites(top.totodile.pokemmo.client.rom.RomInfo rom) {
         character.surfSprites(rom);
     }
@@ -53,12 +67,27 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
     private java.util.concurrent.CompletableFuture<Void> warpCover;
     private boolean warpRevealing;
     private int warpDx, warpDy;
+    private final WorldDoorAnimation doorAnimation = new WorldDoorAnimation();
+
+    public java.util.concurrent.CompletableFuture<Void> rest(Runnable atBlack) {
+        if (transition == null) {
+            atBlack.run();
+            return java.util.concurrent.CompletableFuture.completedFuture(null);
+        }
+        return transition.rest(atBlack);
+    }
 
     public void transition(WorldTransition value) {
         transition = Objects.requireNonNull(value);
         movement.beforeWarp(
                 (dx, dy) -> {
                     if (warpCover == null) {
+                        if (maps instanceof top.totodile.pokemmo.client.rom.gba.FireRedMaps gba) {
+                            var p=movement.position();
+                            if (!doorAnimation.active() && dy<0)
+                                doorAnimation.begin(gba,movement.map(),p.x()+dx,p.y()+dy,false);
+                            if (!doorAnimation.ready()) { warpDx=dx; warpDy=dy; return false; }
+                        }
                         warpDx = dx;
                         warpDy = dy;
                         warpCover = transition.cover();
@@ -72,6 +101,112 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
     private final DirectionKeys directionKeys = new DirectionKeys();
     private MobileMapControls controls;
     private FollowerPokemon follower;
+    private WorldMapObjects mapObjects;
+    private java.util.List<top.totodile.pokemmo.server.game.MapEntities.MapView> mapEntitySnapshot = java.util.List.of();
+    private final Map<Id,Map<Integer,Integer>> storyTileOriginals=new HashMap<>();
+    private void restoreStoryTiles(){
+        for(var entry:storyTileOriginals.entrySet()){
+            var map=maps.map(entry.getKey());
+            for(var tile:entry.getValue().entrySet())map.blocks()[tile.getKey()]=tile.getValue();
+        }
+    }
+    public void mapEntities(java.util.List<top.totodile.pokemmo.server.game.MapEntities.MapView> entities){
+        if(mapEntitySnapshot==entities)return;
+        restoreStoryTiles();
+        for(var view:entities){
+            if(view.tiles().isEmpty())continue;
+            var map=maps.map(new Id(view.bank(),view.map()));
+            var originals=storyTileOriginals.computeIfAbsent(map.id(),ignored->new HashMap<>());
+            for(var tile:view.tiles()){
+                if(!map.contains(tile.x(),tile.y()))throw new IllegalArgumentException("Story tile outside map");
+                int at=tile.y()*map.width()+tile.x();originals.putIfAbsent(at,map.blocks()[at]);map.blocks()[at]=tile.block();
+            }
+        }
+        mapEntitySnapshot = entities;
+        if(mapObjects!=null)mapObjects.entities(entities);
+    }
+
+    public int facingBackground() {
+        var p = movement.position();
+        int elevation = movement.map().block(p.x(), p.y()) >>> 12;
+        return mapEntitySnapshot.stream().filter(m -> m.bank() == p.bank() && m.map() == p.map())
+                .flatMap(m -> m.backgrounds().stream()).filter(b -> b.facing(p, elevation))
+                .mapToInt(top.totodile.pokemmo.server.game.MapEntities.Background::id).findFirst().orElse(-1);
+    }
+    public void dialogueNpc(int actor) {
+        if (mapObjects == null) return;
+        var p = movement.position();
+        mapObjects.dialogue(movement.map().id(), actor, p.x(), p.y());
+    }
+    public void storyNpcFace(int actor,int direction){if(mapObjects!=null)mapObjects.face(movement.map().id(),actor,direction);}
+    public void storyNpcReaction(int actor,boolean visible){if(mapObjects!=null)mapObjects.reaction(movement.map().id(),actor,visible);}
+
+    public float[] dialogueAnchor(int actor, int width, int height) {
+        if (mapObjects == null || actor < 0) return null;
+        return mapObjects.actors(movement.map().id()).stream()
+                .filter(n -> n.definition.id() == actor && n.visible()).findFirst().map(n -> {
+                    var screen = camera.project(new com.badlogic.gdx.math.Vector3(
+                            n.drawX() * 16 + 8, -n.drawY() * 16 + 16, 0), 0, 0, width, height);
+                    // MessageBoxManager adds (36,24), then MessageBoxBubble subtracts 32 from X.
+                    return new float[] {screen.x + 4, height - screen.y + 24};
+                }).orElse(null);
+    }
+
+    public int facingStrengthBoulder(){
+        int actor=facingNpc();if(actor<0||mapObjects==null)return -1;
+        return mapObjects.actors(movement.map().id()).stream().anyMatch(n->n.definition.id()==actor&&n.definition.graphics()==97)?actor:-1;
+    }
+    public int facingNpc(){
+        if(mapObjects==null)return -1;
+        var p=movement.position();int[] dx={0,0,-1,1},dy={1,-1,0,0};
+        var map = movement.map();
+        int tx = p.x() + dx[p.direction()], ty = p.y() + dy[p.direction()];
+        int npc = npcAt(tx, ty);
+        if (npc >= 0) return npc;
+        if (map.contains(tx, ty) && maps.tiles(map).behavior(map.block(tx, ty) & 1023) == 0x80)
+            return npcAt(tx + dx[p.direction()], ty + dy[p.direction()]);
+        return -1;
+    }
+    private int npcAt(int x, int y) {
+        int layer = WorldMapObjects.entityElevation(movement.elevation() << 12);
+        return mapObjects.actors(movement.map().id()).stream()
+                .filter(a -> a.visible() && a.x == x && a.y == y
+                        && (layer < 0 || a.definition.elevation() < 0
+                            || layer / 3 == a.definition.elevation() / 3))
+                .mapToInt(a -> a.definition.id()).findFirst().orElse(-1);
+    }
+    public boolean storyOccupied(int x,int y,int except){return mapObjects!=null&&mapObjects.actors(movement.map().id()).stream().anyMatch(a->a.definition.id()!=except&&a.occupies(x,y,0));}
+    public boolean storyCanStep(int fromX,int fromY,int x,int y){
+        var map=movement.map();if(!map.contains(x,y)||map.warp(x,y)!=null)return false;
+        var tiles=maps.tiles(map);int block=map.block(x,y),to=tiles.behavior(block&1023),from=tiles.behavior(map.block(fromX,fromY)&1023);
+        return (block&0xc00)==0&&block>>>12!=15&&!maps.isWater(to)&&!maps.blocked(from,x-fromX,y-fromY)&&!maps.blocked(to,fromX-x,fromY-y);
+    }
+    public Position storyNpcPosition(int actor){
+        return mapObjects.actors(movement.map().id()).stream().filter(a->a.definition.id()==actor).findFirst()
+                .map(a->new Position(movement.map().id().bank(),movement.map().id().map(),a.x,a.y,a.direction)).orElseThrow();
+    }
+    public void storyPosition(Position position){movement.storyPosition(position);motion.resetStep();}
+    public void storyNpcPosition(int actor,int x,int y){
+        if(mapObjects!=null)mapObjects.actors(movement.map().id()).stream().filter(a->a.definition.id()==actor).findFirst().ifPresent(a->a.storyPosition(x,y));
+    }
+    public boolean storyNpcStep(int actor,int x,int y){
+        if(mapObjects==null)return true;
+        return mapObjects.actors(movement.map().id()).stream().filter(a->a.definition.id()==actor).findFirst().map(a->a.storyStep(x,y)).orElse(true);
+    }
+
+    public void mapObjects(top.totodile.pokemmo.client.resources.ClientResources resources) {
+        soundResources=resources;
+        if (!(maps instanceof top.totodile.pokemmo.client.rom.gba.FireRedMaps gba)
+                || gba.rom().type() != top.totodile.pokemmo.client.rom.RomType.FIRE_RED) return;
+        try {
+            var replacement = new WorldMapObjects(resources, gba.rom());
+            if (mapObjects != null) mapObjects.close();
+            mapObjects = replacement;
+            movement.occupancy(mapObjects::occupied);
+        } catch (java.io.IOException error) {
+            throw new IllegalStateException("Cannot load reference Kanto map objects", error);
+        }
+    }
 
     public void follower(
             top.totodile.pokemmo.client.resources.ClientResources resources,
@@ -161,6 +296,13 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
                                 settings.get("client.gameplay.autosprint.enabled", "true")),
                         save);
         WorldState.bind(settings, motion, state, saveState);
+        motion.addStepListener(step->{
+            if(soundResources==null||soundResources.audio()==null)return;
+            var map=movement.map();
+            int behavior=maps.tiles(map).behavior(map.block(step.after().x(),step.after().y())&1023);
+            int sound=maps.footstepSound(behavior);
+            if(sound>0)soundResources.audio().sound(this,1,2,sound,0,1,0);
+        });
         pokedex = new WorldPokedex(pokedexState, savePokedex);
         try {
             nds = maps.is3d() ? new NdsWorldRenderer(maps, movement.map().id()) : null;
@@ -199,6 +341,14 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
     public WorldInfo worldInfo() {
         return worldInfo;
     }
+
+    public top.totodile.pokemmo.client.audio.RomAudio.Track music(long millis) {
+        int hour=(int)Math.floorMod(Math.floorDiv(atmosphere().seconds(millis,worldInfo.timeOrigin()),3600),24);
+        int season=(java.time.Instant.ofEpochMilli(millis).atZone(java.time.ZoneOffset.UTC).getMonthValue()-1)%4;
+        return maps.music(movement.map().id(),season,hour<4||hour>=21);
+    }
+
+    private top.totodile.pokemmo.client.resources.ClientResources soundResources;
 
     public void setWorldInfo(WorldInfo info) {
         worldInfo = Objects.requireNonNull(info);
@@ -277,6 +427,11 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
                 if (warpCover.isCompletedExceptionally()) warpCover = null;
                 else if (warpCover.isDone() && focused) {
                     motion.move(warpDx, warpDy);
+                    doorAnimation.close();
+                    if(maps instanceof top.totodile.pokemmo.client.rom.gba.FireRedMaps gba){
+                        var p=movement.position();
+                        if(p.direction()==0)doorAnimation.begin(gba,movement.map(),p.x(),p.y()-1,true);
+                    }
                     transition.restore(warpCover);
                     warpCover = null;
                     warpRevealing = true;
@@ -284,7 +439,9 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
             } else if (warpRevealing) {
                 warpRevealing = transition.active();
             } else {
-                motion.update(focused ? delta : 0, dx, dy);
+                if(doorAnimation.entering()) {
+                    if(doorAnimation.ready()&&focused)motion.move(warpDx,warpDy);
+                } else if(!doorAnimation.active()) motion.update(focused ? delta : 0, dx, dy);
             }
         } catch (RuntimeException error) {
             if (warpCover != null) {
@@ -292,8 +449,10 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
                 warpCover = null;
                 warpRevealing = true;
             }
+            doorAnimation.close();
             Gdx.app.error("world", "Cannot move to ROM map", error);
         }
+        doorAnimation.update(focused ? delta : 0, warpRevealing);
         if (nds != null) {
             if (follower != null) follower.update(focused ? delta : 0);
             nds.draw(movement, motion, character, batch, width, height, mobile, follower);
@@ -301,9 +460,11 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
             return;
         }
         if (follower != null) follower.update(focused ? delta : 0);
+        if (mapObjects != null)
+            mapObjects.update(focused ? delta : 0, maps, movement, motion);
         Position position = movement.position();
         float px = motion.x() * 16 + 8;
-        float py = motion.y() * 16 + 16;
+        float py = (motion.y()+doorAnimation.actorOffset()) * 16 + 16;
         int zoom;
         try {
             zoom = Integer.parseInt(settings.get("client.graphics.gba.zoom_level", "-1"));
@@ -327,6 +488,7 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
         drawMap(1, px, py);
         drawActors(px, py, position.direction(), true);
         drawMap(2, px, py);
+        if(mapObjects!=null)mapObjects.drawReaction(batch);
         batch.end();
         drawAtmosphere(delta, width, height);
         if (controls != null) controls.draw(batch, width, height);
@@ -371,12 +533,46 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
     }
 
     private void drawActors(float px, float py, int direction, boolean high) {
+        if (mapObjects != null) {
+            drawMapActors(px, py, direction, high);
+            return;
+        }
         boolean drawFollower =
                 follower != null && follower.visible() && (follower.elevation() > 3) == high;
         boolean behind = drawFollower && follower.y() <= motion.y();
         if (behind) drawFollower();
         if ((movement.elevation() > 3) == high) drawCharacter(px, py, direction);
         if (drawFollower && !behind) drawFollower();
+    }
+
+    private record Actor(float y, float x, Runnable draw) {}
+
+    private void drawMapActors(float px, float py, int direction, boolean high) {
+        var actors = new ArrayList<Actor>();
+        appendMapActors(actors, movement.map(), 0, 0, high);
+        for (var neighbor : neighbors)
+            appendMapActors(actors, neighbor.map(), neighbor.x(), neighbor.y(), high);
+        if ((movement.elevation() > 3) == high)
+            actors.add(new Actor(motion.y(), motion.x(), () -> drawCharacter(px, py, direction)));
+        if (follower != null && follower.visible() && (follower.elevation() > 3) == high)
+            actors.add(new Actor(follower.y(), follower.x(), this::drawFollower));
+        // GdxTileLayerRenderer queues actors with map rows, interleaved with the tile passes.
+        actors.sort(Comparator.comparingDouble(Actor::y).thenComparingDouble(Actor::x));
+        for (var actor : actors) actor.draw().run();
+    }
+
+    private void appendMapActors(List<Actor> actors, MapData map, int dx, int dy, boolean high) {
+        for (var actor : mapObjects.actors(map.id())) {
+            var object = actor.definition;
+            if (!actor.visible()) continue;
+            // Reference yD0: ground elevations <=2, raised elevations >=3.
+            if ((object.elevation() >= 3) != high) continue;
+            float x = actor.drawX() + dx, y = actor.drawY() + dy;
+            if (Math.abs(x - motion.x()) * 16 > camera.viewportWidth / 2 + 128
+                    || Math.abs(y - motion.y()) * 16 > camera.viewportHeight / 2 + 128) continue;
+            var placed = new WorldMapObjects.Placed(actor, x, y);
+            actors.add(new Actor(y, x, () -> mapObjects.draw(batch, placed)));
+        }
     }
 
     private void drawFollower() {
@@ -386,14 +582,19 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
     }
 
     private void drawCharacter(float px, float py, int direction) {
+        if(doorAnimation.hidesActor())return;
+        if(motion.jumpHeight()>0){
+            character.drawShadow(batch,px,-py+4);
+            character.drawBody(batch,px,-py+4+motion.jumpHeight(),direction,motion.animationTime(),motion.moving(),motion.mode().animation);return;
+        }
         character.draw(
                 batch,
                 px,
                 -py + 4,
                 direction,
-                motion.animationTime(),
-                motion.moving(),
-                motion.mode().animation);
+                doorAnimation.active()?doorAnimation.actorTime():motion.animationTime(),
+                doorAnimation.active()?doorAnimation.actorWalking():motion.moving(),
+                doorAnimation.active()?0:motion.mode().animation);
     }
 
     private void prepareNeighbors() {
@@ -417,6 +618,7 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
     }
 
     public boolean move(int dx, int dy) {
+        if(doorAnimation.active())return false;
         try {
             return motion.move(dx, dy);
         } catch (RuntimeException error) {
@@ -444,6 +646,10 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
                             break;
                         }
                     }
+                if(doorAnimation.replaces(source.id(),sx,sy)){
+                    doorAnimation.draw(batch,pass,source.id(),sx,sy,x,y);
+                    continue;
+                }
                 Tiles tiles = maps.tiles(source);
                 Texture[] textures = atlases.get(tiles);
                 int block = source.block(sx, sy), id = block & 1023;
@@ -564,9 +770,14 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
 
     @Override
     public void close() {
+        restoreStoryTiles();
+        storyTileOriginals.clear();
+        if(soundResources!=null&&soundResources.audio()!=null)soundResources.audio().stop(this);
         atmosphere.close();
+        doorAnimation.close();
         if (nds != null) nds.close();
         if (follower != null) follower.close();
+        if (mapObjects != null) mapObjects.close();
         for (Texture[] textures : atlases.values())
             for (Texture texture : textures) texture.dispose();
         atlases.clear();

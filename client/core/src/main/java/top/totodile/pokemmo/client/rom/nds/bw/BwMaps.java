@@ -56,6 +56,7 @@ public final class BwMaps implements WorldMaps {
 
     private final RomInfo rom;
     private final Header[] headers;
+    private final int[][] music;
     private final byte[] areas, cameras;
     private final Archive matrices, landArchive, events;
     private final Map<String, Archive> archives = new HashMap<>();
@@ -92,8 +93,10 @@ public final class BwMaps implements WorldMaps {
         byte[] table = archive("/a/0/1/2").read(0);
         if (table.length % 48 != 0) throw new IOException("Invalid BW map headers");
         headers = new Header[table.length / 48];
+        music = new int[headers.length][4];
         for (int i = 0; i < headers.length; i++) {
             int p = i * 48;
+            for(int season=0;season<4;season++)music[i][season]=u16(table,p+12+season*2);
             headers[i] =
                     new Header(
                             u16(table, p + 2),
@@ -113,6 +116,12 @@ public final class BwMaps implements WorldMaps {
 
     public static Id id(int header) {
         return new Id(header >>> 8, header & 255);
+    }
+
+    @Override public top.totodile.pokemmo.client.audio.RomAudio.Track music(Id id,int season,boolean night) {
+        int track=music[number(id)][Math.floorMod(season,4)];
+        // AbstractNdsMapZone.hh0 uses the non-interactive Nuvema arrangement.
+        return new top.totodile.pokemmo.client.audio.RomAudio.Track(2,track==1033?1034:track);
     }
 
     private static int number(Id id) {

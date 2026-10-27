@@ -6,6 +6,19 @@ import java.util.*;
 import java.util.concurrent.CompletionStage;
 
 public interface GameService extends AutoCloseable {
+    record BattleYield(int species, int experience, List<Integer> evs) {}
+    default void battleYields(List<BattleYield> yields) {}
+
+    default CompletionStage<EncounterData> trainerEncounter(Selection selection,String character) {
+        return java.util.concurrent.CompletableFuture.failedFuture(new UnsupportedOperationException());
+    }
+
+    /** Accepted overworld step; behavior comes from the loaded ROM, not a random species picker. */
+    default CompletionStage<EncounterData> wildEncounterStep(Selection selection, String character,
+            int region, Position before, Position after, int behavior, boolean land,
+            boolean water, boolean bicycle) {
+        return java.util.concurrent.CompletableFuture.completedFuture(null);
+    }
     default CompletionStage<PokemonData.Containers> selectPokemonParticle(
             Selection selection, String character, String pokemonId, int particle) {
         return java.util.concurrent.CompletableFuture.failedFuture(new Rejected(Failure.NOT_FOUND));
@@ -106,7 +119,11 @@ public interface GameService extends AutoCloseable {
                 new UnsupportedOperationException());
     }
 
-    record ItemTemplate(int id, int region, int maximumStack, boolean destroyable, int ballType) {
+    record ItemTemplate(int id, int region, int maximumStack, boolean destroyable, int ballType,
+                        boolean holdable) {
+        public ItemTemplate(int id, int region, int maximumStack, boolean destroyable, int ballType) {
+            this(id, region, maximumStack, destroyable, ballType, false);
+        }
         public ItemTemplate(int id, int region, int maximumStack, boolean destroyable) {
             this(id, region, maximumStack, destroyable, -1);
         }
@@ -118,6 +135,14 @@ public interface GameService extends AutoCloseable {
 
     record LearnedMove(int id, int level) {}
 
+    default CompletionStage<PokemonData.Containers> updatePokemonItem(
+            Selection selection, String character, String pokemon, int container, int item) {
+        return java.util.concurrent.CompletableFuture.failedFuture(
+                new UnsupportedOperationException());
+    }
+
+    record EvolutionRule(int method, int parameter, int target) {}
+
     record SpeciesTemplate(
             int id,
             int genderRatio,
@@ -126,7 +151,12 @@ public interface GameService extends AutoCloseable {
             List<LearnedMove> moves,
             List<Integer> abilities,
             int growthRate,
-            List<Integer> evolutions) {
+            List<Integer> evolutions,
+            List<EvolutionRule> evolutionRules) {
+        public SpeciesTemplate(int id, int genderRatio, List<Integer> stats, int ability,
+                List<LearnedMove> moves, List<Integer> abilities, int growthRate, List<Integer> evolutions) {
+            this(id, genderRatio, stats, ability, moves, abilities, growthRate, evolutions, List.of());
+        }
         public SpeciesTemplate(
                 int id,
                 int genderRatio,
@@ -162,6 +192,7 @@ public interface GameService extends AutoCloseable {
             moves = List.copyOf(moves);
             abilities = List.copyOf(abilities);
             evolutions = List.copyOf(evolutions);
+            evolutionRules = List.copyOf(evolutionRules);
         }
     }
 
@@ -319,6 +350,18 @@ public interface GameService extends AutoCloseable {
     CompletionStage<Void> delete(Selection selection, String characterId);
 
     CompletionStage<Entry> enter(Selection selection, String characterId);
+
+    default CompletionStage<StoryInspection.Report> inspectStory(Selection selection,String id,Position position) {
+        return java.util.concurrent.CompletableFuture.failedFuture(new UnsupportedOperationException("Story inspection unavailable"));
+    }
+
+    default CompletionStage<StoryData.Scene> story(Selection selection,String id,StoryData.Request request) {
+        return java.util.concurrent.CompletableFuture.completedFuture(new StoryData.Scene(new StoryData.State(false,0,3),null));
+    }
+
+    default CompletionStage<EncounterData> storyBattle(Selection selection,String id) {
+        return java.util.concurrent.CompletableFuture.failedFuture(new UnsupportedOperationException());
+    }
 
     CompletionStage<Void> savePosition(Selection selection, String characterId, Position position);
 

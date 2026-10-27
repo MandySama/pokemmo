@@ -802,17 +802,7 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
             float to,
             Color a,
             Color b) {
-        if (white == null) {
-            whitePixels =
-                    new com.badlogic.gdx.graphics.Pixmap(
-                            1, 1, com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888);
-            whitePixels.setColor(1, 1, 1, 1);
-            whitePixels.fill();
-            white =
-                    new com.badlogic.gdx.graphics.Texture(
-                            new com.badlogic.gdx.graphics.glutils.PixmapTextureData(
-                                    whitePixels, null, false, false, true));
-        }
+        ensureWhite();
         float left = horizontal ? x + from : x, right = horizontal ? x + to : x + width;
         float top = getHeight() - (horizontal ? y : y + from),
                 bottom = getHeight() - (horizontal ? y + height : y + to);
@@ -839,6 +829,29 @@ public final class GdxTwlRenderer implements Renderer, AutoCloseable {
             1,
             1
         };
+        batch.draw(white, vertices, 0, vertices.length);
+    }
+
+    private void ensureWhite() {
+        if (white == null) {
+            whitePixels =
+                    new com.badlogic.gdx.graphics.Pixmap(
+                            1, 1, com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888);
+            whitePixels.setColor(1, 1, 1, 1);
+            whitePixels.fill();
+            white =
+                    new com.badlogic.gdx.graphics.Texture(
+                            new com.badlogic.gdx.graphics.glutils.PixmapTextureData(
+                                    whitePixels, null, false, false, true));
+        }
+    }
+
+    /** Filled screen-space triangle, using the same batch, tint and clipping as TWL images. */
+    public void drawTriangle(float x1, float y1, float x2, float y2, float x3, float y3, Color color) {
+        ensureWhite();
+        float c = packed(color), h = getHeight();
+        float[] vertices = {x1,h-y1,c,0,0, x2,h-y2,c,0,0,
+                x3,h-y3,c,0,0, x3,h-y3,c,0,0};
         batch.draw(white, vertices, 0, vertices.length);
     }
 

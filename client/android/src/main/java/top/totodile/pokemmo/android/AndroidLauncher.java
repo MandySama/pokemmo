@@ -155,6 +155,8 @@ public final class AndroidLauncher extends AndroidApplication {
                                                         android.os.BatteryManager
                                                                 .BATTERY_PROPERTY_CAPACITY))
                         .withLoginScene(top.totodile.pokemmo.android.audio.AndroidLoginAudio::new)
+                        .withAudio(resources -> resources.audio(new top.totodile.pokemmo.client.audio.RomAudio(
+                                resources,()->{System.loadLibrary("sseqj");System.loadLibrary("agbplayj");},183)))
                         .withRomFilePicker(romPicker)
                         .withGameService(
                                 new top.totodile.pokemmo.server.game.LocalGameService(

@@ -7,6 +7,8 @@ import java.util.Set;
 
 /** ROM-backed map data shared by the GBA tile renderer and the NDS field renderer. */
 public interface WorldMaps {
+    default int forcedDirection(int behavior){return -1;}
+
     Set<Id> ids();
 
     MapData map(Id id);
@@ -14,6 +16,17 @@ public interface WorldMaps {
     Tiles tiles(MapData map);
 
     int locationStringId(Id id);
+
+    /** AudioManager.bk0 resolves the current map's region and native sequence ID. */
+    default top.totodile.pokemmo.client.audio.RomAudio.Track music(
+            Id id, int season, boolean night) {
+        return null;
+    }
+
+    /** TallGrassTileBehavior uses BW field SFX, even in GBA maps. */
+    default int footstepSound(int behavior) {
+        return 0;
+    }
 
     /** Original ROM text, including deliberately empty names; null means unavailable. */
     default String locationName(Id id) {
@@ -131,6 +144,18 @@ public interface WorldMaps {
     default boolean isDoor(int behavior) {
         return behavior == 0x69;
     }
+
+    /** Direction required when leaving a standing warp; -1 means trigger on entry. */
+    default int standingWarpDirection(int behavior) {
+        return -1;
+    }
+
+    /** A stored warp event need not be an active warp on the rendered terrain. */
+    default boolean allowsWarp(int behavior) {
+        return true;
+    }
+
+    default int ledgeDirection(int behavior){return -1;}
 
     default boolean blocked(int behavior, int dx, int dy) {
         return switch (behavior) {

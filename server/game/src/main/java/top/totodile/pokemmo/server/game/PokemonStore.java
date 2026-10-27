@@ -802,7 +802,7 @@ final class PokemonStore {
                 .orElseThrow();
     }
 
-    private void insert(String id, Pokemon p) {
+    void insert(String id, Pokemon p) {
         int level = p.level();
         db.execute(
                 "INSERT INTO"
@@ -923,6 +923,11 @@ final class PokemonStore {
             Random random,
             boolean randomMoves) {
         return createWildPokemon(species, level, container, position, random, randomMoves, 1, 0);
+    }
+
+    /** PokemonManager.createWildPokemon uses level-up moves and reference rarity constants. */
+    static Pokemon createNaturalEncounterPokemon(GameService.SpeciesTemplate species,int level,Random random) {
+        return createWildPokemon(species,level,9,0,random,false,1,2);
     }
 
     /** Requested encounter rates: shiny 1/2, secret shiny 1/2 conditional on shiny. */

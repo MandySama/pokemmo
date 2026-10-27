@@ -22,6 +22,17 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 /** 参考 ChainedSearchPathFileResolver / ThemeModZipArchiveManager 的资源搜索与注册顺序。 */
 public final class ClientResources implements Function<String, FileHandle>, AutoCloseable {
+    private top.totodile.pokemmo.client.audio.RomAudio audio;
+
+    public top.totodile.pokemmo.client.audio.RomAudio audio() {
+        return audio;
+    }
+
+    public void audio(top.totodile.pokemmo.client.audio.RomAudio value) {
+        if (audio != null) audio.close();
+        audio = value;
+    }
+
     private static final Logger LOG = Logger.getLogger(ClientResources.class.getName());
 
     public record Theme(
@@ -582,6 +593,10 @@ public final class ClientResources implements Function<String, FileHandle>, Auto
 
     @Override
     public void close() {
+        if (audio != null) {
+            audio.close();
+            audio = null;
+        }
         if (appearance != null) {
             appearance.dispose();
             appearance = null;

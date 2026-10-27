@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<themes>
+    <!-- Official gfx.xml / main-widgets.xml MessageBoxBubble assets and typography. -->
+    <images file="res/text-bubble.png" filter="nearest">
+        <area name="text-bubble.background" xywh="0,0,128,128" splitx="L63,R63" splity="T63,B63"/>
+        <area name="text-bubble-arrow.background" xywh="128,0,32,32" sizeOverwriteH="32" sizeOverwriteV="32"/>
+    </images>
+    <fontDef name="messagebox" filename="res/fonts/NotoSansCJK-Bold.ttc" faces="sc,tc,jp" color="#222222" hinting="Medium" kerning="false" size="24" shadow_color="#40000000" shadow_offset_x="1" shadow_offset_y="1" border_width="0" border_color="#484848"/>
+    <theme name="messagebox-bubble" ref="-defaults"/>
+    <theme name="messagebox-mobile" ref="messagebox-bubble"/>
+    <theme name="story-npc-popup" ref="-defaults" allowWildcard="true">
+        <param name="background"><image>text-bubble.background</image></param>
+        <param name="border"><border>35,50,30,40</border></param>
+        <param name="defaultGap"><dimension>2,2</dimension></param>
+        <param name="smallGap"><dimension>8,8</dimension></param>
+        <param name="mediumGap"><dimension>10,10</dimension></param>
+        <param name="largeGap"><dimension>15,15</dimension></param>
+        <param name="namedGaps"><map/></param>
+        <theme name="labelanimation" ref="label">
+            <param name="font"><font>messagebox</font></param>
+        </theme>
+        <theme name="button" ref="button"/>
+        <theme name="button-ok" ref="button">
+            <param name="background"><image>text-bubble-arrow.background</image></param>
+            <param name="minWidth"><int>32</int></param>
+            <param name="minHeight"><int>32</int></param>
+        </theme>
+    </theme>
+    <!-- Reference main-widgets.xml hall-of-fame (ys_2 / BT). -->
+    <theme name="hall-of-fame" ref="-defaults">
+        <param name="background"><image>none</image></param>
+        <theme name="label" ref="-defaults" allowWildcard="true">
+            <param name="background"><image>none</image></param>
+            <param name="font"><font>encounter-message</font></param>
+        </theme>
+    </theme>
+</themes>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<themes>
+    <!-- Android android.xml npc-interaction-popup differs from the desktop speech bubble. -->
+    <images file="res/ui-mobile-atlas.png" filter="nearest">
+        <area name="mobile.bubble.background" xywh="10,855,49,51" splitx="L17,R17" splity="T17,B17"/>
+    </images>
+    <fontDef name="med-noshadow-22-gray" ref="med-noshadow-22-white" color="#111111"/>
+    <theme name="story-npc-popup" ref="story-npc-popup" allowWildcard="true">
+        <param name="background"><image>mobile.bubble.background</image></param>
+        <param name="border"><border>30,30</border></param>
+        <theme name="labelanimation" ref="label">
+            <param name="font"><font>med-noshadow-22-gray</font></param>
+        </theme>
+    </theme>
+    <!-- Reference main-widgets.xml hall-of-fame (ys_2 / BT). -->
+    <theme name="hall-of-fame" ref="-defaults">
+        <param name="background"><image>none</image></param>
+        <theme name="label" ref="-defaults" allowWildcard="true">
+            <param name="background"><image>none</image></param>
+            <param name="font"><font>encounter-message</font></param>
+        </theme>
+    </theme>
+</themes>

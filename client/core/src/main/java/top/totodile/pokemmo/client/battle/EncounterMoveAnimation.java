@@ -17,7 +17,7 @@ import java.util.zip.ZipInputStream;
 
 /**
  * BaseBattleAnimation adapter for the single-player preview. ReferenceMoveScripts preserves the
- * original nested timelines. Audio calls are intentionally inert.
+ * original nested timelines, including delayed and spatial sound cues.
  */
 public final class EncounterMoveAnimation implements AutoCloseable {
 
@@ -87,6 +87,9 @@ public final class EncounterMoveAnimation implements AutoCloseable {
     private float stageStarted;
 
     private boolean playerSide = true;
+    private top.totodile.pokemmo.client.audio.RomAudio audio;
+    private int casterSpecies,casterForm;
+    void audioSide(boolean playerSide) { this.playerSide=playerSide; }
     private java.util.List<Vector3> targetPositions = java.util.List.of(new Vector3(5, 3.08f, 1));
     private int particleDirection = 8;
 
@@ -151,6 +154,8 @@ public final class EncounterMoveAnimation implements AutoCloseable {
             boolean playerSide)
             throws IOException {
         this.playerSide = playerSide;
+        this.audio = resources.audio();
+        casterSpecies=caster.species();casterForm=caster.form();
         this.targetPositions = targets.stream().map(Vector3::cpy).toList();
         own.center.set(casterPosition);
         enemy.center.set(targets.get(0));
@@ -195,6 +200,7 @@ public final class EncounterMoveAnimation implements AutoCloseable {
         for (int id : new int[] {152, 422})
             sources.put(effectPath(id), EncounterVanityEffect.read(resources, effectPath(id)));
         var animation = new EncounterMoveAnimation(images, sources);
+        animation.audio=resources.audio();
         animation.own.center.set(origin);
         animation.enemy.center.set(origin);
         animation.timeline = ReferenceMoveTimeline.parallel();
@@ -215,12 +221,14 @@ public final class EncounterMoveAnimation implements AutoCloseable {
                         Map.of(
                                 effectPath(155),
                                 EncounterVanityEffect.read(resources, effectPath(155))));
+        animation.audio=resources.audio();
         animation.own.center.set(origin);
         animation.enemy.center.set(origin);
         animation.timeline =
                 ReferenceMoveTimeline.sequence()
                         .waitSeconds(.6f)
                         .beginParallel()
+                        .append(animation.scheduleSound((byte)2,1559,1,14,0,.9921875f,animation.casterHandle))
                         .append(animation.emitParticles(-1, 155, 1, 9, 8, .4f))
                         .append(
                                 ReferenceMoveTimeline.sequence()
@@ -248,6 +256,7 @@ public final class EncounterMoveAnimation implements AutoCloseable {
             sources.put(
                     effectPath(effect), EncounterVanityEffect.read(resources, effectPath(effect)));
         var animation = new EncounterMoveAnimation(images, sources);
+        animation.audio=resources.audio();
         animation.own.center.set(origin);
         animation.enemy.center.set(origin);
         animation.timeline =
@@ -925,17 +934,29 @@ public final class EncounterMoveAnimation implements AutoCloseable {
             float delayMillis,
             float volume,
             Object soundActor) {
-        return ReferenceMoveTimeline.sequence();
+        // BaseBattleAnimation.i6 + Modern_Util_Ay: schedule relative to this timeline
+        // node without making its millisecond delay extend the visual sequence.
+        return ReferenceMoveTimeline.call(()->{
+            if(audio==null)return;
+            float pan=targetId==14?-1:targetId==16?1:0;
+            boolean actorOnPlayerSide=soundActor==targetHandle?!playerSide:playerSide;
+            if(soundActor!=null&&!actorOnPlayerSide)pan=-pan;
+            audio.sound(this,soundChannel,soundRegion,soundId,pan,volume,delayMillis);
+        });
     }
 
     public ReferenceMoveTimeline adjustSoundTrack(
             int soundChannel, int adjustmentType, float delayMillis, float durationMillis) {
+        // Imported name is misleading: reference nr_2 updates background velocity,
+        // not an audio track. Do not stop or fade sound here.
         return ReferenceMoveTimeline.sequence();
     }
 
-    // Reference cry callback; audio is outside the requested PC preview.
+    // PokemonCrySoundManager resolves the species' original SWAR entry.
     public ReferenceMoveTimeline playPokemonCry(boolean wait, float delay) {
-        return ReferenceMoveTimeline.sequence();
+        return ReferenceMoveTimeline.call(()->{
+            if(audio!=null)audio.cry(this,casterSpecies,casterForm,playerSide?-1:1,delay);
+        });
     }
 
     public static Color color(int rgb555) {
@@ -944,6 +965,8 @@ public final class EncounterMoveAnimation implements AutoCloseable {
     }
 
     public void close() {
+        // BaseBattleAnimation.lD disposes visuals; a sound already scheduled on the
+        // scene is allowed to finish. The battle window stops effects on exit.
         for (var effect : effects) effect.particles.close();
         effects.clear();
     }

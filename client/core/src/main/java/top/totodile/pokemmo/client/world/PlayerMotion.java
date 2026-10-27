@@ -35,10 +35,16 @@ public final class PlayerMotion {
             Position before, Position after, int sourceX, int sourceY, boolean continuous) {}
 
     private Consumer<Step> stepped = step -> {};
+    private final java.util.List<Consumer<Step>> stepListeners=new java.util.ArrayList<>();
+    private final java.util.List<Consumer<Position>> blockedListeners=new java.util.ArrayList<>();
+    public void addBlockedListener(Consumer<Position> listener){blockedListeners.add(listener);}
+    public void addStepListener(Consumer<Step> listener) { stepListeners.add(java.util.Objects.requireNonNull(listener)); }
 
     public void onStep(Consumer<Step> callback) {
         stepped = java.util.Objects.requireNonNull(callback);
     }
+
+    public float jumpHeight(){return moving&&movement.jumping()?(float)Math.sin(Math.PI*stepProgress())*8:0;}
 
     public float stepProgress() {
         return moving ? Math.min(1, time / duration) : 1;
@@ -125,10 +131,18 @@ public final class PlayerMotion {
                 : movement.position().y();
     }
 
+    /** Server scene position correction ends any predicted step before scripted movement. */
+    public void resetStep() {
+        moving = false;
+        time = turnTime = 0;
+        idleTime = TURN_SECONDS;
+    }
+
     public boolean move(int dx, int dy) {
         if (moving) return false;
         Position before = movement.position();
         if (!movement.step(dx, dy)) {
+            blockedListeners.forEach(listener->listener.accept(movement.position()));
             if (before.direction() != movement.position().direction())
                 save.accept(movement.position());
             return false;
@@ -142,9 +156,11 @@ public final class PlayerMotion {
         if (surfing) bicycle = false;
         if (surfing != wasSurfing || bicycle != wasBicycle) stateChanged.run();
         stepMode = surfing ? Mode.SURF : bicycle ? Mode.BICYCLE : running ? Mode.RUN : Mode.WALK;
-        duration = stepMode.seconds;
+        duration = stepMode.seconds*(movement.jumping()?2:1);
         moving = movement.continuousStep();
         stepped.accept(new Step(before, after, movement.stepFromX(), movement.stepFromY(), moving));
+        var step=new Step(before,after,movement.stepFromX(),movement.stepFromY(),moving);
+        stepListeners.forEach(listener->listener.accept(step));
         save.accept(after);
         return true;
     }
@@ -152,6 +168,9 @@ public final class PlayerMotion {
     public void update(float delta, int dx, int dy) {
         if (!Float.isFinite(delta) || delta < 0) return;
         float elapsed = Math.min(delta, .25f);
+        if(elapsed<=0)return;
+        int forced=movement.forcedDirection();
+        if(forced>=0){int[] xs={0,0,-1,1},ys={1,-1,0,0};dx=xs[forced];dy=ys[forced];turnTime=0;}
         boolean input = Math.abs(dx) + Math.abs(dy) == 1;
         if (!input) turnTime = 0;
         if (elapsed <= 0) return;
@@ -159,7 +178,7 @@ public final class PlayerMotion {
         // 静止改变朝向是独立动作，之后 100ms 才能迈步；持续行走时不插入转身停顿。
         if (!moving
                 && input
-                && (idleTime >= TURN_SECONDS || turnTime > 0)
+                && forced<0 && (idleTime >= TURN_SECONDS || turnTime > 0)
                 && movement.face(dx, dy)) {
             save.accept(movement.position());
             turnTime = TURN_SECONDS;
@@ -174,6 +193,7 @@ public final class PlayerMotion {
         float remaining = elapsed * speed;
         for (int steps = 0; steps < 64; steps++) {
             if (!moving) {
+                int nextForced=movement.forcedDirection();if(nextForced>=0){forced=nextForced;int[] xs={0,0,-1,1},ys={1,-1,0,0};dx=xs[forced];dy=ys[forced];}else if(forced>=0)break;
                 if (remaining <= 0 || !input || !move(dx, dy)) break;
                 idleTime = 0;
                 if (!moving) break; // 真正的传送门切换后从目标位置继续下一帧。

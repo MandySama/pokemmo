@@ -1,7 +1,7 @@
 package top.totodile.pokemmo.client.rom.gba;
 
 /** The international GBA character map and control codes used by reference GbaTextDecoder.Xc. */
-final class GbaText {
+public final class GbaText {
     private static final String[] TEXT = new String[256];
 
     static {
@@ -139,7 +139,7 @@ final class GbaText {
 
     private GbaText() {}
 
-    static String decode(byte[] rom, int offset) {
+    public static String decode(byte[] rom, int offset) {
         if (offset < 0 || offset >= rom.length)
             throw new IllegalArgumentException("Invalid GBA text offset");
         StringBuilder text = new StringBuilder();

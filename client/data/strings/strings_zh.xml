@@ -3223,4 +3223,14 @@
     <string id="1524">请指定私聊对象.</string>
     <string id="1525">发送</string>
     <string id="5075">第{00}回合开始！</string>
+    <!-- Official map interaction overrides from PokeMMO data/strings; ROM translations stay in the language MOD. -->
+    <string id="1538045">训练家小贴士\n\n一些{STRING_0}在特定日子里更容易出现.</string>
+    <string id="1602939">训练家小贴士\n\n按{KEY_B}可以停在坡上.</string>
+    <string id="1627451">这是一张海报.\n\n如果您不解其意, 请去寻求帮助!\n同其他训练家对话并帮助他们吧!</string>
+    <string id="1632870">按{KEY_GAMEMENU}打开菜单!</string>
+    <string id="1776833">训练家小贴士\n\n按{KEY_GAMEMENU}可打开菜单!</string>
+    <string id="1776977">训练家小贴士\n\n按{KEY_GAMEMENU}可打开菜单!</string>
+    <!-- Official evolution cancellation confirmation. -->
+    <string id="6041">确定取消进化?</string>
+    <string id="6150">跳过此动画吗?</string>
 </strings>

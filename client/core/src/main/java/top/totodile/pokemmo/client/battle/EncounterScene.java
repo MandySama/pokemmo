@@ -26,6 +26,7 @@ final class EncounterScene implements AutoCloseable {
     private final PerspectiveCamera camera = new PerspectiveCamera(50, 760, 400);
     private EncounterMoveAnimation renderingMove;
     EncounterCaptureAnimation capture;
+    boolean npcOpponent;
     private final com.badlogic.gdx.graphics.g3d.Environment lighting =
             new com.badlogic.gdx.graphics.g3d.Environment();
     private final com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute ambientLight =
@@ -192,13 +193,15 @@ final class EncounterScene implements AutoCloseable {
                     // Gdx3DModelBatch's settled camera (Lt / SG0), OverworldCamera.JP and PB.
                     float t = Math.max(0, Math.min(1, (entranceTime - 1000) / 1000f));
                     t = t < .5f ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t);
-                    var target = new Vector3(3.5f, 3, -.5f).lerp(new Vector3(3.5f, 3.25f, 4), t);
+                    var target = (npcOpponent ? new Vector3(4, 3, -2) : new Vector3(3.5f, 3, -.5f))
+                            .lerp(new Vector3(3.5f, 3.25f, 4), t);
                     camera.viewportWidth = width;
                     camera.viewportHeight = height;
                     camera.near = .1f;
                     camera.far = 50;
                     camera.up.set(Vector3.Y);
-                    camera.position.set(4, 3, 4).lerp(new Vector3(3.5f, 3.4f, 5.5f), t);
+                    // Qy0(false), JP adds Rg0=3 to the NPC camera's initial Z=-3.
+                    camera.position.set(4, 3, npcOpponent ? 0 : 4).lerp(new Vector3(3.5f, 3.4f, 5.5f), t);
                     camera.lookAt(target);
                     // w9 case 6 frames the trainer for 1s; case 7 returns the camera during the
                     // throw.
@@ -216,7 +219,7 @@ final class EncounterScene implements AutoCloseable {
                     }
                     float turn = Math.max(0, Math.min(1, entranceTime / 1000f));
                     turn = turn < .5f ? 2 * turn * turn : 1 - 2 * (1 - turn) * (1 - turn);
-                    camera.rotateAround(target, Vector3.Y, 15 * (1 - turn));
+                    camera.rotateAround(target, Vector3.Y, (npcOpponent ? 0 : 15) * (1 - turn));
                     camera.rotateAround(target, camera.direction.cpy().crs(camera.up).nor(), -10);
                     camera.update();
                     if (move != null) move.camera(camera);

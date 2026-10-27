@@ -1,0 +1,6652 @@
+{
+  "id": "kanto.map_mechanisms",
+  "version": 1,
+  "enabled": true,
+  "provenance": {
+    "kind": "user-authorized finite adaptation",
+    "date": "2026-10-27",
+    "source": "Reference server maps; reference client ScriptChoiceMenuManager; pret/pokefirered native scripts",
+    "sha256": {
+      "data/layouts/SeafoamIslands_B3F/map.bin": "70f300607e0e46c661c62edaa2fb359eb387bcd297f43be25293d55a5f8787f7",
+      "data/layouts/SeafoamIslands_B3F_CurrentStopped/map.bin": "49c0d122c28508e51a12e04e97cf27df676087dbfbd6eb5a6ecb6270fd43df4d",
+      "data/layouts/SeafoamIslands_B4F/map.bin": "8449b44cce4cfd061ca4de9a061a72504dfef5b9277cffeef9a5763540c6aebd",
+      "data/layouts/SeafoamIslands_B4F_CurrentStopped/map.bin": "b6950a149c5c49c4bb04756ae4b0b83804430069fda2c2aee6f35d55423fd69d",
+      "data/maps/CeladonCity_DepartmentStore_Elevator/scripts.inc": "b385c9a3ea17406633bb03d3bad860adfd9762e97445772a45eb2af9c850cc6a",
+      "data/maps/CinnabarIsland_Gym/scripts.inc": "e7576dbee7d5b44f6e03c363c062bfdfae2a40adf4273a13461e35a70ff5ad5e",
+      "data/maps/CinnabarIsland_Gym/text.inc": "599b91912b14f361afbaa82d5975fb8fda9be565f2b886b15aa30b8d074307c1",
+      "data/maps/PokemonLeague_AgathasRoom/scripts.inc": "3d3af744133659ca0644bbdb1aefcb04d2c0e1255f65a18904fd6e59b7452e4f",
+      "data/maps/PokemonLeague_BrunosRoom/scripts.inc": "d1de5447c4968e608082afedb1512319f11287555f92ce92cd3cc2229c76009a",
+      "data/maps/PokemonLeague_LancesRoom/scripts.inc": "796a87867040647f4f0cf22eb516455b296f5a1b967378797528421421f55830",
+      "data/maps/PokemonLeague_LoreleisRoom/scripts.inc": "62206bd5b51860c75293bf53021a845ee1495cae5ea28703c78ca142b7c32e15",
+      "data/maps/RocketHideout_Elevator/scripts.inc": "6d7c06b9ebc8a003eddfe680f52536ce71975c97c30ba44b4fa33effbf46ec8e",
+      "data/maps/SilphCo_Elevator/scripts.inc": "cf1da1c2b7a3528e800310fd6b043a32a6308959227a235e4c4549c060d252c7",
+      "data/maps/VermilionCity_Gym/scripts.inc": "3341fb187215a9b961bde55465491fb3b24772fe11b0f801d840dcea3888ed7c",
+      "data/maps/VictoryRoad_1F/scripts.inc": "cdcc21ffc6954ac2b5da5c7da1a47341b37971bdf61adf7a31653c6c32be1046",
+      "data/maps/VictoryRoad_2F/scripts.inc": "ee8a47d14edb1e1ff084032f102e0193e4b517eb780d1283bef47e7090ae598a",
+      "data/maps/VictoryRoad_3F/scripts.inc": "c8dae23f151a2eced7bf71135cbded590823c01b912da5ec20d6ecfa610664e4",
+      "data/scripts/pokemon_league.inc": "3776facf5b102af0b49055d62de68cc72e8a954d10347361ac4f18d73dfb664f",
+      "data/scripts/pokemon_mansion.inc": "808a770d8abdf45b08644a828f6cdefecb2707068d7c2978490fbce43212eb38",
+      "include/constants/metatile_labels.h": "a38cbe9de5b9d68ddc43d11e5e05b26f00ae6360998ab095a16a0bfd4fa9a7bc"
+    }
+  },
+  "triggers": [
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 2,
+      "startNode": "quiz_1_win",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/trainer/CinnabarIsland_Gym/CinnabarIsland_Gym_EventScript_Quinn"
+        }
+      ]
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 2,
+      "startNode": "quiz_1_win",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/mechanism/cinnabar/1"
+        }
+      ]
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 2,
+      "startNode": "quiz_1",
+      "conditions": []
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 3,
+      "startNode": "quiz_1_win",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/trainer/CinnabarIsland_Gym/CinnabarIsland_Gym_EventScript_Quinn"
+        }
+      ]
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 3,
+      "startNode": "quiz_1_win",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/mechanism/cinnabar/1"
+        }
+      ]
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 3,
+      "startNode": "quiz_1",
+      "conditions": []
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 4,
+      "startNode": "quiz_2_win",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/trainer/CinnabarIsland_Gym/CinnabarIsland_Gym_EventScript_Avery"
+        }
+      ]
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 4,
+      "startNode": "quiz_2_win",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/mechanism/cinnabar/2"
+        }
+      ]
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 4,
+      "startNode": "quiz_2",
+      "conditions": []
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 5,
+      "startNode": "quiz_2_win",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/trainer/CinnabarIsland_Gym/CinnabarIsland_Gym_EventScript_Avery"
+        }
+      ]
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 5,
+      "startNode": "quiz_2_win",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/mechanism/cinnabar/2"
+        }
+      ]
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 5,
+      "startNode": "quiz_2",
+      "conditions": []
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 6,
+      "startNode": "quiz_3_win",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/trainer/CinnabarIsland_Gym/CinnabarIsland_Gym_EventScript_Ramon"
+        }
+      ]
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 6,
+      "startNode": "quiz_3_win",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/mechanism/cinnabar/3"
+        }
+      ]
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 6,
+      "startNode": "quiz_3",
+      "conditions": []
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 7,
+      "startNode": "quiz_3_win",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/trainer/CinnabarIsland_Gym/CinnabarIsland_Gym_EventScript_Ramon"
+        }
+      ]
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 7,
+      "startNode": "quiz_3_win",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/mechanism/cinnabar/3"
+        }
+      ]
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 7,
+      "startNode": "quiz_3",
+      "conditions": []
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 8,
+      "startNode": "quiz_4_win",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/trainer/CinnabarIsland_Gym/CinnabarIsland_Gym_EventScript_Derek"
+        }
+      ]
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 8,
+      "startNode": "quiz_4_win",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/mechanism/cinnabar/4"
+        }
+      ]
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 8,
+      "startNode": "quiz_4",
+      "conditions": []
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 9,
+      "startNode": "quiz_4_win",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/trainer/CinnabarIsland_Gym/CinnabarIsland_Gym_EventScript_Derek"
+        }
+      ]
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 9,
+      "startNode": "quiz_4_win",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/mechanism/cinnabar/4"
+        }
+      ]
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 9,
+      "startNode": "quiz_4",
+      "conditions": []
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 10,
+      "startNode": "quiz_5_win",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/trainer/CinnabarIsland_Gym/CinnabarIsland_Gym_EventScript_Dusty"
+        }
+      ]
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 10,
+      "startNode": "quiz_5_win",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/mechanism/cinnabar/5"
+        }
+      ]
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 10,
+      "startNode": "quiz_5",
+      "conditions": []
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 11,
+      "startNode": "quiz_5_win",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/trainer/CinnabarIsland_Gym/CinnabarIsland_Gym_EventScript_Dusty"
+        }
+      ]
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 11,
+      "startNode": "quiz_5_win",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/mechanism/cinnabar/5"
+        }
+      ]
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 11,
+      "startNode": "quiz_5",
+      "conditions": []
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 12,
+      "startNode": "quiz_6_win",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/trainer/CinnabarIsland_Gym/CinnabarIsland_Gym_EventScript_Zac"
+        }
+      ]
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 12,
+      "startNode": "quiz_6_win",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/mechanism/cinnabar/6"
+        }
+      ]
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 12,
+      "startNode": "quiz_6",
+      "conditions": []
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 13,
+      "startNode": "quiz_6_win",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/trainer/CinnabarIsland_Gym/CinnabarIsland_Gym_EventScript_Zac"
+        }
+      ]
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 13,
+      "startNode": "quiz_6_win",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/mechanism/cinnabar/6"
+        }
+      ]
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "CinnabarIsland_Gym",
+      "backgroundId": 13,
+      "startNode": "quiz_6",
+      "conditions": []
+    }
+  ],
+  "actors": {},
+  "text": {},
+  "resources": {
+    "elevators": [
+      {
+        "map": "CeladonCity_DepartmentStore_Elevator",
+        "keyItem": 0,
+        "floors": [
+          {
+            "label": "5F",
+            "map": "CeladonCity_DepartmentStore_5F",
+            "x": 6,
+            "y": 2,
+            "toward": 0
+          },
+          {
+            "label": "4F",
+            "map": "CeladonCity_DepartmentStore_4F",
+            "x": 6,
+            "y": 2,
+            "toward": 0
+          },
+          {
+            "label": "3F",
+            "map": "CeladonCity_DepartmentStore_3F",
+            "x": 6,
+            "y": 2,
+            "toward": 0
+          },
+          {
+            "label": "2F",
+            "map": "CeladonCity_DepartmentStore_2F",
+            "x": 6,
+            "y": 2,
+            "toward": 0
+          },
+          {
+            "label": "1F",
+            "map": "CeladonCity_DepartmentStore_1F",
+            "x": 6,
+            "y": 2,
+            "toward": 0
+          }
+        ],
+        "exit": {
+          "x": 2,
+          "y": 5
+        },
+        "controls": [
+          {
+            "x": 0,
+            "y": 2,
+            "elevation": 0,
+            "facingDir": "ANY",
+            "script": "CeladonCity_DepartmentStore_Elevator_EventScript_FloorSelect"
+          },
+          {
+            "x": 4,
+            "y": 1,
+            "elevation": 0,
+            "facingDir": "ANY",
+            "script": "CeladonCity_DepartmentStore_Elevator_EventScript_FloorSelect"
+          }
+        ]
+      },
+      {
+        "map": "SilphCo_Elevator",
+        "keyItem": 0,
+        "floors": [
+          {
+            "label": "11F",
+            "map": "SilphCo_11F",
+            "x": 13,
+            "y": 4,
+            "toward": 0
+          },
+          {
+            "label": "10F",
+            "map": "SilphCo_10F",
+            "x": 13,
+            "y": 4,
+            "toward": 0
+          },
+          {
+            "label": "9F",
+            "map": "SilphCo_9F",
+            "x": 24,
+            "y": 4,
+            "toward": 0
+          },
+          {
+            "label": "8F",
+            "map": "SilphCo_8F",
+            "x": 22,
+            "y": 4,
+            "toward": 0
+          },
+          {
+            "label": "7F",
+            "map": "SilphCo_7F",
+            "x": 23,
+            "y": 4,
+            "toward": 0
+          },
+          {
+            "label": "6F",
+            "map": "SilphCo_6F",
+            "x": 20,
+            "y": 4,
+            "toward": 0
+          },
+          {
+            "label": "5F",
+            "map": "SilphCo_5F",
+            "x": 22,
+            "y": 4,
+            "toward": 0
+          },
+          {
+            "label": "4F",
+            "map": "SilphCo_4F",
+            "x": 22,
+            "y": 4,
+            "toward": 0
+          },
+          {
+            "label": "3F",
+            "map": "SilphCo_3F",
+            "x": 22,
+            "y": 4,
+            "toward": 0
+          },
+          {
+            "label": "2F",
+            "map": "SilphCo_2F",
+            "x": 22,
+            "y": 4,
+            "toward": 0
+          },
+          {
+            "label": "1F",
+            "map": "SilphCo_1F",
+            "x": 22,
+            "y": 4,
+            "toward": 0
+          }
+        ],
+        "exit": {
+          "x": 2,
+          "y": 5
+        },
+        "controls": [
+          {
+            "x": 0,
+            "y": 2,
+            "elevation": 3,
+            "facingDir": "ANY",
+            "script": "SilphCo_Elevator_EventScript_FloorSelect"
+          }
+        ]
+      },
+      {
+        "map": "RocketHideout_Elevator",
+        "keyItem": 356,
+        "floors": [
+          {
+            "label": "B1F",
+            "map": "RocketHideout_B1F",
+            "x": 24,
+            "y": 26,
+            "toward": 0
+          },
+          {
+            "label": "B2F",
+            "map": "RocketHideout_B2F",
+            "x": 28,
+            "y": 17,
+            "toward": 0
+          },
+          {
+            "label": "B4F",
+            "map": "RocketHideout_B4F",
+            "x": 20,
+            "y": 24,
+            "toward": 0
+          }
+        ],
+        "exit": {
+          "x": 2,
+          "y": 5
+        },
+        "controls": [
+          {
+            "x": 0,
+            "y": 2,
+            "elevation": 0,
+            "facingDir": "ANY",
+            "script": "RocketHideout_Elevator_EventScript_FloorSelect"
+          }
+        ]
+      }
+    ],
+    "tileGroups": [
+      {
+        "map": "PokemonLeague_LoreleisRoom",
+        "kind": "leagueEntry",
+        "stage": 0,
+        "states": {
+          "on": [
+            {
+              "x": 5,
+              "y": 11,
+              "metatile": 669,
+              "collision": 1
+            },
+            {
+              "x": 6,
+              "y": 11,
+              "metatile": 670,
+              "collision": 1
+            },
+            {
+              "x": 7,
+              "y": 11,
+              "metatile": 671,
+              "collision": 1
+            },
+            {
+              "x": 5,
+              "y": 12,
+              "metatile": 677,
+              "collision": 1
+            },
+            {
+              "x": 6,
+              "y": 12,
+              "metatile": 678,
+              "collision": 1
+            },
+            {
+              "x": 7,
+              "y": 12,
+              "metatile": 679,
+              "collision": 1
+            }
+          ],
+          "off": [
+            {
+              "x": 5,
+              "y": 11,
+              "block": 666
+            },
+            {
+              "x": 6,
+              "y": 11,
+              "block": 667
+            },
+            {
+              "x": 7,
+              "y": 11,
+              "block": 668
+            },
+            {
+              "x": 5,
+              "y": 12,
+              "block": 674
+            },
+            {
+              "x": 6,
+              "y": 12,
+              "block": 675
+            },
+            {
+              "x": 7,
+              "y": 12,
+              "block": 676
+            }
+          ]
+        }
+      },
+      {
+        "map": "PokemonLeague_LoreleisRoom",
+        "kind": "leagueExit",
+        "stage": 0,
+        "states": {
+          "on": [
+            {
+              "x": 6,
+              "y": 1,
+              "block": 1675
+            },
+            {
+              "x": 6,
+              "y": 2,
+              "block": 1683
+            }
+          ],
+          "off": [
+            {
+              "x": 6,
+              "y": 1,
+              "metatile": 654,
+              "collision": 1
+            },
+            {
+              "x": 6,
+              "y": 2,
+              "metatile": 662,
+              "collision": 0
+            }
+          ]
+        }
+      },
+      {
+        "map": "PokemonLeague_BrunosRoom",
+        "kind": "leagueEntry",
+        "stage": 1,
+        "states": {
+          "on": [
+            {
+              "x": 5,
+              "y": 11,
+              "metatile": 669,
+              "collision": 1
+            },
+            {
+              "x": 6,
+              "y": 11,
+              "metatile": 670,
+              "collision": 1
+            },
+            {
+              "x": 7,
+              "y": 11,
+              "metatile": 671,
+              "collision": 1
+            },
+            {
+              "x": 5,
+              "y": 12,
+              "metatile": 677,
+              "collision": 1
+            },
+            {
+              "x": 6,
+              "y": 12,
+              "metatile": 678,
+              "collision": 1
+            },
+            {
+              "x": 7,
+              "y": 12,
+              "metatile": 679,
+              "collision": 1
+            }
+          ],
+          "off": [
+            {
+              "x": 5,
+              "y": 11,
+              "block": 816
+            },
+            {
+              "x": 6,
+              "y": 11,
+              "block": 817
+            },
+            {
+              "x": 7,
+              "y": 11,
+              "block": 818
+            },
+            {
+              "x": 5,
+              "y": 12,
+              "block": 824
+            },
+            {
+              "x": 6,
+              "y": 12,
+              "block": 825
+            },
+            {
+              "x": 7,
+              "y": 12,
+              "block": 826
+            }
+          ]
+        }
+      },
+      {
+        "map": "PokemonLeague_BrunosRoom",
+        "kind": "leagueExit",
+        "stage": 1,
+        "states": {
+          "on": [
+            {
+              "x": 6,
+              "y": 1,
+              "block": 1675
+            },
+            {
+              "x": 6,
+              "y": 2,
+              "block": 1683
+            }
+          ],
+          "off": [
+            {
+              "x": 6,
+              "y": 1,
+              "metatile": 654,
+              "collision": 1
+            },
+            {
+              "x": 6,
+              "y": 2,
+              "metatile": 662,
+              "collision": 0
+            }
+          ]
+        }
+      },
+      {
+        "map": "PokemonLeague_AgathasRoom",
+        "kind": "leagueEntry",
+        "stage": 2,
+        "states": {
+          "on": [
+            {
+              "x": 5,
+              "y": 11,
+              "metatile": 669,
+              "collision": 1
+            },
+            {
+              "x": 6,
+              "y": 11,
+              "metatile": 670,
+              "collision": 1
+            },
+            {
+              "x": 7,
+              "y": 11,
+              "metatile": 671,
+              "collision": 1
+            },
+            {
+              "x": 5,
+              "y": 12,
+              "metatile": 677,
+              "collision": 1
+            },
+            {
+              "x": 6,
+              "y": 12,
+              "metatile": 678,
+              "collision": 1
+            },
+            {
+              "x": 7,
+              "y": 12,
+              "metatile": 679,
+              "collision": 1
+            }
+          ],
+          "off": [
+            {
+              "x": 5,
+              "y": 11,
+              "block": 819
+            },
+            {
+              "x": 6,
+              "y": 11,
+              "block": 820
+            },
+            {
+              "x": 7,
+              "y": 11,
+              "block": 821
+            },
+            {
+              "x": 5,
+              "y": 12,
+              "block": 827
+            },
+            {
+              "x": 6,
+              "y": 12,
+              "block": 828
+            },
+            {
+              "x": 7,
+              "y": 12,
+              "block": 829
+            }
+          ]
+        }
+      },
+      {
+        "map": "PokemonLeague_AgathasRoom",
+        "kind": "leagueExit",
+        "stage": 2,
+        "states": {
+          "on": [
+            {
+              "x": 6,
+              "y": 1,
+              "block": 1675
+            },
+            {
+              "x": 6,
+              "y": 2,
+              "block": 1683
+            }
+          ],
+          "off": [
+            {
+              "x": 6,
+              "y": 1,
+              "metatile": 654,
+              "collision": 1
+            },
+            {
+              "x": 6,
+              "y": 2,
+              "metatile": 662,
+              "collision": 0
+            }
+          ]
+        }
+      },
+      {
+        "map": "PokemonLeague_LancesRoom",
+        "kind": "leagueEntry",
+        "stage": 3,
+        "states": {
+          "on": [
+            {
+              "x": 5,
+              "y": 14,
+              "metatile": 669,
+              "collision": 1
+            },
+            {
+              "x": 6,
+              "y": 14,
+              "metatile": 670,
+              "collision": 1
+            },
+            {
+              "x": 7,
+              "y": 14,
+              "metatile": 671,
+              "collision": 1
+            },
+            {
+              "x": 5,
+              "y": 15,
+              "metatile": 677,
+              "collision": 1
+            },
+            {
+              "x": 6,
+              "y": 15,
+              "metatile": 678,
+              "collision": 1
+            },
+            {
+              "x": 7,
+              "y": 15,
+              "metatile": 679,
+              "collision": 1
+            },
+            {
+              "x": 6,
+              "y": 16,
+              "metatile": 785,
+              "collision": 0
+            },
+            {
+              "x": 7,
+              "y": 16,
+              "metatile": 785,
+              "collision": 0
+            }
+          ],
+          "off": [
+            {
+              "x": 5,
+              "y": 14,
+              "block": 822
+            },
+            {
+              "x": 6,
+              "y": 14,
+              "block": 13111
+            },
+            {
+              "x": 7,
+              "y": 14,
+              "block": 832
+            },
+            {
+              "x": 5,
+              "y": 15,
+              "block": 830
+            },
+            {
+              "x": 6,
+              "y": 15,
+              "block": 13119
+            },
+            {
+              "x": 7,
+              "y": 15,
+              "block": 840
+            },
+            {
+              "x": 6,
+              "y": 16,
+              "block": 13119
+            },
+            {
+              "x": 7,
+              "y": 16,
+              "block": 12930
+            }
+          ]
+        }
+      },
+      {
+        "map": "PokemonLeague_LancesRoom",
+        "kind": "leagueExit",
+        "stage": 3,
+        "states": {
+          "on": [
+            {
+              "x": 6,
+              "y": 4,
+              "block": 1675
+            },
+            {
+              "x": 6,
+              "y": 5,
+              "block": 1683
+            }
+          ],
+          "off": [
+            {
+              "x": 6,
+              "y": 4,
+              "metatile": 654,
+              "collision": 1
+            },
+            {
+              "x": 6,
+              "y": 5,
+              "metatile": 662,
+              "collision": 0
+            }
+          ]
+        }
+      },
+      {
+        "map": "PokemonMansion_1F",
+        "kind": "mansion",
+        "flag": "kanto/mechanism/mansion",
+        "states": {
+          "on": [
+            {
+              "x": 22,
+              "y": 10,
+              "metatile": 645,
+              "collision": 0
+            },
+            {
+              "x": 23,
+              "y": 10,
+              "metatile": 644,
+              "collision": 0
+            },
+            {
+              "x": 24,
+              "y": 10,
+              "metatile": 644,
+              "collision": 0
+            },
+            {
+              "x": 22,
+              "y": 11,
+              "metatile": 645,
+              "collision": 0
+            },
+            {
+              "x": 23,
+              "y": 11,
+              "metatile": 644,
+              "collision": 0
+            },
+            {
+              "x": 24,
+              "y": 11,
+              "metatile": 644,
+              "collision": 0
+            },
+            {
+              "x": 27,
+              "y": 25,
+              "metatile": 645,
+              "collision": 0
+            },
+            {
+              "x": 28,
+              "y": 25,
+              "metatile": 644,
+              "collision": 0
+            },
+            {
+              "x": 29,
+              "y": 25,
+              "metatile": 644,
+              "collision": 0
+            },
+            {
+              "x": 27,
+              "y": 26,
+              "metatile": 645,
+              "collision": 0
+            },
+            {
+              "x": 28,
+              "y": 26,
+              "metatile": 644,
+              "collision": 0
+            },
+            {
+              "x": 29,
+              "y": 26,
+              "metatile": 644,
+              "collision": 0
+            },
+            {
+              "x": 32,
+              "y": 25,
+              "metatile": 645,
+              "collision": 0
+            },
+            {
+              "x": 33,
+              "y": 25,
+              "metatile": 644,
+              "collision": 0
+            },
+            {
+              "x": 34,
+              "y": 25,
+              "metatile": 644,
+              "collision": 0
+            },
+            {
+              "x": 32,
+              "y": 26,
+              "metatile": 645,
+              "collision": 0
+            },
+            {
+              "x": 33,
+              "y": 26,
+              "metatile": 644,
+              "collision": 0
+            },
+            {
+              "x": 34,
+              "y": 26,
+              "metatile": 644,
+              "collision": 0
+            },
+            {
+              "x": 31,
+              "y": 18,
+              "metatile": 760,
+              "collision": 1
+            },
+            {
+              "x": 32,
+              "y": 18,
+              "metatile": 761,
+              "collision": 1
+            },
+            {
+              "x": 33,
+              "y": 18,
+              "metatile": 762,
+              "collision": 1
+            },
+            {
+              "x": 31,
+              "y": 19,
+              "metatile": 768,
+              "collision": 1
+            },
+            {
+              "x": 32,
+              "y": 19,
+              "metatile": 769,
+              "collision": 1
+            },
+            {
+              "x": 33,
+              "y": 19,
+              "metatile": 770,
+              "collision": 1
+            },
+            {
+              "x": 5,
+              "y": 4,
+              "metatile": 845,
+              "collision": 0
+            }
+          ],
+          "off": [
+            {
+              "x": 22,
+              "y": 10,
+              "metatile": 760,
+              "collision": 1
+            },
+            {
+              "x": 23,
+              "y": 10,
+              "metatile": 761,
+              "collision": 1
+            },
+            {
+              "x": 24,
+              "y": 10,
+              "metatile": 762,
+              "collision": 1
+            },
+            {
+              "x": 22,
+              "y": 11,
+              "metatile": 768,
+              "collision": 1
+            },
+            {
+              "x": 23,
+              "y": 11,
+              "metatile": 769,
+              "collision": 1
+            },
+            {
+              "x": 24,
+              "y": 11,
+              "metatile": 770,
+              "collision": 1
+            },
+            {
+              "x": 27,
+              "y": 25,
+              "metatile": 760,
+              "collision": 1
+            },
+            {
+              "x": 28,
+              "y": 25,
+              "metatile": 761,
+              "collision": 1
+            },
+            {
+              "x": 29,
+              "y": 25,
+              "metatile": 762,
+              "collision": 1
+            },
+            {
+              "x": 27,
+              "y": 26,
+              "metatile": 768,
+              "collision": 1
+            },
+            {
+              "x": 28,
+              "y": 26,
+              "metatile": 769,
+              "collision": 1
+            },
+            {
+              "x": 29,
+              "y": 26,
+              "metatile": 770,
+              "collision": 1
+            },
+            {
+              "x": 32,
+              "y": 25,
+              "metatile": 760,
+              "collision": 1
+            },
+            {
+              "x": 33,
+              "y": 25,
+              "metatile": 761,
+              "collision": 1
+            },
+            {
+              "x": 34,
+              "y": 25,
+              "metatile": 762,
+              "collision": 1
+            },
+            {
+              "x": 32,
+              "y": 26,
+              "metatile": 768,
+              "collision": 1
+            },
+            {
+              "x": 33,
+              "y": 26,
+              "metatile": 769,
+              "collision": 1
+            },
+            {
+              "x": 34,
+              "y": 26,
+              "metatile": 770,
+              "collision": 1
+            },
+            {
+              "x": 31,
+              "y": 18,
+              "metatile": 645,
+              "collision": 0
+            },
+            {
+              "x": 32,
+              "y": 18,
+              "metatile": 644,
+              "collision": 0
+            },
+            {
+              "x": 33,
+              "y": 18,
+              "metatile": 644,
+              "collision": 0
+            },
+            {
+              "x": 31,
+              "y": 19,
+              "metatile": 645,
+              "collision": 0
+            },
+            {
+              "x": 32,
+              "y": 19,
+              "metatile": 644,
+              "collision": 0
+            },
+            {
+              "x": 33,
+              "y": 19,
+              "metatile": 644,
+              "collision": 0
+            },
+            {
+              "x": 5,
+              "y": 4,
+              "metatile": 788,
+              "collision": 0
+            }
+          ]
+        }
+      },
+      {
+        "map": "PokemonMansion_2F",
+        "kind": "mansion",
+        "flag": "kanto/mechanism/mansion",
+        "states": {
+          "on": [
+            {
+              "x": 24,
+              "y": 14,
+              "metatile": 645,
+              "collision": 0
+            },
+            {
+              "x": 25,
+              "y": 14,
+              "metatile": 644,
+              "collision": 0
+            },
+            {
+              "x": 26,
+              "y": 14,
+              "metatile": 644,
+              "collision": 0
+            },
+            {
+              "x": 24,
+              "y": 15,
+              "metatile": 645,
+              "collision": 0
+            },
+            {
+              "x": 25,
+              "y": 15,
+              "metatile": 644,
+              "collision": 0
+            },
+            {
+              "x": 26,
+              "y": 15,
+              "metatile": 644,
+              "collision": 0
+            },
+            {
+              "x": 10,
+              "y": 28,
+              "metatile": 677,
+              "collision": 1
+            },
+            {
+              "x": 10,
+              "y": 29,
+              "metatile": 685,
+              "collision": 1
+            },
+            {
+              "x": 10,
+              "y": 30,
+              "metatile": 645,
+              "collision": 0
+            },
+            {
+              "x": 10,
+              "y": 31,
+              "metatile": 644,
+              "collision": 0
+            },
+            {
+              "x": 10,
+              "y": 32,
+              "metatile": 693,
+              "collision": 0
+            },
+            {
+              "x": 12,
+              "y": 4,
+              "metatile": 848,
+              "collision": 1
+            },
+            {
+              "x": 12,
+              "y": 5,
+              "metatile": 856,
+              "collision": 1
+            },
+            {
+              "x": 12,
+              "y": 6,
+              "metatile": 864,
+              "collision": 1
+            },
+            {
+              "x": 12,
+              "y": 7,
+              "metatile": 872,
+              "collision": 1
+            },
+            {
+              "x": 12,
+              "y": 8,
+              "metatile": 880,
+              "collision": 1
+            },
+            {
+              "x": 2,
+              "y": 15,
+              "metatile": 845,
+              "collision": 0
+            }
+          ],
+          "off": [
+            {
+              "x": 24,
+              "y": 14,
+              "metatile": 760,
+              "collision": 1
+            },
+            {
+              "x": 25,
+              "y": 14,
+              "metatile": 761,
+              "collision": 1
+            },
+            {
+              "x": 26,
+              "y": 14,
+              "metatile": 762,
+              "collision": 1
+            },
+            {
+              "x": 24,
+              "y": 15,
+              "metatile": 768,
+              "collision": 1
+            },
+            {
+              "x": 25,
+              "y": 15,
+              "metatile": 769,
+              "collision": 1
+            },
+            {
+              "x": 26,
+              "y": 15,
+              "metatile": 770,
+              "collision": 1
+            },
+            {
+              "x": 10,
+              "y": 28,
+              "metatile": 848,
+              "collision": 1
+            },
+            {
+              "x": 10,
+              "y": 29,
+              "metatile": 856,
+              "collision": 1
+            },
+            {
+              "x": 10,
+              "y": 30,
+              "metatile": 864,
+              "collision": 1
+            },
+            {
+              "x": 10,
+              "y": 31,
+              "metatile": 872,
+              "collision": 1
+            },
+            {
+              "x": 10,
+              "y": 32,
+              "metatile": 880,
+              "collision": 1
+            },
+            {
+              "x": 12,
+              "y": 4,
+              "metatile": 677,
+              "collision": 1
+            },
+            {
+              "x": 12,
+              "y": 5,
+              "metatile": 685,
+              "collision": 1
+            },
+            {
+              "x": 12,
+              "y": 6,
+              "metatile": 645,
+              "collision": 0
+            },
+            {
+              "x": 12,
+              "y": 7,
+              "metatile": 644,
+              "collision": 0
+            },
+            {
+              "x": 12,
+              "y": 8,
+              "metatile": 693,
+              "collision": 0
+            },
+            {
+              "x": 2,
+              "y": 15,
+              "metatile": 788,
+              "collision": 0
+            }
+          ]
+        }
+      },
+      {
+        "map": "PokemonMansion_3F",
+        "kind": "mansion",
+        "flag": "kanto/mechanism/mansion",
+        "states": {
+          "on": [
+            {
+              "x": 17,
+              "y": 11,
+              "metatile": 645,
+              "collision": 0
+            },
+            {
+              "x": 18,
+              "y": 11,
+              "metatile": 644,
+              "collision": 0
+            },
+            {
+              "x": 19,
+              "y": 11,
+              "metatile": 644,
+              "collision": 0
+            },
+            {
+              "x": 17,
+              "y": 12,
+              "metatile": 645,
+              "collision": 0
+            },
+            {
+              "x": 18,
+              "y": 12,
+              "metatile": 644,
+              "collision": 0
+            },
+            {
+              "x": 19,
+              "y": 12,
+              "metatile": 644,
+              "collision": 0
+            },
+            {
+              "x": 21,
+              "y": 4,
+              "metatile": 848,
+              "collision": 1
+            },
+            {
+              "x": 21,
+              "y": 5,
+              "metatile": 856,
+              "collision": 1
+            },
+            {
+              "x": 21,
+              "y": 6,
+              "metatile": 864,
+              "collision": 1
+            },
+            {
+              "x": 21,
+              "y": 7,
+              "metatile": 872,
+              "collision": 1
+            },
+            {
+              "x": 21,
+              "y": 8,
+              "metatile": 880,
+              "collision": 1
+            },
+            {
+              "x": 12,
+              "y": 4,
+              "metatile": 845,
+              "collision": 0
+            }
+          ],
+          "off": [
+            {
+              "x": 17,
+              "y": 11,
+              "metatile": 760,
+              "collision": 1
+            },
+            {
+              "x": 18,
+              "y": 11,
+              "metatile": 761,
+              "collision": 1
+            },
+            {
+              "x": 19,
+              "y": 11,
+              "metatile": 762,
+              "collision": 1
+            },
+            {
+              "x": 17,
+              "y": 12,
+              "metatile": 768,
+              "collision": 1
+            },
+            {
+              "x": 18,
+              "y": 12,
+              "metatile": 769,
+              "collision": 1
+            },
+            {
+              "x": 19,
+              "y": 12,
+              "metatile": 770,
+              "collision": 1
+            },
+            {
+              "x": 21,
+              "y": 4,
+              "metatile": 677,
+              "collision": 1
+            },
+            {
+              "x": 21,
+              "y": 5,
+              "metatile": 685,
+              "collision": 1
+            },
+            {
+              "x": 21,
+              "y": 6,
+              "metatile": 645,
+              "collision": 0
+            },
+            {
+              "x": 21,
+              "y": 7,
+              "metatile": 644,
+              "collision": 0
+            },
+            {
+              "x": 21,
+              "y": 8,
+              "metatile": 693,
+              "collision": 0
+            },
+            {
+              "x": 12,
+              "y": 4,
+              "metatile": 788,
+              "collision": 0
+            }
+          ]
+        }
+      },
+      {
+        "map": "PokemonMansion_B1F",
+        "kind": "mansion",
+        "flag": "kanto/mechanism/mansion",
+        "states": {
+          "on": [
+            {
+              "x": 33,
+              "y": 20,
+              "metatile": 760,
+              "collision": 1
+            },
+            {
+              "x": 34,
+              "y": 20,
+              "metatile": 761,
+              "collision": 1
+            },
+            {
+              "x": 35,
+              "y": 20,
+              "metatile": 762,
+              "collision": 1
+            },
+            {
+              "x": 33,
+              "y": 21,
+              "metatile": 852,
+              "collision": 1
+            },
+            {
+              "x": 34,
+              "y": 21,
+              "metatile": 853,
+              "collision": 1
+            },
+            {
+              "x": 35,
+              "y": 21,
+              "metatile": 854,
+              "collision": 1
+            },
+            {
+              "x": 16,
+              "y": 26,
+              "metatile": 848,
+              "collision": 1
+            },
+            {
+              "x": 16,
+              "y": 27,
+              "metatile": 856,
+              "collision": 1
+            },
+            {
+              "x": 16,
+              "y": 28,
+              "metatile": 866,
+              "collision": 1
+            },
+            {
+              "x": 16,
+              "y": 29,
+              "metatile": 874,
+              "collision": 1
+            },
+            {
+              "x": 16,
+              "y": 30,
+              "metatile": 882,
+              "collision": 1
+            },
+            {
+              "x": 12,
+              "y": 8,
+              "metatile": 677,
+              "collision": 1
+            },
+            {
+              "x": 12,
+              "y": 9,
+              "metatile": 685,
+              "collision": 1
+            },
+            {
+              "x": 12,
+              "y": 10,
+              "metatile": 647,
+              "collision": 0
+            },
+            {
+              "x": 12,
+              "y": 11,
+              "metatile": 646,
+              "collision": 0
+            },
+            {
+              "x": 12,
+              "y": 12,
+              "metatile": 688,
+              "collision": 0
+            },
+            {
+              "x": 20,
+              "y": 22,
+              "metatile": 647,
+              "collision": 0
+            },
+            {
+              "x": 21,
+              "y": 22,
+              "metatile": 646,
+              "collision": 0
+            },
+            {
+              "x": 22,
+              "y": 22,
+              "metatile": 646,
+              "collision": 0
+            },
+            {
+              "x": 20,
+              "y": 23,
+              "metatile": 647,
+              "collision": 0
+            },
+            {
+              "x": 21,
+              "y": 23,
+              "metatile": 646,
+              "collision": 0
+            },
+            {
+              "x": 22,
+              "y": 23,
+              "metatile": 646,
+              "collision": 0
+            },
+            {
+              "x": 24,
+              "y": 28,
+              "metatile": 847,
+              "collision": 0
+            },
+            {
+              "x": 27,
+              "y": 4,
+              "metatile": 847,
+              "collision": 0
+            }
+          ],
+          "off": [
+            {
+              "x": 33,
+              "y": 20,
+              "metatile": 647,
+              "collision": 0
+            },
+            {
+              "x": 34,
+              "y": 20,
+              "metatile": 646,
+              "collision": 0
+            },
+            {
+              "x": 35,
+              "y": 20,
+              "metatile": 646,
+              "collision": 0
+            },
+            {
+              "x": 33,
+              "y": 21,
+              "metatile": 647,
+              "collision": 0
+            },
+            {
+              "x": 34,
+              "y": 21,
+              "metatile": 646,
+              "collision": 0
+            },
+            {
+              "x": 35,
+              "y": 21,
+              "metatile": 646,
+              "collision": 0
+            },
+            {
+              "x": 16,
+              "y": 26,
+              "metatile": 677,
+              "collision": 1
+            },
+            {
+              "x": 16,
+              "y": 27,
+              "metatile": 685,
+              "collision": 1
+            },
+            {
+              "x": 16,
+              "y": 28,
+              "metatile": 647,
+              "collision": 0
+            },
+            {
+              "x": 16,
+              "y": 29,
+              "metatile": 646,
+              "collision": 0
+            },
+            {
+              "x": 16,
+              "y": 30,
+              "metatile": 688,
+              "collision": 0
+            },
+            {
+              "x": 12,
+              "y": 8,
+              "metatile": 848,
+              "collision": 1
+            },
+            {
+              "x": 12,
+              "y": 9,
+              "metatile": 856,
+              "collision": 1
+            },
+            {
+              "x": 12,
+              "y": 10,
+              "metatile": 866,
+              "collision": 1
+            },
+            {
+              "x": 12,
+              "y": 11,
+              "metatile": 874,
+              "collision": 1
+            },
+            {
+              "x": 12,
+              "y": 12,
+              "metatile": 882,
+              "collision": 1
+            },
+            {
+              "x": 20,
+              "y": 22,
+              "metatile": 760,
+              "collision": 1
+            },
+            {
+              "x": 21,
+              "y": 22,
+              "metatile": 761,
+              "collision": 1
+            },
+            {
+              "x": 22,
+              "y": 22,
+              "metatile": 762,
+              "collision": 1
+            },
+            {
+              "x": 20,
+              "y": 23,
+              "metatile": 852,
+              "collision": 1
+            },
+            {
+              "x": 21,
+              "y": 23,
+              "metatile": 853,
+              "collision": 1
+            },
+            {
+              "x": 22,
+              "y": 23,
+              "metatile": 854,
+              "collision": 1
+            },
+            {
+              "x": 24,
+              "y": 28,
+              "metatile": 790,
+              "collision": 0
+            },
+            {
+              "x": 27,
+              "y": 4,
+              "metatile": 790,
+              "collision": 0
+            }
+          ]
+        }
+      },
+      {
+        "map": "VermilionCity_Gym",
+        "kind": "gym",
+        "flag": "kanto/mechanism/vermilion_locks",
+        "states": {
+          "on": [
+            {
+              "x": 3,
+              "y": 6,
+              "metatile": 681,
+              "collision": 1
+            },
+            {
+              "x": 4,
+              "y": 6,
+              "metatile": 682,
+              "collision": 1
+            },
+            {
+              "x": 5,
+              "y": 6,
+              "metatile": 645,
+              "collision": 1
+            },
+            {
+              "x": 6,
+              "y": 6,
+              "metatile": 683,
+              "collision": 1
+            },
+            {
+              "x": 7,
+              "y": 6,
+              "metatile": 684,
+              "collision": 1
+            },
+            {
+              "x": 3,
+              "y": 7,
+              "metatile": 689,
+              "collision": 1
+            },
+            {
+              "x": 4,
+              "y": 7,
+              "metatile": 690,
+              "collision": 1
+            },
+            {
+              "x": 5,
+              "y": 7,
+              "metatile": 653,
+              "collision": 1
+            },
+            {
+              "x": 6,
+              "y": 7,
+              "metatile": 691,
+              "collision": 1
+            },
+            {
+              "x": 7,
+              "y": 7,
+              "metatile": 692,
+              "collision": 1
+            }
+          ],
+          "half": [
+            {
+              "x": 3,
+              "y": 6,
+              "metatile": 699,
+              "collision": 1
+            },
+            {
+              "x": 4,
+              "y": 6,
+              "metatile": 700,
+              "collision": 1
+            },
+            {
+              "x": 5,
+              "y": 6,
+              "metatile": 701,
+              "collision": 1
+            },
+            {
+              "x": 6,
+              "y": 6,
+              "metatile": 702,
+              "collision": 1
+            },
+            {
+              "x": 7,
+              "y": 6,
+              "metatile": 703,
+              "collision": 1
+            },
+            {
+              "x": 3,
+              "y": 7,
+              "metatile": 707,
+              "collision": 1
+            },
+            {
+              "x": 4,
+              "y": 7,
+              "metatile": 708,
+              "collision": 1
+            },
+            {
+              "x": 5,
+              "y": 7,
+              "metatile": 709,
+              "collision": 1
+            },
+            {
+              "x": 6,
+              "y": 7,
+              "metatile": 710,
+              "collision": 1
+            },
+            {
+              "x": 7,
+              "y": 7,
+              "metatile": 711,
+              "collision": 1
+            }
+          ],
+          "off": [
+            {
+              "x": 3,
+              "y": 6,
+              "metatile": 659,
+              "collision": 1
+            },
+            {
+              "x": 4,
+              "y": 6,
+              "metatile": 660,
+              "collision": 0
+            },
+            {
+              "x": 5,
+              "y": 6,
+              "metatile": 641,
+              "collision": 0
+            },
+            {
+              "x": 6,
+              "y": 6,
+              "metatile": 661,
+              "collision": 0
+            },
+            {
+              "x": 7,
+              "y": 6,
+              "metatile": 662,
+              "collision": 1
+            },
+            {
+              "x": 3,
+              "y": 7,
+              "metatile": 667,
+              "collision": 1
+            },
+            {
+              "x": 4,
+              "y": 7,
+              "metatile": 668,
+              "collision": 0
+            },
+            {
+              "x": 5,
+              "y": 7,
+              "metatile": 641,
+              "collision": 0
+            },
+            {
+              "x": 6,
+              "y": 7,
+              "metatile": 669,
+              "collision": 0
+            },
+            {
+              "x": 7,
+              "y": 7,
+              "metatile": 670,
+              "collision": 1
+            }
+          ]
+        },
+        "bins": [
+          {
+            "id": 2,
+            "x": 1,
+            "y": 10,
+            "elevation": 0,
+            "facingDir": "ANY",
+            "script": "VermilionCity_Gym_EventScript_TrashCan1"
+          },
+          {
+            "id": 3,
+            "x": 3,
+            "y": 10,
+            "elevation": 0,
+            "facingDir": "ANY",
+            "script": "VermilionCity_Gym_EventScript_TrashCan2"
+          },
+          {
+            "id": 4,
+            "x": 5,
+            "y": 10,
+            "elevation": 0,
+            "facingDir": "ANY",
+            "script": "VermilionCity_Gym_EventScript_TrashCan3"
+          },
+          {
+            "id": 5,
+            "x": 7,
+            "y": 10,
+            "elevation": 0,
+            "facingDir": "ANY",
+            "script": "VermilionCity_Gym_EventScript_TrashCan4"
+          },
+          {
+            "id": 6,
+            "x": 9,
+            "y": 10,
+            "elevation": 0,
+            "facingDir": "ANY",
+            "script": "VermilionCity_Gym_EventScript_TrashCan5"
+          },
+          {
+            "id": 7,
+            "x": 1,
+            "y": 12,
+            "elevation": 0,
+            "facingDir": "ANY",
+            "script": "VermilionCity_Gym_EventScript_TrashCan6"
+          },
+          {
+            "id": 8,
+            "x": 3,
+            "y": 12,
+            "elevation": 0,
+            "facingDir": "ANY",
+            "script": "VermilionCity_Gym_EventScript_TrashCan7"
+          },
+          {
+            "id": 9,
+            "x": 5,
+            "y": 12,
+            "elevation": 0,
+            "facingDir": "ANY",
+            "script": "VermilionCity_Gym_EventScript_TrashCan8"
+          },
+          {
+            "id": 10,
+            "x": 7,
+            "y": 12,
+            "elevation": 0,
+            "facingDir": "ANY",
+            "script": "VermilionCity_Gym_EventScript_TrashCan9"
+          },
+          {
+            "id": 11,
+            "x": 9,
+            "y": 12,
+            "elevation": 0,
+            "facingDir": "ANY",
+            "script": "VermilionCity_Gym_EventScript_TrashCan10"
+          },
+          {
+            "id": 12,
+            "x": 1,
+            "y": 14,
+            "elevation": 0,
+            "facingDir": "ANY",
+            "script": "VermilionCity_Gym_EventScript_TrashCan11"
+          },
+          {
+            "id": 13,
+            "x": 3,
+            "y": 14,
+            "elevation": 0,
+            "facingDir": "ANY",
+            "script": "VermilionCity_Gym_EventScript_TrashCan12"
+          },
+          {
+            "id": 14,
+            "x": 5,
+            "y": 14,
+            "elevation": 0,
+            "facingDir": "ANY",
+            "script": "VermilionCity_Gym_EventScript_TrashCan13"
+          },
+          {
+            "id": 15,
+            "x": 7,
+            "y": 14,
+            "elevation": 0,
+            "facingDir": "ANY",
+            "script": "VermilionCity_Gym_EventScript_TrashCan14"
+          },
+          {
+            "id": 16,
+            "x": 9,
+            "y": 14,
+            "elevation": 0,
+            "facingDir": "ANY",
+            "script": "VermilionCity_Gym_EventScript_TrashCan15"
+          }
+        ]
+      },
+      {
+        "map": "VictoryRoad_1F",
+        "kind": "pressure",
+        "flag": "kanto/mechanism/VictoryRoad_1F_EventScript_FloorSwitch",
+        "x": 20,
+        "y": 16,
+        "states": {
+          "on": [
+            {
+              "x": 12,
+              "y": 14,
+              "metatile": 775,
+              "collision": 1
+            },
+            {
+              "x": 12,
+              "y": 15,
+              "metatile": 791,
+              "collision": 1
+            }
+          ],
+          "off": [
+            {
+              "x": 12,
+              "y": 14,
+              "metatile": 721,
+              "collision": 0
+            },
+            {
+              "x": 12,
+              "y": 15,
+              "metatile": 737,
+              "collision": 0
+            }
+          ]
+        }
+      },
+      {
+        "map": "VictoryRoad_2F",
+        "kind": "pressure",
+        "flag": "kanto/mechanism/VictoryRoad_2F_EventScript_FloorSwitch1",
+        "x": 2,
+        "y": 19,
+        "states": {
+          "on": [
+            {
+              "x": 13,
+              "y": 10,
+              "metatile": 775,
+              "collision": 1
+            },
+            {
+              "x": 13,
+              "y": 11,
+              "metatile": 791,
+              "collision": 1
+            }
+          ],
+          "off": [
+            {
+              "x": 13,
+              "y": 10,
+              "metatile": 721,
+              "collision": 0
+            },
+            {
+              "x": 13,
+              "y": 11,
+              "metatile": 737,
+              "collision": 0
+            }
+          ]
+        }
+      },
+      {
+        "map": "VictoryRoad_2F",
+        "kind": "pressure",
+        "flag": "kanto/mechanism/VictoryRoad_2F_EventScript_FloorSwitch2",
+        "x": 14,
+        "y": 19,
+        "states": {
+          "on": [
+            {
+              "x": 33,
+              "y": 16,
+              "metatile": 775,
+              "collision": 1
+            },
+            {
+              "x": 33,
+              "y": 17,
+              "metatile": 791,
+              "collision": 1
+            }
+          ],
+          "off": [
+            {
+              "x": 33,
+              "y": 16,
+              "metatile": 721,
+              "collision": 0
+            },
+            {
+              "x": 33,
+              "y": 17,
+              "metatile": 737,
+              "collision": 0
+            }
+          ]
+        }
+      },
+      {
+        "map": "VictoryRoad_3F",
+        "kind": "pressure",
+        "flag": "kanto/mechanism/VictoryRoad_3F_EventScript_FloorSwitch",
+        "x": 7,
+        "y": 7,
+        "states": {
+          "on": [
+            {
+              "x": 12,
+              "y": 12,
+              "metatile": 775,
+              "collision": 1
+            },
+            {
+              "x": 12,
+              "y": 13,
+              "metatile": 791,
+              "collision": 1
+            }
+          ],
+          "off": [
+            {
+              "x": 12,
+              "y": 12,
+              "metatile": 721,
+              "collision": 0
+            },
+            {
+              "x": 12,
+              "y": 13,
+              "metatile": 737,
+              "collision": 0
+            }
+          ]
+        }
+      },
+      {
+        "map": "CinnabarIsland_Gym",
+        "kind": "quiz",
+        "flag": "kanto/mechanism/cinnabar/1",
+        "trainerFlag": "kanto/trainer/CinnabarIsland_Gym/CinnabarIsland_Gym_EventScript_Quinn",
+        "states": {
+          "on": [],
+          "off": [
+            {
+              "x": 26,
+              "y": 8,
+              "metatile": 711,
+              "collision": 0
+            },
+            {
+              "x": 27,
+              "y": 8,
+              "metatile": 710,
+              "collision": 0
+            },
+            {
+              "x": 26,
+              "y": 9,
+              "metatile": 719,
+              "collision": 0
+            },
+            {
+              "x": 27,
+              "y": 9,
+              "metatile": 718,
+              "collision": 0
+            },
+            {
+              "x": 26,
+              "y": 10,
+              "metatile": 649,
+              "collision": 0
+            },
+            {
+              "x": 27,
+              "y": 10,
+              "metatile": 641,
+              "collision": 0
+            },
+            {
+              "x": 28,
+              "y": 10,
+              "metatile": 642,
+              "collision": 0
+            }
+          ]
+        }
+      },
+      {
+        "map": "CinnabarIsland_Gym",
+        "kind": "quiz",
+        "flag": "kanto/mechanism/cinnabar/2",
+        "trainerFlag": "kanto/trainer/CinnabarIsland_Gym/CinnabarIsland_Gym_EventScript_Avery",
+        "states": {
+          "on": [],
+          "off": [
+            {
+              "x": 17,
+              "y": 8,
+              "metatile": 711,
+              "collision": 0
+            },
+            {
+              "x": 18,
+              "y": 8,
+              "metatile": 710,
+              "collision": 0
+            },
+            {
+              "x": 17,
+              "y": 9,
+              "metatile": 719,
+              "collision": 0
+            },
+            {
+              "x": 18,
+              "y": 9,
+              "metatile": 718,
+              "collision": 0
+            },
+            {
+              "x": 17,
+              "y": 10,
+              "metatile": 649,
+              "collision": 0
+            },
+            {
+              "x": 18,
+              "y": 10,
+              "metatile": 641,
+              "collision": 0
+            },
+            {
+              "x": 19,
+              "y": 10,
+              "metatile": 642,
+              "collision": 0
+            }
+          ]
+        }
+      },
+      {
+        "map": "CinnabarIsland_Gym",
+        "kind": "quiz",
+        "flag": "kanto/mechanism/cinnabar/3",
+        "trainerFlag": "kanto/trainer/CinnabarIsland_Gym/CinnabarIsland_Gym_EventScript_Ramon",
+        "states": {
+          "on": [],
+          "off": [
+            {
+              "x": 17,
+              "y": 15,
+              "metatile": 711,
+              "collision": 0
+            },
+            {
+              "x": 18,
+              "y": 15,
+              "metatile": 710,
+              "collision": 0
+            },
+            {
+              "x": 17,
+              "y": 16,
+              "metatile": 719,
+              "collision": 0
+            },
+            {
+              "x": 18,
+              "y": 16,
+              "metatile": 718,
+              "collision": 0
+            },
+            {
+              "x": 17,
+              "y": 17,
+              "metatile": 649,
+              "collision": 0
+            },
+            {
+              "x": 18,
+              "y": 17,
+              "metatile": 641,
+              "collision": 0
+            },
+            {
+              "x": 19,
+              "y": 17,
+              "metatile": 642,
+              "collision": 0
+            }
+          ]
+        }
+      },
+      {
+        "map": "CinnabarIsland_Gym",
+        "kind": "quiz",
+        "flag": "kanto/mechanism/cinnabar/4",
+        "trainerFlag": "kanto/trainer/CinnabarIsland_Gym/CinnabarIsland_Gym_EventScript_Derek",
+        "states": {
+          "on": [],
+          "off": [
+            {
+              "x": 11,
+              "y": 21,
+              "metatile": 721,
+              "collision": 1
+            },
+            {
+              "x": 11,
+              "y": 22,
+              "metatile": 649,
+              "collision": 0
+            },
+            {
+              "x": 11,
+              "y": 23,
+              "metatile": 641,
+              "collision": 0
+            }
+          ]
+        }
+      },
+      {
+        "map": "CinnabarIsland_Gym",
+        "kind": "quiz",
+        "flag": "kanto/mechanism/cinnabar/5",
+        "trainerFlag": "kanto/trainer/CinnabarIsland_Gym/CinnabarIsland_Gym_EventScript_Dusty",
+        "states": {
+          "on": [],
+          "off": [
+            {
+              "x": 5,
+              "y": 16,
+              "metatile": 711,
+              "collision": 0
+            },
+            {
+              "x": 6,
+              "y": 16,
+              "metatile": 710,
+              "collision": 0
+            },
+            {
+              "x": 5,
+              "y": 17,
+              "metatile": 719,
+              "collision": 0
+            },
+            {
+              "x": 6,
+              "y": 17,
+              "metatile": 718,
+              "collision": 0
+            },
+            {
+              "x": 5,
+              "y": 18,
+              "metatile": 649,
+              "collision": 0
+            },
+            {
+              "x": 6,
+              "y": 18,
+              "metatile": 641,
+              "collision": 0
+            },
+            {
+              "x": 7,
+              "y": 18,
+              "metatile": 642,
+              "collision": 0
+            }
+          ]
+        }
+      },
+      {
+        "map": "CinnabarIsland_Gym",
+        "kind": "quiz",
+        "flag": "kanto/mechanism/cinnabar/6",
+        "trainerFlag": "kanto/trainer/CinnabarIsland_Gym/CinnabarIsland_Gym_EventScript_Zac",
+        "states": {
+          "on": [],
+          "off": [
+            {
+              "x": 5,
+              "y": 8,
+              "metatile": 711,
+              "collision": 0
+            },
+            {
+              "x": 6,
+              "y": 8,
+              "metatile": 710,
+              "collision": 0
+            },
+            {
+              "x": 5,
+              "y": 9,
+              "metatile": 719,
+              "collision": 0
+            },
+            {
+              "x": 6,
+              "y": 9,
+              "metatile": 718,
+              "collision": 0
+            },
+            {
+              "x": 5,
+              "y": 10,
+              "metatile": 649,
+              "collision": 0
+            },
+            {
+              "x": 6,
+              "y": 10,
+              "metatile": 641,
+              "collision": 0
+            },
+            {
+              "x": 7,
+              "y": 10,
+              "metatile": 642,
+              "collision": 0
+            }
+          ]
+        }
+      },
+      {
+        "map": "SeafoamIslands_B3F",
+        "kind": "current",
+        "flag": "kanto/mechanism/current/SeafoamIslands_B3F",
+        "states": {
+          "on": [
+            {
+              "x": 15,
+              "y": 5,
+              "block": 4896
+            },
+            {
+              "x": 16,
+              "y": 5,
+              "block": 4897
+            },
+            {
+              "x": 17,
+              "y": 5,
+              "block": 4897
+            },
+            {
+              "x": 18,
+              "y": 5,
+              "block": 4902
+            },
+            {
+              "x": 19,
+              "y": 5,
+              "block": 4877
+            },
+            {
+              "x": 20,
+              "y": 5,
+              "block": 4901
+            },
+            {
+              "x": 21,
+              "y": 5,
+              "block": 4887
+            },
+            {
+              "x": 22,
+              "y": 5,
+              "block": 4887
+            },
+            {
+              "x": 23,
+              "y": 5,
+              "block": 4887
+            },
+            {
+              "x": 24,
+              "y": 5,
+              "block": 4898
+            },
+            {
+              "x": 15,
+              "y": 6,
+              "block": 4899
+            },
+            {
+              "x": 16,
+              "y": 6,
+              "block": 4877
+            },
+            {
+              "x": 17,
+              "y": 6,
+              "block": 4877
+            },
+            {
+              "x": 18,
+              "y": 6,
+              "block": 4877
+            },
+            {
+              "x": 19,
+              "y": 6,
+              "block": 4877
+            },
+            {
+              "x": 20,
+              "y": 6,
+              "block": 4879
+            },
+            {
+              "x": 21,
+              "y": 6,
+              "block": 4879
+            },
+            {
+              "x": 22,
+              "y": 6,
+              "block": 4879
+            },
+            {
+              "x": 23,
+              "y": 6,
+              "block": 4877
+            },
+            {
+              "x": 24,
+              "y": 6,
+              "block": 4900
+            },
+            {
+              "x": 23,
+              "y": 7,
+              "block": 4877
+            },
+            {
+              "x": 24,
+              "y": 7,
+              "block": 4900
+            },
+            {
+              "x": 23,
+              "y": 8,
+              "block": 4923
+            },
+            {
+              "x": 24,
+              "y": 8,
+              "block": 4924
+            },
+            {
+              "x": 23,
+              "y": 9,
+              "block": 4899
+            },
+            {
+              "x": 24,
+              "y": 9,
+              "block": 4900
+            },
+            {
+              "x": 23,
+              "y": 10,
+              "block": 4899
+            },
+            {
+              "x": 24,
+              "y": 10,
+              "block": 4900
+            },
+            {
+              "x": 9,
+              "y": 11,
+              "block": 855
+            },
+            {
+              "x": 14,
+              "y": 11,
+              "block": 856
+            },
+            {
+              "x": 19,
+              "y": 11,
+              "block": 4896
+            },
+            {
+              "x": 20,
+              "y": 11,
+              "block": 4944
+            },
+            {
+              "x": 21,
+              "y": 11,
+              "block": 4944
+            },
+            {
+              "x": 22,
+              "y": 11,
+              "block": 4897
+            },
+            {
+              "x": 23,
+              "y": 11,
+              "block": 4902
+            },
+            {
+              "x": 24,
+              "y": 11,
+              "block": 4900
+            },
+            {
+              "x": 19,
+              "y": 12,
+              "block": 4899
+            },
+            {
+              "x": 20,
+              "y": 12,
+              "block": 4877
+            },
+            {
+              "x": 21,
+              "y": 12,
+              "block": 4877
+            },
+            {
+              "x": 22,
+              "y": 12,
+              "block": 4877
+            },
+            {
+              "x": 23,
+              "y": 12,
+              "block": 4877
+            },
+            {
+              "x": 24,
+              "y": 12,
+              "block": 4901
+            },
+            {
+              "x": 25,
+              "y": 12,
+              "block": 4887
+            },
+            {
+              "x": 26,
+              "y": 12,
+              "block": 4887
+            },
+            {
+              "x": 27,
+              "y": 12,
+              "block": 4944
+            },
+            {
+              "x": 28,
+              "y": 12,
+              "block": 4945
+            },
+            {
+              "x": 19,
+              "y": 13,
+              "block": 4899
+            },
+            {
+              "x": 20,
+              "y": 13,
+              "block": 4877
+            },
+            {
+              "x": 21,
+              "y": 13,
+              "block": 4877
+            },
+            {
+              "x": 22,
+              "y": 13,
+              "block": 4877
+            },
+            {
+              "x": 23,
+              "y": 13,
+              "block": 4879
+            },
+            {
+              "x": 24,
+              "y": 13,
+              "block": 4879
+            },
+            {
+              "x": 25,
+              "y": 13,
+              "block": 4879
+            },
+            {
+              "x": 26,
+              "y": 13,
+              "block": 4877
+            },
+            {
+              "x": 27,
+              "y": 13,
+              "block": 4877
+            },
+            {
+              "x": 28,
+              "y": 13,
+              "block": 4900
+            },
+            {
+              "x": 24,
+              "y": 14,
+              "block": 1822
+            },
+            {
+              "x": 25,
+              "y": 14,
+              "block": 4877
+            },
+            {
+              "x": 26,
+              "y": 14,
+              "block": 4877
+            },
+            {
+              "x": 27,
+              "y": 14,
+              "block": 1821
+            },
+            {
+              "x": 24,
+              "y": 15,
+              "block": 1682
+            },
+            {
+              "x": 25,
+              "y": 15,
+              "block": 4899
+            },
+            {
+              "x": 26,
+              "y": 15,
+              "block": 4900
+            },
+            {
+              "x": 27,
+              "y": 15,
+              "block": 1680
+            },
+            {
+              "x": 24,
+              "y": 16,
+              "block": 1682
+            },
+            {
+              "x": 25,
+              "y": 16,
+              "block": 4899
+            },
+            {
+              "x": 26,
+              "y": 16,
+              "block": 4900
+            },
+            {
+              "x": 27,
+              "y": 16,
+              "block": 1680
+            },
+            {
+              "x": 24,
+              "y": 17,
+              "block": 1690
+            },
+            {
+              "x": 25,
+              "y": 17,
+              "block": 4899
+            },
+            {
+              "x": 26,
+              "y": 17,
+              "block": 4900
+            },
+            {
+              "x": 27,
+              "y": 17,
+              "block": 1688
+            },
+            {
+              "x": 24,
+              "y": 18,
+              "block": 1674
+            },
+            {
+              "x": 25,
+              "y": 18,
+              "block": 4889
+            },
+            {
+              "x": 26,
+              "y": 18,
+              "block": 4890
+            },
+            {
+              "x": 27,
+              "y": 18,
+              "block": 1672
+            },
+            {
+              "x": 24,
+              "y": 19,
+              "block": 1682
+            },
+            {
+              "x": 25,
+              "y": 19,
+              "block": 4891
+            },
+            {
+              "x": 26,
+              "y": 19,
+              "block": 4892
+            },
+            {
+              "x": 27,
+              "y": 19,
+              "block": 1680
+            },
+            {
+              "x": 24,
+              "y": 20,
+              "block": 1682
+            },
+            {
+              "x": 25,
+              "y": 20,
+              "block": 4891
+            },
+            {
+              "x": 26,
+              "y": 20,
+              "block": 4892
+            },
+            {
+              "x": 27,
+              "y": 20,
+              "block": 1680
+            },
+            {
+              "x": 24,
+              "y": 21,
+              "block": 1682
+            },
+            {
+              "x": 25,
+              "y": 21,
+              "block": 4891
+            },
+            {
+              "x": 26,
+              "y": 21,
+              "block": 4892
+            },
+            {
+              "x": 27,
+              "y": 21,
+              "block": 1680
+            },
+            {
+              "x": 24,
+              "y": 22,
+              "block": 1682
+            },
+            {
+              "x": 25,
+              "y": 22,
+              "block": 4891
+            },
+            {
+              "x": 26,
+              "y": 22,
+              "block": 4892
+            },
+            {
+              "x": 27,
+              "y": 22,
+              "block": 1680
+            }
+          ],
+          "off": [
+            {
+              "x": 15,
+              "y": 5,
+              "block": 1824
+            },
+            {
+              "x": 16,
+              "y": 5,
+              "block": 1825
+            },
+            {
+              "x": 17,
+              "y": 5,
+              "block": 1825
+            },
+            {
+              "x": 18,
+              "y": 5,
+              "block": 1830
+            },
+            {
+              "x": 19,
+              "y": 5,
+              "block": 1805
+            },
+            {
+              "x": 20,
+              "y": 5,
+              "block": 1829
+            },
+            {
+              "x": 21,
+              "y": 5,
+              "block": 1815
+            },
+            {
+              "x": 22,
+              "y": 5,
+              "block": 1815
+            },
+            {
+              "x": 23,
+              "y": 5,
+              "block": 1815
+            },
+            {
+              "x": 24,
+              "y": 5,
+              "block": 1826
+            },
+            {
+              "x": 15,
+              "y": 6,
+              "block": 1827
+            },
+            {
+              "x": 16,
+              "y": 6,
+              "block": 1805
+            },
+            {
+              "x": 17,
+              "y": 6,
+              "block": 1805
+            },
+            {
+              "x": 18,
+              "y": 6,
+              "block": 1805
+            },
+            {
+              "x": 19,
+              "y": 6,
+              "block": 1805
+            },
+            {
+              "x": 20,
+              "y": 6,
+              "block": 1807
+            },
+            {
+              "x": 21,
+              "y": 6,
+              "block": 1807
+            },
+            {
+              "x": 22,
+              "y": 6,
+              "block": 1807
+            },
+            {
+              "x": 23,
+              "y": 6,
+              "block": 1805
+            },
+            {
+              "x": 24,
+              "y": 6,
+              "block": 1828
+            },
+            {
+              "x": 23,
+              "y": 7,
+              "block": 1805
+            },
+            {
+              "x": 24,
+              "y": 7,
+              "block": 1828
+            },
+            {
+              "x": 23,
+              "y": 8,
+              "block": 4904
+            },
+            {
+              "x": 24,
+              "y": 8,
+              "block": 4905
+            },
+            {
+              "x": 23,
+              "y": 9,
+              "block": 4394
+            },
+            {
+              "x": 24,
+              "y": 9,
+              "block": 4396
+            },
+            {
+              "x": 23,
+              "y": 10,
+              "block": 4394
+            },
+            {
+              "x": 24,
+              "y": 10,
+              "block": 4396
+            },
+            {
+              "x": 9,
+              "y": 11,
+              "block": 17239
+            },
+            {
+              "x": 14,
+              "y": 11,
+              "block": 17240
+            },
+            {
+              "x": 19,
+              "y": 11,
+              "block": 4384
+            },
+            {
+              "x": 20,
+              "y": 11,
+              "block": 4387
+            },
+            {
+              "x": 21,
+              "y": 11,
+              "block": 4387
+            },
+            {
+              "x": 22,
+              "y": 11,
+              "block": 4387
+            },
+            {
+              "x": 23,
+              "y": 11,
+              "block": 4401
+            },
+            {
+              "x": 24,
+              "y": 11,
+              "block": 4396
+            },
+            {
+              "x": 19,
+              "y": 12,
+              "block": 4394
+            },
+            {
+              "x": 20,
+              "y": 12,
+              "block": 4395
+            },
+            {
+              "x": 21,
+              "y": 12,
+              "block": 4395
+            },
+            {
+              "x": 22,
+              "y": 12,
+              "block": 4395
+            },
+            {
+              "x": 23,
+              "y": 12,
+              "block": 4395
+            },
+            {
+              "x": 24,
+              "y": 12,
+              "block": 4400
+            },
+            {
+              "x": 25,
+              "y": 12,
+              "block": 4387
+            },
+            {
+              "x": 26,
+              "y": 12,
+              "block": 4387
+            },
+            {
+              "x": 27,
+              "y": 12,
+              "block": 4387
+            },
+            {
+              "x": 28,
+              "y": 12,
+              "block": 4385
+            },
+            {
+              "x": 19,
+              "y": 13,
+              "block": 4394
+            },
+            {
+              "x": 20,
+              "y": 13,
+              "block": 4922
+            },
+            {
+              "x": 21,
+              "y": 13,
+              "block": 4922
+            },
+            {
+              "x": 22,
+              "y": 13,
+              "block": 4922
+            },
+            {
+              "x": 23,
+              "y": 13,
+              "block": 4922
+            },
+            {
+              "x": 24,
+              "y": 13,
+              "block": 4922
+            },
+            {
+              "x": 25,
+              "y": 13,
+              "block": 4922
+            },
+            {
+              "x": 26,
+              "y": 13,
+              "block": 4922
+            },
+            {
+              "x": 27,
+              "y": 13,
+              "block": 4922
+            },
+            {
+              "x": 28,
+              "y": 13,
+              "block": 4396
+            },
+            {
+              "x": 24,
+              "y": 14,
+              "block": 1791
+            },
+            {
+              "x": 25,
+              "y": 14,
+              "block": 4922
+            },
+            {
+              "x": 26,
+              "y": 14,
+              "block": 4922
+            },
+            {
+              "x": 27,
+              "y": 14,
+              "block": 1790
+            },
+            {
+              "x": 24,
+              "y": 15,
+              "block": 1843
+            },
+            {
+              "x": 25,
+              "y": 15,
+              "block": 13100
+            },
+            {
+              "x": 26,
+              "y": 15,
+              "block": 13100
+            },
+            {
+              "x": 27,
+              "y": 15,
+              "block": 1842
+            },
+            {
+              "x": 24,
+              "y": 16,
+              "block": 1843
+            },
+            {
+              "x": 25,
+              "y": 16,
+              "block": 13101
+            },
+            {
+              "x": 26,
+              "y": 16,
+              "block": 13101
+            },
+            {
+              "x": 27,
+              "y": 16,
+              "block": 1842
+            },
+            {
+              "x": 24,
+              "y": 17,
+              "block": 1845
+            },
+            {
+              "x": 25,
+              "y": 17,
+              "block": 13101
+            },
+            {
+              "x": 26,
+              "y": 17,
+              "block": 1831
+            },
+            {
+              "x": 27,
+              "y": 17,
+              "block": 1844
+            },
+            {
+              "x": 24,
+              "y": 18,
+              "block": 1847
+            },
+            {
+              "x": 25,
+              "y": 18,
+              "block": 1831
+            },
+            {
+              "x": 26,
+              "y": 18,
+              "block": 1837
+            },
+            {
+              "x": 27,
+              "y": 18,
+              "block": 1846
+            },
+            {
+              "x": 24,
+              "y": 19,
+              "block": 1843
+            },
+            {
+              "x": 25,
+              "y": 19,
+              "block": 1838
+            },
+            {
+              "x": 26,
+              "y": 19,
+              "block": 1839
+            },
+            {
+              "x": 27,
+              "y": 19,
+              "block": 1823
+            },
+            {
+              "x": 24,
+              "y": 20,
+              "block": 1843
+            },
+            {
+              "x": 25,
+              "y": 20,
+              "block": 1840
+            },
+            {
+              "x": 26,
+              "y": 20,
+              "block": 1841
+            },
+            {
+              "x": 27,
+              "y": 20,
+              "block": 1842
+            },
+            {
+              "x": 24,
+              "y": 21,
+              "block": 1843
+            },
+            {
+              "x": 25,
+              "y": 21,
+              "block": 1838
+            },
+            {
+              "x": 26,
+              "y": 21,
+              "block": 1839
+            },
+            {
+              "x": 27,
+              "y": 21,
+              "block": 1823
+            },
+            {
+              "x": 24,
+              "y": 22,
+              "block": 1843
+            },
+            {
+              "x": 25,
+              "y": 22,
+              "block": 1840
+            },
+            {
+              "x": 26,
+              "y": 22,
+              "block": 1841
+            },
+            {
+              "x": 27,
+              "y": 22,
+              "block": 1842
+            }
+          ]
+        }
+      },
+      {
+        "map": "SeafoamIslands_B4F",
+        "kind": "current",
+        "flag": "kanto/mechanism/current/SeafoamIslands_B4F",
+        "states": {
+          "on": [
+            {
+              "x": 3,
+              "y": 1,
+              "block": 4880
+            },
+            {
+              "x": 4,
+              "y": 1,
+              "block": 4881
+            },
+            {
+              "x": 5,
+              "y": 1,
+              "block": 4882
+            },
+            {
+              "x": 16,
+              "y": 1,
+              "block": 4880
+            },
+            {
+              "x": 17,
+              "y": 1,
+              "block": 4881
+            },
+            {
+              "x": 18,
+              "y": 1,
+              "block": 4881
+            },
+            {
+              "x": 19,
+              "y": 1,
+              "block": 4882
+            },
+            {
+              "x": 3,
+              "y": 2,
+              "block": 4883
+            },
+            {
+              "x": 4,
+              "y": 2,
+              "block": 4876
+            },
+            {
+              "x": 5,
+              "y": 2,
+              "block": 4884
+            },
+            {
+              "x": 16,
+              "y": 2,
+              "block": 4883
+            },
+            {
+              "x": 17,
+              "y": 2,
+              "block": 4876
+            },
+            {
+              "x": 18,
+              "y": 2,
+              "block": 4876
+            },
+            {
+              "x": 19,
+              "y": 2,
+              "block": 4884
+            },
+            {
+              "x": 3,
+              "y": 3,
+              "block": 4883
+            },
+            {
+              "x": 4,
+              "y": 3,
+              "block": 4876
+            },
+            {
+              "x": 5,
+              "y": 3,
+              "block": 4884
+            },
+            {
+              "x": 16,
+              "y": 3,
+              "block": 4883
+            },
+            {
+              "x": 17,
+              "y": 3,
+              "block": 4876
+            },
+            {
+              "x": 18,
+              "y": 3,
+              "block": 4876
+            },
+            {
+              "x": 19,
+              "y": 3,
+              "block": 4884
+            },
+            {
+              "x": 2,
+              "y": 4,
+              "block": 13978
+            },
+            {
+              "x": 3,
+              "y": 4,
+              "block": 4883
+            },
+            {
+              "x": 4,
+              "y": 4,
+              "block": 4876
+            },
+            {
+              "x": 5,
+              "y": 4,
+              "block": 4884
+            },
+            {
+              "x": 16,
+              "y": 4,
+              "block": 4883
+            },
+            {
+              "x": 17,
+              "y": 4,
+              "block": 4876
+            },
+            {
+              "x": 18,
+              "y": 4,
+              "block": 4876
+            },
+            {
+              "x": 19,
+              "y": 4,
+              "block": 4884
+            },
+            {
+              "x": 3,
+              "y": 5,
+              "block": 4883
+            },
+            {
+              "x": 4,
+              "y": 5,
+              "block": 4876
+            },
+            {
+              "x": 5,
+              "y": 5,
+              "block": 4885
+            },
+            {
+              "x": 6,
+              "y": 5,
+              "block": 4881
+            },
+            {
+              "x": 7,
+              "y": 5,
+              "block": 4887
+            },
+            {
+              "x": 8,
+              "y": 5,
+              "block": 4887
+            },
+            {
+              "x": 9,
+              "y": 5,
+              "block": 4887
+            },
+            {
+              "x": 10,
+              "y": 5,
+              "block": 4887
+            },
+            {
+              "x": 11,
+              "y": 5,
+              "block": 4887
+            },
+            {
+              "x": 12,
+              "y": 5,
+              "block": 4887
+            },
+            {
+              "x": 13,
+              "y": 5,
+              "block": 4887
+            },
+            {
+              "x": 14,
+              "y": 5,
+              "block": 4887
+            },
+            {
+              "x": 15,
+              "y": 5,
+              "block": 4887
+            },
+            {
+              "x": 16,
+              "y": 5,
+              "block": 4886
+            },
+            {
+              "x": 17,
+              "y": 5,
+              "block": 4876
+            },
+            {
+              "x": 18,
+              "y": 5,
+              "block": 4876
+            },
+            {
+              "x": 19,
+              "y": 5,
+              "block": 4884
+            },
+            {
+              "x": 3,
+              "y": 6,
+              "block": 4883
+            },
+            {
+              "x": 4,
+              "y": 6,
+              "block": 4876
+            },
+            {
+              "x": 5,
+              "y": 6,
+              "block": 4876
+            },
+            {
+              "x": 6,
+              "y": 6,
+              "block": 4876
+            },
+            {
+              "x": 7,
+              "y": 6,
+              "block": 4876
+            },
+            {
+              "x": 8,
+              "y": 6,
+              "block": 4879
+            },
+            {
+              "x": 9,
+              "y": 6,
+              "block": 4879
+            },
+            {
+              "x": 10,
+              "y": 6,
+              "block": 4879
+            },
+            {
+              "x": 11,
+              "y": 6,
+              "block": 4879
+            },
+            {
+              "x": 12,
+              "y": 6,
+              "block": 4879
+            },
+            {
+              "x": 13,
+              "y": 6,
+              "block": 4879
+            },
+            {
+              "x": 14,
+              "y": 6,
+              "block": 4879
+            },
+            {
+              "x": 15,
+              "y": 6,
+              "block": 4879
+            },
+            {
+              "x": 16,
+              "y": 6,
+              "block": 4879
+            },
+            {
+              "x": 17,
+              "y": 6,
+              "block": 4876
+            },
+            {
+              "x": 18,
+              "y": 6,
+              "block": 4876
+            },
+            {
+              "x": 19,
+              "y": 6,
+              "block": 4884
+            },
+            {
+              "x": 3,
+              "y": 7,
+              "block": 4883
+            },
+            {
+              "x": 4,
+              "y": 7,
+              "block": 4876
+            },
+            {
+              "x": 5,
+              "y": 7,
+              "block": 4876
+            },
+            {
+              "x": 6,
+              "y": 7,
+              "block": 4876
+            },
+            {
+              "x": 7,
+              "y": 7,
+              "block": 4876
+            },
+            {
+              "x": 8,
+              "y": 7,
+              "block": 4876
+            },
+            {
+              "x": 9,
+              "y": 7,
+              "block": 4876
+            },
+            {
+              "x": 10,
+              "y": 7,
+              "block": 1798
+            },
+            {
+              "x": 1,
+              "y": 8,
+              "block": 13978
+            },
+            {
+              "x": 3,
+              "y": 8,
+              "block": 4883
+            },
+            {
+              "x": 4,
+              "y": 8,
+              "block": 4876
+            },
+            {
+              "x": 5,
+              "y": 8,
+              "block": 4876
+            },
+            {
+              "x": 6,
+              "y": 8,
+              "block": 4876
+            },
+            {
+              "x": 7,
+              "y": 8,
+              "block": 4876
+            },
+            {
+              "x": 8,
+              "y": 8,
+              "block": 4876
+            },
+            {
+              "x": 9,
+              "y": 8,
+              "block": 4884
+            },
+            {
+              "x": 3,
+              "y": 9,
+              "block": 4883
+            },
+            {
+              "x": 4,
+              "y": 9,
+              "block": 4876
+            },
+            {
+              "x": 5,
+              "y": 9,
+              "block": 4876
+            },
+            {
+              "x": 6,
+              "y": 9,
+              "block": 4876
+            },
+            {
+              "x": 7,
+              "y": 9,
+              "block": 4876
+            },
+            {
+              "x": 8,
+              "y": 9,
+              "block": 4876
+            },
+            {
+              "x": 9,
+              "y": 9,
+              "block": 4884
+            },
+            {
+              "x": 3,
+              "y": 10,
+              "block": 4883
+            },
+            {
+              "x": 4,
+              "y": 10,
+              "block": 4876
+            },
+            {
+              "x": 5,
+              "y": 10,
+              "block": 4876
+            },
+            {
+              "x": 6,
+              "y": 10,
+              "block": 4876
+            },
+            {
+              "x": 7,
+              "y": 10,
+              "block": 4876
+            },
+            {
+              "x": 8,
+              "y": 10,
+              "block": 4876
+            },
+            {
+              "x": 9,
+              "y": 10,
+              "block": 4884
+            },
+            {
+              "x": 3,
+              "y": 11,
+              "block": 4883
+            },
+            {
+              "x": 4,
+              "y": 11,
+              "block": 4876
+            },
+            {
+              "x": 5,
+              "y": 11,
+              "block": 4876
+            },
+            {
+              "x": 6,
+              "y": 11,
+              "block": 4876
+            },
+            {
+              "x": 7,
+              "y": 11,
+              "block": 4876
+            },
+            {
+              "x": 8,
+              "y": 11,
+              "block": 4876
+            },
+            {
+              "x": 9,
+              "y": 11,
+              "block": 4884
+            },
+            {
+              "x": 3,
+              "y": 12,
+              "block": 4883
+            },
+            {
+              "x": 4,
+              "y": 12,
+              "block": 4876
+            },
+            {
+              "x": 5,
+              "y": 12,
+              "block": 4876
+            },
+            {
+              "x": 6,
+              "y": 12,
+              "block": 4876
+            },
+            {
+              "x": 7,
+              "y": 12,
+              "block": 4876
+            },
+            {
+              "x": 8,
+              "y": 12,
+              "block": 4876
+            },
+            {
+              "x": 9,
+              "y": 12,
+              "block": 4884
+            },
+            {
+              "x": 3,
+              "y": 13,
+              "block": 4883
+            },
+            {
+              "x": 4,
+              "y": 13,
+              "block": 4876
+            },
+            {
+              "x": 5,
+              "y": 13,
+              "block": 4876
+            },
+            {
+              "x": 6,
+              "y": 13,
+              "block": 4876
+            },
+            {
+              "x": 7,
+              "y": 13,
+              "block": 4879
+            },
+            {
+              "x": 8,
+              "y": 13,
+              "block": 4879
+            },
+            {
+              "x": 9,
+              "y": 13,
+              "block": 4888
+            },
+            {
+              "x": 10,
+              "y": 13,
+              "block": 4887
+            },
+            {
+              "x": 11,
+              "y": 13,
+              "block": 4811
+            },
+            {
+              "x": 12,
+              "y": 13,
+              "block": 4811
+            },
+            {
+              "x": 13,
+              "y": 13,
+              "block": 4811
+            },
+            {
+              "x": 14,
+              "y": 13,
+              "block": 4881
+            },
+            {
+              "x": 15,
+              "y": 13,
+              "block": 4881
+            },
+            {
+              "x": 16,
+              "y": 13,
+              "block": 4882
+            },
+            {
+              "x": 3,
+              "y": 14,
+              "block": 4883
+            },
+            {
+              "x": 4,
+              "y": 14,
+              "block": 4876
+            },
+            {
+              "x": 5,
+              "y": 14,
+              "block": 4876
+            },
+            {
+              "x": 6,
+              "y": 14,
+              "block": 4876
+            },
+            {
+              "x": 7,
+              "y": 14,
+              "block": 4876
+            },
+            {
+              "x": 8,
+              "y": 14,
+              "block": 4879
+            },
+            {
+              "x": 9,
+              "y": 14,
+              "block": 4879
+            },
+            {
+              "x": 10,
+              "y": 14,
+              "block": 4879
+            },
+            {
+              "x": 11,
+              "y": 14,
+              "block": 4879
+            },
+            {
+              "x": 12,
+              "y": 14,
+              "block": 4876
+            },
+            {
+              "x": 13,
+              "y": 14,
+              "block": 4876
+            },
+            {
+              "x": 14,
+              "y": 14,
+              "block": 4876
+            },
+            {
+              "x": 15,
+              "y": 14,
+              "block": 4876
+            },
+            {
+              "x": 16,
+              "y": 14,
+              "block": 4884
+            },
+            {
+              "x": 3,
+              "y": 15,
+              "block": 4883
+            },
+            {
+              "x": 4,
+              "y": 15,
+              "block": 4876
+            },
+            {
+              "x": 5,
+              "y": 15,
+              "block": 4876
+            },
+            {
+              "x": 6,
+              "y": 15,
+              "block": 4876
+            },
+            {
+              "x": 7,
+              "y": 15,
+              "block": 4876
+            },
+            {
+              "x": 8,
+              "y": 15,
+              "block": 4876
+            },
+            {
+              "x": 9,
+              "y": 15,
+              "block": 4876
+            },
+            {
+              "x": 10,
+              "y": 15,
+              "block": 4879
+            },
+            {
+              "x": 11,
+              "y": 15,
+              "block": 4879
+            },
+            {
+              "x": 12,
+              "y": 15,
+              "block": 4879
+            },
+            {
+              "x": 13,
+              "y": 15,
+              "block": 4876
+            },
+            {
+              "x": 14,
+              "y": 15,
+              "block": 4876
+            },
+            {
+              "x": 15,
+              "y": 15,
+              "block": 4876
+            },
+            {
+              "x": 16,
+              "y": 15,
+              "block": 4884
+            },
+            {
+              "x": 3,
+              "y": 16,
+              "block": 4883
+            },
+            {
+              "x": 4,
+              "y": 16,
+              "block": 4876
+            },
+            {
+              "x": 5,
+              "y": 16,
+              "block": 4876
+            },
+            {
+              "x": 6,
+              "y": 16,
+              "block": 4876
+            },
+            {
+              "x": 7,
+              "y": 16,
+              "block": 4876
+            },
+            {
+              "x": 8,
+              "y": 16,
+              "block": 4876
+            },
+            {
+              "x": 9,
+              "y": 16,
+              "block": 4876
+            },
+            {
+              "x": 10,
+              "y": 16,
+              "block": 4876
+            },
+            {
+              "x": 11,
+              "y": 16,
+              "block": 4879
+            },
+            {
+              "x": 12,
+              "y": 16,
+              "block": 4879
+            },
+            {
+              "x": 13,
+              "y": 16,
+              "block": 4879
+            },
+            {
+              "x": 14,
+              "y": 16,
+              "block": 4876
+            },
+            {
+              "x": 15,
+              "y": 16,
+              "block": 4876
+            },
+            {
+              "x": 16,
+              "y": 16,
+              "block": 4884
+            },
+            {
+              "x": 7,
+              "y": 17,
+              "block": 1799
+            },
+            {
+              "x": 8,
+              "y": 17,
+              "block": 4876
+            },
+            {
+              "x": 9,
+              "y": 17,
+              "block": 4876
+            },
+            {
+              "x": 10,
+              "y": 17,
+              "block": 1798
+            },
+            {
+              "x": 8,
+              "y": 18,
+              "block": 4920
+            },
+            {
+              "x": 9,
+              "y": 18,
+              "block": 4921
+            },
+            {
+              "x": 8,
+              "y": 19,
+              "block": 4883
+            },
+            {
+              "x": 9,
+              "y": 19,
+              "block": 4884
+            },
+            {
+              "x": 35,
+              "y": 19,
+              "block": 1878
+            },
+            {
+              "x": 8,
+              "y": 20,
+              "block": 4883
+            },
+            {
+              "x": 9,
+              "y": 20,
+              "block": 4884
+            },
+            {
+              "x": 8,
+              "y": 21,
+              "block": 4883
+            },
+            {
+              "x": 9,
+              "y": 21,
+              "block": 4884
+            }
+          ],
+          "off": [
+            {
+              "x": 3,
+              "y": 1,
+              "block": 4384
+            },
+            {
+              "x": 4,
+              "y": 1,
+              "block": 4387
+            },
+            {
+              "x": 5,
+              "y": 1,
+              "block": 4385
+            },
+            {
+              "x": 16,
+              "y": 1,
+              "block": 4384
+            },
+            {
+              "x": 17,
+              "y": 1,
+              "block": 4387
+            },
+            {
+              "x": 18,
+              "y": 1,
+              "block": 4387
+            },
+            {
+              "x": 19,
+              "y": 1,
+              "block": 4385
+            },
+            {
+              "x": 3,
+              "y": 2,
+              "block": 4394
+            },
+            {
+              "x": 4,
+              "y": 2,
+              "block": 4395
+            },
+            {
+              "x": 5,
+              "y": 2,
+              "block": 4396
+            },
+            {
+              "x": 16,
+              "y": 2,
+              "block": 4394
+            },
+            {
+              "x": 17,
+              "y": 2,
+              "block": 4395
+            },
+            {
+              "x": 18,
+              "y": 2,
+              "block": 4395
+            },
+            {
+              "x": 19,
+              "y": 2,
+              "block": 4396
+            },
+            {
+              "x": 3,
+              "y": 3,
+              "block": 4394
+            },
+            {
+              "x": 4,
+              "y": 3,
+              "block": 4395
+            },
+            {
+              "x": 5,
+              "y": 3,
+              "block": 4396
+            },
+            {
+              "x": 16,
+              "y": 3,
+              "block": 4394
+            },
+            {
+              "x": 17,
+              "y": 3,
+              "block": 4395
+            },
+            {
+              "x": 18,
+              "y": 3,
+              "block": 4395
+            },
+            {
+              "x": 19,
+              "y": 3,
+              "block": 4396
+            },
+            {
+              "x": 2,
+              "y": 4,
+              "block": 1690
+            },
+            {
+              "x": 3,
+              "y": 4,
+              "block": 4394
+            },
+            {
+              "x": 4,
+              "y": 4,
+              "block": 4395
+            },
+            {
+              "x": 5,
+              "y": 4,
+              "block": 4396
+            },
+            {
+              "x": 16,
+              "y": 4,
+              "block": 4394
+            },
+            {
+              "x": 17,
+              "y": 4,
+              "block": 4395
+            },
+            {
+              "x": 18,
+              "y": 4,
+              "block": 4395
+            },
+            {
+              "x": 19,
+              "y": 4,
+              "block": 4396
+            },
+            {
+              "x": 3,
+              "y": 5,
+              "block": 4394
+            },
+            {
+              "x": 4,
+              "y": 5,
+              "block": 4395
+            },
+            {
+              "x": 5,
+              "y": 5,
+              "block": 4400
+            },
+            {
+              "x": 6,
+              "y": 5,
+              "block": 4387
+            },
+            {
+              "x": 7,
+              "y": 5,
+              "block": 4387
+            },
+            {
+              "x": 8,
+              "y": 5,
+              "block": 4387
+            },
+            {
+              "x": 9,
+              "y": 5,
+              "block": 4387
+            },
+            {
+              "x": 10,
+              "y": 5,
+              "block": 4387
+            },
+            {
+              "x": 11,
+              "y": 5,
+              "block": 4387
+            },
+            {
+              "x": 12,
+              "y": 5,
+              "block": 4387
+            },
+            {
+              "x": 13,
+              "y": 5,
+              "block": 4387
+            },
+            {
+              "x": 14,
+              "y": 5,
+              "block": 4387
+            },
+            {
+              "x": 15,
+              "y": 5,
+              "block": 4387
+            },
+            {
+              "x": 16,
+              "y": 5,
+              "block": 4401
+            },
+            {
+              "x": 17,
+              "y": 5,
+              "block": 4395
+            },
+            {
+              "x": 18,
+              "y": 5,
+              "block": 4395
+            },
+            {
+              "x": 19,
+              "y": 5,
+              "block": 4396
+            },
+            {
+              "x": 3,
+              "y": 6,
+              "block": 4394
+            },
+            {
+              "x": 4,
+              "y": 6,
+              "block": 4395
+            },
+            {
+              "x": 5,
+              "y": 6,
+              "block": 4395
+            },
+            {
+              "x": 6,
+              "y": 6,
+              "block": 4395
+            },
+            {
+              "x": 7,
+              "y": 6,
+              "block": 4395
+            },
+            {
+              "x": 8,
+              "y": 6,
+              "block": 4395
+            },
+            {
+              "x": 9,
+              "y": 6,
+              "block": 4395
+            },
+            {
+              "x": 10,
+              "y": 6,
+              "block": 4395
+            },
+            {
+              "x": 11,
+              "y": 6,
+              "block": 4395
+            },
+            {
+              "x": 12,
+              "y": 6,
+              "block": 4395
+            },
+            {
+              "x": 13,
+              "y": 6,
+              "block": 4395
+            },
+            {
+              "x": 14,
+              "y": 6,
+              "block": 4395
+            },
+            {
+              "x": 15,
+              "y": 6,
+              "block": 4395
+            },
+            {
+              "x": 16,
+              "y": 6,
+              "block": 4395
+            },
+            {
+              "x": 17,
+              "y": 6,
+              "block": 4395
+            },
+            {
+              "x": 18,
+              "y": 6,
+              "block": 4395
+            },
+            {
+              "x": 19,
+              "y": 6,
+              "block": 4396
+            },
+            {
+              "x": 3,
+              "y": 7,
+              "block": 4394
+            },
+            {
+              "x": 4,
+              "y": 7,
+              "block": 4395
+            },
+            {
+              "x": 5,
+              "y": 7,
+              "block": 4395
+            },
+            {
+              "x": 6,
+              "y": 7,
+              "block": 4395
+            },
+            {
+              "x": 7,
+              "y": 7,
+              "block": 4395
+            },
+            {
+              "x": 8,
+              "y": 7,
+              "block": 4395
+            },
+            {
+              "x": 9,
+              "y": 7,
+              "block": 4395
+            },
+            {
+              "x": 10,
+              "y": 7,
+              "block": 1790
+            },
+            {
+              "x": 1,
+              "y": 8,
+              "block": 1690
+            },
+            {
+              "x": 3,
+              "y": 8,
+              "block": 4394
+            },
+            {
+              "x": 4,
+              "y": 8,
+              "block": 4395
+            },
+            {
+              "x": 5,
+              "y": 8,
+              "block": 4395
+            },
+            {
+              "x": 6,
+              "y": 8,
+              "block": 4395
+            },
+            {
+              "x": 7,
+              "y": 8,
+              "block": 4395
+            },
+            {
+              "x": 8,
+              "y": 8,
+              "block": 4395
+            },
+            {
+              "x": 9,
+              "y": 8,
+              "block": 4396
+            },
+            {
+              "x": 3,
+              "y": 9,
+              "block": 4394
+            },
+            {
+              "x": 4,
+              "y": 9,
+              "block": 4395
+            },
+            {
+              "x": 5,
+              "y": 9,
+              "block": 4395
+            },
+            {
+              "x": 6,
+              "y": 9,
+              "block": 4395
+            },
+            {
+              "x": 7,
+              "y": 9,
+              "block": 4395
+            },
+            {
+              "x": 8,
+              "y": 9,
+              "block": 4395
+            },
+            {
+              "x": 9,
+              "y": 9,
+              "block": 4396
+            },
+            {
+              "x": 3,
+              "y": 10,
+              "block": 4394
+            },
+            {
+              "x": 4,
+              "y": 10,
+              "block": 4395
+            },
+            {
+              "x": 5,
+              "y": 10,
+              "block": 4395
+            },
+            {
+              "x": 6,
+              "y": 10,
+              "block": 4395
+            },
+            {
+              "x": 7,
+              "y": 10,
+              "block": 4395
+            },
+            {
+              "x": 8,
+              "y": 10,
+              "block": 4395
+            },
+            {
+              "x": 9,
+              "y": 10,
+              "block": 4396
+            },
+            {
+              "x": 3,
+              "y": 11,
+              "block": 4394
+            },
+            {
+              "x": 4,
+              "y": 11,
+              "block": 4395
+            },
+            {
+              "x": 5,
+              "y": 11,
+              "block": 4395
+            },
+            {
+              "x": 6,
+              "y": 11,
+              "block": 4395
+            },
+            {
+              "x": 7,
+              "y": 11,
+              "block": 4395
+            },
+            {
+              "x": 8,
+              "y": 11,
+              "block": 4395
+            },
+            {
+              "x": 9,
+              "y": 11,
+              "block": 4396
+            },
+            {
+              "x": 3,
+              "y": 12,
+              "block": 4394
+            },
+            {
+              "x": 4,
+              "y": 12,
+              "block": 4395
+            },
+            {
+              "x": 5,
+              "y": 12,
+              "block": 4395
+            },
+            {
+              "x": 6,
+              "y": 12,
+              "block": 4395
+            },
+            {
+              "x": 7,
+              "y": 12,
+              "block": 4395
+            },
+            {
+              "x": 8,
+              "y": 12,
+              "block": 4395
+            },
+            {
+              "x": 9,
+              "y": 12,
+              "block": 4396
+            },
+            {
+              "x": 3,
+              "y": 13,
+              "block": 4394
+            },
+            {
+              "x": 4,
+              "y": 13,
+              "block": 4395
+            },
+            {
+              "x": 5,
+              "y": 13,
+              "block": 4395
+            },
+            {
+              "x": 6,
+              "y": 13,
+              "block": 4395
+            },
+            {
+              "x": 7,
+              "y": 13,
+              "block": 4395
+            },
+            {
+              "x": 8,
+              "y": 13,
+              "block": 4395
+            },
+            {
+              "x": 9,
+              "y": 13,
+              "block": 4400
+            },
+            {
+              "x": 10,
+              "y": 13,
+              "block": 4387
+            },
+            {
+              "x": 11,
+              "y": 13,
+              "block": 4387
+            },
+            {
+              "x": 12,
+              "y": 13,
+              "block": 4387
+            },
+            {
+              "x": 13,
+              "y": 13,
+              "block": 4387
+            },
+            {
+              "x": 14,
+              "y": 13,
+              "block": 4387
+            },
+            {
+              "x": 15,
+              "y": 13,
+              "block": 4387
+            },
+            {
+              "x": 16,
+              "y": 13,
+              "block": 4385
+            },
+            {
+              "x": 3,
+              "y": 14,
+              "block": 4394
+            },
+            {
+              "x": 4,
+              "y": 14,
+              "block": 4395
+            },
+            {
+              "x": 5,
+              "y": 14,
+              "block": 4395
+            },
+            {
+              "x": 6,
+              "y": 14,
+              "block": 4395
+            },
+            {
+              "x": 7,
+              "y": 14,
+              "block": 4395
+            },
+            {
+              "x": 8,
+              "y": 14,
+              "block": 4395
+            },
+            {
+              "x": 9,
+              "y": 14,
+              "block": 4395
+            },
+            {
+              "x": 10,
+              "y": 14,
+              "block": 4395
+            },
+            {
+              "x": 11,
+              "y": 14,
+              "block": 4395
+            },
+            {
+              "x": 12,
+              "y": 14,
+              "block": 4395
+            },
+            {
+              "x": 13,
+              "y": 14,
+              "block": 4395
+            },
+            {
+              "x": 14,
+              "y": 14,
+              "block": 4395
+            },
+            {
+              "x": 15,
+              "y": 14,
+              "block": 4395
+            },
+            {
+              "x": 16,
+              "y": 14,
+              "block": 4396
+            },
+            {
+              "x": 3,
+              "y": 15,
+              "block": 4394
+            },
+            {
+              "x": 4,
+              "y": 15,
+              "block": 4395
+            },
+            {
+              "x": 5,
+              "y": 15,
+              "block": 4395
+            },
+            {
+              "x": 6,
+              "y": 15,
+              "block": 4395
+            },
+            {
+              "x": 7,
+              "y": 15,
+              "block": 4395
+            },
+            {
+              "x": 8,
+              "y": 15,
+              "block": 4395
+            },
+            {
+              "x": 9,
+              "y": 15,
+              "block": 4395
+            },
+            {
+              "x": 10,
+              "y": 15,
+              "block": 4395
+            },
+            {
+              "x": 11,
+              "y": 15,
+              "block": 4395
+            },
+            {
+              "x": 12,
+              "y": 15,
+              "block": 4395
+            },
+            {
+              "x": 13,
+              "y": 15,
+              "block": 4395
+            },
+            {
+              "x": 14,
+              "y": 15,
+              "block": 4395
+            },
+            {
+              "x": 15,
+              "y": 15,
+              "block": 4395
+            },
+            {
+              "x": 16,
+              "y": 15,
+              "block": 4396
+            },
+            {
+              "x": 3,
+              "y": 16,
+              "block": 4394
+            },
+            {
+              "x": 4,
+              "y": 16,
+              "block": 4395
+            },
+            {
+              "x": 5,
+              "y": 16,
+              "block": 4395
+            },
+            {
+              "x": 6,
+              "y": 16,
+              "block": 4395
+            },
+            {
+              "x": 7,
+              "y": 16,
+              "block": 4395
+            },
+            {
+              "x": 8,
+              "y": 16,
+              "block": 4395
+            },
+            {
+              "x": 9,
+              "y": 16,
+              "block": 4395
+            },
+            {
+              "x": 10,
+              "y": 16,
+              "block": 4395
+            },
+            {
+              "x": 11,
+              "y": 16,
+              "block": 4395
+            },
+            {
+              "x": 12,
+              "y": 16,
+              "block": 4395
+            },
+            {
+              "x": 13,
+              "y": 16,
+              "block": 4395
+            },
+            {
+              "x": 14,
+              "y": 16,
+              "block": 4395
+            },
+            {
+              "x": 15,
+              "y": 16,
+              "block": 4395
+            },
+            {
+              "x": 16,
+              "y": 16,
+              "block": 4396
+            },
+            {
+              "x": 7,
+              "y": 17,
+              "block": 1791
+            },
+            {
+              "x": 8,
+              "y": 17,
+              "block": 4395
+            },
+            {
+              "x": 9,
+              "y": 17,
+              "block": 4395
+            },
+            {
+              "x": 10,
+              "y": 17,
+              "block": 1790
+            },
+            {
+              "x": 8,
+              "y": 18,
+              "block": 4906
+            },
+            {
+              "x": 9,
+              "y": 18,
+              "block": 4907
+            },
+            {
+              "x": 8,
+              "y": 19,
+              "block": 1811
+            },
+            {
+              "x": 9,
+              "y": 19,
+              "block": 1812
+            },
+            {
+              "x": 35,
+              "y": 19,
+              "block": 854
+            },
+            {
+              "x": 8,
+              "y": 20,
+              "block": 1811
+            },
+            {
+              "x": 9,
+              "y": 20,
+              "block": 1812
+            },
+            {
+              "x": 8,
+              "y": 21,
+              "block": 1811
+            },
+            {
+              "x": 9,
+              "y": 21,
+              "block": 1812
+            }
+          ]
+        }
+      }
+    ],
+    "boulders": [
+      {
+        "map": "FuchsiaCity_WardensHouse",
+        "npc": 1,
+        "x": 11,
+        "y": 6,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "MtEmber_Exterior",
+        "npc": 8,
+        "x": 22,
+        "y": 45,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "MtEmber_Exterior",
+        "npc": 9,
+        "x": 17,
+        "y": 46,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "MtEmber_Exterior",
+        "npc": 10,
+        "x": 36,
+        "y": 14,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "MtEmber_Exterior",
+        "npc": 13,
+        "x": 35,
+        "y": 14,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "MtEmber_Exterior",
+        "npc": 14,
+        "x": 35,
+        "y": 17,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "MtEmber_RubyPath_B2F",
+        "npc": 0,
+        "x": 9,
+        "y": 3,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "MtEmber_RubyPath_B2F",
+        "npc": 1,
+        "x": 12,
+        "y": 5,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "MtEmber_RubyPath_B2F",
+        "npc": 2,
+        "x": 12,
+        "y": 2,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "MtEmber_RubyPath_B3F",
+        "npc": 0,
+        "x": 10,
+        "y": 4,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "MtEmber_RubyPath_B3F",
+        "npc": 1,
+        "x": 26,
+        "y": 12,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "MtEmber_RubyPath_B3F",
+        "npc": 2,
+        "x": 28,
+        "y": 8,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "MtEmber_RubyPath_B3F",
+        "npc": 9,
+        "x": 15,
+        "y": 13,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "MtEmber_Summit",
+        "npc": 1,
+        "x": 10,
+        "y": 12,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "MtEmber_Summit",
+        "npc": 2,
+        "x": 9,
+        "y": 12,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "MtEmber_Summit",
+        "npc": 3,
+        "x": 8,
+        "y": 11,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "MtEmber_Summit",
+        "npc": 4,
+        "x": 8,
+        "y": 10,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "SeafoamIslands_1F",
+        "npc": 0,
+        "x": 22,
+        "y": 12,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "SeafoamIslands_1F",
+        "npc": 1,
+        "x": 32,
+        "y": 9,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "SeafoamIslands_B1F",
+        "npc": 0,
+        "x": 22,
+        "y": 8,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "SeafoamIslands_B1F",
+        "npc": 1,
+        "x": 30,
+        "y": 8,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "SeafoamIslands_B2F",
+        "npc": 0,
+        "x": 22,
+        "y": 8,
+        "pushable": true,
+        "initialHidden": true
+      },
+      {
+        "map": "SeafoamIslands_B2F",
+        "npc": 1,
+        "x": 30,
+        "y": 8,
+        "pushable": true,
+        "initialHidden": true
+      },
+      {
+        "map": "SeafoamIslands_B3F",
+        "npc": 0,
+        "x": 23,
+        "y": 8,
+        "pushable": false,
+        "initialHidden": true
+      },
+      {
+        "map": "SeafoamIslands_B3F",
+        "npc": 1,
+        "x": 24,
+        "y": 8,
+        "pushable": false,
+        "initialHidden": true
+      },
+      {
+        "map": "SeafoamIslands_B3F",
+        "npc": 2,
+        "x": 12,
+        "y": 16,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "SeafoamIslands_B3F",
+        "npc": 3,
+        "x": 13,
+        "y": 16,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "SeafoamIslands_B3F",
+        "npc": 4,
+        "x": 9,
+        "y": 16,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "SeafoamIslands_B3F",
+        "npc": 5,
+        "x": 6,
+        "y": 17,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "SeafoamIslands_B4F",
+        "npc": 0,
+        "x": 8,
+        "y": 18,
+        "pushable": false,
+        "initialHidden": true
+      },
+      {
+        "map": "SeafoamIslands_B4F",
+        "npc": 1,
+        "x": 9,
+        "y": 18,
+        "pushable": false,
+        "initialHidden": true
+      },
+      {
+        "map": "SevenIsland_SevaultCanyon",
+        "npc": 9,
+        "x": 13,
+        "y": 47,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "SevenIsland_SevaultCanyon",
+        "npc": 14,
+        "x": 17,
+        "y": 47,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "SevenIsland_SevaultCanyon_TanobyKey",
+        "npc": 0,
+        "x": 7,
+        "y": 6,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "SevenIsland_SevaultCanyon_TanobyKey",
+        "npc": 1,
+        "x": 8,
+        "y": 6,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "SevenIsland_SevaultCanyon_TanobyKey",
+        "npc": 2,
+        "x": 8,
+        "y": 9,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "SevenIsland_SevaultCanyon_TanobyKey",
+        "npc": 3,
+        "x": 6,
+        "y": 10,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "SevenIsland_SevaultCanyon_TanobyKey",
+        "npc": 4,
+        "x": 8,
+        "y": 10,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "SevenIsland_SevaultCanyon_TanobyKey",
+        "npc": 5,
+        "x": 6,
+        "y": 9,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "SevenIsland_SevaultCanyon_TanobyKey",
+        "npc": 6,
+        "x": 6,
+        "y": 6,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "SixIsland_RuinValley",
+        "npc": 6,
+        "x": 17,
+        "y": 10,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "SixIsland_RuinValley",
+        "npc": 7,
+        "x": 17,
+        "y": 12,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "SixIsland_RuinValley",
+        "npc": 8,
+        "x": 18,
+        "y": 11,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "SixIsland_RuinValley",
+        "npc": 9,
+        "x": 6,
+        "y": 33,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "SixIsland_RuinValley",
+        "npc": 10,
+        "x": 6,
+        "y": 34,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "SixIsland_RuinValley",
+        "npc": 11,
+        "x": 41,
+        "y": 32,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "SixIsland_RuinValley",
+        "npc": 12,
+        "x": 41,
+        "y": 33,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "SixIsland_RuinValley",
+        "npc": 13,
+        "x": 42,
+        "y": 33,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "VictoryRoad_1F",
+        "npc": 4,
+        "x": 7,
+        "y": 18,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "VictoryRoad_1F",
+        "npc": 5,
+        "x": 4,
+        "y": 12,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "VictoryRoad_1F",
+        "npc": 6,
+        "x": 16,
+        "y": 3,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "VictoryRoad_2F",
+        "npc": 9,
+        "x": 8,
+        "y": 7,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "VictoryRoad_2F",
+        "npc": 10,
+        "x": 6,
+        "y": 17,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "VictoryRoad_2F",
+        "npc": 11,
+        "x": 33,
+        "y": 19,
+        "pushable": true,
+        "initialHidden": true
+      },
+      {
+        "map": "VictoryRoad_3F",
+        "npc": 6,
+        "x": 19,
+        "y": 15,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "VictoryRoad_3F",
+        "npc": 7,
+        "x": 33,
+        "y": 18,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "VictoryRoad_3F",
+        "npc": 8,
+        "x": 35,
+        "y": 13,
+        "pushable": true,
+        "initialHidden": false
+      },
+      {
+        "map": "VictoryRoad_3F",
+        "npc": 9,
+        "x": 32,
+        "y": 5,
+        "pushable": true,
+        "initialHidden": false
+      }
+    ],
+    "falls": [
+      {
+        "map": "VictoryRoad_3F",
+        "x": 34,
+        "y": 18,
+        "targetMap": "VictoryRoad_2F",
+        "targetNpc": 11
+      },
+      {
+        "map": "SeafoamIslands_1F",
+        "x": 21,
+        "y": 8,
+        "targetMap": "SeafoamIslands_B1F",
+        "targetNpc": 0
+      },
+      {
+        "map": "SeafoamIslands_1F",
+        "x": 30,
+        "y": 8,
+        "targetMap": "SeafoamIslands_B1F",
+        "targetNpc": 1
+      },
+      {
+        "map": "SeafoamIslands_B1F",
+        "x": 23,
+        "y": 8,
+        "targetMap": "SeafoamIslands_B2F",
+        "targetNpc": 0
+      },
+      {
+        "map": "SeafoamIslands_B1F",
+        "x": 28,
+        "y": 8,
+        "targetMap": "SeafoamIslands_B2F",
+        "targetNpc": 1
+      },
+      {
+        "map": "SeafoamIslands_B2F",
+        "x": 24,
+        "y": 8,
+        "targetMap": "SeafoamIslands_B3F",
+        "targetNpc": 0
+      },
+      {
+        "map": "SeafoamIslands_B2F",
+        "x": 27,
+        "y": 8,
+        "targetMap": "SeafoamIslands_B3F",
+        "targetNpc": 1
+      },
+      {
+        "map": "SeafoamIslands_B3F",
+        "x": 6,
+        "y": 18,
+        "targetMap": "SeafoamIslands_B4F",
+        "targetNpc": 0
+      },
+      {
+        "map": "SeafoamIslands_B3F",
+        "x": 9,
+        "y": 18,
+        "targetMap": "SeafoamIslands_B4F",
+        "targetNpc": 1
+      }
+    ],
+    "leagueRooms": [
+      {
+        "map": "PokemonLeague_LoreleisRoom",
+        "stage": 0,
+        "x": 6,
+        "y": 12,
+        "node": "league_enter_0",
+        "resume": {
+          "x": 6,
+          "minY": 11,
+          "maxY": 12,
+          "node": "league_enter_0_resume"
+        }
+      },
+      {
+        "map": "PokemonLeague_BrunosRoom",
+        "stage": 1,
+        "x": 6,
+        "y": 12,
+        "node": "league_enter_1",
+        "resume": {
+          "x": 6,
+          "minY": 11,
+          "maxY": 12,
+          "node": "league_enter_1_resume"
+        }
+      },
+      {
+        "map": "PokemonLeague_AgathasRoom",
+        "stage": 2,
+        "x": 6,
+        "y": 12,
+        "node": "league_enter_2",
+        "resume": {
+          "x": 6,
+          "minY": 11,
+          "maxY": 12,
+          "node": "league_enter_2_resume"
+        }
+      },
+      {
+        "map": "PokemonLeague_LancesRoom",
+        "stage": 3,
+        "x": 23,
+        "y": 13,
+        "node": "league_enter_3",
+        "resume": {
+          "x": 6,
+          "minY": 14,
+          "maxY": 18,
+          "node": "league_enter_3_resume"
+        }
+      }
+    ]
+  },
+  "nodes": {
+    "cancel": {
+      "actions": [
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "strength": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用怪力推动巨石吗？",
+          "yes": "strength_on",
+          "no": "cancel"
+        }
+      ]
+    },
+    "strength_on": {
+      "actions": [
+        {
+          "type": "MECHANISM_OPERATION",
+          "operation": "STRENGTH_ON"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "怪力已经生效。朝巨石继续走动即可推动。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "mansion": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "雕像上藏着一个开关。要按下吗？",
+          "yes": "mansion_toggle",
+          "no": "cancel"
+        }
+      ]
+    },
+    "mansion_toggle": {
+      "actions": [
+        {
+          "type": "MECHANISM_OPERATION",
+          "operation": "MANSION_TOGGLE"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "开关切换了，楼内的门发生了变化。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "league_enter_0": {
+      "actions": [
+        {
+          "type": "MOVE_PLAYER",
+          "x": 6,
+          "y": 7
+        },
+        {
+          "type": "MECHANISM_OPERATION",
+          "operation": "LEAGUE_CLOSE_ENTRY"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "league_enter_0_resume": {
+      "actions": [
+        {
+          "type": "MOVE_PLAYER",
+          "x": 6,
+          "y": 7
+        },
+        {
+          "type": "MECHANISM_OPERATION",
+          "operation": "LEAGUE_CLOSE_ENTRY"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "league_enter_1": {
+      "actions": [
+        {
+          "type": "MOVE_PLAYER",
+          "x": 6,
+          "y": 7
+        },
+        {
+          "type": "MECHANISM_OPERATION",
+          "operation": "LEAGUE_CLOSE_ENTRY"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "league_enter_1_resume": {
+      "actions": [
+        {
+          "type": "MOVE_PLAYER",
+          "x": 6,
+          "y": 7
+        },
+        {
+          "type": "MECHANISM_OPERATION",
+          "operation": "LEAGUE_CLOSE_ENTRY"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "league_enter_2": {
+      "actions": [
+        {
+          "type": "MOVE_PLAYER",
+          "x": 6,
+          "y": 7
+        },
+        {
+          "type": "MECHANISM_OPERATION",
+          "operation": "LEAGUE_CLOSE_ENTRY"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "league_enter_2_resume": {
+      "actions": [
+        {
+          "type": "MOVE_PLAYER",
+          "x": 6,
+          "y": 7
+        },
+        {
+          "type": "MECHANISM_OPERATION",
+          "operation": "LEAGUE_CLOSE_ENTRY"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "league_enter_3": {
+      "actions": [
+        {
+          "type": "MOVE_PLAYER",
+          "x": 23,
+          "y": 11
+        },
+        {
+          "type": "MOVE_PLAYER",
+          "x": 17,
+          "y": 11
+        },
+        {
+          "type": "MOVE_PLAYER",
+          "x": 17,
+          "y": 18
+        },
+        {
+          "type": "MOVE_PLAYER",
+          "x": 6,
+          "y": 18
+        },
+        {
+          "type": "MOVE_PLAYER",
+          "x": 6,
+          "y": 10
+        },
+        {
+          "type": "MECHANISM_OPERATION",
+          "operation": "LEAGUE_CLOSE_ENTRY"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "league_enter_3_resume": {
+      "actions": [
+        {
+          "type": "MOVE_PLAYER",
+          "x": 6,
+          "y": 10
+        },
+        {
+          "type": "MECHANISM_OPERATION",
+          "operation": "LEAGUE_CLOSE_ENTRY"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "quiz_1": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "绿毛虫会进化成铁甲蛹吗？",
+          "yes": "quiz_1_win",
+          "no": "quiz_1_bad"
+        }
+      ]
+    },
+    "quiz_1_bad": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "回答错误！需要接受训练家的挑战。"
+        },
+        {
+          "type": "START_TRAINER_BATTLE",
+          "trainerTeamId": 213,
+          "battleId": "CINNABAR_QUIZ_1",
+          "finishNode": "quiz_1_bad_win"
+        }
+      ]
+    },
+    "quiz_1_bad_win": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/trainer/CinnabarIsland_Gym/CinnabarIsland_Gym_EventScript_Quinn"
+        },
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/mechanism/cinnabar/1"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "战斗胜利，门打开了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "quiz_1_win": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/mechanism/cinnabar/1"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "门打开了，可以继续前进。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "quiz_2": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "宝可梦联盟认证的徽章共有九枚吗？",
+          "yes": "quiz_2_bad",
+          "no": "quiz_2_win"
+        }
+      ]
+    },
+    "quiz_2_bad": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "回答错误！需要接受训练家的挑战。"
+        },
+        {
+          "type": "START_TRAINER_BATTLE",
+          "trainerTeamId": 178,
+          "battleId": "CINNABAR_QUIZ_2",
+          "finishNode": "quiz_2_bad_win"
+        }
+      ]
+    },
+    "quiz_2_bad_win": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/trainer/CinnabarIsland_Gym/CinnabarIsland_Gym_EventScript_Avery"
+        },
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/mechanism/cinnabar/2"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "战斗胜利，门打开了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "quiz_2_win": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/mechanism/cinnabar/2"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "门打开了，可以继续前进。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "quiz_3": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "蚊香蝌蚪会进化三次吗？",
+          "yes": "quiz_3_bad",
+          "no": "quiz_3_win"
+        }
+      ]
+    },
+    "quiz_3_bad": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "回答错误！需要接受训练家的挑战。"
+        },
+        {
+          "type": "START_TRAINER_BATTLE",
+          "trainerTeamId": 214,
+          "battleId": "CINNABAR_QUIZ_3",
+          "finishNode": "quiz_3_bad_win"
+        }
+      ]
+    },
+    "quiz_3_bad_win": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/trainer/CinnabarIsland_Gym/CinnabarIsland_Gym_EventScript_Ramon"
+        },
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/mechanism/cinnabar/3"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "战斗胜利，门打开了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "quiz_3_win": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/mechanism/cinnabar/3"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "门打开了，可以继续前进。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "quiz_4": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "电属性招式对地面属性宝可梦有效吗？",
+          "yes": "quiz_4_bad",
+          "no": "quiz_4_win"
+        }
+      ]
+    },
+    "quiz_4_bad": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "回答错误！需要接受训练家的挑战。"
+        },
+        {
+          "type": "START_TRAINER_BATTLE",
+          "trainerTeamId": 179,
+          "battleId": "CINNABAR_QUIZ_4",
+          "finishNode": "quiz_4_bad_win"
+        }
+      ]
+    },
+    "quiz_4_bad_win": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/trainer/CinnabarIsland_Gym/CinnabarIsland_Gym_EventScript_Derek"
+        },
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/mechanism/cinnabar/4"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "战斗胜利，门打开了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "quiz_4_win": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/mechanism/cinnabar/4"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "门打开了，可以继续前进。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "quiz_5": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "种类和等级相同的宝可梦并不完全相同吗？",
+          "yes": "quiz_5_win",
+          "no": "quiz_5_bad"
+        }
+      ]
+    },
+    "quiz_5_bad": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "回答错误！需要接受训练家的挑战。"
+        },
+        {
+          "type": "START_TRAINER_BATTLE",
+          "trainerTeamId": 215,
+          "battleId": "CINNABAR_QUIZ_5",
+          "finishNode": "quiz_5_bad_win"
+        }
+      ]
+    },
+    "quiz_5_bad_win": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/trainer/CinnabarIsland_Gym/CinnabarIsland_Gym_EventScript_Dusty"
+        },
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/mechanism/cinnabar/5"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "战斗胜利，门打开了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "quiz_5_win": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/mechanism/cinnabar/5"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "门打开了，可以继续前进。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "quiz_6": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "招式学习器28包含“TOMBSTONY”吗？",
+          "yes": "quiz_6_bad",
+          "no": "quiz_6_win"
+        }
+      ]
+    },
+    "quiz_6_bad": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "回答错误！需要接受训练家的挑战。"
+        },
+        {
+          "type": "START_TRAINER_BATTLE",
+          "trainerTeamId": 180,
+          "battleId": "CINNABAR_QUIZ_6",
+          "finishNode": "quiz_6_bad_win"
+        }
+      ]
+    },
+    "quiz_6_bad_win": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/trainer/CinnabarIsland_Gym/CinnabarIsland_Gym_EventScript_Zac"
+        },
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/mechanism/cinnabar/6"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "战斗胜利，门打开了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "quiz_6_win": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/mechanism/cinnabar/6"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "门打开了，可以继续前进。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    }
+  }
+}

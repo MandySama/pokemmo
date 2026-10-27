@@ -1,0 +1,6208 @@
+{
+  "id": "kanto.middle_support",
+  "version": 1,
+  "enabled": true,
+  "provenance": {
+    "kind": "user-authorized adaptation",
+    "date": "2026-10-27",
+    "mapSource": "reference server /map/kanto",
+    "silphSource": "https://raw.githubusercontent.com/pret/pokefirered/master/data/scripts/silphco_doors.inc",
+    "silphSha256": "79ffa02d5331da786e6a7d8d637db2f8afe051c897f6cbe821b4103abcbac614",
+    "notes": "新增中文对白是本地补充文案，不冒充官方翻译。砍树采用获得秘传机且持有相应徽章后自动使用的简化机制。"
+  },
+  "triggers": [
+    {
+      "type": "NPC",
+      "map": "CeladonCity",
+      "startNode": "cut_3_6_9",
+      "conditions": [],
+      "entityIdx": 9
+    },
+    {
+      "type": "NPC",
+      "map": "CeladonCity",
+      "startNode": "cut_3_6_10",
+      "conditions": [],
+      "entityIdx": 10
+    },
+    {
+      "type": "NPC",
+      "map": "CeladonCity_Gym",
+      "startNode": "cut_10_16_8",
+      "conditions": [],
+      "entityIdx": 8
+    },
+    {
+      "type": "NPC",
+      "map": "CeladonCity_Gym",
+      "startNode": "cut_10_16_9",
+      "conditions": [],
+      "entityIdx": 9
+    },
+    {
+      "type": "NPC",
+      "map": "CeladonCity_Gym",
+      "startNode": "cut_10_16_10",
+      "conditions": [],
+      "entityIdx": 10
+    },
+    {
+      "type": "NPC",
+      "map": "CeruleanCity",
+      "startNode": "cut_3_3_8",
+      "conditions": [],
+      "entityIdx": 8
+    },
+    {
+      "type": "NPC",
+      "map": "FiveIsland_Meadow",
+      "startNode": "cut_3_56_3",
+      "conditions": [],
+      "entityIdx": 3
+    },
+    {
+      "type": "NPC",
+      "map": "FiveIsland_Meadow",
+      "startNode": "cut_3_56_4",
+      "conditions": [],
+      "entityIdx": 4
+    },
+    {
+      "type": "NPC",
+      "map": "FuchsiaCity",
+      "startNode": "cut_3_7_10",
+      "conditions": [],
+      "entityIdx": 10
+    },
+    {
+      "type": "NPC",
+      "map": "FuchsiaCity",
+      "startNode": "cut_3_7_11",
+      "conditions": [],
+      "entityIdx": 11
+    },
+    {
+      "type": "NPC",
+      "map": "FuchsiaCity",
+      "startNode": "cut_3_7_12",
+      "conditions": [],
+      "entityIdx": 12
+    },
+    {
+      "type": "NPC",
+      "map": "FuchsiaCity",
+      "startNode": "cut_3_7_13",
+      "conditions": [],
+      "entityIdx": 13
+    },
+    {
+      "type": "NPC",
+      "map": "PewterCity",
+      "startNode": "cut_3_2_5",
+      "conditions": [],
+      "entityIdx": 5
+    },
+    {
+      "type": "NPC",
+      "map": "Route10",
+      "startNode": "cut_3_28_6",
+      "conditions": [],
+      "entityIdx": 6
+    },
+    {
+      "type": "NPC",
+      "map": "Route10",
+      "startNode": "cut_3_28_7",
+      "conditions": [],
+      "entityIdx": 7
+    },
+    {
+      "type": "NPC",
+      "map": "Route10",
+      "startNode": "cut_3_28_8",
+      "conditions": [],
+      "entityIdx": 8
+    },
+    {
+      "type": "NPC",
+      "map": "Route10",
+      "startNode": "cut_3_28_9",
+      "conditions": [],
+      "entityIdx": 9
+    },
+    {
+      "type": "NPC",
+      "map": "Route12",
+      "startNode": "cut_3_30_8",
+      "conditions": [],
+      "entityIdx": 8
+    },
+    {
+      "type": "NPC",
+      "map": "Route12",
+      "startNode": "cut_3_30_13",
+      "conditions": [],
+      "entityIdx": 13
+    },
+    {
+      "type": "NPC",
+      "map": "Route13",
+      "startNode": "cut_3_31_10",
+      "conditions": [],
+      "entityIdx": 10
+    },
+    {
+      "type": "NPC",
+      "map": "Route14",
+      "startNode": "cut_3_32_10",
+      "conditions": [],
+      "entityIdx": 10
+    },
+    {
+      "type": "NPC",
+      "map": "Route14",
+      "startNode": "cut_3_32_11",
+      "conditions": [],
+      "entityIdx": 11
+    },
+    {
+      "type": "NPC",
+      "map": "Route14",
+      "startNode": "cut_3_32_12",
+      "conditions": [],
+      "entityIdx": 12
+    },
+    {
+      "type": "NPC",
+      "map": "Route16",
+      "startNode": "cut_3_34_6",
+      "conditions": [],
+      "entityIdx": 6
+    },
+    {
+      "type": "NPC",
+      "map": "Route2",
+      "startNode": "cut_3_20_0",
+      "conditions": [],
+      "entityIdx": 0
+    },
+    {
+      "type": "NPC",
+      "map": "Route2",
+      "startNode": "cut_3_20_1",
+      "conditions": [],
+      "entityIdx": 1
+    },
+    {
+      "type": "NPC",
+      "map": "Route2",
+      "startNode": "cut_3_20_2",
+      "conditions": [],
+      "entityIdx": 2
+    },
+    {
+      "type": "NPC",
+      "map": "Route2",
+      "startNode": "cut_3_20_3",
+      "conditions": [],
+      "entityIdx": 3
+    },
+    {
+      "type": "NPC",
+      "map": "Route25",
+      "startNode": "cut_3_44_10",
+      "conditions": [],
+      "entityIdx": 10
+    },
+    {
+      "type": "NPC",
+      "map": "Route8",
+      "startNode": "cut_3_26_9",
+      "conditions": [],
+      "entityIdx": 9
+    },
+    {
+      "type": "NPC",
+      "map": "Route8",
+      "startNode": "cut_3_26_10",
+      "conditions": [],
+      "entityIdx": 10
+    },
+    {
+      "type": "NPC",
+      "map": "Route9",
+      "startNode": "cut_3_27_9",
+      "conditions": [],
+      "entityIdx": 9
+    },
+    {
+      "type": "NPC",
+      "map": "ThreeIsland",
+      "startNode": "cut_3_14_8",
+      "conditions": [],
+      "entityIdx": 8
+    },
+    {
+      "type": "NPC",
+      "map": "ThreeIsland_BerryForest",
+      "startNode": "cut_1_109_1",
+      "conditions": [],
+      "entityIdx": 1
+    },
+    {
+      "type": "NPC",
+      "map": "ThreeIsland_BerryForest",
+      "startNode": "cut_1_109_2",
+      "conditions": [],
+      "entityIdx": 2
+    },
+    {
+      "type": "NPC",
+      "map": "ThreeIsland_BerryForest",
+      "startNode": "cut_1_109_3",
+      "conditions": [],
+      "entityIdx": 3
+    },
+    {
+      "type": "NPC",
+      "map": "ThreeIsland_BerryForest",
+      "startNode": "cut_1_109_4",
+      "conditions": [],
+      "entityIdx": 4
+    },
+    {
+      "type": "NPC",
+      "map": "ThreeIsland_BerryForest",
+      "startNode": "cut_1_109_5",
+      "conditions": [],
+      "entityIdx": 5
+    },
+    {
+      "type": "NPC",
+      "map": "ThreeIsland_BerryForest",
+      "startNode": "cut_1_109_6",
+      "conditions": [],
+      "entityIdx": 6
+    },
+    {
+      "type": "NPC",
+      "map": "ThreeIsland_BerryForest",
+      "startNode": "cut_1_109_7",
+      "conditions": [],
+      "entityIdx": 7
+    },
+    {
+      "type": "NPC",
+      "map": "ThreeIsland_BerryForest",
+      "startNode": "cut_1_109_8",
+      "conditions": [],
+      "entityIdx": 8
+    },
+    {
+      "type": "NPC",
+      "map": "ThreeIsland_BerryForest",
+      "startNode": "cut_1_109_9",
+      "conditions": [],
+      "entityIdx": 9
+    },
+    {
+      "type": "NPC",
+      "map": "ThreeIsland_BerryForest",
+      "startNode": "cut_1_109_10",
+      "conditions": [],
+      "entityIdx": 10
+    },
+    {
+      "type": "NPC",
+      "map": "ThreeIsland_BondBridge",
+      "startNode": "cut_3_48_7",
+      "conditions": [],
+      "entityIdx": 7
+    },
+    {
+      "type": "NPC",
+      "map": "ThreeIsland_BondBridge",
+      "startNode": "cut_3_48_8",
+      "conditions": [],
+      "entityIdx": 8
+    },
+    {
+      "type": "NPC",
+      "map": "TwoIsland",
+      "startNode": "cut_3_13_5",
+      "conditions": [],
+      "entityIdx": 5
+    },
+    {
+      "type": "NPC",
+      "map": "VermilionCity",
+      "startNode": "cut_3_5_6",
+      "conditions": [],
+      "entityIdx": 6
+    },
+    {
+      "type": "NPC",
+      "map": "ViridianCity",
+      "startNode": "cut_3_1_1",
+      "conditions": [],
+      "entityIdx": 1
+    },
+    {
+      "type": "NPC",
+      "map": "ViridianCity",
+      "startNode": "cut_3_1_7",
+      "conditions": [],
+      "entityIdx": 7
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_10F",
+      "startNode": "SilphCo_10F_EventScript_Door",
+      "conditions": [],
+      "backgroundId": 0
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_10F",
+      "startNode": "SilphCo_10F_EventScript_Door",
+      "conditions": [],
+      "backgroundId": 1
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_10F",
+      "startNode": "SilphCo_10F_EventScript_Door",
+      "conditions": [],
+      "backgroundId": 2
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_10F",
+      "startNode": "SilphCo_10F_EventScript_Door",
+      "conditions": [],
+      "backgroundId": 3
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_11F",
+      "startNode": "SilphCo_11F_EventScript_Door",
+      "conditions": [],
+      "backgroundId": 0
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_11F",
+      "startNode": "SilphCo_11F_EventScript_Door",
+      "conditions": [],
+      "backgroundId": 1
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_11F",
+      "startNode": "SilphCo_11F_EventScript_Door",
+      "conditions": [],
+      "backgroundId": 2
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_11F",
+      "startNode": "SilphCo_11F_EventScript_Door",
+      "conditions": [],
+      "backgroundId": 3
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_2F",
+      "startNode": "SilphCo_2F_EventScript_Door1",
+      "conditions": [],
+      "backgroundId": 0
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_2F",
+      "startNode": "SilphCo_2F_EventScript_Door1",
+      "conditions": [],
+      "backgroundId": 1
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_2F",
+      "startNode": "SilphCo_2F_EventScript_Door1",
+      "conditions": [],
+      "backgroundId": 2
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_2F",
+      "startNode": "SilphCo_2F_EventScript_Door1",
+      "conditions": [],
+      "backgroundId": 3
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_2F",
+      "startNode": "SilphCo_2F_EventScript_Door2",
+      "conditions": [],
+      "backgroundId": 4
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_2F",
+      "startNode": "SilphCo_2F_EventScript_Door2",
+      "conditions": [],
+      "backgroundId": 5
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_2F",
+      "startNode": "SilphCo_2F_EventScript_Door2",
+      "conditions": [],
+      "backgroundId": 6
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_2F",
+      "startNode": "SilphCo_2F_EventScript_Door2",
+      "conditions": [],
+      "backgroundId": 7
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_3F",
+      "startNode": "SilphCo_3F_EventScript_Door1",
+      "conditions": [],
+      "backgroundId": 0
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_3F",
+      "startNode": "SilphCo_3F_EventScript_Door1",
+      "conditions": [],
+      "backgroundId": 1
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_3F",
+      "startNode": "SilphCo_3F_EventScript_Door1",
+      "conditions": [],
+      "backgroundId": 4
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_3F",
+      "startNode": "SilphCo_3F_EventScript_Door1",
+      "conditions": [],
+      "backgroundId": 5
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_3F",
+      "startNode": "SilphCo_3F_EventScript_Door2",
+      "conditions": [],
+      "backgroundId": 2
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_3F",
+      "startNode": "SilphCo_3F_EventScript_Door2",
+      "conditions": [],
+      "backgroundId": 3
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_3F",
+      "startNode": "SilphCo_3F_EventScript_Door2",
+      "conditions": [],
+      "backgroundId": 6
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_3F",
+      "startNode": "SilphCo_3F_EventScript_Door2",
+      "conditions": [],
+      "backgroundId": 7
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_4F",
+      "startNode": "SilphCo_4F_EventScript_Door1",
+      "conditions": [],
+      "backgroundId": 0
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_4F",
+      "startNode": "SilphCo_4F_EventScript_Door1",
+      "conditions": [],
+      "backgroundId": 1
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_4F",
+      "startNode": "SilphCo_4F_EventScript_Door1",
+      "conditions": [],
+      "backgroundId": 2
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_4F",
+      "startNode": "SilphCo_4F_EventScript_Door1",
+      "conditions": [],
+      "backgroundId": 3
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_4F",
+      "startNode": "SilphCo_4F_EventScript_Door2",
+      "conditions": [],
+      "backgroundId": 4
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_4F",
+      "startNode": "SilphCo_4F_EventScript_Door2",
+      "conditions": [],
+      "backgroundId": 5
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_4F",
+      "startNode": "SilphCo_4F_EventScript_Door2",
+      "conditions": [],
+      "backgroundId": 6
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_4F",
+      "startNode": "SilphCo_4F_EventScript_Door2",
+      "conditions": [],
+      "backgroundId": 7
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_5F",
+      "startNode": "SilphCo_5F_EventScript_Door1",
+      "conditions": [],
+      "backgroundId": 1
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_5F",
+      "startNode": "SilphCo_5F_EventScript_Door1",
+      "conditions": [],
+      "backgroundId": 2
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_5F",
+      "startNode": "SilphCo_5F_EventScript_Door1",
+      "conditions": [],
+      "backgroundId": 7
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_5F",
+      "startNode": "SilphCo_5F_EventScript_Door1",
+      "conditions": [],
+      "backgroundId": 8
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_5F",
+      "startNode": "SilphCo_5F_EventScript_Door2",
+      "conditions": [],
+      "backgroundId": 3
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_5F",
+      "startNode": "SilphCo_5F_EventScript_Door2",
+      "conditions": [],
+      "backgroundId": 4
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_5F",
+      "startNode": "SilphCo_5F_EventScript_Door2",
+      "conditions": [],
+      "backgroundId": 9
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_5F",
+      "startNode": "SilphCo_5F_EventScript_Door2",
+      "conditions": [],
+      "backgroundId": 10
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_5F",
+      "startNode": "SilphCo_5F_EventScript_Door3",
+      "conditions": [],
+      "backgroundId": 5
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_5F",
+      "startNode": "SilphCo_5F_EventScript_Door3",
+      "conditions": [],
+      "backgroundId": 6
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_5F",
+      "startNode": "SilphCo_5F_EventScript_Door3",
+      "conditions": [],
+      "backgroundId": 11
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_5F",
+      "startNode": "SilphCo_5F_EventScript_Door3",
+      "conditions": [],
+      "backgroundId": 12
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_6F",
+      "startNode": "SilphCo_6F_EventScript_Door",
+      "conditions": [],
+      "backgroundId": 0
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_6F",
+      "startNode": "SilphCo_6F_EventScript_Door",
+      "conditions": [],
+      "backgroundId": 1
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_6F",
+      "startNode": "SilphCo_6F_EventScript_Door",
+      "conditions": [],
+      "backgroundId": 2
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_6F",
+      "startNode": "SilphCo_6F_EventScript_Door",
+      "conditions": [],
+      "backgroundId": 3
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_7F",
+      "startNode": "SilphCo_7F_EventScript_Door1",
+      "conditions": [],
+      "backgroundId": 0
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_7F",
+      "startNode": "SilphCo_7F_EventScript_Door1",
+      "conditions": [],
+      "backgroundId": 1
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_7F",
+      "startNode": "SilphCo_7F_EventScript_Door1",
+      "conditions": [],
+      "backgroundId": 2
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_7F",
+      "startNode": "SilphCo_7F_EventScript_Door1",
+      "conditions": [],
+      "backgroundId": 3
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_7F",
+      "startNode": "SilphCo_7F_EventScript_Door2",
+      "conditions": [],
+      "backgroundId": 4
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_7F",
+      "startNode": "SilphCo_7F_EventScript_Door2",
+      "conditions": [],
+      "backgroundId": 5
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_7F",
+      "startNode": "SilphCo_7F_EventScript_Door2",
+      "conditions": [],
+      "backgroundId": 6
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_7F",
+      "startNode": "SilphCo_7F_EventScript_Door2",
+      "conditions": [],
+      "backgroundId": 7
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_7F",
+      "startNode": "SilphCo_7F_EventScript_Door3",
+      "conditions": [],
+      "backgroundId": 8
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_7F",
+      "startNode": "SilphCo_7F_EventScript_Door3",
+      "conditions": [],
+      "backgroundId": 9
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_7F",
+      "startNode": "SilphCo_7F_EventScript_Door3",
+      "conditions": [],
+      "backgroundId": 10
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_7F",
+      "startNode": "SilphCo_7F_EventScript_Door3",
+      "conditions": [],
+      "backgroundId": 11
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_8F",
+      "startNode": "SilphCo_8F_EventScript_Door",
+      "conditions": [],
+      "backgroundId": 0
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_8F",
+      "startNode": "SilphCo_8F_EventScript_Door",
+      "conditions": [],
+      "backgroundId": 1
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_8F",
+      "startNode": "SilphCo_8F_EventScript_Door",
+      "conditions": [],
+      "backgroundId": 2
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_8F",
+      "startNode": "SilphCo_8F_EventScript_Door",
+      "conditions": [],
+      "backgroundId": 3
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_9F",
+      "startNode": "SilphCo_9F_EventScript_Door1",
+      "conditions": [],
+      "backgroundId": 1
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_9F",
+      "startNode": "SilphCo_9F_EventScript_Door1",
+      "conditions": [],
+      "backgroundId": 2
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_9F",
+      "startNode": "SilphCo_9F_EventScript_Door1",
+      "conditions": [],
+      "backgroundId": 13
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_9F",
+      "startNode": "SilphCo_9F_EventScript_Door1",
+      "conditions": [],
+      "backgroundId": 14
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_9F",
+      "startNode": "SilphCo_9F_EventScript_Door2",
+      "conditions": [],
+      "backgroundId": 3
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_9F",
+      "startNode": "SilphCo_9F_EventScript_Door2",
+      "conditions": [],
+      "backgroundId": 4
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_9F",
+      "startNode": "SilphCo_9F_EventScript_Door2",
+      "conditions": [],
+      "backgroundId": 15
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_9F",
+      "startNode": "SilphCo_9F_EventScript_Door2",
+      "conditions": [],
+      "backgroundId": 16
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_9F",
+      "startNode": "SilphCo_9F_EventScript_Door3",
+      "conditions": [],
+      "backgroundId": 5
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_9F",
+      "startNode": "SilphCo_9F_EventScript_Door3",
+      "conditions": [],
+      "backgroundId": 6
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_9F",
+      "startNode": "SilphCo_9F_EventScript_Door3",
+      "conditions": [],
+      "backgroundId": 7
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_9F",
+      "startNode": "SilphCo_9F_EventScript_Door3",
+      "conditions": [],
+      "backgroundId": 8
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_9F",
+      "startNode": "SilphCo_9F_EventScript_Door4",
+      "conditions": [],
+      "backgroundId": 9
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_9F",
+      "startNode": "SilphCo_9F_EventScript_Door4",
+      "conditions": [],
+      "backgroundId": 10
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_9F",
+      "startNode": "SilphCo_9F_EventScript_Door4",
+      "conditions": [],
+      "backgroundId": 11
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SilphCo_9F",
+      "startNode": "SilphCo_9F_EventScript_Door4",
+      "conditions": [],
+      "backgroundId": 12
+    },
+    {
+      "type": "NPC",
+      "map": "CeladonCity_Condominiums_1F",
+      "startNode": "tea_woman",
+      "conditions": [],
+      "entityIdx": 3
+    },
+    {
+      "type": "NPC",
+      "map": "Route5_SouthEntrance",
+      "startNode": "Route5_SouthEntrance_tea",
+      "conditions": [],
+      "entityIdx": 0
+    },
+    {
+      "type": "COORDINATE",
+      "map": "Route5_SouthEntrance",
+      "startNode": "Route5_SouthEntrance_tea_cross",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/middle/saffron_guards"
+        }
+      ],
+      "script": "Route5_SouthEntrance_EventScript_GuardTriggerLeft"
+    },
+    {
+      "type": "COORDINATE",
+      "map": "Route5_SouthEntrance",
+      "startNode": "Route5_SouthEntrance_tea_cross",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/middle/saffron_guards"
+        }
+      ],
+      "script": "Route5_SouthEntrance_EventScript_GuardTriggerMid"
+    },
+    {
+      "type": "COORDINATE",
+      "map": "Route5_SouthEntrance",
+      "startNode": "Route5_SouthEntrance_tea_cross",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/middle/saffron_guards"
+        }
+      ],
+      "script": "Route5_SouthEntrance_EventScript_GuardTriggerRight"
+    },
+    {
+      "type": "NPC",
+      "map": "Route6_NorthEntrance",
+      "startNode": "Route6_NorthEntrance_tea",
+      "conditions": [],
+      "entityIdx": 0
+    },
+    {
+      "type": "COORDINATE",
+      "map": "Route6_NorthEntrance",
+      "startNode": "Route6_NorthEntrance_tea_cross",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/middle/saffron_guards"
+        }
+      ],
+      "script": "Route6_NorthEntrance_EventScript_GuardTriggerLeft"
+    },
+    {
+      "type": "COORDINATE",
+      "map": "Route6_NorthEntrance",
+      "startNode": "Route6_NorthEntrance_tea_cross",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/middle/saffron_guards"
+        }
+      ],
+      "script": "Route6_NorthEntrance_EventScript_GuardTriggerMid"
+    },
+    {
+      "type": "COORDINATE",
+      "map": "Route6_NorthEntrance",
+      "startNode": "Route6_NorthEntrance_tea_cross",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/middle/saffron_guards"
+        }
+      ],
+      "script": "Route6_NorthEntrance_EventScript_GuardTriggerRight"
+    },
+    {
+      "type": "NPC",
+      "map": "Route7_EastEntrance",
+      "startNode": "Route7_EastEntrance_tea",
+      "conditions": [],
+      "entityIdx": 0
+    },
+    {
+      "type": "COORDINATE",
+      "map": "Route7_EastEntrance",
+      "startNode": "Route7_EastEntrance_tea_cross",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/middle/saffron_guards"
+        }
+      ],
+      "script": "Route7_EastEntrance_EventScript_GuardTriggerTop"
+    },
+    {
+      "type": "COORDINATE",
+      "map": "Route7_EastEntrance",
+      "startNode": "Route7_EastEntrance_tea_cross",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/middle/saffron_guards"
+        }
+      ],
+      "script": "Route7_EastEntrance_EventScript_GuardTriggerMid"
+    },
+    {
+      "type": "COORDINATE",
+      "map": "Route7_EastEntrance",
+      "startNode": "Route7_EastEntrance_tea_cross",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/middle/saffron_guards"
+        }
+      ],
+      "script": "Route7_EastEntrance_EventScript_GuardTriggerBottom"
+    },
+    {
+      "type": "NPC",
+      "map": "Route8_WestEntrance",
+      "startNode": "Route8_WestEntrance_tea",
+      "conditions": [],
+      "entityIdx": 0
+    },
+    {
+      "type": "COORDINATE",
+      "map": "Route8_WestEntrance",
+      "startNode": "Route8_WestEntrance_tea_cross",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/middle/saffron_guards"
+        }
+      ],
+      "script": "Route8_WestEntrance_EventScript_GuardTriggerTop"
+    },
+    {
+      "type": "COORDINATE",
+      "map": "Route8_WestEntrance",
+      "startNode": "Route8_WestEntrance_tea_cross",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/middle/saffron_guards"
+        }
+      ],
+      "script": "Route8_WestEntrance_EventScript_GuardTriggerMid"
+    },
+    {
+      "type": "COORDINATE",
+      "map": "Route8_WestEntrance",
+      "startNode": "Route8_WestEntrance_tea_cross",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/middle/saffron_guards"
+        }
+      ],
+      "script": "Route8_WestEntrance_EventScript_GuardTriggerBottom"
+    },
+    {
+      "type": "NPC",
+      "map": "Route12",
+      "entityIdx": 4,
+      "startNode": "Route12_snorlax",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/FLAG_HIDE_ROUTE_12_SNORLAX"
+        }
+      ]
+    },
+    {
+      "type": "NPC",
+      "map": "Route16",
+      "entityIdx": 9,
+      "startNode": "Route16_snorlax",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/FLAG_HIDE_ROUTE_16_SNORLAX"
+        }
+      ]
+    },
+    {
+      "type": "COORDINATE",
+      "map": "PokemonTower_6F",
+      "script": "PokemonTower_6F_EventScript_MarowakGhost",
+      "startNode": "marowak_gate",
+      "conditions": [
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/middle/marowak_appeased"
+        }
+      ]
+    }
+  ],
+  "resources": {
+    "doors": [
+      {
+        "map": "SilphCo_10F",
+        "flag": "kanto/middle/door/SilphCo_10F_EventScript_Door",
+        "tiles": [
+          {
+            "x": 12,
+            "y": 11,
+            "metatile": 944,
+            "collision": 1
+          },
+          {
+            "x": 13,
+            "y": 11,
+            "metatile": 945,
+            "collision": 1
+          },
+          {
+            "x": 12,
+            "y": 12,
+            "metatile": 952,
+            "collision": 1
+          },
+          {
+            "x": 13,
+            "y": 12,
+            "metatile": 953,
+            "collision": 1
+          },
+          {
+            "x": 13,
+            "y": 13,
+            "metatile": 821,
+            "collision": 0
+          }
+        ],
+        "sourceLabel": "EventScript_Close10FDoor"
+      },
+      {
+        "map": "SilphCo_11F",
+        "flag": "kanto/middle/door/SilphCo_11F_EventScript_Door",
+        "tiles": [
+          {
+            "x": 5,
+            "y": 16,
+            "metatile": 944,
+            "collision": 1
+          },
+          {
+            "x": 6,
+            "y": 16,
+            "metatile": 945,
+            "collision": 1
+          },
+          {
+            "x": 5,
+            "y": 17,
+            "metatile": 952,
+            "collision": 1
+          },
+          {
+            "x": 6,
+            "y": 17,
+            "metatile": 953,
+            "collision": 1
+          },
+          {
+            "x": 6,
+            "y": 18,
+            "metatile": 821,
+            "collision": 0
+          }
+        ],
+        "sourceLabel": "EventScript_Close11FDoor"
+      },
+      {
+        "map": "SilphCo_2F",
+        "flag": "kanto/middle/door/SilphCo_2F_EventScript_Door1",
+        "tiles": [
+          {
+            "x": 5,
+            "y": 8,
+            "metatile": 944,
+            "collision": 1
+          },
+          {
+            "x": 6,
+            "y": 8,
+            "metatile": 945,
+            "collision": 1
+          },
+          {
+            "x": 5,
+            "y": 9,
+            "metatile": 952,
+            "collision": 1
+          },
+          {
+            "x": 6,
+            "y": 9,
+            "metatile": 953,
+            "collision": 1
+          },
+          {
+            "x": 6,
+            "y": 10,
+            "metatile": 821,
+            "collision": 0
+          }
+        ],
+        "sourceLabel": "EventScript_Close2FDoor1"
+      },
+      {
+        "map": "SilphCo_2F",
+        "flag": "kanto/middle/door/SilphCo_2F_EventScript_Door2",
+        "tiles": [
+          {
+            "x": 5,
+            "y": 15,
+            "metatile": 944,
+            "collision": 1
+          },
+          {
+            "x": 6,
+            "y": 15,
+            "metatile": 945,
+            "collision": 1
+          },
+          {
+            "x": 5,
+            "y": 16,
+            "metatile": 952,
+            "collision": 1
+          },
+          {
+            "x": 6,
+            "y": 16,
+            "metatile": 953,
+            "collision": 1
+          },
+          {
+            "x": 6,
+            "y": 17,
+            "metatile": 821,
+            "collision": 0
+          }
+        ],
+        "sourceLabel": "EventScript_Close2FDoor2"
+      },
+      {
+        "map": "SilphCo_3F",
+        "flag": "kanto/middle/door/SilphCo_3F_EventScript_Door1",
+        "tiles": [
+          {
+            "x": 9,
+            "y": 11,
+            "metatile": 960,
+            "collision": 1
+          },
+          {
+            "x": 10,
+            "y": 11,
+            "metatile": 961,
+            "collision": 1
+          },
+          {
+            "x": 9,
+            "y": 12,
+            "metatile": 962,
+            "collision": 1
+          },
+          {
+            "x": 10,
+            "y": 12,
+            "metatile": 963,
+            "collision": 1
+          },
+          {
+            "x": 9,
+            "y": 13,
+            "metatile": 964,
+            "collision": 1
+          },
+          {
+            "x": 10,
+            "y": 13,
+            "metatile": 965,
+            "collision": 1
+          }
+        ],
+        "sourceLabel": "EventScript_Close3FDoor1"
+      },
+      {
+        "map": "SilphCo_3F",
+        "flag": "kanto/middle/door/SilphCo_3F_EventScript_Door2",
+        "tiles": [
+          {
+            "x": 20,
+            "y": 11,
+            "metatile": 960,
+            "collision": 1
+          },
+          {
+            "x": 21,
+            "y": 11,
+            "metatile": 961,
+            "collision": 1
+          },
+          {
+            "x": 20,
+            "y": 12,
+            "metatile": 962,
+            "collision": 1
+          },
+          {
+            "x": 21,
+            "y": 12,
+            "metatile": 963,
+            "collision": 1
+          },
+          {
+            "x": 20,
+            "y": 13,
+            "metatile": 964,
+            "collision": 1
+          },
+          {
+            "x": 21,
+            "y": 13,
+            "metatile": 965,
+            "collision": 1
+          }
+        ],
+        "sourceLabel": "EventScript_Close3FDoor2"
+      },
+      {
+        "map": "SilphCo_4F",
+        "flag": "kanto/middle/door/SilphCo_4F_EventScript_Door1",
+        "tiles": [
+          {
+            "x": 3,
+            "y": 16,
+            "metatile": 944,
+            "collision": 1
+          },
+          {
+            "x": 4,
+            "y": 16,
+            "metatile": 945,
+            "collision": 1
+          },
+          {
+            "x": 3,
+            "y": 17,
+            "metatile": 952,
+            "collision": 1
+          },
+          {
+            "x": 4,
+            "y": 17,
+            "metatile": 953,
+            "collision": 1
+          },
+          {
+            "x": 4,
+            "y": 18,
+            "metatile": 821,
+            "collision": 0
+          }
+        ],
+        "sourceLabel": "EventScript_Close4FDoor1"
+      },
+      {
+        "map": "SilphCo_4F",
+        "flag": "kanto/middle/door/SilphCo_4F_EventScript_Door2",
+        "tiles": [
+          {
+            "x": 14,
+            "y": 11,
+            "metatile": 944,
+            "collision": 1
+          },
+          {
+            "x": 15,
+            "y": 11,
+            "metatile": 945,
+            "collision": 1
+          },
+          {
+            "x": 14,
+            "y": 12,
+            "metatile": 952,
+            "collision": 1
+          },
+          {
+            "x": 15,
+            "y": 12,
+            "metatile": 953,
+            "collision": 1
+          },
+          {
+            "x": 15,
+            "y": 13,
+            "metatile": 821,
+            "collision": 0
+          }
+        ],
+        "sourceLabel": "EventScript_Close4FDoor2"
+      },
+      {
+        "map": "SilphCo_5F",
+        "flag": "kanto/middle/door/SilphCo_5F_EventScript_Door1",
+        "tiles": [
+          {
+            "x": 7,
+            "y": 8,
+            "metatile": 960,
+            "collision": 1
+          },
+          {
+            "x": 8,
+            "y": 8,
+            "metatile": 961,
+            "collision": 1
+          },
+          {
+            "x": 7,
+            "y": 9,
+            "metatile": 962,
+            "collision": 1
+          },
+          {
+            "x": 8,
+            "y": 9,
+            "metatile": 963,
+            "collision": 1
+          },
+          {
+            "x": 7,
+            "y": 10,
+            "metatile": 964,
+            "collision": 1
+          },
+          {
+            "x": 8,
+            "y": 10,
+            "metatile": 965,
+            "collision": 1
+          }
+        ],
+        "sourceLabel": "EventScript_Close5FDoor1"
+      },
+      {
+        "map": "SilphCo_5F",
+        "flag": "kanto/middle/door/SilphCo_5F_EventScript_Door2",
+        "tiles": [
+          {
+            "x": 7,
+            "y": 17,
+            "metatile": 960,
+            "collision": 1
+          },
+          {
+            "x": 8,
+            "y": 17,
+            "metatile": 961,
+            "collision": 1
+          },
+          {
+            "x": 7,
+            "y": 18,
+            "metatile": 962,
+            "collision": 1
+          },
+          {
+            "x": 8,
+            "y": 18,
+            "metatile": 963,
+            "collision": 1
+          },
+          {
+            "x": 7,
+            "y": 19,
+            "metatile": 964,
+            "collision": 1
+          },
+          {
+            "x": 8,
+            "y": 19,
+            "metatile": 965,
+            "collision": 1
+          }
+        ],
+        "sourceLabel": "EventScript_Close5FDoor2"
+      },
+      {
+        "map": "SilphCo_5F",
+        "flag": "kanto/middle/door/SilphCo_5F_EventScript_Door3",
+        "tiles": [
+          {
+            "x": 18,
+            "y": 12,
+            "metatile": 960,
+            "collision": 1
+          },
+          {
+            "x": 19,
+            "y": 12,
+            "metatile": 961,
+            "collision": 1
+          },
+          {
+            "x": 18,
+            "y": 13,
+            "metatile": 962,
+            "collision": 1
+          },
+          {
+            "x": 19,
+            "y": 13,
+            "metatile": 963,
+            "collision": 1
+          },
+          {
+            "x": 18,
+            "y": 14,
+            "metatile": 964,
+            "collision": 1
+          },
+          {
+            "x": 19,
+            "y": 14,
+            "metatile": 965,
+            "collision": 1
+          }
+        ],
+        "sourceLabel": "EventScript_Close5FDoor3"
+      },
+      {
+        "map": "SilphCo_6F",
+        "flag": "kanto/middle/door/SilphCo_6F_EventScript_Door",
+        "tiles": [
+          {
+            "x": 5,
+            "y": 14,
+            "metatile": 960,
+            "collision": 1
+          },
+          {
+            "x": 6,
+            "y": 14,
+            "metatile": 961,
+            "collision": 1
+          },
+          {
+            "x": 5,
+            "y": 15,
+            "metatile": 962,
+            "collision": 1
+          },
+          {
+            "x": 6,
+            "y": 15,
+            "metatile": 963,
+            "collision": 1
+          },
+          {
+            "x": 5,
+            "y": 16,
+            "metatile": 964,
+            "collision": 1
+          },
+          {
+            "x": 6,
+            "y": 16,
+            "metatile": 965,
+            "collision": 1
+          }
+        ],
+        "sourceLabel": "EventScript_Close6FDoor"
+      },
+      {
+        "map": "SilphCo_7F",
+        "flag": "kanto/middle/door/SilphCo_7F_EventScript_Door1",
+        "tiles": [
+          {
+            "x": 11,
+            "y": 8,
+            "metatile": 944,
+            "collision": 1
+          },
+          {
+            "x": 12,
+            "y": 8,
+            "metatile": 945,
+            "collision": 1
+          },
+          {
+            "x": 11,
+            "y": 9,
+            "metatile": 952,
+            "collision": 1
+          },
+          {
+            "x": 12,
+            "y": 9,
+            "metatile": 953,
+            "collision": 1
+          },
+          {
+            "x": 12,
+            "y": 10,
+            "metatile": 821,
+            "collision": 0
+          }
+        ],
+        "sourceLabel": "EventScript_Close7FDoor1"
+      },
+      {
+        "map": "SilphCo_7F",
+        "flag": "kanto/middle/door/SilphCo_7F_EventScript_Door2",
+        "tiles": [
+          {
+            "x": 24,
+            "y": 7,
+            "metatile": 944,
+            "collision": 1
+          },
+          {
+            "x": 25,
+            "y": 7,
+            "metatile": 945,
+            "collision": 1
+          },
+          {
+            "x": 24,
+            "y": 8,
+            "metatile": 952,
+            "collision": 1
+          },
+          {
+            "x": 25,
+            "y": 8,
+            "metatile": 953,
+            "collision": 1
+          },
+          {
+            "x": 25,
+            "y": 9,
+            "metatile": 821,
+            "collision": 0
+          }
+        ],
+        "sourceLabel": "EventScript_Close7FDoor2"
+      },
+      {
+        "map": "SilphCo_7F",
+        "flag": "kanto/middle/door/SilphCo_7F_EventScript_Door3",
+        "tiles": [
+          {
+            "x": 25,
+            "y": 13,
+            "metatile": 944,
+            "collision": 1
+          },
+          {
+            "x": 26,
+            "y": 13,
+            "metatile": 945,
+            "collision": 1
+          },
+          {
+            "x": 25,
+            "y": 14,
+            "metatile": 952,
+            "collision": 1
+          },
+          {
+            "x": 26,
+            "y": 14,
+            "metatile": 953,
+            "collision": 1
+          },
+          {
+            "x": 26,
+            "y": 15,
+            "metatile": 821,
+            "collision": 0
+          }
+        ],
+        "sourceLabel": "EventScript_Close7FDoor3"
+      },
+      {
+        "map": "SilphCo_8F",
+        "flag": "kanto/middle/door/SilphCo_8F_EventScript_Door",
+        "tiles": [
+          {
+            "x": 5,
+            "y": 9,
+            "metatile": 960,
+            "collision": 1
+          },
+          {
+            "x": 6,
+            "y": 9,
+            "metatile": 961,
+            "collision": 1
+          },
+          {
+            "x": 5,
+            "y": 10,
+            "metatile": 962,
+            "collision": 1
+          },
+          {
+            "x": 6,
+            "y": 10,
+            "metatile": 963,
+            "collision": 1
+          },
+          {
+            "x": 5,
+            "y": 11,
+            "metatile": 964,
+            "collision": 1
+          },
+          {
+            "x": 6,
+            "y": 11,
+            "metatile": 965,
+            "collision": 1
+          }
+        ],
+        "sourceLabel": "EventScript_Close8FDoor"
+      },
+      {
+        "map": "SilphCo_9F",
+        "flag": "kanto/middle/door/SilphCo_9F_EventScript_Door1",
+        "tiles": [
+          {
+            "x": 2,
+            "y": 9,
+            "metatile": 960,
+            "collision": 1
+          },
+          {
+            "x": 3,
+            "y": 9,
+            "metatile": 961,
+            "collision": 1
+          },
+          {
+            "x": 2,
+            "y": 10,
+            "metatile": 962,
+            "collision": 1
+          },
+          {
+            "x": 3,
+            "y": 10,
+            "metatile": 963,
+            "collision": 1
+          },
+          {
+            "x": 2,
+            "y": 11,
+            "metatile": 964,
+            "collision": 1
+          },
+          {
+            "x": 3,
+            "y": 11,
+            "metatile": 965,
+            "collision": 1
+          }
+        ],
+        "sourceLabel": "EventScript_Close9FDoor1"
+      },
+      {
+        "map": "SilphCo_9F",
+        "flag": "kanto/middle/door/SilphCo_9F_EventScript_Door2",
+        "tiles": [
+          {
+            "x": 12,
+            "y": 15,
+            "metatile": 960,
+            "collision": 1
+          },
+          {
+            "x": 13,
+            "y": 15,
+            "metatile": 961,
+            "collision": 1
+          },
+          {
+            "x": 12,
+            "y": 16,
+            "metatile": 962,
+            "collision": 1
+          },
+          {
+            "x": 13,
+            "y": 16,
+            "metatile": 963,
+            "collision": 1
+          },
+          {
+            "x": 12,
+            "y": 17,
+            "metatile": 964,
+            "collision": 1
+          },
+          {
+            "x": 13,
+            "y": 17,
+            "metatile": 965,
+            "collision": 1
+          }
+        ],
+        "sourceLabel": "EventScript_Close9FDoor2"
+      },
+      {
+        "map": "SilphCo_9F",
+        "flag": "kanto/middle/door/SilphCo_9F_EventScript_Door3",
+        "tiles": [
+          {
+            "x": 21,
+            "y": 6,
+            "metatile": 944,
+            "collision": 1
+          },
+          {
+            "x": 22,
+            "y": 6,
+            "metatile": 945,
+            "collision": 1
+          },
+          {
+            "x": 21,
+            "y": 7,
+            "metatile": 952,
+            "collision": 1
+          },
+          {
+            "x": 22,
+            "y": 7,
+            "metatile": 953,
+            "collision": 1
+          },
+          {
+            "x": 22,
+            "y": 8,
+            "metatile": 821,
+            "collision": 0
+          }
+        ],
+        "sourceLabel": "EventScript_Close9FDoor3"
+      },
+      {
+        "map": "SilphCo_9F",
+        "flag": "kanto/middle/door/SilphCo_9F_EventScript_Door4",
+        "tiles": [
+          {
+            "x": 21,
+            "y": 12,
+            "metatile": 944,
+            "collision": 1
+          },
+          {
+            "x": 22,
+            "y": 12,
+            "metatile": 945,
+            "collision": 1
+          },
+          {
+            "x": 21,
+            "y": 13,
+            "metatile": 952,
+            "collision": 1
+          },
+          {
+            "x": 22,
+            "y": 13,
+            "metatile": 953,
+            "collision": 1
+          },
+          {
+            "x": 22,
+            "y": 14,
+            "metatile": 821,
+            "collision": 0
+          }
+        ],
+        "sourceLabel": "EventScript_Close9FDoor4"
+      }
+    ]
+  },
+  "nodes": {
+    "cancel": {
+      "actions": [
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_no_badge": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "这棵树可以用居合斩砍断。先取得蓝色徽章，才能在野外使用居合斩。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_no_hm": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "这棵树挡住了去路。圣安奴号的船长或许能教你清除它的方法。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_6_9": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_6_9_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_6_9_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_6_9_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_6_9_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_6_9_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_6_9_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 9
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_6_10": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_6_10_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_6_10_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_6_10_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_6_10_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_6_10_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_6_10_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 10
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_10_16_8": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_10_16_8_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_10_16_8_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_10_16_8_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_10_16_8_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_10_16_8_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_10_16_8_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 8
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_10_16_9": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_10_16_9_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_10_16_9_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_10_16_9_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_10_16_9_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_10_16_9_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_10_16_9_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 9
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_10_16_10": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_10_16_10_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_10_16_10_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_10_16_10_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_10_16_10_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_10_16_10_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_10_16_10_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 10
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_3_8": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_3_8_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_3_8_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_3_8_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_3_8_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_3_8_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_3_8_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 8
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_56_3": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_56_3_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_56_3_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_56_3_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_56_3_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_56_3_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_56_3_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 3
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_56_4": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_56_4_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_56_4_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_56_4_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_56_4_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_56_4_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_56_4_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 4
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_7_10": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_7_10_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_7_10_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_7_10_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_7_10_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_7_10_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_7_10_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 10
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_7_11": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_7_11_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_7_11_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_7_11_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_7_11_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_7_11_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_7_11_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 11
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_7_12": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_7_12_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_7_12_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_7_12_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_7_12_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_7_12_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_7_12_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 12
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_7_13": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_7_13_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_7_13_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_7_13_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_7_13_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_7_13_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_7_13_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 13
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_2_5": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_2_5_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_2_5_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_2_5_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_2_5_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_2_5_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_2_5_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 5
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_28_6": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_28_6_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_28_6_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_28_6_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_28_6_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_28_6_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_28_6_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 6
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_28_7": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_28_7_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_28_7_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_28_7_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_28_7_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_28_7_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_28_7_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 7
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_28_8": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_28_8_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_28_8_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_28_8_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_28_8_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_28_8_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_28_8_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 8
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_28_9": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_28_9_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_28_9_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_28_9_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_28_9_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_28_9_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_28_9_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 9
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_30_8": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_30_8_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_30_8_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_30_8_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_30_8_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_30_8_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_30_8_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 8
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_30_13": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_30_13_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_30_13_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_30_13_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_30_13_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_30_13_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_30_13_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 13
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_31_10": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_31_10_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_31_10_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_31_10_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_31_10_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_31_10_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_31_10_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 10
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_32_10": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_32_10_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_32_10_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_32_10_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_32_10_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_32_10_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_32_10_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 10
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_32_11": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_32_11_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_32_11_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_32_11_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_32_11_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_32_11_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_32_11_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 11
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_32_12": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_32_12_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_32_12_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_32_12_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_32_12_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_32_12_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_32_12_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 12
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_34_6": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_34_6_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_34_6_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_34_6_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_34_6_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_34_6_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_34_6_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 6
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_20_0": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_20_0_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_20_0_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_20_0_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_20_0_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_20_0_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_20_0_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 0
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_20_1": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_20_1_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_20_1_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_20_1_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_20_1_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_20_1_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_20_1_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 1
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_20_2": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_20_2_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_20_2_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_20_2_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_20_2_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_20_2_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_20_2_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 2
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_20_3": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_20_3_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_20_3_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_20_3_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_20_3_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_20_3_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_20_3_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 3
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_44_10": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_44_10_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_44_10_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_44_10_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_44_10_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_44_10_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_44_10_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 10
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_26_9": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_26_9_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_26_9_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_26_9_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_26_9_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_26_9_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_26_9_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 9
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_26_10": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_26_10_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_26_10_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_26_10_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_26_10_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_26_10_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_26_10_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 10
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_27_9": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_27_9_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_27_9_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_27_9_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_27_9_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_27_9_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_27_9_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 9
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_14_8": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_14_8_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_14_8_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_14_8_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_14_8_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_14_8_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_14_8_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 8
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_1_109_1": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_1_109_1_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_1_109_1_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_1_109_1_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_1_109_1_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_1_109_1_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_1_109_1_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 1
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_1_109_2": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_1_109_2_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_1_109_2_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_1_109_2_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_1_109_2_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_1_109_2_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_1_109_2_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 2
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_1_109_3": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_1_109_3_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_1_109_3_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_1_109_3_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_1_109_3_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_1_109_3_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_1_109_3_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 3
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_1_109_4": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_1_109_4_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_1_109_4_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_1_109_4_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_1_109_4_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_1_109_4_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_1_109_4_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 4
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_1_109_5": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_1_109_5_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_1_109_5_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_1_109_5_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_1_109_5_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_1_109_5_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_1_109_5_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 5
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_1_109_6": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_1_109_6_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_1_109_6_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_1_109_6_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_1_109_6_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_1_109_6_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_1_109_6_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 6
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_1_109_7": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_1_109_7_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_1_109_7_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_1_109_7_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_1_109_7_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_1_109_7_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_1_109_7_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 7
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_1_109_8": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_1_109_8_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_1_109_8_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_1_109_8_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_1_109_8_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_1_109_8_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_1_109_8_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 8
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_1_109_9": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_1_109_9_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_1_109_9_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_1_109_9_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_1_109_9_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_1_109_9_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_1_109_9_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 9
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_1_109_10": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_1_109_10_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_1_109_10_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_1_109_10_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_1_109_10_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_1_109_10_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_1_109_10_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 10
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_48_7": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_48_7_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_48_7_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_48_7_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_48_7_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_48_7_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_48_7_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 7
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_48_8": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_48_8_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_48_8_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_48_8_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_48_8_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_48_8_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_48_8_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 8
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_13_5": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_13_5_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_13_5_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_13_5_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_13_5_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_13_5_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_13_5_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 5
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_5_6": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_5_6_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_5_6_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_5_6_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_5_6_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_5_6_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_5_6_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 6
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_1_1": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_1_1_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_1_1_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_1_1_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_1_1_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_1_1_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_1_1_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 1
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cut_3_1_7": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "BADGE_SET",
+            "value": 1
+          },
+          "yes": "cut_3_1_7_hm",
+          "no": "cut_no_badge"
+        }
+      ]
+    },
+    "cut_3_1_7_hm": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "cut_3_1_7_ask",
+          "no": "cut_no_hm"
+        }
+      ]
+    },
+    "cut_3_1_7_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "要使用居合斩清除这棵树吗？",
+          "yes": "cut_3_1_7_use",
+          "no": "cancel"
+        }
+      ]
+    },
+    "cut_3_1_7_use": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 300
+        },
+        {
+          "type": "HIDE_TEMP_NPC",
+          "entityIdx": 7
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "树被砍断了，可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "SilphCo_10F_EventScript_Door": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/middle/door/SilphCo_10F_EventScript_Door"
+          },
+          "yes": "door_open",
+          "no": "SilphCo_10F_EventScript_Door_key"
+        }
+      ]
+    },
+    "SilphCo_10F_EventScript_Door_key": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 355
+          },
+          "yes": "SilphCo_10F_EventScript_Door_ask",
+          "no": "door_locked"
+        }
+      ]
+    },
+    "SilphCo_10F_EventScript_Door_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "使用卡片钥匙打开这道门吗？",
+          "yes": "SilphCo_10F_EventScript_Door_unlock",
+          "no": "cancel"
+        }
+      ]
+    },
+    "SilphCo_10F_EventScript_Door_unlock": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/middle/door/SilphCo_10F_EventScript_Door"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "卡片钥匙插入锁孔，门打开了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "SilphCo_11F_EventScript_Door": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/middle/door/SilphCo_11F_EventScript_Door"
+          },
+          "yes": "door_open",
+          "no": "SilphCo_11F_EventScript_Door_key"
+        }
+      ]
+    },
+    "SilphCo_11F_EventScript_Door_key": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 355
+          },
+          "yes": "SilphCo_11F_EventScript_Door_ask",
+          "no": "door_locked"
+        }
+      ]
+    },
+    "SilphCo_11F_EventScript_Door_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "使用卡片钥匙打开这道门吗？",
+          "yes": "SilphCo_11F_EventScript_Door_unlock",
+          "no": "cancel"
+        }
+      ]
+    },
+    "SilphCo_11F_EventScript_Door_unlock": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/middle/door/SilphCo_11F_EventScript_Door"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "卡片钥匙插入锁孔，门打开了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "SilphCo_2F_EventScript_Door1": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/middle/door/SilphCo_2F_EventScript_Door1"
+          },
+          "yes": "door_open",
+          "no": "SilphCo_2F_EventScript_Door1_key"
+        }
+      ]
+    },
+    "SilphCo_2F_EventScript_Door1_key": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 355
+          },
+          "yes": "SilphCo_2F_EventScript_Door1_ask",
+          "no": "door_locked"
+        }
+      ]
+    },
+    "SilphCo_2F_EventScript_Door1_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "使用卡片钥匙打开这道门吗？",
+          "yes": "SilphCo_2F_EventScript_Door1_unlock",
+          "no": "cancel"
+        }
+      ]
+    },
+    "SilphCo_2F_EventScript_Door1_unlock": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/middle/door/SilphCo_2F_EventScript_Door1"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "卡片钥匙插入锁孔，门打开了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "SilphCo_2F_EventScript_Door2": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/middle/door/SilphCo_2F_EventScript_Door2"
+          },
+          "yes": "door_open",
+          "no": "SilphCo_2F_EventScript_Door2_key"
+        }
+      ]
+    },
+    "SilphCo_2F_EventScript_Door2_key": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 355
+          },
+          "yes": "SilphCo_2F_EventScript_Door2_ask",
+          "no": "door_locked"
+        }
+      ]
+    },
+    "SilphCo_2F_EventScript_Door2_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "使用卡片钥匙打开这道门吗？",
+          "yes": "SilphCo_2F_EventScript_Door2_unlock",
+          "no": "cancel"
+        }
+      ]
+    },
+    "SilphCo_2F_EventScript_Door2_unlock": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/middle/door/SilphCo_2F_EventScript_Door2"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "卡片钥匙插入锁孔，门打开了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "SilphCo_3F_EventScript_Door1": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/middle/door/SilphCo_3F_EventScript_Door1"
+          },
+          "yes": "door_open",
+          "no": "SilphCo_3F_EventScript_Door1_key"
+        }
+      ]
+    },
+    "SilphCo_3F_EventScript_Door1_key": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 355
+          },
+          "yes": "SilphCo_3F_EventScript_Door1_ask",
+          "no": "door_locked"
+        }
+      ]
+    },
+    "SilphCo_3F_EventScript_Door1_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "使用卡片钥匙打开这道门吗？",
+          "yes": "SilphCo_3F_EventScript_Door1_unlock",
+          "no": "cancel"
+        }
+      ]
+    },
+    "SilphCo_3F_EventScript_Door1_unlock": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/middle/door/SilphCo_3F_EventScript_Door1"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "卡片钥匙插入锁孔，门打开了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "SilphCo_3F_EventScript_Door2": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/middle/door/SilphCo_3F_EventScript_Door2"
+          },
+          "yes": "door_open",
+          "no": "SilphCo_3F_EventScript_Door2_key"
+        }
+      ]
+    },
+    "SilphCo_3F_EventScript_Door2_key": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 355
+          },
+          "yes": "SilphCo_3F_EventScript_Door2_ask",
+          "no": "door_locked"
+        }
+      ]
+    },
+    "SilphCo_3F_EventScript_Door2_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "使用卡片钥匙打开这道门吗？",
+          "yes": "SilphCo_3F_EventScript_Door2_unlock",
+          "no": "cancel"
+        }
+      ]
+    },
+    "SilphCo_3F_EventScript_Door2_unlock": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/middle/door/SilphCo_3F_EventScript_Door2"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "卡片钥匙插入锁孔，门打开了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "SilphCo_4F_EventScript_Door1": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/middle/door/SilphCo_4F_EventScript_Door1"
+          },
+          "yes": "door_open",
+          "no": "SilphCo_4F_EventScript_Door1_key"
+        }
+      ]
+    },
+    "SilphCo_4F_EventScript_Door1_key": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 355
+          },
+          "yes": "SilphCo_4F_EventScript_Door1_ask",
+          "no": "door_locked"
+        }
+      ]
+    },
+    "SilphCo_4F_EventScript_Door1_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "使用卡片钥匙打开这道门吗？",
+          "yes": "SilphCo_4F_EventScript_Door1_unlock",
+          "no": "cancel"
+        }
+      ]
+    },
+    "SilphCo_4F_EventScript_Door1_unlock": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/middle/door/SilphCo_4F_EventScript_Door1"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "卡片钥匙插入锁孔，门打开了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "SilphCo_4F_EventScript_Door2": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/middle/door/SilphCo_4F_EventScript_Door2"
+          },
+          "yes": "door_open",
+          "no": "SilphCo_4F_EventScript_Door2_key"
+        }
+      ]
+    },
+    "SilphCo_4F_EventScript_Door2_key": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 355
+          },
+          "yes": "SilphCo_4F_EventScript_Door2_ask",
+          "no": "door_locked"
+        }
+      ]
+    },
+    "SilphCo_4F_EventScript_Door2_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "使用卡片钥匙打开这道门吗？",
+          "yes": "SilphCo_4F_EventScript_Door2_unlock",
+          "no": "cancel"
+        }
+      ]
+    },
+    "SilphCo_4F_EventScript_Door2_unlock": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/middle/door/SilphCo_4F_EventScript_Door2"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "卡片钥匙插入锁孔，门打开了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "SilphCo_5F_EventScript_Door1": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/middle/door/SilphCo_5F_EventScript_Door1"
+          },
+          "yes": "door_open",
+          "no": "SilphCo_5F_EventScript_Door1_key"
+        }
+      ]
+    },
+    "SilphCo_5F_EventScript_Door1_key": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 355
+          },
+          "yes": "SilphCo_5F_EventScript_Door1_ask",
+          "no": "door_locked"
+        }
+      ]
+    },
+    "SilphCo_5F_EventScript_Door1_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "使用卡片钥匙打开这道门吗？",
+          "yes": "SilphCo_5F_EventScript_Door1_unlock",
+          "no": "cancel"
+        }
+      ]
+    },
+    "SilphCo_5F_EventScript_Door1_unlock": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/middle/door/SilphCo_5F_EventScript_Door1"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "卡片钥匙插入锁孔，门打开了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "SilphCo_5F_EventScript_Door2": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/middle/door/SilphCo_5F_EventScript_Door2"
+          },
+          "yes": "door_open",
+          "no": "SilphCo_5F_EventScript_Door2_key"
+        }
+      ]
+    },
+    "SilphCo_5F_EventScript_Door2_key": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 355
+          },
+          "yes": "SilphCo_5F_EventScript_Door2_ask",
+          "no": "door_locked"
+        }
+      ]
+    },
+    "SilphCo_5F_EventScript_Door2_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "使用卡片钥匙打开这道门吗？",
+          "yes": "SilphCo_5F_EventScript_Door2_unlock",
+          "no": "cancel"
+        }
+      ]
+    },
+    "SilphCo_5F_EventScript_Door2_unlock": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/middle/door/SilphCo_5F_EventScript_Door2"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "卡片钥匙插入锁孔，门打开了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "SilphCo_5F_EventScript_Door3": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/middle/door/SilphCo_5F_EventScript_Door3"
+          },
+          "yes": "door_open",
+          "no": "SilphCo_5F_EventScript_Door3_key"
+        }
+      ]
+    },
+    "SilphCo_5F_EventScript_Door3_key": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 355
+          },
+          "yes": "SilphCo_5F_EventScript_Door3_ask",
+          "no": "door_locked"
+        }
+      ]
+    },
+    "SilphCo_5F_EventScript_Door3_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "使用卡片钥匙打开这道门吗？",
+          "yes": "SilphCo_5F_EventScript_Door3_unlock",
+          "no": "cancel"
+        }
+      ]
+    },
+    "SilphCo_5F_EventScript_Door3_unlock": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/middle/door/SilphCo_5F_EventScript_Door3"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "卡片钥匙插入锁孔，门打开了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "SilphCo_6F_EventScript_Door": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/middle/door/SilphCo_6F_EventScript_Door"
+          },
+          "yes": "door_open",
+          "no": "SilphCo_6F_EventScript_Door_key"
+        }
+      ]
+    },
+    "SilphCo_6F_EventScript_Door_key": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 355
+          },
+          "yes": "SilphCo_6F_EventScript_Door_ask",
+          "no": "door_locked"
+        }
+      ]
+    },
+    "SilphCo_6F_EventScript_Door_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "使用卡片钥匙打开这道门吗？",
+          "yes": "SilphCo_6F_EventScript_Door_unlock",
+          "no": "cancel"
+        }
+      ]
+    },
+    "SilphCo_6F_EventScript_Door_unlock": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/middle/door/SilphCo_6F_EventScript_Door"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "卡片钥匙插入锁孔，门打开了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "SilphCo_7F_EventScript_Door1": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/middle/door/SilphCo_7F_EventScript_Door1"
+          },
+          "yes": "door_open",
+          "no": "SilphCo_7F_EventScript_Door1_key"
+        }
+      ]
+    },
+    "SilphCo_7F_EventScript_Door1_key": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 355
+          },
+          "yes": "SilphCo_7F_EventScript_Door1_ask",
+          "no": "door_locked"
+        }
+      ]
+    },
+    "SilphCo_7F_EventScript_Door1_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "使用卡片钥匙打开这道门吗？",
+          "yes": "SilphCo_7F_EventScript_Door1_unlock",
+          "no": "cancel"
+        }
+      ]
+    },
+    "SilphCo_7F_EventScript_Door1_unlock": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/middle/door/SilphCo_7F_EventScript_Door1"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "卡片钥匙插入锁孔，门打开了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "SilphCo_7F_EventScript_Door2": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/middle/door/SilphCo_7F_EventScript_Door2"
+          },
+          "yes": "door_open",
+          "no": "SilphCo_7F_EventScript_Door2_key"
+        }
+      ]
+    },
+    "SilphCo_7F_EventScript_Door2_key": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 355
+          },
+          "yes": "SilphCo_7F_EventScript_Door2_ask",
+          "no": "door_locked"
+        }
+      ]
+    },
+    "SilphCo_7F_EventScript_Door2_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "使用卡片钥匙打开这道门吗？",
+          "yes": "SilphCo_7F_EventScript_Door2_unlock",
+          "no": "cancel"
+        }
+      ]
+    },
+    "SilphCo_7F_EventScript_Door2_unlock": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/middle/door/SilphCo_7F_EventScript_Door2"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "卡片钥匙插入锁孔，门打开了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "SilphCo_7F_EventScript_Door3": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/middle/door/SilphCo_7F_EventScript_Door3"
+          },
+          "yes": "door_open",
+          "no": "SilphCo_7F_EventScript_Door3_key"
+        }
+      ]
+    },
+    "SilphCo_7F_EventScript_Door3_key": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 355
+          },
+          "yes": "SilphCo_7F_EventScript_Door3_ask",
+          "no": "door_locked"
+        }
+      ]
+    },
+    "SilphCo_7F_EventScript_Door3_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "使用卡片钥匙打开这道门吗？",
+          "yes": "SilphCo_7F_EventScript_Door3_unlock",
+          "no": "cancel"
+        }
+      ]
+    },
+    "SilphCo_7F_EventScript_Door3_unlock": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/middle/door/SilphCo_7F_EventScript_Door3"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "卡片钥匙插入锁孔，门打开了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "SilphCo_8F_EventScript_Door": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/middle/door/SilphCo_8F_EventScript_Door"
+          },
+          "yes": "door_open",
+          "no": "SilphCo_8F_EventScript_Door_key"
+        }
+      ]
+    },
+    "SilphCo_8F_EventScript_Door_key": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 355
+          },
+          "yes": "SilphCo_8F_EventScript_Door_ask",
+          "no": "door_locked"
+        }
+      ]
+    },
+    "SilphCo_8F_EventScript_Door_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "使用卡片钥匙打开这道门吗？",
+          "yes": "SilphCo_8F_EventScript_Door_unlock",
+          "no": "cancel"
+        }
+      ]
+    },
+    "SilphCo_8F_EventScript_Door_unlock": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/middle/door/SilphCo_8F_EventScript_Door"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "卡片钥匙插入锁孔，门打开了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "SilphCo_9F_EventScript_Door1": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/middle/door/SilphCo_9F_EventScript_Door1"
+          },
+          "yes": "door_open",
+          "no": "SilphCo_9F_EventScript_Door1_key"
+        }
+      ]
+    },
+    "SilphCo_9F_EventScript_Door1_key": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 355
+          },
+          "yes": "SilphCo_9F_EventScript_Door1_ask",
+          "no": "door_locked"
+        }
+      ]
+    },
+    "SilphCo_9F_EventScript_Door1_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "使用卡片钥匙打开这道门吗？",
+          "yes": "SilphCo_9F_EventScript_Door1_unlock",
+          "no": "cancel"
+        }
+      ]
+    },
+    "SilphCo_9F_EventScript_Door1_unlock": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/middle/door/SilphCo_9F_EventScript_Door1"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "卡片钥匙插入锁孔，门打开了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "SilphCo_9F_EventScript_Door2": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/middle/door/SilphCo_9F_EventScript_Door2"
+          },
+          "yes": "door_open",
+          "no": "SilphCo_9F_EventScript_Door2_key"
+        }
+      ]
+    },
+    "SilphCo_9F_EventScript_Door2_key": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 355
+          },
+          "yes": "SilphCo_9F_EventScript_Door2_ask",
+          "no": "door_locked"
+        }
+      ]
+    },
+    "SilphCo_9F_EventScript_Door2_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "使用卡片钥匙打开这道门吗？",
+          "yes": "SilphCo_9F_EventScript_Door2_unlock",
+          "no": "cancel"
+        }
+      ]
+    },
+    "SilphCo_9F_EventScript_Door2_unlock": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/middle/door/SilphCo_9F_EventScript_Door2"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "卡片钥匙插入锁孔，门打开了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "SilphCo_9F_EventScript_Door3": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/middle/door/SilphCo_9F_EventScript_Door3"
+          },
+          "yes": "door_open",
+          "no": "SilphCo_9F_EventScript_Door3_key"
+        }
+      ]
+    },
+    "SilphCo_9F_EventScript_Door3_key": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 355
+          },
+          "yes": "SilphCo_9F_EventScript_Door3_ask",
+          "no": "door_locked"
+        }
+      ]
+    },
+    "SilphCo_9F_EventScript_Door3_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "使用卡片钥匙打开这道门吗？",
+          "yes": "SilphCo_9F_EventScript_Door3_unlock",
+          "no": "cancel"
+        }
+      ]
+    },
+    "SilphCo_9F_EventScript_Door3_unlock": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/middle/door/SilphCo_9F_EventScript_Door3"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "卡片钥匙插入锁孔，门打开了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "SilphCo_9F_EventScript_Door4": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/middle/door/SilphCo_9F_EventScript_Door4"
+          },
+          "yes": "door_open",
+          "no": "SilphCo_9F_EventScript_Door4_key"
+        }
+      ]
+    },
+    "SilphCo_9F_EventScript_Door4_key": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 355
+          },
+          "yes": "SilphCo_9F_EventScript_Door4_ask",
+          "no": "door_locked"
+        }
+      ]
+    },
+    "SilphCo_9F_EventScript_Door4_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "使用卡片钥匙打开这道门吗？",
+          "yes": "SilphCo_9F_EventScript_Door4_unlock",
+          "no": "cancel"
+        }
+      ]
+    },
+    "SilphCo_9F_EventScript_Door4_unlock": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/middle/door/SilphCo_9F_EventScript_Door4"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "卡片钥匙插入锁孔，门打开了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "door_open": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "这道门已经打开了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "door_locked": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "门被电子锁锁住了，需要卡片钥匙。听说钥匙遗落在西尔佛公司五楼。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "tea_woman": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/FLAG_GOT_TEA"
+          },
+          "yes": "tea_after",
+          "no": "tea_check_owned"
+        }
+      ]
+    },
+    "tea_receive": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "一路旅行辛苦了。这杯茶带在身上吧，也许能帮上你的忙。"
+        },
+        {
+          "type": "GRANT_ITEM",
+          "itemId": 369,
+          "amount": 1
+        },
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/FLAG_GOT_TEA"
+        },
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/item/CeladonCity_Condominiums_1F/CeladonCity_Condominiums_1F_EventScript_TeaWoman"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "获得了茶。金黄市入口执勤的警卫似乎很口渴。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "tea_after": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "那杯茶还合你的口味吗？旅途中也别忘了休息。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "Route5_SouthEntrance_tea": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/middle/saffron_guards"
+          },
+          "yes": "guard_open",
+          "no": "Route5_SouthEntrance_tea_check"
+        }
+      ]
+    },
+    "Route5_SouthEntrance_tea_check": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 369
+          },
+          "yes": "guard_tea",
+          "no": "guard_thirsty"
+        }
+      ]
+    },
+    "Route5_SouthEntrance_tea_cross": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 369
+          },
+          "yes": "guard_tea",
+          "no": "guard_block"
+        }
+      ]
+    },
+    "Route6_NorthEntrance_tea": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/middle/saffron_guards"
+          },
+          "yes": "guard_open",
+          "no": "Route6_NorthEntrance_tea_check"
+        }
+      ]
+    },
+    "Route6_NorthEntrance_tea_check": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 369
+          },
+          "yes": "guard_tea",
+          "no": "guard_thirsty"
+        }
+      ]
+    },
+    "Route6_NorthEntrance_tea_cross": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 369
+          },
+          "yes": "guard_tea",
+          "no": "guard_block"
+        }
+      ]
+    },
+    "Route7_EastEntrance_tea": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/middle/saffron_guards"
+          },
+          "yes": "guard_open",
+          "no": "Route7_EastEntrance_tea_check"
+        }
+      ]
+    },
+    "Route7_EastEntrance_tea_check": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 369
+          },
+          "yes": "guard_tea",
+          "no": "guard_thirsty"
+        }
+      ]
+    },
+    "Route7_EastEntrance_tea_cross": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 369
+          },
+          "yes": "guard_tea",
+          "no": "guard_block"
+        }
+      ]
+    },
+    "Route8_WestEntrance_tea": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/middle/saffron_guards"
+          },
+          "yes": "guard_open",
+          "no": "Route8_WestEntrance_tea_check"
+        }
+      ]
+    },
+    "Route8_WestEntrance_tea_check": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 369
+          },
+          "yes": "guard_tea",
+          "no": "guard_thirsty"
+        }
+      ]
+    },
+    "Route8_WestEntrance_tea_cross": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 369
+          },
+          "yes": "guard_tea",
+          "no": "guard_block"
+        }
+      ]
+    },
+    "guard_thirsty": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "执勤真让人口渴……现在暂时不能让你通过。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "guard_block": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "请等一下！现在暂时不能让你通过。警卫看起来很想喝点东西。"
+        },
+        {
+          "type": "REJECT_MOVE"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "guard_tea": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "这杯茶看起来真不错！你愿意给我吗？"
+        },
+        {
+          "type": "YES_NO",
+          "message": "把茶交给警卫吗？",
+          "yes": "guard_drink",
+          "no": "guard_decline"
+        }
+      ]
+    },
+    "guard_decline": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "好吧。如果你改变主意，再来找我。"
+        },
+        {
+          "type": "REJECT_COORDINATE_MOVE"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "guard_drink": {
+      "actions": [
+        {
+          "type": "REMOVE_ITEM",
+          "itemId": 369,
+          "amount": 1
+        },
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/middle/saffron_guards"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "谢谢！我会分给其他入口的警卫。现在四个入口都可以通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "guard_open": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "谢谢你带来的茶。金黄市已经可以自由通行了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "tea_check_owned": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 369
+          },
+          "yes": "tea_recover",
+          "no": "tea_check_legacy"
+        }
+      ]
+    },
+    "tea_check_legacy": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/item/CeladonCity_Condominiums_1F/CeladonCity_Condominiums_1F_EventScript_TeaWoman"
+          },
+          "yes": "tea_recover",
+          "no": "tea_receive"
+        }
+      ]
+    },
+    "tea_recover": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/FLAG_GOT_TEA"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "带上那杯茶去找金黄市入口的警卫吧。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "Route12_snorlax": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 350
+          },
+          "yes": "Route12_snorlax_ask",
+          "no": "snorlax_sleep"
+        }
+      ]
+    },
+    "Route12_snorlax_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "卡比兽挡住了道路。要吹响宝可梦笛叫醒它吗？",
+          "yes": "Route12_snorlax_wake",
+          "no": "cancel"
+        }
+      ]
+    },
+    "Route12_snorlax_wake": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "笛声响起，卡比兽醒来了！它似乎想与你较量。"
+        },
+        {
+          "type": "START_BATTLE",
+          "battleType": "SCRIPTED_WILD",
+          "wildSpecies": 143,
+          "wildLevel": 30,
+          "finishNode": "Route12_snorlax_finish"
+        }
+      ]
+    },
+    "Route12_snorlax_finish": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/FLAG_HIDE_ROUTE_12_SNORLAX"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "卡比兽已经离开了道路，可以继续前进了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "Route16_snorlax": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 350
+          },
+          "yes": "Route16_snorlax_ask",
+          "no": "snorlax_sleep"
+        }
+      ]
+    },
+    "Route16_snorlax_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "卡比兽挡住了道路。要吹响宝可梦笛叫醒它吗？",
+          "yes": "Route16_snorlax_wake",
+          "no": "cancel"
+        }
+      ]
+    },
+    "Route16_snorlax_wake": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "笛声响起，卡比兽醒来了！它似乎想与你较量。"
+        },
+        {
+          "type": "START_BATTLE",
+          "battleType": "SCRIPTED_WILD",
+          "wildSpecies": 143,
+          "wildLevel": 30,
+          "finishNode": "Route16_snorlax_finish"
+        }
+      ]
+    },
+    "Route16_snorlax_finish": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/FLAG_HIDE_ROUTE_16_SNORLAX"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "卡比兽已经离开了道路，可以继续前进了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "snorlax_sleep": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "卡比兽睡得正香。听说宝可梦笛能叫醒熟睡的宝可梦，不妨去紫苑镇问问富士老人。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "marowak_gate": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 359
+          },
+          "yes": "marowak_reveal",
+          "no": "marowak_unidentified"
+        }
+      ]
+    },
+    "marowak_unidentified": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "神秘的幽灵挡住了楼梯，无法辨认它的真面目。先寻找能够看穿幽灵的检视镜。"
+        },
+        {
+          "type": "REJECT_MOVE"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "marowak_reveal": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "检视镜揭开了幽灵的真面目——那是一只嘎啦嘎啦。它仍在守护着这里。这只幽灵无法捕捉。"
+        },
+        {
+          "type": "START_BATTLE",
+          "battleType": "SCRIPTED_WILD",
+          "wildSpecies": 105,
+          "wildLevel": 30,
+          "noCapture": true,
+          "finishNode": "marowak_finish"
+        }
+      ]
+    },
+    "marowak_finish": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/middle/marowak_appeased"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "嘎啦嘎啦的灵魂平静下来，离开了楼梯。继续上楼寻找富士老人吧。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    }
+  },
+  "text": {}
+}

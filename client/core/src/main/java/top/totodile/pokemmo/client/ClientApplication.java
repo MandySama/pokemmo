@@ -84,8 +84,17 @@ public final class ClientApplication extends ApplicationAdapter {
         return this;
     }
 
+    private java.util.function.Consumer<ClientResources> audioSetup;
+
+    public ClientApplication withAudio(java.util.function.Consumer<ClientResources> setup) {
+        audioSetup = java.util.Objects.requireNonNull(setup);
+        return this;
+    }
+
     public void setFocused(boolean focused) {
         this.focused = focused;
+        if (resources != null && resources.audio() != null)
+            resources.audio().setFocused(focused);
         if (resources != null) frameRateLimit.update(resources.preferences(), focused);
         if (loginScene != null) loginScene.setFocused(focused);
         if (world != null) world.setFocused(focused);
@@ -162,6 +171,8 @@ public final class ClientApplication extends ApplicationAdapter {
     @Override
     public void create() {
         resources = new ClientResources(assets, configDirectory.get(), mobile);
+        if (audioSetup != null) audioSetup.accept(resources);
+        if (resources.audio() != null) resources.audio().setFocused(focused);
         frameRateLimit.update(resources.preferences(), focused);
         startupHasBlackWhiteRom = resources.roms().get(RomType.BLACK_WHITE) != null;
         resources.setRomFilePicker(romFilePicker);

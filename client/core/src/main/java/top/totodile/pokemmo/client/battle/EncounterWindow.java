@@ -28,6 +28,99 @@ import java.util.function.LongSupplier;
  * move preview; switching updates the active combatant without changing stored party order.
  */
 public final class EncounterWindow extends Widget implements AutoCloseable {
+    private NpcEncounter npc;
+
+    /** Uses existing random encounter snapshots as a local visual team, never a battle request. */
+    public void openNpc(EncounterData value,
+            top.totodile.pokemmo.client.ui.character.CharacterAppearance appearance,
+            top.totodile.pokemmo.server.game.GameService.Appearance saved,
+            String trainerName, EncounterEnvironment environment) throws IOException {
+        prepare();
+        var opponent = new NpcEncounter(dex, images, resources, renderer, value.wilds());
+        try {
+            open(new EncounterData(value.player(), java.util.List.of(value.wild()), value.party(),value.trainer()),
+                    appearance, saved, trainerName, environment);
+            npc = opponent;
+            transition.opponentDuration(NpcEncounter.INTRO_DURATION);
+            encounterText = dex.npcChallenge(npc.trainer.type(), npc.trainer.name());
+            transition.encounterMessageDuration(Math.max(EncounterTransition.MESSAGE,
+                    (long) encounterText.length() * messageCharacterDelay));
+            specifiedMove.setText("敌方倒下（测试）");
+            update();
+        } catch (IOException | RuntimeException failure) {
+            if (npc == opponent) stopNpc();
+            else opponent.close();
+            throw failure;
+        }
+    }
+
+    private void stopNpc() {
+        if (npc != null) npc.close();
+        npc = null;
+        transition.opponentDuration(0);
+        specifiedMove.setText("指定招式（测试）");
+    }
+
+    /** Explicit visual test event; no damage formula, AI, reward or persistent HP mutation. */
+    public void previewNpcFaint() {
+        long now = clock.getAsLong();
+        if (engineState!=null || npc == null || npc.busy() || !transition.ready(now) || escaping
+                || switchTarget != null || activeAction != null || animationPreview) return;
+        npc.faintAt = now;
+        npc.text = dex.npcFaintMessage(name(encounter.wild()));
+        battleMessages.accept(npc.text);
+        enemyHud.healthAnimation.target(0, encounter.wild().maxHp());
+        hideCommandButtons();
+        if (choices != null) choices.close();
+    }
+
+    private void updateNpc(long now) {
+        if (npc == null) return;
+        if (npc.entrance.pokemonScale(npc.elapsed(now, transition.entranceTime(now))) > 0)
+            npc.revealed.add(npc.index);
+        if (engineState!=null) {
+            if(npc.spawnAt>=0 && now-npc.spawnAt>=npc.entrance.sendOutDuration()) {
+                npc.spawnAt=-1; mainMenu();
+            }
+            return;
+        }
+        if (npc.exhausted) return;
+        if (npc.faintAt >= 0 && npc.faintDropAt < 0 && enemyHud.healthAnimation.complete())
+            npc.faintDropAt = now;
+        // X00: after the cry slot (+.25s), descend one world unit over .2s and hide.
+        // This silent presentation has no cry playback; retain the reference .25s delay.
+        if (npc.faintDropAt >= 0 && now - npc.faintDropAt >= 450
+                && now - npc.faintAt >= Math.max(1250, npc.text.length() * messageCharacterDelay)) {
+            if (npc.index + 1 == npc.team.size()) {
+                // End this local presentation without awarding a result or changing the party.
+                escapeText = npc.text;
+                escaping = true;
+                escapedAt = now;
+                transition.escape(now);
+                npc.exhausted = true;
+                return;
+            }
+            npc.index++;
+            try { npc.loadEntrance(); } catch (IOException | RuntimeException failure) {
+                com.badlogic.gdx.Gdx.app.error("Encounter", "Cannot load NPC replacement", failure);
+                dismiss(); finished.run(); return;
+            }
+            npc.faintAt = -1;
+            npc.faintDropAt = -1;
+            npc.spawnAt = now;
+            encounter = new EncounterData(encounter.player(), npc.team.get(npc.index), encounter.party());
+            removeChild(enemyHud);
+            enemyHuds.clear();
+            enemyHud = new HealthHud(encounter.wild(), false);
+            enemyHuds.add(enemyHud); add(enemyHud);
+            battleMessages.accept(npc.text);
+            invalidateLayout();
+        }
+        if (npc != null && npc.spawnAt >= 0 && now - npc.spawnAt >= npc.entrance.sendOutDuration()) {
+            npc.spawnAt = -1;
+            mainMenu();
+        }
+    }
 
     private boolean animationPreview, previewPaused;
     private long previewPausedAt, previewPauseTotal;
@@ -38,6 +131,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
      * Reference TestAnimationSlashCommand: play against current combatants without a turn request.
      */
     public String previewMove(int move, boolean enemySide, int targetSlot) {
+        if (npc != null && npc.busy()) return "请等待当前战斗操作结束";
         if (!isOpen() || !transition.ready(clock.getAsLong())) return "请先触发遭遇并等待出场结束";
         if (enginePending
                 || pendingEngineState != null
@@ -408,7 +502,14 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
             settlementUntil = now;
             settlementLogged = false;
             try {
-                if (event.type().equals("DAMAGE")
+                if (event.type().equals("EXPERIENCE") || event.type().equals("LEVEL") || event.type().equals("PAYDAY") || event.type().equals("MONEY")) {
+                    settlementText = event.type().equals("EXPERIENCE")
+                            ? dex.experienceMessage(name(target),event.amount()) : event.type().equals("LEVEL")
+                                    ? dex.levelMessage(name(target),event.amount()) : event.type().equals("PAYDAY")
+                                            ? dex.pickedUpMoneyMessage(battleTrainer,event.amount())
+                                            : dex.rewardMoneyMessage(battleTrainer,event.amount());
+                    settlementUntil=now+Math.max(1500L,settlementText.length()*messageCharacterDelay);
+                } else if (event.type().equals("DAMAGE")
                         || event.type().equals("HEAL")
                         || event.type().equals("SET_HP")) {
                     if (hud == null) continue;
@@ -455,6 +556,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
                         settlementEffect =
                                 BattleSettlementEffect.healing(
                                         resources, images, combatPosition(target), now);
+                    if(settlementEffect!=null)settlementEffect.audioTarget(target.id().equals(encounter.player().id()));
                 } else if (event.type().equals("BOOST")
                         || event.type().equals("UNBOOST")
                         || event.type().equals("SET_BOOST")) {
@@ -583,6 +685,9 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
                     BattleEngine.Action, java.util.concurrent.CompletionStage<BattleState>>
             engineChoose;
     private Runnable engineClose;
+    private Selection tutorialBall;
+    private long tutorialBallAt;
+    public void captureTutorial(Selection ball,Runnable close) {tutorialBall=ball;tutorialBallAt=clock.getAsLong()+800;engineClose=close;}
     private java.util.function.Consumer<Throwable> engineError =
             error -> com.badlogic.gdx.Gdx.app.error("battle", "Showdown action failed", error);
 
@@ -677,7 +782,20 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
         engineState = state;
         syncBoosts(state);
         syncFainted(state);
-        encounter = state.apply(encounter);
+        if(npc!=null && encounter.trainer()!=null) {
+            npc.team=npc.team.stream().map(state::apply).toList();
+            var enemy=state.active(1);
+            int nextIndex=0;
+            for(int i=0;i<npc.team.size();i++) if(npc.team.get(i).id().equals(enemy.id())) nextIndex=i;
+            boolean changed=npc.index!=nextIndex;
+            npc.index=nextIndex;
+            npc.revealed.add(nextIndex);
+            if(changed && !state.ended()) try {
+                npc.loadEntrance(); npc.spawnAt=clock.getAsLong(); battleMessages.accept(npc.text);
+            } catch(IOException failure) { com.badlogic.gdx.Gdx.app.error("battle","Cannot load trainer replacement",failure); }
+            var updated=state.apply(new EncounterData(encounter.player(),npc.team,encounter.party(),encounter.trainer()));
+            encounter=new EncounterData(updated.player(),java.util.List.of(npc.team.get(nextIndex)),updated.party(),encounter.trainer());
+        } else encounter = state.apply(encounter);
         removeChild(playerHud);
         playerHud = new HealthHud(encounter.player(), true);
         add(playerHud);
@@ -957,6 +1075,33 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
                 }
             };
 
+    /** BattleCombatLayout.As / jg0: unknown opponent members retain the neutral ball. */
+    private final Widget enemyParty = new Widget() {
+        { setTheme(""); }
+
+        @Override
+        protected void paintWidget(GUI gui) {
+            if (npc == null) return;
+            for (int slot = 0; slot < 6; slot++) {
+                if (slot >= npc.team.size() || !npc.revealed.contains(slot)) {
+                    var ball = images.ball(3);
+                    if (slot >= npc.team.size())
+                        ball = ball.createTintedVersion(new Color(0x20000000));
+                    ball.draw(getAnimationState(), getX() + slot * 30 + 4, getY() + 4, 16, 16);
+                } else {
+                    var pokemon = npc.team.get(slot);
+                    var icon = images.partyIcon(pokemon.species(), pokemon.form(), pokemon.gender(),
+                            pokemon.egg(), false, pokemon.shiny(), pokemon.alpha());
+                    boolean fainted = slot < npc.index || npc.exhausted
+                            || slot == npc.index && npc.faintAt >= 0
+                                    && enemyHud.healthAnimation.hp() == 0;
+                    if (fainted) icon = icon.createTintedVersion(new Color(0x80000000));
+                    icon.draw(getAnimationState(), getX() + slot * 30 - 8, getY() - 10, 36, 36);
+                }
+            }
+        }
+    };
+
     private HealthHud playerHud, enemyHud;
     private final java.util.List<HealthHud> enemyHuds = new java.util.ArrayList<>();
 
@@ -1007,6 +1152,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
         add(field);
         add(panel);
         add(party);
+        add(enemyParty);
         int[] labels = {5100, 5104, 0, 5106}, descriptions = {5101, 5105, 5103, 5107};
         for (int i = 0; i < 4; i++) {
             final int index = i;
@@ -1055,6 +1201,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
         specifiedMove.setVisible(false);
         specifiedMove.addCallback(
                 () -> {
+                    if (npc != null) { previewNpcFaint(); return; }
                     if (!choosingMove
                             || enginePending
                             || pendingEngineState != null
@@ -1078,6 +1225,9 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
         return getParent() != null;
     }
 
+    public boolean trainerBattle() { return npc!=null; }
+    private final java.util.Set<String> wildCries=new java.util.HashSet<>();
+
     private EncounterEnvironment environment;
 
     public void open(
@@ -1097,6 +1247,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
             EncounterEnvironment selectedEnvironment)
             throws IOException {
         prepare();
+        stopNpc();
         if (scene == null || !selectedEnvironment.equals(environment)) {
             var replacement = new EncounterScene(dex, renderer, selectedEnvironment);
             if (scene != null) scene.close();
@@ -1112,6 +1263,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
         activeSpawnAt = -1;
         atmosphere.close();
         encounter = value;
+        wildCries.clear();
         battleTrainer = trainerName;
         selection = null;
         if (choices == null) {
@@ -1285,6 +1437,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
     }
 
     private void capturePokemon(Selection choice) {
+        if (npc != null) return;
         if (effectTestingSession) return;
         if (capturing()) return;
         if (encounter.horde() && choice.pokemonId().isEmpty()) {
@@ -1433,7 +1586,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
             entrance.close();
             entrance = switchEntrance;
             switchEntrance = null;
-            encounter = new EncounterData(switchTarget, encounter.wilds(), encounter.party());
+            encounter = new EncounterData(switchTarget, encounter.wilds(), encounter.party(),encounter.trainer());
             removeChild(playerHud);
             playerHud = new HealthHud(switchTarget, true);
             add(playerHud);
@@ -1471,7 +1624,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
 
     private long ownEntranceTime(long now) {
         return activeSpawnAt < 0
-                ? transition.entranceTime(now)
+                ? transition.entranceTime(now) - (npc == null ? 0 : NpcEncounter.INTRO_DURATION)
                 : EncounterEntrance.WILD + now - activeSpawnAt;
     }
 
@@ -1491,7 +1644,12 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
         updateSwitch(now);
         if (playerHud != null) playerHud.updateHealth(now);
         for (var hud : enemyHuds) hud.updateHealth(now);
+        updateNpc(now);
+        if (!isOpen()) return;
         updateSettlement(now);
+        if(tutorialBall!=null && transition.ready(now) && now>=tutorialBallAt && !capturing() && !captureAnnounced) {
+            var ball=tutorialBall;tutorialBall=null;capturePokemon(ball);
+        }
         if (captureAnimation != null) {
             captureAnimation.update(now);
             if (captureAnimation.complete()) finishCapture();
@@ -1537,7 +1695,10 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
         field.setVisible(visible);
         boolean encounterMessage = transition.encounterMessageVisible(now);
         long entranceElapsed = transition.entranceTime(now);
-        boolean sendingOut = !escaping && !ready && entranceElapsed >= EncounterEntrance.WILD;
+        long ownStart = EncounterEntrance.WILD + (npc == null ? 0 : NpcEncounter.INTRO_DURATION);
+        boolean npcSending = npc != null && !ready && entranceElapsed >= EncounterEntrance.WILD
+                && entranceElapsed < ownStart;
+        boolean sendingOut = !escaping && !ready && entranceElapsed >= ownStart;
         boolean showingWildMessage =
                 !escaping
                         && !ready
@@ -1549,12 +1710,16 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
             loggedEncounter = true;
             battleMessages.accept(encounterText);
         }
-        if (!escaping && entranceElapsed >= EncounterEntrance.WILD && !loggedSendOut) {
+        if (npcSending && !npc.loggedSendOut) {
+            npc.loggedSendOut = true; battleMessages.accept(npc.text);
+        }
+        if (!escaping && entranceElapsed >= ownStart && !loggedSendOut) {
             loggedSendOut = true;
             battleMessages.accept(sendOutText);
         }
         boolean switching = switchTarget != null;
-        boolean enteringText = showingWildMessage || sendingOut || switching;
+        boolean npcBusy = npc != null && npc.busy();
+        boolean enteringText = showingWildMessage || sendingOut || switching || npcSending || npcBusy;
         boolean menuAppearing =
                 ready
                         && !actions[0].isVisible()
@@ -1567,7 +1732,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
         message.setVisible(visible && (enteringText || escaping || usingMove));
         if (enteringText || escaping || usingMove) {
             String fullText =
-                    switching
+                    npcSending || npcBusy ? npc.text : switching
                             ? switchText
                             : escaping
                                     ? escapeText
@@ -1575,7 +1740,8 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
                                             ? settlementEvent != null ? settlementText : moveText
                                             : sendingOut ? sendOutText : encounterText;
             long elapsed =
-                    switching
+                    npcSending ? entranceElapsed - EncounterEntrance.WILD
+                            : npcBusy ? now - (npc.faintAt >= 0 ? npc.faintAt : npc.spawnAt) : switching
                             ? now - (switchSpawnAt < 0 ? switchStartedAt : switchSpawnAt)
                             : escaping
                                     ? now - escapedAt
@@ -1585,7 +1751,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
                                                             ? settlementStarted
                                                             : moveTextAt)
                                             : sendingOut
-                                                    ? entranceElapsed - EncounterEntrance.WILD
+                                                    ? entranceElapsed - ownStart
                                                     : transition.encounterMessageTime(now);
             int characters =
                     messageCharacterDelay == 0
@@ -1603,6 +1769,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
                             && !choosingCommand()
                             && activeAction == null
                             && settlementEvent == null
+                            && !npcBusy
                             && switchTarget == null);
         panel.setVisible(visible && !choosingCommand() && (ready || escaping || enteringText));
         playerHud.setVisible(
@@ -1618,14 +1785,21 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
                                     || escaping
                                     || !encounterMessage
                                             && entranceElapsed >= EncounterEntrance.WILD - 1000)
+                            && (npc == null || !npc.exhausted
+                                    && (npc.faintDropAt < 0 || now - npc.faintDropAt < 450)
+                                    && npc.entrance.pokemonScale(npc.elapsed(now, entranceElapsed)) > 0)
                             && (animationActor(hud.pokemon) == null
                                     || !animationActor(hud.pokemon).hideHud));
         party.setVisible(visible && (ready || escaping));
+        enemyParty.setVisible(npc != null && visible
+                && (ready || escaping || entranceElapsed >= EncounterTransition.WILD_MESSAGE_AT));
         for (int i = 0; i < actions.length; i++)
             actions[i].setEnabled(
                     ready
+                            && (npc == null || i != 1)
                             && activeAction == null
                             && switchTarget == null
+                            && !npcBusy
                             && !enginePending
                             && pendingEngineState == null
                             && (engineState == null
@@ -1699,6 +1873,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
     }
 
     private void chooseMoves() {
+        if (npc != null && npc.busy()) return;
         if (engineState != null
                 && (enginePending
                         || pendingEngineState != null
@@ -1997,6 +2172,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
     }
 
     private void escape() {
+        if (npc != null && (engineState!=null || npc.busy())) return;
         if (enginePending || pendingEngineState != null) return;
         if (capturing()
                 || switchTarget != null
@@ -2015,6 +2191,8 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
     }
 
     public void dismiss() {
+        if(resources.audio()!=null)resources.audio().stopEffects();
+        stopNpc();
         skipEffectTestAnimations = false;
         effectTestActive = false;
         stopAnimationPreview();
@@ -2026,6 +2204,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
         engineVersion++;
         enginePending = false;
         pendingEngineState = null;
+        tutorialBall=null;
         engineState = null;
         engineChoose = null;
         if (engineClose != null) {
@@ -2110,7 +2289,10 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
         specifiedMove.setPosition(moveReturn.getX() - 148, moveReturn.getY());
         specifiedMove.setSize(140, 30);
         // BattlePokemonHealthHud.V6 applies an additional -55 for the normal PC self HUD.
-        playerHud.setPosition(x + w - playerHud.getWidth(), y + h - 184 - 55);
+        // K8 passes the screen-relative inset h-400+266 to V6, which subtracts 55.
+        // Keep that NPC anchor even when a short window moves the field above its usual Y=50.
+        playerHud.setPosition(x + w - playerHud.getWidth(),
+                npc == null ? y + h - 184 - 55 : getY() + h - 400 + 266 - 55);
         int groupBoostHeight =
                 enemyHuds.stream().mapToInt(HealthHud::boostRowsHeight).max().orElse(0);
         for (var hud : enemyHuds) {
@@ -2128,6 +2310,9 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
         }
         party.setPosition(x + w - 212, getY() + h - 100);
         party.setSize(174, 24);
+        // BattleCombatLayout.K8: PC opponent ball-count at field left +80, screen Y=175.
+        enemyParty.setPosition(x + 80, getY() + 175);
+        enemyParty.setSize(174, 24);
         message.setPosition(panel.getX(), panel.getY());
         message.setSize(panel.getWidth(), panel.getHeight());
     }
@@ -2147,13 +2332,15 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
         if (moveAnimation != null)
             moveAnimation.drawBackground(
                     renderer, field.getX(), field.getY(), fieldWidth, fieldHeight);
+        scene.npcOpponent = npc != null;
         var backdrop =
                 scene.image(
                         fieldWidth,
                         fieldHeight,
-                        elapsed,
+                        npc == null || elapsed < 2000 ? elapsed : Math.max(2000, elapsed - NpcEncounter.INTRO_DURATION),
                         fieldAnimation,
                         () -> {
+                            if (npc != null) npc.drawTrainer(scene, elapsed);
                             var order = new java.util.ArrayList<Integer>();
                             for (int i = 0; i < encounter.wilds().size(); i++) order.add(i);
                             order.sort(
@@ -2203,6 +2390,13 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
                     fieldWidth,
                     fieldHeight);
         // The trainer/ball animation starts after the PC viewport reaches full size.
+        if (npc != null && transition.expansion(clock.getAsLong()) >= 1 && npc.faintAt < 0) {
+            long enemyElapsed = npc.elapsed(clock.getAsLong(), elapsed);
+            npc.entrance.drawBall(enemyElapsed, scene, renderer, getAnimationState(),
+                    field.getX(), field.getY(), fieldWidth, fieldHeight);
+            npc.entrance.drawRelease(enemyElapsed, scene, renderer,
+                    field.getX(), field.getY(), fieldWidth, fieldHeight);
+        }
         if (transition.expansion(clock.getAsLong()) >= 1) {
             long ownElapsed = ownEntranceTime(clock.getAsLong());
             entrance.drawTrainer(ownElapsed, field.getX(), field.getY(), fieldWidth, fieldHeight);
@@ -2235,7 +2429,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
                     fieldWidth,
                     fieldHeight);
         // Gdx3DModelBatch cases 13/15 queue vanity only after the corresponding appearance.
-        if (elapsed >= 2500)
+        if (npc == null && elapsed >= 2500)
             for (var vanity : enemyVanities)
                 vanity.draw(
                         clock.getAsLong(),
@@ -2286,13 +2480,18 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
     }
 
     private void drawPokemon(Pokemon pokemon, boolean own, Image image) {
+        if (!own && npc != null && npc.exhausted) return;
         if (engineState != null && faintedParticipants.contains(pokemon.id())) return;
         var actor = animationActor(pokemon);
         if (actor != null && actor.opacity == 0) return;
         long elapsed = transition.entranceTime(clock.getAsLong());
         if (own) elapsed = ownEntranceTime(clock.getAsLong());
         float recall = own ? recallProgress() : 0;
-        float growing = own ? entrance.pokemonScale(elapsed) * (1 - recall) : 1;
+        long enemyElapsed = npc == null ? elapsed : npc.elapsed(clock.getAsLong(), elapsed);
+        if(!own && npc==null && elapsed>=1000 && wildCries.add(pokemon.id()) && resources.audio()!=null)
+            resources.audio().cry(pokemon,pokemon.species(),pokemon.form(),1,0);
+        float growing = own ? entrance.pokemonScale(elapsed) * (1 - recall)
+                : npc == null ? 1 : npc.entrance.pokemonScale(enemyElapsed);
         if (captureActor(pokemon)) growing *= captureAnimation.scale();
         if (growing <= 0) return;
         // BattlePokemonCombatant.ZK: single battle MS / Lt0 centers and the normal vertical offset.
@@ -2301,6 +2500,13 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
                         ? new com.badlogic.gdx.math.Vector3(
                                 3, 3.1f + entrance.height(elapsed) - .5f * recall, 4)
                         : EncounterFormation.enemy(encounter.horde(), pokemon.position());
+        if (!own && npc != null) {
+            if (npc.faintDropAt >= 0) {
+                float fall = Math.max(0, Math.min(1, (clock.getAsLong() - npc.faintDropAt - 250) / 200f));
+                if (fall >= 1) return;
+                center.y -= fall;
+            } else center.y += npc.entrance.height(enemyElapsed);
+        }
         if (actor != null) {
             center.set(actor.center);
             if (activeAction != null && !pokemon.id().equals(activeAction.caster().id()))
@@ -2332,15 +2538,15 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
                 width,
                 height,
                 scene.camera(),
-                actor == null ? (own || captureActor(pokemon) ? 1 : 0) : actor.color.r,
-                actor == null ? (own || captureActor(pokemon) ? 1 : 0) : actor.color.g,
-                actor == null ? (own || captureActor(pokemon) ? 1 : 0) : actor.color.b,
+                actor == null ? (own || npc != null || captureActor(pokemon) ? 1 : 0) : actor.color.r,
+                actor == null ? (own || npc != null || captureActor(pokemon) ? 1 : 0) : actor.color.g,
+                actor == null ? (own || npc != null || captureActor(pokemon) ? 1 : 0) : actor.color.b,
                 actor == null
                         ? (own
                                 ? Math.max(recall, entrance.white(elapsed))
                                 : captureActor(pokemon)
                                         ? captureAnimation.shade()
-                                        : entrance.wildShade(elapsed))
+                                        : npc != null ? npc.entrance.white(enemyElapsed) : entrance.wildShade(elapsed))
                         : actor.shade);
     }
 
@@ -2660,6 +2866,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
 
     @Override
     public void close() {
+        if(resources.audio()!=null)resources.audio().stopEffects();
         dismiss();
         disposeAssets();
         if (fadeBatch != null) fadeBatch.dispose();

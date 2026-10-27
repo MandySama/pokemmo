@@ -39,6 +39,8 @@ public final class PokemonSummaryWindow extends PlayerWindow {
     private final PokemonMovesPage movesPage;
     private final PokemonHistoryPage historyPage;
     private final PokemonHonorsPage honorsPage;
+    private final PokemonHeldItemMenu heldItemMenu;
+    private final Button heldName = new Button();
     private final Health health = new Health();
     private final Health experience = new Health();
     private final Widget dexIcon =
@@ -272,14 +274,32 @@ public final class PokemonSummaryWindow extends PlayerWindow {
                     }
                 }
             };
-    private final Widget item =
-            new Widget() {
+    private final Button item =
+            new Button() {
+                @Override
+                protected boolean handleEvent(Event event) {
+                    // ItemUpgradeRefineSlotWidget.nd0: Ctrl + left release removes the item.
+                    if (event.getType() == Event.Type.MOUSE_BTNUP
+                            && event.getMouseButton() == Event.MOUSE_LBUTTON
+                            && (event.getModifiers() & Event.MODIFIER_CTRL) != 0
+                            && pokemon != null && pokemon.item() > 0 && !controller.busy()) {
+                        getModel().setArmed(false);
+                        getModel().setPressed(false);
+                        heldItemMenu.close();
+                        controller.heldItem(pokemon, -1);
+                        return true;
+                    }
+                    return super.handleEvent(event);
+                }
+
                 @Override
                 protected void paintWidget(GUI gui) {
                     if (pokemon != null && pokemon.item() != 0) {
                         var image = itemIcon.apply(pokemon.item());
                         if (image != null)
-                            image.draw(getAnimationState(), getX() + 6, getY() + 6, 24, 24);
+                            image.draw(getAnimationState(),
+                                    getX() + (getWidth() - 24) / 2,
+                                    getY() + (getHeight() - 24) / 2, 24, 24);
                     }
                 }
             };
@@ -292,6 +312,7 @@ public final class PokemonSummaryWindow extends PlayerWindow {
         super(owner, false, "/monster-frame", 506, 316, closed);
         this.controller = controller;
         this.itemIcon = itemIcon;
+        heldItemMenu = new PokemonHeldItemMenu(controller);
         particles = new SummaryParticles(controller);
         movesPage = new PokemonMovesPage(controller, () -> pokemon);
         historyPage = new PokemonHistoryPage(controller, () -> pokemon);
@@ -307,6 +328,11 @@ public final class PokemonSummaryWindow extends PlayerWindow {
         name.setTheme("/monster-frame.nameplate.label-monster-name");
         level.setTheme("/monster-frame.nameplate.label-level");
         held.setTheme("/monster-frame.itemplate.label2");
+        heldName.setTheme("/monster-frame.itemplate.label2");
+        heldName.setCanAcceptKeyboardFocus(false);
+        heldName.addCallback(() -> heldItemMenu.open(item, pokemon));
+        item.setCanAcceptKeyboardFocus(false);
+        item.addCallback(() -> heldItemMenu.open(item, pokemon));
         String[] themes = {
             "info",
             "stats",
@@ -355,6 +381,7 @@ public final class PokemonSummaryWindow extends PlayerWindow {
         selectedParticle.setTheme("");
         content.add(selectedParticle);
         content.add(held);
+        content.add(heldName);
         content.add(item);
         frame.add(content);
         int[] markColors = {0xffffb3ba, 0xffffffba, 0xffbaffc9, 0xffbae1ff};
@@ -468,6 +495,7 @@ public final class PokemonSummaryWindow extends PlayerWindow {
     }
 
     public void show(Pokemon value) {
+        heldItemMenu.close();
         closeRarityMenu();
         if (!controller.ready()) return;
         pokemonId = value.id();
@@ -506,10 +534,20 @@ public final class PokemonSummaryWindow extends PlayerWindow {
         String item =
                 pokemon.item() == 0
                         ? controller.strings.get(61)
+                        : controller.items() != null ? controller.items().name(pokemon.item())
                         : pokemon.item() > 5000 && pokemon.item() < 5627
                                 ? controller.dex().item(pokemon.item() - 5000)
                                 : controller.strings.getOrDefault(100000 + pokemon.item(), "—");
-        held.setText(controller.strings.get(1842) + " " + item);
+        held.setText(controller.strings.get(1842));
+        heldName.setText(item.length() > 12 ? item.substring(0, 12).trim() + "..." : item);
+        heldName.setTooltipContent(pokemon.item() > 0 && controller.items() != null
+                ? controller.items().tooltipContent(pokemon.item()) : null);
+        heldName.setTooltipDelay(150);
+        // NpcScriptDialogTrigger.Ez0 gives the slot the item description with a 100ms delay.
+        this.item.setTooltipContent(heldName.getTooltipContent());
+        this.item.setTooltipDelay(100);
+        heldName.setEnabled(!controller.busy());
+        this.item.setEnabled(!controller.busy());
         showPage(pokemon.egg() && page != 0 && page != 5 ? 0 : page);
     }
 
@@ -803,8 +841,12 @@ public final class PokemonSummaryWindow extends PlayerWindow {
         selectedParticle.setPosition(x + 476, y + 233);
         selectedParticle.setSize(24, 24);
         held.setPosition(x + 288, y + 273);
-        held.setSize(166, 26);
-        item.setPosition(x + 464, y + 269);
+        int titleWidth = held.computeTextWidth() + held.getBorderHorizontal();
+        held.setSize(titleWidth, 26);
+        heldName.setPosition(held.getRight() + 3, y + 273);
+        heldName.setSize(Math.max(0, 166 - titleWidth - 3), 26);
+        // Align the hit area with the 36px slot painted into mi-frame-grid.
+        item.setPosition(x + 459, y + 270);
         item.setSize(36, 36);
     }
 
@@ -845,6 +887,7 @@ public final class PokemonSummaryWindow extends PlayerWindow {
 
     @Override
     public void closePopup() {
+        heldItemMenu.close();
         closeRarityMenu();
         super.closePopup();
         pokemonId = null;
@@ -1056,6 +1099,7 @@ public final class PokemonSummaryWindow extends PlayerWindow {
     }
 
     public void hoverMenus(int x, int y) {
+        heldItemMenu.hover(x, y);
         if (rarityMenu == null || !rarityMenu.isOpen()) return;
         if (rarityChoices != null
                 && rarityMenu.isInside(x, y)

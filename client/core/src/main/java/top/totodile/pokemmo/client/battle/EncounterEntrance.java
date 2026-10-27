@@ -19,8 +19,12 @@ import java.util.zip.ZipInputStream;
 
 /** PC subset of Gdx3DModelBatch.w9 and BattleJ40Animation.Px. No synthetic sprite frames. */
 final class EncounterEntrance implements AutoCloseable {
+    private top.totodile.pokemmo.client.audio.RomAudio audio;
+    private top.totodile.pokemmo.server.game.PokemonData.Pokemon soundPokemon;
+    private boolean throwSound,releaseSound;
     static final long WILD = 3500, THROW = 1000, RELEASE = 1410, DURATION = 6810;
     private final CharacterAppearance appearance;
+    private final boolean enemy;
     private final CharacterPreview trainer;
     private final java.util.List<com.badlogic.gdx.graphics.Texture> textures = new ArrayList<>();
     private final java.util.List<Image> balls = new ArrayList<>();
@@ -62,6 +66,17 @@ final class EncounterEntrance implements AutoCloseable {
             ClientResources resources,
             GdxTwlRenderer renderer)
             throws IOException {
+        this(appearance, skin, gender, sprites, pokemon, images, resources, renderer, false);
+    }
+
+    EncounterEntrance(CharacterAppearance appearance, int skin, int gender,
+            BwPokemonSprites sprites,
+            top.totodile.pokemmo.server.game.PokemonData.Pokemon pokemon,
+            PokedexImages images, ClientResources resources, GdxTwlRenderer renderer,
+            boolean enemy) throws IOException {
+        this.enemy = enemy;
+        audio = resources.audio();
+        soundPokemon = pokemon;
         this.appearance = appearance;
         int ball = pokemon.ball();
         floating =
@@ -115,7 +130,8 @@ final class EncounterEntrance implements AutoCloseable {
                                                         java.nio.charset.StandardCharsets.UTF_8));
                         loaded =
                                 new AttributeParticleScene(
-                                        images, effect, path.valueAt(new Vector3(), .99f));
+                                        images, effect, enemy ? new Vector3(5, 3.58f, 1)
+                                                : path.valueAt(new Vector3(), .99f));
                         break;
                     }
             }
@@ -131,7 +147,7 @@ final class EncounterEntrance implements AutoCloseable {
 
     /** J40's ball fade/move (.20 + .01), actor raise (.01), then growth delay (.40). */
     private long releaseAt() {
-        return trainer == null ? 1620 : RELEASE;
+        return enemy ? 910 : trainer == null ? 1620 : RELEASE;
     }
 
     long sendOutDuration() {
@@ -188,9 +204,15 @@ final class EncounterEntrance implements AutoCloseable {
             int y,
             int width,
             int height) {
+        if (!throwSound && elapsed >= WILD + THROW) {
+            throwSound = true;
+            if (audio != null) audio.sound(this, 1, 2, 1382, enemy ? 1 : -1, 1, 0);
+        }
         long time = elapsed - WILD;
-        if (time < 0 || time > THROW + 200) return;
-        var point = path.valueAt(new Vector3(), Math.min(.99f, time / (float) THROW));
+        long travel = enemy ? 500 : THROW;
+        if (time < 0 || time > travel + 200) return;
+        var point = enemy ? new Vector3(5, 3.58f, 1)
+                : path.valueAt(new Vector3(), Math.min(.99f, time / (float) THROW));
         var projected = scene.project(point);
         int size =
                 Math.max(
@@ -201,7 +223,7 @@ final class EncounterEntrance implements AutoCloseable {
                                         / (2
                                                 * (float) Math.tan(Math.toRadians(25))
                                                 * scene.camera().position.dst(point))));
-        renderer.pushGlobalTintColor(1, 1, 1, 1 - ease((time - THROW) / 200f));
+        renderer.pushGlobalTintColor(1, 1, 1, 1 - ease((time - travel) / 200f));
         try {
             balls.get((int) (time / 40) % balls.size())
                     .draw(
@@ -223,8 +245,16 @@ final class EncounterEntrance implements AutoCloseable {
             int y,
             int width,
             int height) {
-        float time = (elapsed - WILD - (trainer == null ? 1220 : 1010)) / 1000f;
+        float time = (elapsed - WILD - (enemy ? 510 : trainer == null ? 1220 : 1010)) / 1000f;
         if (time < 0 || time > 2) return;
+        if (!releaseSound) {
+            releaseSound = true;
+            if (audio != null) {
+                audio.sound(this, 1, 2, 1383, 0, 1, 0);
+                audio.cry(
+                        soundPokemon, soundPokemon.species(), soundPokemon.form(), enemy ? 1 : -1, 0);
+            }
+        }
         particles.draw(
                 renderer, Math.max(0, time - particleTime), x, y, width, height, scene.camera());
         particleTime = time;

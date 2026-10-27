@@ -23,6 +23,7 @@ public final class Gen4Maps implements WorldMaps {
     private record Bounds(int x, int y, int width, int height) {}
 
     private final boolean hgss;
+    private final int[][] music;
     private final Header[] headers;
     private final Matrix[] matrices;
     private final Bounds[] bounds;
@@ -92,9 +93,12 @@ public final class Gen4Maps implements WorldMaps {
         if (count < 1 || table > arm.length - count * 24)
             throw new IOException("Invalid Gen4 map header table");
         headers = new Header[count];
+        music = new int[count][2];
         bounds = new Bounds[count];
         for (int i = 0; i < count; i++) {
             int p = table + i * 24;
+            music[i][0]=Short.toUnsignedInt(b.getShort(p+(hgss?12:10)));
+            music[i][1]=Short.toUnsignedInt(b.getShort(p+(hgss?14:12)));
             headers[i] =
                     new Header(
                             i,
@@ -144,6 +148,11 @@ public final class Gen4Maps implements WorldMaps {
 
     private static NdsArchive archive(RomInfo rom, String path) throws IOException {
         return new NdsArchive(RomReader.readFile(rom, path));
+    }
+
+    @Override public top.totodile.pokemmo.client.audio.RomAudio.Track music(Id id,int season,boolean night) {
+        int index=id.bank()<<8|id.map();
+        return new top.totodile.pokemmo.client.audio.RomAudio.Track(hgss?4:3,music[index][night?1:0]);
     }
 
     private static byte[] read(NdsArchive archive, int index) {

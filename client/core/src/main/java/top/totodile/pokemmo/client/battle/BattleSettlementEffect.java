@@ -53,6 +53,12 @@ final class BattleSettlementEffect implements AutoCloseable {
 
     private boolean trapping;
 
+    void audioTarget(boolean playerTarget) {
+        // Trapping's reference caster is the opposite side; recovery's caster is its target.
+        if (effectAnimation != null)
+            effectAnimation.audioSide(trapping ? !playerTarget : playerTarget);
+    }
+
     EncounterMoveAnimation animation(long now) {
         if (!trapping || now < started) return null;
         effectAnimation.update(now - started);

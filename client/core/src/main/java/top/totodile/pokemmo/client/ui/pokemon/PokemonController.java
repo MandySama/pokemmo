@@ -46,6 +46,37 @@ public final class PokemonController implements AutoCloseable {
     }
 
     private IntFunction<de.matthiasmann.twl.renderer.Image> itemIcons = id -> null;
+    private top.totodile.pokemmo.client.ui.inventory.InventoryItems items;
+    private Runnable itemsChanged = () -> {};
+    private PokemonHeldItemMenu heldItemTargets;
+
+    public void giveItem(Widget anchor, PlayerData.Item item) {
+        if (heldItemTargets == null) heldItemTargets = new PokemonHeldItemMenu(this);
+        heldItemTargets.giveToParty(anchor, item);
+    }
+
+    public void items(top.totodile.pokemmo.client.ui.inventory.InventoryItems items, Runnable changed) {
+        this.items = items;
+        itemsChanged = changed;
+    }
+
+    top.totodile.pokemmo.client.ui.inventory.InventoryItems items() { return items; }
+
+    void inventory(Consumer<List<PlayerData.Item>> completed) {
+        if (game == null || character == null || busy || disposed) return;
+        long version = generation;
+        game.inventory(selection, character).whenComplete((value, failure) -> Gdx.app.postRunnable(() -> {
+            if (disposed || version != generation) return;
+            if (failure == null) completed.accept(value);
+            else error.accept(strings.get(2312));
+        }));
+    }
+
+    void heldItem(Pokemon pokemon, int item) {
+        if (!busy && !disposed && game != null && character != null)
+            request(game.updatePokemonItem(selection, character, pokemon.id(), pokemon.container(), item),
+                    itemsChanged);
+    }
     private IntFunction<de.matthiasmann.twl.renderer.Image> grayItemIcons = id -> null;
 
     public void grayItemIcons(IntFunction<de.matthiasmann.twl.renderer.Image> icons) {
@@ -182,6 +213,7 @@ public final class PokemonController implements AutoCloseable {
     }
 
     public void bind(Selection selection, String character) {
+        if (heldItemTargets != null) heldItemTargets.close();
         generation++;
         cancelDrag();
         closeMenu();
@@ -821,6 +853,7 @@ public final class PokemonController implements AutoCloseable {
     @Override
     public void close() {
         disposed = true;
+        if (heldItemTargets != null) heldItemTargets.close();
         generation++;
         cancelDrag();
         closeMenu();

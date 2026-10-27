@@ -11,6 +11,7 @@ tools/
 test/
 tests/
 androidTest/
+docs/
 client/android/build-emulator*.log
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/

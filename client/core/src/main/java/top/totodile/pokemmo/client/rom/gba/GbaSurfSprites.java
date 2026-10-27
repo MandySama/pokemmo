@@ -11,8 +11,13 @@ public final class GbaSurfSprites {
 
     public static List<Frame> load(RomInfo rom) throws IOException {
         if (rom == null) return List.of();
+        int[] tables = tables(rom);
+        return load(rom, tables);
+    }
+
+    static int[] tables(RomInfo rom) throws IOException {
         // GbaMultilingualRomRegistry: rK (99), ZV (100), BJ0 (101).
-        int[] tables =
+        return
                 switch (rom.code()) {
                     case "BPRE" ->
                             rom.revision() == 1
@@ -26,6 +31,9 @@ public final class GbaSurfSprites {
                             throw new IOException(
                                     "Missing reference Surf sprite offsets for " + rom.code());
                 };
+    }
+
+    private static List<Frame> load(RomInfo rom, int[] tables) throws IOException {
         byte[] data = java.nio.file.Files.readAllBytes(rom.path());
         int record = pointer(data, tables[0] + 159 * 4);
         if (data[record + 3] != (byte) 255) throw new IOException("Invalid Surf sprite descriptor");

@@ -14,6 +14,8 @@ public abstract class ClientDialog extends Container {
         this.mobile = mobile;
         mobileHost = mobile ? new PopupWindow(owner) : null;
         if (mobileHost != null) {
+            // A transparent host must not stop absolute child themes at an absent "popupwindow" theme.
+            mobileHost.setTheme("");
             mobileHost.setCloseOnClickedOutside(false);
             mobileHost.setCloseOnEscape(false);
             mobileHost.add(this);

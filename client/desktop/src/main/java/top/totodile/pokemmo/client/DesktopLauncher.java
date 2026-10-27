@@ -27,6 +27,8 @@ public final class DesktopLauncher {
                                 top.totodile.pokemmo.server.login.LoginServices.create())
                         .withRomFilePicker(new DesktopRomFilePicker())
                         .withRestart(DesktopRestart::restart)
+                        .withAudio(resources -> top.totodile.pokemmo.client.startup.DesktopAudio.install(
+                                resources,java.nio.file.Path.of(ClientAssets.configDirectory()).resolveSibling("cache").resolve("login")))
                         .withLoginScene(
                                 resources ->
                                         new top.totodile.pokemmo.client.startup.DesktopLoginScene(

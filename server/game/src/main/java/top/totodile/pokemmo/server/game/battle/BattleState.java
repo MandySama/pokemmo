@@ -15,7 +15,8 @@ public record BattleState(
         List<Combatant> pokemon,
         List<String> logs,
         List<TurnMove> actions,
-        List<Event> events) {
+        List<Event> events,
+        List<Pokemon> growth) {
     /**
      * Ordered simulator results: each HP value is authoritative, never reconstructed from final
      * totals.
@@ -84,7 +85,13 @@ public record BattleState(
         }
     }
 
+    public BattleState(String engine, int turn, boolean ended, String winner, boolean forceSwitch,
+            List<Combatant> pokemon, List<String> logs, List<TurnMove> actions, List<Event> events) {
+        this(engine, turn, ended, winner, forceSwitch, pokemon, logs, actions, events, List.of());
+    }
+
     public BattleState {
+        growth = growth == null ? List.of() : List.copyOf(growth);
         pokemon = List.copyOf(pokemon);
         logs = List.copyOf(logs);
         actions = List.copyOf(actions);
@@ -99,21 +106,23 @@ public record BattleState(
     }
 
     public Pokemon apply(Pokemon p) {
+        String originalId = p.id();
+        var grown = growth.stream().filter(value -> value.id().equals(originalId)).findFirst().orElse(null);
+        if (grown != null) p = grown;
         var c =
                 pokemon.stream()
-                        .filter(value -> value.id().equals(p.id()))
+                        .filter(value -> value.id().equals(originalId))
                         .findFirst()
                         .orElse(null);
         if (c == null) return p;
         var pp = new ArrayList<Integer>();
+        var moves = new ArrayList<Integer>();
         for (int i = 0; i < 4; i++) {
-            int id = p.moves().get(i);
-            pp.add(
-                    c.moves().stream()
-                            .filter(m -> m.id() == id)
-                            .map(Move::pp)
-                            .findFirst()
-                            .orElse(0));
+            // Battle-local copies must be selectable; this transient snapshot is
+            // never persisted as the character's learned moves.
+            var move = i < c.moves().size() ? c.moves().get(i) : null;
+            moves.add(move == null ? 0 : move.id());
+            pp.add(move == null ? 0 : move.pp());
         }
         int status =
                 switch (c.status()) {
@@ -141,10 +150,10 @@ public record BattleState(
                 p.item(),
                 p.nature(),
                 p.ability(),
-                c.stats(),
+                grown == null ? c.stats() : grown.stats(),
                 p.ivs(),
                 p.evs(),
-                p.moves(),
+                moves,
                 p.friendship(),
                 p.hiddenAbility(),
                 p.alpha(),
@@ -163,6 +172,6 @@ public record BattleState(
         var party = encounter.party().stream().map(this::apply).toList();
         var player = party.stream().filter(p -> p.id().equals(own.id())).findFirst().orElseThrow();
         return new EncounterData(
-                player, encounter.wilds().stream().map(this::apply).toList(), party);
+                player, encounter.wilds().stream().map(this::apply).toList(), party, encounter.trainer(), encounter.captureTutorial());
     }
 }

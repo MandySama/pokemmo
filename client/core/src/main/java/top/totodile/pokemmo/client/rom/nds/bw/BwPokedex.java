@@ -373,11 +373,11 @@ public final class BwPokedex {
     }
 
     public String name(int id) {
-        return strings.getOrDefault(150000 + id, "#" + id);
+        return strings.getOrDefault(150000 + id, text(70,id));
     }
 
     public String moveName(int id) {
-        return strings.getOrDefault(110000 + id, "#" + id);
+        return strings.getOrDefault(110000 + id, text(203,id));
     }
 
     /** LocalizationMessageFormatter registers BW ability names from bank 182; slot zero is None. */
@@ -544,6 +544,37 @@ public final class BwPokedex {
         return template;
     }
 
+    /** BattlePokedexCatchModifier.QC uses bank 15 entries 42 and 60. */
+    public String experienceMessage(String pokemon,int amount) {
+        return battleText(42).replace("{00}",pokemon).replace("{01}",Integer.toString(amount)).replace("\n"," ");
+    }
+    public String levelMessage(String pokemon,int level) {
+        return battleText(60).replace("{00}",pokemon).replace("{01}",Integer.toString(level)).replace("\n"," ");
+    }
+    /** PlatinumBattleSceneLoader.pq: native battle bank 15, entry 58 (trainer prize). */
+    public String rewardMoneyMessage(String trainer, int amount) {
+        return battleText(58).replace("{00}", trainer).replace("{01}", Integer.toString(amount)).replace("\n", " ");
+    }
+
+    /** BwEvolutionScene: localized BW message bank 172, start 0 / success 2. */
+    public String evolutionMessage(String pokemon, int target, boolean complete) {
+        int entry=complete?2:0;
+        String template=strings.archive(2,0,172,0,entry);
+        if(template==null)try{
+            if(formattedEvolutionText==null)formattedEvolutionText=BwText.decodeFormatted(text.readRaw(172));
+            template=formattedEvolutionText[entry];
+        }catch(IOException e){throw new java.io.UncheckedIOException(e);}
+        return template.replace("{00}", pokemon)
+                .replace("{01}", name(target)).replace("\n", " ");
+    }
+    private String[] formattedEvolutionText;
+
+    /** BattleTargetSelectModifier.QC: entry 59 is money collected with Pay Day. */
+    public String pickedUpMoneyMessage(String trainer, int amount) {
+        return battleText(59).replace("{00}", trainer)
+                .replace("{01}", java.text.NumberFormat.getInstance().format(amount)).replace("\n", " ");
+    }
+
     public String escapedMessage() {
         return text(15, 72);
     }
@@ -584,6 +615,25 @@ public final class BwPokedex {
     public String nationalTitle() {
         String title = text(276, 1);
         return title.equalsIgnoreCase("National Pokédex") ? "National Pokédex" : title;
+    }
+
+    public String trainerName(int id) { return text(190, id); }
+
+    public String trainerClass(int id) { return text(191, id); }
+
+    /** PlatinumBattleSceneLoader.BO / T8, single NPC opponent. */
+    public String npcChallenge(String type, String name) {
+        return battleText(7).replace("{00}", type).replace("{01}", name).replace("\n", "");
+    }
+
+    public String npcSendOut(String type, String trainer, String pokemon) {
+        return battleText(14).replace("{00}", type).replace("{01}", trainer)
+                .replace("{02}", pokemon).replace("\n", "");
+    }
+
+    /** BattleCombatLayout.aa0 -> QX(0, enemy trainer Pokemon), BW result bank 14/2. */
+    public String npcFaintMessage(String pokemon) {
+        return resultText(2).replace("{00}", pokemon).replace("\n", "");
     }
 
     private String text(int table, int id) {

@@ -20,4 +20,15 @@
     <string id="11001">Dummy Particle Effect</string>
     <string id="11034">PLAYER_PARTICLE_TEST</string>
     <string id="11234">--</string>
+    <!-- Official map interaction overrides from PokeMMO data/strings; ROM translations stay in the language MOD. -->
+    <string id="1538045">TRAINER TIPS\n\nSome {STRING_0} can be found more often on certain days.</string>
+    <string id="1602939">TRAINER TIPS\n\nHold the {KEY_B} button to stop while on a slope.</string>
+    <string id="1627451">It's a poster...\n\nIf you're confused, ask for help!\nChat with and help out other trainers!</string>
+    <string id="1632870">Press {KEY_GAMEMENU} to open the Menu!</string>
+    <string id="1776833">TRAINER TIPS\n\nPress {KEY_GAMEMENU} to open the Menu!</string>
+    <string id="61">None</string>
+    <string id="1776977">TRAINER TIPS\n\nPress {KEY_GAMEMENU} to open the Menu!</string>
+    <!-- Official evolution cancellation confirmation. -->
+    <string id="6041">Do you wish to cancel the evolution?</string>
+    <string id="6150">Do you wish to skip the animation?</string>
 </strings>

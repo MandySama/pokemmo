@@ -77,7 +77,7 @@ public final class OverworldCharacter implements AutoCloseable {
         }
     }
 
-    private static Texture loadShadow(FileHandle gameSprites) {
+    public static Texture loadShadow(FileHandle gameSprites) {
         // GlBufferStateManager：game.pak 为 GZIP，8 字节头、纹理数量、逐张 PNG 长度及数据。
         try (var input = new GZIPInputStream(gameSprites.read())) {
             byte[] bytes = input.readAllBytes();

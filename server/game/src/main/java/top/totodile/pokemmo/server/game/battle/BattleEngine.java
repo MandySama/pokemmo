@@ -48,6 +48,8 @@ public interface BattleEngine {
 
         BattleState choose(Action action);
 
+        default void growth(java.util.List<top.totodile.pokemmo.server.game.PokemonData.Pokemon> pokemon) {}
+
         @Override
         void close();
     }

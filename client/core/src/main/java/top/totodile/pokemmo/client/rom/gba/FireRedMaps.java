@@ -64,6 +64,26 @@ public final class FireRedMaps implements WorldMaps {
     }
 
     private final byte[] rom;
+    private final RomInfo info;
+
+    public RomInfo rom() { return info; }
+
+    @Override public int ledgeDirection(int behavior){return behavior>=0x38&&behavior<=0x3b?new int[]{3,2,1,0}[behavior-0x38]:-1;}
+
+    @Override public int forcedDirection(int behavior){
+        // Reference KantoMetaTileBehaviorType WALK / SLIDE / CURRENT / SPIN, east/west/north/south.
+        if(behavior>=0x40&&behavior<=0x47||behavior>=0x50&&behavior<=0x57)return new int[]{3,2,1,0}[behavior&3];
+        return -1;
+    }
+    @Override public int footstepSound(int behavior) {
+        // Native GBA metatile tall/long-grass attributes; TallGrassTileBehavior.xB.
+        return behavior==2 || emerald&&behavior==3 ? 1658 : 0;
+    }
+
+    @Override public top.totodile.pokemmo.client.audio.RomAudio.Track music(Id id,int season,boolean night) {
+        Integer header=headers.get(id);
+        return header==null?null:new top.totodile.pokemmo.client.audio.RomAudio.Track(info.type().id,u16(header+16));
+    }
     private final boolean emerald;
     private final FireRedTileAnimations animations;
     private final Map<Id, Integer> headers = new LinkedHashMap<>();
@@ -78,6 +98,7 @@ public final class FireRedMaps implements WorldMaps {
             };
 
     public FireRedMaps(RomInfo info) throws IOException {
+        this.info = info;
         if (info.type() != RomType.FIRE_RED && info.type() != RomType.EMERALD)
             throw new IllegalArgumentException("FireRed or Emerald ROM required");
         emerald = info.type() == RomType.EMERALD;
@@ -124,6 +145,29 @@ public final class FireRedMaps implements WorldMaps {
         // Emerald 0x1b is the Abandoned Ship's directional stair warp (reference az0_0), not Surf
         // water.
         return WorldMaps.super.isWater(behavior) && (!emerald || behavior != 0x1b);
+    }
+
+    @Override
+    public int standingWarpDirection(int behavior) {
+        // Kanto KantoregionMapData.getStandingWarp/getEnteredWarp. Other ROMs retain
+        // their own behavior interpretation rather than reusing Kanto stair IDs.
+        if (emerald) return -1;
+        return switch (behavior) {
+            // Client TileElevationCollisionCalculator also registers down-stairs 110/111.
+            case 0x6c, 0x6e, 0x62 -> 3;
+            case 0x6d, 0x6f, 0x63 -> 2;
+            case 0x64 -> 1;
+            case 0x65 -> 0;
+            default -> -1;
+        };
+    }
+
+    @Override
+    public boolean allowsWarp(int behavior) {
+        // Official Kanto PlayerHouse1F: (5,8) has a ROM warp but is normal floor,
+        // unlike the south-arrow doorway at (4,8). The reference client's default
+        // tile behavior does not initiate warps. Keep event indices for arrivals.
+        return emerald || behavior != 0;
     }
 
     @Override
@@ -424,6 +468,60 @@ public final class FireRedMaps implements WorldMaps {
             }
         }
         return result;
+    }
+
+    public record DoorFrames(int flags, int[][] pixels) {}
+    private Map<Integer, int[]> doorDefinitions;
+    private final Map<String, DoorFrames> doorFrames = new HashMap<>();
+
+    /** GbaRom.Uz0 -> GbaMapTileset.nj, including native tile palette selection. */
+    public DoorFrames doorFrames(MapData map, int x, int y) {
+        if (!map.contains(x,y) || !isDoor(tiles(map).behavior(map.block(x,y)&1023))) return null;
+        if (doorDefinitions == null) {
+            doorDefinitions = new HashMap<>();
+            String signature = "0348211C2A1CFFF7XXFFXXXXXXXXXXXX";
+            search: for (int p=0;p<rom.length-20;p+=2) {
+                for(int i=0;i<16;i++) {
+                    String hex=signature.substring(i*2,i*2+2);
+                    if(!hex.equals("XX") && u8(p+i)!=Integer.parseInt(hex,16)) continue search;
+                }
+                int table=pointer(p+16);
+                for(int row=table;u16(row)>0 && doorDefinitions.size()<512;row+=12) {
+                    if(!validPointer(row+4)||!validPointer(row+8))break;
+                    doorDefinitions.put(u16(row),new int[]{u16(row+2),pointer(row+4),pointer(row+8)});
+                }
+                break;
+            }
+        }
+        int id=map.block(x,y)&1023;
+        int[] definition=doorDefinitions.get(id);
+        if(definition==null)return null;
+        String key=map.primary()+":"+map.secondary()+":"+id;
+        return doorFrames.computeIfAbsent(key,ignored->{
+            int flags=definition[0],offset=definition[1];
+            int length=((flags&512)!=0?24:(flags&256)!=0?12:8)*64;
+            byte[] bytes;
+            if(u8(offset)==0x10) {
+                int size=u32(offset)>>>8; bytes=new byte[size];int out=0,at=offset+4;
+                while(out<size){int bits=u8(at++);for(int mask=128;mask!=0&&out<size;mask>>=1){
+                    if((bits&mask)==0)bytes[out++]=(byte)u8(at++);
+                    else{int token=u8(at++)<<8|u8(at++),back=(token&4095)+1;
+                        for(int n=0;n<(token>>>12)+3&&out<size;n++){bytes[out]=bytes[out-back];out++;}}
+                }}
+            } else {range(offset,length);bytes=Arrays.copyOfRange(rom,offset,offset+length);}
+            int[][] frames=new int[bytes.length/128][256];
+            int first=count(map.primary());
+            for(int f=0;f<frames.length;f++)for(int py=0;py<16;py++)for(int px=0;px<16;px++){
+                int tile=(py/8)*2+px/8,at=f*128+tile*32+(py&7)*4+(px&7)/2;
+                int color=(bytes[at]>>>((px&1)*4))&15;
+                if(color==0)continue;
+                int palette=u8(definition[2]+(at/32)%8);
+                int source=id<first || palette<6?map.primary():map.secondary();
+                int c=u16(pointer(source+8)+(palette*16+color)*2);
+                frames[f][py*16+px]=((c&31)*255/31)<<24|((c>>5&31)*255/31)<<16|((c>>10&31)*255/31)<<8|255;
+            }
+            return new DoorFrames(flags,frames);
+        });
     }
 
     private int[] shorts(int p, int count) {

@@ -13,6 +13,7 @@ public final class WorldActions extends Widget {
     private final Button pokedex = new Button();
     private final Button portablePc = new Button("随身PC");
     private final Button randomEncounter = new Button("随机遭遇");
+    private final Button npcEncounter = new Button("随机NPC对战");
     private final Button randomCounter = new Button("随机计数");
     private final Button tripleEncounter = new Button("三群遭遇：纯/杂"),
             quintupleEncounter = new Button("五群遭遇：纯/杂");
@@ -27,6 +28,13 @@ public final class WorldActions extends Widget {
     private int buttonWidth;
     private final Button testMode = new Button();
     private final Button animationTests = new Button("招式测试");
+    private final Button storyInspection = new Button("地图剧情");
+    public void onStoryInspection(Runnable action){storyInspection.addCallback(action);}
+
+    private final Button resources = new Button("资源工具"), encounters = new Button("遭遇测试");
+    private MenuManager toolsMenu;
+    private final java.util.Map<MenuAction, Button> menuActions = new java.util.LinkedHashMap<>();
+    private java.util.function.BiConsumer<Integer, Boolean> hordeEncounter = (count, pure) -> {};
 
     public void onAnimationTests(Runnable action) {
         animationTests.addCallback(action);
@@ -97,14 +105,14 @@ public final class WorldActions extends Widget {
                 }) {
             button.setTheme("/button");
             button.setCanAcceptKeyboardFocus(false);
-            add(button);
+
         }
         if (!mobile) {
             if (world.supportsAtmosphere())
                 for (var button : new Button[] {time, weather}) {
                     button.setTheme("/button");
                     button.setCanAcceptKeyboardFocus(false);
-                    add(button);
+
                 }
             time.addCallback(
                     () -> {
@@ -118,17 +126,17 @@ public final class WorldActions extends Widget {
                     });
             randomEncounter.setTheme("/button");
             randomEncounter.setCanAcceptKeyboardFocus(false);
-            add(randomEncounter);
-            for (var button : new Button[] {tripleEncounter, quintupleEncounter, randomCounter}) {
+
+            for (var button : new Button[] {npcEncounter, tripleEncounter, quintupleEncounter, randomCounter}) {
                 button.setTheme("/button");
                 button.setCanAcceptKeyboardFocus(false);
-                add(button);
+
             }
         }
         if (!mobile) {
             animationTests.setTheme("/button");
             animationTests.setCanAcceptKeyboardFocus(false);
-            add(animationTests);
+
         }
         testMode.setTheme("/button");
         testMode.setCanAcceptKeyboardFocus(false);
@@ -138,10 +146,13 @@ public final class WorldActions extends Widget {
                     refresh();
                     testModeChanged.accept(testing);
                 });
-        add(testMode);
-        add(noClip);
-        add(speed);
-        add(pokedex);
+        resources.addCallback(() -> openTools(resources, resourceMenu()));
+        encounters.addCallback(() -> openTools(encounters, encounterMenu()));
+        for (var button : buttons()) {
+            button.setTheme("/button");
+            button.setCanAcceptKeyboardFocus(false);
+            add(button);
+        }
         refresh();
     }
 
@@ -166,26 +177,64 @@ public final class WorldActions extends Widget {
         randomEncounter.addCallback(action);
     }
 
+    public void onNpcEncounter(Runnable action) { npcEncounter.addCallback(action); }
+
     public void randomEncounterEnabled(boolean enabled) {
         randomEncounter.setEnabled(enabled);
+        npcEncounter.setEnabled(enabled);
         tripleEncounter.setEnabled(enabled);
         quintupleEncounter.setEnabled(enabled);
     }
 
-    private MenuManager hordeMenu;
-
     public void onHordeEncounter(java.util.function.BiConsumer<Integer, Boolean> action) {
-        for (var button : new Button[] {tripleEncounter, quintupleEncounter}) {
-            int count = button == tripleEncounter ? 3 : 5;
-            button.addCallback(
-                    () -> {
-                        if (hordeMenu != null) hordeMenu.closePopup();
-                        var menu = new Menu();
-                        menu.add(new MenuAction("纯群", () -> action.accept(count, true)));
-                        menu.add(new MenuAction("杂群", () -> action.accept(count, false)));
-                        hordeMenu = menu.openPopupMenu(button, button.getRight(), button.getY());
-                    });
+        hordeEncounter = action;
+    }
+
+    private MenuAction menuAction(Button button) {
+        var item = new MenuAction(button.getText(), () -> {
+            if (button.isEnabled()) button.getModel().fireActionCallback();
+        });
+        item.setEnabled(button.isEnabled());
+        menuActions.put(item, button);
+        return item;
+    }
+
+    private Menu resourceMenu() {
+        menuActions.clear();
+        var menu = new Menu();
+        menu.add(new Menu("道具").add(menuAction(item)).add(menuAction(randomItems)));
+        menu.add(new Menu("宝可梦").add(menuAction(pokemon)).add(menuAction(randomPokemon)));
+        menu.add(new Menu("图鉴").add(menuAction(pokedex)).add(menuAction(randomPokedex)));
+        menu.add(menuAction(randomOutfit));
+        return menu;
+    }
+
+    private Menu encounterMenu() {
+        menuActions.clear();
+        var menu = new Menu();
+        menu.add(menuAction(randomEncounter));
+        menu.add(menuAction(npcEncounter));
+        for (int count : new int[] {3, 5}) {
+            var group = new Menu(count == 3 ? "三群遭遇" : "五群遭遇");
+            var source = count == 3 ? tripleEncounter : quintupleEncounter;
+            group.setEnabled(source.isEnabled());
+            for (boolean pure : new boolean[] {true, false}) {
+                var item = new MenuAction(pure ? "纯群" : "杂群", () -> {
+                    if (source.isEnabled()) hordeEncounter.accept(count, pure);
+                });
+                item.setEnabled(source.isEnabled());
+                menuActions.put(item, source);
+                group.add(item);
+            }
+            menu.add(group);
         }
+        menu.add(menuAction(randomCounter));
+        return menu;
+    }
+
+    private void openTools(Button anchor, Menu menu) {
+        if (toolsMenu != null) toolsMenu.closePopup();
+        toolsMenu = menu.openPopupMenu(anchor, anchor.getRight(), anchor.getY());
     }
 
     public void onTeleport(Runnable action) {
@@ -221,46 +270,11 @@ public final class WorldActions extends Widget {
     }
 
     private Button[] buttons() {
-        var result =
-                mobile
-                        ? new Button[] {
-                            testMode,
-                            noClip,
-                            speed,
-                            pokedex,
-                            teleport,
-                            randomItems,
-                            randomPokedex,
-                            randomOutfit,
-                            randomPokemon,
-                            item,
-                            pokemon,
-                            portablePc
-                        }
-                        : new Button[] {
-                            animationTests,
-                            testMode,
-                            noClip,
-                            speed,
-                            pokedex,
-                            teleport,
-                            randomItems,
-                            randomPokedex,
-                            randomOutfit,
-                            randomPokemon,
-                            item,
-                            pokemon,
-                            portablePc,
-                            randomEncounter,
-                            tripleEncounter,
-                            quintupleEncounter,
-                            randomCounter,
-                            time,
-                            weather
-                        };
-        if (!mobile && !world.supportsAtmosphere())
-            return java.util.Arrays.copyOf(result, result.length - 2);
-        return result;
+        if (mobile) return new Button[] {testMode, noClip, speed, resources, teleport, portablePc, storyInspection};
+        if (!world.supportsAtmosphere())
+            return new Button[] {animationTests, testMode, noClip, speed, resources, encounters, teleport, portablePc, storyInspection};
+        return new Button[] {animationTests, testMode, noClip, speed, resources, encounters,
+                teleport, portablePc, time, weather, storyInspection};
     }
 
     @Override
@@ -304,6 +318,8 @@ public final class WorldActions extends Widget {
     }
 
     public void update() {
+        // Async operations can disable an action while its popup is already open.
+        menuActions.forEach((item, button) -> item.setEnabled(button.isEnabled()));
         String text = "图鉴：" + (world.pokedex().pokedexUnlocked() ? "全解锁" : "未解锁");
         if (!text.equals(pokedex.getText())) {
             pokedex.setText(text);

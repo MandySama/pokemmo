@@ -19,6 +19,23 @@ public final class WorldTransition implements AutoCloseable {
     private long started;
     private int from, target, opacity;
     private CompletableFuture<Void> covered;
+    private CompletableFuture<Void> restored;
+
+    /** Shared field rest effect: fade the world only, refresh at black, then uncover. */
+    public CompletableFuture<Void> rest(Runnable atBlack) {
+        if (restored != null && !restored.isDone()) return restored;
+        restored = new CompletableFuture<>();
+        cover().thenRun(() -> {
+            try {
+                atBlack.run();
+                reveal();
+            } catch (Throwable failure) {
+                reveal();
+                restored.completeExceptionally(failure);
+            }
+        });
+        return restored;
+    }
 
     public WorldTransition(LongSupplier milliseconds) {
         clock = milliseconds;
@@ -54,6 +71,8 @@ public final class WorldTransition implements AutoCloseable {
     }
 
     public void reset() {
+        if (restored != null && !restored.isDone()) restored.cancel(false);
+        restored = null;
         opacity = from = target = 0;
         if (covered != null && !covered.isDone()) covered.cancel(false);
         covered = null;
@@ -66,7 +85,12 @@ public final class WorldTransition implements AutoCloseable {
             opacity = (int) ((target - from) * fraction + from);
         }
         if (opacity == 255 && covered != null && !covered.isDone()) covered.complete(null);
-        if (opacity == 0) return;
+        if (opacity == 0) {
+            // The first fade-out frame is transparent too; only a completed reveal is rest completion.
+            if (target == 0 && from == 255 && restored != null && !restored.isDone())
+                restored.complete(null);
+            return;
+        }
         if (batch == null) {
             var pixel = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
             try {

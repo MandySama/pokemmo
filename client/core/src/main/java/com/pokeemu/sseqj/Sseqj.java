@@ -19,5 +19,11 @@ public abstract class Sseqj {
 
     public static native void setVolume(long player, float volume);
 
+    public static native void setPan(long player, float pan);
+
+    public static native void setTrackMuted(long player, int track, boolean muted);
+
+    public static native void setPitchShift(long player, float pitch);
+
     public static native void deletePlayer(long player);
 }

@@ -233,6 +233,22 @@ public final class ClientStrings {
         return result.toString();
     }
 
+    /** Resolve a dialogue's variables before the global resolver can discard them. */
+    public String get(int id, IntFunction<String> resolver) {
+        String value = messages.get(id);
+        if (value == null) return "STRING_" + id;
+        Matcher matcher = VARIABLES.matcher(value);
+        StringBuffer result = new StringBuffer();
+        while (matcher.find()) {
+            int variable = Integer.parseInt(matcher.group(1), 16) & 255;
+            String replacement = resolver.apply(variable);
+            if (replacement == null) replacement = variables.apply(variable);
+            matcher.appendReplacement(result, Matcher.quoteReplacement(replacement == null ? "" : replacement));
+        }
+        matcher.appendTail(result);
+        return result.toString();
+    }
+
     public String get(int id) {
         String value = messages.get(id);
         if (value == null) return "STRING_" + id;

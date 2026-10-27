@@ -20,6 +20,7 @@
     <include filename="summary-gfx.xml"/>
     <include filename="encounter-gfx.xml"/>
     <include filename="init.xml"/>
+    <include filename="story.xml"/>
     <include filename="main-widgets.xml"/>
     <include filename="ui/settings.xml"/>
     <include filename="ui/customization.xml"/>

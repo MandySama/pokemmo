@@ -7,6 +7,9 @@ final class EncounterTransition {
     static final long WILD_MESSAGE_AT = 2500;
     private long started, escaped;
     private long encounterMessageDuration = MESSAGE;
+    private long opponentDuration;
+
+    void opponentDuration(long duration) { opponentDuration = duration; }
     private boolean flash, exiting;
     private int dim;
 
@@ -43,7 +46,8 @@ final class EncounterTransition {
     boolean ready(long now) {
         return !exiting
                 && now - started
-                        >= INTRO + EXPAND + encounterMessageDuration + EncounterEntrance.DURATION;
+                        >= INTRO + EXPAND + encounterMessageDuration + EncounterEntrance.DURATION
+                                + opponentDuration;
     }
 
     boolean fieldVisible(long now) {

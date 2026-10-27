@@ -6,11 +6,16 @@ import java.util.List;
 public record EncounterData(
         PokemonData.Pokemon player,
         List<PokemonData.Pokemon> wilds,
-        List<PokemonData.Pokemon> party) {
+        List<PokemonData.Pokemon> party, Trainer trainer, boolean captureTutorial) {
+    public EncounterData(PokemonData.Pokemon player,List<PokemonData.Pokemon> wilds,List<PokemonData.Pokemon> party,Trainer trainer) {this(player,wilds,party,trainer,false);}
+    public record Trainer(int teamId,int region,int model,int money) {}
+    public EncounterData(PokemonData.Pokemon player,List<PokemonData.Pokemon> wilds,List<PokemonData.Pokemon> party) {
+        this(player,wilds,party,null);
+    }
     public EncounterData {
         party = List.copyOf(party);
         wilds = List.copyOf(wilds);
-        if (wilds.size() != 1 && wilds.size() != 3 && wilds.size() != 5)
+        if (trainer==null ? wilds.size() != 1 && wilds.size() != 3 && wilds.size() != 5 : wilds.isEmpty() || wilds.size()>6)
             throw new IllegalArgumentException("Encounter size must be 1, 3 or 5");
     }
 
@@ -24,7 +29,7 @@ public record EncounterData(
     }
 
     public boolean horde() {
-        return wilds.size() > 1;
+        return trainer==null && wilds.size() > 1;
     }
 
     // BattlePokemonCommandType.RUN / BattleRunResultType.NORMAL_SUCCESS.

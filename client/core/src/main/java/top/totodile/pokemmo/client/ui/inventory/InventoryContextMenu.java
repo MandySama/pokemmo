@@ -42,7 +42,7 @@ final class InventoryContextMenu {
             }
             menu.add(register);
         }
-        if (t.pocket() != 2 && t.pocket() != 6 && a.holdable)
+        if (items.holdable(item.itemId()))
             menu.add(
                     new MenuAction(
                             strings.get(1411),

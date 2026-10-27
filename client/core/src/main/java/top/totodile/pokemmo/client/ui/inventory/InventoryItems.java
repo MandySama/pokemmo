@@ -287,16 +287,17 @@ public final class InventoryItems implements AutoCloseable {
 
     public List<GameService.ItemTemplate> catalogue() {
         return templates.values().stream()
-                .filter(t -> t.id() > 0 && t.id() <= 32767 && !aliases.containsKey(t.id()))
+                .filter(t -> t.id() > 0 && t.id() <= 32767)
                 .sorted(Comparator.comparingInt(Template::id))
                 .map(
                         t ->
                                 new GameService.ItemTemplate(
                                         t.id(),
-                                        t.region(),
-                                        t.maximumStack(),
+                                        template(t.id()).region(),
+                                        template(t.id()).maximumStack(),
                                         destroyable(t.id()),
-                                        attributes(t.id()).ball))
+                                        attributes(t.id()).ball,
+                                        holdable(t.id())))
                 .toList();
     }
 
@@ -308,6 +309,8 @@ public final class InventoryItems implements AutoCloseable {
         load();
         if (registeredGame == game) return;
         game.gameData(catalogue(), speciesTemplates());
+        game.battleYields(dex.all().stream().map(s -> new GameService.BattleYield(
+                s.id(), dex.extra(s.id()).baseExperience(), s.evYield())).toList());
         registeredGame = game;
     }
 
@@ -339,7 +342,9 @@ public final class InventoryItems implements AutoCloseable {
                                                         top.totodile.pokemmo.client.rom.nds.bw
                                                                         .BwPokedex.Evolution
                                                                 ::target)
-                                                .toList()))
+                                                .toList(),
+                                        s.evolutions().stream().map(e -> new GameService.EvolutionRule(
+                                                e.method(), e.parameter(), e.target())).toList()))
                 .toList();
     }
 
@@ -548,6 +553,17 @@ public final class InventoryItems implements AutoCloseable {
 
     public String pocketName(int id) {
         return pocketNames.getOrDefault(id, strings.get(id));
+    }
+
+    /** Reference ItemSlotContextMenuBuilder.nM and ItemTemplate.nI. */
+    public boolean holdable(int id) {
+        var t = templates.get(aliases.getOrDefault(id, id));
+        if (t == null || t.pocket() == 2 || t.pocket() == 6
+                || id == 1 || id == 5001 || id == 1132 || !attributes(id).holdable) return false;
+        int move = attributes(id).move;
+        return !(move > 0 && (id >= 339 && id <= 346 || id >= 5420 && id <= 5425
+                || id >= 8420 && id <= 8427 || id >= 1297 && id <= 1298
+                || id >= 9420 && id <= 9427));
     }
 
     private String text(int id, int table, String[] values, int base) {

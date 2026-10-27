@@ -16,7 +16,7 @@ function lookup(data,num,label) {
 function toSet(p) {
   // Form and item namespaces must be reconciled against PokeMMO before enabling them.
   if (p.form !== 0) throw new Error(`Showdown pilot does not yet map Pokemon form ${p.species}:${p.form}`);
-  if (p.item !== 0) throw new Error('Showdown pilot requires no held item (PokeMMO item mapping is not yet verified)');
+  if (p.item > 0) throw new Error('Showdown pilot requires no held item (PokeMMO item mapping is not yet verified)');
   const species = Dex.species.all().find(s => s.num === p.species && !s.forme && s.exists);
   if (!species) throw new Error(`Unsupported species ${p.species}`);
   const moves = p.moves.filter(id => id > 0).map(id => lookup(Dex.moves,id,'move').name);
@@ -30,23 +30,23 @@ function toSet(p) {
     happiness:p.friendship,moves};
 }
 class ShowdownSession {
-  constructor() { this.stream=null;this.output=[];this.inputTeams=[]; }
+  constructor() { this.stream=null;this.output=[];this.inputTeams=[];this.delayedMoves=new Map();this.bideActors=new Set(); }
   async write(text) { await this.stream.write(text);await nextTick(); }
   async start(input) {
     if (this.stream) throw new Error('Battle already started');
-    if(![1,3,5].includes(input.wilds.length)) throw new Error('Showdown supports 1, 3 or 5 wild Pokemon');
+    if(!(input.trainer ? input.wilds.length>=1&&input.wilds.length<=6 : [1,3,5].includes(input.wilds.length))) throw new Error('Showdown supports 1, 3 or 5 wild Pokemon');
     const party=input.party.filter(p=>!p.egg);
     const lead=party.find(p=>p.id===input.player.id);
     if(!lead || lead.hp<=0) throw new Error('No living lead Pokemon');
     this.inputTeams=[[lead,...party.filter(p=>p.id!==lead.id)],input.wilds];
     const sets=this.inputTeams.map(team=>team.map((p,i)=>({...toSet(p),name:`slot${i}`})));
-    this.stream=input.wilds.length===1 ? new BattleStream({keepAlive:true,noCatch:true})
+    this.stream=input.trainer || input.wilds.length===1 ? new BattleStream({keepAlive:true,noCatch:true})
       : new HordeBattleStream(input.wilds.length,{keepAlive:true,noCatch:true});
     this.reader=(async()=>{for await(const block of this.stream)this.output.push(block);})();
     await this.write('>start '+JSON.stringify({formatid:'gen5customgame@@@!Team Preview',seed:input.seed}));
     // Player data is encoded with Teams.pack, never inserted as user-controlled stream commands.
     await this.write('>player p1 '+JSON.stringify({name:'Player',team:Teams.pack(sets[0])}));
-    await this.write('>player p2 '+JSON.stringify({name:'Wild',team:Teams.pack(sets[1])}));
+    await this.write('>player p2 '+JSON.stringify({name:input.trainer?'Trainer':'Wild',team:Teams.pack(sets[1])}));
     for(let side=0;side<2;side++){
       const s=this.stream.battle.sides[side];
       for(let i=0;i<s.pokemon.length;i++){
@@ -60,6 +60,9 @@ class ShowdownSession {
         for(let slot=0;slot<pokemon.moveSlots.length;slot++){
           const move=pokemon.moveSlots[slot];
           const originalSlot=original.moves.indexOf(Dex.moves.get(move.id).num);
+          // Imposter may already have transformed during the native switch-in.
+          // Its copied slots have native temporary PP, not the saved set's PP Ups.
+          if(pokemon.transformed||originalSlot<0)continue;
           const base=Dex.moves.get(move.id).pp;
           move.maxpp=Math.min(64,Math.floor(base*(5+original.ppUps[originalSlot])/5));
           move.pp=original.pp[originalSlot]<0 ? move.maxpp : Math.min(move.maxpp,original.pp[originalSlot]);
@@ -84,11 +87,14 @@ class ShowdownSession {
     if(action.type==='MOVE'){
       if(!Number.isInteger(action.index)||action.index<0||action.index>3)throw new Error('Invalid move slot');
       const struggle=side.activeRequest?.active?.[0]?.moves?.[0]?.id==='struggle';
-      const original=this.inputTeams[0].find(p=>p.id===side.active[0].adapterId);
-      const id=original.moves[action.index];
-      const slot=side.active[0].moveSlots.findIndex(m=>Dex.moves.get(m.id).num===id);
-      if(slot<0&&!struggle)throw new Error('Empty move slot');
-      await this.write('>p1 move '+(struggle?1:slot+1)+this.targetChoice(struggle?165:id,action.targetId));
+      // Transform, Imposter and Mimic replace battle-local slots. Stored party moves
+      // are not the authoritative choice list after such an effect.
+      const pokemon=side.active[0],locked=!!pokemon.getLockedMove();
+      const selected=pokemon.moveSlots[action.index];
+      if(!selected&&!struggle&&!locked)throw new Error('Empty move slot');
+      const id=struggle?165:selected?Dex.moves.get(selected.id).num:0;
+      await this.write('>p1 move '+(struggle||locked?1:action.index+1)
+        +(locked?'':this.targetChoice(id,action.targetId)));
     }else if(action.type==='SWAP'){
       const slot=side.pokemon.findIndex(p=>p.adapterId===action.pokemonId);
       if(slot<0)throw new Error('Unknown party member');
@@ -195,14 +201,17 @@ class ShowdownSession {
       if(!ident.includes(': '))return battle.sides[side].active[ident.charCodeAt(2)-97]?.adapterId||'';
       return battle.sides[side].pokemon.find(p=>p.name===ident.split(': ').slice(1).join(': '))?.adapterId||'';
     };
-    const events=[];
-    for(const line of logs){
+    const events=[],actionLocations=new Map(),outcomeBoundaries=new Set();
+    for(let logIndex=0;logIndex<logs.length;logIndex++){
+      const line=logs[logIndex];
       const f=line.split('|'),kind=f[1],targetId=identify(f[2]);
+      if(line==='|'||kind==='upkeep'||kind==='turn')outcomeBoundaries.add(events.length);
       if(kind==='move'){
         const target=identify(f[4])||targetId;
         const spread=f.find(value=>value.startsWith('[spread] '));
         const targetIds=spread?spread.slice(9).split(',').map(identify).filter(Boolean):[target];
-        events.push({type:'MOVE',casterId:targetId,targetId:target,targetIds,move:Dex.moves.get(f[3]).num});
+        const event={type:'MOVE',casterId:targetId,targetId:target,targetIds,move:Dex.moves.get(f[3]).num};
+        events.push(event);actionLocations.set(event,(f[4]||'').slice(0,3));
       }
       else if(['-damage','-heal','-sethp'].includes(kind)){
         const addHp=(ident,condition)=>{
@@ -216,6 +225,35 @@ class ShowdownSession {
             direct:kind==='-damage'&&!f.slice(4).some(v=>v.startsWith('[from]'))});
         };
         addHp(f[2],f[3]);if(kind==='-sethp'&&f[4]&&f[5])addHp(f[4],f[5]);
+      }else if(kind==='-start'&&['Future Sight','Doom Desire','Bide'].includes((f[3]||'').replace(/^move: /,''))){
+        const move=Dex.moves.get((f[3]||'').replace(/^move: /,'')).num;
+        const action=events.findLast(e=>e.type==='MOVE'&&e.casterId===targetId&&e.move===move);
+        if(action){
+          // Reference FutureSightAnimation/BideAnimation have separate preparation
+          // and release recipes, including releases without a native |move| line.
+          action.type='CHARGE';
+          if(move===117)this.bideActors.add(targetId);
+          else this.delayedMoves.set(actionLocations.get(action)+':'+move,{casterId:targetId,move});
+        }
+      }else if(kind==='-activate'&&(f[3]||'').replace(/^move: /,'')==='Bide'&&this.bideActors.has(targetId)){
+        events.push({type:'CHARGE',casterId:targetId,targetId,targetIds:[targetId],move:117});
+      }else if(kind==='-end'&&['Future Sight','Doom Desire','Bide'].includes((f[3]||'').replace(/^move: /,''))){
+        const move=Dex.moves.get((f[3]||'').replace(/^move: /,'')).num;
+        if(move===117){
+          if(this.bideActors.has(targetId)&&!f.includes('[silent]')){
+            let victim='',failed=false;
+            for(let next=logIndex+1;next<logs.length;next++){
+              const part=logs[next].split('|');if(part[1]==='move'||part[1]==='turn')break;
+              if(part[1]==='-fail')failed=true;
+              if(part[1]==='-damage'){victim=identify(part[2]);break;}
+            }
+            if(victim||failed)events.push({type:'MOVE',casterId:targetId,targetId:victim||targetId,targetIds:[victim||targetId],move});
+          }
+          this.bideActors.delete(targetId);
+        }else{
+          const key=(f[2]||'').slice(0,3)+':'+move,stored=this.delayedMoves.get(key);
+          if(stored){events.push({type:'MOVE',casterId:stored.casterId,targetId,targetIds:[targetId],move});this.delayedMoves.delete(key);}
+        }
       }else if(['-boost','-unboost','-setboost'].includes(kind))events.push({
         type:kind==='-boost'?'BOOST':kind==='-unboost'?'UNBOOST':'SET_BOOST',targetId,stat:f[3],amount:Number(f[4])});
       else if(kind==='-status'||kind==='-curestatus')events.push({type:kind==='-status'?'STATUS':'CURE_STATUS',targetId,status:f[3]});
@@ -233,24 +271,54 @@ class ShowdownSession {
       }else if(kind==='-anim'){
         // Power Herb and native ChargeMove exceptions release within this turn.
         const action=events.findLast(event=>event.type==='CHARGE'&&event.casterId===targetId);
-        if(action)action.type='MOVE';
+        if(action){
+          action.type='MOVE';
+          const releaseTarget=identify(f[4]);
+          if(releaseTarget){action.targetId=releaseTarget;action.targetIds=[releaseTarget];}
+        }
       }
       else if(kind==='faint')events.push({type:'FAINT',targetId});
     }
     // Failure flags suppress the release animation, but one immune target must not
     // suppress a spread move which actually affected another target.
     for(let i=0;i<events.length;i++)if(['MOVE','CHARGE'].includes(events[i].type)){
-      let end=i+1;while(end<events.length&&!['MOVE','CHARGE'].includes(events[end].type))end++;
+      let end=i+1;while(end<events.length&&!outcomeBoundaries.has(end)&&!['MOVE','CHARGE'].includes(events[end].type))end++;
       const results=events.slice(i+1,end);
       const rejected=results.some(e=>['FAIL','IMMUNE','MISS','BLOCK'].includes(e.type));
-      const immune=results.some(e=>e.type==='IMMUNE'||e.type==='BLOCK');
+      const blockedTargets=new Set(results.filter(e=>e.type==='IMMUNE'||e.type==='BLOCK').map(e=>e.targetId));
       const affected=results.some(e=>e.type==='DAMAGE'&&e.direct
-        ||!immune&&['HEAL','SET_HP','BOOST','UNBOOST','SET_BOOST','STATUS','CURE_STATUS'].includes(e.type));
+        ||!blockedTargets.has(e.targetId)&&['HEAL','SET_HP','BOOST','UNBOOST','SET_BOOST','STATUS','CURE_STATUS'].includes(e.type));
       events[i].animationSuppressed=rejected&&!affected;
     }
     const actions=events.filter(e=>['MOVE','CHARGE'].includes(e.type)).map(e=>({casterId:e.casterId,targetId:e.targetId,move:e.move}));
     return {events,actions,engine:'SHOWDOWN',turn:battle.turn,ended:battle.ended,winner:battle.winner||'',
       forceSwitch:!!battle.sides[0].activeRequest?.forceSwitch?.some(Boolean),pokemon,logs};
+  }
+  growth(party){
+    for(const saved of party){
+      const p=this.stream.battle.sides[0].pokemon.find(p=>p.adapterId===saved.id);
+      if(!p)continue;
+      const original=this.inputTeams[0].find(value=>value.id===saved.id);
+      if(original&&!p.transformed){
+        for(let i=0;i<saved.moves.length;i++)if(original.moves[i]===0&&saved.moves[i]>0){
+          const move=lookup(Dex.moves,saved.moves[i],'move');
+          if(!p.baseMoveSlots.some(slot=>slot.id===move.id)){
+            const maxpp=Math.min(64,Math.floor(move.pp*(5+saved.ppUps[i])/5));
+            const slot={move:move.name,id:move.id,pp:maxpp,maxpp,target:move.target,disabled:false,disabledSource:'',used:false};
+            p.baseMoveSlots.push({...slot});
+            if(p.moveSlots!==p.baseMoveSlots)p.moveSlots.push({...slot});
+            p.moves.push(move.id);p.set.moves.push(move.name);
+          }
+        }
+      }
+      if(original){original.moves=[...saved.moves];original.pp=[...saved.pp];original.ppUps=[...saved.ppUps];}
+      p.level=saved.level;p.set.level=saved.level;
+      p.set.evs=Object.fromEntries(statKeys.map((key,i)=>[key,saved.evs[i]]));
+      p.baseStoredStats=Object.fromEntries(statKeys.map((key,i)=>[key,saved.stats[i]]));
+      if(!p.transformed)for(const key of statKeys.slice(1))p.storedStats[key]=p.baseStoredStats[key];
+      p.baseMaxhp=saved.stats[0];p.maxhp=saved.stats[0];p.hp=Math.min(p.hp,p.maxhp);
+    }
+    return this.result();
   }
   async close(){if(this.stream){this.stream.destroy();await this.reader;this.stream=null;}}
 }
@@ -262,7 +330,7 @@ if(require.main===module){
       try{
         const request=JSON.parse(line);
         if(request.op==='close'){await engine.close();process.stdout.write(JSON.stringify({ok:true})+'\n');break;}
-        const result=request.op==='start'?await engine.start({...request.encounter,testEnemyHp:request.testEnemyHp}):request.op==='choose'?await engine.choose(request.action):(()=>{throw new Error('Unknown operation')})();
+        const result=request.op==='start'?await engine.start({...request.encounter,testEnemyHp:request.testEnemyHp}):request.op==='choose'?await engine.choose(request.action):request.op==='growth'?engine.growth(request.pokemon):(()=>{throw new Error('Unknown operation')})();
         process.stdout.write(JSON.stringify({ok:true,result})+'\n');
       }catch(error){process.stdout.write(JSON.stringify({ok:false,error:String(error.message)})+'\n');}
     }

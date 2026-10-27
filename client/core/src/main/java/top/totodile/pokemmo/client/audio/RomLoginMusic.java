@@ -44,11 +44,7 @@ public final class RomLoginMusic implements AutoCloseable {
                 }
                 if (Sseqj.getApiLevel() != expectedApi)
                     throw new IllegalStateException("Mismatched Sseqj API level");
-                byte[] bytes = RomReader.readFile(rom, "wb_sound_data.sdat");
-                archive = ByteBuffer.allocateDirect(bytes.length).order(ByteOrder.LITTLE_ENDIAN);
-                archive.put(bytes).flip();
-                if (Sseqj.loadSDAT((byte) 2, archive, archive.remaining()) == 0)
-                    throw new IllegalStateException("Unable to load SDAT");
+                archive = RomAudioBanks.load(rom);
                 player = Sseqj.newPlayer(48000);
                 if (player == 0 || Sseqj.loadSSEQ(player, (byte) 2, 1159, (short) -1) == 0)
                     throw new IllegalStateException("Unable to load login SSEQ");

@@ -9,8 +9,95 @@ import java.util.function.Supplier;
 
 /** 单机角色服务；所有数据库操作在同一后台线程执行。 */
 public final class LocalGameService implements GameService {
+    private final Map<String,KantoStory> stories=new HashMap<>();
+    private final Set<String> storyBattles=new HashSet<>();
+
+    @Override public CompletionStage<StoryInspection.Report> inspectStory(Selection selection,String id,Position position) {
+        return CompletableFuture.supplyAsync(()->{
+            playerData(selection,id);
+            var p=position==null?savedPosition(id):position;
+            if(p==null)p=Position.start(currentRegion(id,0));
+            return StoryInspection.inspect(db(),id,currentRegion(id,0),p,stories.get(id));
+        },worker);
+    }
+
+    @Override public CompletionStage<StoryData.Scene> story(Selection selection,String id,StoryData.Request request) {
+        return CompletableFuture.supplyAsync(()->{
+            playerData(selection,id);
+            if (battles.containsKey(id)) throw new IllegalStateException("Battle already active");
+            var p=request.position() == null ? savedPosition(id) : request.position();
+            if(p==null){
+                int initial=Integer.parseInt(db().query("SELECT region FROM characters WHERE id=?",id).get(0)[0]);
+                p=Position.start(currentRegion(id,initial));
+            }
+            var story=stories.computeIfAbsent(id,key->new KantoStory(db(),id,speciesTemplates));
+            story.itemTemplates(itemTemplates);
+            var scene = story.request(request,p,currentRegion(id,0));
+            return new StoryData.Scene(scene.state(), scene.action(), story.entities(), story.takePartyHealed(), story.takeInventoryChanged());
+        },worker);
+    }
+
+    @Override public CompletionStage<EncounterData> storyBattle(Selection selection,String id) {
+        return CompletableFuture.supplyAsync(()->{
+            playerData(selection,id);
+            var story=stories.get(id);if(story==null)throw new IllegalStateException("No story session");
+            if(battles.containsKey(id))throw new IllegalStateException("Battle already active");
+            var encounter=story.battle();closeBattle(id);storyBattles.add(id);
+            encounters.put(id,encounter);persistentBattles.add(id);return encounter;
+        },worker);
+    }
     private final Map<String, top.totodile.pokemmo.server.game.battle.BattleEngine.Session>
             battles = new HashMap<>();
+
+    private final Map<String, WildEncounters> wildRolls = new HashMap<>();
+    private final Set<String> persistentBattles = new HashSet<>();
+    private final Map<String, BattleProgress> progress = new HashMap<>();
+    private volatile Map<Integer, BattleYield> battleYields = Map.of();
+
+    @Override public void battleYields(List<BattleYield> yields) {
+        var values = new HashMap<Integer, BattleYield>();
+        for (var yield : yields) values.put(yield.species(), yield);
+        battleYields = Map.copyOf(values);
+    }
+
+    @Override public CompletionStage<EncounterData> trainerEncounter(Selection selection,String id) {
+        return CompletableFuture.supplyAsync(() -> {
+            playerData(selection,id);
+            if(battles.containsKey(id)) throw new IllegalStateException("Battle already active");
+            var party=new PokemonStore(db(),speciesTemplates).load(id).pokemons().stream()
+                    .filter(p->p.container()==PokemonData.PARTY)
+                    .sorted(Comparator.comparingInt(PokemonData.Pokemon::position)).toList();
+            var encounter=TrainerEncounters.create(party,speciesTemplates,new Random());
+            if(encounter!=null) {closeBattle(id);encounters.put(id,encounter);persistentBattles.add(id);}
+            return encounter;
+        },worker);
+    }
+
+    @Override public CompletionStage<EncounterData> wildEncounterStep(Selection selection, String id,
+            int region, Position before, Position after, int behavior, boolean land,
+            boolean water, boolean bicycle) {
+        return CompletableFuture.supplyAsync(() -> {
+            playerData(selection, id);
+            if (battles.containsKey(id)||persistentBattles.contains(id)) return null;
+            var activeStory=stories.get(id);
+            if(activeStory!=null&&activeStory.waitingAction()!=null)return null;
+            var rolls = wildRolls.computeIfAbsent(id, ignored -> new WildEncounters(new Random()));
+            var selected = rolls.step(region, before, after, behavior, land, water, bicycle);
+            if (selected == null) return null;
+            var party = new PokemonStore(db(), speciesTemplates).load(id).pokemons().stream()
+                    .filter(p -> p.container() == PokemonData.PARTY)
+                    .sorted(Comparator.comparingInt(PokemonData.Pokemon::position)).toList();
+            var lead = party.stream().filter(p -> !p.egg() && p.hp() > 0).findFirst().orElse(null);
+            var template = speciesTemplates.get(selected.species());
+            if (lead == null || template == null) return null;
+            closeBattle(id);
+            var wild = PokemonStore.createNaturalEncounterPokemon(template, selected.level(), new Random());
+            var encounter = new EncounterData(lead, wild, party);
+            encounters.put(id, encounter);
+            persistentBattles.add(id);
+            return encounter;
+        }, worker);
+    }
 
     private final Set<String> moveTestBattles = new HashSet<>();
 
@@ -36,7 +123,10 @@ public final class LocalGameService implements GameService {
     }
 
     private void closeBattle(String id) {
+        storyBattles.remove(id);
         if (moveTestBattles.remove(id)) encounters.remove(id);
+        persistentBattles.remove(id);
+        progress.remove(id);
         var battle = battles.remove(id);
         if (battle != null) battle.close();
     }
@@ -52,11 +142,16 @@ public final class LocalGameService implements GameService {
                     var encounter = encounters.get(id);
                     if (encounter == null)
                         throw new IllegalStateException("No generated encounter");
+                    boolean persistent = persistentBattles.contains(id);
+                    boolean storyBattle = storyBattles.contains(id);
                     closeBattle(id);
+                    if (persistent) persistentBattles.add(id);
+                    if (storyBattle) storyBattles.add(id);
                     var session =
                             top.totodile.pokemmo.server.game.battle.BattleEngine.create(kind)
                                     .start(encounter);
                     battles.put(id, session);
+                    if (persistent) progress.put(id, new BattleProgress(encounter));
                     return session.state();
                 },
                 worker);
@@ -72,7 +167,14 @@ public final class LocalGameService implements GameService {
                     playerData(selection, id);
                     var session = battles.get(id);
                     if (session == null) throw new IllegalStateException("No active battle engine");
+                    if (persistentBattles.contains(id) && action.type() == top.totodile.pokemmo.server.game.battle.BattleEngine.Type.TEST_MOVE)
+                        throw new IllegalStateException("Effect tests cannot modify an overworld battle");
                     var state = session.choose(action);
+                    if (persistentBattles.contains(id)) {
+                        state = progress.get(id).settle(db(), id, speciesTemplates, battleYields, state);
+                        if(storyBattles.contains(id)&&state.ended())stories.get(id).finishBattle("Player".equals(state.winner()));
+                        session.growth(state.growth());
+                    }
                     encounters.put(id, state.apply(encounters.get(id)));
                     return state;
                 },
@@ -84,7 +186,23 @@ public final class LocalGameService implements GameService {
         return CompletableFuture.runAsync(
                 () -> {
                     playerData(selection, id);
+                    // BattleFinishSuccessPacket restores HP/status/PP after a real defeat.
+                    // Do not heal simulated previews, escapes, victories, or an aborted battle.
+                    var battle = battles.get(id);
+                    if (persistentBattles.contains(id) && battle != null && battle.state().ended()
+                            && !"Player".equals(battle.state().winner())
+                            && battle.state().pokemon().stream().anyMatch(p -> p.side() == 0)
+                            && battle.state().pokemon().stream().filter(p -> p.side() == 0).allMatch(p -> p.hp() == 0)) {
+                        db().transaction(() -> {
+                            for (var pokemon : new PokemonStore(db(), speciesTemplates).load(id).pokemons())
+                                if (pokemon.container() == 1)
+                                    db().execute("UPDATE pokemon SET current_hp=?,status=0,moves_pp='-1,-1,-1,-1' WHERE id=? AND trainer_id=?",
+                                            pokemon.maxHp(), pokemon.id(), id);
+                        });
+                    }
                     closeBattle(id);
+                    storyBattles.remove(id);
+                    stories.computeIfPresent(id,(key,story)->story.afterBattle());
                 },
                 worker);
     }
@@ -157,6 +275,7 @@ public final class LocalGameService implements GameService {
                 PokemonStore.initialize(opened);
                 PokedexStore.initialize(opened);
                 FollowerStore.initialize(opened);
+                KantoStory.initialize(opened);
                 database = opened;
             } catch (RuntimeException | Error error) {
                 try {
@@ -287,6 +406,7 @@ public final class LocalGameService implements GameService {
                                                                                 slot,
                                                                                 part.style(),
                                                                                 part.color()));
+                                        KantoStory.create(db(),character.id(),appearance.region());
                                     });
                     return character;
                 },
@@ -393,6 +513,7 @@ public final class LocalGameService implements GameService {
         return characters(selection)
                 .thenApplyAsync(
                         values -> {
+                            // Entry snapshots also refresh the HUD after battle; preserve an in-flight story.
                             Character character =
                                     values.stream()
                                             .filter(c -> c.id().equals(characterId))
@@ -701,15 +822,18 @@ public final class LocalGameService implements GameService {
         return CompletableFuture.supplyAsync(
                 () -> {
                     playerData(selection, id);
-                    if (battles.containsKey(id))
-                        throw new UnsupportedOperationException(
-                                "Capture is not yet available with the Showdown engine");
+                    var activeStory=stories.get(id);
+                    if(storyBattles.contains(id)&&activeStory!=null&&activeStory.scriptedWild()&&!activeStory.scriptedWildCaptureAllowed())
+                        throw new IllegalStateException("这只剧情幽灵无法捕捉");
+                    boolean storyWild=storyBattles.contains(id)&&activeStory!=null&&activeStory.scriptedWildCaptureAllowed();
+                    if (battles.containsKey(id)&&!storyWild)
+                        throw new UnsupportedOperationException("This battle cannot use the simulated capture adapter");
                     if (moveTestBattles.contains(id))
                         throw new IllegalStateException(
                                 "Effect-test encounters cannot be captured");
                     var encounter = encounters.get(id);
-                    if (encounter == null
-                            || encounter.wilds().stream().noneMatch(p -> p.id().equals(targetId)))
+                    if (encounter == null || encounter.trainer()!=null
+                            || encounter.wilds().stream().noneMatch(p -> p.id().equals(targetId)&&p.hp()>0))
                         throw new IllegalArgumentException("No eligible wild capture target");
                     var target =
                             encounter.wilds().stream()
@@ -753,7 +877,19 @@ public final class LocalGameService implements GameService {
                                                     "Item is not a capture ball");
                                         // Explicit user-requested simulation, not a replacement
                                         // catch-rate formula.
-                                        int code = new int[] {0, 1, 3, 4}[captureRandom.nextInt(4)];
+                                        int code;
+                                        if(encounter.captureTutorial()) {
+                                            // Reference Gen5CaptureCalculator, tutorial's full-HP Weedle / ordinary ball.
+                                            long rate=(3L*target.maxHp()-2L*target.hp())*255*4096/(3L*target.maxHp());
+                                            int threshold=(int)Math.floor(65536d*Math.pow(rate/(255d*4096),.25d));
+                                            int caughtCount=(int)new PokedexStore(db()).load(id).count(2);
+                                            int numerator=caughtCount<=30?0:caughtCount<=150?1:caughtCount<=300?2:caughtCount<=450?3:caughtCount<=600?4:5;
+                                            int criticalValue=(int)(rate*numerator/(12L*4096));
+                                            boolean critical=criticalValue>0&&captureRandom.nextInt(256)<criticalValue;
+                                            code=4;
+                                            for(int shake=0;shake<(critical?1:3);shake++)if(captureRandom.nextInt(65536)>=threshold){code=critical?1:new int[]{0,1,3}[shake];break;}
+                                            if(item.ballType()==0)code=4;
+                                        } else code = new int[] {0, 1, 3, 4}[captureRandom.nextInt(4)];
                                         var store = new PokemonStore(db(), speciesTemplates);
                                         PokemonData.Pokemon caught =
                                                 code == 4
@@ -793,6 +929,7 @@ public final class LocalGameService implements GameService {
                                                             caught.species(),
                                                             entries.get(caught.species()));
                                             state = new PokedexState(entries);
+                                            if(encounter.captureTutorial()||storyWild)stories.get(id).persistCapture();
                                         }
                                         result[0] =
                                                 new CaptureResult(
@@ -802,7 +939,11 @@ public final class LocalGameService implements GameService {
                                                         new PlayerDataStore(db()).inventory(id),
                                                         state);
                                     });
-                    if (result[0].captured() != null) encounters.remove(id);
+                    if (result[0].captured() != null) {
+                        if(encounter.captureTutorial()||storyWild)stories.get(id).finishBattle(true);
+                        if(storyWild)closeBattle(id);
+                        encounters.remove(id);
+                    }
                     return result[0];
                 },
                 worker);
@@ -880,6 +1021,16 @@ public final class LocalGameService implements GameService {
                     return new FollowerStore(db()).select(id, type, pokemonId, position);
                 },
                 worker);
+    }
+
+    @Override
+    public CompletionStage<PokemonData.Containers> updatePokemonItem(
+            Selection selection, String character, String pokemon, int container, int item) {
+        return CompletableFuture.supplyAsync(() -> {
+            playerData(selection, character);
+            new PokemonItemStore(db()).update(character, pokemon, container, item, itemTemplates);
+            return new PokemonStore(db(), speciesTemplates).load(character);
+        }, worker);
     }
 
     @Override

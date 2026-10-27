@@ -1,0 +1,1702 @@
+[
+  {
+    "path": "battle_colosseum_2p/BattleColosseum_2P.json",
+    "sha256": "56b10c70c7b89fd2dff8f3f836cc3257d846dd383ccbf960506bbb66c7fc847a"
+  },
+  {
+    "path": "battle_colosseum_4p/BattleColosseum_4P.json",
+    "sha256": "e21ea205a80bc7b5276f9d9f7506615a2332c55d195a0c7874bcf4a4811a3e37"
+  },
+  {
+    "path": "birth_island_exterior/BirthIsland_Exterior.json",
+    "sha256": "03fe6583c2bd0d12efc0856439a928316117bb7cafd90a4dac01d7c8d7f5bed9"
+  },
+  {
+    "path": "birth_island_harbor/BirthIsland_Harbor.json",
+    "sha256": "653e864213a0e5fd375e2a6ba462099365db590c73c6d1511f8363230d073dc0"
+  },
+  {
+    "path": "celadon_city/CeladonCity.json",
+    "sha256": "ad5d7c600c7524c33f8a249b145cd6944eab84f08e9875a3132f7d51be34b889"
+  },
+  {
+    "path": "celadon_city_condominiums_1f/CeladonCity_Condominiums_1F.json",
+    "sha256": "e8faae3a8366b0e5844ca83346ad568f79b41781e501905490ac9953b3b93409"
+  },
+  {
+    "path": "celadon_city_condominiums_2f/CeladonCity_Condominiums_2F.json",
+    "sha256": "a5f209afe06ebbed9e693485792e6368cfb0103e15fe940109d1eb3dd4625c51"
+  },
+  {
+    "path": "celadon_city_condominiums_3f/CeladonCity_Condominiums_3F.json",
+    "sha256": "fe09f5617d04017ad722aa6f4f82e119f5ac7e242acd239cd49442d246d5c83b"
+  },
+  {
+    "path": "celadon_city_condominiums_roof/CeladonCity_Condominiums_Roof.json",
+    "sha256": "d40ef264ea1b35571e26062e07d408d06048811902c3d9edb9aed1b8e5fbec2f"
+  },
+  {
+    "path": "celadon_city_condominiums_roof_room/CeladonCity_Condominiums_RoofRoom.json",
+    "sha256": "031c451b35db99bb49ee02de17a47cb998ff65ca483e1eb2fa90cf07d707d421"
+  },
+  {
+    "path": "celadon_city_department_store_1f/CeladonCity_DepartmentStore_1F.json",
+    "sha256": "d4bc253cad405d166c7a8df4563ee1d47680e3831d9a4042462cee649dcc7842"
+  },
+  {
+    "path": "celadon_city_department_store_2f/CeladonCity_DepartmentStore_2F.json",
+    "sha256": "914f01c0db57a2b6ec0f87625ff69f631e57cb7632fa6287280b3a55cb673942"
+  },
+  {
+    "path": "celadon_city_department_store_3f/CeladonCity_DepartmentStore_3F.json",
+    "sha256": "4eac8e81424f107ef26e1e0b502d65a5a1d0c0ffb0bd1078c3153a517fb64920"
+  },
+  {
+    "path": "celadon_city_department_store_4f/CeladonCity_DepartmentStore_4F.json",
+    "sha256": "7b061141e64f4f7380d29ef1f25277accade18f44fed9157488dbf3bdacfb761"
+  },
+  {
+    "path": "celadon_city_department_store_5f/CeladonCity_DepartmentStore_5F.json",
+    "sha256": "fd3cb629afcf66b8106577733886d6aa796793b5a8a02b1ca243452a206e850c"
+  },
+  {
+    "path": "celadon_city_department_store_elevator/CeladonCity_DepartmentStore_Elevator.json",
+    "sha256": "99010e353d34c3295c790a4e35250cd4eca9782314a8fa7744a377fccc4b5952"
+  },
+  {
+    "path": "celadon_city_department_store_roof/CeladonCity_DepartmentStore_Roof.json",
+    "sha256": "a428dfc4eee26e4932447275b002d4ced6e79790906fb314fd39fbfe39a88e34"
+  },
+  {
+    "path": "celadon_city_game_corner/CeladonCity_GameCorner.json",
+    "sha256": "09a78b85b96e08bc4bfb41f89ea11010b7ff529938cfaf8aa1713d1003affc65"
+  },
+  {
+    "path": "celadon_city_game_corner_prize_room/CeladonCity_GameCorner_PrizeRoom.json",
+    "sha256": "60a7e15df8d1b9b8de791d8ca4ed80f2761db8534aa32132f009a19330ccef67"
+  },
+  {
+    "path": "celadon_city_gym/CeladonCity_Gym.json",
+    "sha256": "e64a1d1296b0b2158f29b70d339064eb73bc46206154876aa2cdb68d3de3f93d"
+  },
+  {
+    "path": "celadon_city_hotel/CeladonCity_Hotel.json",
+    "sha256": "9e4661396edb880d74e1865d9fbd9426cb70ba926f669ad84e581c74820fac17"
+  },
+  {
+    "path": "celadon_city_house1/CeladonCity_House1.json",
+    "sha256": "f631a79e95ba550fc92ac18286a204d3a7beda1d48136c70a35a7418a999ae0d"
+  },
+  {
+    "path": "celadon_city_pokemon_center_1f/CeladonCity_PokemonCenter_1F.json",
+    "sha256": "4648ccd35ea36fb2fb7646c7b104943a2074e48f564bb3f6f34c391cbb4477a3"
+  },
+  {
+    "path": "celadon_city_pokemon_center_2f/CeladonCity_PokemonCenter_2F.json",
+    "sha256": "64eee8d38c90854a0d2e20c95356b8d8d2aa04c2dfc5a0e47883ae879ded5d7e"
+  },
+  {
+    "path": "celadon_city_restaurant/CeladonCity_Restaurant.json",
+    "sha256": "21a650aae3caf8dfa71ee41e317aed67fb2c3cf7db25339423c789466b29ecfe"
+  },
+  {
+    "path": "cerulean_cave_1f/CeruleanCave_1F.json",
+    "sha256": "65e7a5fbe672e1ddc88d023a88c3a316951873d4be9a0318265c94d8a25e8927"
+  },
+  {
+    "path": "cerulean_cave_2f/CeruleanCave_2F.json",
+    "sha256": "fb10cc90604f5f5e781fd721c7d5824a664b8de9663244a7ba3afe6ed9a9be47"
+  },
+  {
+    "path": "cerulean_cave_b1f/CeruleanCave_B1F.json",
+    "sha256": "86f4d39487b054ad15b661016baeeb6f4489217a6d2b3c4ba5868279e78a6bd1"
+  },
+  {
+    "path": "cerulean_city/CeruleanCity.json",
+    "sha256": "ca14dc7ba50f9e5f905ac7f8549f244213506dd7d9b1387d02a2f7aa1a8fe960"
+  },
+  {
+    "path": "cerulean_city_bike_shop/CeruleanCity_BikeShop.json",
+    "sha256": "d6e5a954cf827908d7e9c136ca6b6bb9f65543b430599cb7ec1c446eb879b92b"
+  },
+  {
+    "path": "cerulean_city_gym/CeruleanCity_Gym.json",
+    "sha256": "f0f38e3ec9ac434f0398181a7396d2c93806b6a3447e0616d0871f2dd9c36ad1"
+  },
+  {
+    "path": "cerulean_city_house1/CeruleanCity_House1.json",
+    "sha256": "37be1c5e030304e50c3daea69e5139a71a45e706e374a1d8e2994d2f266c32fd"
+  },
+  {
+    "path": "cerulean_city_house2/CeruleanCity_House2.json",
+    "sha256": "9c21efbf43d84fb2b6fb9b9384f67433583d8fc918ae99a90b1250fd88cfcb4a"
+  },
+  {
+    "path": "cerulean_city_house3/CeruleanCity_House3.json",
+    "sha256": "c3cecfb10675f2fa87850ffd47a506c98b079e91e8ee8b5b8bd5d08d874a92f7"
+  },
+  {
+    "path": "cerulean_city_house4/CeruleanCity_House4.json",
+    "sha256": "50cfd470c508b7a013aa38f82ba059329bff11581391a122c64ce2368ae90e81"
+  },
+  {
+    "path": "cerulean_city_house5/CeruleanCity_House5.json",
+    "sha256": "8d00c9c75845945ad003cc208a9f2d26b69c8279523767a4eecb9a55d435d62d"
+  },
+  {
+    "path": "cerulean_city_mart/CeruleanCity_Mart.json",
+    "sha256": "9ca05eba97fe40f5bbfbe1e94d3e14a76e55902c1893317798a58ca412132656"
+  },
+  {
+    "path": "cerulean_city_pokemon_center_1f/CeruleanCity_PokemonCenter_1F.json",
+    "sha256": "b1d73d674409d3b9a5f17a37de0c6425d72588f2412fc7a970cf453bd0f5a118"
+  },
+  {
+    "path": "cerulean_city_pokemon_center_2f/CeruleanCity_PokemonCenter_2F.json",
+    "sha256": "23ec43e28f144b83641c7e9b069833db7e4666e54daff0603cec6c450dae7e51"
+  },
+  {
+    "path": "cinnabar_island/CinnabarIsland.json",
+    "sha256": "6f8f7074893f741c91e3c494e21f13e8779c63bb8e7cdd71696e009887ce3af3"
+  },
+  {
+    "path": "cinnabar_island_gym/CinnabarIsland_Gym.json",
+    "sha256": "3251280a2582610728e024eec810a4b32816b1ea8976f867d53b205db4e57a60"
+  },
+  {
+    "path": "cinnabar_island_mart/CinnabarIsland_Mart.json",
+    "sha256": "f545937e79eec651c9e117e4236bd28cdf72b6b5b7d55a3abe991e2d4f258b80"
+  },
+  {
+    "path": "cinnabar_island_pokemon_center_1f/CinnabarIsland_PokemonCenter_1F.json",
+    "sha256": "529bc9b8e069a0df163aca1b9d0e4a3eea5314ddc06523fb580e9004ffe6a665"
+  },
+  {
+    "path": "cinnabar_island_pokemon_center_2f/CinnabarIsland_PokemonCenter_2F.json",
+    "sha256": "ad4c2255df167f34a9133a2f987dd523fade301ffa3c6c1a2a1a0a86dab7f9b2"
+  },
+  {
+    "path": "cinnabar_island_pokemon_lab_entrance/CinnabarIsland_PokemonLab_Entrance.json",
+    "sha256": "b957412ecd833ca170986fac3ba4b820346bddb7020d0cd2fd0d6d971cb4faf2"
+  },
+  {
+    "path": "cinnabar_island_pokemon_lab_experiment_room/CinnabarIsland_PokemonLab_ExperimentRoom.json",
+    "sha256": "3ea725547e8a785e6eecf709f8166cc59bd5d5f27bc42a508891059bbabf80a7"
+  },
+  {
+    "path": "cinnabar_island_pokemon_lab_lounge/CinnabarIsland_PokemonLab_Lounge.json",
+    "sha256": "7aeb062b2d74a5662dabc053b693fffac42cc6878a22434fee15eb294444b429"
+  },
+  {
+    "path": "cinnabar_island_pokemon_lab_research_room/CinnabarIsland_PokemonLab_ResearchRoom.json",
+    "sha256": "111db57db1169653d839477b1be1ff017b209d6ca88d6b413231d53ff4b0ceaa"
+  },
+  {
+    "path": "digletts_cave_b1f/DiglettsCave_B1F.json",
+    "sha256": "de8042edf8feb6362be69289bad12c90867078207d1308011e10af9db24fd6c3"
+  },
+  {
+    "path": "digletts_cave_north_entrance/DiglettsCave_NorthEntrance.json",
+    "sha256": "49598bb09ba9c37375f173ff6ed6bf37e5c5474a1aeb1b61a96bb6f5ddc02c82"
+  },
+  {
+    "path": "digletts_cave_south_entrance/DiglettsCave_SouthEntrance.json",
+    "sha256": "b9ad43341594fa5c6f0e712459963baff3e9fa2f04a32c4e0cf79d4d318b877f"
+  },
+  {
+    "path": "five_island/FiveIsland.json",
+    "sha256": "e2e1d32b770f5d3899af8dbd9c02631fe02b359c5c4bd4c7eb8a37357b39dd86"
+  },
+  {
+    "path": "five_island_harbor/FiveIsland_Harbor.json",
+    "sha256": "0546ad42b3426c24a199ba01464db3a91b700146f8c6c743b4bdd0abbf963d2c"
+  },
+  {
+    "path": "five_island_house1/FiveIsland_House1.json",
+    "sha256": "e7c6a83f300b980c9a93f36d0cf8c28e36eb02cf13f6636fe0c8869d26fac726"
+  },
+  {
+    "path": "five_island_house2/FiveIsland_House2.json",
+    "sha256": "f5b2543e85128d5d1660bb1ebdb2c1a4072b647bfd45bbcb93434d9aa63d06b0"
+  },
+  {
+    "path": "five_island_lost_cave_entrance/FiveIsland_LostCave_Entrance.json",
+    "sha256": "1f9d3a19801a94b7b77fa190d64ab18bb0552aa803917581aeec58ea355862ae"
+  },
+  {
+    "path": "five_island_lost_cave_room1/FiveIsland_LostCave_Room1.json",
+    "sha256": "92853606c3cd674d09750f5b90794c3fa3126ca36d89d55c69789d00978a8f26"
+  },
+  {
+    "path": "five_island_lost_cave_room10/FiveIsland_LostCave_Room10.json",
+    "sha256": "ec1efcbc4bb0ab48283d766780fbeb711467b6e3802b88d3741c1053670409b0"
+  },
+  {
+    "path": "five_island_lost_cave_room11/FiveIsland_LostCave_Room11.json",
+    "sha256": "7a14fc398128a4471bdda1f22c901a10961a3fae8b390db93f64b8b4cc14a26e"
+  },
+  {
+    "path": "five_island_lost_cave_room12/FiveIsland_LostCave_Room12.json",
+    "sha256": "429fdc4c82b05120cb64de257d7aea2c44df50a139128fbeb9dbc884e9e4a5d3"
+  },
+  {
+    "path": "five_island_lost_cave_room13/FiveIsland_LostCave_Room13.json",
+    "sha256": "26315a1fc8a79bff32804606e992e3aae3610bdc54e97f533ed9ac837c6ab450"
+  },
+  {
+    "path": "five_island_lost_cave_room14/FiveIsland_LostCave_Room14.json",
+    "sha256": "897d5a59a7c673a28a6559873319d19e3406dd6b1bf14ea476aec5cf95c2dc13"
+  },
+  {
+    "path": "five_island_lost_cave_room2/FiveIsland_LostCave_Room2.json",
+    "sha256": "8476b86f2a0efae19040f23bd8d855d2bb45dfa57cd43427dd92f922ee9baad5"
+  },
+  {
+    "path": "five_island_lost_cave_room3/FiveIsland_LostCave_Room3.json",
+    "sha256": "732418fc854bcda2b38c7f72d49505b16be955025c7b729f419cff4ff1115ed5"
+  },
+  {
+    "path": "five_island_lost_cave_room4/FiveIsland_LostCave_Room4.json",
+    "sha256": "7c25fe06beead2b0e754897d0d29191db8d67092488b140c055ccf3019271d02"
+  },
+  {
+    "path": "five_island_lost_cave_room5/FiveIsland_LostCave_Room5.json",
+    "sha256": "73212fdcf0c7c5532f47a5e35a7bd8134f3ee871a638ebf9c4ffdaa7cd7fadf8"
+  },
+  {
+    "path": "five_island_lost_cave_room6/FiveIsland_LostCave_Room6.json",
+    "sha256": "bea3d18f849aeb2d7d41034be330e87b969e69539b25fa8831573afa780ea6b1"
+  },
+  {
+    "path": "five_island_lost_cave_room7/FiveIsland_LostCave_Room7.json",
+    "sha256": "f7ff04c647eaa99947287975bcc620d47345aaea33574c546c47480c429a4703"
+  },
+  {
+    "path": "five_island_lost_cave_room8/FiveIsland_LostCave_Room8.json",
+    "sha256": "6d3f66f5feb852d9620b60818af8f4c1df8846ab3a0344caaaa82cec3967ec4c"
+  },
+  {
+    "path": "five_island_lost_cave_room9/FiveIsland_LostCave_Room9.json",
+    "sha256": "ed262e38f0d0cda30c1cd1a9b1a83db3b9627a8d542bf8632df438fac7d73aad"
+  },
+  {
+    "path": "five_island_meadow/FiveIsland_Meadow.json",
+    "sha256": "1891e922d8ead47b58cf46ec5309f7f19da5f13226f29caa3d5db09dc62ca7c1"
+  },
+  {
+    "path": "five_island_memorial_pillar/FiveIsland_MemorialPillar.json",
+    "sha256": "875c6b1a0490e4760a1206a181b73000865c98f192c8cefb6f4a322bac4f1140"
+  },
+  {
+    "path": "five_island_pokemon_center_1f/FiveIsland_PokemonCenter_1F.json",
+    "sha256": "1c9e7bccf4bd9ac58e8852ee6f32517cc5a67946fa9a0c8a9fe7a17315922a71"
+  },
+  {
+    "path": "five_island_pokemon_center_2f/FiveIsland_PokemonCenter_2F.json",
+    "sha256": "16888436d42935a3eede20a93b5b7b31c8ef25c4b28092e0add543a685dcff25"
+  },
+  {
+    "path": "five_island_resort_gorgeous/FiveIsland_ResortGorgeous.json",
+    "sha256": "2f6e0986336904df4c09acc1e4ef37750db819f910190c7371f1c7e8e8c35f45"
+  },
+  {
+    "path": "five_island_resort_gorgeous_house/FiveIsland_ResortGorgeous_House.json",
+    "sha256": "8f205bc2a06da2a985af3a34a8f69e6406b167c54b610ef0f2fa233e521f1ce7"
+  },
+  {
+    "path": "five_island_rocket_warehouse/FiveIsland_RocketWarehouse.json",
+    "sha256": "637a7ab4db5025996943b5a7dc41cdd3a79542afe8f56bc4f935d01c237fa69f"
+  },
+  {
+    "path": "five_island_water_labyrinth/FiveIsland_WaterLabyrinth.json",
+    "sha256": "ea41dfa1f3a9b9fce370fbcc37c60bf75eccbb7304e1f6ce7a92b070c93783de"
+  },
+  {
+    "path": "four_island/FourIsland.json",
+    "sha256": "d97fbe1fde3d9ab57c49427de03db7ca450454369e1c6eed2b41aef529535928"
+  },
+  {
+    "path": "four_island_harbor/FourIsland_Harbor.json",
+    "sha256": "7178681bac4eac0c5917087ed55eeb1ea6fbdde7ca9ae5ade44370219124c438"
+  },
+  {
+    "path": "four_island_house1/FourIsland_House1.json",
+    "sha256": "b2e733fa73945ebb9e4e88b522cf54232a8cc8ba883d3175b9f60655a8e15457"
+  },
+  {
+    "path": "four_island_house2/FourIsland_House2.json",
+    "sha256": "39cc3cf7952893abde3cacbf4d74affc0b57ace1deec5be1abe4148c2da5110d"
+  },
+  {
+    "path": "four_island_icefall_cave_1f/FourIsland_IcefallCave_1F.json",
+    "sha256": "14400108fe5bdd82a26a6a65ffc710d3aaf30b65f13fc8a996759f7bac187441"
+  },
+  {
+    "path": "four_island_icefall_cave_b1f/FourIsland_IcefallCave_B1F.json",
+    "sha256": "9f091b23354ce7816c3199317cdc12e33234d74370ac5e4014041078f14faaee"
+  },
+  {
+    "path": "four_island_icefall_cave_back/FourIsland_IcefallCave_Back.json",
+    "sha256": "d8dac268d61212124b5d09b01a6e9102e517a8f093cab0572111de89416bd707"
+  },
+  {
+    "path": "four_island_icefall_cave_entrance/FourIsland_IcefallCave_Entrance.json",
+    "sha256": "c8096772bad098f72f539375842c906764ca65569cff9fc9c0ff39498b544605"
+  },
+  {
+    "path": "four_island_loreleis_house/FourIsland_LoreleisHouse.json",
+    "sha256": "4aea0696db644624e7d342e697ae8e44f614fb737c7b6802007ebb7fc24dc7e1"
+  },
+  {
+    "path": "four_island_mart/FourIsland_Mart.json",
+    "sha256": "e6d2786c8923fecfdeb1b18d5d3cb0d9e53cdef00a087166733eeb2fa3c784be"
+  },
+  {
+    "path": "four_island_pokemon_center_1f/FourIsland_PokemonCenter_1F.json",
+    "sha256": "ec7057715310ef60c2250a377cf198a806584475356ba5d0c2c709fbcbce555e"
+  },
+  {
+    "path": "four_island_pokemon_center_2f/FourIsland_PokemonCenter_2F.json",
+    "sha256": "7e0b8579f8378483dd81a1a3058333e51cdbea6be4bb8e979900ccdcd50712a7"
+  },
+  {
+    "path": "four_island_pokemon_day_care/FourIsland_PokemonDayCare.json",
+    "sha256": "13f709470ed9ecf4d871dbd298890cc022d46451e66ed26536579e37bc1ac886"
+  },
+  {
+    "path": "fuchsia_city/FuchsiaCity.json",
+    "sha256": "baf9ad2a442256aceebdaf3a3cdc2de587c10176fb3e367f7fea8bc9a1fc2546"
+  },
+  {
+    "path": "fuchsia_city_gym/FuchsiaCity_Gym.json",
+    "sha256": "50a17573603056c9495f3f64e234909328e431b49541abb6b340e4cd558f0105"
+  },
+  {
+    "path": "fuchsia_city_house1/FuchsiaCity_House1.json",
+    "sha256": "db9df8a1bbda004b940f930f7a40ce8475c336f0648970ca997c2a8e4439c656"
+  },
+  {
+    "path": "fuchsia_city_house2/FuchsiaCity_House2.json",
+    "sha256": "d34c4f7c063f606de3588b68128cdf18d3c7f3320ecd9d6b02e9eb7c53ee4fd7"
+  },
+  {
+    "path": "fuchsia_city_house3/FuchsiaCity_House3.json",
+    "sha256": "f7db864b85c3c4a275c5479a8d753d62feddedf0600e97493f8a56ed563eab02"
+  },
+  {
+    "path": "fuchsia_city_mart/FuchsiaCity_Mart.json",
+    "sha256": "b63862ae11584b1a276638dc7f043af65bed49ab516b13b4495c9ef5605e765b"
+  },
+  {
+    "path": "fuchsia_city_pokemon_center_1f/FuchsiaCity_PokemonCenter_1F.json",
+    "sha256": "35257e0519834d4a32d15e221d412714977fd278b02e71529602015178861e71"
+  },
+  {
+    "path": "fuchsia_city_pokemon_center_2f/FuchsiaCity_PokemonCenter_2F.json",
+    "sha256": "a3f45d0e52f9e428b2a9eebe6fbc49b0121bb583f92f8d46c26c870bbcee13a9"
+  },
+  {
+    "path": "fuchsia_city_safari_zone_entrance/FuchsiaCity_SafariZone_Entrance.json",
+    "sha256": "fd645c12b0fa45d41bc651b3b685874bdcba30648ababc9f5b4a5b2425596682"
+  },
+  {
+    "path": "fuchsia_city_safari_zone_office/FuchsiaCity_SafariZone_Office.json",
+    "sha256": "a2196fe37bfad87cb237ef61547203d7875bfaa18598e158270ae1355bfa317e"
+  },
+  {
+    "path": "fuchsia_city_wardens_house/FuchsiaCity_WardensHouse.json",
+    "sha256": "ecbfd7c838f5eb4a7c3fad6c91a25072359a3aed23f706020928aea1a5426ea3"
+  },
+  {
+    "path": "indigo_plateau_exterior/IndigoPlateau_Exterior.json",
+    "sha256": "cf90fe2f5ec7217cd48dbfbf6d87a93d2c07b5cc68bf6c0bc025ea2fd0029d3c"
+  },
+  {
+    "path": "indigo_plateau_pokemon_center_1f/IndigoPlateau_PokemonCenter_1F.json",
+    "sha256": "82040e842662cbd538fcc5a7a77036a28b78d2994ee7629ee0f42f5ff97e55b7"
+  },
+  {
+    "path": "indigo_plateau_pokemon_center_2f/IndigoPlateau_PokemonCenter_2F.json",
+    "sha256": "de7507ad9b02ceb0159252990382f5de0cad5e7641084224ba8f319bc1939299"
+  },
+  {
+    "path": "lavender_town/LavenderTown.json",
+    "sha256": "d0bf28ee117b7e213bb07e8f81b80395a2e74ee5cd92ebc006350af0e84e032f"
+  },
+  {
+    "path": "lavender_town_house1/LavenderTown_House1.json",
+    "sha256": "0a718bf621803620a40b5e290d36de01be3c2119f684b19f64bbdb557ad401a6"
+  },
+  {
+    "path": "lavender_town_house2/LavenderTown_House2.json",
+    "sha256": "f095da59185e4dbdc15c6c638ebd90f8bb830c1bd592f25908c2f721f0f2943a"
+  },
+  {
+    "path": "lavender_town_mart/LavenderTown_Mart.json",
+    "sha256": "2a81e86b7c8e9f1a4d66bdbd37b112f81483fd9d719fcd95940ebb62e5da1da9"
+  },
+  {
+    "path": "lavender_town_pokemon_center_1f/LavenderTown_PokemonCenter_1F.json",
+    "sha256": "6baf372a5574af2651e9ad41a5c9e61e96e16111f0ddd3cce67366fe70779ff0"
+  },
+  {
+    "path": "lavender_town_pokemon_center_2f/LavenderTown_PokemonCenter_2F.json",
+    "sha256": "a4b2a38129b5922940c5b5da9f7496de85460419dd18b05d9f9b1d99fafcbc33"
+  },
+  {
+    "path": "lavender_town_volunteer_pokemon_house/LavenderTown_VolunteerPokemonHouse.json",
+    "sha256": "7420dba1870ca62b7e424ed4310c49be512f09ee87fa8e11f1b4f3c0dc15147d"
+  },
+  {
+    "path": "mt_ember_exterior/MtEmber_Exterior.json",
+    "sha256": "17317f6d7a5569dc80b078717ebfb9c1bb59d74ec35abb625d8913a3192bf349"
+  },
+  {
+    "path": "mt_ember_ruby_path_1f/MtEmber_RubyPath_1F.json",
+    "sha256": "e431ff12f74a2fdeb4ab0f0c79008249d396c4840fd88dec8cacd94dcd20172c"
+  },
+  {
+    "path": "mt_ember_ruby_path_b1f/MtEmber_RubyPath_B1F.json",
+    "sha256": "d4dac60569ae48ca0afc5a59eb00d6179fc56f1209291a648bd034a002d8c4ac"
+  },
+  {
+    "path": "mt_ember_ruby_path_b1f_stairs/MtEmber_RubyPath_B1F_Stairs.json",
+    "sha256": "34b861154244743a789f6c7d07744b61af651241d71545398a623f117f249e86"
+  },
+  {
+    "path": "mt_ember_ruby_path_b2f/MtEmber_RubyPath_B2F.json",
+    "sha256": "f4629add62e3672651e0a504730b2011d35b53784e501e944ece94f21b185bfd"
+  },
+  {
+    "path": "mt_ember_ruby_path_b2f_stairs/MtEmber_RubyPath_B2F_Stairs.json",
+    "sha256": "a220e9b9f21373053c3facc08b4c22f6c3644c7467ca77e3c7c7874380f6b0bf"
+  },
+  {
+    "path": "mt_ember_ruby_path_b3f/MtEmber_RubyPath_B3F.json",
+    "sha256": "8308c327543670517ee80a9bfb1add5d665f1fb96a59d623ea2179ff8d91120d"
+  },
+  {
+    "path": "mt_ember_ruby_path_b4f/MtEmber_RubyPath_B4F.json",
+    "sha256": "318cca89e4536a1e55b9bb1e7b2459d3fe4174f9d6b8a8198567e46920273dc8"
+  },
+  {
+    "path": "mt_ember_ruby_path_b5f/MtEmber_RubyPath_B5F.json",
+    "sha256": "d7b5242638fd5083399cefb03a514696a670f0728da44ea352d5c5c8d2c2b03c"
+  },
+  {
+    "path": "mt_ember_summit/MtEmber_Summit.json",
+    "sha256": "250865558b524d0bb7e5264ddf76a72a293e2bd0692ef40b382845b5cdd1e39e"
+  },
+  {
+    "path": "mt_ember_summit_path_1f/MtEmber_SummitPath_1F.json",
+    "sha256": "bcee623d8a9ebc71f261e2107ad33848c363e2c04dce3bfca39c2f26bb8fb3b5"
+  },
+  {
+    "path": "mt_ember_summit_path_2f/MtEmber_SummitPath_2F.json",
+    "sha256": "662acfbd74abb6076eb4dad28c7d731e19b81124b2528b25c6ff8da826820bda"
+  },
+  {
+    "path": "mt_ember_summit_path_3f/MtEmber_SummitPath_3F.json",
+    "sha256": "98548fc440588d92cbeba721f6ab14b695af2821eed0447e20f79c8590482e8d"
+  },
+  {
+    "path": "mt_moon_1f/MtMoon_1F.json",
+    "sha256": "db83208b8c5e381426357c3476bcd53d04b94b847ca422072e92f5ad284b91db"
+  },
+  {
+    "path": "mt_moon_b1f/MtMoon_B1F.json",
+    "sha256": "35935b7f0a1f660d938d0b4167eae7ad145a1daf053b1c85040b0ddc7d42e7cd"
+  },
+  {
+    "path": "mt_moon_b2f/MtMoon_B2F.json",
+    "sha256": "18a5b5d5d56c8f0c856dc1b2c90999305d62ff2b28209eb13b68b4bfafde51bf"
+  },
+  {
+    "path": "navel_rock_1f/NavelRock_1F.json",
+    "sha256": "062bb35c5512f4320bd19eeee46c274646adfa8fbda07547c870596b474a21ed"
+  },
+  {
+    "path": "navel_rock_b1f/NavelRock_B1F.json",
+    "sha256": "e7c4d29c1111e5dafb79cb8a93cd1a4408c39165244645576896c1c3f03c0540"
+  },
+  {
+    "path": "navel_rock_base/NavelRock_Base.json",
+    "sha256": "55231ea5dbe5720b5aa6b6cb58a0d3292855cb8e34ad38d8991ccb21e0d959ae"
+  },
+  {
+    "path": "navel_rock_base_path_b10f/NavelRock_BasePath_B10F.json",
+    "sha256": "051ef1ae96f16a5cc28fad485f444221525e3fbc5b6354c6809ee3d31a7dc80f"
+  },
+  {
+    "path": "navel_rock_base_path_b11f/NavelRock_BasePath_B11F.json",
+    "sha256": "aec82a10a17d8cc4b88d44d0b88577b175e81fcfeaed27a98eb0e0513f578487"
+  },
+  {
+    "path": "navel_rock_base_path_b1f/NavelRock_BasePath_B1F.json",
+    "sha256": "70f5a85c98d148b5fbbf470c5e0da5a6ef0330c3ffb656b59c118e77e833cfb6"
+  },
+  {
+    "path": "navel_rock_base_path_b2f/NavelRock_BasePath_B2F.json",
+    "sha256": "81ba6710f16c7a12eb611721cc890c76dadf316b4db40cc9ac6759e1e57b8624"
+  },
+  {
+    "path": "navel_rock_base_path_b3f/NavelRock_BasePath_B3F.json",
+    "sha256": "2281fc371afdcc01e296c2c1cde66f18dea78d155665ce670c017bce79e0c499"
+  },
+  {
+    "path": "navel_rock_base_path_b4f/NavelRock_BasePath_B4F.json",
+    "sha256": "3a06dc4bac36b93600b12e2d6046e81567d597110200e48d16e88918de81ce10"
+  },
+  {
+    "path": "navel_rock_base_path_b5f/NavelRock_BasePath_B5F.json",
+    "sha256": "c4e2b9f10a6b74f01792260fb3c709a4811ad398bd4f2aaabb1f6428b503c1f1"
+  },
+  {
+    "path": "navel_rock_base_path_b6f/NavelRock_BasePath_B6F.json",
+    "sha256": "20ff979ae545a09d9f2f03568c3c1f1fd9578f7f3e6f2e93c22df94445acf1da"
+  },
+  {
+    "path": "navel_rock_base_path_b7f/NavelRock_BasePath_B7F.json",
+    "sha256": "6135042c0f37ab1cc369aedc1883e4dc0b61f2126705a415f098fff2c1cc1028"
+  },
+  {
+    "path": "navel_rock_base_path_b8f/NavelRock_BasePath_B8F.json",
+    "sha256": "55e5b5c12cb36d476aa4846c1a33b623db4c53bf85d4097c8e22d2117f6b7c2e"
+  },
+  {
+    "path": "navel_rock_base_path_b9f/NavelRock_BasePath_B9F.json",
+    "sha256": "3f20017e115a0a3ed641c1d3b702f0d85a37cbb9c493d203093384c07c68f902"
+  },
+  {
+    "path": "navel_rock_exterior/NavelRock_Exterior.json",
+    "sha256": "5bcbbfc5903645f8d5047cf2bf0ea0afe1f723fa321865641ad2cdff6bebb958"
+  },
+  {
+    "path": "navel_rock_fork/NavelRock_Fork.json",
+    "sha256": "7dc3e2c859f1f6f8dd90371026c0cd815e6c0d93c4201a18077e9d5bfd31ae14"
+  },
+  {
+    "path": "navel_rock_harbor/NavelRock_Harbor.json",
+    "sha256": "b18b68943c332c92b505881c11b8f187a14b1ee3444bf6196e71351613f83365"
+  },
+  {
+    "path": "navel_rock_summit/NavelRock_Summit.json",
+    "sha256": "91e84a7728caf866f331665615ab6006fe4dcec5a4fd14f522334a77eda01f1d"
+  },
+  {
+    "path": "navel_rock_summit_path_2f/NavelRock_SummitPath_2F.json",
+    "sha256": "109fbb67ee0436821ba680eb19991f37f95584bc35b51776a91b93c45712accc"
+  },
+  {
+    "path": "navel_rock_summit_path_3f/NavelRock_SummitPath_3F.json",
+    "sha256": "da7e334afee9ea57f595768874e53b367cbfc61fb0cb1c15c3edc5cef48bfa19"
+  },
+  {
+    "path": "navel_rock_summit_path_4f/NavelRock_SummitPath_4F.json",
+    "sha256": "c536b431b692fc244cae59b1d725cfb1e4e4a623bff8ce66fd1ec4bb21264f08"
+  },
+  {
+    "path": "navel_rock_summit_path_5f/NavelRock_SummitPath_5F.json",
+    "sha256": "2824df7eafec75ba42bf50daac8bb470f4113ec485cb579a1aa639c941313303"
+  },
+  {
+    "path": "one_island/OneIsland.json",
+    "sha256": "a4e6f3dbf5eb1b0e16e2f4d5b0afb73d5bd4a1dfcd9c66d5ea7b8ff84448efd9"
+  },
+  {
+    "path": "one_island_harbor/OneIsland_Harbor.json",
+    "sha256": "63fb0fa63e222610b6ff4f0714c895304829870c8ac0384492dc38227150323c"
+  },
+  {
+    "path": "one_island_house1/OneIsland_House1.json",
+    "sha256": "ccb434d12da1a5f1ff4b9fb09c499e21bccf9b3ceb87631d371c3fa51eea0389"
+  },
+  {
+    "path": "one_island_house2/OneIsland_House2.json",
+    "sha256": "249b068fc62d53859c4be65d6a79064a33829c04d1a17889a7f3af77775f6f26"
+  },
+  {
+    "path": "one_island_kindle_road/OneIsland_KindleRoad.json",
+    "sha256": "c756a73bdcb8ff9755263e652b57e1c36503cc5b42df9f742db4ee9366cbe48e"
+  },
+  {
+    "path": "one_island_kindle_road_ember_spa/OneIsland_KindleRoad_EmberSpa.json",
+    "sha256": "91f756d091fbdaa19ba88ee30246d4fd2109c9ddaba12b700d603e3e699ac298"
+  },
+  {
+    "path": "one_island_pokemon_center_1f/OneIsland_PokemonCenter_1F.json",
+    "sha256": "c51cc818d9da529daa874f577f2bdd7cd5c882d1c4bebab8f3bb5ef268755f25"
+  },
+  {
+    "path": "one_island_pokemon_center_2f/OneIsland_PokemonCenter_2F.json",
+    "sha256": "a69808078da64cf42ca3d505ab920e2f08d33ff9b23d97f5af9fdf8a1d9d7da7"
+  },
+  {
+    "path": "one_island_treasure_beach/OneIsland_TreasureBeach.json",
+    "sha256": "d69f01420e6eea77f09fbcd667a60cd3f3db6168ed9c973fcd77572d57298b4f"
+  },
+  {
+    "path": "pallet_town/PalletTown.json",
+    "sha256": "9c5eb6e90b4dad41c1aa73aff3efa3abea591b936811b671a008bf88ef7550bd"
+  },
+  {
+    "path": "pallet_town_players_house_1f/PalletTown_PlayersHouse_1F.json",
+    "sha256": "92cd37600fa4d30e176e66b48cd98f66c0b11bcea9822dcb3cc81600d2717038"
+  },
+  {
+    "path": "pallet_town_players_house_2f/PalletTown_PlayersHouse_2F.json",
+    "sha256": "2b19c3b8fe717aad369037beea541672455aff532a7c265aa92b46616f04415e"
+  },
+  {
+    "path": "pallet_town_professor_oaks_lab/PalletTown_ProfessorOaksLab.json",
+    "sha256": "38f793e92475ebf06535a17641c4098374a74c27cd81eb1545a6cb110ebf4cd4"
+  },
+  {
+    "path": "pallet_town_rivals_house/PalletTown_RivalsHouse.json",
+    "sha256": "732ad6b4a871c199376f225d40f0e5ecb3e94c74b55d954f192ecd23f1884ee0"
+  },
+  {
+    "path": "pewter_city/PewterCity.json",
+    "sha256": "3be7f05caaa561744de57381bf766e1bf9bbc02a87396437d61a41cc2665b70e"
+  },
+  {
+    "path": "pewter_city_gym/PewterCity_Gym.json",
+    "sha256": "c053e4dd7e1f1811d6dac2ada45c441353148515b0a39da0124b366eafaea976"
+  },
+  {
+    "path": "pewter_city_house1/PewterCity_House1.json",
+    "sha256": "c166e68ac6bc960369db1b55a54a8746c26495ffd1f8c4cc1c8022a4e4c06e94"
+  },
+  {
+    "path": "pewter_city_house2/PewterCity_House2.json",
+    "sha256": "e408e3b7aebf7370f1927663e670f18e67b0826555f4137e61f077b75f7b31b2"
+  },
+  {
+    "path": "pewter_city_mart/PewterCity_Mart.json",
+    "sha256": "9d6720e1f9852c768b2376ba98ebf2fd9561d48195bfac4281e270a13f0edb47"
+  },
+  {
+    "path": "pewter_city_museum_1f/PewterCity_Museum_1F.json",
+    "sha256": "5daea9a65799936d5a3dfab752307d54e7673a8b3e05cf65aa4016b4827767b5"
+  },
+  {
+    "path": "pewter_city_museum_2f/PewterCity_Museum_2F.json",
+    "sha256": "9a67f55383700d538747915df95f581bb5dfa600b0add4c49f05c9c84537bf86"
+  },
+  {
+    "path": "pewter_city_pokemon_center_1f/PewterCity_PokemonCenter_1F.json",
+    "sha256": "e86f313a01cb191026c35fb05935a651d9daa653ff9f6aaea7e50345f671c967"
+  },
+  {
+    "path": "pewter_city_pokemon_center_2f/PewterCity_PokemonCenter_2F.json",
+    "sha256": "fdf7284737b36aa78113168e8a0bb72ab9d990ec17fe27422f01e698a0a1a97f"
+  },
+  {
+    "path": "pokemon_league_agathas_room/PokemonLeague_AgathasRoom.json",
+    "sha256": "7ca12097c21c31935aaabf3ba7cb210845fefc8f0d9fa70bfa41935e28947a88"
+  },
+  {
+    "path": "pokemon_league_brunos_room/PokemonLeague_BrunosRoom.json",
+    "sha256": "0a9197b666ab006b194fb67f176e14923350c0ee73787feccd432f6eddc6ccfe"
+  },
+  {
+    "path": "pokemon_league_champions_room/PokemonLeague_ChampionsRoom.json",
+    "sha256": "cebe9a73acfe24c4734c8644247549217401e92d4924434c4816665f29dc10b9"
+  },
+  {
+    "path": "pokemon_league_hall_of_fame/PokemonLeague_HallOfFame.json",
+    "sha256": "80ce2525c85fd5e9f486c1f4a9923771b8e4e12d36639041b39e4a7df9defc98"
+  },
+  {
+    "path": "pokemon_league_lances_room/PokemonLeague_LancesRoom.json",
+    "sha256": "b2c367db6394eca7cf2f207a7e1eee666ba2941b166c50ab1af9d36a02d5d457"
+  },
+  {
+    "path": "pokemon_league_loreleis_room/PokemonLeague_LoreleisRoom.json",
+    "sha256": "aea6561349f850747f769d792fc226fcd2f875316db83bad54093c2f7f5e53d5"
+  },
+  {
+    "path": "pokemon_mansion_1f/PokemonMansion_1F.json",
+    "sha256": "1f4b12be02252759051be9a001dcd92c44d3d3e66d7084ddf048145036188f27"
+  },
+  {
+    "path": "pokemon_mansion_2f/PokemonMansion_2F.json",
+    "sha256": "e85031cf54fc21dd76931cc7a0972dbc6892133279f734c1e8fa569f5e2067fb"
+  },
+  {
+    "path": "pokemon_mansion_3f/PokemonMansion_3F.json",
+    "sha256": "b457e1a8c56e12489e22d7ce894ebc8cfd5c287dba466a25fba2acaebbc28425"
+  },
+  {
+    "path": "pokemon_mansion_b1f/PokemonMansion_B1F.json",
+    "sha256": "45a6a981be81df1077cf0d4813b57abc79072f1378157cb1a013abd79f744ef9"
+  },
+  {
+    "path": "pokemon_tower_1f/PokemonTower_1F.json",
+    "sha256": "543819aee2624fa00f11a1163770e535f047e21fce3c82f96d028e6bb66c9213"
+  },
+  {
+    "path": "pokemon_tower_2f/PokemonTower_2F.json",
+    "sha256": "7ce085d1ec0cd2af6f86220bf855ee31387da35caada7bd6e83c58b910a0bd9e"
+  },
+  {
+    "path": "pokemon_tower_3f/PokemonTower_3F.json",
+    "sha256": "56d4d8bd071287f9144077a80f3d2f562dae680b3c7ab614d1484a7590bcad64"
+  },
+  {
+    "path": "pokemon_tower_4f/PokemonTower_4F.json",
+    "sha256": "7691653b31dd68f98859f1f4235bb4b0e0c168a7bd9e0d904e49831520f3dae8"
+  },
+  {
+    "path": "pokemon_tower_5f/PokemonTower_5F.json",
+    "sha256": "c6e2621de248e8cbbca27c2a3e280b9432aeb87b1bd92bae4fda2d634f14bfbc"
+  },
+  {
+    "path": "pokemon_tower_6f/PokemonTower_6F.json",
+    "sha256": "c5d293c1bdd6e82168c3f3ae955f91bc145cb76cd03506aab7fb7b907cfbf2d7"
+  },
+  {
+    "path": "pokemon_tower_7f/PokemonTower_7F.json",
+    "sha256": "ac40aa64a20aa2ad4aefe6181cf445c3037b746daf4182a04085c01d99c87c8a"
+  },
+  {
+    "path": "power_plant/PowerPlant.json",
+    "sha256": "e95ffa62c9ad27cd161e7915e02d2d41984eda7279e9eaec998522b4789dacba"
+  },
+  {
+    "path": "prototype_sevii_isle_6/Prototype_SeviiIsle_6.json",
+    "sha256": "300ef22edb04f3fd6a9c877cbff67213ddfad12151c89b3ab57ba1f2f88a4ba1"
+  },
+  {
+    "path": "prototype_sevii_isle_7/Prototype_SeviiIsle_7.json",
+    "sha256": "f43640339a98547ae65e8c0d1976002d8112a14ca1f3f521bfcee3682a920947"
+  },
+  {
+    "path": "prototype_sevii_isle_8/Prototype_SeviiIsle_8.json",
+    "sha256": "936754d44113b04d7f61c8c3dba177709abd7eef7185fd283134a9471508ef30"
+  },
+  {
+    "path": "prototype_sevii_isle_9/Prototype_SeviiIsle_9.json",
+    "sha256": "038e5bff80c6da8ec4f4c9efe9b640b8b513b4569dc9dbd60fd3505318672f97"
+  },
+  {
+    "path": "record_corner/RecordCorner.json",
+    "sha256": "d7842e75f14f61e5d4427476513b5ad6f8f85fff6aca8a77b30264f80724de26"
+  },
+  {
+    "path": "rock_tunnel_1f/RockTunnel_1F.json",
+    "sha256": "b1c3bc933b963164880bd58cd922a8e89918cadf2cad3c67c4edebf55a047a1b"
+  },
+  {
+    "path": "rock_tunnel_b1f/RockTunnel_B1F.json",
+    "sha256": "8c657d2078146f2b0e688875d88dd2842a70e1419e841cb07ebaa4b4a83c234e"
+  },
+  {
+    "path": "rocket_hideout_b1f/RocketHideout_B1F.json",
+    "sha256": "6158818dc4048b18723c0e988fd5ecbf547b4771e044135851bad7d43a5069a8"
+  },
+  {
+    "path": "rocket_hideout_b2f/RocketHideout_B2F.json",
+    "sha256": "7584f313462f7913ec5d770d4f81aae2c4640fea32a4d6544b0abc6e546219ad"
+  },
+  {
+    "path": "rocket_hideout_b3f/RocketHideout_B3F.json",
+    "sha256": "16947ffd0bac51b922c5ee5d212b76e2ececf2229fd6ed595ebed8656a4f0194"
+  },
+  {
+    "path": "rocket_hideout_b4f/RocketHideout_B4F.json",
+    "sha256": "a8c2ab4679fc07a4a5885b6b037418e59ef9f7293024be5f02ab7d68cd02aa80"
+  },
+  {
+    "path": "rocket_hideout_elevator/RocketHideout_Elevator.json",
+    "sha256": "1c58ca803bb44e0b20beb0f6604520428f715c78fa38ea957610040e5889ac37"
+  },
+  {
+    "path": "route1/Route1.json",
+    "sha256": "3b5f035336ba03993bd25fccdbf3a1103a9a9ad9245a4cd5e8e6e3fc91ca37f3"
+  },
+  {
+    "path": "route10/Route10.json",
+    "sha256": "57a56c1ea0da48e8d413534dffe2df81cf403a501220cb8787545092d448cb42"
+  },
+  {
+    "path": "route10_pokemon_center_1f/Route10_PokemonCenter_1F.json",
+    "sha256": "48ccc4e5ac7b54f1fa6327bf54c1ee46fd787d92c587e93122dfdde3c4e9c882"
+  },
+  {
+    "path": "route10_pokemon_center_2f/Route10_PokemonCenter_2F.json",
+    "sha256": "53d0662c70051dfbe0042a1e2aaa9bea748caac05b0676df6f7cd71b0ccf5bd4"
+  },
+  {
+    "path": "route11/Route11.json",
+    "sha256": "0539a01e28aefbd113ef0decda419cea5c8f084a08ab0b901b2400aba7a1b0ca"
+  },
+  {
+    "path": "route11_east_entrance_1f/Route11_EastEntrance_1F.json",
+    "sha256": "90157c78379438f94d8f1b45faa370d895e3c234eaf2d9388bc73fd6b75408da"
+  },
+  {
+    "path": "route11_east_entrance_2f/Route11_EastEntrance_2F.json",
+    "sha256": "eec8b14535a240dd0569da8ed8a6cbbcbbc8751f33fc638d4d4e066fa308dbdf"
+  },
+  {
+    "path": "route12/Route12.json",
+    "sha256": "63b98d1ab27875f0fda3a99e33584dd9e470544c3aeddb992228c899c5a6db25"
+  },
+  {
+    "path": "route12_fishing_house/Route12_FishingHouse.json",
+    "sha256": "3c05298b001f2afd558213475307ae60824884eb408120c7c184f7713fa96974"
+  },
+  {
+    "path": "route12_north_entrance_1f/Route12_NorthEntrance_1F.json",
+    "sha256": "35b1af30b44a59235f2af93d604f3410ce03a99e43004ec8dc1bb3b5509d6222"
+  },
+  {
+    "path": "route12_north_entrance_2f/Route12_NorthEntrance_2F.json",
+    "sha256": "2dd1dad745add49ae42879495d61c8b194dedea14fe6fd789b391a4ce0b094f2"
+  },
+  {
+    "path": "route13/Route13.json",
+    "sha256": "510410afe833b124ba91809b05d0242e7c1235a8fc634860433d9b9bb6b4f42b"
+  },
+  {
+    "path": "route14/Route14.json",
+    "sha256": "1e71ef79287ab2cd787251000139babf55deb9143a21d883ba1ba7f507af6f1e"
+  },
+  {
+    "path": "route15/Route15.json",
+    "sha256": "88023ec2adfecbb78702582ede4c1e35caef4f40d1c046d36dc3acc5548b1904"
+  },
+  {
+    "path": "route15_west_entrance_1f/Route15_WestEntrance_1F.json",
+    "sha256": "45ec63a9edc3ab77ddf7a5f5acd2b24357a3fad1b413ba43950103bf61fb769c"
+  },
+  {
+    "path": "route15_west_entrance_2f/Route15_WestEntrance_2F.json",
+    "sha256": "424733c8d8d09738868c060f2680690ad6beeb6c959e83aef0019478171c2b0b"
+  },
+  {
+    "path": "route16/Route16.json",
+    "sha256": "daf60c8ef9459a8a9f8e7c1480918ed005f91c04ea2d49cce0967d207c63f09d"
+  },
+  {
+    "path": "route16_house/Route16_House.json",
+    "sha256": "a953eda9d79273abf251a72b3927d6396a8eabe978e725d5e8f0978d1af1d642"
+  },
+  {
+    "path": "route16_north_entrance_1f/Route16_NorthEntrance_1F.json",
+    "sha256": "e0b1c38d59d413d9fb5b6b8e1e21616f9c33ca8c28c8b23eb109e2007851c2dc"
+  },
+  {
+    "path": "route16_north_entrance_2f/Route16_NorthEntrance_2F.json",
+    "sha256": "90271b6e757480734b041544e996765e7a0c015def3bda1c8e5abc2b7d1f0d8b"
+  },
+  {
+    "path": "route17/Route17.json",
+    "sha256": "3c25dac43ea1d2ee86eb9d4f271b4ebb6afaac1ef7be4303713ba918069f51a4"
+  },
+  {
+    "path": "route18/Route18.json",
+    "sha256": "550293ef02171983f8ad523dacc4f5f48f8a35200795204713cbd143639cab42"
+  },
+  {
+    "path": "route18_east_entrance_1f/Route18_EastEntrance_1F.json",
+    "sha256": "6fd87f907969b148bc9ae9c6c36c49d18800ecf418787302d8ed06a7adc31ae9"
+  },
+  {
+    "path": "route18_east_entrance_2f/Route18_EastEntrance_2F.json",
+    "sha256": "891b5acd720e871680c9562b8cba39bb5d5f3f67e59de7d533212236d7085ba5"
+  },
+  {
+    "path": "route19/Route19.json",
+    "sha256": "584ff8eb848e4afa5831754dde24c9a2faa7cc7fc01f04b59763bb24f855b40e"
+  },
+  {
+    "path": "route19_unused_house/Route19_UnusedHouse.json",
+    "sha256": "ed847ff7b14da64b6b2e9cfcbaa4279ebfcf19a64b31e9513995a952229b650b"
+  },
+  {
+    "path": "route2/Route2.json",
+    "sha256": "ac74754644adc8af883f7d8fbb13054c89611190439147701a566995549a3c44"
+  },
+  {
+    "path": "route20/Route20.json",
+    "sha256": "760a9bd09f57c177f3474f45356a25cd6d4932414d88dca5b9ebd580d9027110"
+  },
+  {
+    "path": "route21_north/Route21_North.json",
+    "sha256": "408d6745ae829a58781365209716bf960b9fcd8421510cd3c16b0d94a1e97aff"
+  },
+  {
+    "path": "route21_south/Route21_South.json",
+    "sha256": "ac4a3ffcb25a71475914ab8da8a5cb4726dfb6f3f591a820b50a97522bf64af8"
+  },
+  {
+    "path": "route22/Route22.json",
+    "sha256": "906d754b0f160955211e5a262600f91637bfdf5bf0df182d18c85fe32e10cfa0"
+  },
+  {
+    "path": "route22_north_entrance/Route22_NorthEntrance.json",
+    "sha256": "38ebfd2679015513a4a7382d48a798c270426023712b7c0cb52ff7edbdb30f07"
+  },
+  {
+    "path": "route23/Route23.json",
+    "sha256": "a748ea2ba5d8965584fe0702ea2698f1a5f64924ef771bebb3a6a18f2910c66b"
+  },
+  {
+    "path": "route23_unused_house/Route23_UnusedHouse.json",
+    "sha256": "6d10ec703b3ba052291d5a4b9f98e91657cb8c70ef512a3512ac35503d5c359b"
+  },
+  {
+    "path": "route24/Route24.json",
+    "sha256": "1d31f39edc02a8cd5087ff75aa5d4bd2490eee5f65abba5ad9dba1f26813fa8e"
+  },
+  {
+    "path": "route25/Route25.json",
+    "sha256": "757122e2a6ce0323877043b8e84e8fd4611c9c394590a619f539f6c3ec5ee9a6"
+  },
+  {
+    "path": "route25_sea_cottage/Route25_SeaCottage.json",
+    "sha256": "2542f3a7271401daf2d921ccd935fa70a464fca67e12766c46ef8616487563cf"
+  },
+  {
+    "path": "route2_east_building/Route2_EastBuilding.json",
+    "sha256": "2d42fefa6956730394190c97bb6ad8a898322ab71aa0e0b8aff6c16aa49dbbae"
+  },
+  {
+    "path": "route2_house/Route2_House.json",
+    "sha256": "5cfec3647e3096d786014bf4cb75ae4e7529681fa261b72f8198193c487f98ca"
+  },
+  {
+    "path": "route2_viridian_forest_north_entrance/Route2_ViridianForest_NorthEntrance.json",
+    "sha256": "2de3cab8c7cc899fe5c1890422d10f95f1ee2793950bb9349b95c612c1e53d2f"
+  },
+  {
+    "path": "route2_viridian_forest_south_entrance/Route2_ViridianForest_SouthEntrance.json",
+    "sha256": "a9f6f8657b01dfd5c5be95f47e2edfc4fd14c7259327062b6c0294b820073631"
+  },
+  {
+    "path": "route3/Route3.json",
+    "sha256": "5d45d3b9858a9c63951c29db2f913d3af0092e91ab2ea7391753e57a63eeb0e9"
+  },
+  {
+    "path": "route4/Route4.json",
+    "sha256": "dfe0df0f2f116adf13995539048f4e4ca4af87f4892991dc63a066bd2d739198"
+  },
+  {
+    "path": "route4_pokemon_center_1f/Route4_PokemonCenter_1F.json",
+    "sha256": "c657d2dfadc45552c85de6f1178c3e16e542c8713ce909091b0c13527848c61a"
+  },
+  {
+    "path": "route4_pokemon_center_2f/Route4_PokemonCenter_2F.json",
+    "sha256": "eb7542c37dde007edffcb2fccd9f6d366cf8948acc24d39d3b3ae8f686efc734"
+  },
+  {
+    "path": "route5/Route5.json",
+    "sha256": "3b023991c7be1e0c31438a39a38ed7e0d371ef5eba0857ee2221b8cdf61958d3"
+  },
+  {
+    "path": "route5_pokemon_day_care/Route5_PokemonDayCare.json",
+    "sha256": "eb3ceeb11891397cb1dcefef9d8890373f77fb6c16df50dbd5c1b3fec02ea7a4"
+  },
+  {
+    "path": "route5_south_entrance/Route5_SouthEntrance.json",
+    "sha256": "b1c7c709c6dd0466ac7b64c9496ae8611bc974366b11344e124b03272b9c056b"
+  },
+  {
+    "path": "route6/Route6.json",
+    "sha256": "933636ad102903ec9adfff74123610660b83b2abcfb566b788de88dbcecabf8c"
+  },
+  {
+    "path": "route6_north_entrance/Route6_NorthEntrance.json",
+    "sha256": "30b51f13351c64e34ca3e3b28831c0965d42df00d9d2c7e73f7bb9e3b71e54f7"
+  },
+  {
+    "path": "route6_unused_house/Route6_UnusedHouse.json",
+    "sha256": "e11db6943e1c7bd8ada170710cc1b95d604f9257466d0854cbb9dd3ada83445c"
+  },
+  {
+    "path": "route7/Route7.json",
+    "sha256": "ee05532ee2c207838b174d8e670113eb4fbff45aee23c632db04ba76bbc2e62f"
+  },
+  {
+    "path": "route7_east_entrance/Route7_EastEntrance.json",
+    "sha256": "c1e5268c9cb4e00a5fe18bc8a96f5c75459e2a22155a104e5ac4ee28876700e5"
+  },
+  {
+    "path": "route8/Route8.json",
+    "sha256": "be01fdb093506ddff24eee0f38de85b3466d35e93393c04aa01a2cc8162816bc"
+  },
+  {
+    "path": "route8_west_entrance/Route8_WestEntrance.json",
+    "sha256": "cc78dc3d88874322dd347105c17d41f085f514ae027903b65dfd98eaf79bb4a5"
+  },
+  {
+    "path": "route9/Route9.json",
+    "sha256": "1c7e0a27b8aac78c2507e64b4d6ecd1430b6215a2ddbddf35586ae5f8e61efc8"
+  },
+  {
+    "path": "safari_zone_center/SafariZone_Center.json",
+    "sha256": "312f1d17bb12fe194a4b9143eb560cd6b3e90c2067e2d01cf85aa865606fe198"
+  },
+  {
+    "path": "safari_zone_center_rest_house/SafariZone_Center_RestHouse.json",
+    "sha256": "f7f66880ecc809717280c8e8b399c2b09b4a879f0763d9e8895f3b7ed5623962"
+  },
+  {
+    "path": "safari_zone_east/SafariZone_East.json",
+    "sha256": "2179aef992f66d2c113b5f9abcb0641840e1a8e2f1f22d45379a750db84c78a4"
+  },
+  {
+    "path": "safari_zone_east_rest_house/SafariZone_East_RestHouse.json",
+    "sha256": "b8f6b98086d3f5f97e28b5196e31c9ffb783fb8fdc3c93c446dc55d03b8823e2"
+  },
+  {
+    "path": "safari_zone_north/SafariZone_North.json",
+    "sha256": "88e335cefae3368b160f5467af11f495a621d60ea319d6563135ff790e2eafdb"
+  },
+  {
+    "path": "safari_zone_north_rest_house/SafariZone_North_RestHouse.json",
+    "sha256": "cc5d3dca92d7294106efe4b35465c94f2af4abe761627883ee15ce79b5f0c824"
+  },
+  {
+    "path": "safari_zone_secret_house/SafariZone_SecretHouse.json",
+    "sha256": "a9587e46dbac8196dce4aa90159f48a88aeee9b95a4881a64bea832dd933d60b"
+  },
+  {
+    "path": "safari_zone_west/SafariZone_West.json",
+    "sha256": "bba12cc55f593e46d30f2bdf7dd963eb305c8ed7134bd00a77fa5203dacc09c4"
+  },
+  {
+    "path": "safari_zone_west_rest_house/SafariZone_West_RestHouse.json",
+    "sha256": "486230f2155a04c0191acbad69bf7e05ca158c4cf316baf23e7d66c4f8197744"
+  },
+  {
+    "path": "saffron_city/SaffronCity.json",
+    "sha256": "4c5ac8276892412546b5a130e5f9586e23f6325277c05dfd3829647ee1b954ab"
+  },
+  {
+    "path": "saffron_city_connection/SaffronCity_Connection.json",
+    "sha256": "b3d69da0e49cdad495919a2fa6d60d48d500cff9f8d3a05e67067dd4db24c4b3"
+  },
+  {
+    "path": "saffron_city_copycats_house_1f/SaffronCity_CopycatsHouse_1F.json",
+    "sha256": "064c2047002ec1615d80fe5f7e28ed77af990ce2409645a7da0a5466b10df1f6"
+  },
+  {
+    "path": "saffron_city_copycats_house_2f/SaffronCity_CopycatsHouse_2F.json",
+    "sha256": "3d5e563c9f8dffad10b49f91b8ea807b115b0eeff1a98d21b2d25712741105cb"
+  },
+  {
+    "path": "saffron_city_dojo/SaffronCity_Dojo.json",
+    "sha256": "82f164748d7372dd3d88c2cf60b99d6f75a33daa7072d55bee0125cb3bc92e73"
+  },
+  {
+    "path": "saffron_city_gym/SaffronCity_Gym.json",
+    "sha256": "cc98a46227450dfa27f2f480965a9437fa213c083d2f8d1568255ba546f4c66e"
+  },
+  {
+    "path": "saffron_city_house/SaffronCity_House.json",
+    "sha256": "edacd242f2f25d6de2326b2b4e7ba1527d534423d3b37eabf72a21cf61432620"
+  },
+  {
+    "path": "saffron_city_mart/SaffronCity_Mart.json",
+    "sha256": "c83dea21915b643dfb4001a7052b5fcfaaa4ebb4575c6a6c586c50e88213a325"
+  },
+  {
+    "path": "saffron_city_mr_psychics_house/SaffronCity_MrPsychicsHouse.json",
+    "sha256": "a497c398a7e44d2bcaa4c09b4d10204dc274fdbf275e93adc5d2ca0d9592beff"
+  },
+  {
+    "path": "saffron_city_pokemon_center_1f/SaffronCity_PokemonCenter_1F.json",
+    "sha256": "5c66015b5ee2e0288056974e9b00b87b1e6b2beda45988a039914184e3e38317"
+  },
+  {
+    "path": "saffron_city_pokemon_center_2f/SaffronCity_PokemonCenter_2F.json",
+    "sha256": "d55688f60805cbf8f093f1d231254d171fe787114e756418729fa4ad7278ad10"
+  },
+  {
+    "path": "saffron_city_pokemon_trainer_fan_club/SaffronCity_PokemonTrainerFanClub.json",
+    "sha256": "a373354d665a00d5fafee0bad172202db14ee7fbc6c52971d50d948768c7c1a0"
+  },
+  {
+    "path": "seafoam_islands_1f/SeafoamIslands_1F.json",
+    "sha256": "31575a5e3eaffe767a507ddd9633d1611057d8bb5a0b62954de8222d2df4955c"
+  },
+  {
+    "path": "seafoam_islands_b1f/SeafoamIslands_B1F.json",
+    "sha256": "c599e0f644636986353d3be29430e64e1b1f785c4f7ea37c184995963e3705e7"
+  },
+  {
+    "path": "seafoam_islands_b2f/SeafoamIslands_B2F.json",
+    "sha256": "775fb8ffc522c1631e9b5c6247dc597659bd6411646ed69d58d90f9b065c1c5c"
+  },
+  {
+    "path": "seafoam_islands_b3f/SeafoamIslands_B3F.json",
+    "sha256": "2ebb9cc505f7bdaa2c08e8446573dc2ba705bcb7bfb41bf750cf97fac35b315d"
+  },
+  {
+    "path": "seafoam_islands_b4f/SeafoamIslands_B4F.json",
+    "sha256": "1909a417a1f17476893e2540e9d7b6a9a01201d23a5f889068c16a34dc3e622b"
+  },
+  {
+    "path": "seven_island/SevenIsland.json",
+    "sha256": "c539dce804adf2e1706cfb719dbb136633b04c0bb8f9e4dad9eaf35e656f3d46"
+  },
+  {
+    "path": "seven_island_harbor/SevenIsland_Harbor.json",
+    "sha256": "8197c3df5b2b23770c399ab2994c9085735d2f010b8fab02f242f8a958416c56"
+  },
+  {
+    "path": "seven_island_house_room1/SevenIsland_House_Room1.json",
+    "sha256": "753b627d7fd1c9c410504cd2c54efa76c2b76d1f947eb36c3e09284a6f3cd144"
+  },
+  {
+    "path": "seven_island_house_room2/SevenIsland_House_Room2.json",
+    "sha256": "67601fcd806f40c7d82e6f9322342fb696d289b29b07561cea7d6f0e2ba4d0b2"
+  },
+  {
+    "path": "seven_island_mart/SevenIsland_Mart.json",
+    "sha256": "6cf9f9c7a11ea2f56a96229ffe47e5743b58bbb71c91efa012b7e96a08c45579"
+  },
+  {
+    "path": "seven_island_pokemon_center_1f/SevenIsland_PokemonCenter_1F.json",
+    "sha256": "21eaed06384649a8c0012167e4f883f64ab3e8c6b99d24c825d277a920e7ef9b"
+  },
+  {
+    "path": "seven_island_pokemon_center_2f/SevenIsland_PokemonCenter_2F.json",
+    "sha256": "bc3f26ad9dbdab252fc41b197df2cfdcf42ff1066c4ae203a6ff6f1b0adab5cb"
+  },
+  {
+    "path": "seven_island_sevault_canyon/SevenIsland_SevaultCanyon.json",
+    "sha256": "2d3c991d6bef4291e0800b9167bd9c5910f9e24af45cefcb175461205cfb0f5e"
+  },
+  {
+    "path": "seven_island_sevault_canyon_entrance/SevenIsland_SevaultCanyon_Entrance.json",
+    "sha256": "1434be0ebc362bcb755e652a78560838ee5edf76e61c56bd1d6146fe6d5afb9a"
+  },
+  {
+    "path": "seven_island_sevault_canyon_house/SevenIsland_SevaultCanyon_House.json",
+    "sha256": "4e030e3ba4f8a040dd197239822d45e08181f2fe08a5627be630a8f02d2b6696"
+  },
+  {
+    "path": "seven_island_sevault_canyon_tanoby_key/SevenIsland_SevaultCanyon_TanobyKey.json",
+    "sha256": "e14f547468660b69d89ad78bc80af59646367355e92eda66d2df682f609e7f70"
+  },
+  {
+    "path": "seven_island_tanoby_ruins/SevenIsland_TanobyRuins.json",
+    "sha256": "4beaa07ecaaf14873666550e1fb730fd74d5266d5f150627df5dcf45d11d4704"
+  },
+  {
+    "path": "seven_island_tanoby_ruins_dilford_chamber/SevenIsland_TanobyRuins_DilfordChamber.json",
+    "sha256": "5f65e43c2b295d04b725055c6de51851dfc51422d60a43d292b45c3dbf8867f8"
+  },
+  {
+    "path": "seven_island_tanoby_ruins_liptoo_chamber/SevenIsland_TanobyRuins_LiptooChamber.json",
+    "sha256": "d372b415747dcd9cc2be2ae6e9086e6beb8068852c62e2628dd53605edc7d765"
+  },
+  {
+    "path": "seven_island_tanoby_ruins_monean_chamber/SevenIsland_TanobyRuins_MoneanChamber.json",
+    "sha256": "abc3538be41953f88215d856f39f06a8d85e18be793aeefbdb24b1bd5d7e4a7b"
+  },
+  {
+    "path": "seven_island_tanoby_ruins_rixy_chamber/SevenIsland_TanobyRuins_RixyChamber.json",
+    "sha256": "ea3efbdd8a100914f09a2b4a3979b7c920746ff5028afefa62d9c9cf618506f9"
+  },
+  {
+    "path": "seven_island_tanoby_ruins_scufib_chamber/SevenIsland_TanobyRuins_ScufibChamber.json",
+    "sha256": "25ff7bcfcf69d6346d5339cc19af67f7b9807065e087aa135acf900ec7dc4fb4"
+  },
+  {
+    "path": "seven_island_tanoby_ruins_viapois_chamber/SevenIsland_TanobyRuins_ViapoisChamber.json",
+    "sha256": "58c134510214d7d3f2db20fd148feee89d512333dc6d27afbc040955a420b6c5"
+  },
+  {
+    "path": "seven_island_tanoby_ruins_weepth_chamber/SevenIsland_TanobyRuins_WeepthChamber.json",
+    "sha256": "11c152f5b89dfff5c275271dd6eb9c7c8f3714599afbf8aa12a8c0b3577fb34f"
+  },
+  {
+    "path": "seven_island_trainer_tower/SevenIsland_TrainerTower.json",
+    "sha256": "733eb3549b778141d581fb3189a1fcbe6f4507a282907723c0fd0d753f72164b"
+  },
+  {
+    "path": "seven_island_unused_house/SevenIsland_UnusedHouse.json",
+    "sha256": "7d4bd2ce0985a8150c30f3d76e99469f545a1092625f1c4893dd5327408df086"
+  },
+  {
+    "path": "silph_co_10f/SilphCo_10F.json",
+    "sha256": "2041882aac1aaa3d4e2002016bc653643965ebab1ed096348e8a72cb2a19f1bf"
+  },
+  {
+    "path": "silph_co_11f/SilphCo_11F.json",
+    "sha256": "69e81f82342cdc8f5833792885d152e0ed4cb83a0260311fd75a674a915dd50c"
+  },
+  {
+    "path": "silph_co_1f/SilphCo_1F.json",
+    "sha256": "0b423fa2472835d923cb2b5ed6c6d6e8fb37a9930b0ea482daeda2c2b2dd77b1"
+  },
+  {
+    "path": "silph_co_2f/SilphCo_2F.json",
+    "sha256": "15218f92ff3d312542250b740b588544e118f2af0c9c91a148e51fbb06a3d3da"
+  },
+  {
+    "path": "silph_co_3f/SilphCo_3F.json",
+    "sha256": "48ff9109dd11c4a73e9980b8f1f29b05c0744bffaebd7f02b2f1891ba2cde4ba"
+  },
+  {
+    "path": "silph_co_4f/SilphCo_4F.json",
+    "sha256": "24967e0282e28ee908f5bbfbe3dd8d3829d5cb1b3de98c6419775aa4933b5e4d"
+  },
+  {
+    "path": "silph_co_5f/SilphCo_5F.json",
+    "sha256": "366b281c0f03e5db171c5af641ab33e2705215a00626f632f8cd8942d667ca49"
+  },
+  {
+    "path": "silph_co_6f/SilphCo_6F.json",
+    "sha256": "be19230ad8e2b559aa8996f090f13c12f72f8dbc268e5848f09b7816fa15e50b"
+  },
+  {
+    "path": "silph_co_7f/SilphCo_7F.json",
+    "sha256": "de9fa4c38a522bdab3c6b1bc2ec4c2e3551954158f4488d552525317303b0cdb"
+  },
+  {
+    "path": "silph_co_8f/SilphCo_8F.json",
+    "sha256": "6f1a5ce7658b95b26ce409666c35903d9b10213443518b8dfa8c4fd8ef555009"
+  },
+  {
+    "path": "silph_co_9f/SilphCo_9F.json",
+    "sha256": "d32a11a061cc6d1d338b6ced2d76af1cc070343d1eed17f197c55670fcc65d20"
+  },
+  {
+    "path": "silph_co_elevator/SilphCo_Elevator.json",
+    "sha256": "48be6469719874b4f693c0f53861265ce35a00f9fc4b6b5a797a1a757fbc647a"
+  },
+  {
+    "path": "six_island/SixIsland.json",
+    "sha256": "13baab16e5ceb3e1e14590dd5c16b6b61e601490d27cf085719e183908c356c7"
+  },
+  {
+    "path": "six_island_altering_cave/SixIsland_AlteringCave.json",
+    "sha256": "d5177c54486ddaf364b66e8260603e250fa32e7d890d185ff5c2546c30a26ffb"
+  },
+  {
+    "path": "six_island_dotted_hole_1f/SixIsland_DottedHole_1F.json",
+    "sha256": "98c68d5023a718f30f3e339b12daf379645dbf3e29f98e2e0b015e746a8cd2f9"
+  },
+  {
+    "path": "six_island_dotted_hole_b1f/SixIsland_DottedHole_B1F.json",
+    "sha256": "e7bd9dba95a8bf4f535fe5a0f115969eaeab54c433def4eb344abdcaedcb7514"
+  },
+  {
+    "path": "six_island_dotted_hole_b2f/SixIsland_DottedHole_B2F.json",
+    "sha256": "821e3d5ca9c17e79daac29d2c1830edc1463932dde67920ad2bb7c068133780a"
+  },
+  {
+    "path": "six_island_dotted_hole_b3f/SixIsland_DottedHole_B3F.json",
+    "sha256": "029f65adec8c87c80166f68781665ff56e235a5113e785343c82a23efd30dd66"
+  },
+  {
+    "path": "six_island_dotted_hole_b4f/SixIsland_DottedHole_B4F.json",
+    "sha256": "31c3237bf4068410ec10dacc5f8317e83a749d07e9ba716a5ca6fee0db2798e1"
+  },
+  {
+    "path": "six_island_dotted_hole_sapphire_room/SixIsland_DottedHole_SapphireRoom.json",
+    "sha256": "cc848b92f456bf64f2060d451a9e135d73f28007094c5eb39ab654b04e3471c0"
+  },
+  {
+    "path": "six_island_green_path/SixIsland_GreenPath.json",
+    "sha256": "c19b74e27d2d1d3acf9bd7c3f5655811b110c9c37cbc8e4dd9f157d34d0e7dd7"
+  },
+  {
+    "path": "six_island_harbor/SixIsland_Harbor.json",
+    "sha256": "d49eb5cb90db0df84abb45085dd91be64a223251188821b90d7c6a4211ad2614"
+  },
+  {
+    "path": "six_island_house/SixIsland_House.json",
+    "sha256": "9b6b8616a63733f28ab6da7afcdf6eec937b7a14fa34142a43d033105aac47c5"
+  },
+  {
+    "path": "six_island_mart/SixIsland_Mart.json",
+    "sha256": "d68db0e8b5eb97b022161c17f7ccdad74415a549417b6a0cfe2b90a2052588d3"
+  },
+  {
+    "path": "six_island_outcast_island/SixIsland_OutcastIsland.json",
+    "sha256": "c3f44b62eb6d035d0858a38b590bbb579bc7d777bba6d2008c561255b8f9ed34"
+  },
+  {
+    "path": "six_island_pattern_bush/SixIsland_PatternBush.json",
+    "sha256": "e2a93a9c138495a94a5042807f802c0d53718879c5438ca0be4e23699b1cc071"
+  },
+  {
+    "path": "six_island_pokemon_center_1f/SixIsland_PokemonCenter_1F.json",
+    "sha256": "09f757769cf34e64c3aaade5fea6eb0a72cdf2f9d9040946e1f926da0c69d649"
+  },
+  {
+    "path": "six_island_pokemon_center_2f/SixIsland_PokemonCenter_2F.json",
+    "sha256": "3886b62c3bfe94a36557f1b409f2d0aaa7e581b7526d4c92a79c7d4cf3fc17c7"
+  },
+  {
+    "path": "six_island_ruin_valley/SixIsland_RuinValley.json",
+    "sha256": "a31fbbcc3e79b0a670de4824a6d47ac217d63d120e306c22cc664acfd69c87a7"
+  },
+  {
+    "path": "six_island_water_path/SixIsland_WaterPath.json",
+    "sha256": "942ba9fc91dac9f5b483ac4520bd62db662709b8d62ab4161169574744e062ea"
+  },
+  {
+    "path": "six_island_water_path_house1/SixIsland_WaterPath_House1.json",
+    "sha256": "78bef00bef95e19f3e2b45823f845121d64a7fc97f3fc2838059aff38f3ed0d1"
+  },
+  {
+    "path": "six_island_water_path_house2/SixIsland_WaterPath_House2.json",
+    "sha256": "4292fbb5fc34f927c9b4bd765d89a2defa7eafa64d392a7008e41981b14a012b"
+  },
+  {
+    "path": "ssanne_1f_corridor/SSAnne_1F_Corridor.json",
+    "sha256": "75e2f90a5094211d6b52240128c7e364392bddf1b33105719fe14fd0713217cf"
+  },
+  {
+    "path": "ssanne_1f_room1/SSAnne_1F_Room1.json",
+    "sha256": "b7bce7948762f66075fdfe88d9d0bd0cdea00001d1db47bbc02fcbcf3c009bae"
+  },
+  {
+    "path": "ssanne_1f_room2/SSAnne_1F_Room2.json",
+    "sha256": "ce69b73c6952ae85e2bffbffc61ae6e7b2ab38c7f5c3aefa0f9c49b0bd8a7aac"
+  },
+  {
+    "path": "ssanne_1f_room3/SSAnne_1F_Room3.json",
+    "sha256": "190f05cfb25d35120c8d1e014931ecac9158a3197e1d04367e4f2bf91cc4daec"
+  },
+  {
+    "path": "ssanne_1f_room4/SSAnne_1F_Room4.json",
+    "sha256": "1b049a797fc17f35257b12ca702f40c2c69063acf01317c4defafadf25af5344"
+  },
+  {
+    "path": "ssanne_1f_room5/SSAnne_1F_Room5.json",
+    "sha256": "a88b4979a931ffb2658c78ac3d0b8aab4b08b418527504668f81d4e9c6060b69"
+  },
+  {
+    "path": "ssanne_1f_room6/SSAnne_1F_Room6.json",
+    "sha256": "7891905eae0b1a185db39f677e4ae9aba095d592853ea67dc31b14857eea32aa"
+  },
+  {
+    "path": "ssanne_1f_room7/SSAnne_1F_Room7.json",
+    "sha256": "4aec3d5d3bc1f0977beb11f89f972f993a7bc1960886e814f7c5b540f1bf467d"
+  },
+  {
+    "path": "ssanne_2f_corridor/SSAnne_2F_Corridor.json",
+    "sha256": "e88a1274ea8c7684277826061f8214eedc8060d8a75cc978b638f474d5574c89"
+  },
+  {
+    "path": "ssanne_2f_room1/SSAnne_2F_Room1.json",
+    "sha256": "bac241c2d64a3aadc0208ef30884f808c722d830f4a13ef5f965fd9bef89b576"
+  },
+  {
+    "path": "ssanne_2f_room2/SSAnne_2F_Room2.json",
+    "sha256": "9b0e69e71072ccb2f150d189023081a61bbb056114f3804308462e7c38b92384"
+  },
+  {
+    "path": "ssanne_2f_room3/SSAnne_2F_Room3.json",
+    "sha256": "81dfb012f33403d0df22a9b9a781a2a1ef4611d990676c0f52e69540c0fefbb2"
+  },
+  {
+    "path": "ssanne_2f_room4/SSAnne_2F_Room4.json",
+    "sha256": "e28aab3c7802a0cdf58297f7ffed07405f0011bad08df29d3f043a6bc19ace2d"
+  },
+  {
+    "path": "ssanne_2f_room5/SSAnne_2F_Room5.json",
+    "sha256": "1c61f2533c80991a85d6ca060da767fc9e89b2beb3de814c1fefd22aa16d2594"
+  },
+  {
+    "path": "ssanne_2f_room6/SSAnne_2F_Room6.json",
+    "sha256": "faff36c3bfc4fbe0c00b22210de9ea0bd814b03e8c43f0e5513044acacc6747a"
+  },
+  {
+    "path": "ssanne_3f_corridor/SSAnne_3F_Corridor.json",
+    "sha256": "0296d58de6d20f6648052af2caca7564376225c849c5ff42d440c497d2e244db"
+  },
+  {
+    "path": "ssanne_b1f_corridor/SSAnne_B1F_Corridor.json",
+    "sha256": "5f453029fda3dba7cf0e9810a0b61875a4b1e1e7b8c0578040e2587139e98f81"
+  },
+  {
+    "path": "ssanne_b1f_room1/SSAnne_B1F_Room1.json",
+    "sha256": "61775a1942a2d69c17b3ce9f1a25c313401ea8fcdf4dffdb25768c7b9e920ad9"
+  },
+  {
+    "path": "ssanne_b1f_room2/SSAnne_B1F_Room2.json",
+    "sha256": "18fe955b57f6725f783dd6e3e66874785a872c36b8f1e4b68d2244c9c23245fe"
+  },
+  {
+    "path": "ssanne_b1f_room3/SSAnne_B1F_Room3.json",
+    "sha256": "38b80e515c1b41b4fb11838937c30f6e16f5aab13e723ab36af5f00da07c39e0"
+  },
+  {
+    "path": "ssanne_b1f_room4/SSAnne_B1F_Room4.json",
+    "sha256": "58914016956708d1817ddba87014643da97b0abc2044c950a11f48185c2494e6"
+  },
+  {
+    "path": "ssanne_b1f_room5/SSAnne_B1F_Room5.json",
+    "sha256": "c887abc59f8fa9ac87816db9f63a9268eef9769b58695e5e178b44945bfecc48"
+  },
+  {
+    "path": "ssanne_captains_office/SSAnne_CaptainsOffice.json",
+    "sha256": "4476d2e79185114f0e83e94e3e21f7a0940c0f33358694c5fa08d76689820a79"
+  },
+  {
+    "path": "ssanne_deck/SSAnne_Deck.json",
+    "sha256": "7381d80334f62a415522bcc4f2b20c6be804e232989c6f05e38b16726e012a58"
+  },
+  {
+    "path": "ssanne_exterior/SSAnne_Exterior.json",
+    "sha256": "f51b598f3d7627601e03cf50016831acba939debf77c2c0c47402fc2d6a11145"
+  },
+  {
+    "path": "ssanne_kitchen/SSAnne_Kitchen.json",
+    "sha256": "83a588259d88944483638f22a4f70c0455fd870cb736c74647bd8e985ad1742c"
+  },
+  {
+    "path": "three_island/ThreeIsland.json",
+    "sha256": "8e6d4bd35ea8c2dba744b70e81099f6fafceb748c585299c74bb154a65ef3905"
+  },
+  {
+    "path": "three_island_berry_forest/ThreeIsland_BerryForest.json",
+    "sha256": "0d4daeb716c9296b94b48bbb1c12900d2ed07a411a15708c2b6c4e0733982b32"
+  },
+  {
+    "path": "three_island_bond_bridge/ThreeIsland_BondBridge.json",
+    "sha256": "38c6474e04e4b13b4cb6d84a4069d76838891252875cabeaa2fff3bd4c052228"
+  },
+  {
+    "path": "three_island_dunsparce_tunnel/ThreeIsland_DunsparceTunnel.json",
+    "sha256": "959e3df0915b03fcdaf62e83a6d2759153a7d10c37fbd6bee0650b75cb5bb733"
+  },
+  {
+    "path": "three_island_harbor/ThreeIsland_Harbor.json",
+    "sha256": "98beabbc83071d1a96d13ae9b6043849b87a3eea902810dcda653b51cbbd09ca"
+  },
+  {
+    "path": "three_island_house1/ThreeIsland_House1.json",
+    "sha256": "f9a73b792ed7e6cdabf3dd78913c60cedb3a169ac9ca801f52426fe4717f8cbc"
+  },
+  {
+    "path": "three_island_house2/ThreeIsland_House2.json",
+    "sha256": "3c1cb5a71447b170ace5a9219579f8328853d69f3ad367f47e46763561e2ca06"
+  },
+  {
+    "path": "three_island_house3/ThreeIsland_House3.json",
+    "sha256": "e1125d41d07fc735983e2b90955b93c12b9f9cb901f1cdf7e9737b2b7269f56f"
+  },
+  {
+    "path": "three_island_house4/ThreeIsland_House4.json",
+    "sha256": "d84e5c6c3fdb051c3d0a8cc5f29e1672ed30990327b19f2a69e6f355e85a0222"
+  },
+  {
+    "path": "three_island_house5/ThreeIsland_House5.json",
+    "sha256": "bdf475e3b67a2236620c7bb388c1b5e3e0957a71c7c927e0b776250612063226"
+  },
+  {
+    "path": "three_island_mart/ThreeIsland_Mart.json",
+    "sha256": "caf65477616c74f76170c6cc3b8df5b249060675ac0d67e46c4457c9de43f5fd"
+  },
+  {
+    "path": "three_island_pokemon_center_1f/ThreeIsland_PokemonCenter_1F.json",
+    "sha256": "7a1675f09b009afe4b8a6651c12eca3630b04007fbb54bc3feb67ae1e1af4408"
+  },
+  {
+    "path": "three_island_pokemon_center_2f/ThreeIsland_PokemonCenter_2F.json",
+    "sha256": "56426e0a17953b098fb8db4fc116d0c73160e50051778c7f42dba8c18800a944"
+  },
+  {
+    "path": "three_island_port/ThreeIsland_Port.json",
+    "sha256": "c01f52ddb8c4457d7a6a53b47d5a0ae05db213210afc93b598c602c7403582db"
+  },
+  {
+    "path": "trade_center/TradeCenter.json",
+    "sha256": "5589f66c95ba3b206abc7a0145ee77367c5d2c5b2fb6f7235b0a9ec555817942"
+  },
+  {
+    "path": "trainer_tower_1f/TrainerTower_1F.json",
+    "sha256": "4e45e19d1f56623b8012a85956716b3a8de8dfa2375b9289c31425ca247a96ab"
+  },
+  {
+    "path": "trainer_tower_2f/TrainerTower_2F.json",
+    "sha256": "20f77ef093b3e77f55e025fa4769d55fe1a09066e5dcbfa403efedbdd8e949c0"
+  },
+  {
+    "path": "trainer_tower_3f/TrainerTower_3F.json",
+    "sha256": "cad8dbd64c9fab9bd16a7a2c9216ce75d2123c0aeedbaf6fbbb7abfa98d4bcf8"
+  },
+  {
+    "path": "trainer_tower_4f/TrainerTower_4F.json",
+    "sha256": "2480f6c5ddfd584e60924c5d8122d1f1815e03a068933b5baedf58e25dcb7eae"
+  },
+  {
+    "path": "trainer_tower_5f/TrainerTower_5F.json",
+    "sha256": "084e2e0c2313fd022a5fef49fe3b94d2ba124bdee5df86d623e0b53e6f042eb4"
+  },
+  {
+    "path": "trainer_tower_6f/TrainerTower_6F.json",
+    "sha256": "2bca8b017b8ea70759235e2d8bc6111e60fb22ffb022f04d909e21f46174d18d"
+  },
+  {
+    "path": "trainer_tower_7f/TrainerTower_7F.json",
+    "sha256": "72303eb449f653866fb5c1cd43f3a742a28704f5f698290251065ead4bf091fa"
+  },
+  {
+    "path": "trainer_tower_8f/TrainerTower_8F.json",
+    "sha256": "adfccad9c0353c48ddd3ee75974fa2525656bc26c14fb168e2fdedcaee08242a"
+  },
+  {
+    "path": "trainer_tower_elevator/TrainerTower_Elevator.json",
+    "sha256": "619f35ebde8504cd4e80cf2365768556529fe3451bdefa116826e8f13ec9a02e"
+  },
+  {
+    "path": "trainer_tower_lobby/TrainerTower_Lobby.json",
+    "sha256": "fe9ddd48fbde843822f374dd79b37c9938fa134f6a926da67e85586cfa514e7d"
+  },
+  {
+    "path": "trainer_tower_roof/TrainerTower_Roof.json",
+    "sha256": "56359a45f6c3f30fb2aeb06a96bee88dca77902d2f01873d3988c8c3b5be6aed"
+  },
+  {
+    "path": "two_island/TwoIsland.json",
+    "sha256": "acff20f057ccf6b4367a059e2d0ff3de0a1d42d44dd29acad64e5aba9510386e"
+  },
+  {
+    "path": "two_island_cape_brink/TwoIsland_CapeBrink.json",
+    "sha256": "db8e394cf146e3b916f6651820e5f3fbe357d9711f32e49d5201d7ff1de62f9b"
+  },
+  {
+    "path": "two_island_cape_brink_house/TwoIsland_CapeBrink_House.json",
+    "sha256": "4cebf43450d80b0b685463002f7cec64b2d2ccceb48eb6c212d08ad131608127"
+  },
+  {
+    "path": "two_island_harbor/TwoIsland_Harbor.json",
+    "sha256": "a5f23fccb7b02a14aacca13a1eefbc9a668759e2e8df74e1b03e343b932640fe"
+  },
+  {
+    "path": "two_island_house/TwoIsland_House.json",
+    "sha256": "effb3ba03a47c161d5df316a36f7ada58c0faa2d83934928d3eef7c94426070a"
+  },
+  {
+    "path": "two_island_joyful_game_corner/TwoIsland_JoyfulGameCorner.json",
+    "sha256": "3fab9409a5d62e3bf89caab9342544466f3dcbbe4361239e27acd9630675a38a"
+  },
+  {
+    "path": "two_island_pokemon_center_1f/TwoIsland_PokemonCenter_1F.json",
+    "sha256": "02662c17478b56ef859d3d6d99afd6dca69cc66be889ba732f1c01719659631b"
+  },
+  {
+    "path": "two_island_pokemon_center_2f/TwoIsland_PokemonCenter_2F.json",
+    "sha256": "b1dc7187960c86dc5b958959080fb8b2aacbfc06c89d7bc6f9bc715388d28b71"
+  },
+  {
+    "path": "underground_path_east_entrance/UndergroundPath_EastEntrance.json",
+    "sha256": "cd6b9b6851fa64542dc231df1ba8feba0562f9dbfd9d72acda9284586eccf15f"
+  },
+  {
+    "path": "underground_path_east_west_tunnel/UndergroundPath_EastWestTunnel.json",
+    "sha256": "25c74ca1a90fe3c332b64326258157272de601e3d10322f8a79951999cf7ea4a"
+  },
+  {
+    "path": "underground_path_north_entrance/UndergroundPath_NorthEntrance.json",
+    "sha256": "768f2fc7152aeb44591406ac2918d09eeee2d03416532f5122b159b4fadec432"
+  },
+  {
+    "path": "underground_path_north_south_tunnel/UndergroundPath_NorthSouthTunnel.json",
+    "sha256": "43540573a53f32e6e2c3bacd3da7b1fdb837005b48b1bc3870ade5676d116956"
+  },
+  {
+    "path": "underground_path_south_entrance/UndergroundPath_SouthEntrance.json",
+    "sha256": "3ae2c3f7c992c40a99ec274636336dd8a579fd3f7781c95d27dcc36fed96736b"
+  },
+  {
+    "path": "underground_path_west_entrance/UndergroundPath_WestEntrance.json",
+    "sha256": "574bec3e696f82104d8732aabcc1228c3bff203ccea5f2473d44769946c05b8b"
+  },
+  {
+    "path": "union_room/UnionRoom.json",
+    "sha256": "56e66cacf648c3ceb9be0c64ac2e27b42ee0936e5c47f5ce650da7ad88254ec9"
+  },
+  {
+    "path": "vermilion_city/VermilionCity.json",
+    "sha256": "87b3833e23cd37008756790b953c5f07fa66613e80aecddd15e8ac2a30ddc9c0"
+  },
+  {
+    "path": "vermilion_city_gym/VermilionCity_Gym.json",
+    "sha256": "5b634a11d7462ff076080b4e80b243a8a130eb86a553e0ee6a2f027e8bc2652c"
+  },
+  {
+    "path": "vermilion_city_house1/VermilionCity_House1.json",
+    "sha256": "91bc203352085fae8ca7ca4ec8ecf5d2e316488ebba03a2371d63497d2bb8d51"
+  },
+  {
+    "path": "vermilion_city_house2/VermilionCity_House2.json",
+    "sha256": "0972b7d1d41508a5776a802042968dc156382cb682b94426f12081ffa12bf675"
+  },
+  {
+    "path": "vermilion_city_house3/VermilionCity_House3.json",
+    "sha256": "6f4fb01deafb729796e72009b9c48e2b5449d5fb1698fd32716b061d6631d8a3"
+  },
+  {
+    "path": "vermilion_city_mart/VermilionCity_Mart.json",
+    "sha256": "0b6c104aa125e0fe1c88274d758a2c6e4b5e662e4e07f088b012be500c2ed251"
+  },
+  {
+    "path": "vermilion_city_pokemon_center_1f/VermilionCity_PokemonCenter_1F.json",
+    "sha256": "9ada787793dd7935402ed489f7d90389ca50168b91ac263debe992f7bd754e84"
+  },
+  {
+    "path": "vermilion_city_pokemon_center_2f/VermilionCity_PokemonCenter_2F.json",
+    "sha256": "91a4e9b80c87a08e399846c3ad4a16385d5b3a4b366e0f1e434360511e4edc6e"
+  },
+  {
+    "path": "vermilion_city_pokemon_fan_club/VermilionCity_PokemonFanClub.json",
+    "sha256": "52b75959786f753888778bb276c3c809d1f5ed8407419775a9b5dec49105ca8d"
+  },
+  {
+    "path": "victory_road_1f/VictoryRoad_1F.json",
+    "sha256": "087e8ff2500177ffde1effa02c10414f5941af39158ab42dd4f32b0ad0bb4cb5"
+  },
+  {
+    "path": "victory_road_2f/VictoryRoad_2F.json",
+    "sha256": "74e3ac7df4447c7b7636380a802b4dbd4b201cfffbf2fb5c42e502958c779f80"
+  },
+  {
+    "path": "victory_road_3f/VictoryRoad_3F.json",
+    "sha256": "9c9ff48095c54e08cc44ec7f20efe80e847cf34728cd9f43877ad659715bdf78"
+  },
+  {
+    "path": "viridian_city/ViridianCity.json",
+    "sha256": "3968fc69adf6e08e5c25b6f721a39298e5fb3fc1d07e328930eb04e15756972d"
+  },
+  {
+    "path": "viridian_city_gym/ViridianCity_Gym.json",
+    "sha256": "6a2a860a260f831e8d1f9aa1d681de9eab9d4909ca7f2d25bb57c3953ca91bfb"
+  },
+  {
+    "path": "viridian_city_house/ViridianCity_House.json",
+    "sha256": "80c793b89c05dc01deb5e2017d92e6f5633b5bf21c0291479d0bf9db1eb97852"
+  },
+  {
+    "path": "viridian_city_mart/ViridianCity_Mart.json",
+    "sha256": "2189f7d32ed97f884700980f3f6a720fbe886e51f94f76872c030e974121755c"
+  },
+  {
+    "path": "viridian_city_pokemon_center_1f/ViridianCity_PokemonCenter_1F.json",
+    "sha256": "e1bb2a358a3d70b267cfd9dbdc17cf0495eee2317c049cc63bc2ee28232bfe8c"
+  },
+  {
+    "path": "viridian_city_pokemon_center_2f/ViridianCity_PokemonCenter_2F.json",
+    "sha256": "4bd9e25c74272b30bd16d762c21bca070c464373face0810407560a438262e69"
+  },
+  {
+    "path": "viridian_city_school/ViridianCity_School.json",
+    "sha256": "08b656f95361b9dc397840ea470033bae90d62320eeb04f8be7500e6693e2b68"
+  },
+  {
+    "path": "viridian_forest/ViridianForest.json",
+    "sha256": "7208f0179b757ded251030d035ba15acace22f3a2c2961774cca1d5d4e7f19f1"
+  }
+]

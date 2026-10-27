@@ -131,6 +131,10 @@ public final class ShowdownBattleEngine implements BattleEngine {
             return state;
         }
 
+        @Override public synchronized void growth(java.util.List<top.totodile.pokemmo.server.game.PokemonData.Pokemon> pokemon) {
+            if(!state.ended()) request(Map.of("op","growth","pokemon",pokemon));
+        }
+
         @Override
         public synchronized BattleState choose(Action action) {
             state = request(Map.of("op", "choose", "action", action));
