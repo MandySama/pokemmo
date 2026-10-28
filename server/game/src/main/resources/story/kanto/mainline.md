@@ -86,3 +86,14 @@
 参考边界：提供的服务端 chapter.jsonc 仅有 NOTIFY + CLOSE_SCENE；本次把参考客户端完整的统一名人堂场景接入本地剧情。火红 ROM 的制作人员滚动字幕／逐城巡游、冠军室博士训话和联盟外部博士／劲敌临时演员并非这段客户端场景，尚未复刻；不把本次统一名人堂演出称为完整火红原版片尾。
 
 参考：`Pokemmo2Pro-Client/src/main/java/cn/pokemmo/audio/GdxSoundManager.java`、`graphics/gl/GlBufferStateManager.qF`、`ui/widget/component/InventoryBagSlotComponent`；原生出口 https://github.com/pret/pokefirered/blob/master/src/hall_of_fame.c 。
+
+
+## 2026-10-27 名人堂结尾验证
+
+参考端统一名人堂场景已接入，主线 JSON 与同名 MD 已同步。`hall-final` 共 9 项通过：HallOfFameUiTest 2、HallOfFameTest 1、KantoMainlineTest 4、KantoMainlineUiTest 2。PC 使用真实通关档新副本完整播放三位成员与全队合影；移动布局实际按确认键打开提示、触摸选否续播、触摸再次打开提示并选是跳过。两条路径均在联盟外 (11,6) 结束，再用真实方向键走到 (11,7)，重新读取存档确认位置。断线重播使用同一快照，已完成断线续接出口，错误／重复回执不重复记录和结算；余额始终 378320，队员等级与 HP 未被演出修改。
+
+保留可继续游玩的结尾副本：`E:/Wednesday/Java/pokemmo-saves/fresh-journey-20261027-ending/game.db`，同目录 `completion.json` 记录来源、位置、校验结果。最早原档仅只读校验，逻辑内容与永久保留备份一致；永久备份 SHA256 仍为 d9351e8f5d566a0c9c4a8e8d9639b8863145131246b2a0723b2508c2af2ec63e，通关原快照仍为 6f891e52fdd9c260982d0a24d43a76e74cdd0d9a125b032d8cf74f77d114135e，三份原件 integrity_check 均 ok。
+
+实际截图：`client/build/story-diagnostics/hall-false-member-0.png`、`hall-false-party.png`、`hall-true-confirm-cancel.png`、`hall-true-confirm-skip.png`、`hall-false-walk-after-ending.png`。已目视核对：属性背景／粒子、动态精灵、训练家与倒下成员合影、中文跳过确认。灰度 hof.png 按参考亮度处理，避免 LibGDX Alpha 解码导致黑底／地图穿透。既有移动战斗 monsterframe-hp-progressbar 主题 warning 不属于本次改动。
+
+边界：完成的是所提供参考客户端 ys_2/GdxSoundManager 的统一名人堂结尾，不含火红原版制作名单巡游、冠军室博士训话及联盟外部临时演员。详见 mainline.md，未虚构缺少的在线时长或外部模型 MOD 支持。

@@ -49,6 +49,12 @@ public final class JdbcDatabase implements Database {
     @Override
     public void transaction(Runnable operation) {
         try {
+            if(!connection.getAutoCommit()){
+                var point=connection.setSavepoint();
+                try {operation.run();connection.releaseSavepoint(point);}
+                catch(RuntimeException|Error error){connection.rollback(point);throw error;}
+                return;
+            }
             connection.setAutoCommit(false);
             Throwable failure = null;
             boolean restoreAutoCommit = true;

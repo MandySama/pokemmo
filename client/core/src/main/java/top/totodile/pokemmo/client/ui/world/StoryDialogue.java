@@ -24,6 +24,41 @@ public final class StoryDialogue extends ClientDialog {
     private boolean anchored;
     private final Label text = new Label();
     private final Button next = new Button(), yes, no;
+    private final Container starterChoices=new Container(){
+        @Override protected void layout(){
+            if(yes.getParent()!=this)return;
+            int h=getInnerHeight()/2;
+            yes.setPosition(getInnerX(),getInnerY());yes.setSize(getInnerWidth(),h);
+            no.setPosition(getInnerX(),getInnerY()+h);no.setSize(getInnerWidth(),h);
+        }
+    };
+    private final Widget starterPreview=new Widget(){
+        @Override protected void paintWidget(GUI gui){
+            if(starterSpecies==0)return;
+            var renderer=(top.totodile.pokemmo.client.twl.GdxTwlRenderer)gui.getRenderer();
+            try{
+                if(starterImages==null){
+                    var dex=new top.totodile.pokemmo.client.rom.nds.bw.BwPokedex(starterResources.roms().get(top.totodile.pokemmo.client.rom.RomType.BLACK_WHITE),starterResources.strings());
+                    starterImages=new top.totodile.pokemmo.client.ui.pokedex.PokedexImages(new top.totodile.pokemmo.client.rom.nds.bw.BwPokemonSprites(dex),renderer,starterResources);
+                }
+                var sprite=starterImages.animatedFront(starterSpecies,0,false,(System.nanoTime()-starterStarted)/1_000_000_000.0);
+                int w=sprite.getWidth()*2,h=sprite.getHeight()*2;
+                sprite.draw(getAnimationState(),getX()+(getWidth()-w)/2,getBottom()-15-h,w,h);
+            }catch(java.io.IOException error){throw new java.io.UncheckedIOException(error);}
+        }
+    };
+    private int starterSpecies;
+    private long starterStarted;
+    private top.totodile.pokemmo.client.resources.ClientResources starterResources;
+    private top.totodile.pokemmo.client.ui.pokedex.PokedexImages starterImages;
+    public void showStarter(String message,int species,top.totodile.pokemmo.client.resources.ClientResources resources,IntConsumer callback){
+        show(message,true,callback);
+        starterSpecies=species;starterResources=resources;starterStarted=System.nanoTime();
+        panel.removeChild(yes);panel.removeChild(no);starterChoices.add(yes);starterChoices.add(no);
+        yes.setTheme("starter-button");no.setTheme("starter-button");yes.requestKeyboardFocus();
+        starterPreview.setVisible(true);starterChoices.setVisible(true);invalidateLayout();
+    }
+    public void disposePreview(){if(starterImages!=null){starterImages.close();starterImages=null;}}
     private IntConsumer reply;
     private java.util.List<String> pages = java.util.List.of();
     private int page;
@@ -38,8 +73,8 @@ public final class StoryDialogue extends ClientDialog {
     public void showChoices(String message,java.util.List<String> options,IntConsumer callback){
         show(message,false,callback);optionBody.removeAllChildren();optionButtons.clear();
         for(int i=0;i<options.size();i++){final int index=i;var button=new Button(options.get(i));button.setTheme("/button");button.addCallback(()->answer(index));optionButtons.add(button);optionBody.add(button);}
-        next.setVisible(false);optionScroll.setVisible(true);optionScroll.setScrollPositionY(0);optionBody.invalidateLayout();invalidateLayout();
-        if(!optionButtons.isEmpty())optionButtons.get(0).requestKeyboardFocus();
+        showPage();optionScroll.setScrollPositionY(0);optionBody.invalidateLayout();invalidateLayout();
+        if(optionScroll.isVisible()&&!optionButtons.isEmpty())optionButtons.get(0).requestKeyboardFocus();
     }
 
     public void showLearning(String message,java.util.List<String> moves,String candidate,IntConsumer callback){
@@ -58,8 +93,8 @@ public final class StoryDialogue extends ClientDialog {
         next.setTheme("button-ok");
         yes = new Button(strings.get(50));
         no = new Button(strings.get(51));
-        yes.setTheme("button");
-        no.setTheme("button");
+        yes.setTheme("/button");
+        no.setTheme("/button");
         next.addCallback(() -> answer(0));
         text.addCallback(reason -> advance());
         yes.addCallback(() -> answer(1));
@@ -71,10 +106,15 @@ public final class StoryDialogue extends ClientDialog {
         panel.add(no);
         optionBody.setTheme("");optionScroll.setTheme("/scrollpane");optionScroll.setFixed(ScrollPane.Fixed.HORIZONTAL);optionScroll.setVisible(false);panel.add(optionScroll);
         add(panel);
+        starterPreview.setTheme("/story-selection-panel");starterChoices.setTheme("/story-selection-panel");
+        starterPreview.setVisible(false);starterChoices.setVisible(false);add(starterPreview);add(starterChoices);
         setCloseOnEscape(false);
     }
 
     public void show(String message, boolean choice, IntConsumer callback) {
+        starterSpecies=0;starterPreview.setVisible(false);starterChoices.setVisible(false);
+        if(yes.getParent()==starterChoices){starterChoices.removeChild(yes);starterChoices.removeChild(no);panel.add(yes);panel.add(no);}
+        yes.setTheme("/button");no.setTheme("/button");
         learning=false;optionScroll.setVisible(false);optionButtons.clear();optionBody.removeAllChildren();
         pages = java.util.Arrays.asList(message.split("\\n\\n"));
         page = 0;
@@ -140,7 +180,10 @@ public final class StoryDialogue extends ClientDialog {
     private void showPage() {
         text.setText(pages.get(page));
         boolean last = page + 1 == pages.size();
-        next.setVisible(!choice || !last);
+        boolean options = !optionButtons.isEmpty();
+        next.setVisible(!last || !choice && !options);
+        optionScroll.setVisible(options && last);
+        if (options && last) optionButtons.get(0).requestKeyboardFocus();
         yes.setVisible(choice && last);
         no.setVisible(choice && last);
     }
@@ -182,7 +225,9 @@ public final class StoryDialogue extends ClientDialog {
                     i = next;
                 }
                 if (end == 0) end = Character.charCount(remaining.codePointAt(0));
-                if (space > 0) end = space;
+                boolean cjkBoundary=Character.isIdeographic(remaining.codePointBefore(end))
+                        ||end<remaining.length()&&Character.isIdeographic(remaining.codePointAt(end));
+                if (space > 0&&!cjkBoundary) end = space;
                 result.append(remaining, 0, end).append('\n');
                 remaining = remaining.substring(end).stripLeading();
             }
@@ -193,7 +238,7 @@ public final class StoryDialogue extends ClientDialog {
 
     @Override
     protected void layout() {
-        if (pages.isEmpty()) return;
+        if (pages.isEmpty()||getInnerWidth()<=0||getInnerHeight()<=0) return;
         int width = mobile ? Math.min(getInnerWidth(), text.getPreferredWidth() + panel.getBorderHorizontal())
                 : Math.min(getInnerWidth(), Math.max(600, Math.min(getInnerWidth() / 2, 900)));
         width = Math.max(Math.min(optionScroll.isVisible()?320:200, getInnerWidth()), width);
@@ -204,9 +249,23 @@ public final class StoryDialogue extends ClientDialog {
         if(optionScroll.isVisible())height=Math.min(getInnerHeight()-80,text.getPreferredHeight()+panel.getBorderVertical()+optionBody.getPreferredHeight()+15);
         panel.setSize(width, height);
         panel.setPosition(getInnerX() + (getInnerWidth() - width) / 2,
-                mobile ? getInnerY() + getInnerHeight() - height - 60
+                mobile ? starterSpecies>0?getInnerY()+15:getInnerY() + getInnerHeight() - height - 60
                        : getInnerY() + Math.max(0, (getInnerHeight() - 720) / 4));
         layoutContents();
+        if(starterSpecies>0){
+            int previewWidth=Math.max(1,Math.min(320,getInnerWidth()-20)),previewHeight=270;
+            int top=panel.getBottom()+5;
+            int choiceHeight=180;
+            if(top+previewHeight-50+choiceHeight>getInnerBottom()-10)previewHeight=Math.max(130,getInnerBottom()-10-top-choiceHeight+50);
+            starterPreview.setSize(previewWidth,previewHeight);
+            starterPreview.setPosition(getInnerX()+(getInnerWidth()-previewWidth)/2,top);
+            int choiceWidth=Math.max(1,Math.min(260,previewWidth-20));
+            starterChoices.setSize(choiceWidth,choiceHeight);
+            starterChoices.setPosition(getInnerX()+(getInnerWidth()-choiceWidth)/2,starterPreview.getBottom()-50);
+            int w=starterChoices.getInnerWidth(),h=starterChoices.getInnerHeight()/2;
+            yes.setPosition(starterChoices.getInnerX(),starterChoices.getInnerY());yes.setSize(w,h);
+            no.setPosition(starterChoices.getInnerX(),starterChoices.getInnerY()+h);no.setSize(w,h);
+        }
     }
 
     private void layoutContents() {
@@ -214,13 +273,14 @@ public final class StoryDialogue extends ClientDialog {
         text.setSize(panel.getInnerWidth(), text.getPreferredHeight());
         next.setSize(32, 32);
         next.setPosition(panel.getRight() - 60, panel.getBottom() - 60);
-        yes.adjustSize();
-        no.adjustSize();
+        if(starterSpecies==0){yes.adjustSize();no.adjustSize();}
         if(optionScroll.isVisible()){
             optionScroll.setPosition(panel.getInnerX(),text.getBottom()+5);
             optionScroll.setSize(panel.getInnerWidth(),Math.max(30,panel.getInnerBottom()-text.getBottom()-5));
         }
-        no.setPosition(panel.getInnerRight() - no.getWidth(), panel.getBottom() - 60);
-        yes.setPosition(no.getX() - yes.getWidth() - 5, no.getY());
+        if(starterSpecies==0){
+            no.setPosition(panel.getInnerRight() - no.getWidth(), panel.getBottom() - 60);
+            yes.setPosition(no.getX() - yes.getWidth() - 5, no.getY());
+        }
     }
 }

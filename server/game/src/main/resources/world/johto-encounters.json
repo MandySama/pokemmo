@@ -1,0 +1,422 @@
+[
+  {
+    "region": 4,
+    "bank": 0,
+    "map": 33,
+    "tables": {
+      "land_mons": {
+        "rate": 25,
+        "slots": [
+          {
+            "species": 16,
+            "min": 2,
+            "max": 2,
+            "weight": 20
+          },
+          {
+            "species": 161,
+            "min": 3,
+            "max": 3,
+            "weight": 20
+          },
+          {
+            "species": 16,
+            "min": 2,
+            "max": 2,
+            "weight": 10
+          },
+          {
+            "species": 161,
+            "min": 3,
+            "max": 3,
+            "weight": 10
+          },
+          {
+            "species": 16,
+            "min": 3,
+            "max": 3,
+            "weight": 10
+          },
+          {
+            "species": 16,
+            "min": 3,
+            "max": 3,
+            "weight": 10
+          },
+          {
+            "species": 161,
+            "min": 2,
+            "max": 2,
+            "weight": 5
+          },
+          {
+            "species": 161,
+            "min": 2,
+            "max": 2,
+            "weight": 5
+          },
+          {
+            "species": 19,
+            "min": 4,
+            "max": 4,
+            "weight": 4
+          },
+          {
+            "species": 16,
+            "min": 4,
+            "max": 4,
+            "weight": 4
+          },
+          {
+            "species": 19,
+            "min": 4,
+            "max": 4,
+            "weight": 1
+          },
+          {
+            "species": 16,
+            "min": 4,
+            "max": 4,
+            "weight": 1
+          }
+        ]
+      }
+    }
+  },
+  {
+    "region": 4,
+    "bank": 0,
+    "map": 34,
+    "tables": {
+      "land_mons": {
+        "rate": 25,
+        "slots": [
+          {
+            "species": 16,
+            "min": 2,
+            "max": 2,
+            "weight": 20
+          },
+          {
+            "species": 10,
+            "min": 3,
+            "max": 3,
+            "weight": 20
+          },
+          {
+            "species": 16,
+            "min": 2,
+            "max": 2,
+            "weight": 10
+          },
+          {
+            "species": 10,
+            "min": 3,
+            "max": 3,
+            "weight": 10
+          },
+          {
+            "species": 16,
+            "min": 4,
+            "max": 4,
+            "weight": 10
+          },
+          {
+            "species": 16,
+            "min": 4,
+            "max": 4,
+            "weight": 10
+          },
+          {
+            "species": 11,
+            "min": 4,
+            "max": 4,
+            "weight": 5
+          },
+          {
+            "species": 11,
+            "min": 4,
+            "max": 4,
+            "weight": 5
+          },
+          {
+            "species": 10,
+            "min": 4,
+            "max": 4,
+            "weight": 4
+          },
+          {
+            "species": 11,
+            "min": 4,
+            "max": 4,
+            "weight": 4
+          },
+          {
+            "species": 10,
+            "min": 4,
+            "max": 4,
+            "weight": 1
+          },
+          {
+            "species": 11,
+            "min": 4,
+            "max": 4,
+            "weight": 1
+          }
+        ]
+      }
+    }
+  },
+  {
+    "region": 4,
+    "bank": 0,
+    "map": 35,
+    "tables": {
+      "land_mons": {
+        "rate": 25,
+        "slots": [
+          {
+            "species": 16,
+            "min": 3,
+            "max": 3,
+            "weight": 20
+          },
+          {
+            "species": 10,
+            "min": 4,
+            "max": 4,
+            "weight": 20
+          },
+          {
+            "species": 16,
+            "min": 3,
+            "max": 3,
+            "weight": 10
+          },
+          {
+            "species": 10,
+            "min": 4,
+            "max": 4,
+            "weight": 10
+          },
+          {
+            "species": 69,
+            "min": 3,
+            "max": 3,
+            "weight": 10
+          },
+          {
+            "species": 69,
+            "min": 3,
+            "max": 3,
+            "weight": 10
+          },
+          {
+            "species": 11,
+            "min": 5,
+            "max": 5,
+            "weight": 5
+          },
+          {
+            "species": 11,
+            "min": 5,
+            "max": 5,
+            "weight": 5
+          },
+          {
+            "species": 10,
+            "min": 5,
+            "max": 5,
+            "weight": 4
+          },
+          {
+            "species": 11,
+            "min": 5,
+            "max": 5,
+            "weight": 4
+          },
+          {
+            "species": 10,
+            "min": 5,
+            "max": 5,
+            "weight": 1
+          },
+          {
+            "species": 11,
+            "min": 5,
+            "max": 5,
+            "weight": 1
+          }
+        ]
+      }
+    }
+  },
+  {
+    "region": 4,
+    "bank": 0,
+    "map": 155,
+    "tables": {
+      "land_mons": {
+        "rate": 5,
+        "slots": [
+          {
+            "species": 19,
+            "min": 3,
+            "max": 3,
+            "weight": 20
+          },
+          {
+            "species": 19,
+            "min": 4,
+            "max": 4,
+            "weight": 20
+          },
+          {
+            "species": 19,
+            "min": 3,
+            "max": 3,
+            "weight": 10
+          },
+          {
+            "species": 19,
+            "min": 4,
+            "max": 4,
+            "weight": 10
+          },
+          {
+            "species": 19,
+            "min": 5,
+            "max": 5,
+            "weight": 10
+          },
+          {
+            "species": 19,
+            "min": 5,
+            "max": 5,
+            "weight": 10
+          },
+          {
+            "species": 19,
+            "min": 3,
+            "max": 3,
+            "weight": 5
+          },
+          {
+            "species": 19,
+            "min": 3,
+            "max": 3,
+            "weight": 5
+          },
+          {
+            "species": 19,
+            "min": 6,
+            "max": 6,
+            "weight": 4
+          },
+          {
+            "species": 19,
+            "min": 5,
+            "max": 5,
+            "weight": 4
+          },
+          {
+            "species": 19,
+            "min": 6,
+            "max": 6,
+            "weight": 1
+          },
+          {
+            "species": 19,
+            "min": 5,
+            "max": 5,
+            "weight": 1
+          }
+        ]
+      }
+    }
+  },
+  {
+    "region": 4,
+    "bank": 0,
+    "map": 156,
+    "tables": {
+      "land_mons": {
+        "rate": 5,
+        "slots": [
+          {
+            "species": 19,
+            "min": 3,
+            "max": 3,
+            "weight": 20
+          },
+          {
+            "species": 19,
+            "min": 4,
+            "max": 4,
+            "weight": 20
+          },
+          {
+            "species": 19,
+            "min": 3,
+            "max": 3,
+            "weight": 10
+          },
+          {
+            "species": 19,
+            "min": 4,
+            "max": 4,
+            "weight": 10
+          },
+          {
+            "species": 19,
+            "min": 5,
+            "max": 5,
+            "weight": 10
+          },
+          {
+            "species": 19,
+            "min": 5,
+            "max": 5,
+            "weight": 10
+          },
+          {
+            "species": 19,
+            "min": 3,
+            "max": 3,
+            "weight": 5
+          },
+          {
+            "species": 19,
+            "min": 3,
+            "max": 3,
+            "weight": 5
+          },
+          {
+            "species": 19,
+            "min": 6,
+            "max": 6,
+            "weight": 4
+          },
+          {
+            "species": 19,
+            "min": 5,
+            "max": 5,
+            "weight": 4
+          },
+          {
+            "species": 19,
+            "min": 6,
+            "max": 6,
+            "weight": 1
+          },
+          {
+            "species": 19,
+            "min": 5,
+            "max": 5,
+            "weight": 1
+          }
+        ]
+      }
+    }
+  }
+]

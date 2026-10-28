@@ -574,7 +574,7 @@ public final class BwPokemonSprites {
                 battle.read(base + 7));
     }
 
-    static Pixels compose(
+    public static Pixels compose(
             byte[] tiles, byte[] palette, byte[] cells, int frame, int size, int paletteOverride)
             throws IOException {
         return compose(tiles, palette, cells, frame, size, paletteOverride, false);

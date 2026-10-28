@@ -19,6 +19,7 @@ public final class GbaSurfSprites {
         // GbaMultilingualRomRegistry: rK (99), ZV (100), BJ0 (101).
         return
                 switch (rom.code()) {
+                    case "BPEE" -> new int[] {5264928, 5290952, 5294528};
                     case "BPRE" ->
                             rom.revision() == 1
                                     ? new int[] {3800608, 3822024, 3822512}

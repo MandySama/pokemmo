@@ -13,10 +13,11 @@ function lookup(data,num,label) {
   if (!result) throw new Error(`Unsupported ${label} ID ${num}`);
   return result;
 }
-function toSet(p) {
+const nativeTrainerItems = new Map([[5092,'Nugget'],[5150,'Chesto Berry'],[5155,'Oran Berry'],[5158,'Sitrus Berry'],[5214,'White Herb'],[5222,'Silver Powder'],[5228,'Smoke Ball'],[5241,'Black Belt'],[5250,'Dragon Fang']]);
+function toSet(p,trainerEnemy=false) {
   // Form and item namespaces must be reconciled against PokeMMO before enabling them.
   if (p.form !== 0) throw new Error(`Showdown pilot does not yet map Pokemon form ${p.species}:${p.form}`);
-  if (p.item > 0) throw new Error('Showdown pilot requires no held item (PokeMMO item mapping is not yet verified)');
+  if (p.item > 0 && (!trainerEnemy || !nativeTrainerItems.has(p.item))) throw new Error('Showdown pilot requires a verified trainer held item');
   const species = Dex.species.all().find(s => s.num === p.species && !s.forme && s.exists);
   if (!species) throw new Error(`Unsupported species ${p.species}`);
   const moves = p.moves.filter(id => id > 0).map(id => lookup(Dex.moves,id,'move').name);
@@ -27,7 +28,7 @@ function toSet(p) {
     nature:Dex.natures.get(natureIds[p.nature]).name,
     ivs:Object.fromEntries(statKeys.map((k,i)=>[k,p.ivs[i]])),
     evs:Object.fromEntries(statKeys.map((k,i)=>[k,p.evs[i]])),
-    happiness:p.friendship,moves};
+    happiness:p.friendship,moves,item:p.item>0?nativeTrainerItems.get(p.item):''};
 }
 class ShowdownSession {
   constructor() { this.stream=null;this.output=[];this.inputTeams=[];this.delayedMoves=new Map();this.bideActors=new Set(); }
@@ -39,7 +40,7 @@ class ShowdownSession {
     const lead=party.find(p=>p.id===input.player.id);
     if(!lead || lead.hp<=0) throw new Error('No living lead Pokemon');
     this.inputTeams=[[lead,...party.filter(p=>p.id!==lead.id)],input.wilds];
-    const sets=this.inputTeams.map(team=>team.map((p,i)=>({...toSet(p),name:`slot${i}`})));
+    const sets=this.inputTeams.map((team,side)=>team.map((p,i)=>({...toSet(p,!!input.trainer&&side===1),name:`slot${i}`})));
     this.stream=input.trainer || input.wilds.length===1 ? new BattleStream({keepAlive:true,noCatch:true})
       : new HordeBattleStream(input.wilds.length,{keepAlive:true,noCatch:true});
     this.reader=(async()=>{for await(const block of this.stream)this.output.push(block);})();
@@ -330,7 +331,12 @@ if(require.main===module){
       try{
         const request=JSON.parse(line);
         if(request.op==='close'){await engine.close();process.stdout.write(JSON.stringify({ok:true})+'\n');break;}
-        const result=request.op==='start'?await engine.start({...request.encounter,testEnemyHp:request.testEnemyHp}):request.op==='choose'?await engine.choose(request.action):request.op==='growth'?engine.growth(request.pokemon):(()=>{throw new Error('Unknown operation')})();
+        if(request.op==='warm'){
+          Dex.mod('gen5').includeData();Dex.mod('gen5').moves.all();Dex.mod('gen5').species.all();
+          Dex.formats.get('gen5customgame@@@!Team Preview');
+          process.stdout.write(JSON.stringify({ok:true,result:null})+'\n');continue;
+        }
+        const result=request.op==='start'?await engine.start({...request.encounter,seed:request.seed,testEnemyHp:request.testEnemyHp}):request.op==='choose'?await engine.choose(request.action):request.op==='growth'?engine.growth(request.pokemon):request.op==='state'?engine.result():(()=>{throw new Error('Unknown operation')})();
         process.stdout.write(JSON.stringify({ok:true,result})+'\n');
       }catch(error){process.stdout.write(JSON.stringify({ok:false,error:String(error.message)})+'\n');}
     }

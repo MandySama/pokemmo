@@ -23,6 +23,8 @@ public final class Gen4Maps implements WorldMaps {
     private record Bounds(int x, int y, int width, int height) {}
 
     private final boolean hgss;
+    private final RomInfo rom;
+    public RomInfo rom(){return rom;}
     private final int[][] music;
     private final Header[] headers;
     private final Matrix[] matrices;
@@ -47,6 +49,7 @@ public final class Gen4Maps implements WorldMaps {
     public Gen4Maps(RomInfo rom, top.totodile.pokemmo.client.rom.nds.model.RegionModelCache cache)
             throws IOException {
         modelCache = cache;
+        this.rom=rom;
         hgss = rom.type() == RomType.HEART_GOLD_SOUL_SILVER;
         if (!hgss && rom.type() != RomType.PLATINUM)
             throw new IllegalArgumentException("Platinum or HGSS ROM required");
@@ -285,6 +288,18 @@ public final class Gen4Maps implements WorldMaps {
         return behavior == 105;
     }
 
+    /** TileElevationCollisionCalculator region 3/4 ut0_0(mode=0): leave the warp tile in its native direction. */
+    @Override
+    public int standingWarpDirection(int behavior) {
+        return switch(behavior) {
+            case 94, 98, 108 -> 3;
+            case 95, 99, 109 -> 2;
+            case 101, 111 -> 0;
+            case 61 -> hgss ? 0 : -1;
+            default -> -1;
+        };
+    }
+
     @Override
     public boolean blocked(int behavior, int dx, int dy) {
         return false;
@@ -331,7 +346,7 @@ public final class Gen4Maps implements WorldMaps {
                         boolean blocked =
                                 behavior != 105
                                         && ((cell & 0x8000) != 0
-                                                || behavior >= 90 && behavior <= 94);
+                                                || behavior >= 90 && behavior <= 93);
                         blocks[(cy * 32 + y) * width + cx * 32 + x] =
                                 behavior | (blocked ? 0xc00 : 0);
                     }
@@ -507,15 +522,7 @@ public final class Gen4Maps implements WorldMaps {
 
     @Override
     public Position start() {
-        Id id = id(hgss ? 60 : 411);
-        MapData m = map(id);
-        for (Warp warp : m.warps())
-            if (m.contains(warp.x(), warp.y() + 1) && walkable(m.block(warp.x(), warp.y() + 1)))
-                return new Position(id.bank(), id.map(), warp.x(), warp.y() + 1, 0);
-        for (int y = 0; y < m.height(); y++)
-            for (int x = 0; x < m.width(); x++)
-                if (walkable(m.block(x, y))) return new Position(id.bank(), id.map(), x, y, 0);
-        throw new IllegalStateException("No walkable starting location in Gen4 town");
+        return Position.start(hgss ? 4 : 3);
     }
 
     private boolean walkable(int block) {

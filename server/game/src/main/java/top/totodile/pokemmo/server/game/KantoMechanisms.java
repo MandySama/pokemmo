@@ -168,7 +168,7 @@ final class KantoMechanisms {
         for(var value:resource("tileGroups")){
             var group=value.getAsJsonObject();if(!group.get("map").getAsString().equals(key))continue;String kind=group.get("kind").getAsString();
             boolean enabled=group.has("flag")&&KantoMainline.event(db,owner,group.get("flag").getAsString());String mode=kind.equals("mansion")?(enabled?"on":"off"):(enabled?"off":"on");
-            if(kind.equals("leagueExit")){var progress=KantoMainline.progress(db,owner);mode=progress.champion()||progress.elite()>group.get("stage").getAsInt()?"off":"on";}
+            if(kind.equals("leagueExit")){var progress=KantoMainline.progress(db,owner);mode=progress.champion()&&!KantoPostgame.leagueActive(db,owner)||progress.elite()>group.get("stage").getAsInt()?"off":"on";}
             if(kind.equals("quiz")&&(KantoMainline.progress(db,owner).bit("badges",6)||KantoMainline.event(db,owner,group.get("trainerFlag").getAsString())))mode="off";
             if(kind.equals("gym")){if(KantoMainline.progress(db,owner).bit("badges",2))mode="off";else if(!enabled&&get(db,owner,"gym_pair",",,0").endsWith(",1"))mode="half";}
             for(var t:group.getAsJsonObject("states").getAsJsonArray(mode)){var o=t.getAsJsonObject();int x=o.get("x").getAsInt(),y=o.get("y").getAsInt(),original=MapEntities.block(bank,map,x,y);result.add(new MapEntities.Tile(x,y,o.has("block")?o.get("block").getAsInt():(original&0xf000)|o.get("metatile").getAsInt()|o.get("collision").getAsInt()<<10));}

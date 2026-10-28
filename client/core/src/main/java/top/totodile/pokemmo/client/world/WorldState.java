@@ -17,7 +17,7 @@ final class WorldState {
             Consumer<TravelState> saveCharacter) {
         if (motion.running() != Boolean.parseBoolean(settings.get(RUNNING, "true")))
             motion.toggleRunning();
-        if (motion.bicycle() != state.bicycle()) motion.toggleBicycle();
+        motion.restoreBicycle(state.bicycle());
         // 穿墙状态按角色存档恢复，与角色实际坐标一同保留。
         boolean noClip = state.noClip();
         if (motion.movement().noClip() != noClip) motion.movement().setNoClip(noClip);
@@ -25,6 +25,7 @@ final class WorldState {
         TravelState[] previous = {state};
         Runnable save =
                 () -> {
+                    if(!motion.traversalReady())return;
                     TravelState next =
                             new TravelState(
                                     motion.movement().noClip(), motion.speed(), motion.bicycle());

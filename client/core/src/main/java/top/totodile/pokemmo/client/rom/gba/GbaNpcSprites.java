@@ -106,6 +106,14 @@ public final class GbaNpcSprites {
         return new Frame(width, height, rgba);
     }
 
+    /** Native uncompressed 4bpp OBJ tiles, using the reference palette tag mapping. */
+    public Frame rawFrame(int offset,int width,int height,int paletteId)throws IOException{
+        Integer palette=palettes.get(paletteId);if(palette==null)throw new IOException("Missing gate palette "+paletteId);int[] rgba=new int[width*height];
+        for(int y=0;y<height;y++)for(int x=0;x<width;x++){
+            int tile=y/8*(width/8)+x/8,index=u8(offset+tile*32+(y&7)*4+(x&7)/2)>>((x&1)*4)&15;if(index==0)continue;int c=u16(palette+index*2);rgba[y*width+x]=((c&31)*255/31)<<24|((c>>5&31)*255/31)<<16|((c>>10&31)*255/31)<<8|255;
+        }return new Frame(width,height,rgba);
+    }
+
     /** BadgeIconButton state 6 -> GbaRom.o00_0's original emote strip, slice 2. */
     public Frame exclamation() throws IOException {
         int graphics=signaturePointer("08080000004000040000",0);

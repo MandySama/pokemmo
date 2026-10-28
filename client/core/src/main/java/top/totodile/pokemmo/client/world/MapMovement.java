@@ -9,6 +9,10 @@ public final class MapMovement {
     private MapData map;
     private int x, y, direction, elevation;
     private boolean noClip;
+    private boolean surfAllowed=true;
+    public void surfAllowed(boolean value){surfAllowed=value;}
+    private HoennRotatingGates rotatingGates;
+    HoennRotatingGates rotatingGates(){return rotatingGates;}
     private int spinningDirection=-1;
     public int forcedDirection(){
         int behavior=maps.tiles(map).behavior(map.block(x,y)&1023);
@@ -41,6 +45,7 @@ public final class MapMovement {
         y = position.y();
         direction = position.direction();
         elevation = map.block(x, y) >>> 12;
+        if(maps instanceof top.totodile.pokemmo.client.rom.gba.FireRedMaps gba&&gba.rom().type()==top.totodile.pokemmo.client.rom.RomType.EMERALD){rotatingGates=new HoennRotatingGates();rotatingGates.enter(map.id());}
     }
 
     public MapData map() {
@@ -177,6 +182,7 @@ public final class MapMovement {
         // building.
         boolean doorEntry = maps.isDoor(behavior) && warp != null && dy < 0;
         boolean water = maps.isWater(behavior), shore = water || water();
+        if(water&&!water()&&!surfAllowed)return false;
         // Automatic Surf is user-authorized; retain wall and elevation checks on land.
         if (!noClip
                 && ((block & 0xc00) != 0 && !doorEntry && !water
@@ -190,6 +196,7 @@ public final class MapMovement {
                 nextElevation == 0 ? elevation : nextElevation)) return false;
         if (!standingWarp && !noClip && (maps.blocked(sourceBehavior, dx, dy) || maps.blocked(behavior, -dx, -dy)))
             return false;
+        if(!noClip&&rotatingGates!=null&&!rotatingGates.step(target,direction,nx,ny))return false;
         boolean warped = false;
         int arrivalDirection = direction;
         if (warp != null && warp.targetWarp() != 255 && maps.ids().contains(warp.target())) {
@@ -216,6 +223,7 @@ public final class MapMovement {
         // Decode before committing a transition, so failed ROM resources leave the player in the
         // old map.
         maps.tiles(target);
+        if(!surfAllowed&&!water()&&maps.isWater(maps.tiles(target).behavior(target.block(nx,ny)&1023)))return false;
         if (warped && !enterWarp.test(dx, dy)) return false;
         if (!target.id().equals(map.id())) prepareTransition.accept(target);
         if(warped)spinningDirection=-1;

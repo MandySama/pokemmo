@@ -35,4 +35,7 @@
     <include filename="ui/monster-frame.xml"/>
     <include filename="ui/encounter.xml"/>
     <include filename="ui/encounter-counter.xml"/>
+    <include filename="ui/market.xml"/>
+    <include filename="ui/giftshop.xml"/>
+    <include filename="ui/incubator.xml"/>
 </themes>

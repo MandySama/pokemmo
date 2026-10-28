@@ -8,7 +8,7 @@ import java.util.*;
 
 /** Finite reference StoryRuntime/StoryActionTransaction adapters. No arbitrary script execution. */
 final class KantoMainline {
-    static final List<JsonObject> PROGRAMS=List.of(read("/story/kanto/catch-tutorial.json"),read("/story/kanto/early-route.json"),read("/story/kanto/mainline.json"),read("/story/kanto/middle.json"),read("/story/kanto/mechanisms.json"));
+    static final List<JsonObject> PROGRAMS=List.of(read("/story/kanto/catch-tutorial.json"),read("/story/kanto/early-route.json"),read("/story/kanto/postgame.json"),read("/story/kanto/mainline.json"),read("/story/kanto/middle.json"),read("/story/kanto/mechanisms.json"));
     static final JsonObject PICKUPS=read("/world/kanto-items.json");
     static final JsonObject TRAINERS=read("/world/kanto-trainers.json");
     static final Set<String> DURABLE=Set.of("GRANT_ITEM","REMOVE_ITEM","GRANT_POKEMON","SET_STORY_BIT","SET_EXTRA_STORY_BIT","SET_BADGE","SET_CHAMPION","SET_EVENT_FLAG");
@@ -61,6 +61,7 @@ final class KantoMainline {
             case "CHAMPION_SET" -> p.champion();
             case "CHAMPION_CLEAR" -> !p.champion();
             case "ELITE_STAGE_EQUALS" -> p.elite()==v;
+            case "KANTO_OWNED_AT_LEAST" -> KantoPostgame.owned(db,owner)>=v;
             case "EVENT_FLAG_SET" -> event(db,owner,c.get("flag").getAsString());
             case "EVENT_FLAG_CLEAR" -> !event(db,owner,c.get("flag").getAsString());
             case "NOT_IN_BATTLE","NOT_IN_TRADE","INTERACTION_IDLE" -> true;

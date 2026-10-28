@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<themes>
+    <theme name="incubator-frame" ref="market-window">
+        <param name="border"><border>35,10,10,10</border></param>
+    </theme>
+    <theme name="incubator-slot" ref="button">
+        <param name=""><image>pc-slot.*</image></param>
+        <param name="border"><border>0</border></param>
+    </theme>
+    <theme name="incubator-content" ref="widget">
+        <param name="background"><image>ui-inner-frame-inverted.background</image></param>
+        <param name="border"><border>5</border></param>
+    </theme>
+    <theme name="incubator-description" ref="label">
+        <param name="background"><image>ui-inputbox.background</image></param>
+        <param name="textAlignment"><enum type="alignment">CENTER</enum></param>
+        <param name="border"><border>6</border></param>
+    </theme>
+</themes>

@@ -259,7 +259,9 @@
     },
     "battle_complete": {
       "actions": [
-        {"type": "NOTIFY", "message": "真新镇开场剧情已完成，进度已保存。重新登录不会重复领取或重打开场。"},
+        {"type": "DIALOGUE", "actor": "rival", "text": "rivalFarewell", "facePlayer": true},
+        {"type": "MOVE_NPC", "actor": "rival", "target": {"x": 6, "y": 12}},
+        {"type": "SET_OPENING_STAGE", "expected": 3, "nextStage": 4},
         {"type": "CLOSE_SCENE"}
       ]
     },
@@ -337,6 +339,7 @@
     "rivalChooses": 1629492,
     "rivalObtained": 1629522,
     "challenge": 1629604,
+    "rivalFarewell": 1629752,
     "momBoy": 1626864,
     "momGirl": 1626976,
     "momRest": 1627089,

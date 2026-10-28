@@ -1,0 +1,2584 @@
+{
+  "source": {
+    "romSha256": "67de86a1bc8e7eb6479dbbbd6e8f5edfc2fa160576a38e40e06d2180ed63b110",
+    "scripts": "pret/pokeplatinum@579d2d5c65e736a1a4268fb7acbfd70712177c6c",
+    "mapHeaders": "ARM9 signature 1573448,1573449; events zone_event.narc; trdata/trpoke"
+  },
+  "maps": [
+    {
+      "id": 415,
+      "npcs": [
+        {
+          "id": 0,
+          "graphics": 148,
+          "x": 10,
+          "y": 4,
+          "direction": 2,
+          "max": 0
+        }
+      ]
+    },
+    {
+      "id": 413,
+      "npcs": [
+        {
+          "id": 0,
+          "graphics": 148,
+          "x": 9,
+          "y": 5,
+          "direction": 1,
+          "max": 1
+        }
+      ]
+    },
+    {
+      "id": 342,
+      "npcs": [
+        {
+          "id": 2,
+          "graphics": 148,
+          "x": 16,
+          "y": 23,
+          "direction": 2,
+          "max": 3
+        },
+        {
+          "id": 5,
+          "graphics": 99,
+          "x": 9,
+          "y": 21,
+          "direction": 0,
+          "min": 1,
+          "max": 1
+        },
+        {
+          "id": 12,
+          "graphics": 174,
+          "x": 16,
+          "y": 22,
+          "direction": 0,
+          "min": 1,
+          "max": 1
+        }
+      ]
+    },
+    {
+      "id": 414,
+      "npcs": [
+        {
+          "id": 0,
+          "graphics": 140,
+          "x": 7,
+          "y": 8,
+          "direction": 1
+        },
+        {
+          "id": 1,
+          "graphics": 16,
+          "x": 6,
+          "y": 10,
+          "direction": 1,
+          "min": 5,
+          "max": 5
+        }
+      ]
+    },
+    {
+      "id": 311,
+      "npcs": [
+        {
+          "id": 4,
+          "graphics": 120,
+          "x": 48,
+          "y": 43,
+          "direction": 1,
+          "min": 3,
+          "max": 3
+        },
+        {
+          "id": 5,
+          "graphics": 148,
+          "x": 47,
+          "y": 54,
+          "direction": 1,
+          "min": 3,
+          "max": 3
+        }
+      ]
+    },
+    {
+      "id": 422,
+      "npcs": [
+        {
+          "id": 0,
+          "graphics": 99,
+          "x": 7,
+          "y": 5,
+          "direction": 0
+        },
+        {
+          "id": 1,
+          "graphics": 29,
+          "x": 3,
+          "y": 12,
+          "direction": 0
+        },
+        {
+          "id": 2,
+          "graphics": 30,
+          "x": 10,
+          "y": 12,
+          "direction": 0
+        },
+        {
+          "id": 3,
+          "graphics": 101,
+          "x": 7,
+          "y": 14,
+          "direction": 0,
+          "max": 5
+        }
+      ]
+    },
+    {
+      "id": 343,
+      "npcs": [
+        {
+          "id": 3,
+          "graphics": 101,
+          "x": 14,
+          "y": 27,
+          "direction": 3,
+          "min": 5,
+          "max": 6
+        },
+        {
+          "id": 0,
+          "graphics": 4,
+          "x": 6,
+          "y": 13,
+          "direction": 0
+        },
+        {
+          "id": 1,
+          "graphics": 6,
+          "x": 21,
+          "y": 18,
+          "direction": 0
+        },
+        {
+          "id": 2,
+          "graphics": 4,
+          "x": 25,
+          "y": 4,
+          "direction": 0
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "npcs": [
+        {
+          "id": 31,
+          "graphics": 213,
+          "x": 58,
+          "y": 20,
+          "direction": 0,
+          "min": 7,
+          "max": 8
+        },
+        {
+          "id": 23,
+          "graphics": 82,
+          "x": 46,
+          "y": 35,
+          "direction": 2,
+          "min": 8
+        },
+        {
+          "id": 24,
+          "graphics": 43,
+          "x": 55,
+          "y": 33,
+          "direction": 0,
+          "min": 8,
+          "max": 8
+        },
+        {
+          "id": 25,
+          "graphics": 43,
+          "x": 15,
+          "y": 18,
+          "direction": 0,
+          "min": 8,
+          "max": 8
+        },
+        {
+          "id": 27,
+          "graphics": 43,
+          "x": 36,
+          "y": 16,
+          "direction": 0,
+          "min": 8,
+          "max": 8
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "npcs": [
+        {
+          "id": 1,
+          "graphics": 148,
+          "x": 6,
+          "y": 3,
+          "direction": 1,
+          "min": 7,
+          "max": 7
+        }
+      ]
+    },
+    {
+      "id": 344,
+      "npcs": [
+        {
+          "id": 5,
+          "graphics": 148,
+          "x": 9,
+          "y": 21,
+          "direction": 2,
+          "min": 9,
+          "max": 9
+        },
+        {
+          "id": 0,
+          "graphics": 4,
+          "x": 42,
+          "y": 21,
+          "direction": 2
+        },
+        {
+          "id": 1,
+          "graphics": 4,
+          "x": 12,
+          "y": 14,
+          "direction": 2
+        },
+        {
+          "id": 2,
+          "graphics": 6,
+          "x": 51,
+          "y": 21,
+          "direction": 1
+        },
+        {
+          "id": 3,
+          "graphics": 4,
+          "x": 30,
+          "y": 20,
+          "direction": 0
+        },
+        {
+          "id": 4,
+          "graphics": 6,
+          "x": 48,
+          "y": 12,
+          "direction": 0
+        }
+      ]
+    },
+    {
+      "id": 258,
+      "npcs": [
+        {
+          "id": 10,
+          "graphics": 20,
+          "x": 7,
+          "y": 20,
+          "direction": 0
+        },
+        {
+          "id": 0,
+          "graphics": 53,
+          "x": 24,
+          "y": 21,
+          "direction": 0
+        },
+        {
+          "id": 1,
+          "graphics": 52,
+          "x": 17,
+          "y": 25,
+          "direction": 1
+        }
+      ]
+    },
+    {
+      "id": 199,
+      "npcs": [
+        {
+          "id": 0,
+          "graphics": 126,
+          "x": 18,
+          "y": 28,
+          "direction": 3,
+          "min": 11,
+          "max": 11
+        },
+        {
+          "id": 5,
+          "graphics": 40,
+          "x": 8,
+          "y": 28,
+          "direction": 1
+        },
+        {
+          "id": 6,
+          "graphics": 40,
+          "x": 26,
+          "y": 20,
+          "direction": 2
+        }
+      ]
+    },
+    {
+      "id": 47,
+      "npcs": [
+        {
+          "id": 0,
+          "graphics": 126,
+          "x": 5,
+          "y": 3,
+          "direction": 0,
+          "min": 12
+        },
+        {
+          "id": 1,
+          "graphics": 168,
+          "x": 6,
+          "y": 23,
+          "direction": 0
+        },
+        {
+          "id": 2,
+          "graphics": 4,
+          "x": 4,
+          "y": 18,
+          "direction": 3
+        },
+        {
+          "id": 3,
+          "graphics": 4,
+          "x": 7,
+          "y": 11,
+          "direction": 2
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "npcs": [
+        {
+          "id": 3,
+          "graphics": 26,
+          "x": 8,
+          "y": 4,
+          "direction": 0
+        }
+      ]
+    },
+    {
+      "id": 48,
+      "npcs": [
+        {
+          "id": 3,
+          "graphics": 26,
+          "x": 8,
+          "y": 4,
+          "direction": 0
+        }
+      ]
+    },
+    {
+      "id": 420,
+      "npcs": [
+        {
+          "id": 3,
+          "graphics": 26,
+          "x": 8,
+          "y": 4,
+          "direction": 0
+        }
+      ]
+    }
+  ],
+  "triggers": [
+    {
+      "map": 415,
+      "event": "MAP_READY",
+      "node": "intro",
+      "min": 0,
+      "max": 0
+    },
+    {
+      "map": 411,
+      "event": "MAP_READY",
+      "node": "intro_legacy",
+      "min": 0,
+      "max": 0
+    },
+    {
+      "map": 414,
+      "event": "NPC",
+      "node": "mother_before",
+      "min": 1,
+      "max": 1,
+      "actor": 0
+    },
+    {
+      "map": 413,
+      "event": "MAP_READY",
+      "node": "rival_house",
+      "min": 1,
+      "max": 1
+    },
+    {
+      "map": 342,
+      "event": "MAP_READY",
+      "node": "route201",
+      "min": 1,
+      "max": 1
+    },
+    {
+      "map": 414,
+      "event": "NPC",
+      "node": "home_heal",
+      "min": 3,
+      "max": 4,
+      "actor": 0
+    },
+    {
+      "map": 414,
+      "event": "NPC",
+      "node": "home_heal",
+      "min": 6,
+      "max": 13,
+      "actor": 0
+    },
+    {
+      "map": 311,
+      "event": "MAP_READY",
+      "node": "lake",
+      "min": 3,
+      "max": 3
+    },
+    {
+      "map": 422,
+      "event": "MAP_READY",
+      "node": "lab",
+      "min": 4,
+      "max": 4
+    },
+    {
+      "map": 422,
+      "event": "NPC",
+      "node": "rowan_after",
+      "min": 5,
+      "max": 13,
+      "actor": 0
+    },
+    {
+      "map": 414,
+      "event": "MAP_READY",
+      "node": "mother_parcel",
+      "min": 5,
+      "max": 5
+    },
+    {
+      "map": 414,
+      "event": "NPC",
+      "node": "mother_parcel",
+      "min": 5,
+      "max": 5,
+      "actor": 0
+    },
+    {
+      "map": 343,
+      "event": "MAP_READY",
+      "node": "catch",
+      "min": 6,
+      "max": 6
+    },
+    {
+      "map": 343,
+      "event": "MAP_READY",
+      "node": "tell_mother",
+      "min": 5,
+      "max": 5
+    },
+    {
+      "map": 3,
+      "event": "MAP_READY",
+      "node": "looker",
+      "min": 7,
+      "max": 7,
+      "clear": "looker"
+    },
+    {
+      "map": 29,
+      "event": "NPC",
+      "node": "school",
+      "min": 7,
+      "max": 7,
+      "actor": 1
+    },
+    {
+      "map": 3,
+      "event": "NPC",
+      "node": "poketch_intro",
+      "min": 8,
+      "max": 8,
+      "actor": 23,
+      "clear": "poketch_campaign"
+    },
+    {
+      "map": 3,
+      "event": "NPC",
+      "node": "coupon1",
+      "min": 8,
+      "max": 8,
+      "actor": 24,
+      "clear": "coupon1"
+    },
+    {
+      "map": 3,
+      "event": "NPC",
+      "node": "coupon1_after",
+      "min": 8,
+      "max": 8,
+      "actor": 24,
+      "set": "coupon1"
+    },
+    {
+      "map": 3,
+      "event": "NPC",
+      "node": "coupon2",
+      "min": 8,
+      "max": 8,
+      "actor": 25,
+      "clear": "coupon2"
+    },
+    {
+      "map": 3,
+      "event": "NPC",
+      "node": "coupon2_after",
+      "min": 8,
+      "max": 8,
+      "actor": 25,
+      "set": "coupon2"
+    },
+    {
+      "map": 3,
+      "event": "NPC",
+      "node": "coupon3",
+      "min": 8,
+      "max": 8,
+      "actor": 27,
+      "clear": "coupon3"
+    },
+    {
+      "map": 3,
+      "event": "NPC",
+      "node": "coupon3_after",
+      "min": 8,
+      "max": 8,
+      "actor": 27,
+      "set": "coupon3"
+    },
+    {
+      "map": 3,
+      "event": "NPC",
+      "node": "poketch",
+      "min": 8,
+      "max": 8,
+      "actor": 23,
+      "all": [
+        "coupon1",
+        "coupon2",
+        "coupon3"
+      ]
+    },
+    {
+      "map": 3,
+      "event": "NPC",
+      "node": "poketch_intro",
+      "min": 8,
+      "max": 8,
+      "actor": 23
+    },
+    {
+      "map": 344,
+      "event": "MAP_READY",
+      "node": "rival203",
+      "min": 9,
+      "max": 9
+    },
+    {
+      "map": 258,
+      "event": "MAP_READY",
+      "node": "gate",
+      "min": 10,
+      "max": 10
+    },
+    {
+      "map": 258,
+      "event": "NPC",
+      "node": "gate",
+      "min": 10,
+      "max": 10,
+      "actor": 10
+    },
+    {
+      "map": 199,
+      "event": "NPC",
+      "node": "mine",
+      "min": 11,
+      "max": 11,
+      "actor": 0
+    },
+    {
+      "map": 47,
+      "event": "NPC",
+      "node": "gym",
+      "min": 12,
+      "max": 12,
+      "actor": 0
+    },
+    {
+      "map": 47,
+      "event": "NPC",
+      "node": "gym_after",
+      "min": 13,
+      "max": 13,
+      "actor": 0
+    },
+    {
+      "map": 47,
+      "event": "NPC",
+      "node": "gym_guide",
+      "min": 0,
+      "max": 12,
+      "actor": 1
+    },
+    {
+      "map": 47,
+      "event": "NPC",
+      "node": "gym_guide_after",
+      "min": 13,
+      "max": 13,
+      "actor": 1
+    },
+    {
+      "map": 6,
+      "event": "NPC",
+      "node": "nurse",
+      "min": 3,
+      "max": 13,
+      "actor": 3
+    },
+    {
+      "map": 48,
+      "event": "NPC",
+      "node": "nurse",
+      "min": 3,
+      "max": 13,
+      "actor": 3
+    },
+    {
+      "map": 420,
+      "event": "NPC",
+      "node": "nurse",
+      "min": 3,
+      "max": 13,
+      "actor": 3
+    },
+    {
+      "map": 343,
+      "event": "NPC",
+      "node": "trainer1",
+      "min": 7,
+      "max": 13,
+      "actor": 0,
+      "clear": "trainer1"
+    },
+    {
+      "map": 343,
+      "event": "NPC",
+      "node": "trainer3",
+      "min": 7,
+      "max": 13,
+      "actor": 1,
+      "clear": "trainer3"
+    },
+    {
+      "map": 343,
+      "event": "NPC",
+      "node": "trainer2",
+      "min": 7,
+      "max": 13,
+      "actor": 2,
+      "clear": "trainer2"
+    },
+    {
+      "map": 344,
+      "event": "NPC",
+      "node": "trainer356",
+      "min": 7,
+      "max": 13,
+      "actor": 0,
+      "clear": "trainer356"
+    },
+    {
+      "map": 344,
+      "event": "NPC",
+      "node": "trainer4",
+      "min": 7,
+      "max": 13,
+      "actor": 1,
+      "clear": "trainer4"
+    },
+    {
+      "map": 344,
+      "event": "NPC",
+      "node": "trainer323",
+      "min": 7,
+      "max": 13,
+      "actor": 2,
+      "clear": "trainer323"
+    },
+    {
+      "map": 344,
+      "event": "NPC",
+      "node": "trainer355",
+      "min": 7,
+      "max": 13,
+      "actor": 3,
+      "clear": "trainer355"
+    },
+    {
+      "map": 344,
+      "event": "NPC",
+      "node": "trainer322",
+      "min": 7,
+      "max": 13,
+      "actor": 4,
+      "clear": "trainer322"
+    },
+    {
+      "map": 258,
+      "event": "NPC",
+      "node": "trainer329",
+      "min": 7,
+      "max": 13,
+      "actor": 0,
+      "clear": "trainer329"
+    },
+    {
+      "map": 258,
+      "event": "NPC",
+      "node": "trainer265",
+      "min": 7,
+      "max": 13,
+      "actor": 1,
+      "clear": "trainer265"
+    },
+    {
+      "map": 199,
+      "event": "NPC",
+      "node": "trainer195",
+      "min": 7,
+      "max": 13,
+      "actor": 5,
+      "clear": "trainer195"
+    },
+    {
+      "map": 199,
+      "event": "NPC",
+      "node": "trainer196",
+      "min": 7,
+      "max": 13,
+      "actor": 6,
+      "clear": "trainer196"
+    },
+    {
+      "map": 47,
+      "event": "NPC",
+      "node": "trainer244",
+      "min": 7,
+      "max": 13,
+      "actor": 2,
+      "clear": "trainer244"
+    },
+    {
+      "map": 47,
+      "event": "NPC",
+      "node": "trainer245",
+      "min": 7,
+      "max": 13,
+      "actor": 3,
+      "clear": "trainer245"
+    }
+  ],
+  "nodes": {
+    "intro": [
+      {
+        "type": "DIALOGUE",
+        "text": 1076027392,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1076027393,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1076027398,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1076027399,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1076027402,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "stage",
+        "value": 1
+      }
+    ],
+    "intro_legacy": [
+      {
+        "type": "CHANGE_MAP",
+        "map": 415,
+        "x": 5,
+        "y": 4,
+        "direction": 0
+      },
+      {
+        "type": "GOTO",
+        "node": "intro"
+      }
+    ],
+    "mother_before": [
+      {
+        "type": "DIALOGUE",
+        "text": 1076023296,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1076023300,
+        "actor": -1
+      }
+    ],
+    "rival_house": [
+      {
+        "type": "DIALOGUE",
+        "text": 1076019200,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1076019201,
+        "actor": -1
+      }
+    ],
+    "route201": [
+      {
+        "type": "DIALOGUE",
+        "text": 1075650560,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1075650561,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1075650562,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1075650565,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1075650566,
+        "actor": -1
+      },
+      {
+        "type": "YES_NO",
+        "text": 1075650571,
+        "actor": -1,
+        "nodes": [
+          "rowan_no",
+          "rowan_yes"
+        ]
+      }
+    ],
+    "rowan_no": [
+      {
+        "type": "DIALOGUE",
+        "text": 1075650572,
+        "actor": -1
+      },
+      {
+        "type": "YES_NO",
+        "text": 1075650573,
+        "actor": -1,
+        "nodes": [
+          "rowan_no",
+          "rowan_yes"
+        ]
+      }
+    ],
+    "rowan_yes": [
+      {
+        "type": "DIALOGUE",
+        "text": 1075650574,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1075650579,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1075650580,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1075650581,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1075650590,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1075650591,
+        "actor": -1
+      },
+      {
+        "type": "SELECT_OPTION",
+        "text": 1075650591,
+        "options": [
+          "TURTWIG",
+          "CHIMCHAR",
+          "PIPLUP"
+        ],
+        "nodes": [
+          "starter0",
+          "starter1",
+          "starter2"
+        ]
+      }
+    ],
+    "starter0": [
+      {
+        "type": "OP",
+        "op": "starter",
+        "value": 0
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1075650596,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1075650597,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1075650598,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1075650604,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1075650607,
+        "actor": -1
+      },
+      {
+        "type": "START_BATTLE",
+        "trainers": [
+          851,
+          852,
+          850
+        ],
+        "win": "first_win",
+        "lose": "first_lose"
+      }
+    ],
+    "starter1": [
+      {
+        "type": "OP",
+        "op": "starter",
+        "value": 1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1075650596,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1075650597,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1075650598,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1075650604,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1075650607,
+        "actor": -1
+      },
+      {
+        "type": "START_BATTLE",
+        "trainers": [
+          851,
+          852,
+          850
+        ],
+        "win": "first_win",
+        "lose": "first_lose"
+      }
+    ],
+    "starter2": [
+      {
+        "type": "OP",
+        "op": "starter",
+        "value": 2
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1075650596,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1075650597,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1075650598,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1075650604,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1075650607,
+        "actor": -1
+      },
+      {
+        "type": "START_BATTLE",
+        "trainers": [
+          851,
+          852,
+          850
+        ],
+        "win": "first_win",
+        "lose": "first_lose"
+      }
+    ],
+    "first_win": [
+      {
+        "type": "DIALOGUE",
+        "text": 1075650608,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "heal"
+      },
+      {
+        "type": "CHANGE_MAP",
+        "map": 414,
+        "x": 2,
+        "y": 6,
+        "direction": 1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1076023302,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1076023303,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1076023304,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "flag",
+        "value": "shoes"
+      },
+      {
+        "type": "OP",
+        "op": "stage",
+        "value": 3
+      }
+    ],
+    "first_lose": [
+      {
+        "type": "DIALOGUE",
+        "text": 1075650609,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "heal"
+      },
+      {
+        "type": "CHANGE_MAP",
+        "map": 414,
+        "x": 2,
+        "y": 6,
+        "direction": 1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1076023302,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1076023303,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1076023304,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "flag",
+        "value": "shoes"
+      },
+      {
+        "type": "OP",
+        "op": "stage",
+        "value": 3
+      }
+    ],
+    "home_heal": [
+      {
+        "type": "DIALOGUE",
+        "text": 1076023308,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "heal"
+      }
+    ],
+    "lake": [
+      {
+        "type": "DIALOGUE",
+        "text": 1074933760,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1074933761,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1074933762,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1074933763,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1074933764,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1074933765,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1074933766,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1074933767,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "stage",
+        "value": 4
+      }
+    ],
+    "lab": [
+      {
+        "type": "DIALOGUE",
+        "text": 1076056064,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1076056065,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1076056067,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1076056070,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1076056073,
+        "actor": -1
+      },
+      {
+        "type": "YES_NO",
+        "text": 1076056074,
+        "actor": -1,
+        "nodes": [
+          "dex_no",
+          "dex"
+        ]
+      }
+    ],
+    "dex_no": [
+      {
+        "type": "YES_NO",
+        "text": 1076056075,
+        "actor": -1,
+        "nodes": [
+          "dex_no",
+          "dex"
+        ]
+      }
+    ],
+    "dex": [
+      {
+        "type": "DIALOGUE",
+        "text": 1076056076,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "dex"
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1076056077,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1076056078,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1076056081,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "stage",
+        "value": 5
+      }
+    ],
+    "rowan_after": [
+      {
+        "type": "DIALOGUE",
+        "text": 1076056082,
+        "actor": -1
+      }
+    ],
+    "mother_parcel": [
+      {
+        "type": "DIALOGUE",
+        "text": 1076023311,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "item",
+        "key": "journal",
+        "item": 5433,
+        "count": 1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1076023312,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1076023313,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1076023314,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1076023315,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1076023317,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1076023318,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1076023320,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "item",
+        "key": "parcel",
+        "item": 5459,
+        "count": 1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1076023322,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "stage",
+        "value": 6
+      }
+    ],
+    "catch": [
+      {
+        "type": "DIALOGUE",
+        "text": 1075654659,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "item",
+        "key": "balls",
+        "item": 5004,
+        "count": 5
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1075654660,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "flag",
+        "value": "catching_tutorial"
+      },
+      {
+        "type": "OP",
+        "op": "stage",
+        "value": 7
+      }
+    ],
+    "tell_mother": [
+      {
+        "type": "DIALOGUE",
+        "text": 1075654656,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1075654657,
+        "actor": -1
+      }
+    ],
+    "looker": [
+      {
+        "type": "DIALOGUE",
+        "text": 1073836032,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1073836035,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1073836044,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1073836045,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1073836049,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1073836050,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1073836052,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "flag",
+        "value": "vs_recorder"
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1073836054,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1073836056,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1073836057,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "flag",
+        "value": "looker"
+      }
+    ],
+    "school": [
+      {
+        "type": "DIALOGUE",
+        "text": 1073942528,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1073942529,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "remove",
+        "item": 5459,
+        "count": 1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1073942530,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "item",
+        "key": "town_map",
+        "item": 5442,
+        "count": 1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1073942531,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "stage",
+        "value": 8
+      }
+    ],
+    "poketch_intro": [
+      {
+        "type": "DIALOGUE",
+        "text": 1073836071,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1073836072,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1073836073,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "flag",
+        "value": "poketch_campaign"
+      }
+    ],
+    "coupon1": [
+      {
+        "type": "YES_NO",
+        "text": 1073836077,
+        "actor": -1,
+        "nodes": [
+          "coupon1_no",
+          "coupon1_yes"
+        ]
+      }
+    ],
+    "coupon1_yes": [
+      {
+        "type": "DIALOGUE",
+        "text": 1073836078,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1073836080,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1073836081,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "flag",
+        "value": "coupon1"
+      }
+    ],
+    "coupon1_no": [
+      {
+        "type": "DIALOGUE",
+        "text": 1073836079,
+        "actor": -1
+      }
+    ],
+    "coupon1_after": [
+      {
+        "type": "DIALOGUE",
+        "text": 1073836082,
+        "actor": -1
+      }
+    ],
+    "coupon2": [
+      {
+        "type": "YES_NO",
+        "text": 1073836083,
+        "actor": -1,
+        "nodes": [
+          "coupon2_no",
+          "coupon2_yes"
+        ]
+      }
+    ],
+    "coupon2_yes": [
+      {
+        "type": "DIALOGUE",
+        "text": 1073836084,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1073836086,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1073836087,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "flag",
+        "value": "coupon2"
+      }
+    ],
+    "coupon2_no": [
+      {
+        "type": "DIALOGUE",
+        "text": 1073836085,
+        "actor": -1
+      }
+    ],
+    "coupon2_after": [
+      {
+        "type": "DIALOGUE",
+        "text": 1073836088,
+        "actor": -1
+      }
+    ],
+    "coupon3": [
+      {
+        "type": "YES_NO",
+        "text": 1073836089,
+        "actor": -1,
+        "nodes": [
+          "coupon3_no",
+          "coupon3_yes"
+        ]
+      }
+    ],
+    "coupon3_yes": [
+      {
+        "type": "DIALOGUE",
+        "text": 1073836090,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1073836092,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1073836093,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "flag",
+        "value": "coupon3"
+      }
+    ],
+    "coupon3_no": [
+      {
+        "type": "DIALOGUE",
+        "text": 1073836091,
+        "actor": -1
+      }
+    ],
+    "coupon3_after": [
+      {
+        "type": "DIALOGUE",
+        "text": 1073836095,
+        "actor": -1
+      }
+    ],
+    "poketch": [
+      {
+        "type": "DIALOGUE",
+        "text": 1073836074,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "flag",
+        "value": "poketch"
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1073836075,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "stage",
+        "value": 9
+      }
+    ],
+    "rival203": [
+      {
+        "type": "DIALOGUE",
+        "text": 1075658752,
+        "actor": -1
+      },
+      {
+        "type": "START_BATTLE",
+        "trainers": [
+          248,
+          249,
+          247
+        ],
+        "win": "rival203_win",
+        "lose": "rival203_lose"
+      }
+    ],
+    "rival203_win": [
+      {
+        "type": "DIALOGUE",
+        "text": 1075658753,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "stage",
+        "value": 10
+      }
+    ],
+    "rival203_lose": [
+      {
+        "type": "OP",
+        "op": "heal"
+      },
+      {
+        "type": "CHANGE_MAP",
+        "map": 6,
+        "x": 8,
+        "y": 14,
+        "direction": 0
+      },
+      {
+        "type": "OP",
+        "op": "heal"
+      }
+    ],
+    "gate": [
+      {
+        "type": "DIALOGUE",
+        "text": 1074794496,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "item",
+        "key": "rock_smash",
+        "item": 1297,
+        "count": 1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1074794497,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "stage",
+        "value": 11
+      }
+    ],
+    "mine": [
+      {
+        "type": "DIALOGUE",
+        "text": 1074655232,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1074655233,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "flag",
+        "value": "roark_in_gym"
+      },
+      {
+        "type": "OP",
+        "op": "stage",
+        "value": 12
+      }
+    ],
+    "gym": [
+      {
+        "type": "DIALOGUE",
+        "text": 1074016256,
+        "actor": 0
+      },
+      {
+        "type": "START_BATTLE",
+        "trainer": 246,
+        "win": "badge",
+        "lose": "gym_lose"
+      }
+    ],
+    "badge": [
+      {
+        "type": "DIALOGUE",
+        "text": 1074016257,
+        "actor": 0
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1074016258,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "badge"
+      },
+      {
+        "type": "OP",
+        "op": "flag",
+        "value": "trainer244"
+      },
+      {
+        "type": "OP",
+        "op": "flag",
+        "value": "trainer245"
+      },
+      {
+        "type": "OP",
+        "op": "stage",
+        "value": 13
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1074016259,
+        "actor": 0
+      },
+      {
+        "type": "OP",
+        "op": "item",
+        "key": "stealth_rock",
+        "item": 1618,
+        "count": 1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1074016260,
+        "actor": 0
+      }
+    ],
+    "gym_lose": [
+      {
+        "type": "OP",
+        "op": "heal"
+      },
+      {
+        "type": "CHANGE_MAP",
+        "map": 48,
+        "x": 8,
+        "y": 14,
+        "direction": 0
+      },
+      {
+        "type": "OP",
+        "op": "heal"
+      }
+    ],
+    "gym_after": [
+      {
+        "type": "DIALOGUE",
+        "text": 1074016261,
+        "actor": 0
+      }
+    ],
+    "gym_guide": [
+      {
+        "type": "DIALOGUE",
+        "text": 1074016262,
+        "actor": 1
+      }
+    ],
+    "gym_guide_after": [
+      {
+        "type": "DIALOGUE",
+        "text": 1074016263,
+        "actor": 1
+      }
+    ],
+    "nurse": [
+      {
+        "type": "YES_NO",
+        "text": 1074614272,
+        "actor": -1,
+        "nodes": [
+          "nurse_bye",
+          "nurse_heal"
+        ]
+      }
+    ],
+    "nurse_heal": [
+      {
+        "type": "DIALOGUE",
+        "text": 1074614273,
+        "actor": -1
+      },
+      {
+        "type": "OP",
+        "op": "heal"
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1074614274,
+        "actor": -1
+      },
+      {
+        "type": "DIALOGUE",
+        "text": 1074614275,
+        "actor": -1
+      }
+    ],
+    "nurse_bye": [
+      {
+        "type": "DIALOGUE",
+        "text": 1074614275,
+        "actor": -1
+      }
+    ],
+    "trainer1": [
+      {
+        "type": "START_BATTLE",
+        "trainer": 1,
+        "win": "trainer1_win",
+        "lose": "optional_lose"
+      }
+    ],
+    "trainer1_win": [
+      {
+        "type": "OP",
+        "op": "flag",
+        "value": "trainer1"
+      }
+    ],
+    "trainer3": [
+      {
+        "type": "START_BATTLE",
+        "trainer": 3,
+        "win": "trainer3_win",
+        "lose": "optional_lose"
+      }
+    ],
+    "trainer3_win": [
+      {
+        "type": "OP",
+        "op": "flag",
+        "value": "trainer3"
+      }
+    ],
+    "trainer2": [
+      {
+        "type": "START_BATTLE",
+        "trainer": 2,
+        "win": "trainer2_win",
+        "lose": "optional_lose"
+      }
+    ],
+    "trainer2_win": [
+      {
+        "type": "OP",
+        "op": "flag",
+        "value": "trainer2"
+      }
+    ],
+    "trainer356": [
+      {
+        "type": "START_BATTLE",
+        "trainer": 356,
+        "win": "trainer356_win",
+        "lose": "optional_lose"
+      }
+    ],
+    "trainer356_win": [
+      {
+        "type": "OP",
+        "op": "flag",
+        "value": "trainer356"
+      }
+    ],
+    "trainer4": [
+      {
+        "type": "START_BATTLE",
+        "trainer": 4,
+        "win": "trainer4_win",
+        "lose": "optional_lose"
+      }
+    ],
+    "trainer4_win": [
+      {
+        "type": "OP",
+        "op": "flag",
+        "value": "trainer4"
+      }
+    ],
+    "trainer323": [
+      {
+        "type": "START_BATTLE",
+        "trainer": 323,
+        "win": "trainer323_win",
+        "lose": "optional_lose"
+      }
+    ],
+    "trainer323_win": [
+      {
+        "type": "OP",
+        "op": "flag",
+        "value": "trainer323"
+      }
+    ],
+    "trainer355": [
+      {
+        "type": "START_BATTLE",
+        "trainer": 355,
+        "win": "trainer355_win",
+        "lose": "optional_lose"
+      }
+    ],
+    "trainer355_win": [
+      {
+        "type": "OP",
+        "op": "flag",
+        "value": "trainer355"
+      }
+    ],
+    "trainer322": [
+      {
+        "type": "START_BATTLE",
+        "trainer": 322,
+        "win": "trainer322_win",
+        "lose": "optional_lose"
+      }
+    ],
+    "trainer322_win": [
+      {
+        "type": "OP",
+        "op": "flag",
+        "value": "trainer322"
+      }
+    ],
+    "trainer329": [
+      {
+        "type": "START_BATTLE",
+        "trainer": 329,
+        "win": "trainer329_win",
+        "lose": "optional_lose"
+      }
+    ],
+    "trainer329_win": [
+      {
+        "type": "OP",
+        "op": "flag",
+        "value": "trainer329"
+      }
+    ],
+    "trainer265": [
+      {
+        "type": "START_BATTLE",
+        "trainer": 265,
+        "win": "trainer265_win",
+        "lose": "optional_lose"
+      }
+    ],
+    "trainer265_win": [
+      {
+        "type": "OP",
+        "op": "flag",
+        "value": "trainer265"
+      }
+    ],
+    "trainer195": [
+      {
+        "type": "START_BATTLE",
+        "trainer": 195,
+        "win": "trainer195_win",
+        "lose": "optional_lose"
+      }
+    ],
+    "trainer195_win": [
+      {
+        "type": "OP",
+        "op": "flag",
+        "value": "trainer195"
+      }
+    ],
+    "trainer196": [
+      {
+        "type": "START_BATTLE",
+        "trainer": 196,
+        "win": "trainer196_win",
+        "lose": "optional_lose"
+      }
+    ],
+    "trainer196_win": [
+      {
+        "type": "OP",
+        "op": "flag",
+        "value": "trainer196"
+      }
+    ],
+    "trainer244": [
+      {
+        "type": "START_BATTLE",
+        "trainer": 244,
+        "win": "trainer244_win",
+        "lose": "optional_lose"
+      }
+    ],
+    "trainer244_win": [
+      {
+        "type": "OP",
+        "op": "flag",
+        "value": "trainer244"
+      }
+    ],
+    "trainer245": [
+      {
+        "type": "START_BATTLE",
+        "trainer": 245,
+        "win": "trainer245_win",
+        "lose": "optional_lose"
+      }
+    ],
+    "trainer245_win": [
+      {
+        "type": "OP",
+        "op": "flag",
+        "value": "trainer245"
+      }
+    ],
+    "optional_lose": [
+      {
+        "type": "OP",
+        "op": "heal"
+      },
+      {
+        "type": "CHANGE_MAP",
+        "map": 420,
+        "x": 8,
+        "y": 14,
+        "direction": 0
+      },
+      {
+        "type": "OP",
+        "op": "heal"
+      }
+    ]
+  },
+  "trainers": {
+    "1": {
+      "model": 2,
+      "money": 80,
+      "team": [
+        {
+          "species": 396,
+          "level": 5,
+          "iv": 0
+        }
+      ]
+    },
+    "2": {
+      "model": 2,
+      "money": 80,
+      "team": [
+        {
+          "species": 412,
+          "level": 5,
+          "iv": 0,
+          "moves": [
+            33,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    "3": {
+      "model": 3,
+      "money": 80,
+      "team": [
+        {
+          "species": 399,
+          "level": 5,
+          "iv": 0
+        }
+      ]
+    },
+    "4": {
+      "model": 2,
+      "money": 96,
+      "team": [
+        {
+          "species": 401,
+          "level": 7,
+          "iv": 0
+        },
+        {
+          "species": 41,
+          "level": 6,
+          "iv": 0
+        }
+      ]
+    },
+    "195": {
+      "model": 59,
+      "money": 320,
+      "team": [
+        {
+          "species": 74,
+          "level": 6,
+          "iv": 0
+        },
+        {
+          "species": 66,
+          "level": 8,
+          "iv": 0
+        }
+      ]
+    },
+    "196": {
+      "model": 59,
+      "money": 360,
+      "team": [
+        {
+          "species": 74,
+          "level": 9,
+          "iv": 0
+        }
+      ]
+    },
+    "244": {
+      "model": 2,
+      "money": 176,
+      "team": [
+        {
+          "species": 74,
+          "level": 11,
+          "iv": 1,
+          "moves": [
+            33,
+            111,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    "245": {
+      "model": 2,
+      "money": 144,
+      "team": [
+        {
+          "species": 74,
+          "level": 9,
+          "iv": 1,
+          "moves": [
+            33,
+            111,
+            0,
+            0
+          ]
+        },
+        {
+          "species": 95,
+          "level": 9,
+          "iv": 1,
+          "moves": [
+            88,
+            33,
+            106,
+            0
+          ]
+        }
+      ]
+    },
+    "246": {
+      "model": 62,
+      "money": 1680,
+      "team": [
+        {
+          "species": 74,
+          "level": 12,
+          "iv": 6,
+          "moves": [
+            446,
+            88,
+            0,
+            0
+          ]
+        },
+        {
+          "species": 95,
+          "level": 12,
+          "iv": 6,
+          "moves": [
+            446,
+            88,
+            103,
+            0
+          ]
+        },
+        {
+          "species": 408,
+          "level": 14,
+          "iv": 6,
+          "moves": [
+            29,
+            228,
+            43,
+            0
+          ]
+        }
+      ]
+    },
+    "247": {
+      "model": 63,
+      "money": 900,
+      "team": [
+        {
+          "species": 396,
+          "level": 7,
+          "iv": 3,
+          "moves": [
+            98,
+            45,
+            0,
+            0
+          ]
+        },
+        {
+          "species": 387,
+          "level": 9,
+          "iv": 3,
+          "moves": [
+            33,
+            110,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    "248": {
+      "model": 63,
+      "money": 900,
+      "team": [
+        {
+          "species": 396,
+          "level": 7,
+          "iv": 3,
+          "moves": [
+            98,
+            45,
+            0,
+            0
+          ]
+        },
+        {
+          "species": 390,
+          "level": 9,
+          "iv": 3,
+          "moves": [
+            10,
+            43,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    "249": {
+      "model": 63,
+      "money": 900,
+      "team": [
+        {
+          "species": 396,
+          "level": 7,
+          "iv": 3,
+          "moves": [
+            98,
+            45,
+            0,
+            0
+          ]
+        },
+        {
+          "species": 393,
+          "level": 9,
+          "iv": 3,
+          "moves": [
+            1,
+            45,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    "265": {
+      "model": 4,
+      "money": 112,
+      "team": [
+        {
+          "species": 396,
+          "level": 7,
+          "iv": 0
+        },
+        {
+          "species": 403,
+          "level": 7,
+          "iv": 0
+        }
+      ]
+    },
+    "322": {
+      "model": 3,
+      "money": 128,
+      "team": [
+        {
+          "species": 54,
+          "level": 8,
+          "iv": 0
+        }
+      ]
+    },
+    "323": {
+      "model": 3,
+      "money": 64,
+      "team": [
+        {
+          "species": 399,
+          "level": 4,
+          "iv": 0
+        },
+        {
+          "species": 406,
+          "level": 4,
+          "iv": 0
+        },
+        {
+          "species": 396,
+          "level": 4,
+          "iv": 0
+        },
+        {
+          "species": 63,
+          "level": 4,
+          "iv": 0
+        }
+      ]
+    },
+    "329": {
+      "model": 5,
+      "money": 144,
+      "team": [
+        {
+          "species": 399,
+          "level": 9,
+          "iv": 0
+        }
+      ]
+    },
+    "355": {
+      "model": 2,
+      "money": 128,
+      "team": [
+        {
+          "species": 403,
+          "level": 8,
+          "iv": 0
+        }
+      ]
+    },
+    "356": {
+      "model": 2,
+      "money": 128,
+      "team": [
+        {
+          "species": 66,
+          "level": 8,
+          "iv": 0,
+          "moves": [
+            67,
+            43,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    "850": {
+      "model": 63,
+      "money": 500,
+      "team": [
+        {
+          "species": 387,
+          "level": 5,
+          "iv": 0
+        }
+      ]
+    },
+    "851": {
+      "model": 63,
+      "money": 500,
+      "team": [
+        {
+          "species": 390,
+          "level": 5,
+          "iv": 0
+        }
+      ]
+    },
+    "852": {
+      "model": 63,
+      "money": 500,
+      "team": [
+        {
+          "species": 393,
+          "level": 5,
+          "iv": 0
+        }
+      ]
+    }
+  }
+}

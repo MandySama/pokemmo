@@ -30,13 +30,13 @@ import java.util.function.LongSupplier;
 public final class EncounterWindow extends Widget implements AutoCloseable {
     private NpcEncounter npc;
 
-    /** Uses existing random encounter snapshots as a local visual team, never a battle request. */
+    /** Use the encounter's authoritative trainer identity; only anonymous previews randomize. */
     public void openNpc(EncounterData value,
             top.totodile.pokemmo.client.ui.character.CharacterAppearance appearance,
             top.totodile.pokemmo.server.game.GameService.Appearance saved,
             String trainerName, EncounterEnvironment environment) throws IOException {
         prepare();
-        var opponent = new NpcEncounter(dex, images, resources, renderer, value.wilds());
+        var opponent = new NpcEncounter(dex, images, resources, renderer, value.wilds(),value.trainer());
         try {
             open(new EncounterData(value.player(), java.util.List.of(value.wild()), value.party(),value.trainer()),
                     appearance, saved, trainerName, environment);
@@ -719,6 +719,11 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
                 .findFirst()
                 .orElse(null);
     }
+    public void reconnect(){
+        if(engineState==null)return;
+        transition.reconnect(clock.getAsLong());pendingEngineState=engineState;finishEngineTurn();
+        if(npc!=null)npc.spawnAt=-1;
+    }
 
     private void submitEngine(BattleEngine.Action action, String switchId) {
         if (enginePending || pendingEngineState != null || engineState.ended()) return;
@@ -812,13 +817,14 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
             String winner =
                     state.winner().equals("Player") ? battleTrainer : name(encounter.wild());
             String loser = state.winner().equals("Player") ? name(encounter.wild()) : battleTrainer;
-            escapeText = resources.strings().format(5017, winner, loser);
+            escapeText = encounter.trainer() == null
+                    ? "" : resources.strings().format(5017, winner, loser);
             escaping = true;
             escapedAt = clock.getAsLong();
             transition.escape(escapedAt);
-            battleMessages.accept(escapeText);
+            if (!escapeText.isEmpty()) battleMessages.accept(escapeText);
             hideCommandButtons();
-            message.setVisible(true);
+            message.setVisible(!escapeText.isEmpty());
         } else if (state.forceSwitch()) {
             mainMenu();
             showParty();
@@ -847,7 +853,10 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
             var animation = settlementEffect.animation(clock.getAsLong());
             if (animation != null) return animation.enemy;
         }
-        if (moveAnimation == null || activeAction == null) return null;
+        // The reference text task runs before the animation task. Keep the live idle
+        // sprite until that task starts; the prepared animation clock is not advancing yet.
+        if (moveAnimation == null || activeAction == null
+                || moveClock(clock.getAsLong()) < moveAnimationAt) return null;
         if (pokemon.id().equals(activeAction.caster().id())) return moveAnimation.own;
         return activeAction.targets().stream().anyMatch(p -> p.id().equals(pokemon.id()))
                 ? moveAnimation.enemy
@@ -1115,6 +1124,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
     private Texture hudTexture;
 
     private BwPokedex dex;
+    private BwPokemonSprites battleSprites;
 
     private PokedexImages images;
 
@@ -1338,13 +1348,18 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
                         appearance,
                         saved.skin(),
                         saved.gender(),
-                        new BwPokemonSprites(dex),
+                        battleSprites,
                         value.player(),
                         images,
                         resources,
                         renderer);
         try {
-            playerVanity =
+            if (preparedPlayerVanity != null
+                    && partyEffectKey(value.player()).equals(preparedPartyEffect)) {
+                playerVanity = preparedPlayerVanity;
+                preparedPlayerVanity = null;
+                preparedPartyEffect = null;
+            } else playerVanity =
                     new EncounterVanityEffect(
                             resources,
                             images,
@@ -1365,7 +1380,10 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
             stopVanities();
             throw failure;
         }
-        transition.enter(
+        if (mapEntryPending) {
+            transition.continueEntry(clock.getAsLong());
+            mapEntryPending = false;
+        } else transition.enter(
                 clock.getAsLong(),
                 Boolean.parseBoolean(
                         resources
@@ -1402,10 +1420,10 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
     }
 
     private void prepare() throws IOException {
-        if (scene != null) return;
+        if (images != null && hudTexture != null) return;
         try {
-            dex = new BwPokedex(resources.roms().get(RomType.BLACK_WHITE), resources.strings());
-            dex.loadDataPackage(resources.apply("data.pak"));
+            dex = battleItems==null?new BwPokedex(resources.roms().get(RomType.BLACK_WHITE), resources.strings()):battleItems.pokedex();
+            if(battleItems==null)dex.loadDataPackage(resources.apply("data.pak"));
             // LocalizationMessageFormatter: BW message bank 70 supplies species names.
             resources
                     .strings()
@@ -1420,13 +1438,52 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
                             110000,
                             0,
                             BwText.decode(dex.archive("a/0/0/2").readRaw(203)));
-            images = new PokedexImages(new BwPokemonSprites(dex), renderer, resources);
+            battleSprites = new BwPokemonSprites(dex);
+            images = new PokedexImages(battleSprites, renderer, resources);
             images.reserveAnimations(10);
+            // Gdx3DModelBatch.nI0 warms the reference controller/texture set before any encounter.
+            var preload = new com.badlogic.gdx.utils.JsonReader().parse(new String(
+                    top.totodile.pokemmo.client.resources.ParticleResources.read(
+                            resources, "particle/preload.vfx"),
+                    java.nio.charset.StandardCharsets.UTF_8));
+            try (var particles = new top.totodile.pokemmo.client.ui.pokemon.AttributeParticleScene(
+                    images, preload, new com.badlogic.gdx.math.Vector3())) {
+                // Closing the temporary controllers retains their textures in PokedexImages.
+            }
             hudTexture = new Texture(resources.apply("themes/default/res/battle-hud.png"));
         } catch (IOException | RuntimeException error) {
             disposeAssets();
             throw error;
         }
+    }
+    /** Load map scenery and compile its shaders before movement/encounters begin. */
+    public void prepareEnvironment(EncounterEnvironment selected) throws IOException {
+        prepare();
+        if(scene!=null&&selected.equals(environment))return;
+        var replacement=new EncounterScene(dex,renderer,selected);
+        if(scene!=null)scene.close();scene=replacement;environment=selected;
+        scene.image(760,400,0,null,()->{});
+    }
+
+    private String preparedPartyEffect;
+    private EncounterVanityEffect preparedPlayerVanity;
+
+    private String partyEffectKey(Pokemon pokemon) {
+        return pokemon.id() + ":" + pokemon.honors().selectedParticle()
+                + ":" + pokemon.shiny() + ":" + pokemon.secretShiny() + ":" + pokemon.egg();
+    }
+
+    public void preparePartyEffect(Pokemon pokemon) throws IOException {
+        if (isOpen() || images == null || pokemon == null) return;
+        // Random selection belongs to an entrance, not the per-frame warm-up probe.
+        if (pokemon.honors().selectedParticle() == -3) return;
+        String key = partyEffectKey(pokemon);
+        if (key.equals(preparedPartyEffect)) return;
+        if (preparedPlayerVanity != null) preparedPlayerVanity.close();
+        preparedPlayerVanity = null;
+        preparedPartyEffect = key;
+        preparedPlayerVanity = new EncounterVanityEffect(resources, images, renderer, pokemon,
+                false, new com.badlogic.gdx.math.Vector3(3, 3.1f, 4));
     }
 
     public void position() {
@@ -1487,7 +1544,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
                                             try {
                                                 captureAnimation =
                                                         new EncounterCaptureAnimation(
-                                                                new BwPokemonSprites(dex),
+                                                                battleSprites,
                                                                 renderer,
                                                                 battleItems.ballType(
                                                                         choice.itemId()),
@@ -1557,7 +1614,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
                             null,
                             0,
                             0,
-                            new BwPokemonSprites(dex),
+                            battleSprites,
                             target,
                             images,
                             resources,
@@ -2191,6 +2248,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
     }
 
     public void dismiss() {
+        mapEntryPending = false;
         if(resources.audio()!=null)resources.audio().stopEffects();
         stopNpc();
         skipEffectTestAnimations = false;
@@ -2225,6 +2283,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
         encounter = null;
         escaping = false;
     }
+    public void disconnect(){engineClose=null;dismiss();}
 
     @Override
     protected void layout() {
@@ -2551,8 +2610,23 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
     }
 
     /** TwlGui paints TK/ik after the map and before battle/HUD. */
+    private boolean mapEntryPending;
+
+    public void beginMapEntry() {
+        if (isOpen() || mapEntryPending) return;
+        mapEntryPending = true;
+        transition.enter(clock.getAsLong(), Boolean.parseBoolean(resources.preferences().get(
+                "client.graphics.battle.flash.animation", "true")),
+                Boolean.parseBoolean(resources.preferences().get(
+                        "client.graphics.render.overworld_in_battle", "true")) ? 180 : 255);
+    }
+
+    public void cancelMapEntry() {
+        mapEntryPending = false;
+    }
+
     public void drawMapTransition(int width, int height) {
-        if (!isOpen()) return;
+        if (!isOpen() && !mapEntryPending) return;
         if (fadeBatch == null) {
             var pixel =
                     new com.badlogic.gdx.graphics.Pixmap(
@@ -2854,6 +2928,9 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
     }
 
     private void disposeAssets() {
+        if (preparedPlayerVanity != null) preparedPlayerVanity.close();
+        preparedPlayerVanity = null;
+        preparedPartyEffect = null;
         if (entrance != null) entrance.close();
         entrance = null;
         if (scene != null) scene.close();
@@ -2861,6 +2938,7 @@ public final class EncounterWindow extends Widget implements AutoCloseable {
         if (hudTexture != null) hudTexture.dispose();
         scene = null;
         images = null;
+        battleSprites = null;
         hudTexture = null;
     }
 

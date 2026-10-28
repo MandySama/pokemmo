@@ -37,6 +37,8 @@ public final class InventoryItems implements AutoCloseable {
                 bound,
                 percent,
                 untradeableVanity;
+        boolean multiple;
+        int recoveryPp,statusMask,levels;
         int action,
                 battleAction,
                 sellPrice,
@@ -66,6 +68,8 @@ public final class InventoryItems implements AutoCloseable {
             move = a.move;
             ball = a.ball;
             recovery = a.recovery;
+            recoveryPp=a.recoveryPp;statusMask=a.statusMask;multiple=a.multiple;
+            levels=a.levels;
             friendship = a.friendship;
             stat = a.stat;
             statAmount = a.statAmount;
@@ -184,6 +188,11 @@ public final class InventoryItems implements AutoCloseable {
                             ? 4
                             : Byte.toUnsignedInt(data.get(10)) > 0 && data.get(10) != 7 ? 1 : 0;
             if (kind == 4) detail.ball = Byte.toUnsignedInt(data.get(16));
+            if(data.limit()>30){
+                detail.recovery=Byte.toUnsignedInt(data.get(29));
+                if(detail.recovery>=253){detail.recovery=detail.recovery==253?25:detail.recovery==254?50:100;detail.percent=true;}
+                detail.recoveryPp=Byte.toUnsignedInt(data.get(30));
+            }
             attributes.put(5000 + index, detail);
         }
         var text = new NdsArchive(RomReader.readFile(rom, "a/0/0/2"));
@@ -297,7 +306,7 @@ public final class InventoryItems implements AutoCloseable {
                                         template(t.id()).maximumStack(),
                                         destroyable(t.id()),
                                         attributes(t.id()).ball,
-                                        holdable(t.id())))
+                                        holdable(t.id()),medicine(t.id())))
                 .toList();
     }
 
@@ -309,10 +318,18 @@ public final class InventoryItems implements AutoCloseable {
         load();
         if (registeredGame == game) return;
         game.gameData(catalogue(), speciesTemplates());
+        game.movePp(dex.allMoves().stream().collect(java.util.stream.Collectors.toUnmodifiableMap(BwPokedex.Move::id,BwPokedex.Move::pp)));
+        game.machines(templates.values().stream().filter(t->machineMove(t.id())>0)
+                .map(t->new GameService.MachineTemplate(t.id(),machineMove(t.id()),hiddenMachine(t.id()))).toList(),
+                dex.all().stream().collect(java.util.stream.Collectors.toUnmodifiableMap(BwPokedex.Species::id,
+                        s->s.moves().stream().filter(m->m.source()==4).map(BwPokedex.LearnedMove::move).collect(java.util.stream.Collectors.toUnmodifiableSet()))));
+        game.growthItems(templates.values().stream().map(t->growthItem(t.id())).filter(GameService.GrowthItem::supported).toList());
         game.battleYields(dex.all().stream().map(s -> new GameService.BattleYield(
                 s.id(), dex.extra(s.id()).baseExperience(), s.evYield())).toList());
         registeredGame = game;
     }
+    /** Same ROM/data.pak registry already loaded for the world and service. */
+    public BwPokedex pokedex() throws IOException {load();return dex;}
 
     Map<Integer, Map<Integer, List<Integer>>> randomCandidates() {
         if (randomCandidates == null) randomCandidates = RandomInventoryItems.candidates(this);
@@ -441,7 +458,8 @@ public final class InventoryItems implements AutoCloseable {
             if ((mask & 128) != 0) {
                 detail.recovery = b.getShort();
                 detail.percent = b.get() == 1;
-                skip(b, 2);
+                detail.recoveryPp=Byte.toUnsignedInt(b.get());
+                detail.statusMask=Byte.toUnsignedInt(b.get());
             }
             if ((mask & 256) != 0) skip(b, 2);
             if ((mask & 512) != 0) detail.move = b.getShort();
@@ -484,7 +502,8 @@ public final class InventoryItems implements AutoCloseable {
                 detail.friendship = b.getShort();
                 skip(b, 1);
             }
-            if ((mask & 1048576) != 0) skip(b, 1);
+            if((mask & 262144)!=0)detail.multiple=true;
+            if ((mask & 1048576) != 0) detail.levels=Byte.toUnsignedInt(b.get());
             if ((mask & 2097152) != 0) skip(b, Short.toUnsignedInt(b.getShort()) * 2);
             if ((mask & 4194304) != 0) skip(b, 4);
             if ((mask & 16777216) != 0) skip(b, 1);
@@ -531,6 +550,12 @@ public final class InventoryItems implements AutoCloseable {
                 copied.bound = targetDetail.bound;
             }
             if ((mask & 1) != 0) copied.sellPrice = targetDetail.sellPrice;
+            if((mask & 16)!=0){copied.action=targetDetail.action;copied.battleAction=targetDetail.battleAction;}
+            if((mask & 128)!=0){copied.recovery=targetDetail.recovery;copied.percent=targetDetail.percent;copied.recoveryPp=targetDetail.recoveryPp;copied.statusMask=targetDetail.statusMask;}
+            if((mask & 262144)!=0)copied.multiple=true;
+            if((mask & 524288)!=0)copied.friendship=targetDetail.friendship;
+            if((mask & 512)!=0)copied.move=targetDetail.move;
+            if((mask & 1048576)!=0)copied.levels=targetDetail.levels;
             if ((mask & 131072) != 0) {
                 copied.vanityKind = targetDetail.vanityKind;
                 copied.vanityEvent = targetDetail.vanityEvent;
@@ -596,6 +621,28 @@ public final class InventoryItems implements AutoCloseable {
             id = next;
         }
         return id;
+    }
+
+    public GameService.Medicine medicine(int id){
+        var a=attributes(id);int source=textSource(id);
+        // Native Revive / Max Revive / Revival Herb IDs, verified against reference Item.jsonc.
+        // The reference service's action==NOT_USABLE heuristic misclassifies these MONSTER items.
+        boolean revive=source==5028||source==5029||source==5037;
+        return new GameService.Medicine(a.action,a.recovery,a.percent,a.recoveryPp,a.statusMask,revive,a.multiple,a.friendship);
+    }
+
+    public int machineMove(int id){var a=attributes(id);return a.action==4&&a.move>0?a.move:0;}
+    public GameService.GrowthItem growthItem(int id){
+        int canonical=aliases.getOrDefault(id,id);if(canonical>=6000&&canonical<7000)canonical-=1000;
+        // GbaItems ROM IDs 93..98 are Sun/Moon/Fire/Thunder/Water/Leaf stones;
+        // BW evolution parameters use the equivalent native item IDs 80..85.
+        if(canonical>=93&&canonical<=98)canonical=5000+canonical-13;
+        var a=attributes(id);int stone=0;
+        if(canonical>=5000&&canonical<6000){
+            int parameter=canonical-5000;
+            if(dex!=null&&dex.all().stream().flatMap(s->s.evolutions().stream()).anyMatch(e->(e.method()==8||e.method()==17||e.method()==18)&&e.parameter()==parameter))stone=parameter;
+        }
+        return new GameService.GrowthItem(id,stone,a.levels,canonical==5051?1:canonical==5053?3:0,a.multiple);
     }
 
     public String name(int id) {

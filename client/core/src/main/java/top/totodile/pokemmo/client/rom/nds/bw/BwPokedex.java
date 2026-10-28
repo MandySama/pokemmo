@@ -232,7 +232,15 @@ public final class BwPokedex {
         }
     }
 
-    public NdsArchive archive(String path) throws IOException {
+    private NdsArchive particleArchive;
+
+    public synchronized NdsArchive archive(String path) throws IOException {
+        // APS controllers share this archive; avoid rereading the ROM for every texture/frame.
+        if ("a/0/0/6".equals(path)) {
+            if (particleArchive == null)
+                particleArchive = new NdsArchive(RomReader.readFile(rom, path));
+            return particleArchive;
+        }
         return new NdsArchive(RomReader.readFile(rom, path));
     }
 

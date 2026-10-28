@@ -1,14 +1,23 @@
 package top.totodile.pokemmo.client.rom.nds.gen4;
 
 import java.io.IOException;
+import top.totodile.pokemmo.client.rom.RomInfo;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /** DpptTextBank.VJ0: encrypted offset table and advancing XOR key, with 9-bit strings. */
-final class Gen4Text {
+public final class Gen4Text {
     private Gen4Text() {}
 
-    static String[] decode(byte[] bytes) throws IOException {
+    public static String[] decode(byte[] bytes) throws IOException { return decode(bytes, null, false); }
+    public static String[] decode(byte[] bytes, RomInfo rom) throws IOException { return decode(bytes, rom, false); }
+    public static String[] decodeFormatted(byte[] bytes) throws IOException { return decode(bytes, null, true); }
+    public static String[] decodeFormatted(byte[] bytes, RomInfo rom) throws IOException { return decode(bytes, rom, true); }
+    private static String[] decode(byte[] bytes, RomInfo rom, boolean formatted) throws IOException {
+        // Match HeartGoldSoulSilverRom.pG0 / PlatinumRom.pG0 language detection.
+        boolean chinese = rom != null && rom.code().endsWith("J") && rom.files().entrySet().stream()
+                .anyMatch(e -> (e.getKey().equals("a/0/1/6") || e.getKey().equals("graphic/pl_font.narc")) && e.getValue().length() > 500000);
+        String charset = chinese ? Gen4TextCharacters.CHINESE : Gen4TextCharacters.STANDARD;
         try {
             var data = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
             int count = Short.toUnsignedInt(data.getShort()),
@@ -44,36 +53,41 @@ final class Gen4Text {
                                 packed >>>= 9;
                                 bits -= 9;
                                 if ((code & 255) == 255) break compressed;
-                                append(out, code);
+                                append(out, code, charset);
                             }
                         }
                         break;
                     }
                     if (value == 0xe000 || value == 9660 || value == 9661) {
-                        out.append(' ');
+                        out.append(formatted ? (value == 0xe000 ? "\n" : "\n\n") : " ");
                         continue;
                     }
-                    // Location labels contain no variable substitutions; preserve only their text.
+                    // Preserve native variable slots for the shared dialogue formatter.
                     if (value == 0xfffe) {
+                        if (j + 1 >= text.length) break;
+                        int command = text[j + 1];
+                        if(command == 517 || command == 518){j++;continue;}
                         if (j + 2 >= text.length) break;
                         int arguments = text[j + 2];
+                        if (formatted && ((command >= 256 && command < 512) || (command >= 1536 && command < 1552)) && arguments > 0 && j + 3 < text.length)
+                            out.append(String.format("{%02X}", text[j + 3]));
                         j += 2 + arguments;
                         continue;
                     }
-                    append(out, value);
+                    append(out, value, charset);
                 }
                 result[i] = out.toString().trim();
             }
             return result;
-        } catch (IndexOutOfBoundsException e) {
+        } catch (IndexOutOfBoundsException | java.nio.BufferUnderflowException e) {
             throw new IOException("Truncated Gen4 message bank", e);
         }
     }
 
-    private static void append(StringBuilder out, int code) {
+    private static void append(StringBuilder out, int code, String charset) {
         if (code == 480) out.append("PK");
         else if (code == 481) out.append("MN");
-        else if (code > 1 && code < Gen4TextCharacters.STANDARD.length())
-            out.append(Gen4TextCharacters.STANDARD.charAt(code));
+        else if (code > 1 && code < charset.length())
+            out.append(charset.charAt(code));
     }
 }

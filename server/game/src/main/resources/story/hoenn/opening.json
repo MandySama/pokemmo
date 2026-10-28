@@ -1,0 +1,3057 @@
+{
+  "id": "hoenn.opening",
+  "source": {
+    "reference": "E:\\Wednesday\\Java\\Pokemmo2Pro-Server\\resource\\map\\hoenn",
+    "native": "https://github.com/pret/pokeemerald",
+    "romCode": "BPEE",
+    "romRevision": 0,
+    "romSha256": "a9dec84dfe7f62ab2220bafaef7479da0929d066ece16a6885f6226db19085af",
+    "validatedNativeObjects": 2776,
+    "bankNormalization": "reference bankId minus 50 = native map group"
+  },
+  "actors": {
+    "mom": {
+      "entityIdx": 0
+    },
+    "outsideMom": {
+      "entityIdx": 3
+    },
+    "upstairsMom": {
+      "entityIdx": 13
+    },
+    "rivalMom": {
+      "entityIdx": 3
+    },
+    "rival": {
+      "entityIdx": 0
+    },
+    "routeRival": {
+      "entityIdx": 1
+    },
+    "birchRoute": {
+      "entityIdx": 1
+    },
+    "bag": {
+      "entityIdx": 2
+    },
+    "birch": {
+      "entityIdx": 1
+    },
+    "labRival": {
+      "entityIdx": 2
+    }
+  },
+  "resources": {
+    "starters": [
+      {
+        "species": 252,
+        "moves": [
+          1,
+          43,
+          0,
+          0
+        ]
+      },
+      {
+        "species": 255,
+        "moves": [
+          10,
+          45,
+          0,
+          0
+        ]
+      },
+      {
+        "species": 258,
+        "moves": [
+          33,
+          45,
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  "triggers": [
+    {
+      "type": "MAP_READY",
+      "map": "LittlerootTown",
+      "startNode": "arrival_male",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 1
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "type": "MAP_READY",
+      "map": "LittlerootTown_BrendansHouse_1F",
+      "startNode": "house_male",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 2
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "LittlerootTown_BrendansHouse_2F",
+      "startNode": "clock",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 3
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 0
+        }
+      ],
+      "script": "LittlerootTown_BrendansHouse_2F_EventScript_WallClock"
+    },
+    {
+      "type": "MAP_READY",
+      "map": "LittlerootTown_BrendansHouse_1F",
+      "startNode": "tv_male",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 5
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "type": "MAP_READY",
+      "map": "LittlerootTown_MaysHouse_1F",
+      "startNode": "neighbor_male",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 6
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "type": "NPC",
+      "map": "LittlerootTown_MaysHouse_2F",
+      "startNode": "meet_rival_male",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 7
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 0
+        }
+      ],
+      "entityIdx": 0
+    },
+    {
+      "type": "NPC",
+      "map": "LittlerootTown_MaysHouse_2F",
+      "startNode": "meet_rival_male",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 7
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 0
+        }
+      ],
+      "entityIdx": 15
+    },
+    {
+      "type": "NPC",
+      "map": "LittlerootTown_MaysHouse_2F",
+      "startNode": "rival_repeat_male",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 8
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 0
+        }
+      ],
+      "entityIdx": 0
+    },
+    {
+      "type": "NPC",
+      "map": "LittlerootTown_BrendansHouse_1F",
+      "startNode": "mom_clock",
+      "conditions": [
+        {
+          "type": "SEX_EQUALS",
+          "value": 0
+        },
+        {
+          "type": "STORY_STAGE_BELOW",
+          "value": 5
+        },
+        {
+          "type": "STORY_STAGE_AT_LEAST",
+          "value": 3
+        }
+      ],
+      "entityIdx": 0
+    },
+    {
+      "type": "NPC",
+      "map": "LittlerootTown_BrendansHouse_1F",
+      "startNode": "mom_rest",
+      "conditions": [
+        {
+          "type": "SEX_EQUALS",
+          "value": 0
+        },
+        {
+          "type": "STORY_STAGE_AT_LEAST",
+          "value": 5
+        }
+      ],
+      "entityIdx": 0
+    },
+    {
+      "type": "NPC",
+      "map": "Route103",
+      "startNode": "rival_battle_male",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 12
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 0
+        }
+      ],
+      "entityIdx": 1
+    },
+    {
+      "type": "MAP_READY",
+      "map": "LittlerootTown_ProfessorBirchsLab",
+      "startNode": "dex_male",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 13
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "type": "COORDINATE",
+      "map": "LittlerootTown",
+      "startNode": "shoes_male",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 15
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 0
+        }
+      ],
+      "x": 8,
+      "y": 9
+    },
+    {
+      "type": "COORDINATE",
+      "map": "LittlerootTown",
+      "startNode": "shoes_male",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 15
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 0
+        }
+      ],
+      "x": 9,
+      "y": 9
+    },
+    {
+      "type": "COORDINATE",
+      "map": "LittlerootTown",
+      "startNode": "shoes_male",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 15
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 0
+        }
+      ],
+      "x": 10,
+      "y": 9
+    },
+    {
+      "type": "COORDINATE",
+      "map": "LittlerootTown",
+      "startNode": "shoes_male",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 15
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 0
+        }
+      ],
+      "x": 11,
+      "y": 9
+    },
+    {
+      "type": "COORDINATE",
+      "map": "LittlerootTown",
+      "startNode": "shoes_male",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 15
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 0
+        }
+      ],
+      "x": 10,
+      "y": 2
+    },
+    {
+      "type": "COORDINATE",
+      "map": "LittlerootTown",
+      "startNode": "shoes_male",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 15
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 0
+        }
+      ],
+      "x": 11,
+      "y": 2
+    },
+    {
+      "type": "MAP_READY",
+      "map": "LittlerootTown",
+      "startNode": "arrival_female",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 1
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "type": "MAP_READY",
+      "map": "LittlerootTown_MaysHouse_1F",
+      "startNode": "house_female",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 2
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "LittlerootTown_MaysHouse_2F",
+      "startNode": "clock",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 3
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 1
+        }
+      ],
+      "script": "LittlerootTown_MaysHouse_2F_EventScript_WallClock"
+    },
+    {
+      "type": "MAP_READY",
+      "map": "LittlerootTown_MaysHouse_1F",
+      "startNode": "tv_female",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 5
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "type": "MAP_READY",
+      "map": "LittlerootTown_BrendansHouse_1F",
+      "startNode": "neighbor_female",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 6
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "type": "NPC",
+      "map": "LittlerootTown_BrendansHouse_2F",
+      "startNode": "meet_rival_female",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 7
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 1
+        }
+      ],
+      "entityIdx": 0
+    },
+    {
+      "type": "NPC",
+      "map": "LittlerootTown_BrendansHouse_2F",
+      "startNode": "meet_rival_female",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 7
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 1
+        }
+      ],
+      "entityIdx": 14
+    },
+    {
+      "type": "NPC",
+      "map": "LittlerootTown_BrendansHouse_2F",
+      "startNode": "rival_repeat_female",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 8
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 1
+        }
+      ],
+      "entityIdx": 0
+    },
+    {
+      "type": "NPC",
+      "map": "LittlerootTown_MaysHouse_1F",
+      "startNode": "mom_clock",
+      "conditions": [
+        {
+          "type": "SEX_EQUALS",
+          "value": 1
+        },
+        {
+          "type": "STORY_STAGE_BELOW",
+          "value": 5
+        },
+        {
+          "type": "STORY_STAGE_AT_LEAST",
+          "value": 3
+        }
+      ],
+      "entityIdx": 0
+    },
+    {
+      "type": "NPC",
+      "map": "LittlerootTown_MaysHouse_1F",
+      "startNode": "mom_rest",
+      "conditions": [
+        {
+          "type": "SEX_EQUALS",
+          "value": 1
+        },
+        {
+          "type": "STORY_STAGE_AT_LEAST",
+          "value": 5
+        }
+      ],
+      "entityIdx": 0
+    },
+    {
+      "type": "NPC",
+      "map": "Route103",
+      "startNode": "rival_battle_female",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 12
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 1
+        }
+      ],
+      "entityIdx": 1
+    },
+    {
+      "type": "MAP_READY",
+      "map": "LittlerootTown_ProfessorBirchsLab",
+      "startNode": "dex_female",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 13
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "type": "COORDINATE",
+      "map": "LittlerootTown",
+      "startNode": "shoes_female",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 15
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 1
+        }
+      ],
+      "x": 8,
+      "y": 9
+    },
+    {
+      "type": "COORDINATE",
+      "map": "LittlerootTown",
+      "startNode": "shoes_female",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 15
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 1
+        }
+      ],
+      "x": 9,
+      "y": 9
+    },
+    {
+      "type": "COORDINATE",
+      "map": "LittlerootTown",
+      "startNode": "shoes_female",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 15
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 1
+        }
+      ],
+      "x": 10,
+      "y": 9
+    },
+    {
+      "type": "COORDINATE",
+      "map": "LittlerootTown",
+      "startNode": "shoes_female",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 15
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 1
+        }
+      ],
+      "x": 11,
+      "y": 9
+    },
+    {
+      "type": "COORDINATE",
+      "map": "LittlerootTown",
+      "startNode": "shoes_female",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 15
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 1
+        }
+      ],
+      "x": 10,
+      "y": 2
+    },
+    {
+      "type": "COORDINATE",
+      "map": "LittlerootTown",
+      "startNode": "shoes_female",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 15
+        },
+        {
+          "type": "SEX_EQUALS",
+          "value": 1
+        }
+      ],
+      "x": 11,
+      "y": 2
+    },
+    {
+      "type": "MAP_READY",
+      "map": "InsideOfTruck",
+      "startNode": "truck",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "type": "COORDINATE",
+      "map": "LittlerootTown",
+      "startNode": "need_pokemon",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_BELOW",
+          "value": 8
+        }
+      ],
+      "x": 10,
+      "y": 1
+    },
+    {
+      "type": "COORDINATE",
+      "map": "LittlerootTown",
+      "startNode": "need_pokemon",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_BELOW",
+          "value": 8
+        }
+      ],
+      "x": 11,
+      "y": 1
+    },
+    {
+      "type": "MAP_READY",
+      "map": "Route101",
+      "startNode": "birch_rescue",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 8
+        }
+      ]
+    },
+    {
+      "type": "NPC",
+      "map": "Route101",
+      "startNode": "bag",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 9
+        }
+      ],
+      "entityIdx": 2
+    },
+    {
+      "type": "NPC",
+      "map": "Route101",
+      "startNode": "birch_bag_reminder",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 9
+        }
+      ],
+      "entityIdx": 1
+    },
+    {
+      "type": "MAP_READY",
+      "map": "LittlerootTown_ProfessorBirchsLab",
+      "startNode": "gift",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 11
+        }
+      ]
+    },
+    {
+      "type": "NPC",
+      "map": "LittlerootTown_ProfessorBirchsLab",
+      "startNode": "gift",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 11
+        }
+      ],
+      "entityIdx": 1
+    },
+    {
+      "type": "NPC",
+      "map": "LittlerootTown_ProfessorBirchsLab",
+      "startNode": "birch_rival_away",
+      "conditions": [
+        {
+          "type": "STORY_STAGE_EQUALS",
+          "value": 12
+        }
+      ],
+      "entityIdx": 1
+    }
+  ],
+  "nodes": {
+    "truck": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "SEX_EQUALS",
+            "value": 0
+          },
+          "yes": "truck_male",
+          "no": "truck_female"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "truck_male": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 1200
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "STAGE",
+          "stage": 1
+        },
+        {
+          "type": "CHANGE_MAP",
+          "map": "LittlerootTown",
+          "x": 3,
+          "y": 10,
+          "toward": 3
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "arrival_male": {
+      "actions": [
+        {
+          "type": "MOVE_PLAYER",
+          "x": 4,
+          "y": 10
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "LittlerootTown_Text_OurNewHomeLetsGoInside",
+          "facePlayer": true,
+          "actor": "outsideMom"
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "outsideMom",
+          "target": {
+            "x": 5,
+            "y": 9
+          }
+        },
+        {
+          "type": "MOVE_PLAYER",
+          "x": 5,
+          "y": 10
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "STAGE",
+          "stage": 2
+        },
+        {
+          "type": "CHANGE_MAP",
+          "map": "LittlerootTown_BrendansHouse_1F",
+          "x": 8,
+          "y": 8,
+          "toward": 1
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "house_male": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "PlayersHouse_1F_Text_IsntItNiceInHere",
+          "facePlayer": true,
+          "actor": "mom"
+        },
+        {
+          "type": "FACE_PLAYER",
+          "toward": 3
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "PlayersHouse_1F_Text_MoversPokemonGoSetClock",
+          "facePlayer": true,
+          "actor": "mom"
+        },
+        {
+          "type": "MOVE_PLAYER",
+          "x": 8,
+          "y": 7
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "STAGE",
+          "stage": 3
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "clock_set_male": {
+      "actions": [
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "CLOCK"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "PlayersHouse_2F_Text_HowDoYouLikeYourRoom",
+          "facePlayer": true,
+          "actor": "upstairsMom"
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "upstairsMom",
+          "target": {
+            "x": 7,
+            "y": 1
+          }
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "STAGE",
+          "stage": 5
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "tv_male": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "PlayersHouse_1F_Text_MaybeDadWillBeOn",
+          "facePlayer": true,
+          "actor": "mom"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "PlayersHouse_1F_Text_ItsOverWeMissedHim",
+          "facePlayer": true,
+          "actor": "mom"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "PlayersHouse_1F_Text_GoIntroduceYourselfNextDoor",
+          "facePlayer": true,
+          "actor": "mom"
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "STAGE",
+          "stage": 6
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "neighbor_male": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "RivalsHouse_1F_Text_MayWhoAreYou",
+          "facePlayer": true,
+          "actor": "rivalMom"
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "STAGE",
+          "stage": 7
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "meet_rival_male": {
+      "actions": [
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "FLAG",
+          "flag": "rival_entered"
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 1,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 1,
+            "y": 3
+          }
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "rival",
+          "toward": 3
+        },
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "PLAYER_FACING_EQUALS",
+            "value": 1
+          },
+          "yes": "meet_male_North",
+          "no": "meet_male_not_north"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "meet_male_not_north": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "PLAYER_FACING_EQUALS",
+            "value": 0
+          },
+          "yes": "meet_male_South",
+          "no": "meet_male_east_west"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "meet_male_east_west": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "PLAYER_FACING_EQUALS",
+            "value": 2
+          },
+          "yes": "meet_male_West",
+          "no": "meet_male_East"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "meet_male_North": {
+      "actions": [
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 2,
+            "y": 3
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 3,
+            "y": 3
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 3,
+            "y": 4
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 3,
+            "y": 5
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 4,
+            "y": 5
+          }
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "rival",
+          "toward": "PLAYER"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "RivalsHouse_2F_Text_MayWhoAreYou",
+          "facePlayer": true,
+          "actor": "rival"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "RivalsHouse_2F_Text_MayGettingReady",
+          "facePlayer": true,
+          "actor": "rival"
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 4,
+            "y": 4
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 4,
+            "y": 3
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 4,
+            "y": 2
+          }
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "rival",
+          "toward": 3
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 5,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 6,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 7,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 8,
+            "y": 2
+          }
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "rival",
+          "toward": 1
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "STAGE",
+          "stage": 8
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "meet_male_South": {
+      "actions": [
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 2,
+            "y": 3
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 3,
+            "y": 3
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 4,
+            "y": 3
+          }
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "rival",
+          "toward": "PLAYER"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "RivalsHouse_2F_Text_MayWhoAreYou",
+          "facePlayer": true,
+          "actor": "rival"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "RivalsHouse_2F_Text_MayGettingReady",
+          "facePlayer": true,
+          "actor": "rival"
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 4,
+            "y": 2
+          }
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "rival",
+          "toward": 3
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 5,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 6,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 7,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 8,
+            "y": 2
+          }
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "rival",
+          "toward": 1
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "STAGE",
+          "stage": 8
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "meet_male_West": {
+      "actions": [
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 2,
+            "y": 3
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 3,
+            "y": 3
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 4,
+            "y": 3
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 5,
+            "y": 3
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 6,
+            "y": 3
+          }
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "rival",
+          "toward": 0
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "rival",
+          "toward": "PLAYER"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "RivalsHouse_2F_Text_MayWhoAreYou",
+          "facePlayer": true,
+          "actor": "rival"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "RivalsHouse_2F_Text_MayGettingReady",
+          "facePlayer": true,
+          "actor": "rival"
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 6,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 7,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 8,
+            "y": 2
+          }
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "rival",
+          "toward": 1
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "STAGE",
+          "stage": 8
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "meet_male_East": {
+      "actions": [
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 2,
+            "y": 3
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 3,
+            "y": 3
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 3,
+            "y": 4
+          }
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "rival",
+          "toward": 3
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "rival",
+          "toward": "PLAYER"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "RivalsHouse_2F_Text_MayWhoAreYou",
+          "facePlayer": true,
+          "actor": "rival"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "RivalsHouse_2F_Text_MayGettingReady",
+          "facePlayer": true,
+          "actor": "rival"
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 3,
+            "y": 3
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 3,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 4,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 5,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 6,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 7,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 8,
+            "y": 2
+          }
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "rival",
+          "toward": 1
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "STAGE",
+          "stage": 8
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "rival_repeat_male": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "RivalsHouse_2F_Text_MayGettingReady",
+          "facePlayer": true,
+          "actor": "rival"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "rival_battle_male": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "Route103_Text_MayRoute103Pokemon",
+          "facePlayer": true,
+          "actor": "routeRival"
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "routeRival",
+          "toward": "PLAYER"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "Route103_Text_MayLetsBattle",
+          "facePlayer": true,
+          "actor": "routeRival"
+        },
+        {
+          "type": "START_BATTLE",
+          "rival": true,
+          "finishNode": "rival_won_male",
+          "defeatNode": "rival_lost_male"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "rival_won_male": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "Route103_Text_MayTimeToHeadBack",
+          "facePlayer": true,
+          "actor": "routeRival"
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "STAGE",
+          "stage": 13
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "rival_lost_male": {
+      "actions": [
+        {
+          "type": "HEAL_PARTY"
+        },
+        {
+          "type": "CHANGE_MAP",
+          "map": "LittlerootTown_BrendansHouse_2F",
+          "x": 3,
+          "y": 3,
+          "toward": 0
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "dex_male": {
+      "actions": [
+        {
+          "type": "MOVE_PLAYER",
+          "x": 6,
+          "y": 5
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "LittlerootTown_ProfessorBirchsLab_Text_HeardYouBeatRivalTakePokedex",
+          "facePlayer": true,
+          "actor": "birch"
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "POKEDEX"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "LittlerootTown_ProfessorBirchsLab_Text_ReceivedPokedex",
+          "facePlayer": false
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "LittlerootTown_ProfessorBirchsLab_Text_ExplainPokedex",
+          "facePlayer": true,
+          "actor": "birch"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "LittlerootTown_ProfessorBirchsLab_Text_CountlessPokemonAwait",
+          "facePlayer": true,
+          "actor": "birch"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "LittlerootTown_ProfessorBirchsLab_Text_MayGotPokedexTooTakeThese",
+          "facePlayer": true,
+          "actor": "labRival"
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "BALLS"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "LittlerootTown_ProfessorBirchsLab_Text_CatchCutePokemonWithPokeBalls",
+          "facePlayer": true,
+          "actor": "labRival"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "shoes_male": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "LittlerootTown_Text_WaitPlayer",
+          "facePlayer": true,
+          "actor": "outsideMom"
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "outsideMom",
+          "target": {
+            "x": "PLAYER_X",
+            "y": "PLAYER_Y",
+            "xOffset": -1
+          }
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "LittlerootTown_Text_WearTheseRunningShoes",
+          "facePlayer": true,
+          "actor": "outsideMom"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "LittlerootTown_Text_SwitchShoesWithRunningShoes",
+          "facePlayer": false
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "LittlerootTown_Text_ExplainRunningShoes",
+          "facePlayer": true,
+          "actor": "outsideMom"
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "outsideMom",
+          "target": {
+            "x": 5,
+            "y": 9
+          }
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "STAGE",
+          "stage": 16
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "truck_female": {
+      "actions": [
+        {
+          "type": "WAIT",
+          "duration": 1200
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "STAGE",
+          "stage": 1
+        },
+        {
+          "type": "CHANGE_MAP",
+          "map": "LittlerootTown",
+          "x": 12,
+          "y": 10,
+          "toward": 3
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "arrival_female": {
+      "actions": [
+        {
+          "type": "MOVE_PLAYER",
+          "x": 13,
+          "y": 10
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "LittlerootTown_Text_OurNewHomeLetsGoInside",
+          "facePlayer": true,
+          "actor": "outsideMom"
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "outsideMom",
+          "target": {
+            "x": 14,
+            "y": 9
+          }
+        },
+        {
+          "type": "MOVE_PLAYER",
+          "x": 14,
+          "y": 10
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "STAGE",
+          "stage": 2
+        },
+        {
+          "type": "CHANGE_MAP",
+          "map": "LittlerootTown_MaysHouse_1F",
+          "x": 2,
+          "y": 8,
+          "toward": 1
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "house_female": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "PlayersHouse_1F_Text_IsntItNiceInHere",
+          "facePlayer": true,
+          "actor": "mom"
+        },
+        {
+          "type": "FACE_PLAYER",
+          "toward": 2
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "PlayersHouse_1F_Text_MoversPokemonGoSetClock",
+          "facePlayer": true,
+          "actor": "mom"
+        },
+        {
+          "type": "MOVE_PLAYER",
+          "x": 2,
+          "y": 7
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "STAGE",
+          "stage": 3
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "clock_set_female": {
+      "actions": [
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "CLOCK"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "PlayersHouse_2F_Text_HowDoYouLikeYourRoom",
+          "facePlayer": true,
+          "actor": "upstairsMom"
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "upstairsMom",
+          "target": {
+            "x": 1,
+            "y": 1
+          }
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "STAGE",
+          "stage": 5
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "tv_female": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "PlayersHouse_1F_Text_MaybeDadWillBeOn",
+          "facePlayer": true,
+          "actor": "mom"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "PlayersHouse_1F_Text_ItsOverWeMissedHim",
+          "facePlayer": true,
+          "actor": "mom"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "PlayersHouse_1F_Text_GoIntroduceYourselfNextDoor",
+          "facePlayer": true,
+          "actor": "mom"
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "STAGE",
+          "stage": 6
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "neighbor_female": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "RivalsHouse_1F_Text_BrendanWhoAreYou",
+          "facePlayer": true,
+          "actor": "rivalMom"
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "STAGE",
+          "stage": 7
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "meet_rival_female": {
+      "actions": [
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "FLAG",
+          "flag": "rival_entered"
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 7,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 7,
+            "y": 3
+          }
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "rival",
+          "toward": 2
+        },
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "PLAYER_FACING_EQUALS",
+            "value": 1
+          },
+          "yes": "meet_female_North",
+          "no": "meet_female_not_north"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "meet_female_not_north": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "PLAYER_FACING_EQUALS",
+            "value": 0
+          },
+          "yes": "meet_female_South",
+          "no": "meet_female_east_west"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "meet_female_east_west": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "PLAYER_FACING_EQUALS",
+            "value": 2
+          },
+          "yes": "meet_female_West",
+          "no": "meet_female_East"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "meet_female_North": {
+      "actions": [
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 6,
+            "y": 3
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 5,
+            "y": 3
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 5,
+            "y": 4
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 5,
+            "y": 5
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 4,
+            "y": 5
+          }
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "rival",
+          "toward": "PLAYER"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "RivalsHouse_2F_Text_BrendanWhoAreYou",
+          "facePlayer": true,
+          "actor": "rival"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "RivalsHouse_2F_Text_BrendanGettingReady",
+          "facePlayer": true,
+          "actor": "rival"
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 4,
+            "y": 4
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 4,
+            "y": 3
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 4,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 3,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 2,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 1,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 0,
+            "y": 2
+          }
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "rival",
+          "toward": 1
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "STAGE",
+          "stage": 8
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "meet_female_South": {
+      "actions": [
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 6,
+            "y": 3
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 5,
+            "y": 3
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 4,
+            "y": 3
+          }
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "rival",
+          "toward": "PLAYER"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "RivalsHouse_2F_Text_BrendanWhoAreYou",
+          "facePlayer": true,
+          "actor": "rival"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "RivalsHouse_2F_Text_BrendanGettingReady",
+          "facePlayer": true,
+          "actor": "rival"
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 4,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 3,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 2,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 1,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 0,
+            "y": 2
+          }
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "rival",
+          "toward": 1
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "STAGE",
+          "stage": 8
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "meet_female_West": {
+      "actions": [
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 6,
+            "y": 3
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 5,
+            "y": 3
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 5,
+            "y": 4
+          }
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "rival",
+          "toward": 2
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "rival",
+          "toward": "PLAYER"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "RivalsHouse_2F_Text_BrendanWhoAreYou",
+          "facePlayer": true,
+          "actor": "rival"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "RivalsHouse_2F_Text_BrendanGettingReady",
+          "facePlayer": true,
+          "actor": "rival"
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 5,
+            "y": 3
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 5,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 4,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 3,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 2,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 1,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 0,
+            "y": 2
+          }
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "rival",
+          "toward": 1
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "STAGE",
+          "stage": 8
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "meet_female_East": {
+      "actions": [
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 6,
+            "y": 3
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 5,
+            "y": 3
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 4,
+            "y": 3
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 3,
+            "y": 3
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 2,
+            "y": 3
+          }
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "rival",
+          "toward": 0
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "rival",
+          "toward": "PLAYER"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "RivalsHouse_2F_Text_BrendanWhoAreYou",
+          "facePlayer": true,
+          "actor": "rival"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "RivalsHouse_2F_Text_BrendanGettingReady",
+          "facePlayer": true,
+          "actor": "rival"
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 2,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 1,
+            "y": 2
+          }
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "rival",
+          "target": {
+            "x": 0,
+            "y": 2
+          }
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "rival",
+          "toward": 1
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "STAGE",
+          "stage": 8
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "rival_repeat_female": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "RivalsHouse_2F_Text_BrendanGettingReady",
+          "facePlayer": true,
+          "actor": "rival"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "rival_battle_female": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "Route103_Text_BrendanRoute103Pokemon",
+          "facePlayer": true,
+          "actor": "routeRival"
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "routeRival",
+          "toward": "PLAYER"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "Route103_Text_BrendanLetsBattle",
+          "facePlayer": true,
+          "actor": "routeRival"
+        },
+        {
+          "type": "START_BATTLE",
+          "rival": true,
+          "finishNode": "rival_won_female",
+          "defeatNode": "rival_lost_female"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "rival_won_female": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "Route103_Text_BrendanTimeToHeadBack",
+          "facePlayer": true,
+          "actor": "routeRival"
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "STAGE",
+          "stage": 13
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "rival_lost_female": {
+      "actions": [
+        {
+          "type": "HEAL_PARTY"
+        },
+        {
+          "type": "CHANGE_MAP",
+          "map": "LittlerootTown_MaysHouse_2F",
+          "x": 3,
+          "y": 3,
+          "toward": 0
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "dex_female": {
+      "actions": [
+        {
+          "type": "MOVE_PLAYER",
+          "x": 6,
+          "y": 5
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "LittlerootTown_ProfessorBirchsLab_Text_HeardYouBeatRivalTakePokedex",
+          "facePlayer": true,
+          "actor": "birch"
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "POKEDEX"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "LittlerootTown_ProfessorBirchsLab_Text_ReceivedPokedex",
+          "facePlayer": false
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "LittlerootTown_ProfessorBirchsLab_Text_ExplainPokedex",
+          "facePlayer": true,
+          "actor": "birch"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "LittlerootTown_ProfessorBirchsLab_Text_CountlessPokemonAwait",
+          "facePlayer": true,
+          "actor": "birch"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "LittlerootTown_ProfessorBirchsLab_Text_BrendanGotPokedexTooTakeThese",
+          "facePlayer": true,
+          "actor": "labRival"
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "BALLS"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "LittlerootTown_ProfessorBirchsLab_Text_CatchCoolPokemonWithPokeBalls",
+          "facePlayer": true,
+          "actor": "labRival"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "shoes_female": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "LittlerootTown_Text_WaitPlayer",
+          "facePlayer": true,
+          "actor": "outsideMom"
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "outsideMom",
+          "target": {
+            "x": "PLAYER_X",
+            "y": "PLAYER_Y",
+            "xOffset": -1
+          }
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "LittlerootTown_Text_WearTheseRunningShoes",
+          "facePlayer": true,
+          "actor": "outsideMom"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "LittlerootTown_Text_SwitchShoesWithRunningShoes",
+          "facePlayer": false
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "LittlerootTown_Text_ExplainRunningShoes",
+          "facePlayer": true,
+          "actor": "outsideMom"
+        },
+        {
+          "type": "MOVE_NPC",
+          "actor": "outsideMom",
+          "target": {
+            "x": 14,
+            "y": 9
+          }
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "STAGE",
+          "stage": 16
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "clock": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "text": "PlayersHouse_2F_Text_ClockIsStopped",
+          "yes": "clock_done",
+          "no": "clock_cancel"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "clock_cancel": {
+      "actions": [
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "clock_done": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "SEX_EQUALS",
+            "value": 0
+          },
+          "yes": "clock_set_male",
+          "no": "clock_set_female"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "mom_clock": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "PlayersHouse_1F_Text_GoSetTheClock",
+          "facePlayer": true,
+          "actor": "mom"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "mom_rest": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "PlayersHouse_1F_Text_YouShouldRestABit",
+          "facePlayer": true,
+          "actor": "mom"
+        },
+        {
+          "type": "HEAL_PARTY"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "PlayersHouse_1F_Text_TakeCareHoney",
+          "facePlayer": true,
+          "actor": "mom"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "need_pokemon": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "LittlerootTown_Text_DangerousIfYouDontHavePokemon",
+          "facePlayer": false,
+          "signpost": true
+        },
+        {
+          "type": "REJECT_MOVE"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "birch_rescue": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "Route101_Text_HelpMe",
+          "facePlayer": false,
+          "signpost": true
+        },
+        {
+          "type": "MOVE_PLAYER",
+          "x": "PLAYER_X",
+          "y": 15
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "Route101_Text_PleaseHelp",
+          "facePlayer": true,
+          "actor": "birchRoute"
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "STAGE",
+          "stage": 9
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "bag": {
+      "actions": [
+        {
+          "type": "SELECT_OPTION",
+          "options": [
+            "TREECKO",
+            "TORCHIC",
+            "MUDKIP"
+          ],
+          "nodes": [
+            "choose_treecko",
+            "choose_torchic",
+            "choose_mudkip"
+          ]
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "birch_bag_reminder": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "Route101_Text_PleaseHelp",
+          "facePlayer": true,
+          "actor": "birchRoute"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "choose_treecko": {
+      "actions": [
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "CLAIM_STARTER",
+          "choice": 0
+        },
+        {
+          "type": "CHANGE_MAP",
+          "map": "Route101",
+          "x": 6,
+          "y": 13,
+          "toward": 2
+        },
+        {
+          "type": "GOTO",
+          "node": "first_battle"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "choose_torchic": {
+      "actions": [
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "CLAIM_STARTER",
+          "choice": 1
+        },
+        {
+          "type": "CHANGE_MAP",
+          "map": "Route101",
+          "x": 6,
+          "y": 13,
+          "toward": 2
+        },
+        {
+          "type": "GOTO",
+          "node": "first_battle"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "choose_mudkip": {
+      "actions": [
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "CLAIM_STARTER",
+          "choice": 2
+        },
+        {
+          "type": "CHANGE_MAP",
+          "map": "Route101",
+          "x": 6,
+          "y": 13,
+          "toward": 2
+        },
+        {
+          "type": "GOTO",
+          "node": "first_battle"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "first_battle": {
+      "actions": [
+        {
+          "type": "START_BATTLE",
+          "wildSpecies": 263,
+          "wildLevel": 3,
+          "noCapture": true,
+          "finishNode": "birch_saved",
+          "defeatNode": "birch_saved"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "birch_saved": {
+      "actions": [
+        {
+          "type": "MOVE_NPC",
+          "actor": "birchRoute",
+          "target": {
+            "x": 7,
+            "y": 13
+          }
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "Route101_Text_YouSavedMe",
+          "facePlayer": true,
+          "actor": "birchRoute"
+        },
+        {
+          "type": "HEAL_PARTY"
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "STAGE",
+          "stage": 11
+        },
+        {
+          "type": "CHANGE_MAP",
+          "map": "LittlerootTown_ProfessorBirchsLab",
+          "x": 6,
+          "y": 5,
+          "toward": 1
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "gift": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "LittlerootTown_ProfessorBirchsLab_Text_LikeYouToHavePokemon",
+          "facePlayer": true,
+          "starterSpecies": true,
+          "actor": "birch"
+        },
+        {
+          "type": "YES_NO",
+          "actor": "birch",
+          "facePlayer": true,
+          "text": "LittlerootTown_ProfessorBirchsLab_Text_MightBeGoodIdeaToGoSeeRival",
+          "yes": "agree_rival",
+          "no": "decline_rival"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "decline_rival": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "actor": "birch",
+          "facePlayer": true,
+          "text": "LittlerootTown_ProfessorBirchsLab_Text_DontBeThatWay",
+          "yes": "agree_rival",
+          "no": "decline_rival"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "agree_rival": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "LittlerootTown_ProfessorBirchsLab_Text_GetRivalToTeachYou",
+          "facePlayer": true,
+          "actor": "birch"
+        },
+        {
+          "type": "HOENN_OPERATION",
+          "operation": "STAGE",
+          "stage": 12
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "birch_rival_away": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "LittlerootTown_ProfessorBirchsLab_Text_BirchRivalGoneHome",
+          "facePlayer": true,
+          "actor": "birch"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    }
+  },
+  "text": {
+    "InsideOfTruck_Text_BoxPrintedWithMonLogo": 270778229,
+    "PlayersHouse_1F_Text_IsntItNiceInHere": 270498332,
+    "PlayersHouse_1F_Text_MoversPokemonGoSetClock": 270498374,
+    "PlayersHouse_1F_Text_ArentYouInterestedInRoom": 270498596,
+    "PlayersHouse_1F_Text_GoSetTheClock": 270498663,
+    "PlayersHouse_1F_Text_OhComeQuickly": 270498710,
+    "PlayersHouse_1F_Text_MaybeDadWillBeOn": 270498748,
+    "PlayersHouse_1F_Text_ItsOverWeMissedHim": 270498801,
+    "PlayersHouse_1F_Text_GoIntroduceYourselfNextDoor": 270498869,
+    "PlayersHouse_1F_Text_SeeYouHoney": 270499011,
+    "PlayersHouse_1F_Text_DidYouMeetProfBirch": 270499032,
+    "PlayersHouse_1F_Text_YouShouldRestABit": 270499080,
+    "PlayersHouse_1F_Text_TakeCareHoney": 270499164,
+    "PlayersHouse_1F_Text_GotDadsBadgeHeresSomethingFromMom": 270499187,
+    "PlayersHouse_1F_Text_DontPushYourselfTooHard": 270499262,
+    "PlayersHouse_1F_Text_IsThatAPokenav": 270499342,
+    "PlayersHouse_1F_Text_RegisteredMom": 270499465,
+    "PlayersHouse_1F_Text_Vigoroth1": 270499496,
+    "PlayersHouse_1F_Text_Vigoroth2": 270499507,
+    "PlayersHouse_1F_Text_ReportFromPetalburgGym": 270499526,
+    "PlayersHouse_1F_Text_TheresAMovieOnTV": 270499599,
+    "PlayersHouse_1F_Text_RunningShoesManual": 270499686,
+    "PlayersHouse_1F_Text_TicketFromBrineyCameForYou": 270499854,
+    "PlayersHouse_1F_Text_PortsInSlateportLilycove": 270500094,
+    "PlayersHouse_1F_Text_BetterGetBackToGym": 270500187,
+    "PlayersHouse_1F_Text_DadShouldStayLonger": 270500281,
+    "PlayersHouse_1F_Text_IsThatABreakingStory": 270500427,
+    "PlayersHouse_1F_Text_LatiEmergencyNewsFlash": 270500463,
+    "PlayersHouse_1F_Text_WhatColorDidTheySay": 270500689,
+    "PlayersHouse_1F_Text_StillUnknownPokemon": 270500769,
+    "PlayersHouse_2F_Text_ClockIsStopped": 270501480,
+    "PlayersHouse_2F_Text_HowDoYouLikeYourRoom": 270501530,
+    "PlayersHouse_2F_Text_Notebook": 270501759,
+    "Common_Text_LookCloserAtMap": 270501920,
+    "PlayersHouse_2F_Text_ItsAGameCube": 270501967,
+    "RivalsHouse_1F_Text_OhYoureTheNewNeighbor": 270502853,
+    "RivalsHouse_1F_Text_LikeChildLikeFather": 270503077,
+    "RivalsHouse_1F_Text_TooBusyToNoticeVisit": 270503223,
+    "RivalsHouse_1F_Text_WentOutToRoute103": 270503315,
+    "RivalsHouse_1F_Text_ShouldGoHomeEverySoOften": 270503425,
+    "RivalsHouse_1F_Text_MayWhoAreYou": 270503622,
+    "RivalsHouse_1F_Text_BrendanWhoAreYou": 270504116,
+    "RivalsHouse_1F_Text_DoYouHavePokemon": 270504546,
+    "RivalsHouse_2F_Text_MayWhoAreYou": 270503622,
+    "RivalsHouse_2F_Text_MayGettingReady": 270505866,
+    "RivalsHouse_2F_Text_BrendanWhoAreYou": 270504116,
+    "RivalsHouse_2F_Text_BrendanGettingReady": 270506338,
+    "RivalsHouse_2F_Text_ItsRivalsPokeBall": 270506385,
+    "RivalsHouse_2F_Text_MayJustCheckingMyPokedex": 270506441,
+    "RivalsHouse_2F_Text_MayWhereShouldIGoNext": 270506654,
+    "RivalsHouse_2F_Text_BrendanJustCheckingMyPokedex": 270506765,
+    "RivalsHouse_2F_Text_BrendanWhereShouldIGoNext": 270506983,
+    "LittlerootTown_ProfessorBirchsLab_Text_BirchAwayOnFieldwork": 270509282,
+    "LittlerootTown_ProfessorBirchsLab_Text_BirchIsntOneForDeskWork": 270509492,
+    "LittlerootTown_ProfessorBirchsLab_Text_BirchEnjoysRivalsHelpToo": 270509774,
+    "LittlerootTown_ProfessorBirchsLab_Text_LikeYouToHavePokemon": 270509901,
+    "LittlerootTown_ProfessorBirchsLab_Text_WhyNotGiveNicknameToMon": 270510257,
+    "LittlerootTown_ProfessorBirchsLab_Text_MightBeGoodIdeaToGoSeeRival": 270510326,
+    "LittlerootTown_ProfessorBirchsLab_Text_GetRivalToTeachYou": 270510549,
+    "LittlerootTown_ProfessorBirchsLab_Text_DontBeThatWay": 270510645,
+    "LittlerootTown_ProfessorBirchsLab_Text_BirchRivalGoneHome": 270510708,
+    "LittlerootTown_ProfessorBirchsLab_Text_HeardYouBeatRivalTakePokedex": 270510882,
+    "LittlerootTown_ProfessorBirchsLab_Text_ReceivedPokedex": 270511154,
+    "LittlerootTown_ProfessorBirchsLab_Text_ExplainPokedex": 270511179,
+    "LittlerootTown_ProfessorBirchsLab_Text_CountlessPokemonAwait": 270511471,
+    "LittlerootTown_ProfessorBirchsLab_Text_MayGotPokedexTooTakeThese": 270511575,
+    "LittlerootTown_ProfessorBirchsLab_Text_CatchCutePokemonWithPokeBalls": 270511680,
+    "LittlerootTown_ProfessorBirchsLab_Text_OhYourBagsFull": 270511859,
+    "LittlerootTown_ProfessorBirchsLab_Text_MayWhereShouldIGoNext": 270511880,
+    "LittlerootTown_ProfessorBirchsLab_Text_BrendanGotPokedexTooTakeThese": 270511935,
+    "LittlerootTown_ProfessorBirchsLab_Text_CatchCoolPokemonWithPokeBalls": 270512014,
+    "LittlerootTown_ProfessorBirchsLab_Text_HeyYourBagsFull": 270512221,
+    "LittlerootTown_ProfessorBirchsLab_Text_BrendanWhereShouldIGoNext": 270512243,
+    "LittlerootTown_ProfessorBirchsLab_Text_SeriousLookingMachine": 270512290,
+    "LittlerootTown_ProfessorBirchsLab_Text_PCUsedForResearch": 270512359,
+    "LittlerootTown_ProfessorBirchsLab_Text_CrammedWithBooksOnPokemon": 270512420,
+    "LittlerootTown_ProfessorBirchsLab_Text_BookTooHardToRead": 270512456,
+    "LittlerootTown_ProfessorBirchsLab_Text_OtherRegionsUpgradeToNational": 270512493,
+    "LittlerootTown_ProfessorBirchsLab_Text_MayUpgradeSoCool": 270512911,
+    "LittlerootTown_ProfessorBirchsLab_Text_BrendanYouCanThankMe": 270513038,
+    "LittlerootTown_ProfessorBirchsLab_Text_OkayAllDone": 270513177,
+    "LittlerootTown_ProfessorBirchsLab_Text_PokedexUpgradedToNational": 270513206,
+    "LittlerootTown_ProfessorBirchsLab_Text_GrassyPatchWaiting2": 270513254,
+    "LittlerootTown_ProfessorBirchsLab_Text_MayTakeBreakFromFieldwork": 270513448,
+    "LittlerootTown_ProfessorBirchsLab_Text_BrendanTakeBreakFromFieldwork": 270513546,
+    "LittlerootTown_ProfessorBirchsLab_Text_CompletedDexChoosePokemon": 270513657,
+    "LittlerootTown_ProfessorBirchsLab_Text_CanHaveAnyOneOfRarePokemon": 270514055,
+    "LittlerootTown_ProfessorBirchsLab_Text_YoullTakeCyndaquil": 270514166,
+    "LittlerootTown_ProfessorBirchsLab_Text_YoullTakeTotodile": 270514281,
+    "LittlerootTown_ProfessorBirchsLab_Text_YoullTakeChikorita": 270514400,
+    "LittlerootTown_ProfessorBirchsLab_Text_TakeYourTimeAllInvaluable": 270514521,
+    "LittlerootTown_ProfessorBirchsLab_Text_PickedFinePokemon": 270514600,
+    "LittlerootTown_ProfessorBirchsLab_Text_ReceivedJohtoStarter": 270514647,
+    "LittlerootTown_ProfessorBirchsLab_Text_NicknameJohtoStarter": 270514684,
+    "LittlerootTown_ProfessorBirchsLab_Text_GrassyPatchWaiting": 270514732,
+    "LittlerootTown_ProfessorBirchsLab_Text_BetterLeaveOthersAlone": 270514936,
+    "LittlerootTown_ProfessorBirchsLab_Text_DontHaveAnyRoomForPokemon": 270515002,
+    "LittlerootTown_ProfessorBirchsLab_Text_MayWhatNextImStayingHere": 270515048,
+    "LittlerootTown_ProfessorBirchsLab_Text_BrendanPreferCollectingSlowly": 270515245,
+    "LittlerootTown_ProfessorBirchsLab_Text_MayHaveYouGoneToBattleFrontier": 270515341,
+    "LittlerootTown_ProfessorBirchsLab_Text_BrendanHaveYouGoneToBattleFrontier": 270515410,
+    "LittlerootTown_ProfessorBirchsLab_Text_ScottAboardSSTidalCall": 270515482,
+    "LittlerootTown_Text_OurNewHomeLetsGoInside": 270436028,
+    "LittlerootTown_Text_WaitPlayer": 270436321,
+    "LittlerootTown_Text_WearTheseRunningShoes": 270436336,
+    "LittlerootTown_Text_SwitchShoesWithRunningShoes": 270436645,
+    "LittlerootTown_Text_ExplainRunningShoes": 270436687,
+    "LittlerootTown_Text_ComeHomeIfAnythingHappens": 270436867,
+    "LittlerootTown_Text_CanUsePCToStoreItems": 270437071,
+    "LittlerootTown_Text_BirchSpendsDaysInLab": 270437157,
+    "LittlerootTown_Text_IfYouGoInGrassPokemonWillJumpOut": 270437304,
+    "LittlerootTown_Text_DangerousIfYouDontHavePokemon": 270437383,
+    "LittlerootTown_Text_CanYouGoSeeWhatsHappening": 270437434,
+    "LittlerootTown_Text_YouSavedBirch": 270437603,
+    "LittlerootTown_Text_GoodLuckCatchingPokemon": 270437639,
+    "LittlerootTown_Text_TownSign": 270437682,
+    "LittlerootTown_Text_ProfBirchsLab": 270437737,
+    "LittlerootTown_Text_PlayersHouse": 270437763,
+    "LittlerootTown_Text_ProfBirchsHouse": 270437774,
+    "LittlerootTown_Text_BirchSomethingToShowYouAtLab": 270437794,
+    "OldaleTown_Text_SavingMyProgress": 270438798,
+    "OldaleTown_Text_IWorkAtPokemonMart": 270438848,
+    "OldaleTown_Text_ThisIsAPokemonMart": 270438909,
+    "OldaleTown_Text_PotionExplanation": 270439087,
+    "OldaleTown_Text_WaitDontComeInHere": 270439187,
+    "OldaleTown_Text_DiscoveredFootprints": 270439228,
+    "OldaleTown_Text_FinishedSketchingFootprints": 270439416,
+    "OldaleTown_Text_MayLetsGoBack": 270439522,
+    "OldaleTown_Text_BrendanLetsGoBack": 270439562,
+    "OldaleTown_Text_TownSign": 270439642,
+    "Route101_Text_HelpMe": 270450319,
+    "Route101_Text_PleaseHelp": 270450330,
+    "Route101_Text_DontLeaveMe": 270450399,
+    "Route101_Text_YouSavedMe": 270450450,
+    "Route101_Text_TakeTiredPokemonToPokeCenter": 270450653,
+    "Route101_Text_WildPokemonInTallGrass": 270450762,
+    "Route101_Text_RouteSign": 270450888,
+    "Route103_Text_MayRoute103Pokemon": 270452646,
+    "Route103_Text_MayLetsBattle": 270452702,
+    "Route103_Text_MayDefeated": 270452865,
+    "Route103_Text_MayTimeToHeadBack": 270452910,
+    "Route103_Text_BrendanRoute103Pokemon": 270453129,
+    "Route103_Text_BrendanLetsBattle": 270453198,
+    "Route103_Text_BrendanDefeated": 270453337,
+    "Route103_Text_BrendanTimeToHeadBack": 270453369,
+    "Route103_Text_ShouldHaveBroughtPotion": 270453619,
+    "Route103_Text_ShortcutToOldale": 270453685,
+    "Route103_Text_RouteSign": 270453786
+  }
+}

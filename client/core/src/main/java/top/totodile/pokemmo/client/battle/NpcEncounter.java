@@ -33,10 +33,16 @@ final class NpcEncounter implements AutoCloseable {
     boolean loggedSendOut;
 
     NpcEncounter(BwPokedex dex, PokedexImages images, ClientResources resources,
-            GdxTwlRenderer renderer, List<Pokemon> team) throws IOException {
+            GdxTwlRenderer renderer, List<Pokemon> team,top.totodile.pokemmo.server.game.EncounterData.Trainer identity) throws IOException {
         this.dex = dex; this.images = images; this.resources = resources;
         this.renderer = renderer; this.team = List.copyOf(team);
-        trainer = BwNpcTrainer.random(dex, java.util.concurrent.ThreadLocalRandom.current());
+        // Older opening-battle snapshots stored only the reference script's placeholder model.
+        if(identity!=null&&identity.region()==0&&identity.teamId()<0&&identity.model()==328
+                &&team.size()==1&&team.get(0).level()==5){
+            int id=switch(team.get(0).species()){case 1->327;case 4->328;case 7->326;default->-1;};
+            if(id>=0)identity=new top.totodile.pokemmo.server.game.EncounterData.Trainer(id,0,328,identity.money());
+        }
+        trainer = identity==null?BwNpcTrainer.random(dex, java.util.concurrent.ThreadLocalRandom.current()):BwNpcTrainer.specified(dex,resources,identity);
         var pixels = trainer.pixels();
         var pixmap = new Pixmap(pixels.width(), pixels.height(), Pixmap.Format.RGBA8888);
         try {

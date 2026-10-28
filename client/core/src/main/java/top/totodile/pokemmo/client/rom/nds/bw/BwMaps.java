@@ -15,7 +15,9 @@ import java.util.*;
  */
 public final class BwMaps implements WorldMaps {
     private static final Tiles TILES =
-            new Tiles(3, new int[][] {new int[768], new int[768]}, new int[] {0, 1, 2}, List.of());
+            new Tiles(8, new int[][] {new int[2048], new int[2048]}, new int[] {0, 1, 2, 3, 4, 5, 6, 7}, List.of());
+    private final Map<Integer,Map<Long,Integer>> warpBehaviors=new HashMap<>();
+    private static long tileKey(int x,int y){return (long)x<<32 | y&0xffffffffL;}
 
     private record Archive(NdsArchive data, int count) {
         byte[] read(int id) {
@@ -128,9 +130,10 @@ public final class BwMaps implements WorldMaps {
         return id.bank() << 8 | id.map();
     }
 
-    @Override
+    public RomInfo rom(){return rom;}
+
     public Position start() {
-        return new Position(1, 133, 14, 14, 0);
+        return new Position(1, 135, 6, 6, 0);
     }
 
     @Override
@@ -275,6 +278,9 @@ public final class BwMaps implements WorldMaps {
     }
 
     @Override
+    public int standingWarpDirection(int behavior) { return behavior>=4&&behavior<=7?behavior-4:-1; }
+
+    @Override
     public int battleBackground(Id id) {
         // Gdx3DModelBatch.Wi0 reads bits 5..9 of BwMapHeaderEntry.mr0, plus one.
         return ((header(id).flags >>> 5) & 31) + 1;
@@ -291,6 +297,16 @@ public final class BwMaps implements WorldMaps {
     @Override
     public boolean isWater(int behavior) {
         return behavior == 1;
+    }
+
+    /** MapTilePropertyReader.eq0: native behavior is the third short of each terrain cell. */
+    public int nativeBehavior(Id id,int x,int y) {
+        Bounds b=bounds(number(id));Matrix m=matrix(header(id).matrix);
+        if(b==null||x<0||y<0||x>=b.width*b.cellWidth||y>=b.height*b.cellHeight)return 0;
+        int chunk=m.land[(y/b.cellHeight+b.y)*m.width+x/b.cellWidth+b.x];
+        if(chunk<0)return 0;
+        Land land=land(chunk);
+        return land.cells.length==0?0:land.cells[(y%b.cellHeight)*land.width+x%b.cellWidth][2]&65535;
     }
 
     @Override
@@ -386,7 +402,7 @@ public final class BwMaps implements WorldMaps {
         List<Warp> warps = warps(n, b);
         for (Warp w : warps)
             if (w.x() >= 0 && w.y() >= 0 && w.x() < width && w.y() < height)
-                blocks[w.y() * width + w.x()] = 2;
+                blocks[w.y() * width + w.x()] = warpBehaviors.get(n).getOrDefault(tileKey(w.x(),w.y()),3);
         var connections = new LinkedHashSet<Connection>();
         if (m.headers != null) {
             for (int x = 0; x < b.width; x++) {
@@ -429,6 +445,7 @@ public final class BwMaps implements WorldMaps {
     }
 
     private List<Warp> warps(int number, Bounds bounds) {
+        var behaviors=new HashMap<Long,Integer>();warpBehaviors.put(number,behaviors);
         int event = headers[number].events;
         if (event == 65535 || event >= events.count) return List.of();
         byte[] data = events.read(event);
@@ -454,11 +471,20 @@ public final class BwMaps implements WorldMaps {
             Warp warp = new Warp(x, y, 0, targetWarp, id(target));
             result.add(warp);
             int w = u16(data, p + 14), h = u16(data, p + 16);
+            // NumericCounterProgressBar + AbstractEntityMotionState.Wy0/SZ:
+            // type 1/35 activates on departure, with the ROM's required direction.
+            int direction=switch(data[p+4]&255){case 1->0;case 2->1;case 3->3;case 4->2;default->-1;};
+            int type=data[p+5]&255;
+            int behavior=(type==1||type==35)&&direction>=0?4+direction:
+                    (type==3||type==7)&&direction==1?2:3;
+            behaviors.put(tileKey(x,y),behavior);
             if (!curved && w <= 32 && h <= 32)
                 for (int dy = 0; dy < h; dy++)
                     for (int dx = 0; dx < w; dx++)
-                        if (dx != 0 || dy != 0)
+                        if (dx != 0 || dy != 0) {
                             extra.add(new Warp(x + dx, y + dy, 0, targetWarp, id(target)));
+                            behaviors.put(tileKey(x+dx,y+dy),behavior);
+                        }
         }
         result.addAll(extra);
         return List.copyOf(result);

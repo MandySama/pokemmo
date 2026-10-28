@@ -17,16 +17,19 @@ import java.util.function.Consumer;
 public final class WorldScene extends InputAdapter implements AutoCloseable {
     public int encounterBehavior() {
         var map=movement.map(); var p=movement.position();
+        if(maps instanceof top.totodile.pokemmo.client.rom.nds.bw.BwMaps bw)return bw.nativeBehavior(map.id(),p.x(),p.y());
         return maps.tiles(map).behavior(map.block(p.x(),p.y()) & 1023);
     }
     public boolean encounterLand() {
         int behavior=encounterBehavior();
-        return behavior==2 || maps.battleTerrain(movement.map().id(),movement.position().x(),
+        if(maps instanceof top.totodile.pokemmo.client.rom.nds.bw.BwMaps)return behavior==4||behavior==5;
+        return behavior==2 || maps instanceof top.totodile.pokemmo.client.rom.nds.gen4.Gen4Maps && behavior==3 || maps.battleTerrain(movement.map().id(),movement.position().x(),
                 movement.position().y())==BattleTerrain.CAVE && !maps.isWater(behavior);
     }
     public boolean supportsWildEncounters() {
-        return maps instanceof top.totodile.pokemmo.client.rom.gba.FireRedMaps gba
-                && gba.rom().type()==top.totodile.pokemmo.client.rom.RomType.FIRE_RED;
+        return maps instanceof top.totodile.pokemmo.client.rom.nds.gen4.Gen4Maps || maps instanceof top.totodile.pokemmo.client.rom.nds.bw.BwMaps || maps instanceof top.totodile.pokemmo.client.rom.gba.FireRedMaps gba
+                && (gba.rom().type()==top.totodile.pokemmo.client.rom.RomType.FIRE_RED
+                    || gba.rom().type()==top.totodile.pokemmo.client.rom.RomType.EMERALD);
     }
 
     public void surfSprites(top.totodile.pokemmo.client.rom.RomInfo rom) {
@@ -102,6 +105,7 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
     private MobileMapControls controls;
     private FollowerPokemon follower;
     private WorldMapObjects mapObjects;
+    private HoennGateSprites gateSprites;
     private java.util.List<top.totodile.pokemmo.server.game.MapEntities.MapView> mapEntitySnapshot = java.util.List.of();
     private final Map<Id,Map<Integer,Integer>> storyTileOriginals=new HashMap<>();
     private void restoreStoryTiles(){
@@ -154,7 +158,8 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
 
     public int facingStrengthBoulder(){
         int actor=facingNpc();if(actor<0||mapObjects==null)return -1;
-        return mapObjects.actors(movement.map().id()).stream().anyMatch(n->n.definition.id()==actor&&n.definition.graphics()==97)?actor:-1;
+        int graphics=maps instanceof top.totodile.pokemmo.client.rom.gba.FireRedMaps gba&&gba.rom().type()==top.totodile.pokemmo.client.rom.RomType.EMERALD?87:97;
+        return mapObjects.actors(movement.map().id()).stream().anyMatch(n->n.definition.id()==actor&&n.definition.graphics()==graphics)?actor:-1;
     }
     public int facingNpc(){
         if(mapObjects==null)return -1;
@@ -163,14 +168,17 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
         int tx = p.x() + dx[p.direction()], ty = p.y() + dy[p.direction()];
         int npc = npcAt(tx, ty);
         if (npc >= 0) return npc;
-        if (map.contains(tx, ty) && maps.tiles(map).behavior(map.block(tx, ty) & 1023) == 0x80)
+        // GlfwDebugConsole skips the BW counter behavior WK (native id 212) for interaction.
+        if (map.contains(tx, ty) && (maps.tiles(map).behavior(map.block(tx, ty) & 1023) == 0x80
+                || maps instanceof top.totodile.pokemmo.client.rom.nds.bw.BwMaps bw && bw.nativeBehavior(map.id(),tx,ty)==212))
             return npcAt(tx + dx[p.direction()], ty + dy[p.direction()]);
         return -1;
     }
     private int npcAt(int x, int y) {
         int layer = WorldMapObjects.entityElevation(movement.elevation() << 12);
         return mapObjects.actors(movement.map().id()).stream()
-                .filter(a -> a.visible() && a.x == x && a.y == y
+                // Native invisible objects can be interaction proxies (e.g. Mr. Stone's desk).
+                .filter(a -> (maps instanceof top.totodile.pokemmo.client.rom.nds.gen4.Gen4Maps || a.definition.graphics() != 0) && a.x == x && a.y == y
                         && (layer < 0 || a.definition.elevation() < 0
                             || layer / 3 == a.definition.elevation() / 3))
                 .mapToInt(a -> a.definition.id()).findFirst().orElse(-1);
@@ -196,12 +204,14 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
 
     public void mapObjects(top.totodile.pokemmo.client.resources.ClientResources resources) {
         soundResources=resources;
-        if (!(maps instanceof top.totodile.pokemmo.client.rom.gba.FireRedMaps gba)
-                || gba.rom().type() != top.totodile.pokemmo.client.rom.RomType.FIRE_RED) return;
+        var rom=maps instanceof top.totodile.pokemmo.client.rom.gba.FireRedMaps gba ? gba.rom()
+            : maps instanceof top.totodile.pokemmo.client.rom.nds.bw.BwMaps bw ? bw.rom() : maps instanceof top.totodile.pokemmo.client.rom.nds.gen4.Gen4Maps gen4 ? gen4.rom() : null;
+        if(rom==null)return;
         try {
-            var replacement = new WorldMapObjects(resources, gba.rom());
+            var replacement = new WorldMapObjects(resources, rom);
             if (mapObjects != null) mapObjects.close();
             mapObjects = replacement;
+            if(rom.type()==top.totodile.pokemmo.client.rom.RomType.EMERALD&&gateSprites==null)gateSprites=new HoennGateSprites(rom);
             movement.occupancy(mapObjects::occupied);
         } catch (java.io.IOException error) {
             throw new IllegalStateException("Cannot load reference Kanto map objects", error);
@@ -295,6 +305,9 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
                         Boolean.parseBoolean(
                                 settings.get("client.gameplay.autosprint.enabled", "true")),
                         save);
+        // Reference GdxTileLayerRenderer.Wp checks shoes separately from autosprint.
+        motion.runningShoes(false);
+        motion.awaitTraversal();
         WorldState.bind(settings, motion, state, saveState);
         motion.addStepListener(step->{
             if(soundResources==null||soundResources.audio()==null)return;
@@ -363,12 +376,23 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
     }
 
     public void setInputBlocked(boolean blocked) {
+        setInputBlocked(blocked,false);
+    }
+
+    /** Dialogue pauses movement without forgetting physically held direction keys. */
+    public void setInputBlocked(boolean blocked,boolean preserveDirections) {
         inputBlocked = blocked;
         if (blocked) {
             actionKeys.clear();
-            directionKeys.clear();
+            if(!preserveDirections)directionKeys.clear();
             if (controls != null) controls.release();
         }
+    }
+
+    public void rememberStoryDirection(int key) {
+        if(!focused)return;
+        int direction=directionForKey(key);
+        if(direction>=0)directionKeys.press(key,direction);
     }
 
     public void setControls(MobileMapControls controls) {
@@ -455,7 +479,8 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
         doorAnimation.update(focused ? delta : 0, warpRevealing);
         if (nds != null) {
             if (follower != null) follower.update(focused ? delta : 0);
-            nds.draw(movement, motion, character, batch, width, height, mobile, follower);
+            if(mapObjects!=null)mapObjects.update(focused?delta:0,maps,movement,motion);
+            nds.draw(movement, motion, character, batch, width, height, mobile, follower, mapObjects);
             if (controls != null) controls.draw(batch, width, height);
             return;
         }
@@ -549,6 +574,7 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
 
     private void drawMapActors(float px, float py, int direction, boolean high) {
         var actors = new ArrayList<Actor>();
+        if(!high&&gateSprites!=null&&movement.rotatingGates()!=null)for(var gate:movement.rotatingGates().gates(movement.map().id()))actors.add(new Actor(gate.y(),gate.x(),()->gateSprites.draw(batch,gate)));
         appendMapActors(actors, movement.map(), 0, 0, high);
         for (var neighbor : neighbors)
             appendMapActors(actors, neighbor.map(), neighbor.x(), neighbor.y(), high);
@@ -629,6 +655,9 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
 
     private void drawMap(int pass, float px, float py) {
         MapData map = movement.map();
+        MapData cachedSource = null;
+        Tiles tiles = null;
+        Texture[] textures = null;
         int left = (int) Math.floor((px - camera.viewportWidth / 2) / 16) - 1;
         int right = (int) Math.ceil((px + camera.viewportWidth / 2) / 16) + 1;
         int top = (int) Math.floor((py - camera.viewportHeight / 2) / 16) - 1;
@@ -650,8 +679,13 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
                     doorAnimation.draw(batch,pass,source.id(),sx,sy,x,y);
                     continue;
                 }
-                Tiles tiles = maps.tiles(source);
-                Texture[] textures = atlases.get(tiles);
+                // A layer run uses one tileset/atlas, as in GdxTileLayerRenderer. Do not hash
+                // the entire animated Tiles record for every cell of the live battle backdrop.
+                if (source != cachedSource) {
+                    cachedSource = source;
+                    tiles = maps.tiles(source);
+                    textures = atlases.get(tiles);
+                }
                 int block = source.block(sx, sy), id = block & 1023;
                 if (id >= tiles.count()) continue;
                 // 火红 C4=32：属性最高字节的 0x20 位，含 layer=1 和 layer=3。
@@ -778,6 +812,7 @@ public final class WorldScene extends InputAdapter implements AutoCloseable {
         if (nds != null) nds.close();
         if (follower != null) follower.close();
         if (mapObjects != null) mapObjects.close();
+        if(gateSprites!=null)gateSprites.close();
         for (Texture[] textures : atlases.values())
             for (Texture texture : textures) texture.dispose();
         atlases.clear();

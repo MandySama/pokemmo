@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 
 /** Reference PokemonStorageWindow: preview, box strip, ten-column grid, party and search. */
 public final class PokemonStorageWindow extends PlayerWindow {
+    private Runnable openIncubator=()->{};
+    public void onIncubator(Runnable action){openIncubator=action;}
     private final PokemonController controller;
     private final Widget content =
             new Widget() {
@@ -419,7 +421,7 @@ public final class PokemonStorageWindow extends PlayerWindow {
                             for (var cell : cells) cell.itemMode(itemsMode);
                             for (var slot : party.slots) slot.itemMode(itemsMode);
                         });
-        incubator = tool("incubator_temporary", () -> {});
+        incubator = tool("incubator_temporary", () -> openIncubator.run());
         selectionTool = tool("icon_select_all", () -> {});
         lowValue = tool("icon_trash", this::selectLowValue);
         help = tool("tooltip", () -> showHelp());

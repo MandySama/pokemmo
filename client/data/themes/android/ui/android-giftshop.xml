@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<themes>
+    <theme name="mobile-giftshop" ref="mobile-panel" overwrite="true">
+        <param name="background"><image>mobile.window.bottom.background.lightblue</image></param>
+        <param name="border"><border>60,0,0,0</border></param>
+    </theme>
+    <theme name="giftshop-tab" ref="market-tab" overwrite="true"/>
+</themes>

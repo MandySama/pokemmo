@@ -173,10 +173,11 @@ public final class MapEntities {
     }
 
     static List<MapView> projectStory(top.totodile.pokemmo.db.Database db,String owner,StoryData.State state) {
-        if(!state.enabled())return project(state);
+        if(!state.enabled())return PalletDaisy.project(db,owner,project(state));
         var p=KantoMainline.progress(db,owner);
         var events=new HashSet<String>();for(var row:db.query("SELECT flag FROM character_story_event WHERE character_id=?",owner))events.add(row[0]);
-        return KantoMechanisms.projectSaved(db,owner,project(state).stream().map(m->new MapView(m.bank,m.map,m.npcs.stream().filter(n->{
+        return PalletDaisy.project(db,owner,KantoMechanisms.projectSaved(db,owner,project(state).stream().map(m->new MapView(m.bank,m.map,m.npcs.stream().filter(n->{
+            if(!KantoPostgame.visible(db,owner,mapKey(m.bank,m.map),n.id))return false;
             String f=HIDE_FLAGS.getOrDefault(m.bank+":"+m.map+":"+n.id,"");
             if(events.contains(f))return false;
             return switch(f) {
@@ -199,7 +200,7 @@ public final class MapEntities {
                 case "kanto/FLAG_HIDE_SILPH_RIVAL" -> !p.bit("extra",1);
                 default -> true;
             };
-        }).toList(),m.backgrounds,KantoMiddle.tiles(db,owner,m.bank,m.map,state))).toList());
+        }).toList(),m.backgrounds,KantoMiddle.tiles(db,owner,m.bank,m.map,state))).toList()));
     }
 
     private static boolean visible(String key, int id, StoryData.State s) {

@@ -51,6 +51,25 @@ tasks.named('test') {
     inputs.dir(project(':client').file('data/themes'))
 }
 
+// Isolate ROM-backed Unova regression tests from unrelated experimental tests.
+sourceSets {
+    unovaTest {
+        java.srcDir 'src/unovaTest/java'
+        java.include '**/UnovaStoryTest.java', '**/UnovaStoryUiTest.java', '**/UiTestAccess.java'
+        compileClasspath += sourceSets.main.output + configurations.testRuntimeClasspath
+        runtimeClasspath += output + compileClasspath
+    }
+}
+dependencies { unovaTestImplementation 'com.google.code.gson:gson:2.13.2' }
+tasks.register('unovaTest', Test) {
+    group = 'verification'
+    description = 'Run Unova story state and real OpenGL interaction tests (requires local BW ROM).'
+    testClassesDirs = sourceSets.unovaTest.output.classesDirs
+    classpath = sourceSets.unovaTest.runtimeClasspath
+    workingDir = project(':client').projectDir
+    inputs.dir(project(':client').file('data/themes'))
+}
+
 application {
     applicationName = 'pokemmo'
     mainClass = 'top.totodile.pokemmo.client.DesktopLauncher'

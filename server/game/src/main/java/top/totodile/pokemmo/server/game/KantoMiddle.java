@@ -24,6 +24,7 @@ final class KantoMiddle {
             }
         }
         result.addAll(KantoMechanisms.tiles(db,owner,bank,map,state));
+        result.addAll(KantoPostgame.tiles(db,owner,bank,map));
         return List.copyOf(result);
     }
 }

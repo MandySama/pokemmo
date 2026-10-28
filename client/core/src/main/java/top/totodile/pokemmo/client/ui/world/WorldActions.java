@@ -10,6 +10,7 @@ public final class WorldActions extends Widget {
     private final boolean mobile;
     private final Button noClip = new Button();
     private final Button speed = new Button();
+    private final Button forceRun=new Button();
     private final Button pokedex = new Button();
     private final Button portablePc = new Button("随身PC");
     private final Button randomEncounter = new Button("随机遭遇");
@@ -81,6 +82,7 @@ public final class WorldActions extends Widget {
                                                     : current < 4 ? 4 : current < 8 ? 8 : 16);
                     refresh();
                 });
+        forceRun.addCallback(()->{world.motion().forceRunning(!world.motion().forceRunning());refresh();});
         pokedex.setCanAcceptKeyboardFocus(false);
         pokedex.addCallback(
                 () -> {
@@ -270,10 +272,10 @@ public final class WorldActions extends Widget {
     }
 
     private Button[] buttons() {
-        if (mobile) return new Button[] {testMode, noClip, speed, resources, teleport, portablePc, storyInspection};
+        if (mobile) return new Button[] {testMode, noClip, speed, forceRun, resources, teleport, portablePc, storyInspection};
         if (!world.supportsAtmosphere())
-            return new Button[] {animationTests, testMode, noClip, speed, resources, encounters, teleport, portablePc, storyInspection};
-        return new Button[] {animationTests, testMode, noClip, speed, resources, encounters,
+            return new Button[] {animationTests, testMode, noClip, speed, forceRun, resources, encounters, teleport, portablePc, storyInspection};
+        return new Button[] {animationTests, testMode, noClip, speed, forceRun, resources, encounters,
                 teleport, portablePc, time, weather, storyInspection};
     }
 
@@ -313,6 +315,7 @@ public final class WorldActions extends Widget {
         weather.setText("天气：" + world.atmosphere().weatherLabel());
         noClip.setText("穿墙：" + (world.movement().noClip() ? "开启" : "关闭"));
         speed.setText("倍速：" + (int) world.motion().speed() + "×");
+        forceRun.setText("强制跑步："+(world.motion().forceRunning()?"开启":"关闭"));
         pokedex.setText("图鉴：" + (world.pokedex().pokedexUnlocked() ? "全解锁" : "未解锁"));
         invalidateLayout();
     }

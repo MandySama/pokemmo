@@ -15,7 +15,6 @@ import top.totodile.pokemmo.client.ui.pokemon.AttributeParticleScene;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.zip.ZipInputStream;
 
 /** PC subset of Gdx3DModelBatch.w9 and BattleJ40Animation.Px. No synthetic sprite frames. */
 final class EncounterEntrance implements AutoCloseable {
@@ -119,22 +118,12 @@ final class EncounterEntrance implements AutoCloseable {
                 }
             }
             String name = "particle/special/" + (ball == 15 ? "spawn_cherish" : "spawn") + ".vfx";
-            try (var zip = new ZipInputStream(resources.apply("sprites/particles.pak").read())) {
-                for (var entry = zip.getNextEntry(); entry != null; entry = zip.getNextEntry())
-                    if (entry.getName().equals(name)) {
-                        var effect =
-                                new JsonReader()
-                                        .parse(
-                                                new String(
-                                                        zip.readAllBytes(),
-                                                        java.nio.charset.StandardCharsets.UTF_8));
-                        loaded =
-                                new AttributeParticleScene(
-                                        images, effect, enemy ? new Vector3(5, 3.58f, 1)
-                                                : path.valueAt(new Vector3(), .99f));
-                        break;
-                    }
-            }
+            var effect = new JsonReader().parse(new String(
+                    top.totodile.pokemmo.client.resources.ParticleResources.read(resources, name),
+                    java.nio.charset.StandardCharsets.UTF_8));
+            loaded = new AttributeParticleScene(
+                    images, effect, enemy ? new Vector3(5, 3.58f, 1)
+                            : path.valueAt(new Vector3(), .99f));
             if (loaded == null) throw new IOException("Missing reference release effect " + name);
         } catch (IOException | RuntimeException error) {
             if (trainer != null) trainer.close();

@@ -40,7 +40,6 @@ public final class HallOfFameWindow extends ClientDialog implements AutoCloseabl
     private Runnable completed;
     private int showing=-2,cried=-1;
     private String historyText="";
-    private boolean dumped;
     private boolean finished;
 
     public HallOfFameWindow(Widget owner,boolean mobile,ClientResources resources,BwPokedex dex,
@@ -128,7 +127,17 @@ public final class HallOfFameWindow extends ClientDialog implements AutoCloseabl
     private void load(GdxTwlRenderer renderer){
         if(images!=null)return;
         try{images=new PokedexImages(new BwPokemonSprites(dex),renderer,resources);}catch(java.io.IOException error){throw new java.io.UncheckedIOException(error);}images.reserveAnimations(6);
-        Texture texture=new Texture(resources.apply("sprites/textures/hof.png"));textures.add(texture);hof=renderer.image(texture);
+        // The official hof PNG is grayscale. LibGDX decodes it as Alpha, whereas the
+        // reference texture loader uses its samples as luminance (opaque RGB).
+        var gray=new com.badlogic.gdx.graphics.Pixmap(resources.apply("sprites/textures/hof.png"));
+        Texture texture;
+        try{
+            if(gray.getFormat()==com.badlogic.gdx.graphics.Pixmap.Format.Alpha){
+                var rgb=new com.badlogic.gdx.graphics.Pixmap(gray.getWidth(),gray.getHeight(),com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888);
+                try{rgb.setBlending(com.badlogic.gdx.graphics.Pixmap.Blending.None);for(int y=0;y<gray.getHeight();y++)for(int x=0;x<gray.getWidth();x++){int g=gray.getPixel(x,y)&255;rgb.drawPixel(x,y,g<<24|g<<16|g<<8|255);}texture=new Texture(rgb);}finally{rgb.dispose();}
+            }else texture=new Texture(gray);
+        }finally{gray.dispose();}
+        textures.add(texture);hof=renderer.image(texture);
         for(int i=0;i<100;i++){
             var file=resources.apply(String.format(java.util.Locale.ROOT,"sprites/textures/bg_%02d.png",i));if(!file.exists())break;
             texture=new Texture(file);textures.add(texture);panorama.add(renderer.image(texture));
@@ -149,10 +158,6 @@ public final class HallOfFameWindow extends ClientDialog implements AutoCloseabl
             float alpha=(float)Math.min(1,time);if(time>finaleAt()-.5)alpha=(float)((finaleAt()-time)*2);
             renderer.pushGlobalTintColor(color.getRedFloat(),color.getGreenFloat(),color.getBlueFloat(),alpha);
             hof.draw(getAnimationState(),x,y,w,h);renderer.popGlobalTintColor();
-            if(!dumped&&time>2){dumped=true;renderer.renderOffscreen(()->{
-                var pixels=com.badlogic.gdx.utils.ScreenUtils.getFrameBufferPixmap(0,0,w,h);
-                try{com.badlogic.gdx.graphics.PixmapIO.writePNG(com.badlogic.gdx.Gdx.files.local("build/story-diagnostics/hall-background-debug.png"),pixels,-1,true);}finally{pixels.dispose();}
-            });}
             if(showing>=0){drawParticles(renderer,x+w/2,y,w/2,h);double local=(time-1)%4;drawMember(renderer,party.get(showing),x+w*3/4,y+h/2,Math.min(w/3,h/2),time,(float)Math.min(1,local*2));}
         }else{
             int total=0;for(var image:panorama)total+=Math.max(1,(int)((float)h/image.getHeight()*image.getWidth()));

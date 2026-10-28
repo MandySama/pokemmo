@@ -8,6 +8,24 @@
     <fontDef name="messagebox" filename="res/fonts/NotoSansCJK-Bold.ttc" faces="sc,tc,jp" color="#222222" hinting="Medium" kerning="false" size="24" shadow_color="#40000000" shadow_offset_x="1" shadow_offset_y="1" border_width="0" border_color="#484848"/>
     <theme name="messagebox-bubble" ref="-defaults"/>
     <theme name="messagebox-mobile" ref="messagebox-bubble"/>
+    <images file="res/main-hud.png" filter="nearest">
+        <area name="story-choice.default" xywh="378,40,36,28" splitx="L20,R7" splity="T6,B8"/>
+        <area name="story-choice.selected" xywh="378,7,36,26" inset="-3,0,3,0" splitx="L20,R7" splity="T6,B8"/>
+        <select name="story-choice.background">
+            <alias ref="story-choice.selected" if="hover | keyboardFocus"/>
+            <alias ref="story-choice.selected" if="selected"/>
+            <alias ref="story-choice.default"/>
+        </select>
+    </images>
+    <!-- Official main-widgets.xml npc-interaction-panel. -->
+    <theme name="story-selection-panel" ref="-defaults" allowWildcard="true">
+        <param name="background"><image>ui-popup.background</image></param>
+        <param name="border"><border>5</border></param>
+        <theme name="starter-button" ref="button">
+            <param name="border"><border>10</border></param>
+            <param name="background"><image>story-choice.background</image></param>
+        </theme>
+    </theme>
     <theme name="story-npc-popup" ref="-defaults" allowWildcard="true">
         <param name="background"><image>text-bubble.background</image></param>
         <param name="border"><border>35,50,30,40</border></param>

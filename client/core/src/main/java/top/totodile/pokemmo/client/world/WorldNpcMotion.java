@@ -36,7 +36,8 @@ final class WorldNpcMotion {
         remaining = delay();
     }
 
-    boolean visible() { return definition.graphics() != 0 && definition.movement() != 76; }
+    boolean nativeZeroGraphics;
+    boolean visible() { return (nativeZeroGraphics || definition.graphics() != 0) && definition.movement() != 76; }
     boolean occupies(int tx, int ty, int elevation) {
         return visible() && (definition.elevation() == 0 || elevation == 0
                 || definition.elevation() == elevation)

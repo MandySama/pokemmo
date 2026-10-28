@@ -62,7 +62,9 @@ public final class StoryData {
         }
     }
 
-    public record Scene(State state, Action action, List<MapEntities.MapView> entities, boolean partyHealed, boolean inventoryChanged) {
+    public record Scene(State state, Action action, List<MapEntities.MapView> entities, boolean partyHealed, boolean inventoryChanged, boolean runningShoes,boolean surfAllowed,boolean bicycleAllowed) {
+        public Scene(State state,Action action,List<MapEntities.MapView> entities,boolean partyHealed,boolean inventoryChanged,boolean runningShoes){this(state,action,entities,partyHealed,inventoryChanged,runningShoes,false,false);}
+        public Scene(State state, Action action, List<MapEntities.MapView> entities, boolean partyHealed, boolean inventoryChanged){this(state,action,entities,partyHealed,inventoryChanged,false);}
         public Scene(State state, Action action, List<MapEntities.MapView> entities, boolean partyHealed) {
             this(state, action, entities, partyHealed, false);
         }

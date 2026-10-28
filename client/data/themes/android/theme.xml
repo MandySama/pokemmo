@@ -43,4 +43,9 @@
     <include filename="ui/android-pc.xml"/>
     <include filename="ui/android-party.xml"/>
     <include filename="ui/android-staff.xml"/>
+    <include filename="../default/ui/market.xml"/>
+    <include filename="ui/android-market.xml"/>
+    <include filename="../default/ui/giftshop.xml"/>
+    <include filename="ui/android-giftshop.xml"/>
+    <include filename="../default/ui/incubator.xml"/>
 </themes>

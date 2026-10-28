@@ -76,7 +76,9 @@ public final class WorldHud extends Widget {
     private Runnable bagAction = () -> {},
             trainerAction = () -> {},
             dexAction = () -> {},
-            mailAction = () -> {};
+            mailAction = () -> {},
+            tradeAction = () -> {}, giftAction = () -> {};
+    public void onGiftShop(Runnable action){giftAction=action;}
     private top.totodile.pokemmo.client.ui.pokemon.PartyPanel party;
 
     public WorldHud(
@@ -114,7 +116,7 @@ public final class WorldHud extends Widget {
         int[] texts = {1100, 1101, 1126, 1161, 1, 8000, 2353, 1116, 1102};
         int[] ids = {5436, 5432, 5437, 5001, 5431, 5471, 5452, 5459, 5626};
         String[] bindings = {
-            "bag", "trainer", "friendlist", null, "codex", null, null, null, "gamemenu"
+            "bag", "trainer", "friendlist", null, "codex", "tradelink", null, null, "gamemenu"
         };
         int[] keys = {Input.Keys.B, Input.Keys.C, Input.Keys.M, 0, Input.Keys.N, 0, 0, 0, 0};
         // ChatBadgePrefixLabel: name + configured key, centred above the shortcut.
@@ -235,6 +237,8 @@ public final class WorldHud extends Widget {
                     closeMenu();
                     mailAction.run();
                 });
+        shortcuts[5].addCallback(() -> { closeMenu(); tradeAction.run(); });
+        shortcuts[7].addCallback(() -> { closeMenu(); giftAction.run(); });
         mobileStatus = mobile ? new MobileStatusIcons(batteryPercent) : null;
         mobileMenu =
                 mobile
@@ -252,6 +256,8 @@ public final class WorldHud extends Widget {
                     () -> trainerAction.run(),
                     () -> dexAction.run(),
                     () -> mailAction.run(),
+                    () -> tradeAction.run(),
+                    () -> giftAction.run(),
                     () -> customizationAction.run(),
                     logout,
                     exit);
@@ -306,6 +312,8 @@ public final class WorldHud extends Widget {
     public void onMail(Runnable open) {
         mailAction = open;
     }
+
+    public void onTrade(Runnable open) { tradeAction = open; }
 
     public boolean dismissMenuOutside(int x, int y) {
         if (mobileMenu != null && mobileMenu.isVisible() && !mobileMenu.contains(x, y)) {

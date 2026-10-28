@@ -9,15 +9,59 @@ import java.util.function.Supplier;
 
 /** 单机角色服务；所有数据库操作在同一后台线程执行。 */
 public final class LocalGameService implements GameService {
+    @Override public CompletionStage<List<GiftShopData.Item>> giftShop(Selection selection,String id) {
+        return CompletableFuture.supplyAsync(()->{playerData(selection,id);return GiftShopData.items();},worker);
+    }
+    @Override public CompletionStage<StoryDebug.State> storyDebugState(Selection selection,String id) {
+        return CompletableFuture.supplyAsync(()->{
+            playerData(selection,id);
+            if(currentRegion(id,0)!=0&&!((StoryTestDatabase)db()).active())throw new IllegalStateException("目前仅支持关都剧情调试");
+            return StoryDebug.state(db(),id,((StoryTestDatabase)db()).active());
+        },worker);
+    }
+    @Override public CompletionStage<Void> editStory(Selection selection,String id,StoryDebug.Request request) {
+        return CompletableFuture.runAsync(()->{
+            playerData(selection,id);
+            if(request.mode()!=StoryDebug.Mode.RESTORE&&currentRegion(id,0)!=0)throw new IllegalStateException("目前仅支持关都剧情调试");
+            if(request.mode()!=StoryDebug.Mode.RESTORE&&(battles.containsKey(id)||persistentBattles.contains(id)))throw new IllegalStateException("请先结束对战");
+            var session=stories.get(id);
+            if(request.mode()!=StoryDebug.Mode.RESTORE&&session!=null&&session.waitingAction()!=null)throw new IllegalStateException("请先完成当前对话或剧情");
+            var database=(StoryTestDatabase)db();
+            if(request.mode()==StoryDebug.Mode.RESTORE) {
+                restoreStoryTest();
+                return;
+            }
+            if(request.mode()==StoryDebug.Mode.PERMANENT&&database.active())
+                throw new IllegalStateException("请先结束临时测试并恢复存档，再永久应用进度");
+            boolean started=request.mode()==StoryDebug.Mode.TEMPORARY&&!database.active();
+            if(started)database.begin(id);
+            try { StoryDebug.apply(database,id,request.values()); }
+            catch(RuntimeException|Error e) { if(started)database.restore();throw e; }
+            stories.remove(id);
+            wildRolls.remove(id);
+        },worker);
+    }
+    private void restoreStoryTest() {
+        if(database instanceof StoryTestDatabase test&&test.active()) {
+            for(String id:new ArrayList<>(battles.keySet()))closeBattle(id);
+            test.restore();
+            stories.clear();storyBattles.clear();encounters.clear();persistentBattles.clear();
+            progress.clear();wildRolls.clear();mailboxes.clear();playStarted.clear();
+        }
+    }
     private final Map<String,KantoStory> stories=new HashMap<>();
     private final Set<String> storyBattles=new HashSet<>();
+    private final top.totodile.pokemmo.server.game.battle.ShowdownBattleEngine readyBattleEngine=new top.totodile.pokemmo.server.game.battle.ShowdownBattleEngine();
+    @Override public CompletionStage<Void> prepareBattle(){return CompletableFuture.runAsync(readyBattleEngine::prepare);}
 
     @Override public CompletionStage<StoryInspection.Report> inspectStory(Selection selection,String id,Position position) {
         return CompletableFuture.supplyAsync(()->{
             playerData(selection,id);
             var p=position==null?savedPosition(id):position;
             if(p==null)p=Position.start(currentRegion(id,0));
-            return StoryInspection.inspect(db(),id,currentRegion(id,0),p,stories.get(id));
+            var report=StoryInspection.inspect(db(),id,currentRegion(id,0),p,stories.get(id));
+            if(((StoryTestDatabase)db()).active())return new StoryInspection.Report(report.region(),report.bank(),report.map(),report.mapKey(),report.state()+"\n【临时测试中：结束测试或离开角色后恢复存档】",report.nextSteps(),report.npcs());
+            return report;
         },worker);
     }
 
@@ -32,8 +76,23 @@ public final class LocalGameService implements GameService {
             }
             var story=stories.computeIfAbsent(id,key->new KantoStory(db(),id,speciesTemplates));
             story.itemTemplates(itemTemplates);
+            // An encounter already selected by an earlier accepted step owns the interaction.
+            // Later predicted coordinate checks must not start a second story while it opens.
+            if(persistentBattles.contains(id))return new StoryData.Scene(story.state(),null,story.entities(),false,false);
             var scene = story.request(request,p,currentRegion(id,0));
-            return new StoryData.Scene(scene.state(), scene.action(), story.entities(), story.takePartyHealed(), story.takeInventoryChanged());
+            int region=currentRegion(id,0);
+            boolean shoes=region>=2?story.regionalFlag("shoes"):region==1?scene.state().enabled()&&scene.state().stage()>=16:
+                    KantoMainline.event(db(),id,"running_shoe_status");
+            return new StoryData.Scene(scene.state(), scene.action(), story.entities(), story.takePartyHealed(), story.takeInventoryChanged(),shoes,
+                    TraversalAccess.surf(db(),id,region),TraversalAccess.bicycle(db(),id,region));
+        },worker);
+    }
+
+    @Override public CompletionStage<Traversal> traversal(Selection selection,String id){
+        return CompletableFuture.supplyAsync(()->{
+            playerData(selection,id);
+            int region=currentRegion(id,0);
+            return new Traversal(TraversalAccess.surf(db(),id,region),TraversalAccess.bicycle(db(),id,region));
         },worker);
     }
 
@@ -123,6 +182,10 @@ public final class LocalGameService implements GameService {
     }
 
     private void closeBattle(String id) {
+        closeBattle(id,true);
+    }
+    private void closeBattle(String id,boolean forget) {
+        if(forget&&database!=null)database.execute("DELETE FROM character_battle_checkpoint WHERE character_id=?",id);
         storyBattles.remove(id);
         if (moveTestBattles.remove(id)) encounters.remove(id);
         persistentBattles.remove(id);
@@ -148,10 +211,11 @@ public final class LocalGameService implements GameService {
                     if (persistent) persistentBattles.add(id);
                     if (storyBattle) storyBattles.add(id);
                     var session =
-                            top.totodile.pokemmo.server.game.battle.BattleEngine.create(kind)
+                            (kind==top.totodile.pokemmo.server.game.battle.BattleEngine.Kind.SHOWDOWN?readyBattleEngine:top.totodile.pokemmo.server.game.battle.BattleEngine.create(kind))
                                     .start(encounter);
                     battles.put(id, session);
                     if (persistent) progress.put(id, new BattleProgress(encounter));
+                    checkpointBattle(id);
                     return session.state();
                 },
                 worker);
@@ -169,14 +233,20 @@ public final class LocalGameService implements GameService {
                     if (session == null) throw new IllegalStateException("No active battle engine");
                     if (persistentBattles.contains(id) && action.type() == top.totodile.pokemmo.server.game.battle.BattleEngine.Type.TEST_MOVE)
                         throw new IllegalStateException("Effect tests cannot modify an overworld battle");
-                    var state = session.choose(action);
-                    if (persistentBattles.contains(id)) {
-                        state = progress.get(id).settle(db(), id, speciesTemplates, battleYields, state);
-                        if(storyBattles.contains(id)&&state.ended())stories.get(id).finishBattle("Player".equals(state.winner()));
-                        session.growth(state.growth());
-                    }
-                    encounters.put(id, state.apply(encounters.get(id)));
-                    return state;
+                    var chosen=session.choose(action);
+                    top.totodile.pokemmo.server.game.battle.BattleState[] result={chosen};
+                    db().transaction(()->{
+                        var state=chosen;
+                        if(persistentBattles.contains(id)){
+                            state=progress.get(id).settle(db(),id,speciesTemplates,battleYields,state);
+                            if(storyBattles.contains(id)&&state.ended())stories.get(id).finishBattle("Player".equals(state.winner()));
+                            session.growth(state.growth());
+                            var actual=session.state();
+                            state=new top.totodile.pokemmo.server.game.battle.BattleState(state.engine(),state.turn(),state.ended(),state.winner(),state.forceSwitch(),actual.pokemon(),state.logs(),state.actions(),state.events(),state.growth());
+                        }
+                        encounters.put(id,state.apply(encounters.get(id)));checkpointBattle(id);result[0]=state;
+                    });
+                    return result[0];
                 },
                 worker);
     }
@@ -208,6 +278,59 @@ public final class LocalGameService implements GameService {
     }
 
     private final Supplier<Database> factory;
+    private final java.util.function.LongSupplier battleClock;
+    static final long BATTLE_RECONNECT_MILLIS=300_000;
+    @Override public CompletionStage<Void> disconnectBattle(Selection selection,String id){
+        return CompletableFuture.runAsync(()->{playerData(selection,id);boolean keep=persistentBattles.contains(id);if(keep)checkpointBattle(id);closeBattle(id,!keep);},worker);
+    }
+    @Override public CompletionStage<Void> touchBattle(Selection selection,String id){
+        return CompletableFuture.runAsync(()->{playerData(selection,id);if(battles.containsKey(id)&&persistentBattles.contains(id))db().execute("UPDATE character_battle_checkpoint SET expires_at=? WHERE character_id=?",battleClock.getAsLong()+BATTLE_RECONNECT_MILLIS,id);},worker);
+    }
+
+    private void checkpointBattle(String id){
+        var session=battles.get(id);if(session==null||!persistentBattles.contains(id))return;
+        String engine=session.checkpoint();if(engine==null)return;
+        var gson=new com.google.gson.Gson();var data=new com.google.gson.JsonObject();
+        data.addProperty("engine",engine);data.add("encounter",gson.toJsonTree(encounters.get(id)));
+        data.add("progress",gson.toJsonTree(progress.get(id)));
+        if(storyBattles.contains(id))data.add("story",stories.get(id).battleCheckpoint());
+        db().execute("INSERT INTO character_battle_checkpoint VALUES (?,?,?) ON CONFLICT(character_id) DO UPDATE SET expires_at=excluded.expires_at,payload=excluded.payload",
+                id,battleClock.getAsLong()+BATTLE_RECONNECT_MILLIS,gson.toJson(data));
+    }
+    @Override public CompletionStage<BattleResume> reconnectBattle(Selection selection,String id){
+        return CompletableFuture.supplyAsync(()->{
+            playerData(selection,id);
+            var rows=db().query("SELECT expires_at,payload FROM character_battle_checkpoint WHERE character_id=?",id);
+            if(rows.isEmpty())return null;
+            long expires=Long.parseLong(rows.get(0)[0]);var gson=new com.google.gson.Gson();
+            var data=com.google.gson.JsonParser.parseString(rows.get(0)[1]).getAsJsonObject();
+            var session=battles.get(id);
+            if(session==null){
+                session=top.totodile.pokemmo.server.game.battle.ShowdownBattleEngine.restore(data.get("engine").getAsString());
+                battles.put(id,session);persistentBattles.add(id);
+                encounters.put(id,gson.fromJson(data.get("encounter"),EncounterData.class));
+                progress.put(id,gson.fromJson(data.get("progress"),BattleProgress.class));
+                if(data.has("story")){
+                    var story=stories.computeIfAbsent(id,key->new KantoStory(db(),id,speciesTemplates));story.itemTemplates(itemTemplates);
+                    story.restoreBattle(data.getAsJsonObject("story"),session.state().ended());storyBattles.add(id);
+                }
+            }
+            if(expires<=battleClock.getAsLong()){
+                if(!session.state().ended()){
+                    var state=session.choose(top.totodile.pokemmo.server.game.battle.BattleEngine.Action.forfeit());
+                    db().transaction(()->{
+                        progress.get(id).settle(db(),id,speciesTemplates,battleYields,state);
+                        if(storyBattles.contains(id))stories.get(id).finishBattle(false);
+                        db().execute("DELETE FROM character_battle_checkpoint WHERE character_id=?",id);
+                    });
+                }
+                closeBattle(id);stories.computeIfPresent(id,(key,story)->story.afterBattle());return null;
+            }
+            var state=session.state();
+            var view=new top.totodile.pokemmo.server.game.battle.BattleState(state.engine(),state.turn(),state.ended(),state.winner(),state.forceSwitch(),state.pokemon(),List.of(),List.of(),List.of(),List.of());
+            checkpointBattle(id);return new BattleResume(encounters.get(id),view,battleClock.getAsLong()+BATTLE_RECONNECT_MILLIS);
+        },worker);
+    }
     private final ExecutorService worker =
             Executors.newSingleThreadExecutor(
                     r -> {
@@ -224,7 +347,10 @@ public final class LocalGameService implements GameService {
             new java.util.concurrent.atomic.AtomicBoolean();
 
     public LocalGameService(Supplier<Database> factory) {
-        this.factory = factory;
+        this(factory,System::currentTimeMillis);
+    }
+    public LocalGameService(Supplier<Database> factory,java.util.function.LongSupplier battleClock) {
+        this.factory = factory;this.battleClock=battleClock;
     }
 
     @Override
@@ -272,11 +398,14 @@ public final class LocalGameService implements GameService {
                             + " PRIMARY KEY REFERENCES characters(id) ON DELETE CASCADE, unlocked"
                             + " INTEGER NOT NULL)");
                 PlayerDataStore.initialize(opened);
+                opened.execute("CREATE TABLE IF NOT EXISTS character_recent_login (character_id TEXT"
+                        + " PRIMARY KEY REFERENCES characters(id) ON DELETE CASCADE, last_login INTEGER NOT NULL)");
                 PokemonStore.initialize(opened);
                 PokedexStore.initialize(opened);
                 FollowerStore.initialize(opened);
                 KantoStory.initialize(opened);
-                database = opened;
+                opened.execute("CREATE TABLE IF NOT EXISTS character_battle_checkpoint(character_id TEXT PRIMARY KEY REFERENCES characters(id) ON DELETE CASCADE,expires_at INTEGER NOT NULL,payload TEXT NOT NULL)");
+                database = new StoryTestDatabase(opened);
             } catch (RuntimeException | Error error) {
                 try {
                     opened.close();
@@ -303,9 +432,10 @@ public final class LocalGameService implements GameService {
                     List<Character> result = new ArrayList<>();
                     for (String[] row :
                             db().query(
-                                            "SELECT id,name,gender,skin,region,created_at FROM"
-                                                + " characters WHERE account=? AND server=? ORDER"
-                                                + " BY created_at,id",
+                                            "SELECT c.id,c.name,c.gender,c.skin,c.region,c.created_at FROM"
+                                                + " characters c LEFT JOIN character_recent_login r ON r.character_id=c.id"
+                                                + " WHERE c.account=? AND c.server=? ORDER BY"
+                                                + " COALESCE(r.last_login,0) DESC,c.created_at,c.id",
                                             selection.session().username(),
                                             selection.server().id())) {
                         Map<Integer, Part> parts = new HashMap<>();
@@ -339,6 +469,7 @@ public final class LocalGameService implements GameService {
         return CompletableFuture.supplyAsync(
                 () -> {
                     identity(selection);
+                    if(((StoryTestDatabase)db()).active())throw new IllegalStateException("请先结束临时测试");
                     if (name == null
                             || name.codePointCount(0, name.length()) < 2
                             || name.codePointCount(0, name.length()) > 16
@@ -418,6 +549,7 @@ public final class LocalGameService implements GameService {
         return CompletableFuture.runAsync(
                 () -> {
                     identity(selection);
+                    if(((StoryTestDatabase)db()).active())throw new IllegalStateException("请先结束临时测试");
                     db().transaction(
                                     () -> {
                                         String[] values = {
@@ -513,6 +645,7 @@ public final class LocalGameService implements GameService {
         return characters(selection)
                 .thenApplyAsync(
                         values -> {
+                            if(((StoryTestDatabase)db()).active()&&!((StoryTestDatabase)db()).owner().equals(characterId))throw new IllegalStateException("请先结束临时测试");
                             // Entry snapshots also refresh the HUD after battle; preserve an in-flight story.
                             Character character =
                                     values.stream()
@@ -562,7 +695,17 @@ public final class LocalGameService implements GameService {
                                                             characterId)
                                                     .get(0)[0]);
                             WorldInfo defaults = WorldInfo.defaults();
-                            playStarted.putIfAbsent(characterId, System.nanoTime());
+                            if (!playStarted.containsKey(characterId)) {
+                                db().transaction(() -> {
+                                    long previous = Long.parseLong(db().query(
+                                            "SELECT COALESCE(MAX(last_login),0) FROM character_recent_login").get(0)[0]);
+                                    long login = Math.max(System.currentTimeMillis(), previous + 1);
+                                    db().execute("INSERT INTO character_recent_login(character_id,last_login) VALUES (?,?)"
+                                            + " ON CONFLICT(character_id) DO UPDATE SET last_login=excluded.last_login",
+                                            characterId, login);
+                                });
+                                playStarted.put(characterId, System.nanoTime());
+                            }
                             return new Entry(
                                     character,
                                     position,
@@ -581,6 +724,7 @@ public final class LocalGameService implements GameService {
         return CompletableFuture.runAsync(
                 () -> {
                     identity(selection);
+                    if(db() instanceof StoryTestDatabase test&&test.active()&&!test.owner().equals(characterId))throw new IllegalStateException("请先结束临时测试");
                     db().transaction(
                                     () -> {
                                         if (db().query(
@@ -609,7 +753,7 @@ public final class LocalGameService implements GameService {
 
     private int currentRegion(String id, int fallback) {
         var rows =
-                db().query("SELECT region FROM character_current_region WHERE character_id=?", id);
+                db().query("SELECT COALESCE(r.region,c.region) FROM characters c LEFT JOIN character_current_region r ON r.character_id=c.id WHERE c.id=?", id);
         return rows.isEmpty() ? fallback : Integer.parseInt(rows.get(0)[0]);
     }
 
@@ -647,6 +791,30 @@ public final class LocalGameService implements GameService {
     }
 
     private volatile Map<Integer, ItemTemplate> itemTemplates = Map.of();
+    private volatile Map<Integer,Integer> movePp=Map.of();
+    private volatile Map<Integer,MachineTemplate> machines=Map.of();
+    private volatile Map<Integer,GrowthItem> growthItems=Map.of();
+    @Override public void growthItems(List<GrowthItem> items){growthItems=items.stream().collect(java.util.stream.Collectors.toUnmodifiableMap(GrowthItem::item,java.util.function.Function.identity()));}
+    private volatile Map<Integer,Set<Integer>> machineLearners=Map.of();
+    @Override public void machines(List<MachineTemplate> items,Map<Integer,Set<Integer>> learners){
+        machines=items.stream().collect(java.util.stream.Collectors.toUnmodifiableMap(MachineTemplate::item,java.util.function.Function.identity()));
+        var snapshot=new HashMap<Integer,Set<Integer>>();learners.forEach((id,moves)->snapshot.put(id,Set.copyOf(moves)));machineLearners=Map.copyOf(snapshot);
+    }
+    @Override public void movePp(Map<Integer,Integer> values){movePp=Map.copyOf(values);}
+
+    @Override public CompletionStage<ItemUseResult> useItem(Selection selection,String character,int item,
+            String pokemon,int amount,int move){
+        return CompletableFuture.supplyAsync(()->{
+            playerData(selection,character);
+            var story=stories.get(character);
+            int message;
+            if(battles.containsKey(character)||story!=null&&story.waitingAction()!=null)message=6002;
+            else if(machines.containsKey(item))message=new MachineStore(db()).use(character,machines.get(item),pokemon,amount,move,machineLearners,speciesTemplates);
+            else if(growthItems.containsKey(item))message=new GrowthItemStore(db()).use(character,growthItems.get(item),pokemon,amount,move,speciesTemplates,movePp);
+            else message=new MedicineStore(db()).use(character,item,pokemon,amount,move,itemTemplates,speciesTemplates,movePp);
+            return new ItemUseResult(message==0,message,new PokemonStore(db(),speciesTemplates).load(character));
+        },worker);
+    }
     private volatile Map<Integer, SpeciesTemplate> speciesTemplates = Map.of();
 
     @Override
@@ -930,6 +1098,7 @@ public final class LocalGameService implements GameService {
                                                             entries.get(caught.species()));
                                             state = new PokedexState(entries);
                                             if(encounter.captureTutorial()||storyWild)stories.get(id).persistCapture();
+                                            db().execute("DELETE FROM character_battle_checkpoint WHERE character_id=?",id);
                                         }
                                         result[0] =
                                                 new CaptureResult(
@@ -941,7 +1110,7 @@ public final class LocalGameService implements GameService {
                                     });
                     if (result[0].captured() != null) {
                         if(encounter.captureTutorial()||storyWild)stories.get(id).finishBattle(true);
-                        if(storyWild)closeBattle(id);
+                        closeBattle(id);
                         encounters.remove(id);
                     }
                     return result[0];
@@ -972,7 +1141,7 @@ public final class LocalGameService implements GameService {
                                                         characterId,
                                                         state.noClip() ? 1 : 0,
                                                         state.speed(),
-                                                        state.bicycle() ? 1 : 0);
+                                                        state.bicycle() && TraversalAccess.bicycle(db(),characterId,currentRegion(characterId,0)) ? 1 : 0);
                                     });
                 },
                 worker);
@@ -992,6 +1161,8 @@ public final class LocalGameService implements GameService {
 
     private PlayerDataStore playerData(Selection selection, String characterId) {
         identity(selection);
+        if(db() instanceof StoryTestDatabase test&&test.active()&&!test.owner().equals(characterId))
+            throw new IllegalStateException("请先结束其他角色的临时测试");
         var store = new PlayerDataStore(db());
         store.requireOwner(selection, characterId);
         return store;
@@ -1153,7 +1324,12 @@ public final class LocalGameService implements GameService {
                                             .findFirst()
                                             .orElseThrow(() -> new Rejected(Failure.NOT_FOUND));
                             checkpointPlaytime(id);
-                            return playerData(selection, id).trainer(character);
+                            var trainer=playerData(selection, id).trainer(character);
+                            if(currentRegion(id,character.appearance().region())==4)return new PlayerData.Trainer(trainer.character(),trainer.money(),trainer.battlePoints(),trainer.playedSeconds(),trainer.caught(),trainer.obedience(),JohtoStory.badges(db(),id));
+                            if(currentRegion(id,character.appearance().region())==3)return new PlayerData.Trainer(trainer.character(),trainer.money(),trainer.battlePoints(),trainer.playedSeconds(),trainer.caught(),trainer.obedience(),SinnohStory.badges(db(),id));
+                            if(currentRegion(id,character.appearance().region())==2)return new PlayerData.Trainer(trainer.character(),trainer.money(),trainer.battlePoints(),trainer.playedSeconds(),trainer.caught(),trainer.obedience(),UnovaStory.badges(db(),id));
+                            return currentRegion(id,character.appearance().region())==1
+                                ?new PlayerData.Trainer(trainer.character(),trainer.money(),trainer.battlePoints(),trainer.playedSeconds(),trainer.caught(),trainer.obedience(),HoennMainline.badges(db(),id)):trainer;
                         },
                         worker);
     }
@@ -1267,6 +1443,7 @@ public final class LocalGameService implements GameService {
                     encounters.remove(id);
                     playStarted.remove(id);
                     mailboxes.remove(id);
+                    restoreStoryTest();
                 },
                 worker);
     }
@@ -1276,13 +1453,16 @@ public final class LocalGameService implements GameService {
         if (!closed.compareAndSet(false, true)) return;
         worker.execute(
                 () -> {
-                    for (String id : new ArrayList<>(battles.keySet())) closeBattle(id);
+                    for (String id : new ArrayList<>(battles.keySet())) {checkpointBattle(id);closeBattle(id,false);}
+                    readyBattleEngine.close();
                     if (database != null) {
+                        restoreStoryTest();
                         for (String id : new ArrayList<>(playStarted.keySet()))
                             checkpointPlaytime(id);
                         database.close();
                     }
                 });
         worker.shutdown();
+        try {worker.awaitTermination(5,TimeUnit.SECONDS);}catch(InterruptedException error){Thread.currentThread().interrupt();}
     }
 }

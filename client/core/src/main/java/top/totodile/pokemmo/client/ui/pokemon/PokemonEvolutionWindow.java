@@ -56,10 +56,13 @@ public final class PokemonEvolutionWindow extends ClientDialog implements AutoCl
     }
 
     public void open(int source,int target,int form,boolean shiny,String nickname,IntConsumer reply) {
+        open(source,target,form,shiny,nickname,true,reply);
+    }
+    public void open(int source,int target,int form,boolean shiny,String nickname,boolean cancellable,IntConsumer reply) {
         this.source=source;this.target=target;this.form=form;this.shiny=shiny;this.reply=reply;
         name=nickname.isEmpty()?dex.name(source):nickname;completed=finished=false;
         started=System.nanoTime();pausedAt=pausedNanos=0;message.setText(dex.evolutionMessage(name,target,false));
-        cancel.setEnabled(true);cancel.setVisible(true);openPopup();position();
+        cancel.setEnabled(cancellable);cancel.setVisible(cancellable);openPopup();position();
         if(resources.audio()!=null){
             resources.audio().music(new top.totodile.pokemmo.client.audio.RomAudio.Track(2,1011));
             resources.audio().sound(this,0,2,1010,0,1,0);
@@ -115,7 +118,7 @@ public final class PokemonEvolutionWindow extends ClientDialog implements AutoCl
         return true;
     }
 
-    private void cancel(){if(!completed&&!confirmation.isOpen()){pausedAt=System.nanoTime();confirmation.show(resources.strings().get(6041),()->finish(0));}}
+    private void cancel(){if(cancel.isEnabled()&&!completed&&!confirmation.isOpen()){pausedAt=System.nanoTime();confirmation.show(resources.strings().get(6041),()->finish(0));}}
     private void finish(int result){
         if(finished)return;finished=true;var callback=reply;reply=null;closePopup();
         if(resources.audio()!=null){resources.audio().stop(this);resources.audio().music(null);}

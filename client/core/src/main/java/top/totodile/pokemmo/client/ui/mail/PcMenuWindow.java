@@ -8,6 +8,12 @@ import top.totodile.pokemmo.client.ui.common.PlayerWindow;
 /** PcInteractionService.createMenu / InteractPacket.handlePcMenu, confirmed choices 1..4. */
 public final class PcMenuWindow extends PlayerWindow {
     private final Button playerPc;
+    private final Button trade;
+
+    public void onTrade(Runnable action) {
+        trade.setEnabled(true);
+        trade.addCallback(() -> { closePopup(); action.run(); });
+    }
 
     public PcMenuWindow(
             Widget owner,
@@ -21,7 +27,7 @@ public final class PcMenuWindow extends PlayerWindow {
         panel.setTheme("dialoglayout");
         var question = new Label(strings.get(2350));
         playerPc = new Button(strings.format(2351, "", ""));
-        var trade = new Button(strings.get(2352));
+        trade = new Button(strings.get(2352));
         var mailbox = new Button(strings.get(2353));
         var cancel = new Button(strings.get(53));
         playerPc.addCallback(

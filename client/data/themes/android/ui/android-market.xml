@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<themes>
+    <!-- Official android-broker.xml: full-screen yellow panel and left tab column. -->
+    <theme name="mobile-market-window" ref="mobile-panel" overwrite="true">
+        <param name="background"><image>mobile.window.bottom.background.yellow</image></param>
+        <param name="border"><border>60,0,0,0</border></param>
+    </theme>
+    <theme name="market-tab" ref="togglebutton" overwrite="true">
+        <param name=""><image>mobile.tab.*</image></param>
+        <param name="font"><font>med-noshadow-18-white</font></param>
+        <param name="border"><border>0</border></param>
+    </theme>
+    <theme name="market-page" ref="widget" overwrite="true">
+        <param name="background"><image>none</image></param>
+        <param name="border"><border>10</border></param>
+    </theme>
+</themes>

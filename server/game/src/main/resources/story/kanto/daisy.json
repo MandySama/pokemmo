@@ -1,0 +1,241 @@
+{
+  "id": "kanto.pallet_town.daisy",
+  "source": {
+    "map": "map/kanto/pallet_town_rivals_house/PalletTown_RivalsHouse.json",
+    "script": "PalletTown_RivalsHouse_EventScript_Daisy",
+    "commands": "https://github.com/pret/pokefirered/blob/master/data/maps/PalletTown_RivalsHouse/scripts.inc",
+    "romCode": "BPRE",
+    "romRevision": 1,
+    "nativeScriptActualOffset": 1478094,
+    "romSha256": "729041b940afe031302d630fdbe57c0c145f3f7b6d9b8eca5e98678d0ca4d059"
+  },
+  "actors": {
+    "daisy": {
+      "entityIdx": 0
+    }
+  },
+  "text": {
+    "intro": 1627532,
+    "battle": 1627588,
+    "errand": 1627658,
+    "received": 1627745,
+    "explain": 1627823,
+    "rest": 1627905,
+    "friendshipIntro": 1628581,
+    "friendship0": 1629149,
+    "friendship1": 1629064,
+    "friendship2": 1628974,
+    "friendship3": 1628915,
+    "friendship4": 1628862,
+    "friendship5": 1628787,
+    "friendship6": 1628694
+  },
+  "nodes": {
+    "intro": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "intro",
+          "facePlayer": true
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "daisy",
+          "toward": 3
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "battle": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "battle",
+          "facePlayer": true
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "explain": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "explain",
+          "facePlayer": true
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "rest": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "rest",
+          "facePlayer": true
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "give": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "errand",
+          "facePlayer": true
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "daisy",
+          "toward": 3
+        },
+        {
+          "type": "DAISY_TOWN_MAP"
+        },
+        {
+          "type": "WAIT",
+          "duration": 250
+        },
+        {
+          "type": "FACE_NPC",
+          "actor": "daisy",
+          "toward": "PLAYER"
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "received",
+          "facePlayer": true
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "friendship0": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "friendshipIntro",
+          "facePlayer": true
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "friendship0",
+          "facePlayer": true
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "friendship1": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "friendshipIntro",
+          "facePlayer": true
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "friendship1",
+          "facePlayer": true
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "friendship2": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "friendshipIntro",
+          "facePlayer": true
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "friendship2",
+          "facePlayer": true
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "friendship3": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "friendshipIntro",
+          "facePlayer": true
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "friendship3",
+          "facePlayer": true
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "friendship4": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "friendshipIntro",
+          "facePlayer": true
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "friendship4",
+          "facePlayer": true
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "friendship5": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "friendshipIntro",
+          "facePlayer": true
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "friendship5",
+          "facePlayer": true
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "friendship6": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "text": "friendshipIntro",
+          "facePlayer": true
+        },
+        {
+          "type": "DIALOGUE",
+          "text": "friendship6",
+          "facePlayer": true
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    }
+  }
+}

@@ -70,7 +70,7 @@ public final class GbaItemIcons {
         return value;
     }
 
-    private static byte[] unpack(byte[] rom, int at) throws IOException {
+    static byte[] unpack(byte[] rom, int at) throws IOException {
         if (at > rom.length - 4 || (rom[at] & 255) != 0x10)
             throw new IOException("Invalid GBA icon LZ10 header");
         int size = (rom[at + 1] & 255) | (rom[at + 2] & 255) << 8 | (rom[at + 3] & 255) << 16;

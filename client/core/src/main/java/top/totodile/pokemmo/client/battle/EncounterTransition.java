@@ -10,6 +10,7 @@ final class EncounterTransition {
     private long opponentDuration;
 
     void opponentDuration(long duration) { opponentDuration = duration; }
+    void reconnect(long now){started=now-60_000;}
     private boolean flash, exiting;
     private int dim;
 
@@ -22,6 +23,11 @@ final class EncounterTransition {
 
     void encounterMessageDuration(long duration) {
         encounterMessageDuration = duration;
+    }
+
+    void continueEntry(long now) {
+        // Resource/engine preparation may overlap the map flash, never skip the field entrance.
+        started = Math.max(started, now - INTRO);
     }
 
     long encounterMessageTime(long now) {

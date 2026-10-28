@@ -1,0 +1,3091 @@
+{
+  "id": "kanto.postgame",
+  "version": 1,
+  "enabled": true,
+  "provenance": {
+    "kind": "user-authorized native FireRed adaptation",
+    "source": "https://github.com/pret/pokefirered/tree/master/data/maps",
+    "notes": "中文为本地补充文案；复用现有剧情动作和原生训练家目录，不冒充官方译文。"
+  },
+  "actors": {},
+  "text": {},
+  "triggers": [
+    {
+      "type": "NPC",
+      "map": "CinnabarIsland",
+      "startNode": "bill_offer",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/postgame/bill_departed"
+        }
+      ],
+      "entityIdx": 2
+    },
+    {
+      "type": "MAP_READY",
+      "map": "CinnabarIsland",
+      "startNode": "bill_offer",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/postgame/bill_departed"
+        }
+      ]
+    },
+    {
+      "type": "MAP_READY",
+      "map": "OneIsland_PokemonCenter_1F",
+      "startNode": "celio_meeting",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/postgame/celio_met"
+        }
+      ]
+    },
+    {
+      "type": "NPC",
+      "map": "TwoIsland_JoyfulGameCorner",
+      "startNode": "lostelle_father",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/postgame/celio_met"
+        }
+      ],
+      "entityIdx": 0
+    },
+    {
+      "type": "NPC",
+      "map": "OneIsland_PokemonCenter_1F",
+      "startNode": "bill_return",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/FLAG_GOT_MOON_STONE_FROM_JOYFUL_GAME_CORNER"
+        },
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/FLAG_SEVII_DETOUR_FINISHED"
+        }
+      ],
+      "entityIdx": 1
+    },
+    {
+      "type": "NPC",
+      "map": "ThreeIsland",
+      "startNode": "bikers",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/postgame/celio_met"
+        },
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/postgame/bikers_done"
+        }
+      ],
+      "entityIdx": 2
+    },
+    {
+      "type": "NPC",
+      "map": "ThreeIsland",
+      "startNode": "bikers",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/postgame/celio_met"
+        },
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/postgame/bikers_done"
+        }
+      ],
+      "entityIdx": 3
+    },
+    {
+      "type": "NPC",
+      "map": "ThreeIsland",
+      "startNode": "bikers",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/postgame/celio_met"
+        },
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/postgame/bikers_done"
+        }
+      ],
+      "entityIdx": 4
+    },
+    {
+      "type": "NPC",
+      "map": "ThreeIsland",
+      "startNode": "bikers",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/postgame/celio_met"
+        },
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/postgame/bikers_done"
+        }
+      ],
+      "entityIdx": 5
+    },
+    {
+      "type": "NPC",
+      "map": "ThreeIsland",
+      "startNode": "bikers",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/postgame/celio_met"
+        },
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/postgame/bikers_done"
+        }
+      ],
+      "entityIdx": 6
+    },
+    {
+      "type": "NPC",
+      "map": "ThreeIsland",
+      "startNode": "bikers",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/postgame/celio_met"
+        },
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/postgame/bikers_done"
+        }
+      ],
+      "entityIdx": 7
+    },
+    {
+      "type": "NPC",
+      "map": "ThreeIsland_BerryForest",
+      "startNode": "lostelle",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/postgame/celio_met"
+        },
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/FLAG_RESCUED_LOSTELLE"
+        }
+      ],
+      "entityIdx": 0
+    },
+    {
+      "type": "NPC",
+      "map": "PalletTown_ProfessorOaksLab",
+      "startNode": "oak_postgame",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        }
+      ],
+      "entityIdx": 3
+    },
+    {
+      "type": "NPC",
+      "map": "VermilionCity",
+      "startNode": "ferry_0",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        }
+      ],
+      "entityIdx": 5
+    },
+    {
+      "type": "NPC",
+      "map": "OneIsland_Harbor",
+      "startNode": "ferry_1",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        }
+      ],
+      "entityIdx": 1
+    },
+    {
+      "type": "NPC",
+      "map": "TwoIsland_Harbor",
+      "startNode": "ferry_2",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        }
+      ],
+      "entityIdx": 1
+    },
+    {
+      "type": "NPC",
+      "map": "ThreeIsland_Harbor",
+      "startNode": "ferry_3",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        }
+      ],
+      "entityIdx": 1
+    },
+    {
+      "type": "NPC",
+      "map": "FourIsland_Harbor",
+      "startNode": "ferry_4",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        }
+      ],
+      "entityIdx": 1
+    },
+    {
+      "type": "NPC",
+      "map": "FiveIsland_Harbor",
+      "startNode": "ferry_5",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        }
+      ],
+      "entityIdx": 1
+    },
+    {
+      "type": "NPC",
+      "map": "SixIsland_Harbor",
+      "startNode": "ferry_6",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        }
+      ],
+      "entityIdx": 1
+    },
+    {
+      "type": "NPC",
+      "map": "SevenIsland_Harbor",
+      "startNode": "ferry_7",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        }
+      ],
+      "entityIdx": 1
+    },
+    {
+      "type": "NPC",
+      "map": "OneIsland_PokemonCenter_1F",
+      "startNode": "celio",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/postgame/celio_met"
+        }
+      ],
+      "entityIdx": 2
+    },
+    {
+      "type": "NPC",
+      "map": "MtEmber_Exterior",
+      "startNode": "ember_1",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        }
+      ],
+      "entityIdx": 1
+    },
+    {
+      "type": "NPC",
+      "map": "MtEmber_Exterior",
+      "startNode": "ember_2",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        }
+      ],
+      "entityIdx": 2
+    },
+    {
+      "type": "NPC",
+      "map": "MtEmber_RubyPath_B5F",
+      "startNode": "ruby",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/postgame/ruby_requested"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/postgame/ember_grunt1"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/postgame/ember_grunt2"
+        },
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/FLAG_GOT_RUBY"
+        }
+      ],
+      "entityIdx": 0
+    },
+    {
+      "type": "NPC",
+      "map": "FourIsland_IcefallCave_Back",
+      "startNode": "icefall",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/postgame/ruby_delivered"
+        },
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/FLAG_HIDE_RUIN_VALLEY_SCIENTIST"
+        }
+      ],
+      "entityIdx": 2
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SixIsland_RuinValley",
+      "startNode": "dotted_door",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        }
+      ],
+      "backgroundId": 0
+    },
+    {
+      "type": "NPC",
+      "map": "SixIsland_DottedHole_SapphireRoom",
+      "startNode": "sapphire_theft",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/FLAG_USED_CUT_ON_RUIN_VALLEY_BRAILLE"
+        },
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/FLAG_LEARNED_YES_NAH_CHANSEY"
+        }
+      ],
+      "entityIdx": 0
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "FiveIsland_Meadow",
+      "startNode": "warehouse_door",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        }
+      ],
+      "backgroundId": 0
+    },
+    {
+      "type": "NPC",
+      "map": "FiveIsland_RocketWarehouse",
+      "startNode": "warehouse_2",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/FLAG_UNLOCKED_ROCKET_WAREHOUSE"
+        }
+      ],
+      "entityIdx": 2
+    },
+    {
+      "type": "NPC",
+      "map": "FiveIsland_RocketWarehouse",
+      "startNode": "warehouse_3",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/FLAG_UNLOCKED_ROCKET_WAREHOUSE"
+        }
+      ],
+      "entityIdx": 3
+    },
+    {
+      "type": "NPC",
+      "map": "FiveIsland_RocketWarehouse",
+      "startNode": "warehouse_5",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/FLAG_UNLOCKED_ROCKET_WAREHOUSE"
+        }
+      ],
+      "entityIdx": 5
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SixIsland_DottedHole_B1F",
+      "startNode": "braille_B1F",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        }
+      ],
+      "backgroundId": 0
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SixIsland_DottedHole_B2F",
+      "startNode": "braille_B2F",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        }
+      ],
+      "backgroundId": 0
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SixIsland_DottedHole_B3F",
+      "startNode": "braille_B3F",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        }
+      ],
+      "backgroundId": 0
+    },
+    {
+      "type": "BACKGROUND",
+      "map": "SixIsland_DottedHole_B4F",
+      "startNode": "braille_B4F",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        }
+      ],
+      "backgroundId": 0
+    },
+    {
+      "type": "NPC",
+      "map": "CeruleanCave_B1F",
+      "startNode": "mewtwo",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/FLAG_SYS_CAN_LINK_WITH_RS"
+        },
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/FLAG_HIDE_MEWTWO"
+        }
+      ],
+      "entityIdx": 2
+    },
+    {
+      "type": "NPC",
+      "map": "PokemonLeague_LoreleisRoom",
+      "startNode": "rematch_0",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/FLAG_SYS_CAN_LINK_WITH_RS"
+        },
+        {
+          "type": "ELITE_STAGE_EQUALS",
+          "value": 0
+        }
+      ],
+      "entityIdx": 0
+    },
+    {
+      "type": "NPC",
+      "map": "PokemonLeague_BrunosRoom",
+      "startNode": "rematch_1",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/FLAG_SYS_CAN_LINK_WITH_RS"
+        },
+        {
+          "type": "ELITE_STAGE_EQUALS",
+          "value": 1
+        }
+      ],
+      "entityIdx": 0
+    },
+    {
+      "type": "NPC",
+      "map": "PokemonLeague_AgathasRoom",
+      "startNode": "rematch_2",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/FLAG_SYS_CAN_LINK_WITH_RS"
+        },
+        {
+          "type": "ELITE_STAGE_EQUALS",
+          "value": 2
+        }
+      ],
+      "entityIdx": 0
+    },
+    {
+      "type": "NPC",
+      "map": "PokemonLeague_LancesRoom",
+      "startNode": "rematch_3",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/FLAG_SYS_CAN_LINK_WITH_RS"
+        },
+        {
+          "type": "ELITE_STAGE_EQUALS",
+          "value": 3
+        }
+      ],
+      "entityIdx": 0
+    },
+    {
+      "type": "MAP_READY",
+      "map": "PokemonLeague_ChampionsRoom",
+      "startNode": "rematch_champion",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/FLAG_SYS_CAN_LINK_WITH_RS"
+        },
+        {
+          "type": "ELITE_STAGE_EQUALS",
+          "value": 4
+        }
+      ]
+    },
+    {
+      "type": "NPC",
+      "map": "PokemonLeague_LoreleisRoom",
+      "startNode": "league_not_ready",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_CLEAR",
+          "flag": "kanto/FLAG_SYS_CAN_LINK_WITH_RS"
+        }
+      ],
+      "entityIdx": 0
+    },
+    {
+      "type": "MAP_READY",
+      "map": "PokemonLeague_BrunosRoom",
+      "startNode": "league_defeat",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/FLAG_SYS_CAN_LINK_WITH_RS"
+        },
+        {
+          "type": "ELITE_STAGE_EQUALS",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "type": "MAP_READY",
+      "map": "PokemonLeague_AgathasRoom",
+      "startNode": "league_defeat",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/FLAG_SYS_CAN_LINK_WITH_RS"
+        },
+        {
+          "type": "ELITE_STAGE_EQUALS",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "type": "MAP_READY",
+      "map": "PokemonLeague_AgathasRoom",
+      "startNode": "league_defeat",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/FLAG_SYS_CAN_LINK_WITH_RS"
+        },
+        {
+          "type": "ELITE_STAGE_EQUALS",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "type": "MAP_READY",
+      "map": "PokemonLeague_LancesRoom",
+      "startNode": "league_defeat",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/FLAG_SYS_CAN_LINK_WITH_RS"
+        },
+        {
+          "type": "ELITE_STAGE_EQUALS",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "type": "MAP_READY",
+      "map": "PokemonLeague_LancesRoom",
+      "startNode": "league_defeat",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/FLAG_SYS_CAN_LINK_WITH_RS"
+        },
+        {
+          "type": "ELITE_STAGE_EQUALS",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "type": "MAP_READY",
+      "map": "PokemonLeague_LancesRoom",
+      "startNode": "league_defeat",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/FLAG_SYS_CAN_LINK_WITH_RS"
+        },
+        {
+          "type": "ELITE_STAGE_EQUALS",
+          "value": 2
+        }
+      ]
+    },
+    {
+      "type": "MAP_READY",
+      "map": "PokemonLeague_ChampionsRoom",
+      "startNode": "league_defeat",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/FLAG_SYS_CAN_LINK_WITH_RS"
+        },
+        {
+          "type": "ELITE_STAGE_EQUALS",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "type": "MAP_READY",
+      "map": "PokemonLeague_ChampionsRoom",
+      "startNode": "league_defeat",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/FLAG_SYS_CAN_LINK_WITH_RS"
+        },
+        {
+          "type": "ELITE_STAGE_EQUALS",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "type": "MAP_READY",
+      "map": "PokemonLeague_ChampionsRoom",
+      "startNode": "league_defeat",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/FLAG_SYS_CAN_LINK_WITH_RS"
+        },
+        {
+          "type": "ELITE_STAGE_EQUALS",
+          "value": 2
+        }
+      ]
+    },
+    {
+      "type": "MAP_READY",
+      "map": "PokemonLeague_ChampionsRoom",
+      "startNode": "league_defeat",
+      "conditions": [
+        {
+          "type": "CHAMPION_SET"
+        },
+        {
+          "type": "EVENT_FLAG_SET",
+          "flag": "kanto/FLAG_SYS_CAN_LINK_WITH_RS"
+        },
+        {
+          "type": "ELITE_STAGE_EQUALS",
+          "value": 3
+        }
+      ]
+    }
+  ],
+  "nodes": {
+    "quest_defeat": {
+      "actions": [
+        {
+          "type": "HEAL_PARTY"
+        },
+        {
+          "type": "CHANGE_MAP",
+          "map": "OneIsland_PokemonCenter_1F",
+          "x": 5,
+          "y": 4,
+          "toward": 1
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cancel": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "下次再来吧。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "bill_offer": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "正辉：我要去一之岛拜访朋友。要一起去吗？",
+          "yes": "bill_depart",
+          "no": "cancel"
+        }
+      ]
+    },
+    "bill_depart": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/postgame/bill_departed"
+        },
+        {
+          "type": "CHANGE_MAP",
+          "map": "OneIsland",
+          "x": 12,
+          "y": 18,
+          "toward": 1
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "celio_meeting": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "正辉：这位是锦辉，他正在研究岛屿间的网络。请把这块陨石带给二之岛游戏厅的朋友。"
+        },
+        {
+          "type": "GRANT_ITEM",
+          "itemId": 280,
+          "amount": 1
+        },
+        {
+          "type": "GRANT_ITEM",
+          "itemId": 367,
+          "amount": 1
+        },
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/postgame/celio_met"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "获得陨石和三岛通行证。港口的船可以往返一、二、三之岛。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "lostelle_father": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/FLAG_GOT_MOON_STONE_FROM_JOYFUL_GAME_CORNER"
+          },
+          "yes": "father_done",
+          "no": "father_rescued"
+        }
+      ]
+    },
+    "father_rescued": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/FLAG_RESCUED_LOSTELLE"
+          },
+          "yes": "father_meteorite",
+          "no": "father_request"
+        }
+      ]
+    },
+    "father_request": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "我的女儿洛丝丽还没回来！请去三之岛的树果森林找找她。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "father_meteorite": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 280
+          },
+          "yes": "father_deliver",
+          "no": "father_missing"
+        }
+      ]
+    },
+    "father_missing": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "谢谢你带回洛丝丽。正辉托你带来的陨石还没有交给我。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "father_deliver": {
+      "actions": [
+        {
+          "type": "REMOVE_ITEM",
+          "itemId": 280,
+          "amount": 1
+        },
+        {
+          "type": "GRANT_ITEM",
+          "itemId": 94,
+          "amount": 1
+        },
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/FLAG_GOT_MOON_STONE_FROM_JOYFUL_GAME_CORNER"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "陨石交付了。收到月之石！回一之岛告诉正辉吧。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "father_done": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "多亏你，洛丝丽平安回来了。谢谢！"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "bill_return": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/FLAG_SEVII_DETOUR_FINISHED"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "正辉：网络已经修好了。我们回红莲岛吧！有三岛通行证，之后也能再来。"
+        },
+        {
+          "type": "CHANGE_MAP",
+          "map": "CinnabarIsland",
+          "x": 19,
+          "y": 9,
+          "toward": 0
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "biker_0": {
+      "actions": [
+        {
+          "type": "START_TRAINER_BATTLE",
+          "battleId": "KANTO_POST_biker_0",
+          "trainerTeamId": 527,
+          "finishNode": "biker_1",
+          "defeatNode": "quest_defeat"
+        }
+      ]
+    },
+    "biker_1": {
+      "actions": [
+        {
+          "type": "START_TRAINER_BATTLE",
+          "battleId": "KANTO_POST_biker_1",
+          "trainerTeamId": 528,
+          "finishNode": "biker_2",
+          "defeatNode": "quest_defeat"
+        }
+      ]
+    },
+    "biker_2": {
+      "actions": [
+        {
+          "type": "START_TRAINER_BATTLE",
+          "battleId": "KANTO_POST_biker_2",
+          "trainerTeamId": 529,
+          "finishNode": "biker_3",
+          "defeatNode": "quest_defeat"
+        }
+      ]
+    },
+    "biker_3": {
+      "actions": [
+        {
+          "type": "START_TRAINER_BATTLE",
+          "battleId": "KANTO_POST_biker_3",
+          "trainerTeamId": 742,
+          "finishNode": "bikers_win",
+          "defeatNode": "quest_defeat"
+        }
+      ]
+    },
+    "bikers": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "暴走族：你要替这里的人出头吗？"
+        },
+        {
+          "type": "GOTO",
+          "node": "biker_0"
+        }
+      ]
+    },
+    "bikers_win": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/postgame/bikers_done"
+        },
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/FLAG_HIDE_THREE_ISLAND_BIKERS"
+        },
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/FLAG_HIDE_THREE_ISLAND_LONE_BIKER"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "暴走族离开了。洛丝丽去了西边的树果森林。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "lostelle": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "洛丝丽：有只可怕的宝可梦一直追着我！它又来了！"
+        },
+        {
+          "type": "START_BATTLE",
+          "battleId": "KANTO_POST_HYPNO",
+          "wildSpecies": 97,
+          "wildLevel": 30,
+          "finishNode": "lostelle_saved",
+          "defeatNode": "quest_defeat"
+        }
+      ]
+    },
+    "lostelle_saved": {
+      "actions": [
+        {
+          "type": "GRANT_ITEM",
+          "itemId": 147,
+          "amount": 1
+        },
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/FLAG_RESCUED_LOSTELLE"
+        },
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/FLAG_HIDE_LOSTELLE_IN_BERRY_FOREST"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "洛丝丽：谢谢你！请收下这颗异奇果。我们一起回家吧。"
+        },
+        {
+          "type": "CHANGE_MAP",
+          "map": "TwoIsland_JoyfulGameCorner",
+          "x": 6,
+          "y": 6,
+          "toward": 1
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "oak_postgame": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/FLAG_SYS_NATIONAL_DEX"
+          },
+          "yes": "oak_done",
+          "no": "oak_visit"
+        }
+      ]
+    },
+    "oak_visit": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/FLAG_WORLD_MAP_ONE_ISLAND"
+          },
+          "yes": "oak_count",
+          "no": "oak_travel"
+        }
+      ]
+    },
+    "oak_count": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "KANTO_OWNED_AT_LEAST",
+            "value": 60
+          },
+          "yes": "oak_upgrade",
+          "no": "oak_need60"
+        }
+      ]
+    },
+    "oak_travel": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "大木博士：正辉正在研究七岛的宝可梦，去红莲岛找他吧。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "oak_need60": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "大木博士：请收集至少60种关都宝可梦，再带图鉴来找我。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "oak_upgrade": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/FLAG_SYS_NATIONAL_DEX"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "大木博士：你收集了这么多宝可梦！我把图鉴升级为全国图鉴了。去一之岛找锦辉吧。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "oak_done": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "大木博士：继续用全国图鉴调查不同地方的宝可梦吧！"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "sail_0": {
+      "actions": [
+        {
+          "type": "CHANGE_MAP",
+          "map": "VermilionCity",
+          "x": 24,
+          "y": 32,
+          "toward": 1
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "sail_1": {
+      "actions": [
+        {
+          "type": "CHANGE_MAP",
+          "map": "OneIsland_Harbor",
+          "x": 8,
+          "y": 7,
+          "toward": 1
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "sail_2": {
+      "actions": [
+        {
+          "type": "CHANGE_MAP",
+          "map": "TwoIsland_Harbor",
+          "x": 8,
+          "y": 7,
+          "toward": 1
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "sail_3": {
+      "actions": [
+        {
+          "type": "CHANGE_MAP",
+          "map": "ThreeIsland_Harbor",
+          "x": 8,
+          "y": 7,
+          "toward": 1
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "sail_4": {
+      "actions": [
+        {
+          "type": "CHANGE_MAP",
+          "map": "FourIsland_Harbor",
+          "x": 8,
+          "y": 7,
+          "toward": 1
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "sail_5": {
+      "actions": [
+        {
+          "type": "CHANGE_MAP",
+          "map": "FiveIsland_Harbor",
+          "x": 8,
+          "y": 7,
+          "toward": 1
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "sail_6": {
+      "actions": [
+        {
+          "type": "CHANGE_MAP",
+          "map": "SixIsland_Harbor",
+          "x": 8,
+          "y": 7,
+          "toward": 1
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "sail_7": {
+      "actions": [
+        {
+          "type": "CHANGE_MAP",
+          "map": "SevenIsland_Harbor",
+          "x": 8,
+          "y": 7,
+          "toward": 1
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "ferry_0": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 368
+          },
+          "yes": "ferry_0_rainbow",
+          "no": "ferry_0_tri_check"
+        }
+      ]
+    },
+    "ferry_0_tri_check": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 367
+          },
+          "yes": "ferry_0_tri",
+          "no": "ferry_no_pass"
+        }
+      ]
+    },
+    "ferry_0_rainbow": {
+      "actions": [
+        {
+          "type": "SELECT_OPTION",
+          "message": "要乘船前往哪里？",
+          "options": [
+            "一之岛",
+            "二之岛",
+            "三之岛",
+            "四之岛",
+            "五之岛",
+            "六之岛",
+            "七之岛",
+            "取消"
+          ],
+          "nodes": [
+            "sail_1",
+            "sail_2",
+            "sail_3",
+            "sail_4",
+            "sail_5",
+            "sail_6",
+            "sail_7",
+            "cancel"
+          ]
+        }
+      ]
+    },
+    "ferry_0_tri": {
+      "actions": [
+        {
+          "type": "SELECT_OPTION",
+          "message": "要乘船前往哪里？",
+          "options": [
+            "一之岛",
+            "二之岛",
+            "三之岛",
+            "取消"
+          ],
+          "nodes": [
+            "sail_1",
+            "sail_2",
+            "sail_3",
+            "cancel"
+          ]
+        }
+      ]
+    },
+    "ferry_1": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 368
+          },
+          "yes": "ferry_1_rainbow",
+          "no": "ferry_1_tri_check"
+        }
+      ]
+    },
+    "ferry_1_tri_check": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 367
+          },
+          "yes": "ferry_1_tri",
+          "no": "ferry_no_pass"
+        }
+      ]
+    },
+    "ferry_1_rainbow": {
+      "actions": [
+        {
+          "type": "SELECT_OPTION",
+          "message": "要乘船前往哪里？",
+          "options": [
+            "枯叶市",
+            "二之岛",
+            "三之岛",
+            "四之岛",
+            "五之岛",
+            "六之岛",
+            "七之岛",
+            "取消"
+          ],
+          "nodes": [
+            "sail_0",
+            "sail_2",
+            "sail_3",
+            "sail_4",
+            "sail_5",
+            "sail_6",
+            "sail_7",
+            "cancel"
+          ]
+        }
+      ]
+    },
+    "ferry_1_tri": {
+      "actions": [
+        {
+          "type": "SELECT_OPTION",
+          "message": "要乘船前往哪里？",
+          "options": [
+            "枯叶市",
+            "二之岛",
+            "三之岛",
+            "取消"
+          ],
+          "nodes": [
+            "sail_0",
+            "sail_2",
+            "sail_3",
+            "cancel"
+          ]
+        }
+      ]
+    },
+    "ferry_2": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 368
+          },
+          "yes": "ferry_2_rainbow",
+          "no": "ferry_2_tri_check"
+        }
+      ]
+    },
+    "ferry_2_tri_check": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 367
+          },
+          "yes": "ferry_2_tri",
+          "no": "ferry_no_pass"
+        }
+      ]
+    },
+    "ferry_2_rainbow": {
+      "actions": [
+        {
+          "type": "SELECT_OPTION",
+          "message": "要乘船前往哪里？",
+          "options": [
+            "枯叶市",
+            "一之岛",
+            "三之岛",
+            "四之岛",
+            "五之岛",
+            "六之岛",
+            "七之岛",
+            "取消"
+          ],
+          "nodes": [
+            "sail_0",
+            "sail_1",
+            "sail_3",
+            "sail_4",
+            "sail_5",
+            "sail_6",
+            "sail_7",
+            "cancel"
+          ]
+        }
+      ]
+    },
+    "ferry_2_tri": {
+      "actions": [
+        {
+          "type": "SELECT_OPTION",
+          "message": "要乘船前往哪里？",
+          "options": [
+            "枯叶市",
+            "一之岛",
+            "三之岛",
+            "取消"
+          ],
+          "nodes": [
+            "sail_0",
+            "sail_1",
+            "sail_3",
+            "cancel"
+          ]
+        }
+      ]
+    },
+    "ferry_3": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 368
+          },
+          "yes": "ferry_3_rainbow",
+          "no": "ferry_3_tri_check"
+        }
+      ]
+    },
+    "ferry_3_tri_check": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 367
+          },
+          "yes": "ferry_3_tri",
+          "no": "ferry_no_pass"
+        }
+      ]
+    },
+    "ferry_3_rainbow": {
+      "actions": [
+        {
+          "type": "SELECT_OPTION",
+          "message": "要乘船前往哪里？",
+          "options": [
+            "枯叶市",
+            "一之岛",
+            "二之岛",
+            "四之岛",
+            "五之岛",
+            "六之岛",
+            "七之岛",
+            "取消"
+          ],
+          "nodes": [
+            "sail_0",
+            "sail_1",
+            "sail_2",
+            "sail_4",
+            "sail_5",
+            "sail_6",
+            "sail_7",
+            "cancel"
+          ]
+        }
+      ]
+    },
+    "ferry_3_tri": {
+      "actions": [
+        {
+          "type": "SELECT_OPTION",
+          "message": "要乘船前往哪里？",
+          "options": [
+            "枯叶市",
+            "一之岛",
+            "二之岛",
+            "取消"
+          ],
+          "nodes": [
+            "sail_0",
+            "sail_1",
+            "sail_2",
+            "cancel"
+          ]
+        }
+      ]
+    },
+    "ferry_4": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 368
+          },
+          "yes": "ferry_4_rainbow",
+          "no": "ferry_4_tri_check"
+        }
+      ]
+    },
+    "ferry_4_tri_check": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 367
+          },
+          "yes": "ferry_4_tri",
+          "no": "ferry_no_pass"
+        }
+      ]
+    },
+    "ferry_4_rainbow": {
+      "actions": [
+        {
+          "type": "SELECT_OPTION",
+          "message": "要乘船前往哪里？",
+          "options": [
+            "枯叶市",
+            "一之岛",
+            "二之岛",
+            "三之岛",
+            "五之岛",
+            "六之岛",
+            "七之岛",
+            "取消"
+          ],
+          "nodes": [
+            "sail_0",
+            "sail_1",
+            "sail_2",
+            "sail_3",
+            "sail_5",
+            "sail_6",
+            "sail_7",
+            "cancel"
+          ]
+        }
+      ]
+    },
+    "ferry_4_tri": {
+      "actions": [
+        {
+          "type": "SELECT_OPTION",
+          "message": "要乘船前往哪里？",
+          "options": [
+            "枯叶市",
+            "一之岛",
+            "二之岛",
+            "三之岛",
+            "取消"
+          ],
+          "nodes": [
+            "sail_0",
+            "sail_1",
+            "sail_2",
+            "sail_3",
+            "cancel"
+          ]
+        }
+      ]
+    },
+    "ferry_5": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 368
+          },
+          "yes": "ferry_5_rainbow",
+          "no": "ferry_5_tri_check"
+        }
+      ]
+    },
+    "ferry_5_tri_check": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 367
+          },
+          "yes": "ferry_5_tri",
+          "no": "ferry_no_pass"
+        }
+      ]
+    },
+    "ferry_5_rainbow": {
+      "actions": [
+        {
+          "type": "SELECT_OPTION",
+          "message": "要乘船前往哪里？",
+          "options": [
+            "枯叶市",
+            "一之岛",
+            "二之岛",
+            "三之岛",
+            "四之岛",
+            "六之岛",
+            "七之岛",
+            "取消"
+          ],
+          "nodes": [
+            "sail_0",
+            "sail_1",
+            "sail_2",
+            "sail_3",
+            "sail_4",
+            "sail_6",
+            "sail_7",
+            "cancel"
+          ]
+        }
+      ]
+    },
+    "ferry_5_tri": {
+      "actions": [
+        {
+          "type": "SELECT_OPTION",
+          "message": "要乘船前往哪里？",
+          "options": [
+            "枯叶市",
+            "一之岛",
+            "二之岛",
+            "三之岛",
+            "取消"
+          ],
+          "nodes": [
+            "sail_0",
+            "sail_1",
+            "sail_2",
+            "sail_3",
+            "cancel"
+          ]
+        }
+      ]
+    },
+    "ferry_6": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 368
+          },
+          "yes": "ferry_6_rainbow",
+          "no": "ferry_6_tri_check"
+        }
+      ]
+    },
+    "ferry_6_tri_check": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 367
+          },
+          "yes": "ferry_6_tri",
+          "no": "ferry_no_pass"
+        }
+      ]
+    },
+    "ferry_6_rainbow": {
+      "actions": [
+        {
+          "type": "SELECT_OPTION",
+          "message": "要乘船前往哪里？",
+          "options": [
+            "枯叶市",
+            "一之岛",
+            "二之岛",
+            "三之岛",
+            "四之岛",
+            "五之岛",
+            "七之岛",
+            "取消"
+          ],
+          "nodes": [
+            "sail_0",
+            "sail_1",
+            "sail_2",
+            "sail_3",
+            "sail_4",
+            "sail_5",
+            "sail_7",
+            "cancel"
+          ]
+        }
+      ]
+    },
+    "ferry_6_tri": {
+      "actions": [
+        {
+          "type": "SELECT_OPTION",
+          "message": "要乘船前往哪里？",
+          "options": [
+            "枯叶市",
+            "一之岛",
+            "二之岛",
+            "三之岛",
+            "取消"
+          ],
+          "nodes": [
+            "sail_0",
+            "sail_1",
+            "sail_2",
+            "sail_3",
+            "cancel"
+          ]
+        }
+      ]
+    },
+    "ferry_7": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 368
+          },
+          "yes": "ferry_7_rainbow",
+          "no": "ferry_7_tri_check"
+        }
+      ]
+    },
+    "ferry_7_tri_check": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 367
+          },
+          "yes": "ferry_7_tri",
+          "no": "ferry_no_pass"
+        }
+      ]
+    },
+    "ferry_7_rainbow": {
+      "actions": [
+        {
+          "type": "SELECT_OPTION",
+          "message": "要乘船前往哪里？",
+          "options": [
+            "枯叶市",
+            "一之岛",
+            "二之岛",
+            "三之岛",
+            "四之岛",
+            "五之岛",
+            "六之岛",
+            "取消"
+          ],
+          "nodes": [
+            "sail_0",
+            "sail_1",
+            "sail_2",
+            "sail_3",
+            "sail_4",
+            "sail_5",
+            "sail_6",
+            "cancel"
+          ]
+        }
+      ]
+    },
+    "ferry_7_tri": {
+      "actions": [
+        {
+          "type": "SELECT_OPTION",
+          "message": "要乘船前往哪里？",
+          "options": [
+            "枯叶市",
+            "一之岛",
+            "二之岛",
+            "三之岛",
+            "取消"
+          ],
+          "nodes": [
+            "sail_0",
+            "sail_1",
+            "sail_2",
+            "sail_3",
+            "cancel"
+          ]
+        }
+      ]
+    },
+    "ferry_no_pass": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "乘船需要三岛通行证或七岛通行证。请先去红莲岛找正辉。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "celio": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/FLAG_SYS_CAN_LINK_WITH_RS"
+          },
+          "yes": "celio_done",
+          "no": "celio_sapphire_check"
+        }
+      ]
+    },
+    "celio_sapphire_check": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 374
+          },
+          "yes": "sapphire_deliver",
+          "no": "celio_ruby_done"
+        }
+      ]
+    },
+    "celio_ruby_done": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/postgame/ruby_delivered"
+          },
+          "yes": "celio_wait_sapphire",
+          "no": "celio_ruby_check"
+        }
+      ]
+    },
+    "celio_ruby_check": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 373
+          },
+          "yes": "ruby_deliver",
+          "no": "celio_national"
+        }
+      ]
+    },
+    "celio_national": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/FLAG_SYS_NATIONAL_DEX"
+          },
+          "yes": "celio_ruby_request",
+          "no": "celio_need_dex"
+        }
+      ]
+    },
+    "celio_need_dex": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "锦辉：我正在改进网络机器。等大木博士升级了你的图鉴，请再来找我。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "celio_ruby_request": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/postgame/ruby_requested"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "锦辉：网络机器需要一块特殊的宝石。请去一之岛灯火山寻找红宝石。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "ruby_deliver": {
+      "actions": [
+        {
+          "type": "REMOVE_ITEM",
+          "itemId": 373,
+          "amount": 1
+        },
+        {
+          "type": "REMOVE_ITEM",
+          "itemId": 367,
+          "amount": 1
+        },
+        {
+          "type": "GRANT_ITEM",
+          "itemId": 368,
+          "amount": 1
+        },
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/postgame/ruby_delivered"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "锦辉：谢谢！还需要另一块宝石。三岛通行证换成七岛通行证了，现在能到四至七之岛寻找蓝宝石。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "celio_wait_sapphire": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "锦辉：另一块宝石应该在七岛的某个地方。请去四之岛看看。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "sapphire_deliver": {
+      "actions": [
+        {
+          "type": "REMOVE_ITEM",
+          "itemId": 374,
+          "amount": 1
+        },
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/FLAG_SYS_CAN_LINK_WITH_RS"
+        },
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/FLAG_HIDE_CERULEAN_CAVE_GUARD"
+        },
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/FLAG_HIDE_LORELEI_IN_HER_HOUSE"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "锦辉：红宝石和蓝宝石都安装好了！网络机器成功连接。谢谢你！"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "celio_done": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "锦辉：网络机器已经正常运作。祝你旅途顺利！"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "ember_1": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/postgame/ruby_requested"
+          },
+          "yes": "ember_1_ready",
+          "no": "ember_not_ready"
+        }
+      ]
+    },
+    "ember_1_ready": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/postgame/ember_grunt1"
+          },
+          "yes": "ember_defeated",
+          "no": "ember_1_fight"
+        }
+      ]
+    },
+    "ember_1_fight": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "火箭队：你偷听到了仓库的密码！"
+        },
+        {
+          "type": "START_TRAINER_BATTLE",
+          "battleId": "KANTO_POST_ember_1",
+          "trainerTeamId": 537,
+          "finishNode": "ember_1_win",
+          "defeatNode": "quest_defeat"
+        }
+      ]
+    },
+    "ember_1_win": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/postgame/ember_grunt1"
+        },
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/FLAG_LEARNED_GOLDEEN_NEED_LOG"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "火箭队：我们撤退！不许进入洞窟！第一段仓库密码已经记下了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "ember_2": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/postgame/ruby_requested"
+          },
+          "yes": "ember_2_ready",
+          "no": "ember_not_ready"
+        }
+      ]
+    },
+    "ember_2_ready": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/postgame/ember_grunt2"
+          },
+          "yes": "ember_defeated",
+          "no": "ember_2_fight"
+        }
+      ]
+    },
+    "ember_2_fight": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "火箭队：你偷听到了仓库的密码！"
+        },
+        {
+          "type": "START_TRAINER_BATTLE",
+          "battleId": "KANTO_POST_ember_2",
+          "trainerTeamId": 538,
+          "finishNode": "ember_2_win",
+          "defeatNode": "quest_defeat"
+        }
+      ]
+    },
+    "ember_2_win": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/postgame/ember_grunt2"
+        },
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/FLAG_LEARNED_GOLDEEN_NEED_LOG"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "火箭队：我们撤退！不许进入洞窟！第一段仓库密码已经记下了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "ember_not_ready": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "火箭队正在挖掘山洞，不让人靠近。先回锦辉那里了解宝石的事。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "ember_defeated": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "火箭队：别再来打扰我们！"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "ruby": {
+      "actions": [
+        {
+          "type": "GRANT_ITEM",
+          "itemId": 373,
+          "amount": 1
+        },
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/FLAG_GOT_RUBY"
+        },
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/FLAG_HIDE_RUBY"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "找到了红宝石！带回一之岛交给锦辉。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "icefall": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "科拿：这些家伙在偷捕宝可梦！请帮我赶走他们！"
+        },
+        {
+          "type": "START_TRAINER_BATTLE",
+          "battleId": "KANTO_POST_ICEFALL",
+          "trainerTeamId": 539,
+          "finishNode": "icefall_win",
+          "defeatNode": "quest_defeat"
+        }
+      ]
+    },
+    "icefall_win": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/FLAG_HIDE_ICEFALL_CAVE_ROCKETS"
+        },
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/FLAG_HIDE_ICEFALL_CAVE_LORELEI"
+        },
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/FLAG_HIDE_RUIN_VALLEY_SCIENTIST"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "火箭队：宝可梦被送到五之岛的仓库了！\n\n科拿：谢谢你。请继续调查他们的仓库。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "dotted_door": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/FLAG_USED_CUT_ON_RUIN_VALLEY_BRAILLE"
+          },
+          "yes": "dotted_open",
+          "no": "dotted_rescue"
+        }
+      ]
+    },
+    "dotted_rescue": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/FLAG_HIDE_RUIN_VALLEY_SCIENTIST"
+          },
+          "yes": "dotted_cut",
+          "no": "dotted_blocked"
+        }
+      ]
+    },
+    "dotted_cut": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 15
+          },
+          "yes": "dotted_ask",
+          "no": "dotted_cut_alias"
+        }
+      ]
+    },
+    "dotted_cut_alias": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "HAS_ITEM",
+            "value": 339
+          },
+          "yes": "dotted_ask",
+          "no": "dotted_no_cut"
+        }
+      ]
+    },
+    "dotted_ask": {
+      "actions": [
+        {
+          "type": "YES_NO",
+          "message": "门上的盲文写着“居合斩”。要使用居合斩吗？",
+          "yes": "dotted_unlock",
+          "no": "cancel"
+        }
+      ]
+    },
+    "dotted_unlock": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/FLAG_USED_CUT_ON_RUIN_VALLEY_BRAILLE"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "使用居合斩打开了点之穴的门。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "dotted_blocked": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "研究员正在挡着入口。先去冰瀑洞窟协助科拿。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "dotted_no_cut": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "门上的盲文写着“居合斩”。需要居合斩秘传机。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "dotted_open": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "门已经打开了。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "sapphire_theft": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/FLAG_LEARNED_YES_NAH_CHANSEY"
+        },
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/FLAG_HIDE_SAPPHIRE"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "发现了蓝宝石！\n\n研究员突然抢走了蓝宝石：我要把它卖给五之岛的火箭队！第二段仓库密码是“是的，不，吉利蛋”！"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "warehouse_door": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/FLAG_UNLOCKED_ROCKET_WAREHOUSE"
+          },
+          "yes": "warehouse_open",
+          "no": "warehouse_password1"
+        }
+      ]
+    },
+    "warehouse_password1": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/FLAG_LEARNED_GOLDEEN_NEED_LOG"
+          },
+          "yes": "warehouse_password2",
+          "no": "warehouse_locked"
+        }
+      ]
+    },
+    "warehouse_password2": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/FLAG_LEARNED_YES_NAH_CHANSEY"
+          },
+          "yes": "warehouse_unlock",
+          "no": "warehouse_locked"
+        }
+      ]
+    },
+    "warehouse_unlock": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/FLAG_UNLOCKED_ROCKET_WAREHOUSE"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "输入了两段密码，仓库门打开了！"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "warehouse_open": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "仓库门已经打开。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "warehouse_locked": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "门需要两段密码：灯火山的火箭队和夺走蓝宝石的研究员知道密码。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "warehouse_2": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/postgame/warehouse_2"
+          },
+          "yes": "warehouse_admin_done",
+          "no": "warehouse_2_fight"
+        }
+      ]
+    },
+    "warehouse_2_win": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/postgame/warehouse_2"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "火箭队干部败下阵来。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "warehouse_2_fight": {
+      "actions": [
+        {
+          "type": "START_TRAINER_BATTLE",
+          "battleId": "KANTO_POST_warehouse_2_fight",
+          "trainerTeamId": 543,
+          "finishNode": "warehouse_2_win",
+          "defeatNode": "quest_defeat"
+        }
+      ]
+    },
+    "warehouse_3": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/postgame/warehouse_3"
+          },
+          "yes": "warehouse_admin_done",
+          "no": "warehouse_3_fight"
+        }
+      ]
+    },
+    "warehouse_3_win": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/postgame/warehouse_3"
+        },
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/FLAG_DEFEATED_ROCKETS_IN_WAREHOUSE"
+        },
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/FLAG_HIDE_FIVE_ISLAND_ROCKETS"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "火箭队干部败下阵来。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "warehouse_3_fight": {
+      "actions": [
+        {
+          "type": "START_TRAINER_BATTLE",
+          "battleId": "KANTO_POST_warehouse_3_fight",
+          "trainerTeamId": 544,
+          "finishNode": "warehouse_3_win",
+          "defeatNode": "quest_defeat"
+        }
+      ]
+    },
+    "warehouse_5": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/FLAG_RECOVERED_SAPPHIRE"
+          },
+          "yes": "gideon_done",
+          "no": "gideon_ready"
+        }
+      ]
+    },
+    "gideon_ready": {
+      "actions": [
+        {
+          "type": "BRANCH",
+          "condition": {
+            "type": "EVENT_FLAG_SET",
+            "flag": "kanto/FLAG_DEFEATED_ROCKETS_IN_WAREHOUSE"
+          },
+          "yes": "warehouse_5_fight",
+          "no": "gideon_wait"
+        }
+      ]
+    },
+    "warehouse_5_win": {
+      "actions": [
+        {
+          "type": "GRANT_ITEM",
+          "itemId": 374,
+          "amount": 1
+        },
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/FLAG_RECOVERED_SAPPHIRE"
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "研究员：蓝宝石还给你！拿了就快走吧！"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "warehouse_5_fight": {
+      "actions": [
+        {
+          "type": "START_TRAINER_BATTLE",
+          "battleId": "KANTO_POST_warehouse_5_fight",
+          "trainerTeamId": 545,
+          "finishNode": "warehouse_5_win",
+          "defeatNode": "quest_defeat"
+        }
+      ]
+    },
+    "gideon_done": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "研究员：蓝宝石已经还给你了。别再打扰我！"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "gideon_wait": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "前方的火箭队干部还在阻挡通路。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "warehouse_admin_done": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "干部已经被击败。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "braille_B1F": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "石板上的盲文写着：“上”。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "braille_B2F": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "石板上的盲文写着：“左”。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "braille_B3F": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "石板上的盲文写着：“右”。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "braille_B4F": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "石板上的盲文写着：“下”。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "mewtwo": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "超梦发出了叫声！"
+        },
+        {
+          "type": "START_BATTLE",
+          "battleId": "KANTO_POST_MEWTWO",
+          "wildSpecies": 150,
+          "wildLevel": 70,
+          "finishNode": "mewtwo_finish",
+          "defeatNode": "cave_defeat"
+        }
+      ]
+    },
+    "mewtwo_finish": {
+      "actions": [
+        {
+          "type": "SET_EVENT_FLAG",
+          "flag": "kanto/FLAG_HIDE_MEWTWO"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "cave_defeat": {
+      "actions": [
+        {
+          "type": "HEAL_PARTY"
+        },
+        {
+          "type": "CHANGE_MAP",
+          "map": "CeruleanCity_PokemonCenter_1F",
+          "x": 7,
+          "y": 4,
+          "toward": 1
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "rematch_0": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "四天王：再次见面了！这次我们会拿出更强的实力。"
+        },
+        {
+          "type": "START_TRAINER_BATTLE",
+          "battleId": "KANTO_POST_rematch_0",
+          "trainerTeamId": 735,
+          "finishNode": "rematch_0_win",
+          "defeatNode": "league_defeat"
+        }
+      ]
+    },
+    "rematch_0_win": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "精彩的对战，继续向前挑战吧！"
+        },
+        {
+          "type": "SET_ELITE_STAGE",
+          "stage": 1
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "rematch_1": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "四天王：再次见面了！这次我们会拿出更强的实力。"
+        },
+        {
+          "type": "START_TRAINER_BATTLE",
+          "battleId": "KANTO_POST_rematch_1",
+          "trainerTeamId": 736,
+          "finishNode": "rematch_1_win",
+          "defeatNode": "league_defeat"
+        }
+      ]
+    },
+    "rematch_1_win": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "精彩的对战，继续向前挑战吧！"
+        },
+        {
+          "type": "SET_ELITE_STAGE",
+          "stage": 2
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "rematch_2": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "四天王：再次见面了！这次我们会拿出更强的实力。"
+        },
+        {
+          "type": "START_TRAINER_BATTLE",
+          "battleId": "KANTO_POST_rematch_2",
+          "trainerTeamId": 737,
+          "finishNode": "rematch_2_win",
+          "defeatNode": "league_defeat"
+        }
+      ]
+    },
+    "rematch_2_win": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "精彩的对战，继续向前挑战吧！"
+        },
+        {
+          "type": "SET_ELITE_STAGE",
+          "stage": 3
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "rematch_3": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "四天王：再次见面了！这次我们会拿出更强的实力。"
+        },
+        {
+          "type": "START_TRAINER_BATTLE",
+          "battleId": "KANTO_POST_rematch_3",
+          "trainerTeamId": 738,
+          "finishNode": "rematch_3_win",
+          "defeatNode": "league_defeat"
+        }
+      ]
+    },
+    "rematch_3_win": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "精彩的对战，继续向前挑战吧！"
+        },
+        {
+          "type": "SET_ELITE_STAGE",
+          "stage": 4
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "rematch_champion": {
+      "actions": [
+        {
+          "type": "MOVE_PLAYER",
+          "x": 6,
+          "y": 9
+        },
+        {
+          "type": "DIALOGUE",
+          "message": "劲敌：我一直等着这次再战！"
+        },
+        {
+          "type": "START_TRAINER_BATTLE",
+          "battleId": "KANTO_POST_CHAMPION",
+          "trainerTeamIds": [
+            741,
+            740,
+            739
+          ],
+          "finishNode": "rematch_champion_win",
+          "defeatNode": "league_defeat"
+        }
+      ]
+    },
+    "rematch_champion_win": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "你又赢了！让我们再次记录这支队伍。"
+        },
+        {
+          "type": "FINISH_LEAGUE_REMATCH"
+        },
+        {
+          "type": "CHANGE_MAP",
+          "map": "PokemonLeague_HallOfFame",
+          "x": 5,
+          "y": 12,
+          "toward": 1
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "league_defeat": {
+      "actions": [
+        {
+          "type": "HEAL_PARTY"
+        },
+        {
+          "type": "CHANGE_MAP",
+          "map": "IndigoPlateau_PokemonCenter_1F",
+          "x": 13,
+          "y": 12,
+          "toward": 1
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    },
+    "league_not_ready": {
+      "actions": [
+        {
+          "type": "DIALOGUE",
+          "message": "科拿：七岛的事件还没有解决。请先协助锦辉完成网络机器。"
+        },
+        {
+          "type": "CLOSE_SCENE"
+        }
+      ]
+    }
+  },
+  "tiles": [
+    {
+      "map": "MtEmber_Exterior",
+      "x": 42,
+      "y": 39,
+      "flag": "kanto/postgame/ruby_requested",
+      "open": 838,
+      "closed": 1881
+    },
+    {
+      "map": "SixIsland_RuinValley",
+      "x": 24,
+      "y": 24,
+      "flag": "kanto/FLAG_USED_CUT_ON_RUIN_VALLEY_BRAILLE",
+      "open": 856,
+      "closed": 1879
+    },
+    {
+      "map": "FiveIsland_Meadow",
+      "x": 12,
+      "y": 21,
+      "flag": "kanto/FLAG_UNLOCKED_ROCKET_WAREHOUSE",
+      "open": 1711,
+      "closed": 1803
+    },
+    {
+      "map": "OneIsland_PokemonCenter_1F",
+      "x": 13,
+      "y": 4,
+      "flag": "kanto/postgame/ruby_delivered",
+      "open": 1885
+    },
+    {
+      "map": "OneIsland_PokemonCenter_1F",
+      "x": 16,
+      "y": 4,
+      "flag": "kanto/FLAG_SYS_CAN_LINK_WITH_RS",
+      "open": 1887
+    },
+    {
+      "map": "OneIsland_PokemonCenter_1F",
+      "x": 14,
+      "y": 4,
+      "flag": "kanto/FLAG_SYS_CAN_LINK_WITH_RS",
+      "open": 1882
+    },
+    {
+      "map": "OneIsland_PokemonCenter_1F",
+      "x": 15,
+      "y": 4,
+      "flag": "kanto/FLAG_SYS_CAN_LINK_WITH_RS",
+      "open": 1883
+    },
+    {
+      "map": "FiveIsland_RocketWarehouse",
+      "x": 26,
+      "y": 20,
+      "flag": "kanto/postgame/warehouse_2",
+      "open": 672
+    },
+    {
+      "map": "FiveIsland_RocketWarehouse",
+      "x": 27,
+      "y": 20,
+      "flag": "kanto/postgame/warehouse_2",
+      "open": 672
+    }
+  ]
+}

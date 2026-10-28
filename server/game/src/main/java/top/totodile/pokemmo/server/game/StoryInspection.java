@@ -18,6 +18,10 @@ public final class StoryInspection {
         public Report { nextSteps=List.copyOf(nextSteps);npcs=List.copyOf(npcs); }
     }
     static Report inspect(Database db,String owner,int region,GameService.Position p,KantoStory session) {
+        if(region==2)return new UnovaStory(db,owner,Map.of()).inspect(p);
+        if(region==3)return new SinnohStory(db,owner,Map.of()).inspect(p);
+        if(region==4)return new JohtoStory(db,owner,Map.of()).inspect(p);
+        if(region==1)return hoenn(db,owner,p,session);
         if(region!=0)return new Report(region,p.bank(),p.map(),"","该地区尚未接入地图剧情查看",List.of("无法根据当前已接入脚本判断下一步。"),List.of());
         var rows=db.query("SELECT stage,starter FROM character_kanto_story WHERE character_id=?",owner);
         var state=rows.isEmpty()?new StoryData.State(false,0,3):new StoryData.State(true,Integer.parseInt(rows.get(0)[0]),Integer.parseInt(rows.get(0)[1]));
@@ -42,8 +46,14 @@ public final class StoryInspection {
                 String current=PalletSignLady.conversationNode(girl,p.direction());
                 String[] nodes={"first_right","first_left","read","show","useful","done"};
                 String[] descriptions={"未读牌、未让路、未等待镇口展示；玩家朝右交谈", "未读牌、未让路、未等待镇口展示；玩家非朝右交谈", "本次地图已让路，尚未读牌", "已领取初始宝可梦，进镇后在镇口等待展示", "刚读完提示牌，尚未重新进入真新镇", "已读牌并重新进入真新镇"};
-                for(int i=0;i<nodes.length;i++)walk(KantoStory.signLadyProgram(),nodes[i],nodes[i],descriptions[i],actual.isPresent()&&current.equals(nodes[i]),false,npc.id(),state,gender,branches,new ArrayList<>(),new ArrayList<>(),new HashSet<>());
-            } else if(state.enabled() && (key.equals("ViridianCity_Mart")&&npc.id()==0 || key.equals("PalletTown_ProfessorOaksLab")&&npc.id()==3&&state.stage()>=4)) {
+                for(int i=0;i<nodes.length;i++)walk(KantoStory.signLadyProgram(),nodes[i],nodes[i],descriptions[i],actual.isPresent()&&current.equals(nodes[i]),false,npc.id(),state,gender,p.direction(),branches,new ArrayList<>(),new ArrayList<>(),new HashSet<>());
+            } else if(p.bank()==4&&p.map()==2&&npc.id()==0){
+                kind="条件对话";
+                String current=session==null?(PalletDaisy.received(db,owner)?"rest":state.stage()>=6?"give":state.stage()>=4?"battle":"intro"):session.daisyNode();
+                String[] nodes={"intro","battle","give","explain","rest"};
+                String[] descriptions={"初次劲敌战斗前","完成初次劲敌战斗、尚未领取图鉴","已领取图鉴、尚未领取城镇地图","本次进屋刚领取地图","已领取地图后再次进屋"};
+                for(int i=0;i<nodes.length;i++)walk(KantoStory.DAISY,nodes[i],nodes[i],descriptions[i],actual.isPresent()&&current.equals(nodes[i]),false,npc.id(),state,gender,p.direction(),branches,new ArrayList<>(),new ArrayList<>(),new HashSet<>());
+            } else if(state.enabled() && (key.equals("ViridianCity_Mart")&&npc.id()==0 || key.equals("PalletTown_ProfessorOaksLab")&&npc.id()==3&&state.stage()>=4&&!KantoMainline.progress(db,owner).champion())) {
                 kind="条件对话";
                 for(var value:KantoStory.parcelProgram().getAsJsonArray("triggers")) {
                     var t=value.getAsJsonObject();
@@ -54,7 +64,7 @@ public final class StoryInspection {
                         eligible &= type.equals("PARCEL_NEEDS_PICKUP")?OakParcel.needsPickup(db,owner,state):type.equals("PARCEL_PHASE_EQUALS")?parcelPhase.equals(c.get("value").getAsString()):matches(c,state,gender);
                     }
                     String node=t.get("startNode").getAsString();
-                    walk(KantoStory.parcelProgram(),node,node,describe(t.getAsJsonArray("conditions")),eligible&&actual.isPresent(),false,npc.id(),state,gender,branches,new ArrayList<>(),new ArrayList<>(),new HashSet<>());
+                    walk(KantoStory.parcelProgram(),node,node,describe(t.getAsJsonArray("conditions")),eligible&&actual.isPresent(),false,npc.id(),state,gender,p.direction(),branches,new ArrayList<>(),new ArrayList<>(),new HashSet<>());
                 }
             } else if(state.enabled()&&state.stage()>=6&&mainlineNpc(key,npc.id())) {
                 kind="条件剧情";
@@ -71,10 +81,10 @@ public final class StoryInspection {
                         }
                     }
                     String node=t.get("startNode").getAsString();
-                    walk(frozen,node,node,describe(t.getAsJsonArray("conditions")),eligible&&actual.isPresent(),false,npc.id(),state,gender,branches,new ArrayList<>(),new ArrayList<>(),new HashSet<>());
+                    walk(frozen,node,node,describe(t.getAsJsonArray("conditions")),eligible&&actual.isPresent(),false,npc.id(),state,gender,p.direction(),branches,new ArrayList<>(),new ArrayList<>(),new HashSet<>());
                 }
-            } else if(fixed!=null){kind="固定对话";walk(fixed,"talk","固定对话","无剧情分支",actual.isPresent(),false,npc.id(),state,gender,branches,new ArrayList<>(),new ArrayList<>(),new HashSet<>());}
-            else if(MapEntities.nurse(p.bank(),p.map(),npc.id())){kind="条件对话";walk(KantoStory.nurseProgram(),"nurse","护士","与护士交谈",actual.isPresent(),false,npc.id(),state,gender,branches,new ArrayList<>(),new ArrayList<>(),new HashSet<>());}
+            } else if(fixed!=null){kind="固定对话";walk(fixed,"talk","固定对话","无剧情分支",actual.isPresent(),false,npc.id(),state,gender,p.direction(),branches,new ArrayList<>(),new ArrayList<>(),new HashSet<>());}
+            else if(MapEntities.nurse(p.bank(),p.map(),npc.id())){kind="条件对话";walk(KantoStory.nurseProgram(),"nurse","护士","与护士交谈",actual.isPresent(),false,npc.id(),state,gender,p.direction(),branches,new ArrayList<>(),new ArrayList<>(),new HashSet<>());}
             else {
                 var opening=KantoStory.openingProgram();
                 if(!state.enabled()&&p.bank()==4&&p.map()==0&&npc.id()==0){
@@ -82,7 +92,7 @@ public final class StoryInspection {
                     for(String node:List.of("mother_boy","mother_girl","mother_heal")){
                         boolean eligible=node.equals("mother_heal")?hasParty:!hasParty&&(node.equals("mother_boy")== (gender==0));
                         String condition=node.equals("mother_heal")?"旧角色；队伍有非蛋宝可梦":node.equals("mother_boy")?"旧角色；队伍无非蛋宝可梦；男角色":"旧角色；队伍无非蛋宝可梦；女角色";
-                        walk(opening,node,node,condition,eligible&&actual.isPresent(),false,npc.id(),state,gender,branches,new ArrayList<>(),new ArrayList<>(),new HashSet<>());
+                        walk(opening,node,node,condition,eligible&&actual.isPresent(),false,npc.id(),state,gender,p.direction(),branches,new ArrayList<>(),new ArrayList<>(),new HashSet<>());
                     }
                 } else {
                     for(var value:opening.getAsJsonArray("triggers")){
@@ -91,7 +101,7 @@ public final class StoryInspection {
                         String node=trigger.get("startNode").getAsString();
                         boolean enabled=state.enabled()&&matches(trigger.getAsJsonArray("conditions"),state,gender)&&actual.isPresent();
                         kind="条件对话";
-                        walk(opening,node,node,describe(trigger.getAsJsonArray("conditions")),enabled,false,npc.id(),state,gender,branches,new ArrayList<>(),new ArrayList<>(),new HashSet<>());
+                        walk(opening,node,node,describe(trigger.getAsJsonArray("conditions")),enabled,false,npc.id(),state,gender,p.direction(),branches,new ArrayList<>(),new ArrayList<>(),new HashSet<>());
                     }
                     // Explicit opening fallback routes in KantoStory.request. Parcel branches are handled above.
                     if(p.bank()==4&&p.map()==3){
@@ -99,7 +109,7 @@ public final class StoryInspection {
                         if(!state.enabled())fallback=npc.id()<=2||npc.id()==7?"aide":npc.id()==3?"choose_again":npc.id()==8?"dex":"ball";
                         else if(npc.id()==2||npc.id()==7)fallback="aide";
                         else if(npc.id()>=4&&npc.id()<=6)fallback="ball";
-                        if(fallback!=null){kind="条件对话";boolean triggered=branches.stream().anyMatch(b->!b.match().equals("条件未满足"));walk(opening,fallback,"兜底："+fallback,state.enabled()?"未命中前述剧情触发分支":"旧角色，未启用开场记录",actual.isPresent()&&!triggered,false,npc.id(),state,gender,branches,new ArrayList<>(),new ArrayList<>(),new HashSet<>());}
+                        if(fallback!=null){kind="条件对话";boolean triggered=branches.stream().anyMatch(b->!b.match().equals("条件未满足"));walk(opening,fallback,"兜底："+fallback,state.enabled()?"未命中前述剧情触发分支":"旧角色，未启用开场记录",actual.isPresent()&&!triggered,false,npc.id(),state,gender,p.direction(),branches,new ArrayList<>(),new ArrayList<>(),new HashSet<>());}
                     }
                 }
             }
@@ -122,7 +132,11 @@ public final class StoryInspection {
             });
             case 6 -> {
                 var progress=KantoMainline.progress(db,owner);
-                if(progress.champion())next.add("关都冠军标记已保存，可进入名人堂继续收尾。");
+                if(progress.champion()){
+                    var hall=db.query("SELECT completed FROM character_hall_of_fame WHERE character_id=?",owner);
+                    if(hall.isEmpty()||!hall.get(0)[0].equals("1"))next.add("关都冠军标记已保存，可进入名人堂继续收尾。");
+                    else next.addAll(KantoPostgame.next(db,owner));
+                }
                 else {
                     next.add("主线已接入至冠军；以下为存档条件已满足的剧情入口（仍需前往对应位置）。");
                     var available=new LinkedHashSet<String>();
@@ -152,30 +166,61 @@ public final class StoryInspection {
         return Set.of("STORY_STAGE_EQUALS","STORY_STAGE_AT_LEAST","STARTER_EQUALS","SEX_EQUALS").contains(c.get("type").getAsString())?matches(c,state,gender):KantoMainline.condition(db,owner,c);
     }
     private static boolean matches(JsonArray list,StoryData.State state,int gender){if(list==null)return true;for(var c:list)if(!matches(c.getAsJsonObject(),state,gender))return false;return true;}
-    private static boolean matches(JsonObject c,StoryData.State s,int gender){int v=c.get("value").getAsInt();return switch(c.get("type").getAsString()){case "STORY_STAGE_EQUALS"->s.stage()==v;case "STORY_STAGE_AT_LEAST"->s.stage()>=v;case "STARTER_EQUALS"->s.starter()==v;case "SEX_EQUALS"->gender==v;default->false;};}
+    private static Report hoenn(Database db,String owner,GameService.Position p,KantoStory session){
+        var h=new HoennStory(db,owner);var state=h.state();String key=HoennWorld.key(p);var map=HoennWorld.map(p);var result=new ArrayList<Npc>();
+        var visible=(session==null?h.entities():session.entities()).stream().filter(m->m.bank()==p.bank()&&m.map()==p.map()).flatMap(m->m.npcs().stream()).toList();
+        if(map!=null)for(var value:map.getAsJsonArray("npcs")){
+            var n=value.getAsJsonObject();int id=n.get("entityIdx").getAsInt();var actual=visible.stream().filter(v->v.id()==id).findFirst();var branches=new ArrayList<Branch>();
+            for(var chapter:HoennStory.PROGRAMS)for(var tv:chapter.getAsJsonArray("triggers")){
+                var t=tv.getAsJsonObject();if(!t.get("type").getAsString().equals("NPC")||!t.get("map").getAsString().equals(key)||!t.has("entityIdx")||t.get("entityIdx").getAsInt()!=id)continue;
+                boolean eligible=state.enabled()&&actual.isPresent();for(var cv:t.getAsJsonArray("conditions"))eligible &= h.condition(cv.getAsJsonObject());String node=t.get("startNode").getAsString();
+                walk(chapter,node,node,describe(t.getAsJsonArray("conditions")),eligible,false,id,state,h.gender(),p.direction(),branches,new ArrayList<>(),new ArrayList<>(),new HashSet<>());
+            }
+            result.add(new Npc(id,actual.map(MapEntities.Npc::graphics).orElse(n.get("graphicsId").getAsInt()),actual.map(MapEntities.Npc::x).orElse(n.get("x").getAsInt()),actual.map(MapEntities.Npc::y).orElse(n.get("y").getAsInt()),actual.isPresent(),n.get("script").getAsString(),branches.isEmpty()?"未接入":"条件剧情",branches));
+        }
+        String next=switch(state.stage()){
+            case 0->"完成搬家卡车开场。";case 1,2->"跟随妈妈进入新家。";case 3,4->"到自己房间调查墙上的时钟。";case 5->"下楼与妈妈看电视。";case 6->"到隔壁家拜访。";case 7->"上楼调查劲敌房间里的精灵球。";case 8->"前往 101 号道路营救小田卷博士。";case 9->"调查博士的背包，选择初始宝可梦。";case 10->"完成蛇纹熊对战。";case 11->"在研究所与博士交谈。";case 12->"前往 103 号道路与劲敌对战。";case 13,14->"返回小田卷研究所领取图鉴与精灵球。";case 15->"从研究所向镇北行走，触发妈妈赠送跑步鞋。";default->"开局章节已完成；后续道馆主线尚未接入。";};
+        if(state.stage()>=16){
+            var steps=new ArrayList<String>();
+            for(var tv:HoennMainline.PROGRAM.getAsJsonArray("triggers")){
+                var t=tv.getAsJsonObject();if(t.get("startNode").getAsString().startsWith("trainer_")||t.get("startNode").getAsString().startsWith("fixed_"))continue;
+                boolean exact=false,eligible=true;for(var cv:t.getAsJsonArray("conditions")){var c=cv.getAsJsonObject();exact |= c.get("type").getAsString().equals("STORY_STAGE_EQUALS");eligible &= h.condition(c);}
+                if(!exact||!eligible)continue;String text=t.get("map").getAsString()+" · "+t.get("type").getAsString()+(t.has("entityIdx")?" NPC #"+t.get("entityIdx").getAsInt():t.has("x")?" ("+t.get("x")+","+t.get("y")+")":"");if(!steps.contains(text))steps.add(text);
+            }
+            if(state.stage()==22&&!h.condition(JsonParser.parseString("{\"type\":\"HOENN_FLAG_SET\",\"flag\":\"letter\"}").getAsJsonObject()))steps.add("先到 GraniteCave_StevensRoom 向大吾交付信件。");
+            if(state.stage()==55)steps.add("丰缘冠军与名人堂已记录；当前一周目事件链完成。原生部分机关和演出仍有适配限制，见 mainline.md。");
+            next=String.join("\n",steps);
+        }
+        return new Report(1,p.bank(),p.map(),key,state.enabled()?"丰缘剧情阶段 "+state.stage():"未启用丰缘开场记录",List.of(next),result);
+    }
+    private static boolean matches(JsonObject c,StoryData.State s,int gender){int v=c.get("value").getAsInt();return switch(c.get("type").getAsString()){case "STORY_STAGE_EQUALS"->s.stage()==v;case "STORY_STAGE_AT_LEAST"->s.stage()>=v;case "STORY_STAGE_BELOW"->s.stage()<v;case "STARTER_EQUALS"->s.starter()==v;case "SEX_EQUALS"->gender==v;default->false;};}
     private static String describe(JsonArray list){if(list==null||list.isEmpty())return "无额外存档条件";var parts=new ArrayList<String>();for(var c:list)parts.add(describe(c.getAsJsonObject()));return String.join("；",parts);}
-    private static String describe(JsonObject c){if(c.has("display"))return c.get("display").getAsString();String value=c.has("value")?c.get("value").getAsString():"";return switch(c.get("type").getAsString()){case "PARCEL_NEEDS_PICKUP"->"尚未领取或包裹遗失，可补领";case "PARCEL_PHASE_EQUALS"->"包裹阶段 = "+value;case "STORY_STAGE_EQUALS"->"开场阶段 = "+value;case "STORY_STAGE_AT_LEAST"->"开场阶段 ≥ "+value;case "STARTER_EQUALS"->value.equals("3")?"尚未选择初始宝可梦":"初始选择 = "+value;case "SEX_EQUALS"->value.equals("0")?"男角色":"女角色";default->c.toString();};}
-    private static void walk(JsonObject program,String node,String name,String condition,boolean eligible,boolean choice,int npc,StoryData.State state,int gender,List<Branch> out,List<Line> lines,List<String> steps,Set<String> path){
+    private static String describe(JsonObject c){if(c.has("display"))return c.get("display").getAsString();String value=c.has("value")?c.get("value").getAsString():"";return switch(c.get("type").getAsString()){case "PARCEL_NEEDS_PICKUP"->"尚未领取或包裹遗失，可补领";case "PARCEL_PHASE_EQUALS"->"包裹阶段 = "+value;case "STORY_STAGE_EQUALS"->"开场阶段 = "+value;case "STORY_STAGE_AT_LEAST"->"开场阶段 ≥ "+value;case "STARTER_EQUALS"->value.equals("3")?"尚未选择初始宝可梦":"初始选择 = "+value;case "SEX_EQUALS"->value.equals("0")?"男角色":"女角色";case "PLAYER_FACING_EQUALS"->"玩家朝向 = "+switch(value){case "0"->"下";case "1"->"上";case "2"->"左";default->"右";};default->c.toString();};}
+    private static void walk(JsonObject program,String node,String name,String condition,boolean eligible,boolean choice,int npc,StoryData.State state,int gender,int facing,List<Branch> out,List<Line> lines,List<String> steps,Set<String> path){
         if(out.size()>=64||!path.add(node))return;
         var nextLines=new ArrayList<>(lines);var nextSteps=new ArrayList<>(steps);
         for(var value:program.getAsJsonObject("nodes").getAsJsonObject(node).getAsJsonArray("actions")){
             var a=value.getAsJsonObject();String type=a.get("type").getAsString();
             if(type.equals("BRANCH")){
-                var c=a.getAsJsonObject("condition");boolean yes=matches(c,state,gender);
-                walk(program,a.get("yes").getAsString(),name+" / 是",condition+"；"+describe(c),eligible&&yes,choice,npc,state,gender,out,nextLines,nextSteps,new HashSet<>(path));
-                walk(program,a.get("no").getAsString(),name+" / 否",condition+"；不满足（"+describe(c)+"）",eligible&&!yes,choice,npc,state,gender,out,nextLines,nextSteps,new HashSet<>(path));return;
+                var c=a.getAsJsonObject("condition");boolean yes=c.get("type").getAsString().equals("PLAYER_FACING_EQUALS")?facing==c.get("value").getAsInt():matches(c,state,gender);
+                walk(program,a.get("yes").getAsString(),name+" / 是",condition+"；"+describe(c),eligible&&yes,choice,npc,state,gender,facing,out,nextLines,nextSteps,new HashSet<>(path));
+                walk(program,a.get("no").getAsString(),name+" / 否",condition+"；不满足（"+describe(c)+"）",eligible&&!yes,choice,npc,state,gender,facing,out,nextLines,nextSteps,new HashSet<>(path));return;
             }
-            if(type.equals("GOTO")){walk(program,a.get("node").getAsString(),name,condition,eligible,choice,npc,state,gender,out,nextLines,nextSteps,new HashSet<>(path));return;}
+            if(type.equals("GOTO")){walk(program,a.get("node").getAsString(),name,condition,eligible,choice,npc,state,gender,facing,out,nextLines,nextSteps,new HashSet<>(path));return;}
+            if(type.equals("SELECT_OPTION")&&a.has("nodes")){
+                for(int i=0;i<a.getAsJsonArray("nodes").size();i++)walk(program,a.getAsJsonArray("nodes").get(i).getAsString(),name+" / "+a.getAsJsonArray("options").get(i).getAsString(),condition,eligible,true,npc,state,gender,facing,out,nextLines,nextSteps,new HashSet<>(path));
+                return;
+            }
             if(type.equals("DIALOGUE")||type.equals("YES_NO"))nextLines.add(a.has("text")?new Line(program.getAsJsonObject("text").get(a.get("text").getAsString()).getAsInt(),0):new Line(0,0,a.get("message").getAsString()));
             if(type.equals("YES_NO")){
-                walk(program,a.get("yes").getAsString(),name+" / 选择是",condition+"；选择是",eligible,true,npc,state,gender,out,nextLines,nextSteps,new HashSet<>(path));
-                walk(program,a.get("no").getAsString(),name+" / 选择否",condition+"；选择否",eligible,true,npc,state,gender,out,nextLines,nextSteps,new HashSet<>(path));return;
+                walk(program,a.get("yes").getAsString(),name+" / 选择是",condition+"；选择是",eligible,true,npc,state,gender,facing,out,nextLines,nextSteps,new HashSet<>(path));
+                walk(program,a.get("no").getAsString(),name+" / 选择否",condition+"；选择否",eligible,true,npc,state,gender,facing,out,nextLines,nextSteps,new HashSet<>(path));return;
             }
             if(type.equals("SELECT_STARTER")){
                 int selected=npc==4?0:npc==5?2:1;
                 for(var v:program.getAsJsonObject("resources").getAsJsonArray("starters")){var starter=v.getAsJsonObject();if(starter.get("choice").getAsInt()==selected)nextLines.add(new Line(starter.get("prompt").getAsInt(),starter.get("species").getAsInt()));}
                 var reject=new ArrayList<>(nextSteps);reject.add("取消选择，关闭对话");out.add(new Branch(name+" / 取消",condition,eligible?"等待玩家选择":"条件未满足",nextLines,reject));
-                nextSteps.add("确认选择初始宝可梦（仅预览，不领取）");walk(program,a.get("next").getAsString(),name+" / 确认",condition,eligible,true,npc,state,gender,out,nextLines,nextSteps,new HashSet<>(path));return;
+                nextSteps.add("确认选择初始宝可梦（仅预览，不领取）");walk(program,a.get("next").getAsString(),name+" / 确认",condition,eligible,true,npc,state,gender,facing,out,nextLines,nextSteps,new HashSet<>(path));return;
             }
             if(!Set.of("DIALOGUE","CLOSE_SCENE","CLOSE_DIALOG","NOTIFY").contains(type))nextSteps.add(actionDescription(a));
         }

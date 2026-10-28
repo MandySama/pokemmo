@@ -137,7 +137,7 @@ final class NdsWorldRenderer implements AutoCloseable {
             int width,
             int height,
             boolean mobile,
-            FollowerPokemon follower) {
+            FollowerPokemon follower, WorldMapObjects objects) {
         Id id = movement.map().id();
         var view = maps.camera(id, mobile);
         float x = (motion.x() + .5f) * 16,
@@ -203,6 +203,7 @@ final class NdsWorldRenderer implements AutoCloseable {
         sprites.end();
         if (follower != null && follower.visible() && follower.y() <= motion.y())
             drawFollower(follower, id, view.pitch(), sprites, character);
+        drawNpcs(objects,id,view.pitch(),sprites,motion.y(),true);
         transform.setToTranslation(x, y + .3f, z).rotate(Vector3.X, -view.pitch());
         sprites.setTransformMatrix(transform);
         sprites.begin();
@@ -218,6 +219,7 @@ final class NdsWorldRenderer implements AutoCloseable {
         sprites.setTransformMatrix(transform.idt());
         if (follower != null && follower.visible() && follower.y() > motion.y())
             drawFollower(follower, id, view.pitch(), sprites, character);
+        drawNpcs(objects,id,view.pitch(),sprites,motion.y(),false);
         Gdx.gl.glDisable(GL20.GL_DEPTH_TEST);
         Gdx.gl.glDepthMask(true);
         boolean evicted = false;
@@ -228,6 +230,20 @@ final class NdsWorldRenderer implements AutoCloseable {
             evicted = true;
         }
         if (evicted) releaseUnusedAssets();
+    }
+
+    private void drawNpcs(WorldMapObjects objects,Id id,float pitch,SpriteBatch sprites,float playerY,boolean behind) {
+        if(objects==null)return;
+        for(var actor:objects.actors(id).stream().sorted(java.util.Comparator.comparingDouble(WorldNpcMotion::drawY)).toList()) {
+            if(!actor.visible()||(actor.drawY()<=playerY)!=behind)continue;
+            float x=(actor.drawX()+.5f)*16,z=(actor.drawY()+.5f)*16,y=maps.height(id,actor.drawX(),actor.drawY());
+            transform.setToTranslation(x,y+.3f,z).rotate(Vector3.X,-pitch);
+            sprites.setTransformMatrix(transform);sprites.begin();
+            // The existing 2D renderer anchors at (tile*16+8, -tile*16-14).
+            objects.draw(sprites,new WorldMapObjects.Placed(actor,-.5f,-.875f));
+            sprites.end();
+        }
+        sprites.setTransformMatrix(transform.idt());
     }
 
     private void drawFollower(

@@ -20,6 +20,7 @@ final class PalletSignLady {
         return new View(scene,false,scene==0&&x==12&&y==2,x,y,direction);
     }
     static MapEntities.Npc project(MapEntities.Npc n,View view){
+        if(view.scene()==2)return n;
         return new MapEntities.Npc(n.id(),n.graphics(),view.x(),view.y(),n.elevation(),view.direction(),
                 view.direction()==1?7:view.direction()==0?8:view.direction()==2?9:10,0,0);
     }
@@ -59,8 +60,7 @@ final class PalletSignLady {
         }
     }
     MapEntities.Npc project(MapEntities.Npc n) {
-        return new MapEntities.Npc(n.id(),n.graphics(),x,y,n.elevation(),direction,
-                direction==1?7:direction==0?8:direction==2?9:10,0,0);
+        return project(n,view());
     }
     String node(StoryData.Request request,GameService.Position p) {
         if(p.bank()!=3||p.map()!=0)return null;
@@ -70,6 +70,7 @@ final class PalletSignLady {
             if(background!=null && MapEntities.backgroundScript(3,0,background.id()).equals("PalletTown_EventScript_TrainerTips"))return "tips";
         }
         if(request.event().equals("COORDINATE")&&ready&&p.x()==13&&p.y()==2)return "trigger";
+        if(scene==2)return null; // Completed NPC adjacency uses the source map's idle leash.
         if(!request.event().equals("NPC")||request.npc()!=0
                 ||p.x()+dx[p.direction()]!=x||p.y()+dy[p.direction()]!=y)return null;
         return conversationNode(view(),p.direction());

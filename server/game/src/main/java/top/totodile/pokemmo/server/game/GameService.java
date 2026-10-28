@@ -6,8 +6,34 @@ import java.util.*;
 import java.util.concurrent.CompletionStage;
 
 public interface GameService extends AutoCloseable {
+    record Traversal(boolean surf,boolean bicycle) {}
+    default CompletionStage<Traversal> traversal(Selection selection,String character){
+        return java.util.concurrent.CompletableFuture.completedFuture(new Traversal(false,false));
+    }
+    default CompletionStage<List<GiftShopData.Item>> giftShop(Selection selection,String character) {
+        return java.util.concurrent.CompletableFuture.failedFuture(new UnsupportedOperationException("Gift shop unavailable"));
+    }
     record BattleYield(int species, int experience, List<Integer> evs) {}
+    default CompletionStage<Void> prepareBattle(){return java.util.concurrent.CompletableFuture.completedFuture(null);}
+    record BattleResume(EncounterData encounter,top.totodile.pokemmo.server.game.battle.BattleState state,long expiresAt) {}
+    default CompletionStage<BattleResume> reconnectBattle(Selection selection,String character){return java.util.concurrent.CompletableFuture.completedFuture(null);}
+    default CompletionStage<Void> touchBattle(Selection selection,String character){return java.util.concurrent.CompletableFuture.completedFuture(null);}
+    default CompletionStage<Void> disconnectBattle(Selection selection,String character){return java.util.concurrent.CompletableFuture.completedFuture(null);}
     default void battleYields(List<BattleYield> yields) {}
+    default void movePp(Map<Integer,Integer> values) {}
+    record MachineTemplate(int item,int move,boolean reusable) {}
+    default void machines(List<MachineTemplate> items,Map<Integer,Set<Integer>> learners) {}
+    record GrowthItem(int item,int stone,int levels,int ppUps,boolean multiple){public boolean supported(){return stone>0||levels>0||ppUps>0;}}
+    default void growthItems(List<GrowthItem> items){}
+    record Medicine(int action,int hp,boolean percent,int pp,int statusMask,boolean revive,boolean multiple,int friendship) {
+        public static final Medicine NONE=new Medicine(0,0,false,0,0,false,false,0);
+        public boolean supported(){return hp>0||pp>0||statusMask!=0;}
+    }
+    record ItemUseResult(boolean success,int message,PokemonData.Containers pokemon) {}
+    default CompletionStage<ItemUseResult> useItem(Selection selection,String character,int item,
+            String pokemon,int amount,int move){
+        return java.util.concurrent.CompletableFuture.failedFuture(new UnsupportedOperationException());
+    }
 
     default CompletionStage<EncounterData> trainerEncounter(Selection selection,String character) {
         return java.util.concurrent.CompletableFuture.failedFuture(new UnsupportedOperationException());
@@ -120,7 +146,10 @@ public interface GameService extends AutoCloseable {
     }
 
     record ItemTemplate(int id, int region, int maximumStack, boolean destroyable, int ballType,
-                        boolean holdable) {
+                        boolean holdable,Medicine medicine) {
+        public ItemTemplate(int id,int region,int maximumStack,boolean destroyable,int ballType,boolean holdable){
+            this(id,region,maximumStack,destroyable,ballType,holdable,Medicine.NONE);
+        }
         public ItemTemplate(int id, int region, int maximumStack, boolean destroyable, int ballType) {
             this(id, region, maximumStack, destroyable, ballType, false);
         }
@@ -205,10 +234,10 @@ public interface GameService extends AutoCloseable {
         public static Position start(int region) {
             return switch (region) {
                 case 0 -> kantoStart();
-                case 1 -> new Position(0, 9, 5, 9, 0);
-                case 2 -> new Position(1, 133, 14, 14, 0);
-                case 3 -> new Position(1, 155, 9, 12, 0);
-                case 4 -> new Position(0, 60, 12, 10, 0);
+                case 1 -> new Position(25, 40, 2, 2, 3);
+                case 2 -> new Position(1, 135, 6, 6, 0);
+                case 3 -> new Position(1, 159, 5, 4, 0);
+                case 4 -> new Position(0, 64, 7, 6, 0);
                 default -> throw new IllegalArgumentException("Invalid starting region");
             };
         }
@@ -353,6 +382,13 @@ public interface GameService extends AutoCloseable {
 
     default CompletionStage<StoryInspection.Report> inspectStory(Selection selection,String id,Position position) {
         return java.util.concurrent.CompletableFuture.failedFuture(new UnsupportedOperationException("Story inspection unavailable"));
+    }
+
+    default CompletionStage<StoryDebug.State> storyDebugState(Selection selection,String id) {
+        return java.util.concurrent.CompletableFuture.failedFuture(new UnsupportedOperationException("不支持剧情调试"));
+    }
+    default CompletionStage<Void> editStory(Selection selection,String id,StoryDebug.Request request) {
+        return java.util.concurrent.CompletableFuture.failedFuture(new UnsupportedOperationException("不支持剧情调试"));
     }
 
     default CompletionStage<StoryData.Scene> story(Selection selection,String id,StoryData.Request request) {

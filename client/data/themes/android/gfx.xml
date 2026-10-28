@@ -58,6 +58,8 @@
             <area xywh="0,60,1024,600"/>
             <area xywh="0,660,1024,60"/>
         </grid>
+        <alias name="mobile.window.bottom.background.yellow" ref="mobile.window.bottom.background" tint="#FFBB70"/>
+        <alias name="mobile.window.bottom.background.lightblue" ref="mobile.window.bottom.background" tint="#A0F6FA"/>
     </images>
     <images file="res/android_ui.png" filter="nearest">
         <animation name="mobile.tab.animation" timeSource="selected" count="1">

@@ -23,7 +23,10 @@ final class WorldMapObjects implements AutoCloseable {
     private final Map<Integer, Texture> textures = new HashMap<>();
     private final Set<Integer> absent = new HashSet<>();
     private final GbaNpcSprites sprites;
+    private final top.totodile.pokemmo.client.rom.nds.bw.BwNpcSprites bw;
+    private final top.totodile.pokemmo.client.rom.nds.gen4.Gen4NpcSprites gen4;
     private final ClientResources resources;
+    private final boolean kanto;
     private top.totodile.pokemmo.client.rom.nds.hgss.HgssNpcSprites hgss;
     private boolean triedHgss;
     private Texture shadow, exclamation;
@@ -37,6 +40,7 @@ final class WorldMapObjects implements AutoCloseable {
     private final Set<Integer> missingHgss=new HashSet<>();
 
     private GbaNpcSprites.Frame replacement(int graphics,int direction,int phase) {
+        if(!kanto)return null;
         if(!Boolean.parseBoolean(resources.preferences().get("client.graphics.nds.hgss_sprites_enabled_in_gba","true")))return null;
         if(missingHgss.contains(graphics))return null;
         try {
@@ -57,7 +61,10 @@ final class WorldMapObjects implements AutoCloseable {
     private final Map<Id, List<WorldNpcMotion>> motions = new HashMap<>();
 
     WorldMapObjects(ClientResources resources, RomInfo rom) throws IOException {
-        sprites = new GbaNpcSprites(rom);
+        kanto=rom.type()==top.totodile.pokemmo.client.rom.RomType.FIRE_RED;
+        bw = rom.type()==top.totodile.pokemmo.client.rom.RomType.BLACK_WHITE ? new top.totodile.pokemmo.client.rom.nds.bw.BwNpcSprites(rom) : null;
+        gen4 = rom.type()==top.totodile.pokemmo.client.rom.RomType.PLATINUM || rom.type()==top.totodile.pokemmo.client.rom.RomType.HEART_GOLD_SOUL_SILVER ? new top.totodile.pokemmo.client.rom.nds.gen4.Gen4NpcSprites(rom) : null;
+        sprites = bw==null && gen4==null ? new GbaNpcSprites(rom) : null;
         this.resources=resources;
     }
 
@@ -88,6 +95,7 @@ final class WorldMapObjects implements AutoCloseable {
                 var actor = old.stream().filter(n -> n.definition.equals(definition)).findFirst().orElse(null);
                 if (actor == null) actor = new WorldNpcMotion(definition,
                         java.util.concurrent.ThreadLocalRandom.current());
+                actor.nativeZeroGraphics=gen4!=null;
                 actors.add(actor);
             }
             maps.put(id, definitions);
@@ -171,7 +179,7 @@ final class WorldMapObjects implements AutoCloseable {
         Texture image = textures.get(key);
         if (image == null) {
             try {
-                var pixels = custom?replacement:sprites.frame(object.graphics(), actor.direction, actor.phase());
+                var pixels = custom?replacement:gen4!=null?gen4.frame(object.graphics(),actor.direction,actor.phase()):bw!=null?bw.frame(object.graphics(),actor.direction,actor.phase()):sprites.frame(object.graphics(), actor.direction, actor.phase());
                 if (pixels == null) { absent.add(key); return; }
                 var pixmap = new Pixmap(pixels.width(), pixels.height(), Pixmap.Format.RGBA8888);
                 try {
@@ -192,13 +200,15 @@ final class WorldMapObjects implements AutoCloseable {
         // GdxParticleController.tD0/Nq and GdxParticleFollowerController.N30:
         // map tile top minus 2 px, centered over 16 px; preserve source transparent padding.
         float width=image.getWidth()*(custom?.751f:1),height=image.getHeight()*(custom?.751f:1);
+        if(bw!=null)width=height=bw.billboardSize(object.graphics());
+        if(gen4!=null)width=height=22.528f;
         float x = (int)(placed.x() * 16) + (custom?8.5f:8) - width / 2;
         float y = -(int)(placed.y() * 16) - 14;
         if(custom) {
             if(shadow==null)shadow=top.totodile.pokemmo.client.ui.character.OverworldCharacter.loadShadow(resources.apply("sprites/game.pak"));
             batch.draw(shadow,(int)(placed.x()*16)-1.5f,-(int)(placed.y()*16)-16,18,18);
         }
-        boolean mirror = actor.direction == 3 && object.graphics() != 92;
+        boolean mirror = bw==null && actor.direction == 3 && (gen4!=null || object.graphics() != 92);
         batch.draw(image, mirror ? x + width : x, y, mirror ? -width : width,height);
         if(object.id()==reactionActor && reactionMap!=null && actors(reactionMap).contains(actor)){
             reactionX=placed.x()*16;reactionY=y+height-2;reactionDrawn=true;
@@ -206,7 +216,7 @@ final class WorldMapObjects implements AutoCloseable {
     }
 
     void drawReaction(SpriteBatch batch){
-        if(reactionActor<0||!reactionDrawn)return;
+        if(reactionActor<0||!reactionDrawn||sprites==null)return;
         if(exclamation==null)try{
                 var frame=sprites.exclamation();var pixels=new Pixmap(16,16,Pixmap.Format.RGBA8888);
                 try{for(int row=0;row<16;row++)for(int col=0;col<16;col++)pixels.drawPixel(col,row,frame.rgba()[row*16+col]);exclamation=new Texture(pixels);}

@@ -49,6 +49,31 @@ public final class PokemonController implements AutoCloseable {
     private top.totodile.pokemmo.client.ui.inventory.InventoryItems items;
     private Runnable itemsChanged = () -> {};
     private PokemonHeldItemMenu heldItemTargets;
+    private PokemonMedicineWindow medicine;
+    private Runnable itemUsed=()->{};
+    public void onItemUsed(Runnable callback){itemUsed=callback;}
+    private PokemonMachineWindow machine;
+    public boolean machineKey(int key){return machine!=null&&machine.key(key);}
+    public void useMachine(Widget owner,PlayerData.Item item){
+        if(busy||disposed||!ready()||items==null||items.machineMove(item.itemId())<=0)return;
+        closeMenu();machine=new PokemonMachineWindow(owner,this,item);machine.open();
+    }
+
+    public void useItem(Widget owner,PlayerData.Item item){
+        if(busy||disposed||!ready()||items==null||!items.medicine(item.itemId()).supported()&&!items.growthItem(item.itemId()).supported())return;
+        closeMenu();medicine=new PokemonMedicineWindow(owner,this,item);medicine.open();
+    }
+    void useMedicine(PlayerData.Item item,Pokemon pokemon,int amount,int move){
+        if(busy||disposed||game==null||character==null)return;
+        long version=generation;busy=true;refreshSlots();
+        game.useItem(selection,character,item.itemId(),pokemon.id(),amount,move).whenComplete((result,failure)->Gdx.app.postRunnable(()->{
+            if(disposed||version!=generation)return;
+            busy=false;
+            if(failure!=null)error.accept(strings.get(2312));
+            else{state=result.pokemon();if(!result.success())error.accept(strings.get(result.message()));else itemUsed.run();}
+            itemsChanged.run();refreshSlots();changed.run();
+        }));
+    }
 
     public void giveItem(Widget anchor, PlayerData.Item item) {
         if (heldItemTargets == null) heldItemTargets = new PokemonHeldItemMenu(this);
@@ -718,11 +743,13 @@ public final class PokemonController implements AutoCloseable {
     }
 
     public boolean closeMenu() {
+        boolean medicineOpen=medicine!=null&&medicine.isOpen();if(medicineOpen)medicine.closePopup();
+        if(machine!=null&&machine.isOpen()){machine.closePopup();medicineOpen=true;}
         if (moveMenu != null) {
             moveMenu.closePopup();
             moveMenu = null;
         }
-        if (menu == null) return false;
+        if (menu == null) return medicineOpen;
         boolean open = menu.isOpen();
         menu.closePopup();
         menu = null;
@@ -730,7 +757,7 @@ public final class PokemonController implements AutoCloseable {
     }
 
     public boolean hasMenu() {
-        return menu != null && menu.isOpen();
+        return machine!=null&&machine.isOpen()||medicine!=null&&medicine.isOpen()||menu != null && menu.isOpen();
     }
 
     public boolean touchDown(int x, int y, int button) {

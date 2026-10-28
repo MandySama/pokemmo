@@ -17,7 +17,10 @@ public final class NitroTextureDictionary {
     private final Map<String, TextureInfo> textures = new LinkedHashMap<>();
     private final Map<String, Integer> palettes = new LinkedHashMap<>();
 
-    public NitroTextureDictionary(byte[] bytes) throws IOException {
+    public NitroTextureDictionary(byte[] bytes) throws IOException { this(bytes,false); }
+
+    /** BlackWhiteRom.Z10 passes true to NdsNitroBtxTextureFile: sprite palette index zero is transparent. */
+    public NitroTextureDictionary(byte[] bytes, boolean spriteTransparency) throws IOException {
         data = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
         try {
             int section = -1;
@@ -42,7 +45,7 @@ public final class NitroTextureDictionary {
                                 8 << (flags >>> 4 & 7),
                                 8 << (flags >>> 7 & 7),
                                 format,
-                                (flags & 8192) != 0));
+                                spriteTransparency || (flags & 8192) != 0));
             }
             var pal = new NitroDictionary(data, tex.end, 4);
             for (int i = 0; i < pal.count; i++)

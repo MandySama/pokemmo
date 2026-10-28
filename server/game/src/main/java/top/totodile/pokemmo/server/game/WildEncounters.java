@@ -16,7 +16,7 @@ final class WildEncounters {
     private final Random random;
     WildEncounters(Random random) {
         this.random = random;
-        try (var input = WildEncounters.class.getResourceAsStream("/world/kanto-encounters.json")) {
+        for(String resource:List.of("/world/kanto-encounters.json","/world/hoenn-encounters.json","/world/unova-encounters.json","/world/johto-encounters.json","/world/sinnoh-encounters.json"))try (var input = WildEncounters.class.getResourceAsStream(resource)) {
             if (input == null) throw new IOException("Missing encounter tables");
             for (var row : new Gson().fromJson(new InputStreamReader(input, StandardCharsets.UTF_8), MapTable[].class))
                 maps.put(key(row.region, row.bank, row.map), row);

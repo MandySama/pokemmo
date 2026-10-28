@@ -566,4 +566,24 @@
 <cursor name="mouseCursor.bottom" ref="mouseCursor.top"/>
 <cursor name="mouseCursor.right" ref="mouseCursor.left"/>
 </images>
+    <images file="res/pokemmo_ui.png" filter="nearest">
+<grid name="ui-inner-frame-inverted.background" weightsX="0,1,0" weightsY="0,0,1,0">
+
+			<area xywh="5,133,10,-5"/>
+			<area xywh="33,133,10,-5"/>
+			<area xywh="67,133,10,-5"/>
+
+			<area xywh="5,94,10,28"/>
+			<area xywh="33,93,10,29" tiled="true"/>
+			<area xywh="67,93,10,29"/>
+			<area xywh="5,126,10,4"/>
+			<area xywh="33,126,10,4"/>
+			<area xywh="67,126,10,4"/>
+
+
+			<area xywh="5,81,11,-11"/>
+			<area xywh="33,82,11,-11" tiled="true"/>
+			<area xywh="66,81,11,-11"/>
+		</grid>
+    </images>
 </themes>

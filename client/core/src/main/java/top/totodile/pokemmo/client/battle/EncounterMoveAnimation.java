@@ -11,9 +11,7 @@ import top.totodile.pokemmo.client.ui.pokedex.PokedexImages;
 import top.totodile.pokemmo.client.ui.pokemon.AttributeParticleScene;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.zip.ZipInputStream;
 
 /**
  * BaseBattleAnimation adapter for the single-player preview. ReferenceMoveScripts preserves the
@@ -173,16 +171,10 @@ public final class EncounterMoveAnimation implements AutoCloseable {
         var previous = ReferenceMoveScripts.effects(move);
         if (previous != null) for (int id : previous) needed.add(effectPath(id));
         else needed.addAll(ExtendedMoveScripts.assets(move));
-        if (!needed.isEmpty())
-            try (var zip = new ZipInputStream(resources.apply("sprites/particles.pak").read())) {
-                for (var e = zip.getNextEntry(); e != null; e = zip.getNextEntry())
-                    for (String path : needed)
-                        if (e.getName().equals("particle/" + path))
-                            particleConfigurations.put(
-                                    path, new String(zip.readAllBytes(), StandardCharsets.UTF_8));
-            }
-        if (particleConfigurations.size() != needed.size())
-            throw new IOException("Missing reference move particle resources " + needed);
+        // ParticleManager.eE / BaseBattleAnimation.Jv use indexed entries, rather than
+        // inflating the whole archive on the render thread before every move.
+        for (String path : needed)
+            particleConfigurations.put(path, EncounterVanityEffect.read(resources, path));
         moveId = move;
         pendingAttack =
                 Set.of(13, 19, 76, 91, 117, 130, 143, 291, 340, 467, 507, 553, 554).contains(move);

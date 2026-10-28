@@ -26,6 +26,34 @@ public final class PlayerMotion {
     private final MapMovement movement;
     private final Consumer<Position> save;
     private boolean running, bicycle, moving, surfing;
+    private boolean runningShoes=true,forceRunning;
+    private boolean storyWalking;
+    public void storyWalking(boolean value){storyWalking=value;}
+    private boolean bicycleAllowed=true;
+    private boolean traversalReady=true,restoreBicycle;
+    public boolean traversalReady(){return traversalReady;}
+    public void awaitTraversal(){traversal(false,false);traversalReady=false;}
+    public void restoreBicycle(boolean value){
+        if(!traversalReady){restoreBicycle=value;return;}
+        if(bicycle!=value)toggleBicycle();
+    }
+    public void traversal(boolean surfAllowed,boolean bikeAllowed){
+        movement.surfAllowed(surfAllowed);
+        bicycleAllowed=bikeAllowed;
+        boolean changed=bicycle&&!bikeAllowed;
+        if(changed)bicycle=false;
+        if(!traversalReady){
+            traversalReady=true;
+            bicycle=restoreBicycle&&bikeAllowed&&!surfing;
+            restoreBicycle=false;
+            changed=true;
+        }
+        if(changed)stateChanged.run();
+    }
+    public void runningShoes(boolean value){runningShoes=value;}
+    public boolean forceRunning(){return forceRunning;}
+    public void forceRunning(boolean value){forceRunning=value;}
+    private boolean canRun(){return forceRunning||running&&runningShoes;}
     private float speed = 1, time, duration, fromX, fromY, animationTime;
     private Mode stepMode = Mode.WALK;
     private float idleTime = TURN_SECONDS, turnTime;
@@ -92,7 +120,7 @@ public final class PlayerMotion {
     public Mode mode() {
         return moving
                 ? stepMode
-                : surfing ? Mode.SURF : bicycle ? Mode.BICYCLE : running ? Mode.RUN : Mode.WALK;
+                : storyWalking ? Mode.WALK : surfing ? Mode.SURF : bicycle ? Mode.BICYCLE : canRun() ? Mode.RUN : Mode.WALK;
     }
 
     public void onStateChanged(Runnable callback) {
@@ -105,7 +133,7 @@ public final class PlayerMotion {
     }
 
     public void toggleBicycle() {
-        if (surfing) return;
+        if (surfing || !bicycleAllowed && !bicycle) return;
         bicycle = !bicycle;
         stateChanged.run();
     }
@@ -155,7 +183,7 @@ public final class PlayerMotion {
         surfing = movement.water();
         if (surfing) bicycle = false;
         if (surfing != wasSurfing || bicycle != wasBicycle) stateChanged.run();
-        stepMode = surfing ? Mode.SURF : bicycle ? Mode.BICYCLE : running ? Mode.RUN : Mode.WALK;
+        stepMode = storyWalking ? Mode.WALK : surfing ? Mode.SURF : bicycle ? Mode.BICYCLE : canRun() ? Mode.RUN : Mode.WALK;
         duration = stepMode.seconds*(movement.jumping()?2:1);
         moving = movement.continuousStep();
         stepped.accept(new Step(before, after, movement.stepFromX(), movement.stepFromY(), moving));
@@ -190,7 +218,7 @@ public final class PlayerMotion {
             elapsed -= consumed;
             if (elapsed <= .000001f) return;
         }
-        float remaining = elapsed * speed;
+        float remaining = elapsed * (storyWalking?1:speed);
         for (int steps = 0; steps < 64; steps++) {
             if (!moving) {
                 int nextForced=movement.forcedDirection();if(nextForced>=0){forced=nextForced;int[] xs={0,0,-1,1},ys={1,-1,0,0};dx=xs[forced];dy=ys[forced];}else if(forced>=0)break;
